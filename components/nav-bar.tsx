@@ -141,8 +141,8 @@ export function NavBar({ session }: NavBarProps) {
         <div className="hidden md:flex">
           <MainNav />
         </div>
-        {/* Mobile Navigation: hamburger menu floating on top right */}
-        <div className="flex md:hidden flex-1 items-center justify-end px-4 absolute top-4 right-4 z-50">
+        {/* Mobile Navigation: hamburger menu sticky on top right */}
+        <div className="flex md:hidden items-center justify-end px-4 fixed top-4 right-4 z-50">
           <MobileNav />
         </div>
         {/* Desktop right-side stats, notification, user nav */}

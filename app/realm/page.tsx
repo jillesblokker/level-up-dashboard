@@ -18,8 +18,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from 'next/navigation'
-import { EnterLocationModal } from '@/components/enter-location-modal'
-import { AnimalInteractionModal } from '@/components/animal-interaction-modal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -32,13 +30,30 @@ import { cn } from "@/lib/utils"
 import dynamic from 'next/dynamic';
 import { getCharacterStats } from '@/lib/character-stats-manager';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
-import { MonsterBattle } from '@/components/monster-battle';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
 
 // Import new data loaders hook
 import { useDataLoaders } from '@/hooks/use-data-loaders';
-const RevealOverlay = dynamic(() => import('../reveal/page'), { ssr: false });
+
+// Dynamic imports for performance optimization
+const RevealOverlay = dynamic(() => import('../reveal/page'), {
+    ssr: false,
+    loading: () => null // No loading state needed
+});
+
+const MonsterBattle = dynamic(() => import('@/components/monster-battle').then(mod => ({ default: mod.MonsterBattle })), {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-screen"><div className="text-white">Loading battle...</div></div>
+});
+
+const EnterLocationModal = dynamic(() => import('@/components/enter-location-modal').then(mod => ({ default: mod.EnterLocationModal })), {
+    ssr: false
+});
+
+const AnimalInteractionModal = dynamic(() => import('@/components/animal-interaction-modal').then(mod => ({ default: mod.AnimalInteractionModal })), {
+    ssr: false
+});
 
 // Constants
 const GRID_COLS = 13;
@@ -66,7 +81,7 @@ const defaultTile = (type: TileType): Tile => ({
 const getTileImage = (type: TileType): string => {
     // Check if the exact image exists, otherwise use a fallback
     const exactPath = `/images/tiles/${type}-tile.png`;
-    
+
     return exactPath;
 };
 
@@ -100,7 +115,7 @@ const initialInventory: Record<TileType, Tile> = {
     special: { ...defaultTile('special'), cost: 0, owned: 0 },
     swamp: { ...defaultTile('swamp'), cost: 0, owned: 0 },
     treasure: { ...defaultTile('treasure'), cost: 0, owned: 0 },
-        monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
+    monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
     vacant: { ...defaultTile('empty'), cost: 0, owned: 0 }, // Use empty tile as fallback for vacant
     // Property tiles
     archery: { ...defaultTile('archery'), cost: 150, owned: 0 },
@@ -151,77 +166,77 @@ const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
 
 // Helper to get adjacent positions
 function getAdjacentPositions(x: number, y: number, grid: any[][]): { x: number; y: number }[] {
-  const positions: { x: number; y: number }[] = [];
-  if (!grid || !Array.isArray(grid) || !Array.isArray(grid[0])) return positions;
-  // up
-  if (
-    y > 0 &&
-    Array.isArray(grid[y - 1]) &&
-    typeof x === 'number' &&
-    // @ts-ignore: runtime guard ensures grid[y-1][x] is defined
-    grid[y - 1][x] !== undefined
-  ) {
-    positions.push({ x, y: y - 1 });
-  }
-  // down
-  if (
-    y < grid.length - 1 &&
-    Array.isArray(grid[y + 1]) &&
-    typeof x === 'number' &&
-    // @ts-ignore: runtime guard ensures grid[y+1][x] is defined
-    grid[y + 1][x] !== undefined
-  ) {
-    positions.push({ x, y: y + 1 });
-  }
-  // left
-  if (
-    x > 0 &&
-    Array.isArray(grid[y]) &&
-    // @ts-ignore: runtime guard ensures grid[y][x-1] is defined
-    grid[y][x - 1] !== undefined
-  ) {
-    positions.push({ x: x - 1, y });
-  }
-  // right
-  if (
-    Array.isArray(grid[y]) &&
-    x < grid[y].length - 1 &&
-    // @ts-ignore: runtime guard ensures grid[y][x+1] is defined
-    grid[y][x + 1] !== undefined
-  ) {
-    positions.push({ x: x + 1, y });
-  }
-  return positions;
+    const positions: { x: number; y: number }[] = [];
+    if (!grid || !Array.isArray(grid) || !Array.isArray(grid[0])) return positions;
+    // up
+    if (
+        y > 0 &&
+        Array.isArray(grid[y - 1]) &&
+        typeof x === 'number' &&
+        // @ts-ignore: runtime guard ensures grid[y-1][x] is defined
+        grid[y - 1][x] !== undefined
+    ) {
+        positions.push({ x, y: y - 1 });
+    }
+    // down
+    if (
+        y < grid.length - 1 &&
+        Array.isArray(grid[y + 1]) &&
+        typeof x === 'number' &&
+        // @ts-ignore: runtime guard ensures grid[y+1][x] is defined
+        grid[y + 1][x] !== undefined
+    ) {
+        positions.push({ x, y: y + 1 });
+    }
+    // left
+    if (
+        x > 0 &&
+        Array.isArray(grid[y]) &&
+        // @ts-ignore: runtime guard ensures grid[y][x-1] is defined
+        grid[y][x - 1] !== undefined
+    ) {
+        positions.push({ x: x - 1, y });
+    }
+    // right
+    if (
+        Array.isArray(grid[y]) &&
+        x < grid[y].length - 1 &&
+        // @ts-ignore: runtime guard ensures grid[y][x+1] is defined
+        grid[y][x + 1] !== undefined
+    ) {
+        positions.push({ x: x + 1, y });
+    }
+    return positions;
 }
 
 function assignTile(row: Tile[], x: number, tile: Tile) {
-  row[x] = {
-    ...tile,
-    type: 'grass',
-    name: 'Grass',
-    image: '/images/tiles/grass-tile.png',
-    isVisited: true,
-  };
+    row[x] = {
+        ...tile,
+        type: 'grass',
+        name: 'Grass',
+        image: '/images/tiles/grass-tile.png',
+        isVisited: true,
+    };
 }
 
 // --- Creature achievement requirement mapping ---
 const creatureRequirements = [
-  { id: '001', action: 'forest_tiles_destroyed', threshold: 1 },
-  { id: '002', action: 'forest_tiles_destroyed', threshold: 5 },
-  { id: '003', action: 'forest_tiles_destroyed', threshold: 10 },
-  { id: '004', action: 'water_tiles_placed', threshold: 1 },
-  { id: '005', action: 'water_tiles_placed', threshold: 5 },
-  { id: '006', action: 'water_tiles_placed', threshold: 10 },
-  { id: '007', action: 'forest_tiles_placed', threshold: 1 },
-  { id: '008', action: 'forest_tiles_placed', threshold: 5 },
-  { id: '009', action: 'forest_tiles_placed', threshold: 10 },
-  { id: '010', action: 'mountain_tiles_destroyed', threshold: 1 },
-  { id: '011', action: 'mountain_tiles_destroyed', threshold: 5 },
-  { id: '012', action: 'mountain_tiles_destroyed', threshold: 10 },
-  { id: '013', action: 'ice_tiles_placed', threshold: 1 },
-  { id: '014', action: 'ice_tiles_placed', threshold: 5 },
-  { id: '015', action: 'ice_tiles_placed', threshold: 10 },
-  // Add more as needed
+    { id: '001', action: 'forest_tiles_destroyed', threshold: 1 },
+    { id: '002', action: 'forest_tiles_destroyed', threshold: 5 },
+    { id: '003', action: 'forest_tiles_destroyed', threshold: 10 },
+    { id: '004', action: 'water_tiles_placed', threshold: 1 },
+    { id: '005', action: 'water_tiles_placed', threshold: 5 },
+    { id: '006', action: 'water_tiles_placed', threshold: 10 },
+    { id: '007', action: 'forest_tiles_placed', threshold: 1 },
+    { id: '008', action: 'forest_tiles_placed', threshold: 5 },
+    { id: '009', action: 'forest_tiles_placed', threshold: 10 },
+    { id: '010', action: 'mountain_tiles_destroyed', threshold: 1 },
+    { id: '011', action: 'mountain_tiles_destroyed', threshold: 5 },
+    { id: '012', action: 'mountain_tiles_destroyed', threshold: 10 },
+    { id: '013', action: 'ice_tiles_placed', threshold: 1 },
+    { id: '014', action: 'ice_tiles_placed', threshold: 5 },
+    { id: '015', action: 'ice_tiles_placed', threshold: 10 },
+    // Add more as needed
 ];
 
 export default function RealmPage() {
@@ -258,11 +273,11 @@ export default function RealmPage() {
     const [shouldRevealImage, setShouldRevealImage] = useState(false);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
     const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
-      if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('animal-horse-position');
-        if (saved) return JSON.parse(saved);
-      }
-      return { x: 10, y: 4 };
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('animal-horse-position');
+            if (saved) return JSON.parse(saved);
+        }
+        return { x: 10, y: 4 };
     });
     const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
     const [isHorsePresent, setIsHorsePresent] = useState(true);
@@ -278,18 +293,18 @@ export default function RealmPage() {
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
     const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
     const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(() => {
-      if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('animal-sheep-position');
-        if (saved) return JSON.parse(saved);
-      }
-      return { x: 5, y: 2 };
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('animal-sheep-position');
+            if (saved) return JSON.parse(saved);
+        }
+        return { x: 5, y: 2 };
     });
     const [isSheepPresent, setIsSheepPresent] = useState(true);
     const [horseCaught, setHorseCaught] = useState(() => {
-      if (typeof window !== 'undefined') {
-        return localStorage.getItem('animal-horse-state') === 'true';
-      }
-      return false;
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('animal-horse-state') === 'true';
+        }
+        return false;
     });
     const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
 
@@ -298,9 +313,9 @@ export default function RealmPage() {
 
     // Animal interaction modal state
     const [animalInteractionModal, setAnimalInteractionModal] = useState<{
-      isOpen: boolean;
-      animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
-      animalName: string;
+        isOpen: boolean;
+        animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
+        animalName: string;
     } | null>(null);
 
     // Monster battle state
@@ -312,91 +327,91 @@ export default function RealmPage() {
 
     // Handler for tile size changes from MapGrid
     const handleTileSizeChange = useCallback((newTileSize: number) => {
-      setTileSize(newTileSize);
+        setTileSize(newTileSize);
     }, []);
 
     // Handler for animal interactions
     const handleAnimalInteraction = useCallback((animalType: 'horse' | 'sheep' | 'penguin' | 'eagle') => {
-      if (animalType === 'horse') {
-        setHorseCaught(true);
-        localStorage.setItem('animal-horse-state', 'true');
-        
-        // Dispatch horse-caught event
-        window.dispatchEvent(new CustomEvent('horse-caught'));
-        
-        // Show notification
-        toast({
-          title: "Horse Tamed!",
-          description: "You successfully tamed the wild horse!",
-        });
-      }
-      // Add other animal interactions here as needed
+        if (animalType === 'horse') {
+            setHorseCaught(true);
+            localStorage.setItem('animal-horse-state', 'true');
+
+            // Dispatch horse-caught event
+            window.dispatchEvent(new CustomEvent('horse-caught'));
+
+            // Show notification
+            toast({
+                title: "Horse Tamed!",
+                description: "You successfully tamed the wild horse!",
+            });
+        }
+        // Add other animal interactions here as needed
     }, []);
 
 
 
     // --- Penguin and Achievement Logic Helpers ---
     function findFirstIceTile(grid: Tile[][]): { x: number; y: number } | null {
-      for (let y = 0; y < grid.length; y++) {
-        const row = grid[y];
-        if (!row) continue;
-        for (let x = 0; x < row.length; x++) {
-          if (row[x]?.type === 'ice') return { x, y };
+        for (let y = 0; y < grid.length; y++) {
+            const row = grid[y];
+            if (!row) continue;
+            for (let x = 0; x < row.length; x++) {
+                if (row[x]?.type === 'ice') return { x, y };
+            }
         }
-      }
-      return null;
+        return null;
     }
 
     function countTiles(grid: Tile[][], type: string): number {
-      let count = 0;
-      for (let y = 0; y < grid.length; y++) {
-        const row = grid[y];
-        if (!row) continue;
-        for (let x = 0; x < row.length; x++) {
-          if (row[x]?.type === type) count++;
+        let count = 0;
+        for (let y = 0; y < grid.length; y++) {
+            const row = grid[y];
+            if (!row) continue;
+            for (let x = 0; x < row.length; x++) {
+                if (row[x]?.type === type) count++;
+            }
         }
-      }
-      return count;
+        return count;
     }
 
     // --- Penguin respawn and disappearance logic ---
     useEffect(() => {
-      if (!Array.isArray(grid)) return;
-      const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
-      
-      if (!hasIce && isPenguinPresent) {
-        setIsPenguinPresent(false);
-        setPenguinPos(null);
-      } else if (hasIce && !isPenguinPresent) {
-        // Find the first ice tile, prioritizing center tiles
-        let bestIcePos = null;
-        const centerX = Math.floor(GRID_COLS / 2);
-        const centerY = Math.floor(INITIAL_ROWS / 2);
-        
-        // First try to find ice tiles in the center area
-        for (let y = centerY - 1; y <= centerY + 1; y++) {
-          for (let x = centerX - 1; x <= centerX + 1; x++) {
-            if (y >= 0 && y < grid.length && x >= 0 && x < GRID_COLS) {
-              const tile = grid[y]?.[x];
-              if (tile?.type === 'ice') {
-                bestIcePos = { x, y };
-                break;
-              }
+        if (!Array.isArray(grid)) return;
+        const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
+
+        if (!hasIce && isPenguinPresent) {
+            setIsPenguinPresent(false);
+            setPenguinPos(null);
+        } else if (hasIce && !isPenguinPresent) {
+            // Find the first ice tile, prioritizing center tiles
+            let bestIcePos = null;
+            const centerX = Math.floor(GRID_COLS / 2);
+            const centerY = Math.floor(INITIAL_ROWS / 2);
+
+            // First try to find ice tiles in the center area
+            for (let y = centerY - 1; y <= centerY + 1; y++) {
+                for (let x = centerX - 1; x <= centerX + 1; x++) {
+                    if (y >= 0 && y < grid.length && x >= 0 && x < GRID_COLS) {
+                        const tile = grid[y]?.[x];
+                        if (tile?.type === 'ice') {
+                            bestIcePos = { x, y };
+                            break;
+                        }
+                    }
+                }
+                if (bestIcePos) break;
             }
-          }
-          if (bestIcePos) break;
+
+            // If no center ice tile found, find any ice tile
+            if (!bestIcePos) {
+                bestIcePos = findFirstIceTile(grid);
+            }
+
+            if (bestIcePos) {
+                setPenguinPos(bestIcePos);
+                setIsPenguinPresent(true);
+            }
         }
-        
-        // If no center ice tile found, find any ice tile
-        if (!bestIcePos) {
-          bestIcePos = findFirstIceTile(grid);
-        }
-        
-        if (bestIcePos) {
-          setPenguinPos(bestIcePos);
-          setIsPenguinPresent(true);
-        }
-      }
     }, [grid]);
 
     // Debug animal states (commented out to reduce console spam)
@@ -409,202 +424,202 @@ export default function RealmPage() {
 
     // Animal movement logic
     useEffect(() => {
-      if (!Array.isArray(grid)) return;
+        if (!Array.isArray(grid)) return;
 
-      const moveAnimals = () => {
-        // Move sheep every 5 seconds
-        if (isSheepPresent && sheepPos) {
-          // console.log('[Realm] Sheep movement - current position:', sheepPos);
-          const adjacentPositions = getAdjacentPositions(sheepPos.x, sheepPos.y, grid);
-          // console.log('[Realm] Sheep movement - adjacent positions:', adjacentPositions);
-          
-          const validPositions = adjacentPositions.filter(pos => {
-            const tile = grid[pos.y]?.[pos.x];
-            const isValid = tile && tile.type === 'grass' && !tile.hasMonster;
-            // console.log('[Realm] Sheep movement - checking position:', pos, 'tile type:', tile?.type, 'has monster:', tile?.hasMonster, 'valid:', isValid);
-            return isValid;
-          });
-          
-          // console.log('[Realm] Sheep movement - valid positions:', validPositions);
-          
-          if (validPositions.length > 0) {
-            const newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
-            if (newPos) {
-              setSheepPos(newPos);
-              localStorage.setItem('sheepPos', JSON.stringify(newPos));
-              // console.log('[Realm] Sheep moved to:', newPos);
+        const moveAnimals = () => {
+            // Move sheep every 5 seconds
+            if (isSheepPresent && sheepPos) {
+                // console.log('[Realm] Sheep movement - current position:', sheepPos);
+                const adjacentPositions = getAdjacentPositions(sheepPos.x, sheepPos.y, grid);
+                // console.log('[Realm] Sheep movement - adjacent positions:', adjacentPositions);
+
+                const validPositions = adjacentPositions.filter(pos => {
+                    const tile = grid[pos.y]?.[pos.x];
+                    const isValid = tile && tile.type === 'grass' && !tile.hasMonster;
+                    // console.log('[Realm] Sheep movement - checking position:', pos, 'tile type:', tile?.type, 'has monster:', tile?.hasMonster, 'valid:', isValid);
+                    return isValid;
+                });
+
+                // console.log('[Realm] Sheep movement - valid positions:', validPositions);
+
+                if (validPositions.length > 0) {
+                    const newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
+                    if (newPos) {
+                        setSheepPos(newPos);
+                        localStorage.setItem('sheepPos', JSON.stringify(newPos));
+                        // console.log('[Realm] Sheep moved to:', newPos);
+                    }
+                } else {
+                    // console.log('[Realm] Sheep movement - no valid positions found');
+                }
             }
-          } else {
-            // console.log('[Realm] Sheep movement - no valid positions found');
-          }
-        }
-      };
+        };
 
-      const interval = setInterval(moveAnimals, 5000); // Move every 5 seconds
-      return () => clearInterval(interval);
+        const interval = setInterval(moveAnimals, 5000); // Move every 5 seconds
+        return () => clearInterval(interval);
     }, [grid, isSheepPresent, sheepPos]);
 
     // Horse interaction logic
     useEffect(() => {
-      if (!Array.isArray(grid) || !isHorsePresent || horseCaught || !horsePos) return;
+        if (!Array.isArray(grid) || !isHorsePresent || horseCaught || !horsePos) return;
 
-      // Check if player is on the same tile as horse
-      if (characterPosition.x === horsePos.x && characterPosition.y === horsePos.y) {
-        // Show animal interaction modal
-        setAnimalInteractionModal({
-          isOpen: true,
-          animalType: 'horse',
-          animalName: 'Wild Horse'
-        });
-      }
+        // Check if player is on the same tile as horse
+        if (characterPosition.x === horsePos.x && characterPosition.y === horsePos.y) {
+            // Show animal interaction modal
+            setAnimalInteractionModal({
+                isOpen: true,
+                animalType: 'horse',
+                animalName: 'Wild Horse'
+            });
+        }
     }, [characterPosition, horsePos, isHorsePresent, horseCaught, grid]);
 
     // --- Load and transform completed mystery tiles on page load ---
     useEffect(() => {
-      if (typeof window !== 'undefined' && grid.length > 0) {
-        const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
-        if (completedMysteryTiles.length > 0) {
-          let gridChanged = false;
-          const newGrid = grid.map(row => row.slice());
-          
-          completedMysteryTiles.forEach((tileKey: string) => {
-            const parts = tileKey.split('-');
-            if (parts.length === 2) {
-              const xStr = parts[0];
-              const yStr = parts[1];
-              if (xStr && yStr) {
-                const x = parseInt(xStr, 10);
-                const y = parseInt(yStr, 10);
-                
-                if (!isNaN(x) && !isNaN(y) && newGrid[y]?.[x] && newGrid[y][x].type === 'mystery') {
-                  // Transform mystery tile to grass tile
-                  newGrid[y][x] = { 
-                    ...defaultTile('grass'), 
-                    x, 
-                    y, 
-                    id: `grass-${x}-${y}`,
-                    image: getTileImage('grass')
-                  };
-                  gridChanged = true;
+        if (typeof window !== 'undefined' && grid.length > 0) {
+            const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
+            if (completedMysteryTiles.length > 0) {
+                let gridChanged = false;
+                const newGrid = grid.map(row => row.slice());
+
+                completedMysteryTiles.forEach((tileKey: string) => {
+                    const parts = tileKey.split('-');
+                    if (parts.length === 2) {
+                        const xStr = parts[0];
+                        const yStr = parts[1];
+                        if (xStr && yStr) {
+                            const x = parseInt(xStr, 10);
+                            const y = parseInt(yStr, 10);
+
+                            if (!isNaN(x) && !isNaN(y) && newGrid[y]?.[x] && newGrid[y][x].type === 'mystery') {
+                                // Transform mystery tile to grass tile
+                                newGrid[y][x] = {
+                                    ...defaultTile('grass'),
+                                    x,
+                                    y,
+                                    id: `grass-${x}-${y}`,
+                                    image: getTileImage('grass')
+                                };
+                                gridChanged = true;
+                            }
+                        }
+                    }
+                });
+
+                if (gridChanged) {
+                    setGrid(newGrid);
                 }
-              }
             }
-          });
-          
-          if (gridChanged) {
-            setGrid(newGrid);
-          }
         }
-      }
     }, [grid.length]); // Only run when grid is loaded
 
     // --- Listen for mystery-event-completed and update grid ---
     useEffect(() => {
-      function handler() {
-        if (lastMysteryTile) {
-          const { x, y } = lastMysteryTile;
-          if (typeof x === 'number' && typeof y === 'number') {
-            const newGrid = grid.map(row => row.slice());
-            if (newGrid[y]?.[x]) {
-              // Change mystery tile to grass tile
-              newGrid[y][x] = { 
-                ...defaultTile('grass'), 
-                x, 
-                y, 
-                id: `grass-${x}-${y}`,
-                image: getTileImage('grass')
-              };
-              setGrid(newGrid);
-              
-              // Save to backend
-              fetch('/api/realm-tiles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['grass'] })
-              }).catch(() => {
-                toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
-              });
-              
-              // Save completed mystery tile to localStorage for persistence
-              if (typeof window !== 'undefined') {
-                const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
-                const tileKey = `${x}-${y}`;
-                if (!completedMysteryTiles.includes(tileKey)) {
-                  completedMysteryTiles.push(tileKey);
-                  localStorage.setItem('mystery-completed-tiles', JSON.stringify(completedMysteryTiles));
+        function handler() {
+            if (lastMysteryTile) {
+                const { x, y } = lastMysteryTile;
+                if (typeof x === 'number' && typeof y === 'number') {
+                    const newGrid = grid.map(row => row.slice());
+                    if (newGrid[y]?.[x]) {
+                        // Change mystery tile to grass tile
+                        newGrid[y][x] = {
+                            ...defaultTile('grass'),
+                            x,
+                            y,
+                            id: `grass-${x}-${y}`,
+                            image: getTileImage('grass')
+                        };
+                        setGrid(newGrid);
+
+                        // Save to backend
+                        fetch('/api/realm-tiles', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['grass'] })
+                        }).catch(() => {
+                            toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
+                        });
+
+                        // Save completed mystery tile to localStorage for persistence
+                        if (typeof window !== 'undefined') {
+                            const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
+                            const tileKey = `${x}-${y}`;
+                            if (!completedMysteryTiles.includes(tileKey)) {
+                                completedMysteryTiles.push(tileKey);
+                                localStorage.setItem('mystery-completed-tiles', JSON.stringify(completedMysteryTiles));
+                            }
+                        }
+
+                        if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
+                        }
+                    }
                 }
-              }
-              
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
-              }
+                setLastMysteryTile(null);
+                setMysteryEventCompleted(false);
             }
-          }
-          setLastMysteryTile(null);
-          setMysteryEventCompleted(false);
         }
-      }
-      window.addEventListener('mystery-event-completed', handler);
-      return () => window.removeEventListener('mystery-event-completed', handler);
+        window.addEventListener('mystery-event-completed', handler);
+        return () => window.removeEventListener('mystery-event-completed', handler);
     }, [lastMysteryTile, grid]);
 
     // --- General achievement tracker ---
     useEffect(() => {
-      // Track tile actions for achievements
-      const actionCounts: Record<string, number> = {};
-      for (const req of creatureRequirements) {
-        // e.g., 'forest_tiles_destroyed', 'ice_tiles_placed', etc.
-        const [tileType, action] = req.action.split('_tiles_');
-        if (action === 'placed' && tileType) {
-          actionCounts[req.action] = countTiles(grid, tileType as string);
-        } else if (action === 'destroyed') {
-          // Track destroyed tiles from localStorage
-          const achievementKey = `destroyed_${tileType}_tiles`;
-          actionCounts[req.action] = parseInt(localStorage.getItem(achievementKey) || '0');
-        }
-      }
-      for (const req of creatureRequirements) {
-        const count = actionCounts[req.action];
-        if (typeof count === 'number' && typeof req.threshold === 'number' && count >= req.threshold) {
-          // Unlock achievement if not already unlocked
-          if (userId) {
-            // Add a guard to prevent repeated calls for the same achievement
-            const achievementKey = `unlocked_${req.id}`;
-            if (!sessionStorage.getItem(achievementKey)) {
-              sessionStorage.setItem(achievementKey, 'true');
-              (async () => {
-                try {
-                  const token = await getToken({ template: 'supabase' });
-                  console.log(`[Achievement Unlock] Attempting to unlock achievement ${req.id}`);
-                  const response = await fetch('/api/achievements/unlock', {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ achievementId: req.id })
-                  });
-                  
-                  if (response.ok) {
-                    const result = await response.json();
-                    console.log(`[Achievement Unlock] ✅ Successfully unlocked achievement ${req.id}:`, result);
-                  } else {
-                    const error = await response.json();
-                    console.error(`[Achievement Unlock] ❌ Failed to unlock achievement ${req.id}:`, error);
-                    // Remove the session storage flag so it can be retried
-                    sessionStorage.removeItem(achievementKey);
-                  }
-                } catch (error) {
-                  console.error(`[Achievement Unlock] ❌ Error unlocking achievement ${req.id}:`, error);
-                  // Remove the session storage flag so it can be retried
-                  sessionStorage.removeItem(achievementKey);
-                }
-              })();
-              discoverCreature(req.id);
+        // Track tile actions for achievements
+        const actionCounts: Record<string, number> = {};
+        for (const req of creatureRequirements) {
+            // e.g., 'forest_tiles_destroyed', 'ice_tiles_placed', etc.
+            const [tileType, action] = req.action.split('_tiles_');
+            if (action === 'placed' && tileType) {
+                actionCounts[req.action] = countTiles(grid, tileType as string);
+            } else if (action === 'destroyed') {
+                // Track destroyed tiles from localStorage
+                const achievementKey = `destroyed_${tileType}_tiles`;
+                actionCounts[req.action] = parseInt(localStorage.getItem(achievementKey) || '0');
             }
-          }
         }
-      }
+        for (const req of creatureRequirements) {
+            const count = actionCounts[req.action];
+            if (typeof count === 'number' && typeof req.threshold === 'number' && count >= req.threshold) {
+                // Unlock achievement if not already unlocked
+                if (userId) {
+                    // Add a guard to prevent repeated calls for the same achievement
+                    const achievementKey = `unlocked_${req.id}`;
+                    if (!sessionStorage.getItem(achievementKey)) {
+                        sessionStorage.setItem(achievementKey, 'true');
+                        (async () => {
+                            try {
+                                const token = await getToken({ template: 'supabase' });
+                                console.log(`[Achievement Unlock] Attempting to unlock achievement ${req.id}`);
+                                const response = await fetch('/api/achievements/unlock', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ achievementId: req.id })
+                                });
+
+                                if (response.ok) {
+                                    const result = await response.json();
+                                    console.log(`[Achievement Unlock] ✅ Successfully unlocked achievement ${req.id}:`, result);
+                                } else {
+                                    const error = await response.json();
+                                    console.error(`[Achievement Unlock] ❌ Failed to unlock achievement ${req.id}:`, error);
+                                    // Remove the session storage flag so it can be retried
+                                    sessionStorage.removeItem(achievementKey);
+                                }
+                            } catch (error) {
+                                console.error(`[Achievement Unlock] ❌ Error unlocking achievement ${req.id}:`, error);
+                                // Remove the session storage flag so it can be retried
+                                sessionStorage.removeItem(achievementKey);
+                            }
+                        })();
+                        discoverCreature(req.id);
+                    }
+                }
+            }
+        }
     }, [grid, userId, discoverCreature, getToken]);
 
     // Achievement unlock effect
@@ -615,26 +630,26 @@ export default function RealmPage() {
             if (userId && !sessionStorage.getItem('unlocked_000')) {
                 sessionStorage.setItem('unlocked_000', 'true');
                 (async () => {
-                  const token = await getToken({ template: 'supabase' });
-                  fetch('/api/achievements/unlock', {
-                      method: 'POST',
-                      headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                      },
-                      body: JSON.stringify({ achievementId: '000' })
-                  })
-                  .then(res => {
-                      if (!res.ok) throw new Error('Failed to unlock achievement');
-                  })
-                  .catch(err => {
-                      toast({
-                          title: 'Achievement Unlock Failed',
-                          description: 'Could not unlock the Necrion achievement. Please try again later.',
-                          variant: 'destructive',
-                      });
-                      console.error('Achievement unlock error:', err);
-                  });
+                    const token = await getToken({ template: 'supabase' });
+                    fetch('/api/achievements/unlock', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ achievementId: '000' })
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Failed to unlock achievement');
+                        })
+                        .catch(err => {
+                            toast({
+                                title: 'Achievement Unlock Failed',
+                                description: 'Could not unlock the Necrion achievement. Please try again later.',
+                                variant: 'destructive',
+                            });
+                            console.error('Achievement unlock error:', err);
+                        });
                 })();
                 // Also unlock Necrion in the local creature store
                 discoverCreature('000');
@@ -650,16 +665,16 @@ export default function RealmPage() {
     useEffect(() => {
         const loadUserData = async () => {
             if (!isAuthLoaded || isGuest || !userId) return;
-            
+
             setIsLoading(true);
             try {
                 // Load grid data
                 const gridResult = await loadGridData(userId);
-                
+
                 if (gridResult && gridResult.data) {
                     // The API returns { data: { grid: [...] } }, so we need to access gridResult.data.grid
                     const actualGridData = gridResult.data.grid;
-                    
+
                     if (actualGridData && Array.isArray(actualGridData)) {
                         setGrid(actualGridData);
                     } else {
@@ -785,10 +800,10 @@ export default function RealmPage() {
 
             } catch (error) {
                 console.error('Error loading user data:', error);
-                toast({ 
-                    title: 'Error', 
-                    description: 'Failed to load your data. Using default settings.', 
-                    variant: 'destructive' 
+                toast({
+                    title: 'Error',
+                    description: 'Failed to load your data. Using default settings.',
+                    variant: 'destructive'
                 });
             } finally {
                 setIsLoading(false);
@@ -801,10 +816,10 @@ export default function RealmPage() {
     // --- Polling for grid changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS ---
     useEffect(() => {
         if (!isAuthLoaded || isGuest || !userId) return;
-        
+
         // Disable polling to prevent infinite loops
         console.log('[Realm Page] Polling disabled to prevent infinite loops');
-        
+
         // Only load grid data once on mount
         // Grid will be updated via event listeners instead
     }, [isAuthLoaded, isGuest, userId, loadGridData, getToken]);
@@ -812,14 +827,14 @@ export default function RealmPage() {
     // Auto-save grid to Supabase with localStorage fallback
     useEffect(() => {
         if (!autoSave || isLoading || !userId) return;
-        
+
         const saveTimeout = setTimeout(async () => {
             try {
                 setSaveStatus('saving');
-                
+
                 // Save to Supabase with localStorage fallback
                 const result = await saveGridData(userId, grid);
-                
+
                 if (result.success) {
                     setSaveStatus('saved');
                     setTimeout(() => setSaveStatus('idle'), 2000);
@@ -833,7 +848,7 @@ export default function RealmPage() {
                 setTimeout(() => setSaveStatus('idle'), 3000);
             }
         }, 1000);
-        
+
         return () => clearTimeout(saveTimeout);
     }, [grid, autoSave, isLoading, userId, getToken]);
 
@@ -841,7 +856,7 @@ export default function RealmPage() {
     useEffect(() => {
         const handleTileInventoryUpdate = async () => {
             if (!userId) return;
-            
+
             try {
                 // Comment out database reload since onUpdateTiles is working correctly
                 // The database reload was causing race conditions and overwriting correct data
@@ -882,9 +897,9 @@ export default function RealmPage() {
                 console.error('[Realm] Error reloading tile inventory:', error);
             }
         };
-        
+
         window.addEventListener('tile-inventory-update', handleTileInventoryUpdate);
-        
+
         return () => {
             window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
         };
@@ -894,7 +909,7 @@ export default function RealmPage() {
     useEffect(() => {
         const loadInventoryItems = async () => {
             if (!userId) return;
-            
+
             // Get user level for starting quantities
             const userLevel = (() => {
                 try {
@@ -904,10 +919,10 @@ export default function RealmPage() {
                     return 1;
                 }
             })();
-            
+
             try {
                 const inventoryResult = await loadTileInventory(userId);
-                
+
                 if (inventoryResult && inventoryResult.data) {
                     const items: TileInventoryItem[] = Object.values(inventoryResult.data)
                         .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
@@ -916,11 +931,11 @@ export default function RealmPage() {
                             cost: t.cost ?? 0,
                             quantity: t.quantity || 0,
                         }));
-                    
+
                     // Check if user has any foundation tiles, if not, give starting quantities
                     const foundationTiles = ['grass', 'water', 'forest', 'mountain'];
                     const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
-                    
+
                     if (!hasFoundationTiles && userLevel >= 1) {
                         // Give starting quantities for foundation tiles
                         foundationTiles.forEach(tileType => {
@@ -945,23 +960,23 @@ export default function RealmPage() {
                             }
                         });
                     }
-                    
+
                     setInventoryAsItems(items);
                 }
             } catch (error) {
                 console.error('[Realm] Error loading inventory items:', error);
             }
         };
-        
+
         loadInventoryItems();
     }, [userId, isAuthLoaded]);
-    
+
 
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
         // Removed debugging log
-        
+
         // Check for monster battle first (regardless of game mode)
         const clickedTile = grid[y]?.[x];
         if (clickedTile?.hasMonster) {
@@ -969,29 +984,29 @@ export default function RealmPage() {
             setBattleOpen(true);
             return;
         }
-        
+
         // Handle movement if in move mode
         if (gameMode === 'move') {
             handleCharacterMove(x, y);
             return;
         }
-        
+
         // Handle tile destruction if in destroy mode
         if (gameMode === 'destroy') {
             handleDestroyTile(x, y);
             return;
         }
-        
+
         if (gameMode !== 'build' || !selectedTile) {
             // Removed debugging log
             return;
         }
-        
+
         // Check if we have the tile in inventory (either from main inventory or selectedTile)
         const tileToPlace = inventory[selectedTile.type];
         const hasTileInInventory = tileToPlace && (tileToPlace.owned ?? 0) > 0;
         const hasTileInSelected = selectedTile && (selectedTile.quantity ?? 0) > 0;
-        
+
         if (!hasTileInInventory && !hasTileInSelected) {
             // Removed debugging log
             toast({
@@ -1001,7 +1016,7 @@ export default function RealmPage() {
             });
             return;
         }
-        
+
         // Use the selectedTile if it has quantity, otherwise fall back to inventory
         const tileToUse = hasTileInSelected ? selectedTile : tileToPlace;
 
@@ -1030,17 +1045,17 @@ export default function RealmPage() {
                     invTile.owned = Math.max(0, (invTile.owned ?? 0) - 1);
                 }
             }
-            
+
             // Save inventory to Supabase
             if (userId) {
                 saveTileInventory(userId, newInventory).catch(error => {
                     console.error('Failed to save inventory:', error);
                 });
             }
-            
+
             return newInventory;
         });
-        
+
         // Also update the selectedTile quantity if it has one
         if (hasTileInSelected && selectedTile.quantity !== undefined) {
             setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, prev.quantity - 1) } : null);
@@ -1053,32 +1068,32 @@ export default function RealmPage() {
                 toast({ title: '🎯 No Target Selected', description: 'Choose your weapon! Select a tile type from your inventory first.', variant: 'destructive' });
                 return;
             }
-            
+
             const tileTypeNum = tileTypeToNumeric[selectedTile.type];
             if (typeof tileTypeNum === 'undefined') {
                 console.error('Invalid tile type:', selectedTile.type);
                 toast({ title: '⚠️ Unknown Material', description: 'This mysterious tile type defies classification! The realm doesn\'t recognize it.', variant: 'destructive' });
                 return;
             }
-            
+
             // Removed debugging log
-            
+
             // Enhanced fetch with retry logic and timeout
             const saveTileWithRetry = async (attempt: number = 1): Promise<Response> => {
                 const maxAttempts = 3;
                 const timeoutMs = 10000; // 10 second timeout
-                
+
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-                    
+
                     const response = await fetch('/api/realm-tiles', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ x, y, tile_type: tileTypeNum }),
                         signal: controller.signal
                     });
-                    
+
                     clearTimeout(timeoutId);
                     return response;
                 } catch (error) {
@@ -1087,7 +1102,7 @@ export default function RealmPage() {
                     } else {
                         console.warn(`[Realm] Tile save attempt ${attempt} failed:`, error);
                     }
-                    
+
                     if (attempt < maxAttempts) {
                         // Exponential backoff: 1s, 2s, 4s
                         const delay = Math.pow(2, attempt - 1) * 1000;
@@ -1095,18 +1110,18 @@ export default function RealmPage() {
                         await new Promise(resolve => setTimeout(resolve, delay));
                         return saveTileWithRetry(attempt + 1);
                     }
-                    
+
                     throw error;
                 }
             };
-            
+
             const res = await saveTileWithRetry();
-            
+
             if (!res.ok) {
                 const err = await res.json();
                 toast({ title: 'Error', description: `Failed to save tile: ${err.error}`, variant: 'destructive' });
                 console.error('Tile save error:', err);
-                
+
                 // Revert the optimistic update on failure
                 setGrid(prevGrid => {
                     const newGrid = prevGrid.map(row => row.slice());
@@ -1115,7 +1130,7 @@ export default function RealmPage() {
                     }
                     return newGrid;
                 });
-                
+
                 // Restore inventory
                 setInventory(prev => {
                     const newInventory = { ...prev };
@@ -1125,17 +1140,17 @@ export default function RealmPage() {
                     }
                     return newInventory;
                 });
-                
+
                 // Restore selectedTile quantity if it was used
                 if (hasTileInSelected && selectedTile.quantity !== undefined) {
                     setSelectedTile(prev => prev ? { ...prev, quantity: (prev.quantity ?? 0) + 1 } : null);
                 }
-                
+
                 return;
             }
-            
+
             // Removed debugging log
-            
+
             // Check for monster spawns after successful tile placement
             // Removed debugging log
             // Create updated grid with the new tile for spawn check
@@ -1145,7 +1160,7 @@ export default function RealmPage() {
             }
             const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
             // Removed debugging log
-            
+
             if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
                 // Removed debugging log
                 // Spawn the monster
@@ -1165,7 +1180,7 @@ export default function RealmPage() {
                         }
                         return newGrid;
                     });
-                    
+
                     // Show notification
                     toast({
                         title: "Monster Appeared!",
@@ -1173,11 +1188,11 @@ export default function RealmPage() {
                     });
                 }
             }
-            
+
             // Check for creature discoveries
             const iceCount = countTiles(grid, 'ice');
             // Removed debugging log
-            
+
             if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
                 // Discover Blizzey when 5 ice tiles are placed
                 useCreatureStore.getState().discoverCreature('014');
@@ -1186,7 +1201,7 @@ export default function RealmPage() {
                     description: "You discovered Blizzey, the powerful ice spirit!",
                 });
             }
-            
+
             // Unlock achievement for special tiles
             const tileTypeToAchievement: Record<string, string> = {
                 'ice': '013', // Example: 013 = first ice tile placed
@@ -1200,7 +1215,7 @@ export default function RealmPage() {
                     const token = await getToken({ template: 'supabase' });
                     const unlockRes = await fetch('/api/achievements/unlock', {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
@@ -1218,7 +1233,7 @@ export default function RealmPage() {
             }
         } catch (err) {
             console.error('Tile save error:', err);
-            
+
             // Determine if it's a network error
             const isNetworkError = err instanceof Error && (
                 err.message.includes('Failed to fetch') ||
@@ -1227,19 +1242,19 @@ export default function RealmPage() {
                 err.message.includes('ERR_NETWORK_CHANGED') ||
                 err.message.includes('ERR_INTERNET_DISCONNECTED')
             );
-            
+
             if (isNetworkError) {
-                toast({ 
-                    title: 'Network Error', 
+                toast({
+                    title: 'Network Error',
                     description: 'Tile placed locally but failed to save due to network issues. It will be saved when connection is restored.',
-                    variant: 'destructive' 
+                    variant: 'destructive'
                 });
-                
+
                 // Store the tile placement for later sync when network is restored
-                const pendingTile = { 
-                    x, 
-                    y, 
-                    tile_type: tileTypeToNumeric[selectedTile.type], 
+                const pendingTile = {
+                    x,
+                    y,
+                    tile_type: tileTypeToNumeric[selectedTile.type],
                     timestamp: Date.now(),
                     selectedTileType: selectedTile.type,
                     wasUsingSelectedTile: hasTileInSelected
@@ -1247,7 +1262,7 @@ export default function RealmPage() {
                 const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
                 pendingTiles.push(pendingTile);
                 localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
-                
+
                 // Set up a retry mechanism when network is restored
                 const checkNetworkAndRetry = () => {
                     if (navigator.onLine) {
@@ -1260,16 +1275,16 @@ export default function RealmPage() {
                                     const res = await fetch('/api/realm-tiles', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ 
-                                            x: pendingTile.x, 
-                                            y: pendingTile.y, 
-                                            tile_type: pendingTile.tile_type 
+                                        body: JSON.stringify({
+                                            x: pendingTile.x,
+                                            y: pendingTile.y,
+                                            tile_type: pendingTile.tile_type
                                         })
                                     });
                                     if (res.ok) {
                                         // Removed debugging log
                                         // Remove from pending list
-                                        const updatedPending = pendingTiles.filter((t: any) => 
+                                        const updatedPending = pendingTiles.filter((t: any) =>
                                             !(t.x === pendingTile.x && t.y === pendingTile.y && t.tile_type === pendingTile.tile_type)
                                         );
                                         localStorage.setItem('pendingTilePlacements', JSON.stringify(updatedPending));
@@ -1283,20 +1298,20 @@ export default function RealmPage() {
                         window.removeEventListener('online', checkNetworkAndRetry);
                     }
                 };
-                
+
                 window.addEventListener('online', checkNetworkAndRetry);
             } else {
                 toast({ title: 'Error', description: 'Failed to save tile', variant: 'destructive' });
-                
-                                 // Revert the optimistic update on non-network errors
-                 setGrid(prevGrid => {
-                     const newGrid = prevGrid.map(row => row.slice());
-                     if (newGrid[y]?.[x]) {
-                         newGrid[y][x] = clickedTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
-                     }
-                     return newGrid;
-                 });
-                
+
+                // Revert the optimistic update on non-network errors
+                setGrid(prevGrid => {
+                    const newGrid = prevGrid.map(row => row.slice());
+                    if (newGrid[y]?.[x]) {
+                        newGrid[y][x] = clickedTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+                    }
+                    return newGrid;
+                });
+
                 // Restore inventory
                 setInventory(prev => {
                     const newInventory = { ...prev };
@@ -1306,7 +1321,7 @@ export default function RealmPage() {
                     }
                     return newInventory;
                 });
-                
+
                 // Restore selectedTile quantity if it was used
                 if (hasTileInSelected && selectedTile.quantity !== undefined) {
                     setSelectedTile(prev => prev ? { ...prev, quantity: (prev.quantity ?? 0) + 1 } : null);
@@ -1317,11 +1332,11 @@ export default function RealmPage() {
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
         // Removed debugging log
-        
+
         // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
         const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
         const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
-        
+
         if (hasMainInventory || hasTileQuantity) {
             // Removed debugging log
             setSelectedTile(tile);
@@ -1336,17 +1351,17 @@ export default function RealmPage() {
         if (gameMode === 'move') {
             // Check if the target tile is walkable
             const targetTile = grid[y]?.[x];
-            
+
             // Check for empty tile
             if (!targetTile || targetTile.type === 'empty') {
                 toast({
-                title: "🌌 Uncharted Territory",
-                description: "The void stretches before you! Place a tile to claim this mysterious land.",
+                    title: "🌌 Uncharted Territory",
+                    description: "The void stretches before you! Place a tile to claim this mysterious land.",
                     variant: "destructive",
                 });
                 return;
             }
-            
+
             if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
                 toast({
                     title: "Cannot Move",
@@ -1369,7 +1384,7 @@ export default function RealmPage() {
 
     const handleDestroyTile = async (x: number, y: number) => {
         const targetTile = grid[y]?.[x];
-        
+
         // Check if there's a tile to destroy
         if (!targetTile || targetTile.type === 'empty') {
             toast({
@@ -1388,7 +1403,7 @@ export default function RealmPage() {
                 'lava': "The lava flows with primordial power! Your destruction attempts are futile against the earth's fury.",
                 'volcano': "The volcanic forces are beyond mortal control! The realm's fire cannot be extinguished."
             };
-            
+
             toast({
                 title: "⛰️ Immovable Force",
                 description: protectionMessages[targetTile.type as keyof typeof protectionMessages] || `The ${targetTile.type} resists your power!`,
@@ -1408,16 +1423,16 @@ export default function RealmPage() {
             setGrid(prevGrid => {
                 const newGrid = prevGrid.map(row => row.slice());
                 if (newGrid[y]?.[x]) {
-                    newGrid[y][x] = { 
+                    newGrid[y][x] = {
                         id: `${x}-${y}`,
-                        type: 'empty', 
+                        type: 'empty',
                         name: 'Empty Tile',
                         description: 'An empty tile',
                         connections: [],
                         rotation: 0,
                         revealed: true,
                         isVisited: false,
-                        x, 
+                        x,
                         y,
                         ariaLabel: `Empty tile at position ${x},${y}`,
                         image: '/images/tiles/empty-tile.png',
@@ -1450,14 +1465,14 @@ export default function RealmPage() {
             const tileTypeNames = {
                 'forest': 'forest',
                 'mountain': 'mountain',
-                'water': 'water', 
+                'water': 'water',
                 'ice': 'ice',
                 'grass': 'grass',
                 'city': 'city',
                 'town': 'town'
             };
             const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
-            
+
             toast({
                 title: "💥 Devastation Complete!",
                 description: `The ${tileName} tile crumbles to dust beneath your mighty power!`,
@@ -1469,7 +1484,7 @@ export default function RealmPage() {
                 const currentCount = parseInt(localStorage.getItem(achievementKey) || '0');
                 const newCount = currentCount + 1;
                 localStorage.setItem(achievementKey, newCount.toString());
-                
+
                 // Check for destruction achievements
                 const destructionAchievements = [
                     { type: 'forest', threshold: 1, achievementId: '001' },
@@ -1485,27 +1500,27 @@ export default function RealmPage() {
                     { type: 'ice', threshold: 5, achievementId: '014' },
                     { type: 'ice', threshold: 10, achievementId: '015' }
                 ];
-                
+
                 const achievement = destructionAchievements.find(a => a.type === targetTile.type);
                 if (achievement && newCount >= achievement.threshold) {
                     // Check if achievement is already unlocked
                     const unlockKey = `unlocked_${achievement.achievementId}`;
                     if (!sessionStorage.getItem(unlockKey)) {
                         sessionStorage.setItem(unlockKey, 'true');
-                        
+
                         // Unlock achievement
                         (async () => {
                             try {
                                 const token = await getToken({ template: 'supabase' });
                                 const response = await fetch('/api/achievements/unlock', {
                                     method: 'POST',
-                                    headers: { 
+                                    headers: {
                                         'Content-Type': 'application/json',
                                         'Authorization': `Bearer ${token}`
                                     },
                                     body: JSON.stringify({ achievementId: achievement.achievementId })
                                 });
-                                
+
                                 if (response.ok) {
                                     // Show achievement notification with improved thematic messages
                                     const achievementMessages = {
@@ -1522,7 +1537,7 @@ export default function RealmPage() {
                                         '014': { title: "❄️ Hailey Awakens!", description: "While clearing a path by destroying 5 ice tiles, you find the powerful ice spirit Hailey and 50 gold for your treasure pile!" },
                                         '015': { title: "❄️ Blizzey Rises!", description: "While clearing a path by destroying 10 ice tiles, you awaken the supreme ice creature Blizzey and 100 gold for your treasure pile!" }
                                     };
-                                    
+
                                     const message = achievementMessages[achievement.achievementId as keyof typeof achievementMessages];
                                     if (message) {
                                         toast({
@@ -1533,18 +1548,18 @@ export default function RealmPage() {
                                         // Fallback for unknown achievements
                                         const tileTypeNames = {
                                             'forest': 'Forest',
-                                            'mountain': 'Mountain', 
+                                            'mountain': 'Mountain',
                                             'water': 'Water',
                                             'ice': 'Ice'
                                         };
                                         const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
-                                        
+
                                         toast({
                                             title: "🏆 Legendary Achievement!",
                                             description: `The ancient ${tileName.toLowerCase()} trembles as you claim victory! ${tileName} Destroyer rank achieved!`,
                                         });
                                     }
-                                    
+
                                     // Discover creature if applicable
                                     discoverCreature(achievement.achievementId);
                                 }
@@ -1558,7 +1573,7 @@ export default function RealmPage() {
 
         } catch (error) {
             console.error('Error destroying tile:', error);
-            
+
             // Revert the UI change on error
             setGrid(prevGrid => {
                 const newGrid = prevGrid.map(row => row.slice());
@@ -1589,10 +1604,10 @@ export default function RealmPage() {
         const currentRows = grid.length;
         const currentCols = grid[0]?.length || GRID_COLS;
         const newRows = currentRows + 3;
-        
+
         // Create new grid with 3 additional rows
         const newGrid: Tile[][] = [];
-        
+
         // Add existing rows
         for (let y = 0; y < currentRows; y++) {
             const currentRow = grid[y];
@@ -1600,13 +1615,13 @@ export default function RealmPage() {
                 newGrid[y] = [...currentRow];
             }
         }
-        
+
         // Add 3 new rows
         for (let y = currentRows; y < newRows; y++) {
             newGrid[y] = new Array(currentCols);
             for (let x = 0; x < currentCols; x++) {
                 let tileType: TileType = 'empty';
-                
+
                 // First and last columns are mountain tiles
                 if (x === 0 || x === currentCols - 1) {
                     tileType = 'mountain';
@@ -1616,7 +1631,7 @@ export default function RealmPage() {
                         tileType = 'mystery';
                     }
                 }
-                
+
                 newGrid[y]![x] = {
                     ...defaultTile(tileType),
                     x,
@@ -1626,7 +1641,7 @@ export default function RealmPage() {
                 };
             }
         }
-        
+
         setGrid(newGrid);
         // Persist all new tiles in the new rows to the backend
         try {
@@ -1691,11 +1706,11 @@ export default function RealmPage() {
                 return;
             }
             if (gameMode !== 'move') return;
-            
+
             const currentPos = characterPosition;
             let newX = currentPos.x;
             let newY = currentPos.y;
-            
+
             switch (event.key) {
                 case 'ArrowUp':
                 case 'w':
@@ -1720,20 +1735,20 @@ export default function RealmPage() {
                 default:
                     return;
             }
-            
+
             // Check if the target tile is walkable
             const targetTile = grid[newY]?.[newX];
-            
+
             // Check for empty tile
             if (!targetTile || targetTile.type === 'empty') {
                 toast({
-                title: "🌌 Uncharted Territory",
-                description: "The void stretches before you! Place a tile to claim this mysterious land.",
+                    title: "🌌 Uncharted Territory",
+                    description: "The void stretches before you! Place a tile to claim this mysterious land.",
                     variant: "destructive",
                 });
                 return;
             }
-            
+
             if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
                 toast({
                     title: "Cannot Move",
@@ -1742,14 +1757,14 @@ export default function RealmPage() {
                 });
                 return;
             }
-            
+
             // Check for monster battle
             if (targetTile?.hasMonster) {
                 setCurrentMonster(targetTile.hasMonster);
                 setBattleOpen(true);
                 return;
             }
-            
+
             if (newX !== currentPos.x || newY !== currentPos.y) {
                 setCharacterPosition({ x: newX, y: newY });
                 // Save character position to Supabase
@@ -1776,7 +1791,7 @@ export default function RealmPage() {
                 setBattleOpen(true);
                 return;
             }
-            
+
             switch (currentTile.type) {
                 case 'castle': {
                     setCastleEvent({ open: true });
@@ -2004,14 +2019,14 @@ export default function RealmPage() {
             if (newGrid[y]?.[x] && newGrid[y][x].type !== 'empty') {
                 const deletedTileType = newGrid[y][x].type;
                 newGrid[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
-                
+
                 // Track tile destruction for achievements
                 if (userId && deletedTileType) {
                     const achievementKey = `destroyed_${deletedTileType}_tiles`;
                     const currentCount = parseInt(localStorage.getItem(achievementKey) || '0');
                     const newCount = currentCount + 1;
                     localStorage.setItem(achievementKey, newCount.toString());
-                    
+
                     // Check for destruction achievements
                     const destructionAchievements = [
                         { type: 'forest', threshold: 3, achievementId: '201' },
@@ -2020,7 +2035,7 @@ export default function RealmPage() {
                         { type: 'desert', threshold: 2, achievementId: '204' },
                         { type: 'ice', threshold: 1, achievementId: '205' }
                     ];
-                    
+
                     const achievement = destructionAchievements.find(a => a.type === deletedTileType);
                     if (achievement && newCount >= achievement.threshold) {
                         // Unlock achievement
@@ -2028,7 +2043,7 @@ export default function RealmPage() {
                             const token = await getToken({ template: 'supabase' });
                             fetch('/api/achievements/unlock', {
                                 method: 'POST',
-                                headers: { 
+                                headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}`
                                 },
@@ -2068,14 +2083,14 @@ export default function RealmPage() {
                 }
                 return newGrid;
             });
-            
+
             // Save the updated tile to backend
             fetch('/api/realm-tiles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    x: characterPosition.x, 
-                    y: characterPosition.y, 
+                body: JSON.stringify({
+                    x: characterPosition.x,
+                    y: characterPosition.y,
                     tile_type: tileTypeToNumeric[grid[characterPosition.y]?.[characterPosition.x]?.type || 'empty'],
                     has_monster: null,
                     monster_achievement_id: null
@@ -2083,7 +2098,7 @@ export default function RealmPage() {
             }).catch(() => {
                 toast({ title: 'Error', description: 'Failed to save monster defeat', variant: 'destructive' });
             });
-            
+
             // Show victory message
             toast({
                 title: "Victory!",
@@ -2103,107 +2118,107 @@ export default function RealmPage() {
     // Only declare penguinPos and isPenguinPresent once at the top of RealmPage
     // After grid is loaded or updated, place penguin on first visible ice tile if not already present
     useEffect(() => {
-      if (!isPenguinPresent && grid.length) {
-        for (let y = 0; y < grid.length; y++) {
-          const row = grid[y];
-          if (!row) continue;
-          for (let x = 0; x < row.length; x++) {
-            if (row[x]?.type === 'ice') {
-              setPenguinPos({ x, y });
-              setIsPenguinPresent(true);
-              return;
+        if (!isPenguinPresent && grid.length) {
+            for (let y = 0; y < grid.length; y++) {
+                const row = grid[y];
+                if (!row) continue;
+                for (let x = 0; x < row.length; x++) {
+                    if (row[x]?.type === 'ice') {
+                        setPenguinPos({ x, y });
+                        setIsPenguinPresent(true);
+                        return;
+                    }
+                }
             }
-          }
         }
-      }
     }, [grid, isPenguinPresent]);
     // Penguin movement logic: move every 5 seconds to adjacent ice tile
     useEffect(() => {
-      if (!isPenguinPresent || !penguinPos) return;
-      const interval = setInterval(() => {
-        const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => {
-          const row = grid[pos.y];
-          return !!row && row[pos.x]?.type === 'ice';
-        });
-        if (adj.length > 0) {
-          const next = adj[Math.floor(Math.random() * adj.length)];
-          if (next) setPenguinPos(next);
-        }
-      }, 5000);
-      return () => clearInterval(interval);
+        if (!isPenguinPresent || !penguinPos) return;
+        const interval = setInterval(() => {
+            const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => {
+                const row = grid[pos.y];
+                return !!row && row[pos.x]?.type === 'ice';
+            });
+            if (adj.length > 0) {
+                const next = adj[Math.floor(Math.random() * adj.length)];
+                if (next) setPenguinPos(next);
+            }
+        }, 5000);
+        return () => clearInterval(interval);
     }, [grid, penguinPos, isPenguinPresent]);
 
     // Expansion gating logic
     const [expansions, setExpansions] = useState<number>(() => {
-      if (typeof window !== 'undefined') {
-        return parseInt(localStorage.getItem('realm-expansions') || '0', 10);
-      }
-      return 0;
+        if (typeof window !== 'undefined') {
+            return parseInt(localStorage.getItem('realm-expansions') || '0', 10);
+        }
+        return 0;
     });
     const [playerLevel, setPlayerLevel] = useState<number>(1);
     useEffect(() => {
-      // Get player level from character stats
-      const stats = getCharacterStats();
-      setPlayerLevel(stats.level || 1);
+        // Get player level from character stats
+        const stats = getCharacterStats();
+        setPlayerLevel(stats.level || 1);
     }, []);
-    
+
     // Fix expansion count if user is level 5 but expansion count is wrong
     useEffect(() => {
-      if (playerLevel >= 5 && expansions > 0) {
-        // If user is level 5+ but has expansions recorded, reset to 0
-        setExpansions(0);
-        localStorage.setItem('realm-expansions', '0');
-      }
+        if (playerLevel >= 5 && expansions > 0) {
+            // If user is level 5+ but has expansions recorded, reset to 0
+            setExpansions(0);
+            localStorage.setItem('realm-expansions', '0');
+        }
     }, [playerLevel, expansions]);
-    
+
     const nextExpansionLevel = 5 + expansions * 5;
     const canExpand = playerLevel >= nextExpansionLevel;
 
     // Validate animal positions when grid changes
     useEffect(() => {
-      if (!Array.isArray(grid) || grid.length === 0) return;
-      
-      // Validate horse position
-      if (isHorsePresent && horsePos) {
-        const tile = grid[horsePos.y]?.[horsePos.x];
-        if (!tile || tile.type !== 'grass') {
-          // Removed debugging log
-          // Find a valid grass tile
-          for (let y = 0; y < grid.length; y++) {
-            const row = grid[y];
-            if (!row) continue;
-            for (let x = 0; x < row.length; x++) {
-              const checkTile = row[x];
-              if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
-                setHorsePos({ x, y });
-                localStorage.setItem('animal-horse-position', JSON.stringify({ x, y }));
+        if (!Array.isArray(grid) || grid.length === 0) return;
+
+        // Validate horse position
+        if (isHorsePresent && horsePos) {
+            const tile = grid[horsePos.y]?.[horsePos.x];
+            if (!tile || tile.type !== 'grass') {
                 // Removed debugging log
-                break;
-              }
+                // Find a valid grass tile
+                for (let y = 0; y < grid.length; y++) {
+                    const row = grid[y];
+                    if (!row) continue;
+                    for (let x = 0; x < row.length; x++) {
+                        const checkTile = row[x];
+                        if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
+                            setHorsePos({ x, y });
+                            localStorage.setItem('animal-horse-position', JSON.stringify({ x, y }));
+                            // Removed debugging log
+                            break;
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-      
-      // Validate sheep position
-      if (isSheepPresent && sheepPos) {
-        const tile = grid[sheepPos.y]?.[sheepPos.x];
-        if (!tile || tile.type !== 'grass') {
-          // Find a valid grass tile
-          for (let y = 0; y < grid.length; y++) {
-            const row = grid[y];
-            if (!row) continue;
-            for (let x = 0; x < row.length; x++) {
-              const checkTile = row[x];
-              if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
-                setSheepPos({ x, y });
-                localStorage.setItem('animal-sheep-position', JSON.stringify({ x, y }));
-                break;
-              }
+
+        // Validate sheep position
+        if (isSheepPresent && sheepPos) {
+            const tile = grid[sheepPos.y]?.[sheepPos.x];
+            if (!tile || tile.type !== 'grass') {
+                // Find a valid grass tile
+                for (let y = 0; y < grid.length; y++) {
+                    const row = grid[y];
+                    if (!row) continue;
+                    for (let x = 0; x < row.length; x++) {
+                        const checkTile = row[x];
+                        if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
+                            setSheepPos({ x, y });
+                            localStorage.setItem('animal-sheep-position', JSON.stringify({ x, y }));
+                            break;
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
 
     // Network status and resilience
@@ -2217,7 +2232,7 @@ export default function RealmPage() {
             setIsOnline(true);
             setNetworkStatus('online');
             // Removed debugging log
-            
+
             // Sync any pending tile placements
             syncPendingTilePlacements();
         };
@@ -2274,10 +2289,10 @@ export default function RealmPage() {
                     const res = await fetch('/api/realm-tiles', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            x: pendingTile.x, 
-                            y: pendingTile.y, 
-                            tile_type: pendingTile.tile_type 
+                        body: JSON.stringify({
+                            x: pendingTile.x,
+                            y: pendingTile.y,
+                            tile_type: pendingTile.tile_type
                         })
                     });
 
@@ -2287,27 +2302,27 @@ export default function RealmPage() {
                     } else {
                         // Increment retry count for failed syncs
                         const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
-                        
+
                         // Remove tiles that have been retried too many times
                         if (updatedTile.retryCount < 5) {
                             failedSyncs.push(updatedTile);
                         } else {
                             // Removed debugging log
                         }
-                        
+
                         // Removed debugging log
                     }
                 } catch (error) {
                     // Increment retry count for network errors
                     const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
-                    
+
                     // Remove tiles that have been retried too many times
                     if (updatedTile.retryCount < 5) {
                         failedSyncs.push(updatedTile);
                     } else {
                         // Removed debugging log
                     }
-                    
+
                     // Removed debugging log
                 }
             }
@@ -2338,7 +2353,7 @@ export default function RealmPage() {
     // Enhanced error handling for tile placement failures
     const handleTilePlacementError = (error: any, x: number, y: number, tileType: TileType) => {
         console.error('[Realm] Tile placement error:', error);
-        
+
         // Determine error type
         const isNetworkError = error instanceof Error && (
             error.message.includes('Failed to fetch') ||
@@ -2349,83 +2364,83 @@ export default function RealmPage() {
             error.message.includes('timeout') ||
             error.message.includes('network')
         );
-        
+
         const isAuthError = error instanceof Error && (
             error.message.includes('Unauthorized') ||
             error.message.includes('401') ||
             error.message.includes('auth')
         );
-        
+
         const isServerError = error instanceof Error && (
             error.message.includes('500') ||
             error.message.includes('Internal server error') ||
             error.message.includes('Database')
         );
-        
+
         if (isNetworkError) {
-            toast({ 
-                title: 'Network Error', 
+            toast({
+                title: 'Network Error',
                 description: 'Tile placed locally but failed to save due to network issues. It will be saved when connection is restored.',
-                variant: 'destructive' 
+                variant: 'destructive'
             });
-            
+
             // Store for later sync
-            const pendingTile = { 
-                x, 
-                y, 
-                tile_type: tileTypeToNumeric[tileType], 
+            const pendingTile = {
+                x,
+                y,
+                tile_type: tileTypeToNumeric[tileType],
                 timestamp: Date.now(),
                 retryCount: 0
             };
-            
+
             const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
             pendingTiles.push(pendingTile);
             localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
             setPendingSyncCount(pendingTiles.length);
-            
+
         } else if (isAuthError) {
-            toast({ 
-                title: 'Authentication Error', 
+            toast({
+                title: 'Authentication Error',
                 description: 'Please log in again to continue placing tiles.',
-                variant: 'destructive' 
+                variant: 'destructive'
             });
-            
+
             // Revert the optimistic update
             revertTilePlacement(x, y);
-            
+
         } else if (isServerError) {
-            toast({ 
-                title: 'Server Error', 
+            toast({
+                title: 'Server Error',
                 description: 'The server is experiencing issues. Please try again later.',
-                variant: 'destructive' 
+                variant: 'destructive'
             });
-            
+
             // Store for later retry
-            const pendingTile = { 
-                x, 
-                y, 
-                tile_type: tileTypeToNumeric[tileType], 
+            const pendingTile = {
+                x,
+                y,
+                tile_type: tileTypeToNumeric[tileType],
                 timestamp: Date.now(),
                 retryCount: 0
             };
-            
+
             const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
             pendingTiles.push(pendingTile);
             localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
             setPendingSyncCount(pendingTiles.length);
-            
+
         } else {
-            toast({ 
-                title: 'Unknown Error', 
+            toast({
+                title: 'Unknown Error',
                 description: 'An unexpected error occurred. Please try again.',
-                variant: 'destructive' 
+                variant: 'destructive'
             });
-            
+
             // Revert the optimistic update for unknown errors
             revertTilePlacement(x, y);
         }
     };
-    
+
     // Helper function to revert tile placement
     const revertTilePlacement = (x: number, y: number) => {
         setGrid(prevGrid => {
@@ -2437,7 +2452,7 @@ export default function RealmPage() {
             }
             return newGrid;
         });
-        
+
         // Restore inventory
         if (selectedTile) {
             setInventory(prev => {
@@ -2459,13 +2474,13 @@ export default function RealmPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
-                <h2 className="text-2xl font-bold text-white mb-4">Exploring the lands of Valoreth</h2>
                 <div className="bg-black/70 border border-amber-800 rounded-lg p-6 max-w-lg text-center text-amber-100 text-lg shadow-lg">
+                    <h2 className="text-2xl font-bold text-white mb-4">Exploring the lands of Valoreth</h2>
                     <p>
-                        In the mystical realm of Valoreth, King Necrion sought treasures of growth.<br/>
-                        Through ancient forests and crystal caves he wandered,<br/>
-                        Each terrain revealing new mysteries and hidden wisdom.<br/>
-                        Will you follow his path and claim your destiny?<br/>
+                        In the mystical realm of Valoreth, King Necrion sought treasures of growth.<br />
+                        Through ancient forests and crystal caves he wandered,<br />
+                        Each terrain revealing new mysteries and hidden wisdom.<br />
+                        Will you follow his path and claim your destiny?<br />
                         The realm awaits those brave enough to grow stronger.
                     </p>
                 </div>
@@ -2485,191 +2500,191 @@ export default function RealmPage() {
                 onAnimationEnd={() => setIsAnimating(false)}
                 shouldRevealImage={true}
             />
-            <RealmAnimationWrapper 
+            <RealmAnimationWrapper
                 isAnimating={isAnimating}
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
                 <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
-                  {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
-                  <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                    {/* Main Action Buttons - Always visible */}
-                    <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      <Button
-                        variant={gameMode === 'move' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGameMode('move')}
-                        className={cn(
-                          "flex items-center gap-2 min-w-[44px] min-h-[44px]",
-                          gameMode === 'move' 
-                            ? "bg-blue-500 text-white hover:bg-blue-600" 
-                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                        )}
-                        aria-label="movement-mode-button"
-                      >
-                        <Move className="w-4 h-4" />
-                        <span className="hidden md:inline">Move</span>
-                      </Button>
-                      <Button
-                        variant={gameMode === 'build' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGameMode('build')}
-                        className={cn(
-                          "flex items-center gap-2 min-w-[44px] min-h-[44px]",
-                          gameMode === 'build' 
-                            ? "bg-amber-500 text-white hover:bg-amber-600" 
-                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                        )}
-                        aria-label="build-mode-button"
-                      >
-                        <Hammer className="w-4 h-4" />
-                        <span className="hidden md:inline">Build</span>
-                      </Button>
-                      <Button
-                        variant={gameMode === 'destroy' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGameMode('destroy')}
-                        className={cn(
-                          "flex items-center gap-2 min-w-[44px] min-h-[44px]",
-                          gameMode === 'destroy' 
-                            ? "bg-red-500 text-white hover:bg-red-600" 
-                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                        )}
-                        aria-label="destroy-mode-button"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="hidden md:inline">Destroy</span>
-                      </Button>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                    {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
+                    <div className="flex flex-1 flex-col gap-2 overflow-visible">
+                        {/* Main Action Buttons - Always visible */}
+                        <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={expandMap}
-                              disabled={!canExpand}
-                              aria-label="Expand Map"
-                              className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
+                                variant={gameMode === 'move' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setGameMode('move')}
+                                className={cn(
+                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                    gameMode === 'move'
+                                        ? "bg-blue-500 text-white hover:bg-blue-600"
+                                        : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                )}
+                                aria-label="movement-mode-button"
                             >
-                              <PlusCircle className="w-4 h-4" />
-                              <span className="hidden sm:inline">Expand</span>
+                                <Move className="w-4 h-4" />
+                                <span className="hidden md:inline">Move</span>
                             </Button>
-                          </TooltipTrigger>
-                          <TooltipContent 
-                            side="top" 
-                            className="bg-gray-900 text-white border-amber-800/30"
-                          >
-                            {canExpand 
-                              ? 'Expand your realm map to unlock 3 more rows' 
-                              : `Become level ${nextExpansionLevel} to unlock 3 more rows`
-                            }
-                          </TooltipContent>
-                        </Tooltip>
-                      {/* Inventory Button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowInventory(!showInventory)}
-                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                        aria-label="toggle-inventory-button"
-                      >
-                        <Package className="w-4 h-4" />
-                        <span className="hidden sm:inline">Inventory</span>
-                      </Button>
+                            <Button
+                                variant={gameMode === 'build' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setGameMode('build')}
+                                className={cn(
+                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                    gameMode === 'build'
+                                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                                        : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                )}
+                                aria-label="build-mode-button"
+                            >
+                                <Hammer className="w-4 h-4" />
+                                <span className="hidden md:inline">Build</span>
+                            </Button>
+                            <Button
+                                variant={gameMode === 'destroy' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setGameMode('destroy')}
+                                className={cn(
+                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                    gameMode === 'destroy'
+                                        ? "bg-red-500 text-white hover:bg-red-600"
+                                        : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                )}
+                                aria-label="destroy-mode-button"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                <span className="hidden md:inline">Destroy</span>
+                            </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={expandMap}
+                                        disabled={!canExpand}
+                                        aria-label="Expand Map"
+                                        className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
+                                    >
+                                        <PlusCircle className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Expand</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                    side="top"
+                                    className="bg-gray-900 text-white border-amber-800/30"
+                                >
+                                    {canExpand
+                                        ? 'Expand your realm map to unlock 3 more rows'
+                                        : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+                                    }
+                                </TooltipContent>
+                            </Tooltip>
+                            {/* Inventory Button */}
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowInventory(!showInventory)}
+                                className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                                aria-label="toggle-inventory-button"
+                            >
+                                <Package className="w-4 h-4" />
+                                <span className="hidden sm:inline">Inventory</span>
+                            </Button>
 
-                      {/* Kebab Menu for Secondary Actions */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                            aria-label="more-actions-menu"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                            <span className="hidden sm:inline">More</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2">
-                            <Trash2 className="w-4 h-4" />
-                            Reset Map
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
-                            <RotateCcw className="w-4 h-4" />
-                            Reset Position
-                          </DropdownMenuItem>
-                          {/* Auto Save Toggle */}
-                          <div className="px-2 py-1.5">
-                            <div className="flex items-center space-x-2">
-                              <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
-                              <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
-                            </div>
-                          </div>
-                          {/* Manual Sync Button */}
-                          {pendingSyncCount > 0 && (
-                            <DropdownMenuItem onClick={syncPendingTilePlacements} className="flex items-center gap-2 text-amber-400">
-                              <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
-                              Sync ({pendingSyncCount})
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            {/* Kebab Menu for Secondary Actions */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                                        aria-label="more-actions-menu"
+                                    >
+                                        <MoreVertical className="w-4 h-4" />
+                                        <span className="hidden sm:inline">More</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2">
+                                        <Trash2 className="w-4 h-4" />
+                                        Reset Map
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
+                                        <RotateCcw className="w-4 h-4" />
+                                        Reset Position
+                                    </DropdownMenuItem>
+                                    {/* Auto Save Toggle */}
+                                    <div className="px-2 py-1.5">
+                                        <div className="flex items-center space-x-2">
+                                            <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
+                                            <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
+                                        </div>
                                     </div>
-              </div>
-            </div>
+                                    {/* Manual Sync Button */}
+                                    {pendingSyncCount > 0 && (
+                                        <DropdownMenuItem onClick={syncPendingTilePlacements} className="flex items-center gap-2 text-amber-400">
+                                            <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+                                            Sync ({pendingSyncCount})
+                                        </DropdownMenuItem>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </div>
+                </div>
 
-            {/* Network Status Indicator */}
-            {!isOnline && (
-              <div className="bg-red-900/80 border border-red-600 text-white px-4 py-2 text-sm text-center z-20">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                  <span>Offline Mode - Tile placements will be saved locally and synced when connection is restored</span>
-                  {pendingSyncCount > 0 && (
-                    <span className="bg-red-600 px-2 py-1 rounded text-xs">
-                      {pendingSyncCount} pending
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {isOnline && pendingSyncCount > 0 && (
-              <div className="bg-amber-900/80 border border-amber-600 text-white px-4 py-2 text-sm text-center z-20">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
-                  <span>Syncing {pendingSyncCount} pending tile placements...</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={syncPendingTilePlacements}
-                    className="h-6 px-2 text-xs bg-amber-700 border-amber-500 text-white hover:bg-amber-600"
-                  >
-                    Retry Now
-                  </Button>
-                </div>
-              </div>
-            )}
+                {/* Network Status Indicator */}
+                {!isOnline && (
+                    <div className="bg-red-900/80 border border-red-600 text-white px-4 py-2 text-sm text-center z-20">
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                            <span>Offline Mode - Tile placements will be saved locally and synced when connection is restored</span>
+                            {pendingSyncCount > 0 && (
+                                <span className="bg-red-600 px-2 py-1 rounded text-xs">
+                                    {pendingSyncCount} pending
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
 
-            {/* Debug Network Status (only show in development) */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="bg-gray-800/80 border border-gray-600 text-gray-300 px-4 py-2 text-xs text-center z-20">
-                <div className="flex items-center justify-center gap-4">
-                  <span>Network: {networkStatus}</span>
-                  <span>Online: {isOnline ? 'Yes' : 'No'}</span>
-                  <span>Pending: {pendingSyncCount}</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      // Removed debugging logs
-                    }}
-                    className="h-6 px-2 text-xs bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
-                  >
-                    Debug
-                  </Button>
-                </div>
-              </div>
-            )}
+                {isOnline && pendingSyncCount > 0 && (
+                    <div className="bg-amber-900/80 border border-amber-600 text-white px-4 py-2 text-sm text-center z-20">
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                            <span>Syncing {pendingSyncCount} pending tile placements...</span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={syncPendingTilePlacements}
+                                className="h-6 px-2 text-xs bg-amber-700 border-amber-500 text-white hover:bg-amber-600"
+                            >
+                                Retry Now
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Debug Network Status (only show in development) */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div className="bg-gray-800/80 border border-gray-600 text-gray-300 px-4 py-2 text-xs text-center z-20">
+                        <div className="flex items-center justify-center gap-4">
+                            <span>Network: {networkStatus}</span>
+                            <span>Online: {isOnline ? 'Yes' : 'No'}</span>
+                            <span>Pending: {pendingSyncCount}</span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    // Removed debugging logs
+                                }}
+                                className="h-6 px-2 text-xs bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
+                            >
+                                Debug
+                            </Button>
+                        </div>
+                    </div>
+                )}
                 {modalState && (
                     <EnterLocationModal
                         isOpen={modalState.isOpen}
@@ -2722,7 +2737,7 @@ export default function RealmPage() {
                             </Button>
                         </div>
                         <ScrollArea className="flex-1 p-4">
-                            
+
                             <TileInventory
                                 tiles={inventoryAsItems}
                                 selectedTile={selectedTile}
@@ -2730,21 +2745,21 @@ export default function RealmPage() {
                                 onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
                                     // Update the inventoryAsItems state directly
                                     setInventoryAsItems(newTiles);
-                                    
+
                                     // Also update the inventory state for compatibility
                                     setInventory(prev => {
                                         const updated = { ...prev };
                                         newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
                                             updated[tile.type] = { ...updated[tile.type], ...tile };
                                         });
-                                        
+
                                         // Save to Supabase with localStorage fallback
                                         if (userId) {
                                             saveTileInventory(userId, updated).catch(error => {
                                                 console.error('Failed to save inventory:', error);
                                             });
                                         }
-                                        
+
                                         return updated;
                                     });
                                 }}
@@ -2755,7 +2770,7 @@ export default function RealmPage() {
                         </ScrollArea>
                     </div>
                 )}
-                
+
                 {/* Event Modals */}
                 {castleEvent?.open && (
                     <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
@@ -2819,7 +2834,7 @@ export default function RealmPage() {
                         <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
                             <DialogHeader>
                                 <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
-                                <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br/>&quot;Is the next number higher or lower?&quot;</DialogDescription>
+                                <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br />&quot;Is the next number higher or lower?&quot;</DialogDescription>
                             </DialogHeader>
                             {dungeonEvent.questionIndex < dungeonEvent.questions.length ? (
                                 <div className="space-y-4">
@@ -2877,7 +2892,7 @@ export default function RealmPage() {
                         <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
                             <DialogHeader>
                                 <DialogTitle>Cave: Choose a Path</DialogTitle>
-                                <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br/>&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
+                                <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br />&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
                             </DialogHeader>
                             {!caveEvent.result ? (
                                 <div className="space-y-4 flex flex-col">
@@ -2919,7 +2934,7 @@ export default function RealmPage() {
                         </DialogContent>
                     </Dialog>
                 )}
-                
+
                 {/* Mystery Event Modal */}
                 {mysteryEvent?.open && (
                     <Dialog open={mysteryEvent.open} onOpenChange={() => setMysteryEvent(null)}>
@@ -2931,9 +2946,9 @@ export default function RealmPage() {
                             {!mysteryEvent.choice ? (
                                 <div className="space-y-4 flex flex-col">
                                     {mysteryEvent.event.choices.map((choice: string, index: number) => (
-                                        <Button 
+                                        <Button
                                             key={index}
-                                            className="w-full" 
+                                            className="w-full"
                                             aria-label={`Choice ${index + 1}: ${choice}`}
                                             onClick={() => {
                                                 setMysteryEvent({ ...mysteryEvent, choice });
@@ -2955,7 +2970,7 @@ export default function RealmPage() {
                         </DialogContent>
                     </Dialog>
                 )}
-                
+
                 {/* Monster Battle Component */}
                 <MonsterBattle
                     isOpen={battleOpen}
