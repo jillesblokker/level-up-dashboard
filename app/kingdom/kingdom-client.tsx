@@ -846,10 +846,10 @@ export function KingdomClient() {
     setFadeOut(false);
     // Start zoom shortly after mount
     const zoomTimeout = setTimeout(() => setZoomed(true), 100);
-    // Start fade out (container fade) after zoom is mostly done
-    const fadeTimeout = setTimeout(() => setFadeOut(true), 3500);
-    // Remove overlay
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 4500);
+    // Start fade out (container fade) when screen is fully black (3s zoom + 0.1s start)
+    const fadeTimeout = setTimeout(() => setFadeOut(true), 3100);
+    // Remove overlay after container fade completes (1s duration)
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 4100);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(fadeTimeout);
@@ -1189,22 +1189,14 @@ export function KingdomClient() {
   }
 
   if (showEntrance) {
-    // Calculate the transform values
-    // When zoomed, we want to:
-    // 1. Scale to 5x
-    // 2. Move the image up so the focal point (75% down) stays centered
-    // 3. The bottom of the image should appear to stay "stuck" to the bottom
-
-    // At 5x zoom, the focal point at 75% needs to move to center (50%)
-    // So we need to translate up by (75% - 50%) * scale = 25% * 5 = 125% of original height
-    const zoomScale = 5;
-    const focalPointY = 75; // Percentage from top where the door is
-    const targetY = 50; // Center of viewport
-    const translateY = zoomed ? -(focalPointY - targetY) * (zoomScale - 1) / (zoomScale) * 100 : 0;
+    // Animation logic:
+    // 1. Zoom in towards the door (75% down the image)
+    // 2. Fade to black while zooming
+    // 3. Reveal content
 
     return (
       <div
-        className="fixed inset-0 z-[100] flex items-end justify-center bg-black transition-opacity duration-1000"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-1000"
         style={{
           width: '100vw',
           height: '100vh',
@@ -1221,21 +1213,24 @@ export function KingdomClient() {
             className="kingdom-entrance-img"
             style={{
               objectFit: 'cover',
-              objectPosition: 'center bottom',
-              transform: zoomed
-                ? `scale(${zoomScale}) translateY(${translateY}%)`
-                : 'scale(1) translateY(0)',
-              transformOrigin: 'center bottom',
-              transition: 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              objectPosition: 'center center',
+              // Zoom in to 4x scale
+              transform: zoomed ? 'scale(4)' : 'scale(1)',
+              // Set origin to 50% horizontal, 75% vertical (where the door is)
+              transformOrigin: '50% 75%',
+              // Smooth 3s transition
+              transition: 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1.0)',
             }}
             unoptimized
           />
           {/* Black overlay that fades in as we zoom */}
           <div
-            className="absolute inset-0 bg-black transition-opacity duration-[1000ms]"
+            className="absolute inset-0 bg-black transition-opacity ease-in-out"
             style={{
               opacity: zoomed ? 1 : 0,
-              transitionDelay: '2.5s'
+              // Start fading to black slightly after zoom starts, finish before zoom ends
+              transitionDuration: '2.5s',
+              transitionDelay: '0.5s'
             }}
           />
         </div>
