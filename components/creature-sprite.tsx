@@ -60,12 +60,13 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                 src={`/images/creatures/${creature.filename}`}
                 alt={creature.name}
                 className={cn(
-                    "object-contain drop-shadow-lg transition-transform duration-500 ease-in-out",
-                    isJumping ? "animate-bounce scale-110" : "animate-pulse scale-100"
+                    "object-contain drop-shadow-lg transition-all duration-300",
+                    isJumping ? "animate-bounce scale-110" : ""
                 )}
                 style={{
                     width: `${creature.scale * 70}%`,
                     height: `${creature.scale * 70}%`,
+                    animation: isJumping ? undefined : 'waddle 2s ease-in-out infinite',
                 }}
                 onLoad={() => {
                     console.log('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
@@ -76,6 +77,19 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                     e.currentTarget.style.display = 'none';
                 }}
             />
+            <style jsx>{`
+                @keyframes waddle {
+                    0%, 100% {
+                        transform: translateX(0) rotate(0deg);
+                    }
+                    25% {
+                        transform: translateX(-2px) rotate(-2deg);
+                    }
+                    75% {
+                        transform: translateX(2px) rotate(2deg);
+                    }
+                }
+            `}</style>
         </div>
     );
 }

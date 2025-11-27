@@ -8,6 +8,7 @@ interface CreatureLayerProps {
     grid: Tile[][];
     tileSize: number;
     mapType: 'kingdom' | 'realm';
+    playerPosition?: { x: number; y: number }; // Optional: actual player position for tooltips
 }
 
 interface ActiveCreature {
@@ -18,11 +19,18 @@ interface ActiveCreature {
     state: 'idle' | 'walking';
 }
 
-export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileSize'>) {
+export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLayerProps, 'tileSize'>) {
     const [activeCreatures, setActiveCreatures] = useState<ActiveCreature[]>([]);
     const [playerTile, setPlayerTile] = useState<{ row: number; col: number } | null>(null);
     const { user, isLoaded } = useUser();
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Update player tile when playerPosition prop changes
+    useEffect(() => {
+        if (playerPosition) {
+            setPlayerTile({ row: playerPosition.y, col: playerPosition.x });
+        }
+    }, [playerPosition]);
 
     // 1. Fetch Unlocked Achievements & Spawn Creatures
     useEffect(() => {
@@ -118,38 +126,70 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
         fetchUnlockedCreatures();
     }, [grid, user, isLoaded, mapType]); // Re-run if grid changes (e.g. new tiles placed)
 
-    // 2. Wandering Logic
+    // 2. Wandering Logic - Different for Kingdom vs Realm
     useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveCreatures(prev => prev.map(creature => {
-                // 30% chance to move if idle
-                if (Math.random() > 0.3) return creature;
+        if (activeCreatures.length === 0) return;
 
-                const def = CREATURE_DEFINITIONS[creature.definitionId];
-                if (!def) return creature;
+        const moveCreature = (creature: ActiveCreature) => {
+            const def = CREATURE_DEFINITIONS[creature.definitionId];
+            if (!def) return creature;
 
-                const neighbors = getNeighbors(creature.position, grid);
-                const validNeighbors = neighbors.filter(n => n.tile && isHabitatMatch(n.tile, def.type));
+            const neighbors = getNeighbors(creature.position, grid);
+            const validNeighbors = neighbors.filter(n => n.tile && isHabitatMatch(n.tile, def.type));
 
-                if (validNeighbors.length > 0) {
-                    const nextTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
-                    if (nextTile) {
-                        return {
-                            ...creature,
-                            position: { row: nextTile.row, col: nextTile.col }, // Instant move for now (can animate later)
-                            state: 'walking'
-                        };
-                    }
+            if (validNeighbors.length > 0) {
+                const nextTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+                if (nextTile) {
+                    console.log(`[CreatureLayer] Moving ${def.name} from`, creature.position, 'to', { row: nextTile.row, col: nextTile.col });
+                    return {
+                        ...creature,
+                        position: { row: nextTile.row, col: nextTile.col },
+                        state: 'walking' as const
+                    };
                 }
-                return creature;
-            }));
-        }, 5000); // Try to move every 5 seconds
+            }
+            return creature;
+        };
 
-        return () => clearInterval(interval);
-    }, [grid]);
+        if (mapType === 'kingdom') {
+            // Kingdom: Each creature moves independently at random intervals (2-10 seconds)
+            const timers: NodeJS.Timeout[] = [];
 
-    // 3. Track Player Mouse/Touch Position
+            activeCreatures.forEach((creature, index) => {
+                const scheduleNextMove = () => {
+                    const delay = Math.random() * 8000 + 2000; // 2-10 seconds
+                    const timer = setTimeout(() => {
+                        setActiveCreatures(prev => {
+                            const newCreatures = [...prev];
+                            if (newCreatures[index]) {
+                                newCreatures[index] = moveCreature(newCreatures[index]);
+                            }
+                            return newCreatures;
+                        });
+                        scheduleNextMove(); // Schedule next move
+                    }, delay);
+                    timers.push(timer);
+                };
+                scheduleNextMove();
+            });
+
+            return () => {
+                timers.forEach(timer => clearTimeout(timer));
+            };
+        } else {
+            // Realm: All creatures move together every 5 seconds (like animals)
+            const interval = setInterval(() => {
+                setActiveCreatures(prev => prev.map(moveCreature));
+            }, 5000);
+
+            return () => clearInterval(interval);
+        }
+    }, [grid, activeCreatures.length, mapType]);
+
+    // 3. Track Player Position (for Realm - use character position from MapGrid)
+    // For Kingdom, we'll need to get it from the kingdom grid component
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
+        // This is only used as fallback - ideally we get actual player position from parent
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;

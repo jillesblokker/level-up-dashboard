@@ -234,7 +234,7 @@ export function MapGrid({
           role="grid"
         >
           {/* Living World Creature Layer */}
-          <CreatureLayer grid={grid} mapType="realm" />
+          <CreatureLayer grid={grid} mapType="realm" playerPosition={playerPosition} />
 
           {grid.map((row, y) => (
             <div key={`row-${y}`} role="row" aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
