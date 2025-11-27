@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react"
 import { MainNav } from "@/components/main-nav"
-import { MobileNav } from "@/components/navigation/mobile-nav"
 import { Session } from '@supabase/supabase-js'
 import { Castle, Coins } from "lucide-react"
 import { Logo } from "@/components/logo"
@@ -140,10 +139,6 @@ export function NavBar({ session }: NavBarProps) {
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
-        </div>
-        {/* Mobile Navigation: hamburger menu hidden - using bottom nav instead */}
-        <div className="hidden">
-          <MobileNav />
         </div>
         {/* Desktop right-side stats, notification, user nav */}
         <div className="ml-auto flex items-center space-x-4 hidden md:flex pr-6">

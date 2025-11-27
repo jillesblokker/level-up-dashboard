@@ -19,7 +19,6 @@ import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { BottomNav } from '@/components/bottom-nav'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
-import { OnboardingProvider } from '@/components/onboarding-provider'
 import LocalStorageMigrator from '@/components/local-storage-migrator'
 import { AudioProvider } from '@/components/audio-provider'
 import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
@@ -151,19 +150,16 @@ export default function RootLayout({
                 <TitleEvolutionProvider>
                   <AudioProvider>
                     <Providers>
-                      {/* OnboardingProvider restored with disabled functionality */}
-                      <OnboardingProvider>
-                        <div className="flex flex-col h-full">
-                          <AuthGate>
-                            <NavBar session={null} />
-                            <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                              {children}
-                            </main>
-                            <BottomNav />
-                            <SeasonalHuntWrapper />
-                          </AuthGate>
-                        </div>
-                      </OnboardingProvider>
+                      <div className="flex flex-col h-full">
+                        <AuthGate>
+                          <NavBar session={null} />
+                          <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                            {children}
+                          </main>
+                          <BottomNav />
+                          <SeasonalHuntWrapper />
+                        </AuthGate>
+                      </div>
                       <LocalStorageMigrator />
                       <KingdomNotificationManager />
                       <DayNightCycle />
