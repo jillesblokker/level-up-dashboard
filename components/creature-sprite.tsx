@@ -67,7 +67,11 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                     width: `${creature.scale * 70}%`,
                     height: `${creature.scale * 70}%`,
                 }}
+                onLoad={() => {
+                    console.log('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
+                }}
                 onError={(e) => {
+                    console.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);
                     // Fallback if image fails to load
                     e.currentTarget.style.display = 'none';
                 }}

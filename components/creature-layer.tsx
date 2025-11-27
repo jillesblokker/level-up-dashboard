@@ -27,43 +27,98 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
     // 1. Fetch Unlocked Achievements & Spawn Creatures
     useEffect(() => {
         const fetchUnlockedCreatures = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            console.log('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
 
-            // Fetch unlocked achievements
-            const { data: achievements } = await supabase
-                .from('user_achievements')
-                .select('achievement_id')
-                .eq('user_id', user.id);
+            try {
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-            if (!achievements) return;
-
-            const unlockedIds = achievements.map(a => a.achievement_id);
-            const creaturesToSpawn: ActiveCreature[] = [];
-
-            // For each unlocked achievement, check if it has a corresponding creature
-            unlockedIds.forEach(id => {
-                const def = CREATURE_DEFINITIONS[id];
-                if (def) {
-                    // Find a valid spawn point
-                    const spawnPoint = findRandomSpawnPoint(grid, def.type);
-                    if (spawnPoint) {
-                        creaturesToSpawn.push({
-                            instanceId: `${def.id}-${Date.now()}`,
-                            definitionId: def.id,
-                            position: spawnPoint,
-                            targetPosition: spawnPoint,
-                            state: 'idle'
-                        });
-                    }
+                if (userError) {
+                    console.error('[CreatureLayer] Error fetching user:', userError);
+                    return;
                 }
-            });
 
-            setActiveCreatures(creaturesToSpawn);
+                if (!user) {
+                    console.log('[CreatureLayer] No user logged in, skipping creature spawn');
+                    return;
+                }
+
+                console.log('[CreatureLayer] User found:', user.id);
+
+                // Fetch unlocked achievements
+                const { data: achievements, error: achievementsError } = await supabase
+                    .from('user_achievements')
+                    .select('achievement_id')
+                    .eq('user_id', user.id);
+
+                if (achievementsError) {
+                    console.error('[CreatureLayer] Error fetching achievements:', achievementsError);
+                    return;
+                }
+
+                console.log('[CreatureLayer] Achievements fetched:', achievements?.length || 0);
+
+                if (!achievements || achievements.length === 0) {
+                    console.log('[CreatureLayer] No achievements found. Spawning test creatures for development.');
+                    // Spawn a few test creatures for development/testing
+                    const testCreatures: ActiveCreature[] = [];
+                    const testIds = ['001', '004', '007', '010', '013']; // One of each type
+
+                    testIds.forEach(id => {
+                        const def = CREATURE_DEFINITIONS[id];
+                        if (def) {
+                            const spawnPoint = findRandomSpawnPoint(grid, def.type);
+                            if (spawnPoint) {
+                                testCreatures.push({
+                                    instanceId: `${def.id}-${Date.now()}-${Math.random()}`,
+                                    definitionId: def.id,
+                                    position: spawnPoint,
+                                    targetPosition: spawnPoint,
+                                    state: 'idle'
+                                });
+                                console.log(`[CreatureLayer] Spawned test creature ${def.name} at`, spawnPoint);
+                            }
+                        }
+                    });
+
+                    setActiveCreatures(testCreatures);
+                    return;
+                }
+
+                const unlockedIds = achievements.map(a => a.achievement_id);
+                console.log('[CreatureLayer] Unlocked achievement IDs:', unlockedIds);
+
+                const creaturesToSpawn: ActiveCreature[] = [];
+
+                // For each unlocked achievement, check if it has a corresponding creature
+                unlockedIds.forEach(id => {
+                    const def = CREATURE_DEFINITIONS[id];
+                    if (def) {
+                        // Find a valid spawn point
+                        const spawnPoint = findRandomSpawnPoint(grid, def.type);
+                        if (spawnPoint) {
+                            creaturesToSpawn.push({
+                                instanceId: `${def.id}-${Date.now()}-${Math.random()}`,
+                                definitionId: def.id,
+                                position: spawnPoint,
+                                targetPosition: spawnPoint,
+                                state: 'idle'
+                            });
+                            console.log(`[CreatureLayer] Spawned creature ${def.name} at`, spawnPoint);
+                        } else {
+                            console.warn(`[CreatureLayer] No valid spawn point found for creature ${def.name} (type: ${def.type})`);
+                        }
+                    }
+                });
+
+                console.log('[CreatureLayer] Total creatures spawned:', creaturesToSpawn.length);
+                setActiveCreatures(creaturesToSpawn);
+            } catch (error) {
+                console.error('[CreatureLayer] Unexpected error:', error);
+            }
         };
 
         fetchUnlockedCreatures();
-    }, [grid, supabase]); // Re-run if grid changes (e.g. new tiles placed)
+    }, [grid, supabase, mapType]); // Re-run if grid changes (e.g. new tiles placed)
 
     // 2. Wandering Logic
     useEffect(() => {
@@ -119,6 +174,8 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
     const rows = grid.length;
     const cols = grid[0].length;
 
+    console.log('[CreatureLayer] Rendering with', activeCreatures.length, 'creatures');
+
     return (
         <div
             ref={containerRef}
@@ -128,9 +185,14 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
         >
             {activeCreatures.map(creature => {
                 const def = CREATURE_DEFINITIONS[creature.definitionId];
-                if (!def) return null;
+                if (!def) {
+                    console.warn('[CreatureLayer] No definition found for creature:', creature.definitionId);
+                    return null;
+                }
 
                 const isPlayerOnTile = !!playerTile && playerTile.row === creature.position.row && playerTile.col === creature.position.col;
+
+                console.log('[CreatureLayer] Rendering creature:', def.name, 'at position:', creature.position);
 
                 return (
                     <div
@@ -216,25 +278,70 @@ function getNeighbors(pos: { row: number; col: number }, grid: Tile[][]) {
 
 function isHabitatMatch(tile: Tile, habitatType: string): boolean {
     // Map tile types to habitat types
-    // Tile types: 'vacant', 'house', 'farm', 'lumber_camp', 'mine', 'castle', 'market', 'barracks', 'archery_range', 'stable', 'blacksmith', 'library', 'alchemist', 'tavern', 'church', 'watchtower', 'wall', 'gate', 'road', 'water', 'bridge', 'forest', 'mountain', 'field'
+    // Kingdom tiles: 'vacant', 'well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'library', 'mansion', 'jousting', 'archery', 'watchtower'
+    // Realm tiles: 'grass', 'water', 'forest', 'mountain', 'desert', 'ice', 'snow', 'cave', 'dungeon', 'castle', 'lava', 'volcano', 'city', 'town', 'mystery'
 
     const tileType = tile.type?.toLowerCase() || 'vacant';
 
+    console.log('[isHabitatMatch] Checking tile type:', tileType, 'against habitat:', habitatType);
+
     switch (habitatType) {
         case 'water':
-            return tileType.includes('water') || tileType.includes('bridge') || tileType.includes('lake') || tileType.includes('river');
+            // Water creatures: ponds, fountains, fisherman areas, water tiles
+            return tileType.includes('water') ||
+                tileType.includes('pond') ||
+                tileType.includes('fountain') ||
+                tileType.includes('fisherman') ||
+                tileType.includes('well') ||
+                tileType.includes('bridge') ||
+                tileType.includes('lake') ||
+                tileType.includes('river');
         case 'fire':
-            return tileType.includes('blacksmith') || tileType.includes('tavern') || tileType.includes('vacant');
+            // Fire creatures: blacksmith, tavern, inn, kitchen areas, lava
+            return tileType.includes('blacksmith') ||
+                tileType.includes('tavern') ||
+                tileType.includes('inn') ||
+                tileType.includes('foodcourt') ||
+                tileType.includes('lava') ||
+                tileType.includes('volcano') ||
+                tileType === 'vacant';
         case 'earth':
-            return tileType.includes('mountain') || tileType.includes('mine') || tileType.includes('wall') || tileType.includes('road');
+            // Earth creatures: mountains, mines, walls, roads, quarries
+            return tileType.includes('mountain') ||
+                tileType.includes('mine') ||
+                tileType.includes('wall') ||
+                tileType.includes('watchtower') ||
+                tileType.includes('road') ||
+                tileType === 'vacant';
         case 'nature':
-            return tileType.includes('forest') || tileType.includes('farm') || tileType.includes('field') || tileType.includes('lumber');
+            // Nature creatures: forests, farms, gardens, sawmills, windmills
+            return tileType.includes('forest') ||
+                tileType.includes('farm') ||
+                tileType.includes('field') ||
+                tileType.includes('lumber') ||
+                tileType.includes('sawmill') ||
+                tileType.includes('windmill') ||
+                tileType.includes('vegetables') ||
+                tileType.includes('grass') ||
+                tileType === 'vacant';
         case 'ice':
-            // Assuming we might have ice tiles later, or map to mountains for now
-            return tileType.includes('mountain') || tileType.includes('water');
+            // Ice creatures: ice tiles, snow, mountains, water (frozen)
+            return tileType.includes('ice') ||
+                tileType.includes('snow') ||
+                tileType.includes('mountain') ||
+                tileType.includes('water');
         case 'monster':
-            return tileType.includes('vacant') || tileType.includes('forest');
+            // Monsters: dungeons, caves, castles, vacant areas
+            return tileType.includes('dungeon') ||
+                tileType.includes('cave') ||
+                tileType.includes('castle') ||
+                tileType.includes('forest') ||
+                tileType === 'vacant';
+        case 'special':
+            // Special creatures: can appear anywhere
+            return true;
         default:
+            // Default: only vacant tiles
             return tileType === 'vacant';
     }
 }

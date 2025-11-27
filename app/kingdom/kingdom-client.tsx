@@ -1208,7 +1208,7 @@ export function KingdomClient() {
             className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
             style={{
               objectPosition: 'center center',
-              transform: zoomed ? 'scale(2.5)' : 'scale(1)',
+              transform: zoomed ? 'scale(5)' : 'scale(1)',
               transition: 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             }}
             unoptimized
