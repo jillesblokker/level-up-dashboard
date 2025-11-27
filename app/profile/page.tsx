@@ -214,12 +214,12 @@ export default function ProfilePage() {
               <Shield className="w-4 h-4 mr-2" />
               Realm Explorer
             </p>
-            <div className="flex space-x-2">
-              <Badge variant="secondary" className="bg-amber-500/20 text-amber-400 border-amber-500/30">
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+              <Badge variant="secondary" className="bg-amber-500/20 text-amber-400 border-amber-500/30 w-fit">
                 <Sword className="w-3 h-3 mr-1" />
                 Active
               </Badge>
-              <Badge variant="outline" className="border-amber-500/30 text-amber-400">
+              <Badge variant="outline" className="border-amber-500/30 text-amber-400 w-fit truncate max-w-full">
                 {user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ''}
               </Badge>
             </div>
