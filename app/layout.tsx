@@ -17,6 +17,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { GlobalErrorBoundary } from '@/components/global-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
+import { BottomNav } from '@/components/bottom-nav'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { OnboardingProvider } from '@/components/onboarding-provider'
 import LocalStorageMigrator from '@/components/local-storage-migrator'
@@ -155,9 +156,10 @@ export default function RootLayout({
                         <div className="flex flex-col h-full">
                           <AuthGate>
                             <NavBar session={null} />
-                            <main className="flex-1 relative">
+                            <main className="flex-1 relative pb-20 lg:pb-0">
                               {children}
                             </main>
+                            <BottomNav />
                             <SeasonalHuntWrapper />
                           </AuthGate>
                         </div>

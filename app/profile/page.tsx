@@ -15,11 +15,15 @@ import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Shield, Sword, User, Palette, Camera, Save } from "lucide-react";
+import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database } from "lucide-react";
+import { useAudioContext } from "@/components/audio-provider";
+import Link from "next/link";
+import { logout } from "@/app/actions/auth";
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
+  const { settings, setSettings, stopMusic, toggleMusic } = useAudioContext();
   const [isUploading, setIsUploading] = useState(false);
   const [displayName, setDisplayName] = useState((user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses[0]?.emailAddress || "");
   const [avatarBgColor, setAvatarBgColor] = useState(user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937");
@@ -31,6 +35,16 @@ export default function ProfilePage() {
   const [showCropper, setShowCropper] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [avatarType, setAvatarType] = useState<'initial' | 'default' | 'uploaded'>((user?.unsafeMetadata?.['avatar_type'] as 'initial' | 'default' | 'uploaded') || (user?.imageUrl ? 'uploaded' : 'initial'));
+
+  // Guide button click handler
+  const handleGuideClick = () => {
+    if (typeof window !== 'undefined' && (window as any).openOnboarding) {
+      console.log('Opening onboarding via guide button');
+      (window as any).openOnboarding();
+    } else {
+      console.log('Onboarding function not available');
+    }
+  };
 
   useEffect(() => {
     // Log user and isLoaded for debugging
@@ -127,22 +141,22 @@ export default function ProfilePage() {
           {/* Hero background with medieval theme */}
           <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
           <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-20" />
-          
+
           {/* Decorative elements */}
           <div className="absolute top-4 left-4 w-8 h-8 border-2 border-amber-500/30 rounded-full" />
           <div className="absolute top-4 right-4 w-8 h-8 border-2 border-amber-500/30 rounded-full" />
           <div className="absolute bottom-4 left-4 w-8 h-8 border-2 border-amber-500/30 rounded-full" />
           <div className="absolute bottom-4 right-4 w-8 h-8 border-2 border-amber-500/30 rounded-full" />
-          
+
           <div className="relative z-10 flex flex-col items-center justify-center h-full w-full p-8">
             <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mb-6 border-2 border-amber-500/30">
               <User className="w-10 h-10 text-amber-400" />
             </div>
             <h2 className="text-3xl font-bold text-amber-400 mb-4 drop-shadow-lg">Join the Kingdom</h2>
             <p className="text-gray-300 mb-6 text-lg leading-relaxed">Access your realm, customize your avatar, and track your progress by signing in.</p>
-            <Button 
-              className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 text-lg hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25" 
-              aria-label="Sign in to profile" 
+            <Button
+              className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 text-lg hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
+              aria-label="Sign in to profile"
               onClick={() => window.location.href = '/auth/signin'}
             >
               <Crown className="w-5 h-5 mr-2" />
@@ -160,13 +174,13 @@ export default function ProfilePage() {
       <div className="relative mb-8 rounded-lg overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
         <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-30" />
-        
+
         {/* Decorative border elements */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-amber-500 to-transparent" />
         <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-transparent via-amber-500 to-transparent" />
-        
+
         <div className="relative z-10 p-8 flex items-center space-x-6">
           {/* Large Avatar */}
           <div className="relative">
@@ -178,7 +192,7 @@ export default function ProfilePage() {
                   <img src={placeholderSvg} alt="Default avatar" className="w-12 h-12 object-contain opacity-70" />
                 </div>
               ) : (
-                <div 
+                <div
                   className="w-full h-full flex items-center justify-center text-3xl font-bold"
                   style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}
                 >
@@ -190,7 +204,7 @@ export default function ProfilePage() {
               <User className="w-4 h-4 text-white" />
             </div>
           </div>
-          
+
           {/* Profile Info */}
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">
@@ -215,7 +229,7 @@ export default function ProfilePage() {
 
       {/* Main Content */}
       <Tabs defaultValue="avatar" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-900 border-amber-800/20">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-amber-800/20">
           <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Camera className="w-4 h-4 mr-2" />
             Avatar
@@ -226,7 +240,11 @@ export default function ProfilePage() {
           </TabsTrigger>
           <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Palette className="w-4 h-4 mr-2" />
-            Appearance
+            Colors
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
           </TabsTrigger>
         </TabsList>
 
@@ -246,15 +264,14 @@ export default function ProfilePage() {
                   {/* Initial Avatar */}
                   <button
                     type="button"
-                    className={`relative group transition-all duration-200 ${
-                      avatarType === 'initial' 
-                        ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900' 
-                        : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
-                    }`}
+                    className={`relative group transition-all duration-200 ${avatarType === 'initial'
+                      ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900'
+                      : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
+                      }`}
                     onClick={() => setAvatarType('initial')}
                     aria-label="Use initial avatar"
                   >
-                    <div 
+                    <div
                       className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50"
                       style={{ backgroundColor: avatarBgColor }}
                     >
@@ -270,11 +287,10 @@ export default function ProfilePage() {
                   {/* Default Avatar */}
                   <button
                     type="button"
-                    className={`relative group transition-all duration-200 ${
-                      avatarType === 'default' 
-                        ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900' 
-                        : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
-                    }`}
+                    className={`relative group transition-all duration-200 ${avatarType === 'default'
+                      ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900'
+                      : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
+                      }`}
                     onClick={() => setAvatarType('default')}
                     aria-label="Use default avatar"
                   >
@@ -289,11 +305,10 @@ export default function ProfilePage() {
                   {/* Uploaded Avatar */}
                   <button
                     type="button"
-                    className={`relative group transition-all duration-200 ${
-                      avatarType === 'uploaded' 
-                        ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900' 
-                        : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
-                    } ${!user?.imageUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`relative group transition-all duration-200 ${avatarType === 'uploaded'
+                      ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900'
+                      : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
+                      } ${!user?.imageUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={() => user?.imageUrl && setAvatarType('uploaded')}
                     aria-label="Use uploaded avatar"
                     disabled={!user?.imageUrl}
@@ -328,8 +343,8 @@ export default function ProfilePage() {
                       aria-label="profile-picture-upload"
                       autoComplete="photo"
                     />
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       disabled={isUploading}
                       className="border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
@@ -449,7 +464,7 @@ export default function ProfilePage() {
                   <div className="space-y-3">
                     <Label className="text-sm font-medium text-gray-300">Preview</Label>
                     <div className="flex items-center space-x-4">
-                      <div 
+                      <div
                         className="w-16 h-16 rounded-full flex items-center justify-center border-2 border-amber-500/30"
                         style={{ backgroundColor: avatarBgColor }}
                       >
@@ -470,6 +485,144 @@ export default function ProfilePage() {
                   <p className="text-sm text-gray-500 mt-2">Switch to &quot;Initial&quot; avatar type to customize colors.</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          {/* Audio Settings */}
+          <Card className="bg-gray-900 border-amber-800/20">
+            <CardHeader>
+              <CardTitle className="text-xl text-amber-400 flex items-center">
+                <Volume2 className="w-5 h-5 mr-2" />
+                Audio Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20">
+                <div className="flex items-center gap-3">
+                  {settings.musicEnabled ? (
+                    <Volume2 className="h-5 w-5 text-amber-400" />
+                  ) : (
+                    <VolumeX className="h-5 w-5 text-gray-400" />
+                  )}
+                  <div>
+                    <p className="text-base font-medium text-white">
+                      {settings.musicEnabled ? 'Audio Enabled' : 'Audio Disabled'}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {settings.musicEnabled ? 'Background music and sounds are playing' : 'All audio is muted'}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={toggleMusic}
+                  variant="outline"
+                  className="border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                >
+                  {settings.musicEnabled ? 'Disable' : 'Enable'}
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-red-900/10 border border-red-800/20">
+                <div className="flex items-center gap-3">
+                  <VolumeX className="h-5 w-5 text-red-400" />
+                  <div>
+                    <p className="text-base font-medium text-white">Disable All Audio</p>
+                    <p className="text-xs text-gray-400">
+                      Turn off all music and sound effects completely
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    setSettings(prev => ({
+                      ...prev,
+                      musicEnabled: false,
+                      sfxEnabled: false
+                    }));
+                    stopMusic();
+                  }}
+                  variant="outline"
+                  className="border-red-800/30 text-red-400 hover:bg-red-900/20"
+                >
+                  Disable All
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* App Settings */}
+          <Card className="bg-gray-900 border-amber-800/20">
+            <CardHeader>
+              <CardTitle className="text-xl text-amber-400 flex items-center">
+                <Settings className="w-5 h-5 mr-2" />
+                App Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <button
+                onClick={handleGuideClick}
+                className="w-full flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200 text-left"
+              >
+                <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-base font-medium text-white">Guide</p>
+                  <p className="text-xs text-gray-400">Open the interactive tutorial</p>
+                </div>
+              </button>
+
+              <Link href="/requirements" className="block">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                  <ClipboardCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-base font-medium text-white">Requirements</p>
+                    <p className="text-xs text-gray-400">View system requirements</p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/design-system" className="block">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                  <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-base font-medium text-white">Design System</p>
+                    <p className="text-xs text-gray-400">View design components</p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/admin/stored-data" className="block">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                  <Database className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-base font-medium text-white">Stored Data</p>
+                    <p className="text-xs text-gray-400">Manage local data</p>
+                  </div>
+                </div>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Account Actions */}
+          <Card className="bg-gray-900 border-amber-800/20">
+            <CardHeader>
+              <CardTitle className="text-xl text-amber-400 flex items-center">
+                <User className="w-5 h-5 mr-2" />
+                Account Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form action={logout}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="w-full border-red-800/30 text-red-400 hover:bg-red-900/20"
+                >
+                  <Settings className="h-5 w-5 mr-2" />
+                  Log out
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
@@ -514,15 +667,15 @@ export default function ProfilePage() {
             </div>
           )}
           <div className="flex justify-end gap-3 mt-6">
-            <Button 
-              onClick={() => setShowCropper(false)} 
+            <Button
+              onClick={() => setShowCropper(false)}
               variant="outline"
               className="border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleCropSave} 
+            <Button
+              onClick={handleCropSave}
               disabled={isUploading}
               className="bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800"
             >
