@@ -59,7 +59,8 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
                 }
 
                 const data = await response.json();
-                const achievements = data.achievements || [];
+                // API returns an array of achievements directly, or an object with error
+                const achievements = Array.isArray(data) ? data : (data.achievements || []);
 
                 console.log('[CreatureLayer] Achievements fetched:', achievements.length);
 
