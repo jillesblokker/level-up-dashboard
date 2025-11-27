@@ -1950,6 +1950,8 @@ export default function QuestsPage() {
                         onAddQuest={() => setAddQuestModalOpen(true)}
                         showCategoryFilter={true}
                         context="quests"
+                        hideOverview={true}
+                        hideCategoryOverview={true}
                       />
                     </div>
                   </TabsContent>
@@ -1988,7 +1990,22 @@ export default function QuestsPage() {
                       />
                     </div>
 
-                    {/* Chronicles & Tarot Cards */}
+                    {/* Quest Overview and Categories - Moved from Errands */}
+                    <QuestOrganization
+                      quests={quests}
+                      onQuestToggle={handleQuestToggle}
+                      onQuestFavorite={handleQuestFavorite}
+                      onQuestEdit={handleEditQuest}
+                      onQuestDelete={handleDeleteQuest}
+                      onAddQuest={() => setAddQuestModalOpen(true)}
+                      showCategoryFilter={false}
+                      context="quests"
+                      hideOverview={false}
+                      hideCategoryOverview={false}
+                      onlyShowOverviews={true}
+                    />
+
+                    {/* Quest Streak Summary Card */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <ChroniclesCard currentLevel={characterStats.level} />
                       <TarotCardDisplay />
