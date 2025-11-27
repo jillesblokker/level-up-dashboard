@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CreatureDefinition, CREATURE_DEFINITIONS } from '@/lib/creature-mapping';
 import { CreatureSprite } from './creature-sprite';
 import { Tile } from '@/types/tiles';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useUser } from '@clerk/nextjs';
 
 interface CreatureLayerProps {
     grid: Tile[][];
@@ -21,7 +21,7 @@ interface ActiveCreature {
 export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileSize'>) {
     const [activeCreatures, setActiveCreatures] = useState<ActiveCreature[]>([]);
     const [playerTile, setPlayerTile] = useState<{ row: number; col: number } | null>(null);
-    const supabase = createClientComponentClient();
+    const { user, isLoaded } = useUser();
     const containerRef = useRef<HTMLDivElement>(null);
 
     // 1. Fetch Unlocked Achievements & Spawn Creatures
@@ -30,10 +30,8 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
             console.log('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
 
             try {
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-                if (userError) {
-                    console.error('[CreatureLayer] Error fetching user:', userError);
+                if (!isLoaded) {
+                    console.log('[CreatureLayer] Clerk not loaded yet, waiting...');
                     return;
                 }
 
@@ -44,18 +42,18 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
 
                 console.log('[CreatureLayer] User found:', user.id);
 
-                // Fetch unlocked achievements
-                const { data: achievements, error: achievementsError } = await supabase
-                    .from('user_achievements')
-                    .select('achievement_id')
-                    .eq('user_id', user.id);
+                // Fetch unlocked achievements from your API
+                const response = await fetch('/api/achievements');
 
-                if (achievementsError) {
-                    console.error('[CreatureLayer] Error fetching achievements:', achievementsError);
+                if (!response.ok) {
+                    console.error('[CreatureLayer] Error fetching achievements:', response.statusText);
                     return;
                 }
 
-                console.log('[CreatureLayer] Achievements fetched:', achievements?.length || 0);
+                const data = await response.json();
+                const achievements = data.achievements || [];
+
+                console.log('[CreatureLayer] Achievements fetched:', achievements.length);
 
                 if (!achievements || achievements.length === 0) {
                     console.log('[CreatureLayer] No achievements found. Spawning test creatures for development.');
@@ -84,13 +82,13 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
                     return;
                 }
 
-                const unlockedIds = achievements.map(a => a.achievement_id);
+                const unlockedIds = achievements.map((a: any) => a.achievement_id || a.id);
                 console.log('[CreatureLayer] Unlocked achievement IDs:', unlockedIds);
 
                 const creaturesToSpawn: ActiveCreature[] = [];
 
                 // For each unlocked achievement, check if it has a corresponding creature
-                unlockedIds.forEach(id => {
+                unlockedIds.forEach((id: string) => {
                     const def = CREATURE_DEFINITIONS[id];
                     if (def) {
                         // Find a valid spawn point
@@ -118,7 +116,7 @@ export function CreatureLayer({ grid, mapType }: Omit<CreatureLayerProps, 'tileS
         };
 
         fetchUnlockedCreatures();
-    }, [grid, supabase, mapType]); // Re-run if grid changes (e.g. new tiles placed)
+    }, [grid, user, isLoaded, mapType]); // Re-run if grid changes (e.g. new tiles placed)
 
     // 2. Wandering Logic
     useEffect(() => {
