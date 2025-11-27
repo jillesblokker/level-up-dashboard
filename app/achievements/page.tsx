@@ -43,7 +43,7 @@ export default function Page() {
   const { user, isLoaded: isAuthLoaded } = useUser();
   const userId = user?.id;
   const [showAllUnlocked, setShowAllUnlocked] = useState(false);
-  const [showStats, setShowStats] = useState(false);
+  const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
 
 
@@ -253,7 +253,7 @@ export default function Page() {
     };
     fetchAchievements();
   }, [isClerkLoaded, isAuthLoaded, userId, getToken]);
-  
+
   const isUnlocked = (achievementId: string) => {
     if (showAllUnlocked) return true;
     return unlockedAchievements.has(achievementId);
@@ -307,7 +307,7 @@ export default function Page() {
           {!hasAnyUnlocked && !showAllUnlocked && (
             <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover creatures!</div>
           )}
-          
+
           {/* Original Creatures Section */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
@@ -326,6 +326,7 @@ export default function Page() {
                 if (!creature) return null;
                 const unlocked = isCreatureUnlocked(creature.id);
                 const unlockDate = getUnlockDate(creature.id);
+                const isFlipped = flippedCardId === creature.id;
                 return (
                   <Card
                     key={creature.id}
@@ -335,15 +336,15 @@ export default function Page() {
                     {/* Full-width/height image only */}
                     <div className="absolute inset-0 w-full h-full">
                       {unlocked ? (
-                        <div className="relative w-full h-full cursor-pointer" onClick={() => setShowStats(!showStats)}>
-                          <Image 
-                            src={creature.image} 
+                        <div className="relative w-full h-full cursor-pointer" onClick={() => setFlippedCardId(isFlipped ? null : creature.id)}>
+                          <Image
+                            src={creature.image}
                             alt={creature.name}
-                            fill 
-                            className="object-cover" 
+                            fill
+                            className="object-cover"
                           />
                           {/* Stats Overlay */}
-                          {showStats && (
+                          {isFlipped && (
                             <div className="absolute inset-0 bg-[#0a192f] p-10 flex flex-col z-30">
                               <h3 className="text-xl font-bold text-amber-500 mb-4">{creature.name}</h3>
                               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -376,11 +377,11 @@ export default function Page() {
                           )}
                         </div>
                       ) : (
-                        <Image 
-                          src={'/images/undiscovered.png'} 
-                          alt="Undiscovered Achievement" 
-                          fill 
-                          className="object-cover opacity-50" 
+                        <Image
+                          src={'/images/undiscovered.png'}
+                          alt="Undiscovered Achievement"
+                          fill
+                          className="object-cover opacity-50"
                         />
                       )}
                     </div>
@@ -394,7 +395,7 @@ export default function Page() {
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-amber-400 mb-4">Monster Battles</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3" aria-label="achievement-cards-grid">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
                     // Only show monster battle achievements (201-206)
@@ -402,24 +403,24 @@ export default function Page() {
                     return achievementId >= 201 && achievementId <= 206;
                   })
                   .map(achievement => {
-                  if (!achievement) return null;
-                  const unlocked = isUnlocked(achievement.id);
-                  const unlockDate = getUnlockDate(achievement.id);
-                  
-                  // Map achievement IDs to monster names
-                  const monsterNames: Record<string, string> = {
-                    '201': 'Dragoni',
-                    '202': 'Orci', 
-                    '203': 'Trollie',
-                    '204': 'Sorcero',
-                    '205': 'Peggie',
-                    '206': 'Fairiel'
-                  };
-                  
-                  const monsterName = monsterNames[achievement.id] || achievement.name;
-                  
-                  return (
-                                                                <Card
+                    if (!achievement) return null;
+                    const unlocked = isUnlocked(achievement.id);
+                    const unlockDate = getUnlockDate(achievement.id);
+
+                    // Map achievement IDs to monster names
+                    const monsterNames: Record<string, string> = {
+                      '201': 'Dragoni',
+                      '202': 'Orci',
+                      '203': 'Trollie',
+                      '204': 'Sorcero',
+                      '205': 'Peggie',
+                      '206': 'Fairiel'
+                    };
+
+                    const monsterName = monsterNames[achievement.id] || achievement.name;
+
+                    return (
+                      <Card
                         key={achievement.id}
                         className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
                         aria-label={`achievement-card-${achievement.id}`}
@@ -427,24 +428,24 @@ export default function Page() {
                         {/* Full-width/height image only */}
                         <div className="absolute inset-0 w-full h-full">
                           {unlocked ? (
-                            <Image 
-                              src={achievement.image_url} 
+                            <Image
+                              src={achievement.image_url}
                               alt={monsterName}
                               fill
                               className="object-cover"
                             />
                           ) : (
-                            <Image 
-                              src={'/images/undiscovered.png'} 
-                              alt="Undiscovered Achievement" 
-                              fill 
-                              className="object-cover opacity-50" 
+                            <Image
+                              src={'/images/undiscovered.png'}
+                              alt="Undiscovered Achievement"
+                              fill
+                              className="object-cover opacity-50"
                             />
                           )}
                         </div>
                       </Card>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
           )}
