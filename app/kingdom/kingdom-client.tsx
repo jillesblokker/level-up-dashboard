@@ -844,12 +844,12 @@ export function KingdomClient() {
     setShowEntrance(true);
     setZoomed(false);
     setFadeOut(false);
-    // Linger for 1.5s, then start zoom (3.5s duration)
-    const zoomTimeout = setTimeout(() => setZoomed(true), 1500);
-    // Start fade out at 6s (1s fade duration)
-    const fadeTimeout = setTimeout(() => setFadeOut(true), 6000);
-    // Hide overlay at exactly 7s when fade completes
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 7000);
+    // Start zoom shortly after mount
+    const zoomTimeout = setTimeout(() => setZoomed(true), 100);
+    // Start fade out (container fade) after zoom is mostly done
+    const fadeTimeout = setTimeout(() => setFadeOut(true), 3500);
+    // Remove overlay
+    const hideTimeout = setTimeout(() => setShowEntrance(false), 4500);
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(fadeTimeout);
@@ -1208,17 +1208,17 @@ export function KingdomClient() {
             className={`object-cover transition-transform ease-in-out kingdom-entrance-img`}
             style={{
               objectPosition: 'center center',
-              transform: zoomed ? 'scale(3)' : 'scale(1)',
-              transition: zoomed ? 'transform 3.5s cubic-bezier(0.4,0,0.2,1) 2s' : 'none',
+              transform: zoomed ? 'scale(2.5)' : 'scale(1)',
+              transition: 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             }}
             unoptimized
           />
           {/* Black overlay that fades in as we zoom */}
           <div
-            className="absolute inset-0 bg-black transition-opacity duration-[2000ms]"
+            className="absolute inset-0 bg-black transition-opacity duration-[1000ms]"
             style={{
               opacity: zoomed ? 1 : 0,
-              transitionDelay: '2s'
+              transitionDelay: '2.5s'
             }}
           />
         </div>

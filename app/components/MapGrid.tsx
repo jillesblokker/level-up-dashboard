@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
+import { CreatureLayer } from '@/components/creature-layer';
 
 interface MapGridProps {
   grid: Tile[][];
@@ -74,11 +75,11 @@ const getMonsterImageName = (monsterType: string) => {
   }
 };
 
-export function MapGrid({ 
-  grid, 
-  playerPosition, 
-  onTileClick, 
-  playerLevel = 0, 
+export function MapGrid({
+  grid,
+  playerPosition,
+  onTileClick,
+  playerLevel = 0,
   onTileSizeChange,
   penguinPos,
   horsePos,
@@ -89,33 +90,33 @@ export function MapGrid({
   isSheepPresent = false,
   horseCaught = false
 }: MapGridProps) {
-    const gridRef = useRef<HTMLDivElement>(null);
-    const [tileSize, setTileSize] = useState(80);
-    const [isLoading, setIsLoading] = useState(true);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [tileSize, setTileSize] = useState(80);
+  const [isLoading, setIsLoading] = useState(true);
 
 
 
-    // Calculate responsive tile size based on container width
-    useEffect(() => {
+  // Calculate responsive tile size based on container width
+  useEffect(() => {
     function handleResize() {
       if (!gridRef.current) return;
-      
+
       const containerWidth = gridRef.current.clientWidth;
       const containerHeight = gridRef.current.clientHeight;
-      
+
       // Calculate optimal tile size to fill the container
       const maxCols = grid?.[0]?.length || 13;
       const maxRows = grid?.length || 7;
-      
+
       const tileSizeX = containerWidth / maxCols;
       const tileSizeY = containerHeight / maxRows;
-      
+
       // Use the larger dimension to fill available space, but cap at reasonable max
       const newTileSize = Math.min(Math.max(tileSizeX, tileSizeY), 120); // Use larger dimension, max 120px
       const finalTileSize = Math.max(newTileSize, 60); // Minimum 60px for better visibility
       setTileSize(finalTileSize);
     }
-    
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -232,6 +233,9 @@ export function MapGrid({
           aria-label="map-grid-container"
           role="grid"
         >
+          {/* Living World Creature Layer */}
+          <CreatureLayer grid={grid} mapType="realm" />
+
           {grid.map((row, y) => (
             <div key={`row-${y}`} role="row" aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
               {row.map((tile, x) => (
@@ -310,7 +314,7 @@ export function MapGrid({
             </div>
           ))}
         </div>
-        
+
         {/* Animal Overlays - positioned within the grid container */}
         {/* Penguin - appears on ice tiles */}
         {isPenguinPresent && penguinPos && (
@@ -331,7 +335,7 @@ export function MapGrid({
             />
           </div>
         )}
-        
+
         {/* Horse - appears on grass tiles, disappears when caught */}
         {isHorsePresent && horsePos && !horseCaught && (
           <div
@@ -351,7 +355,7 @@ export function MapGrid({
             />
           </div>
         )}
-        
+
         {/* Sheep - appears on grass tiles */}
         {isSheepPresent && sheepPos && (
           <div
@@ -371,7 +375,7 @@ export function MapGrid({
             />
           </div>
         )}
-        
+
         {/* Eagle - appears when available */}
         {eaglePos && (
           <div

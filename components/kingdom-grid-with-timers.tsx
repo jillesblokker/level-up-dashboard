@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { getCharacterStats, saveCharacterStats } from '@/lib/character-stats-manager'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
+import { CreatureLayer } from '@/components/creature-layer'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
@@ -1372,7 +1373,7 @@ export function KingdomGridWithTimers({
 
     return (
       <div
-        className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl"
+        className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl relative"
         style={{
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
           gridTemplateRows: `repeat(${rows}, 1fr)`,
@@ -1384,6 +1385,9 @@ export function KingdomGridWithTimers({
         }}
         aria-label="thrivehaven-grid"
       >
+        {/* Living World Creature Layer */}
+        <CreatureLayer grid={grid} mapType="kingdom" />
+
         {Array.from({ length: rows }).map((_, y) =>
           Array.from({ length: cols }).map((_, x) => {
             const tile = grid[y]?.[x]
