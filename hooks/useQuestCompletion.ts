@@ -21,7 +21,7 @@ export function useQuestCompletion() {
     error: null,
     pendingQuests: new Set(),
   });
-  
+
   const { toast } = useToast();
   const { isOnline, addToQueue } = useOfflineSupport();
   const questToasts = useQuestToasts();
@@ -34,7 +34,7 @@ export function useQuestCompletion() {
     onError?: (error: string) => void
   ): Promise<QuestCompletionResult> => {
     const newCompleted = !currentCompleted;
-    
+
     // Prevent duplicate requests
     if (state.pendingQuests.has(questId)) {
       console.log('[Quest Completion] Request already pending for quest:', questId);
@@ -50,9 +50,9 @@ export function useQuestCompletion() {
     }));
 
     try {
-      console.log('[Quest Completion] Starting quest toggle:', { 
-        questId, 
-        currentCompleted, 
+      console.log('[Quest Completion] Starting quest toggle:', {
+        questId,
+        currentCompleted,
         newCompleted,
         questName: questData.name,
         isOnline
@@ -95,22 +95,22 @@ export function useQuestCompletion() {
         }),
       });
 
-      console.log('[Quest Completion] Response received:', { 
-        status: response.status, 
-        ok: response.ok 
+      console.log('[Quest Completion] Response received:', {
+        status: response.status,
+        ok: response.ok
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `Failed to update quest (${response.status})`;
-        
+
         try {
           const errorData = JSON.parse(errorText);
           errorMessage = errorData.error || errorMessage;
         } catch {
           errorMessage = errorText || errorMessage;
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -134,6 +134,18 @@ export function useQuestCompletion() {
 
       // Call success callback
       onSuccess?.(newCompleted);
+
+      // Refresh character stats to update the UI
+      if (newCompleted) {
+        try {
+          const { fetchFreshCharacterStats } = await import('@/lib/character-stats-manager');
+          await fetchFreshCharacterStats('quest-completion');
+          console.log('[Quest Completion] Character stats refreshed');
+        } catch (statsError) {
+          console.error('[Quest Completion] Failed to refresh stats:', statsError);
+          // Don't fail the quest completion if stats refresh fails
+        }
+      }
 
       return { success: true, data: responseData };
 
