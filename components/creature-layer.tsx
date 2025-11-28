@@ -35,20 +35,20 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
     // 1. Fetch Unlocked Achievements & Spawn Creatures
     useEffect(() => {
         const fetchUnlockedCreatures = async () => {
-            console.log('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
+            // console.log('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
 
             try {
                 if (!isLoaded) {
-                    console.log('[CreatureLayer] Clerk not loaded yet, waiting...');
+                    // console.log('[CreatureLayer] Clerk not loaded yet, waiting...');
                     return;
                 }
 
                 if (!user) {
-                    console.log('[CreatureLayer] No user logged in, skipping creature spawn');
+                    // console.log('[CreatureLayer] No user logged in, skipping creature spawn');
                     return;
                 }
 
-                console.log('[CreatureLayer] User found:', user.id);
+                // console.log('[CreatureLayer] User found:', user.id);
 
                 // Fetch unlocked achievements from your API
                 const response = await fetch('/api/achievements');
@@ -62,10 +62,10 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
                 // API returns an array of achievements directly, or an object with error
                 const achievements = Array.isArray(data) ? data : (data.achievements || []);
 
-                console.log('[CreatureLayer] Achievements fetched:', achievements.length);
+                // console.log('[CreatureLayer] Achievements fetched:', achievements.length);
 
                 if (!achievements || achievements.length === 0) {
-                    console.log('[CreatureLayer] No achievements found. Spawning test creatures for development.');
+                    // console.log('[CreatureLayer] No achievements found. Spawning test creatures for development.');
                     // Spawn a few test creatures for development/testing
                     const testCreatures: ActiveCreature[] = [];
                     const testIds = ['001', '004', '007', '010', '013']; // One of each type
@@ -82,7 +82,7 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
                                     targetPosition: spawnPoint,
                                     state: 'idle'
                                 });
-                                console.log(`[CreatureLayer] Spawned test creature ${def.name} at`, spawnPoint);
+                                // console.log(`[CreatureLayer] Spawned test creature ${def.name} at`, spawnPoint);
                             }
                         }
                     });
@@ -92,7 +92,7 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
                 }
 
                 const unlockedIds = achievements.map((a: any) => a.achievement_id || a.id);
-                console.log('[CreatureLayer] Unlocked achievement IDs:', unlockedIds);
+                // console.log('[CreatureLayer] Unlocked achievement IDs:', unlockedIds);
 
                 const creaturesToSpawn: ActiveCreature[] = [];
 
@@ -110,14 +110,14 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
                                 targetPosition: spawnPoint,
                                 state: 'idle'
                             });
-                            console.log(`[CreatureLayer] Spawned creature ${def.name} at`, spawnPoint);
+                            // console.log(`[CreatureLayer] Spawned creature ${def.name} at`, spawnPoint);
                         } else {
                             console.warn(`[CreatureLayer] No valid spawn point found for creature ${def.name} (type: ${def.type})`);
                         }
                     }
                 });
 
-                console.log('[CreatureLayer] Total creatures spawned:', creaturesToSpawn.length);
+                // console.log('[CreatureLayer] Total creatures spawned:', creaturesToSpawn.length);
                 setActiveCreatures(creaturesToSpawn);
             } catch (error) {
                 console.error('[CreatureLayer] Unexpected error:', error);
@@ -141,7 +141,7 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
             if (validNeighbors.length > 0) {
                 const nextTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
                 if (nextTile) {
-                    console.log(`[CreatureLayer] Moving ${def.name} from`, creature.position, 'to', { row: nextTile.row, col: nextTile.col });
+                    // console.log(`[CreatureLayer] Moving ${def.name} from`, creature.position, 'to', { row: nextTile.row, col: nextTile.col });
                     return {
                         ...creature,
                         position: { row: nextTile.row, col: nextTile.col },
@@ -231,7 +231,7 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
     const rows = grid.length;
     const cols = grid[0].length;
 
-    console.log('[CreatureLayer] Rendering with', activeCreatures.length, 'creatures');
+    // console.log('[CreatureLayer] Rendering with', activeCreatures.length, 'creatures');
 
     return (
         <div
@@ -247,7 +247,7 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
 
                 const isPlayerOnTile = !!playerTile && playerTile.row === creature.position.row && playerTile.col === creature.position.col;
 
-                console.log('[CreatureLayer] Rendering creature:', def.name, 'at position:', creature.position);
+                // console.log('[CreatureLayer] Rendering creature:', def.name, 'at position:', creature.position);
 
                 return (
                     <div
@@ -291,7 +291,7 @@ function findRandomSpawnPoint(grid: Tile[][], habitatType: string): { row: numbe
     // Second pass: If no tiles found, try 'vacant' or 'grass' as fallback for ANY creature
     // This ensures creatures appear even if their specific habitat isn't built yet
     if (validTiles.length === 0) {
-        console.log(`[CreatureLayer] No specific habitat found for ${habitatType}, trying fallback to grass/vacant`);
+        // console.log(`[CreatureLayer] No specific habitat found for ${habitatType}, trying fallback to grass/vacant`);
         grid.forEach((row, r) => {
             if (!row) return;
             row.forEach((tile, c) => {
