@@ -144,7 +144,7 @@ export async function POST(request: Request) {
         health: ensureNumber(stats.health ?? existingData?.health, 100),
         max_health: ensureNumber(stats.max_health ?? existingData?.max_health, 100),
         build_tokens: ensureNumber(stats.build_tokens ?? existingData?.build_tokens, 0),
-        kingdom_expansions: Math.max(ensureNumber(stats.kingdom_expansions, 0), ensureNumber(existingExpansions, 0)),
+        // kingdom_expansions: Removed because column does not exist. Saved in stats_data instead.
         character_name: existingData?.character_name || 'Adventurer',
         updated_at: new Date().toISOString(),
         stats_data: {
