@@ -28,7 +28,12 @@ export async function saveToSupabaseClient<T>(
       localStorage.setItem(localStorageKey, JSON.stringify(data));
       return true;
     } else {
-      console.log(`[Supabase Persistence Client] ⚠️ Failed to save to Supabase, falling back to localStorage: ${endpoint}`);
+      const errorText = await response.text();
+      console.warn(`[Supabase Persistence Client] ⚠️ Failed to save to Supabase, falling back to localStorage: ${endpoint}`, {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
       localStorage.setItem(localStorageKey, JSON.stringify(data));
       return false;
     }

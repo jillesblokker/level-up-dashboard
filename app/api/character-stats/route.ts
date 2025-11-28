@@ -128,26 +128,32 @@ export async function POST(request: Request) {
         incomingXP: stats.experience
       });
 
+      // Helper to ensure value is a valid number
+      const ensureNumber = (val: any, fallback: number = 0) => {
+        const num = Number(val);
+        return isNaN(num) ? fallback : num;
+      };
+
       // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
       // For volatile stats (Gold, Health), use the new value
       const mergedStats = {
         user_id: userId,
-        gold: stats.gold ?? existingData?.gold ?? 0,
-        experience: Math.max(stats.experience || 0, existingXP),
-        level: Math.max(stats.level || 1, existingLevel),
-        health: stats.health ?? existingData?.health ?? 100,
-        max_health: stats.max_health ?? existingData?.max_health ?? 100,
-        build_tokens: stats.build_tokens ?? existingData?.build_tokens ?? 0,
-        kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
+        gold: ensureNumber(stats.gold ?? existingData?.gold, 0),
+        experience: Math.max(ensureNumber(stats.experience, 0), ensureNumber(existingXP, 0)),
+        level: Math.max(ensureNumber(stats.level, 1), ensureNumber(existingLevel, 1)),
+        health: ensureNumber(stats.health ?? existingData?.health, 100),
+        max_health: ensureNumber(stats.max_health ?? existingData?.max_health, 100),
+        build_tokens: ensureNumber(stats.build_tokens ?? existingData?.build_tokens, 0),
+        kingdom_expansions: Math.max(ensureNumber(stats.kingdom_expansions, 0), ensureNumber(existingExpansions, 0)),
         character_name: existingData?.character_name || 'Adventurer',
         updated_at: new Date().toISOString(),
         stats_data: {
           ...existingJson,
           ...statsJson,
           // Ensure progressive stats in JSON are also protected
-          experience: Math.max(stats.experience || 0, existingXP),
-          level: Math.max(stats.level || 1, existingLevel),
-          kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
+          experience: Math.max(ensureNumber(stats.experience, 0), ensureNumber(existingXP, 0)),
+          level: Math.max(ensureNumber(stats.level, 1), ensureNumber(existingLevel, 1)),
+          kingdom_expansions: Math.max(ensureNumber(stats.kingdom_expansions, 0), ensureNumber(existingExpansions, 0)),
         }
       };
 

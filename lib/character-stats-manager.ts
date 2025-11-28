@@ -33,7 +33,24 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
 export async function saveCharacterStats(stats: Partial<CharacterStats>): Promise<boolean> {
   // Load existing stats and merge with new stats
   const existingStats = await loadCharacterStats();
-  const mergedStats = { ...existingStats, ...stats };
+  const rawMergedStats = { ...existingStats, ...stats };
+
+  // Sanitize stats to ensure no NaNs are sent
+  const ensureNumber = (val: any, fallback: number = 0) => {
+    const num = Number(val);
+    return isNaN(num) ? fallback : num;
+  };
+
+  const mergedStats = {
+    ...rawMergedStats,
+    gold: ensureNumber(rawMergedStats.gold, 0),
+    experience: ensureNumber(rawMergedStats.experience, 0),
+    level: ensureNumber(rawMergedStats.level, 1),
+    health: ensureNumber(rawMergedStats.health, 100),
+    max_health: ensureNumber(rawMergedStats.max_health, 100),
+    build_tokens: ensureNumber(rawMergedStats.build_tokens, 0),
+    kingdom_expansions: ensureNumber(rawMergedStats.kingdom_expansions, 0)
+  };
 
   return await saveToSupabaseClient('/api/character-stats', { stats: mergedStats }, 'character-stats');
 }
@@ -85,7 +102,7 @@ export function getCharacterStats(): CharacterStats {
         level: stats.level || 1,
         health: stats.health || 100,
         max_health: stats.max_health || 100,
-        build_tokens: stats.build_tokens || 0,
+        build_tokens: stats.build_tokens || stats.buildTokens || 0,
         kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
       };
     }
@@ -292,7 +309,7 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
       level: updatedStats.level,
       health: updatedStats.health,
       max_health: updatedStats.max_health,
-      buildTokens: updatedStats.build_tokens
+      build_tokens: updatedStats.build_tokens
     };
 
     localStorage.setItem('character-stats', JSON.stringify(localStorageStats));
