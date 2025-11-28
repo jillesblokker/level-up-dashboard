@@ -1193,10 +1193,14 @@ export function KingdomGridWithTimers({
         : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
           ? Math.ceil(baseExperience * 1.1)
           : baseExperience
+
+        // Award gold and experience
         ; (async () => {
           try {
+            const { gainGold } = await import('@/lib/gold-manager')
             const { gainExperience } = await import('@/lib/experience-manager')
-            // Fire and forget
+            // Award gold and experience
+            gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
             gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
           } catch { }
         })()
@@ -1285,9 +1289,12 @@ export function KingdomGridWithTimers({
     const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
       ? Math.ceil(baseExperience * 1.1)
       : baseExperience
+      // Award gold and experience
       ; (async () => {
         try {
+          const { gainGold } = await import('@/lib/gold-manager')
           const { gainExperience } = await import('@/lib/experience-manager')
+          gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
           gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
         } catch { }
       })()
