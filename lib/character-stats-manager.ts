@@ -116,11 +116,11 @@ class SmartRateLimiter {
   private readonly limits: Record<string, number> = {
     'quest-completion': 2000,   // 2 seconds - fast for quest actions
     'level-up': 1000,          // 1 second - immediate for level ups
-    'gold-earned': 3000,       // 3 seconds - moderate for gold
-    'experience-earned': 3000, // 3 seconds - moderate for XP
+    'gold-earned': 2000,       // 2 seconds - fast for gold (reduced from 3s)
+    'experience-earned': 2000, // 2 seconds - fast for XP (reduced from 3s)
     'idle': 30000,             // 30 seconds - slow when idle
     'active': 10000,           // 10 seconds - moderate when active
-    'kingdom-action': 5000,    // 5 seconds - moderate for kingdom
+    'kingdom-action': 2000,    // 2 seconds - fast for kingdom (reduced from 5s)
     'background-sync': 15000   // 15 seconds - slow for background
   };
 
