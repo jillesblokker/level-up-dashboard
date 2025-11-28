@@ -92,10 +92,50 @@ export async function POST(request: Request) {
 
     console.log('[Character Stats] Saving stats...');
 
+    // Fetch existing stats to prevent regression
+    const { data: existingData } = await supabaseServer
+      .from('character_stats')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    const existingStats = existingData || {};
+    const existingJson = existingData?.stats_data || {};
+
+    // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
+    // For volatile stats (Gold, Health), use the new value
+    const mergedStats = {
+      user_id: userId,
+      gold: stats.gold ?? existingData?.gold ?? 0,
+      experience: Math.max(stats.experience || 0, existingData?.experience || 0, existingJson.experience || 0),
+      level: Math.max(stats.level || 1, existingData?.level || 1, existingJson.level || 1),
+      health: stats.health ?? existingData?.health ?? 100,
+      max_health: stats.max_health ?? existingData?.max_health ?? 100,
+      build_tokens: stats.build_tokens ?? existingData?.build_tokens ?? 0,
+      kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingData?.kingdom_expansions || 0, existingJson.kingdom_expansions || 0),
+      character_name: existingData?.character_name || 'Adventurer',
+      updated_at: new Date().toISOString(),
+      stats_data: {
+        ...existingJson,
+        ...statsJson,
+        // Ensure progressive stats in JSON are also protected
+        experience: Math.max(stats.experience || 0, existingData?.experience || 0, existingJson.experience || 0),
+        level: Math.max(stats.level || 1, existingData?.level || 1, existingJson.level || 1),
+        kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingData?.kingdom_expansions || 0, existingJson.kingdom_expansions || 0),
+      }
+    };
+
+    console.log('[Character Stats] Saving stats (merged):', {
+      newLevel: mergedStats.level,
+      oldLevel: existingData?.level,
+      newXP: mergedStats.experience,
+      oldXP: existingData?.experience
+    });
+
     // Upsert the stats data
     const { error } = await supabaseServer
       .from('character_stats')
-      .upsert(statsData, {
+      .upsert(mergedStats, {
         onConflict: 'user_id'
       });
 

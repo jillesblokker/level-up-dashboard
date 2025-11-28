@@ -23,6 +23,7 @@ import LocalStorageMigrator from '@/components/local-storage-migrator'
 import { AudioProvider } from '@/components/audio-provider'
 import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
 import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
+import { CharacterStatsSync } from '@/components/character-stats-sync'
 
 
 import { DayNightCycle } from '@/components/day-night-cycle'
@@ -154,6 +155,7 @@ export default function RootLayout({
                       <ClientOnboardingProvider>
                         <div className="flex flex-col h-full">
                           <AuthGate>
+                            <CharacterStatsSync />
                             <NavBar session={null} />
                             <main className="flex-1 relative pb-24 lg:landscape:pb-0">
                               {children}

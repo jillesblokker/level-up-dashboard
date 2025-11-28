@@ -23,7 +23,7 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
     build_tokens: 0,
     kingdom_expansions: 0
   };
-  
+
   return await loadFromSupabaseClient('/api/character-stats', 'character-stats', defaultStats);
 }
 
@@ -34,7 +34,7 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
   // Load existing stats and merge with new stats
   const existingStats = await loadCharacterStats();
   const mergedStats = { ...existingStats, ...stats };
-  
+
   return await saveToSupabaseClient('/api/character-stats', { stats: mergedStats }, 'character-stats');
 }
 
@@ -111,7 +111,7 @@ class SmartRateLimiter {
   private context = 'idle';
   private actionHistory: Array<{ action: string, timestamp: number }> = [];
   private readonly MAX_HISTORY = 10;
-  
+
   // Context-aware rate limits (in milliseconds)
   private readonly limits: Record<string, number> = {
     'quest-completion': 2000,   // 2 seconds - fast for quest actions
@@ -123,48 +123,48 @@ class SmartRateLimiter {
     'kingdom-action': 5000,    // 5 seconds - moderate for kingdom
     'background-sync': 15000   // 15 seconds - slow for background
   };
-  
+
   shouldUpdate(action: string): boolean {
     const now = Date.now();
     const timeSinceLastUpdate = now - this.lastUpdate;
-    
+
     // Add action to history
     this.addToHistory(action, now);
-    
+
     // Determine current context
     this.updateContext();
-    
+
     // Get appropriate limit for current context
     const limit = this.limits[this.context] || this.limits['idle'] || 30000; // Default to 30 seconds
-    
+
     // Check if enough time has passed
     if (timeSinceLastUpdate < limit) {
       console.log(`[Smart Rate Limiter] Skipping update - ${timeSinceLastUpdate}ms < ${limit}ms (context: ${this.context})`);
       return false;
     }
-    
+
     // Allow update
     this.lastUpdate = now;
     this.updateCount++;
     console.log(`[Smart Rate Limiter] Allowing update - context: ${this.context}, count: ${this.updateCount}`);
     return true;
   }
-  
+
   private addToHistory(action: string, timestamp: number): void {
     this.actionHistory.push({ action, timestamp });
-    
+
     // Keep only recent history
     if (this.actionHistory.length > this.MAX_HISTORY) {
       this.actionHistory = this.actionHistory.slice(-this.MAX_HISTORY);
     }
   }
-  
+
   private updateContext(): void {
     const now = Date.now();
     const recentActions = this.actionHistory.filter(
       entry => now - entry.timestamp < 10000 // Last 10 seconds
     );
-    
+
     // Determine context based on recent actions
     if (recentActions.some(a => a.action === 'quest-completion')) {
       this.context = 'quest-completion';
@@ -178,11 +178,11 @@ class SmartRateLimiter {
       this.context = 'idle';
     }
   }
-  
+
   getContext(): string {
     return this.context;
   }
-  
+
   getStats(): { updateCount: number, context: string, lastUpdate: number } {
     return {
       updateCount: this.updateCount,
@@ -205,39 +205,51 @@ export async function fetchFreshCharacterStats(action: string = 'background-sync
     console.log('[Character Stats Manager] Skipping API fetch - smart rate limiter blocked');
     return getCharacterStats(); // Return cached data instead
   }
-  
+
   try {
     const { fetchWithAuth } = await import('./fetchWithAuth');
     const response = await fetchWithAuth('/api/character-stats', {
       method: 'GET',
     });
-    
+
     if (response.ok) {
       const result = await response.json();
       const characterData = result.stats;
-      
+
       if (characterData) {
-        // Update localStorage with fresh data
+        // Get current local stats to compare
+        const currentLocalStats = getCharacterStats();
+
+        // Merge logic: Keep the highest value for progressive stats
         const freshStats = {
-          gold: characterData.gold || 0,
-          experience: characterData.experience || 0,
-          level: characterData.level || 1,
-          health: characterData.health || 100,
+          gold: characterData.gold || 0, // Gold is volatile, trust server
+          experience: Math.max(characterData.experience || 0, currentLocalStats.experience || 0),
+          level: Math.max(characterData.level || 1, currentLocalStats.level || 1),
+          health: characterData.health || 100, // Health is volatile
           max_health: characterData.max_health || 100,
           build_tokens: characterData.build_tokens || 0,
-          kingdom_expansions: characterData.kingdom_expansions || 0
+          kingdom_expansions: Math.max(characterData.kingdom_expansions || 0, currentLocalStats.kingdom_expansions || 0)
         };
-        
+
         localStorage.setItem('character-stats', JSON.stringify(freshStats));
-        
+
+        // If local stats were higher, sync back to server
+        if (freshStats.level > (characterData.level || 1) || freshStats.experience > (characterData.experience || 0)) {
+          console.log('[Character Stats Manager] Local stats ahead of server, syncing back...', {
+            serverLevel: characterData.level,
+            localLevel: freshStats.level
+          });
+          saveCharacterStats(freshStats);
+        }
+
         // Dispatch update event to notify all components
         window.dispatchEvent(new Event('character-stats-update'));
-        
-        // Fresh stats fetched from API
+
+        // Fresh stats fetched from API (merged)
         return freshStats;
       }
     }
-    
+
     console.warn('[Character Stats Manager] API fetch failed or no data returned');
     return null;
   } catch (error) {
@@ -259,20 +271,20 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
   try {
     const currentStats = getCharacterStats();
     const updatedStats = { ...currentStats, ...stats };
-    
-    console.log('[Character Stats Manager] setCharacterStats:', { 
-      current: currentStats, 
-      updates: stats, 
-      result: updatedStats 
+
+    console.log('[Character Stats Manager] setCharacterStats:', {
+      current: currentStats,
+      updates: stats,
+      result: updatedStats
     });
-    
+
     // Always calculate level from experience to ensure consistency
     if (stats.experience !== undefined) {
       const { calculateLevelFromExperience } = require('@/types/character');
       updatedStats.level = calculateLevelFromExperience(stats.experience);
       // Level calculated from experience
     }
-    
+
     // Convert to localStorage format
     const localStorageStats = {
       gold: updatedStats.gold,
@@ -282,16 +294,16 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
       max_health: updatedStats.max_health,
       buildTokens: updatedStats.build_tokens
     };
-    
+
     localStorage.setItem('character-stats', JSON.stringify(localStorageStats));
-    
+
     // Save kingdom expansions separately
     if (stats.kingdom_expansions !== undefined) {
       localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
     }
-    
+
     console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
-    
+
     // Dispatch update event to notify all components
     window.dispatchEvent(new Event('character-stats-update'));
   } catch (error) {
@@ -332,9 +344,9 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   const currentStats = getCharacterStats();
   const currentValue = currentStats[stat] || 0;
   const newValue = currentValue + amount;
-  
+
   console.log('[Character Stats Manager] addToCharacterStatSync:', { stat, currentValue, amount, newValue });
-  
+
   // If we're updating experience, we need to recalculate level
   if (stat === 'experience') {
     const { calculateLevelFromExperience } = require('@/types/character');
@@ -344,7 +356,7 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   } else {
     setCharacterStats({ [stat]: newValue });
   }
-  
+
   // Smart debounced Supabase saves with context awareness
   if (typeof window !== 'undefined') {
     const debounceKey = `save-stats-${stat}`;
@@ -352,13 +364,13 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
     if (existingTimeout) {
       clearTimeout(existingTimeout);
     }
-    
+
     // Determine context for smart rate limiting
     let context = 'background-sync';
     if (stat === 'gold') context = 'gold-earned';
     if (stat === 'experience') context = 'experience-earned';
     if (stat === 'level') context = 'level-up';
-    
+
     (window as any)[debounceKey] = setTimeout(() => {
       // Use smart rate limiter for the actual save
       if (smartRateLimiter.shouldUpdate(context)) {
