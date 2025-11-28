@@ -86,10 +86,12 @@ export function UserNav() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="w-screen h-screen md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:absolute z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
+          className="w-screen h-screen md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:relative z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
           align="end"
-          forceMount
           sideOffset={8}
+          onInteractOutside={(e) => {
+            console.log('[UserNav] Interact outside:', e.target);
+          }}
         >
           <div className="flex md:hidden items-center justify-end p-4 border-b border-amber-800/20">
             <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-amber-500 hover:text-amber-400">
