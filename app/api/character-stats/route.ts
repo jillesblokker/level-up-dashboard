@@ -93,43 +93,53 @@ export async function POST(request: Request) {
     console.log('[Character Stats] Saving stats...');
 
     // Fetch existing stats to prevent regression
-    const { data: existingData } = await supabaseServer
+    const { data: existingData, error: fetchError } = await supabaseServer
       .from('character_stats')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single to handle no rows gracefully
 
-    const existingStats = existingData || {};
+    // Handle fetch errors (but not "no rows" which is expected for new users)
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('[Character Stats] Error fetching existing stats:', fetchError);
+      // Continue anyway, treat as new user
+    }
+
     const existingJson = existingData?.stats_data || {};
+
+    // Safe extraction with defaults
+    const existingLevel = existingData?.level || existingJson.level || 1;
+    const existingXP = existingData?.experience || existingJson.experience || 0;
+    const existingExpansions = existingData?.kingdom_expansions || existingJson.kingdom_expansions || 0;
 
     // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
     // For volatile stats (Gold, Health), use the new value
     const mergedStats = {
       user_id: userId,
       gold: stats.gold ?? existingData?.gold ?? 0,
-      experience: Math.max(stats.experience || 0, existingData?.experience || 0, existingJson.experience || 0),
-      level: Math.max(stats.level || 1, existingData?.level || 1, existingJson.level || 1),
+      experience: Math.max(stats.experience || 0, existingXP),
+      level: Math.max(stats.level || 1, existingLevel),
       health: stats.health ?? existingData?.health ?? 100,
       max_health: stats.max_health ?? existingData?.max_health ?? 100,
       build_tokens: stats.build_tokens ?? existingData?.build_tokens ?? 0,
-      kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingData?.kingdom_expansions || 0, existingJson.kingdom_expansions || 0),
+      kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
       character_name: existingData?.character_name || 'Adventurer',
       updated_at: new Date().toISOString(),
       stats_data: {
         ...existingJson,
         ...statsJson,
         // Ensure progressive stats in JSON are also protected
-        experience: Math.max(stats.experience || 0, existingData?.experience || 0, existingJson.experience || 0),
-        level: Math.max(stats.level || 1, existingData?.level || 1, existingJson.level || 1),
-        kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingData?.kingdom_expansions || 0, existingJson.kingdom_expansions || 0),
+        experience: Math.max(stats.experience || 0, existingXP),
+        level: Math.max(stats.level || 1, existingLevel),
+        kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
       }
     };
 
     console.log('[Character Stats] Saving stats (merged):', {
       newLevel: mergedStats.level,
-      oldLevel: existingData?.level,
+      oldLevel: existingLevel,
       newXP: mergedStats.experience,
-      oldXP: existingData?.experience
+      oldXP: existingXP
     });
 
     // Upsert the stats data
