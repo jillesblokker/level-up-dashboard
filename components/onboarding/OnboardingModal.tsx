@@ -219,22 +219,25 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     <div
       data-modal-container="onboarding-standalone"
       className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6",
+        "fixed inset-0 z-50 flex items-center justify-center",
         "bg-black/80 backdrop-blur-sm",
         "transition-all duration-300 ease-in-out",
         isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
       )}
+
     >
-      <div className="relative w-full max-w-3xl max-h-[90vh] mx-auto flex flex-col">
-        <Card className="relative overflow-hidden flex flex-col max-h-full">
+      
+      
+      <div className="relative w-full max-w-4xl mx-4">
+        <Card className="relative overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b bg-gradient-to-r from-amber-600 to-amber-700 flex-shrink-0">
+          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-amber-500 to-amber-600">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-amber-800" />
               </div>
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-white">Welcome to Thrivehaven</h2>
+                <h2 className="text-xl font-bold text-white">Welcome to Thrivehaven</h2>
                 <p className="text-amber-100 text-sm">Let&apos;s get you started on your journey</p>
               </div>
             </div>
@@ -242,22 +245,22 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-amber-700 hover:text-white"
+              className="text-white hover:bg-amber-600"
               aria-label="Close onboarding"
             >
               <X className="w-4 h-4" />
             </Button>
           </div>
 
-          {/* Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <div className="min-h-[250px] sm:min-h-[350px]">
+          {/* Content */}
+          <div className="p-6">
+            <div className="min-h-[400px]">
               {currentStepComponent}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-4 sm:p-6 border-t bg-gray-50 flex-shrink-0">
+          <div className="flex items-center justify-between p-6 border-t bg-gray-50">
             <div className="flex items-center space-x-2">
               <div className="flex space-x-1">
                 {ONBOARDING_STEPS.map((_, index) => (
@@ -265,12 +268,12 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                     key={index}
                     className={cn(
                       "w-2 h-2 rounded-full transition-colors",
-                      index === currentStep ? "bg-amber-600" : "bg-gray-300"
+                      index === currentStep ? "bg-amber-500" : "bg-gray-300"
                     )}
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600 hidden sm:inline">
+              <span className="text-sm text-gray-600">
                 Step {currentStep + 1} of {ONBOARDING_STEPS.length}
               </span>
             </div>
@@ -281,34 +284,18 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                   variant="outline"
                   onClick={handlePrevious}
                   aria-label="Previous step"
-                  size="sm"
-                  className="sm:size-default border-amber-500 hover:bg-amber-50 font-semibold"
-                  style={{ color: '#92400e', fontWeight: 'bold', textShadow: 'none' }}
                 >
-                  <span className="hidden sm:inline" style={{ color: '#92400e' }}>Previous</span>
-                  <span className="sm:hidden" style={{ color: '#92400e' }}>←</span>
+                  Previous
                 </Button>
               )}
               
               {currentStep < ONBOARDING_STEPS.length - 1 ? (
-                <Button 
-                  onClick={handleNext} 
-                  aria-label="Next step"
-                  size="sm"
-                  className="sm:size-default bg-amber-600 hover:bg-amber-700 text-white"
-                >
-                  <span className="hidden sm:inline">Next</span>
-                  <span className="sm:hidden">→</span>
+                <Button onClick={handleNext} aria-label="Next step">
+                  Next
                 </Button>
               ) : (
-                <Button 
-                  onClick={handleComplete} 
-                  aria-label="Complete onboarding"
-                  size="sm"
-                  className="sm:size-default bg-amber-600 hover:bg-amber-700 text-white"
-                >
-                  <span className="hidden sm:inline">Get Started</span>
-                  <span className="sm:hidden">Start</span>
+                <Button onClick={handleComplete} aria-label="Complete onboarding">
+                  Get Started
                 </Button>
               )}
             </div>

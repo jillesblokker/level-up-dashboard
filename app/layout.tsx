@@ -22,6 +22,7 @@ import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import LocalStorageMigrator from '@/components/local-storage-migrator'
 import { AudioProvider } from '@/components/audio-provider'
 import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
+import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
 
 
 import { DayNightCycle } from '@/components/day-night-cycle'
@@ -150,20 +151,23 @@ export default function RootLayout({
                 <TitleEvolutionProvider>
                   <AudioProvider>
                     <Providers>
-                      <div className="flex flex-col h-full">
-                        <AuthGate>
-                          <NavBar session={null} />
-                          <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                            {children}
-                          </main>
-                          <BottomNav />
-                          <SeasonalHuntWrapper />
-                        </AuthGate>
-                      </div>
+                      <ClientOnboardingProvider>
+                        <div className="flex flex-col h-full">
+                          <AuthGate>
+                            <NavBar session={null} />
+                            <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                              {children}
+                            </main>
+                            <BottomNav />
+                            <SeasonalHuntWrapper />
+                          </AuthGate>
+                        </div>
+                      </ClientOnboardingProvider>
                       <LocalStorageMigrator />
                       <KingdomNotificationManager />
                       <DayNightCycle />
                       <Toaster />
+
                     </Providers>
                   </AudioProvider>
                 </TitleEvolutionProvider>

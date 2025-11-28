@@ -35,10 +35,7 @@ export function UserNav() {
     return name && typeof name === 'string' ? name.charAt(0).toUpperCase() : 'U';
   };
 
-  // Full onboarding function - temporarily disabled
-  const openFullOnboarding = () => {
-    console.log('Onboarding temporarily disabled');
-  };
+
 
   // Guide button click handler
   const handleGuideClick = () => {
