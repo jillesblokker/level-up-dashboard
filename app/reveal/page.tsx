@@ -47,21 +47,22 @@ function Page() {
       return;
     }
     // Door animation: 1.5s, background scale starts after 0.5s and lasts 1.5s
-    const DOOR_ANIMATION_DURATION = 1500; // 1.5s (was 2.5s)
-    const BG_SCALE_START = 500; // Start scaling background after 0.5s (was 1s)
-    const BG_SCALE_DURATION = 1500; // 1.5s (was 2s)
+    const INITIAL_DELAY = 1000; // Show start for 1 second
+    const DOOR_ANIMATION_DURATION = 1500;
+    const BG_SCALE_START = INITIAL_DELAY + 200; // Start scaling shortly after door starts
 
     const timer = setTimeout(() => {
       setDoorOpen(true);
       setAnnounce('The door is opening.');
-      // Wait for door animation (1.5s), then remove overlay immediately
+      // Wait for door animation, then remove overlay
       setTimeout(() => {
-        setShowOverlay(false); // Remove overlay as soon as door is gone
+        setShowOverlay(false);
         setFadeBackground(true);
         setHideBackground(true);
-      }, DOOR_ANIMATION_DURATION); // door animation duration
-    }, 0); // Initial delay before door starts opening (was 500ms)
-    // Camera move-forward effect: scale background after 0.5s
+      }, DOOR_ANIMATION_DURATION);
+    }, INITIAL_DELAY);
+
+    // Camera move-forward effect
     const scaleTimer = setTimeout(() => {
       setScaleBackground(true);
     }, BG_SCALE_START);
@@ -107,7 +108,7 @@ function Page() {
           opacity: doorOpen ? 0 : 1,
           transitionProperty: 'transform, opacity',
           transitionDuration: prefersReducedMotion ? '0ms' : '1500ms',
-          transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.32, 0.72, 0, 1)',
+          transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.7, 0, 0.3, 1)',
           willChange: 'transform, opacity',
           width: '100%',
           height: '100%'
@@ -125,17 +126,17 @@ function Page() {
       </div>
       {/* Main background image above door, fade out after animation */}
       {!hideBackground && (
-        <div 
+        <div
           className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}
-          style={{ transitionDuration: '1500ms' }}
+          style={{ transitionDuration: '800ms' }}
         >
           <img
             src="/images/Reveal/reveal-background.png"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform ease-in-out ${scaleBackground ? 'scale-[4.5]' : 'scale-100'}`}
+            className={`object-cover w-full h-full transition-transform ease-in-out ${scaleBackground ? 'scale-[12]' : 'scale-100'}`}
             draggable={false}
             style={{
-              transition: 'opacity 1s, transform 1.5s cubic-bezier(0.32, 0.72, 0, 1)',
+              transition: 'opacity 0.8s, transform 1.5s cubic-bezier(0.7, 0, 0.3, 1)',
               borderRadius: 0,
               transitionDuration: '1500ms'
             }}
