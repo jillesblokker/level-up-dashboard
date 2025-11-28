@@ -92,66 +92,89 @@ export async function POST(request: Request) {
 
     console.log('[Character Stats] Saving stats...');
 
-    // Fetch existing stats to prevent regression
-    const { data: existingData, error: fetchError } = await supabaseServer
-      .from('character_stats')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle(); // Use maybeSingle instead of single to handle no rows gracefully
+    try {
+      // Fetch existing stats to prevent regression
+      const { data: existingData, error: fetchError } = await supabaseServer
+        .from('character_stats')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle(); // Use maybeSingle instead of single to handle no rows gracefully
 
-    // Handle fetch errors (but not "no rows" which is expected for new users)
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('[Character Stats] Error fetching existing stats:', fetchError);
-      // Continue anyway, treat as new user
-    }
-
-    const existingJson = existingData?.stats_data || {};
-
-    // Safe extraction with defaults
-    const existingLevel = existingData?.level || existingJson.level || 1;
-    const existingXP = existingData?.experience || existingJson.experience || 0;
-    const existingExpansions = existingData?.kingdom_expansions || existingJson.kingdom_expansions || 0;
-
-    // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
-    // For volatile stats (Gold, Health), use the new value
-    const mergedStats = {
-      user_id: userId,
-      gold: stats.gold ?? existingData?.gold ?? 0,
-      experience: Math.max(stats.experience || 0, existingXP),
-      level: Math.max(stats.level || 1, existingLevel),
-      health: stats.health ?? existingData?.health ?? 100,
-      max_health: stats.max_health ?? existingData?.max_health ?? 100,
-      build_tokens: stats.build_tokens ?? existingData?.build_tokens ?? 0,
-      kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
-      character_name: existingData?.character_name || 'Adventurer',
-      updated_at: new Date().toISOString(),
-      stats_data: {
-        ...existingJson,
-        ...statsJson,
-        // Ensure progressive stats in JSON are also protected
-        experience: Math.max(stats.experience || 0, existingXP),
-        level: Math.max(stats.level || 1, existingLevel),
-        kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
+      // Handle fetch errors (but not "no rows" which is expected for new users)
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('[Character Stats] Error fetching existing stats:', fetchError);
+        // Continue anyway, treat as new user
       }
-    };
 
-    console.log('[Character Stats] Saving stats (merged):', {
-      newLevel: mergedStats.level,
-      oldLevel: existingLevel,
-      newXP: mergedStats.experience,
-      oldXP: existingXP
-    });
-
-    // Upsert the stats data
-    const { error } = await supabaseServer
-      .from('character_stats')
-      .upsert(mergedStats, {
-        onConflict: 'user_id'
+      console.log('[Character Stats] Existing data:', {
+        hasData: !!existingData,
+        level: existingData?.level,
+        experience: existingData?.experience,
+        statsDataType: typeof existingData?.stats_data
       });
 
-    if (error) {
-      console.error('[Character Stats] Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const existingJson = existingData?.stats_data || {};
+
+      // Safe extraction with defaults
+      const existingLevel = existingData?.level ?? existingJson.level ?? 1;
+      const existingXP = existingData?.experience ?? existingJson.experience ?? 0;
+      const existingExpansions = existingData?.kingdom_expansions ?? existingJson.kingdom_expansions ?? 0;
+
+      console.log('[Character Stats] Extracted existing values:', {
+        existingLevel,
+        existingXP,
+        existingExpansions,
+        incomingLevel: stats.level,
+        incomingXP: stats.experience
+      });
+
+      // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
+      // For volatile stats (Gold, Health), use the new value
+      const mergedStats = {
+        user_id: userId,
+        gold: stats.gold ?? existingData?.gold ?? 0,
+        experience: Math.max(stats.experience || 0, existingXP),
+        level: Math.max(stats.level || 1, existingLevel),
+        health: stats.health ?? existingData?.health ?? 100,
+        max_health: stats.max_health ?? existingData?.max_health ?? 100,
+        build_tokens: stats.build_tokens ?? existingData?.build_tokens ?? 0,
+        kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
+        character_name: existingData?.character_name || 'Adventurer',
+        updated_at: new Date().toISOString(),
+        stats_data: {
+          ...existingJson,
+          ...statsJson,
+          // Ensure progressive stats in JSON are also protected
+          experience: Math.max(stats.experience || 0, existingXP),
+          level: Math.max(stats.level || 1, existingLevel),
+          kingdom_expansions: Math.max(stats.kingdom_expansions || 0, existingExpansions),
+        }
+      };
+
+      console.log('[Character Stats] Saving stats (merged):', {
+        newLevel: mergedStats.level,
+        oldLevel: existingLevel,
+        newXP: mergedStats.experience,
+        oldXP: existingXP
+      });
+
+      // Upsert the stats data
+      const { error } = await supabaseServer
+        .from('character_stats')
+        .upsert(mergedStats, {
+          onConflict: 'user_id'
+        });
+
+      if (error) {
+        console.error('[Character Stats] Supabase upsert error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+    } catch (mergeError) {
+      console.error('[Character Stats] Error in merge logic:', mergeError);
+      return NextResponse.json({
+        error: 'Error processing stats merge',
+        details: mergeError instanceof Error ? mergeError.message : String(mergeError)
+      }, { status: 500 });
     }
 
     console.log('[Character Stats] Saved successfully');
