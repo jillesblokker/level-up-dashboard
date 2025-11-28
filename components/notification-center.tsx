@@ -17,7 +17,7 @@ interface NotificationCenterProps {
   children?: React.ReactNode
 }
 
-export function NotificationCenter({ children }: NotificationCenterProps) {
+export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [open, setOpen] = useState(false)
 
