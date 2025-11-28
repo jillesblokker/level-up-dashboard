@@ -58,6 +58,9 @@ export function UserNav() {
     <div className="relative z-50">
       <DropdownMenu open={isOpen} onOpenChange={(open) => {
         console.log('[UserNav] Dropdown state changing to:', open);
+        if (open) {
+          (window as any).__userNavLastOpen = Date.now();
+        }
         setIsOpen(open);
       }}>
         <DropdownMenuTrigger asChild>
@@ -91,6 +94,13 @@ export function UserNav() {
           sideOffset={8}
           onInteractOutside={(e) => {
             console.log('[UserNav] Interact outside:', e.target);
+            // Prevent closing if we just opened (within 100ms)
+            const now = Date.now();
+            const lastOpenTime = (window as any).__userNavLastOpen || 0;
+            if (now - lastOpenTime < 100) {
+              console.log('[UserNav] Preventing close - just opened');
+              e.preventDefault();
+            }
           }}
         >
           <div className="flex md:hidden items-center justify-end p-4 border-b border-amber-800/20">
