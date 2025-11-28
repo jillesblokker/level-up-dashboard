@@ -58,7 +58,7 @@ export function NavBar({ session }: NavBarProps) {
     }
 
     // Load character stats
-    const loadStats = async () => {
+    const loadStats = async (fetchServer = true) => {
       try {
         // Get current stats from localStorage first (for immediate display)
         const localStats = getCharacterStats()
@@ -72,32 +72,40 @@ export function NavBar({ session }: NavBarProps) {
           perks: { active: 0, total: 0 }
         })
 
-        // Then fetch fresh data from Supabase
-        const freshStats = await loadCharacterStats()
-        if (freshStats) {
-          const currentLevel = calculateLevelFromExperience(freshStats.experience)
-          setCharacterStats({
-            level: currentLevel,
-            experience: freshStats.experience,
-            experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-            gold: freshStats.gold,
-            titles: { equipped: '', unlocked: 0, total: 0 },
-            perks: { active: 0, total: 0 }
-          })
+        // Only fetch fresh data from Supabase if requested
+        if (fetchServer) {
+          const freshStats = await loadCharacterStats()
+          if (freshStats) {
+            const currentLevel = calculateLevelFromExperience(freshStats.experience)
+            // Only update if server has more experience (to prevent regression)
+            // For gold, we trust local state more if we just updated it
+            if (freshStats.experience >= localStats.experience) {
+              setCharacterStats(prev => ({
+                ...prev,
+                level: currentLevel,
+                experience: freshStats.experience,
+                experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+                // Only update gold if we are doing a full sync, but even then, 
+                // if local is ahead (due to recent action), we might want to keep local.
+                // But for now, let's assume periodic sync is safe.
+                gold: freshStats.gold,
+              }))
+            }
+          }
         }
       } catch (error) {
         console.error("Error loading character stats:", error)
       }
     }
 
-    // Load stats immediately
-    loadStats()
+    // Load stats immediately (full sync)
+    loadStats(true)
 
-    // Set up periodic refresh every 30 seconds
-    const refreshInterval = setInterval(loadStats, 30000)
+    // Set up periodic refresh every 30 seconds (full sync)
+    const refreshInterval = setInterval(() => loadStats(true), 30000)
 
-    // Listen for character stats updates
-    const handleStatsUpdate = () => loadStats()
+    // Listen for character stats updates (local only)
+    const handleStatsUpdate = () => loadStats(false)
     window.addEventListener("character-stats-update", handleStatsUpdate)
 
     return () => {
