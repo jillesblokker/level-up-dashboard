@@ -55,12 +55,16 @@ export function UserNav() {
   }
 
   return (
-    <>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <div className="relative z-50">
+      <DropdownMenu open={isOpen} onOpenChange={(open) => {
+        console.log('[UserNav] Dropdown state changing to:', open);
+        setIsOpen(open);
+      }}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] hover:bg-amber-500/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            onClick={() => console.log('[UserNav] Avatar button clicked')}
           >
             <Avatar className="h-10 w-10 md:h-8 md:w-8">
               {user?.imageUrl ? (
@@ -224,6 +228,6 @@ export function UserNav() {
           </form>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+    </div>
   );
 } 
