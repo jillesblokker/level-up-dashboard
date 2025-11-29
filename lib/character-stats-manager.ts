@@ -61,6 +61,163 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
   return await saveToSupabaseClient('/api/character-stats', { stats: mergedStats }, 'character-stats');
 }
 
+/**
+ * Updates a specific stat value
+ */
+export async function updateCharacterStat(stat: keyof CharacterStats, value: number): Promise<boolean> {
+  const currentStats = await loadCharacterStats();
+  const updatedStats = { ...currentStats, [stat]: value };
+  return await saveCharacterStats(updatedStats);
+}
+
+/**
+ * Adds to a specific stat value (for gold, experience, etc.)
+ */
+export async function addToCharacterStat(stat: keyof CharacterStats, amount: number): Promise<boolean> {
+  const currentStats = await loadCharacterStats();
+  const currentValue = currentStats[stat] || 0;
+  const updatedStats = { ...currentStats, [stat]: currentValue + amount };
+  return await saveCharacterStats(updatedStats);
+}
+
+/**
+ * Gets character stats from localStorage
+ * @returns CharacterStats object
+ */
+export function getCharacterStats(): CharacterStats {
+  // Check if we're on the client side
+  if (typeof window === 'undefined') {
+    return {
+      gold: 0,
+      experience: 0,
+      level: 1,
+      health: 100,
+      max_health: 100,
+      build_tokens: 0,
+      kingdom_expansions: 0
+    };
+  }
+
+  try {
+    const stored = localStorage.getItem('character-stats');
+    if (stored) {
+      const stats = JSON.parse(stored);
+      return {
+        gold: stats.gold || 0,
+        experience: stats.experience || 0,
+        level: stats.level || 1,
+        health: stats.health || 100,
+        max_health: stats.max_health || 100,
+        build_tokens: stats.build_tokens || stats.buildTokens || 0,
+        kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+      };
+    }
+  } catch (error) {
+    console.warn('[Character Stats Manager] Error getting stats from localStorage:', error);
+  }
+
+  return {
+    gold: 0,
+    experience: 0,
+    level: 1,
+    health: 100,
+    max_health: 100,
+    build_tokens: 0,
+    kingdom_expansions: 0
+  };
+}
+
+// Smart Rate Limiting System
+class SmartRateLimiter {
+  private lastUpdate = 0;
+  private updateCount = 0;
+  private context = 'idle';
+  private actionHistory: Array<{ action: string, timestamp: number }> = [];
+  private readonly MAX_HISTORY = 10;
+
+  // Context-aware rate limits (in milliseconds)
+  private readonly limits: Record<string, number> = {
+    'quest-completion': 2000,   // 2 seconds - fast for quest actions
+    'level-up': 1000,          // 1 second - immediate for level ups
+    'gold-earned': 2000,       // 2 seconds - fast for gold (reduced from 3s)
+    'experience-earned': 2000, // 2 seconds - fast for XP (reduced from 3s)
+    'idle': 30000,             // 30 seconds - slow when idle
+    'active': 10000,           // 10 seconds - moderate when active
+    'kingdom-action': 2000,    // 2 seconds - fast for kingdom (reduced from 5s)
+    'background-sync': 15000   // 15 seconds - slow for background
+  };
+
+  shouldUpdate(action: string): boolean {
+    const now = Date.now();
+    const timeSinceLastUpdate = now - this.lastUpdate;
+
+    // Add action to history
+    this.addToHistory(action, now);
+
+    // Determine current context
+    this.updateContext();
+
+    // Get appropriate limit for current context
+    const limit = this.limits[this.context] || this.limits['idle'] || 30000; // Default to 30 seconds
+
+    // Check if enough time has passed
+    if (timeSinceLastUpdate < limit) {
+      console.log(`[Smart Rate Limiter] Skipping update - ${timeSinceLastUpdate}ms < ${limit}ms (context: ${this.context})`);
+      return false;
+    }
+
+    // Allow update
+    this.lastUpdate = now;
+    this.updateCount++;
+    console.log(`[Smart Rate Limiter] Allowing update - context: ${this.context}, count: ${this.updateCount}`);
+    return true;
+  }
+
+  private addToHistory(action: string, timestamp: number): void {
+    this.actionHistory.push({ action, timestamp });
+
+    // Keep only recent history
+    if (this.actionHistory.length > this.MAX_HISTORY) {
+      this.actionHistory = this.actionHistory.slice(-this.MAX_HISTORY);
+    }
+  }
+
+  private updateContext(): void {
+    const now = Date.now();
+    const recentActions = this.actionHistory.filter(
+      entry => now - entry.timestamp < 10000 // Last 10 seconds
+    );
+
+    // Determine context based on recent actions
+    if (recentActions.some(a => a.action === 'quest-completion')) {
+      this.context = 'quest-completion';
+    } else if (recentActions.some(a => a.action === 'level-up')) {
+      this.context = 'level-up';
+    } else if (recentActions.some(a => a.action.includes('kingdom'))) {
+      this.context = 'kingdom-action';
+    } else if (recentActions.length > 0) {
+      this.context = 'active';
+    } else {
+      this.context = 'idle';
+    }
+  }
+
+  getContext(): string {
+    return this.context;
+  }
+
+  getStats(): { updateCount: number, context: string, lastUpdate: number } {
+    return {
+      updateCount: this.updateCount,
+      context: this.context,
+      lastUpdate: this.lastUpdate
+    };
+  }
+}
+
+// Global smart rate limiter instance
+const smartRateLimiter = new SmartRateLimiter();
+
 // ... (skip unchanged functions) ...
 
 /**
