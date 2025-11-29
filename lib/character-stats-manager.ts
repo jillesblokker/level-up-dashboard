@@ -242,56 +242,50 @@ export async function fetchFreshCharacterStats(action: string = 'background-sync
       const characterData = result.stats;
 
       if (characterData) {
-        // Get current local stats to compare
+        // Get current local stats for comparison/logging
         const currentLocalStats = getCharacterStats();
 
-        // Timestamp check for race condition prevention
-        const lastLocalUpdate = parseInt(localStorage.getItem('character-stats-last-local-update') || '0');
-        const serverUpdateTime = characterData.updated_at ? new Date(characterData.updated_at).getTime() : 0;
-
-        // If server data is significantly older than our last local update (allowing 2s buffer),
-        // we assume we have pending local changes that haven't synced yet.
-        // In this case, we trust our local data for volatile stats like Gold.
-        const isServerStale = serverUpdateTime < (lastLocalUpdate - 2000);
-
-        if (isServerStale) {
-          console.log('[Character Stats Manager] Server data appears stale, favoring local stats', {
-            serverTime: new Date(serverUpdateTime).toISOString(),
-            localTime: new Date(lastLocalUpdate).toISOString(),
-            diff: serverUpdateTime - lastLocalUpdate
-          });
-        }
-
-        // Merge logic: Keep the highest value for progressive stats
+        // 🎯 SIMPLIFIED MERGE LOGIC: Server is source of truth
+        // Only keep local values if they're higher (for progressive stats)
+        // This handles the case where local optimistic updates haven't synced yet
         const freshStats = {
-          // For Gold: If server is stale, keep local. If server is fresh, use server.
-          gold: isServerStale ? currentLocalStats.gold : (characterData.gold || 0),
-
+          // For progressive stats (gold, XP, level): Use the higher value
+          // This protects against server lag while respecting server as source of truth
+          gold: Math.max(characterData.gold || 0, currentLocalStats.gold || 0),
           experience: Math.max(characterData.experience || 0, currentLocalStats.experience || 0),
           level: Math.max(characterData.level || 1, currentLocalStats.level || 1),
-          health: characterData.health || 100, // Health is volatile
+
+          // For other stats: Trust server
+          health: characterData.health || 100,
           max_health: characterData.max_health || 100,
           build_tokens: characterData.build_tokens || 0,
           kingdom_expansions: Math.max(characterData.kingdom_expansions || 0, currentLocalStats.kingdom_expansions || 0),
           updated_at: characterData.updated_at
         };
 
-        localStorage.setItem('character-stats', JSON.stringify(freshStats));
-
-        // If local stats were higher (and server wasn't stale), sync back to server
-        // But if server IS stale, we definitely want to sync back eventually, but maybe not immediately to avoid loops
-        if (!isServerStale && (freshStats.level > (characterData.level || 1) || freshStats.experience > (characterData.experience || 0))) {
-          console.log('[Character Stats Manager] Local stats ahead of server, syncing back...', {
-            serverLevel: characterData.level,
-            localLevel: freshStats.level
+        // Log if we're keeping local values (indicates pending sync)
+        if (freshStats.gold > (characterData.gold || 0) ||
+          freshStats.experience > (characterData.experience || 0)) {
+          console.log('[Character Stats Manager] Local stats ahead of server (pending sync):', {
+            serverGold: characterData.gold,
+            localGold: currentLocalStats.gold,
+            serverXP: characterData.experience,
+            localXP: currentLocalStats.experience
           });
-          saveCharacterStats(freshStats);
+
+          // Trigger a save to sync local changes back to server
+          saveCharacterStats(freshStats).catch(err =>
+            console.warn('[Character Stats Manager] Failed to sync local changes back:', err)
+          );
         }
+
+        localStorage.setItem('character-stats', JSON.stringify(freshStats));
+        localStorage.setItem('character-stats-last-local-update', Date.now().toString());
 
         // Dispatch update event to notify all components
         window.dispatchEvent(new Event('character-stats-update'));
 
-        // Fresh stats fetched from API (merged)
+        console.log('[Character Stats Manager] Fresh stats fetched and merged:', freshStats);
         return freshStats;
       }
     }
@@ -391,16 +385,34 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   const currentValue = (currentStats[stat] as number) || 0;
   const newValue = currentValue + amount;
 
-  console.log('[Character Stats Manager] addToCharacterStatSync:', { stat, currentValue, amount, newValue });
+  // 🛡️ SAFEGUARD: Prevent progressive stats from decreasing
+  if ((stat === 'gold' || stat === 'experience') && amount < 0) {
+    console.warn(`[Character Stats Manager] ⚠️ WARNING: Attempting to decrease ${stat} by ${amount}. Current: ${currentValue}`);
+    console.trace('[Character Stats Manager] Stack trace for stat decrease:');
+  }
+
+  // 🛡️ SAFEGUARD: Ensure stats never go negative
+  const safeNewValue = Math.max(0, newValue);
+  if (safeNewValue !== newValue) {
+    console.warn(`[Character Stats Manager] ⚠️ WARNING: ${stat} would have gone negative (${newValue}). Clamped to 0.`);
+  }
+
+  console.log('[Character Stats Manager] addToCharacterStatSync:', {
+    stat,
+    currentValue,
+    amount,
+    newValue: safeNewValue,
+    wasNegative: safeNewValue !== newValue
+  });
 
   // If we're updating experience, we need to recalculate level
   if (stat === 'experience') {
     const { calculateLevelFromExperience } = require('@/types/character');
-    const newLevel = calculateLevelFromExperience(newValue);
+    const newLevel = calculateLevelFromExperience(safeNewValue);
     // Experience update
-    setCharacterStats({ [stat]: newValue, level: newLevel });
+    setCharacterStats({ [stat]: safeNewValue, level: newLevel });
   } else {
-    setCharacterStats({ [stat]: newValue });
+    setCharacterStats({ [stat]: safeNewValue });
   }
 
   // Smart debounced Supabase saves with context awareness
@@ -420,7 +432,7 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
     (window as any)[debounceKey] = setTimeout(() => {
       // Use smart rate limiter for the actual save
       if (smartRateLimiter.shouldUpdate(context)) {
-        saveCharacterStats({ [stat]: newValue }).catch(error => {
+        saveCharacterStats({ [stat]: safeNewValue }).catch(error => {
           console.warn('[Character Stats Manager] Failed to save to Supabase, but continuing:', error);
         });
       } else {

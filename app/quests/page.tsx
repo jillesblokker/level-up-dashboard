@@ -950,8 +950,75 @@ export default function QuestsPage() {
       )
     );
 
-    // Quest completion is handled by the main completion system
-    // No need for additional debounced persistence
+    // 🎯 CRITICAL FIX: Apply rewards when completing quest
+    if (newCompleted) {
+      const goldReward = questObj.gold || 50;
+      const xpReward = questObj.xp || 25;
+
+      console.log('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+
+      // Import and use character stats manager to apply rewards
+      import('@/lib/character-stats-manager').then(({ addToCharacterStatSync, getCharacterStats }) => {
+        // Get current stats for logging
+        const currentStats = getCharacterStats();
+        console.log('[QUEST-TOGGLE] Current stats before reward:', currentStats);
+
+        // Apply rewards synchronously
+        addToCharacterStatSync('gold', goldReward);
+        addToCharacterStatSync('experience', xpReward);
+
+        // Get updated stats for logging
+        const updatedStats = getCharacterStats();
+        console.log('[QUEST-TOGGLE] Updated stats after reward:', updatedStats);
+
+        // Show success toast with rewards
+        toast({
+          title: "⚔️ Quest Complete!",
+          description: `${questObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+          duration: 4000,
+        });
+      }).catch(error => {
+        console.error('[QUEST-TOGGLE] Error applying rewards:', error);
+        toast({
+          title: "Warning",
+          description: "Quest completed but rewards may not have been applied. Please refresh the page.",
+          duration: 5000,
+        });
+      });
+    } else {
+      // Quest uncompleted - just show toast
+      toast({
+        title: "Quest Uncompleted",
+        description: `${questObj.name} marked as incomplete.`,
+        duration: 2000,
+      });
+    }
+
+    // Persist quest completion to backend
+    try {
+      const response = await fetch('/api/quests-complete', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          questId,
+          completed: newCompleted,
+          userId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update quest: ${response.status}`);
+      }
+
+      console.log('[QUEST-TOGGLE] Quest persisted to backend successfully');
+    } catch (error) {
+      console.error('[QUEST-TOGGLE] Error persisting quest:', error);
+      // Don't show error toast as rewards were already applied
+      // Just log for debugging
+    }
   };
 
 
