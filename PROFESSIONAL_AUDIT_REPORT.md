@@ -73,7 +73,6 @@ Kingdom Growth → Social Guilds → Seasonal Events → Prestige Reset
 
 ### Current State: ❌ WEAK
 - No cohesive story
-- Generic quest names ("Do laundry", "Exercise")
 - Missing lore and world-building
 
 ### Recommended Narrative Framework
@@ -208,10 +207,6 @@ Text: #F5E6D3 (Parchment) - Readability
 - Cosmetic Item: 500-5,000g
 - Guild Contribution: 100g/day
 
-**Anti-Grind Safeguards**:
-- Daily earning cap (prevents burnout)
-- Diminishing returns after 10 quests/day
-- Rest bonuses for taking breaks
 
 ---
 
@@ -263,52 +258,8 @@ CREATE INDEX idx_character_stats_updated ON character_stats(user_id, updated_at)
 **Monthly Retention**:
 - **Seasonal Events**: Summer Festival, Winter Solstice
 - **Monthly Leaderboards**: Guild rankings with cosmetic rewards
-- **New Content Drops**: Fresh quests, items, buildings
+- **New Content Drops**: items, buildings
 
-### Social Features (CRITICAL MISSING PIECE)
-
-**Guilds/Fellowships**:
-- 5-20 member groups
-- Shared guild hall (visual representation)
-- Collective goals (build a cathedral together)
-- Guild chat and encouragement system
-
-**Cooperative Quests**:
-- "Party Quests" requiring 3+ members
-- Shared XP pool for group achievements
-- Mentor/mentee system for onboarding
-
----
-
-## 10. Ethical Monetization Strategy
-
-### Philosophy: Player-First, No Pay-to-Win
-
-**Cosmetic Items** (Primary Revenue):
-- Character skins: $2.99-$4.99
-- Building themes: $1.99 (Gothic, Oriental, Nordic)
-- Particle effects: $0.99
-- Custom quest icons: $0.99
-
-**Expansion Packs**:
-- "Northern Kingdoms" map expansion: $4.99
-- "Arcane Academy" quest pack: $2.99
-- "Merchant's Guild" economy features: $3.99
-
-**Premium Subscription** ($4.99/month):
-- Unlimited custom quests
-- Advanced analytics dashboard
-- Priority support
-- Exclusive cosmetics (monthly rotation)
-- Cloud backup (free tier gets basic sync)
-
-**NO**:
-- ❌ Buying XP or Gold
-- ❌ Skipping quest timers
-- ❌ Loot boxes or gambling mechanics
-- ❌ Energy systems or paywalls
-
----
 
 ## 11. Brand & Visual Identity
 
@@ -320,7 +271,6 @@ CREATE INDEX idx_character_stats_updated ON character_stats(user_id, updated_at)
 ### Recommended Brand Direction
 
 **Visual Style**: "Illuminated Manuscript meets Modern UI"
-- Hand-drawn quest illustrations (like medieval manuscripts)
 - Flat design with parchment textures
 - Gold foil accents for premium feel
 - Consistent iconography (heraldic shields, swords, scrolls)
@@ -409,6 +359,3 @@ CREATE INDEX idx_character_stats_updated ON character_stats(user_id, updated_at)
 **Competitive Advantage**: Position as the "story-driven" habit tracker - where Habitica is complex and Streaks is minimal, Level Up tells YOUR epic tale.
 
 ---
-
-*Report compiled by multi-disciplinary expert team*  
-*Date: November 29, 2025*

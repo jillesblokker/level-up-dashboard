@@ -6,7 +6,11 @@ export default async function DailyHubPage() {
     const { userId } = await auth()
 
     return (
-        <Suspense fallback={<div className="p-6 text-amber-300">Loading your daily adventure...</div>}>
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-black">
+                <div className="text-amber-500 animate-pulse">Loading...</div>
+            </div>
+        }>
             <DailyHubClient />
         </Suspense>
     )
