@@ -38,7 +38,8 @@ export async function GET() {
         health: data.health ?? statsJson.health ?? 100,
         max_health: data.max_health ?? statsJson.max_health ?? 100,
         build_tokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
-        kingdom_expansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0
+        kingdom_expansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
+        updated_at: data.updated_at ?? statsJson.updated_at
       }
     });
   } catch (error) {
