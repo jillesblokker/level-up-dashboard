@@ -226,7 +226,7 @@ export default function QuestsPage() {
   const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
   const [addQuestLoading, setAddQuestLoading] = useState(false);
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
-  // const [milestones, setMilestones] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [addMilestoneModalOpen, setAddMilestoneModalOpen] = useState(false);
   const [newMilestone, setNewMilestone] = useState({
@@ -2210,193 +2210,252 @@ export default function QuestsPage() {
 
               {/* Challenges Tab */}
               <TabsContent value="challenges">
-                {/* Challenge Streak Summary Card (updated to match Tasks tab) */}
-                <div className="mb-6 w-full">
-                  <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="challenge-streak-summary-card">
-                    {/* Desktop/Tablet Layout - Horizontal 3-Column */}
-                    <div className="hidden md:flex items-center gap-6 w-full">
-                      {/* Left: Streak Badge - Vertical Layout */}
-                      <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
-                        <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
-                          </TooltipTrigger>
-                          <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
-                        </Tooltip>
-                        <div className="text-lg text-gray-300 text-center">Day streak</div>
-                      </div>
+                {/* Nested Tabs for Errands and Progression */}
+                <Tabs defaultValue="errands" className="space-y-6">
+                  <TabsList className="mb-6 w-full grid grid-cols-2">
+                    <TabsTrigger value="errands">Errands</TabsTrigger>
+                    <TabsTrigger value="progression">Progression</TabsTrigger>
+                  </TabsList>
 
-                      {/* Middle: Challenge Progress Section */}
-                      <div className="flex-1 flex flex-col gap-3">
-                        <div className="flex items-baseline gap-2">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-4xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                            </TooltipTrigger>
-                            <TooltipContent>{challenges.filter(c => c.category === challengeCategory && c.completed).length}</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-lg text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
-                            </TooltipTrigger>
-                            <TooltipContent>/ {challenges.filter(c => c.category === challengeCategory).length} challenges</TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
-                          <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
-                        </div>
-                        {/* Days of the week with styled circles */}
-                        <div className="flex justify-between text-sm text-gray-300 mt-3">
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Mon</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Tue</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Wed</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Thu</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Fri</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Sat</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>Sun</span>
-                          </div>
-                        </div>
-                      </div>
+                  {/* Errands Tab - Challenge List */}
+                  <TabsContent value="errands" className="space-y-6">
+                    {/* Enhanced Challenge Organization */}
+                    <QuestOrganization
+                      quests={challenges}
+                      onQuestToggle={handleChallengeToggle}
+                      onQuestFavorite={() => { }} // Challenges don't have favorites
+                      onQuestEdit={handleEditChallenge}
+                      onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
+                      onAddQuest={() => setAddChallengeModalOpen(true)}
+                      showCategoryFilter={true}
+                      context="challenges"
+                      hideOverview={true}
+                      hideCategoryOverview={true}
+                    />
+                  </TabsContent>
 
-                      {/* Bonus and Scrolls - Desktop Layout */}
-                      <div className="flex flex-col gap-3">
-                        <div className="text-center p-3 bg-black/20 rounded-lg">
-                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                            </TooltipTrigger>
-                            <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
-                          </Tooltip>
-                          <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                  {/* Progression Tab - Streak Summary and Overview */}
+                  <TabsContent value="progression" className="space-y-6">
+                    {/* Challenge Streak Summary Card */}
+                    <div className="mb-6 w-full">
+                      <Card className="medieval-card-primary w-full" style={{ height: 'auto', minHeight: '226px' }} aria-label="challenge-streak-summary-card">
+                        {/* Desktop/Tablet Layout - Horizontal 3-Column */}
+                        <div className="hidden md:flex items-center gap-6 w-full">
+                          {/* Left: Streak Badge - Vertical Layout */}
+                          <div className="flex flex-col items-center justify-center bg-black rounded-2xl p-6 flex-shrink-0">
+                            <Flame className="w-14 h-14 text-[#0D7200] mb-2" aria-hidden="true" />
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="text-4xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value">{challengeStreakData?.streak_days ?? 0} days</div>
+                              </TooltipTrigger>
+                              <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
+                            </Tooltip>
+                            <div className="text-lg text-gray-300 text-center">Day streak</div>
+                          </div>
+
+                          {/* Middle: Challenge Progress Section */}
+                          <div className="flex-1 flex flex-col gap-3">
+                            <div className="flex items-baseline gap-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-4xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>{challenges.filter(c => c.category === challengeCategory && c.completed).length}</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-lg text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                                </TooltipTrigger>
+                                <TooltipContent>/ {challenges.filter(c => c.category === challengeCategory).length} challenges</TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
+                              <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                            </div>
+                            {/* Days of the week with styled circles */}
+                            <div className="flex justify-between text-sm text-gray-300 mt-3">
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Mon</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Tue</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Wed</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Thu</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Fri</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Sat</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>Sun</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bonus and Scrolls - Desktop Layout */}
+                          <div className="flex flex-col gap-3">
+                            <div className="text-center p-3 bg-black/20 rounded-lg">
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                                </TooltipTrigger>
+                                <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                              </Tooltip>
+                              <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                            </div>
+                            <div className="text-center p-3 bg-black/20 rounded-lg">
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                                </TooltipTrigger>
+                                <TooltipContent>{getStreakScrollCount()}</TooltipContent>
+                              </Tooltip>
+                              <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-center p-3 bg-black/20 rounded-lg">
-                          <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
-                            </TooltipTrigger>
-                            <TooltipContent>{getStreakScrollCount()}</TooltipContent>
-                          </Tooltip>
-                          <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+
+                        {/* Mobile Layout - Vertical Stack */}
+                        <div className="md:hidden flex flex-col gap-4 w-full">
+                          {/* Streak Badge - Mobile */}
+                          <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
+                            <Flame className="w-10 h-10 text-[#0D7200] mb-2" aria-hidden="true" />
+                            <div className="text-2xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value-mobile">{challengeStreakData?.streak_days ?? 0} days</div>
+                            <div className="text-sm text-gray-300 text-center">Day streak</div>
+                          </div>
+
+                          {/* Challenge Progress Section - Mobile */}
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-baseline gap-2 justify-center">
+                              <span className="text-2xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
+                              <span className="text-base text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
+                            </div>
+                            <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
+                              <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
+                            </div>
+                            {/* Days of the week with styled circles - Mobile */}
+                            <div className="flex justify-between text-xs text-gray-300 mt-2">
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>M</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>T</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>W</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>T</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>F</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>S</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                <span>S</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bonus and Scrolls - Mobile Stacked */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="text-center p-3 bg-black/20 rounded-lg">
+                              <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                              <div className="text-xs text-[#F0F0F0]">(Max 50)</div>
+                            </div>
+                            <div className="text-center p-3 bg-black/20 rounded-lg">
+                              <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
+                              <div className="text-xs text-[#F0F0F0]">(Save streak)</div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      </Card>
                     </div>
 
-                    {/* Mobile Layout - Vertical Stack */}
-                    <div className="md:hidden flex flex-col gap-4 w-full">
-                      {/* Streak Badge - Mobile */}
-                      <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
-                        <Flame className="w-10 h-10 text-[#0D7200] mb-2" aria-hidden="true" />
-                        <div className="text-2xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value-mobile">{challengeStreakData?.streak_days ?? 0} days</div>
-                        <div className="text-sm text-gray-300 text-center">Day streak</div>
-                      </div>
-
-                      {/* Challenge Progress Section - Mobile */}
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-baseline gap-2 justify-center">
-                          <span className="text-2xl font-bold text-white truncate">{challenges.filter(c => c.category === challengeCategory && c.completed).length}</span>
-                          <span className="text-base text-gray-300 truncate">/ {challenges.filter(c => c.category === challengeCategory).length} challenges</span>
-                        </div>
-                        <div className="w-full h-4 bg-black rounded-full overflow-hidden relative">
-                          <div className="h-full bg-[#0D7200] rounded-full transition-all duration-500" style={{ width: `${challenges.filter(c => c.category === challengeCategory).length ? (challenges.filter(c => c.category === challengeCategory && c.completed).length / challenges.filter(c => c.category === challengeCategory).length) * 100 : 0}%` }} />
-                        </div>
-                        {/* Days of the week with styled circles - Mobile */}
-                        <div className="flex justify-between text-xs text-gray-300 mt-2">
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>M</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>T</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>W</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>T</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>F</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>S</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                            <span>S</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Bonus and Scrolls - Mobile Stacked */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="text-center p-3 bg-black/20 rounded-lg">
-                          <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
-                          <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                          <div className="text-xs text-[#F0F0F0]">(Max 50)</div>
-                        </div>
-                        <div className="text-center p-3 bg-black/20 rounded-lg">
-                          <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
-                          <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
-                          <div className="text-xs text-[#F0F0F0]">(Save streak)</div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-                {/* Enhanced Challenge Organization */}
-                <QuestOrganization
-                  quests={challenges}
-                  onQuestToggle={handleChallengeToggle}
-                  onQuestFavorite={() => { }} // Challenges don't have favorites
-                  onQuestEdit={handleEditChallenge}
-                  onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
-                  onAddQuest={() => setAddChallengeModalOpen(true)}
-                  showCategoryFilter={true}
-                  context="challenges"
-                />
+                    {/* Challenge Overview and Categories */}
+                    <QuestOrganization
+                      quests={challenges}
+                      onQuestToggle={handleChallengeToggle}
+                      onQuestFavorite={() => { }}
+                      onQuestEdit={handleEditChallenge}
+                      onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
+                      onAddQuest={() => setAddChallengeModalOpen(true)}
+                      showCategoryFilter={true}
+                      context="challenges"
+                      onlyShowOverviews={true}
+                    />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               {/* Milestones Tab */}
               <TabsContent value="milestones">
-                {/* Enhanced Milestone Organization */}
-                <QuestOrganization
-                  quests={milestones}
-                  onQuestToggle={handleMilestoneToggle}
-                  onQuestFavorite={() => { }} // Milestones don't have favorites
-                  onQuestEdit={handleMilestoneEdit}
-                  onQuestDelete={handleMilestoneDelete}
-                  onAddQuest={handleAddMilestone}
-                  showCategoryFilter={true}
-                  context="milestones"
-                />
+                {/* Nested Tabs for Errands and Progression */}
+                <Tabs defaultValue="errands" className="space-y-6">
+                  <TabsList className="mb-6 w-full grid grid-cols-2">
+                    <TabsTrigger value="errands">Errands</TabsTrigger>
+                    <TabsTrigger value="progression">Progression</TabsTrigger>
+                  </TabsList>
+
+                  {/* Errands Tab - Milestone List */}
+                  <TabsContent value="errands" className="space-y-6">
+                    {/* Enhanced Milestone Organization */}
+                    <QuestOrganization
+                      quests={milestones}
+                      onQuestToggle={handleMilestoneToggle}
+                      onQuestFavorite={() => { }} // Milestones don't have favorites
+                      onQuestEdit={handleMilestoneEdit}
+                      onQuestDelete={handleMilestoneDelete}
+                      onAddQuest={handleAddMilestone}
+                      showCategoryFilter={true}
+                      context="milestones"
+                      hideOverview={true}
+                      hideCategoryOverview={true}
+                    />
+                  </TabsContent>
+
+                  {/* Progression Tab - Milestone Overview */}
+                  <TabsContent value="progression" className="space-y-6">
+                    {/* Milestone Overview and Categories */}
+                    <QuestOrganization
+                      quests={milestones}
+                      onQuestToggle={handleMilestoneToggle}
+                      onQuestFavorite={() => { }} // Milestones don't have favorites
+                      onQuestEdit={handleMilestoneEdit}
+                      onQuestDelete={handleMilestoneDelete}
+                      onAddQuest={handleAddMilestone}
+                      showCategoryFilter={true}
+                      context="milestones"
+                      onlyShowOverviews={true}
+                    />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               {/* Recovery Tab */}
