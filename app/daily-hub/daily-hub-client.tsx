@@ -4,14 +4,13 @@ import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ChronicleProgressBar } from '@/components/chronicle-progress-bar'
-import { StreakFlame } from '@/components/streak-flame'
+import { ChroniclesCard } from '@/components/chronicles-card'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { HeaderSection } from '@/components/HeaderSection'
 import QuestCard from '@/components/quest-card'
-import { Loader2, Plus, ArrowRight, LayoutDashboard, Map, ScrollText } from 'lucide-react'
+import { Loader2, Plus, ArrowRight, LayoutDashboard, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
 
 interface Quest {
     id: string
@@ -32,6 +31,12 @@ interface CharacterStats {
     streakDays: number
 }
 
+interface GoldTransaction {
+    amount: number
+    created_at: string
+    transaction_type: 'gain' | 'spend'
+}
+
 export function DailyHubClient() {
     const { user } = useUser()
     const router = useRouter()
@@ -42,14 +47,16 @@ export function DailyHubClient() {
         gold: 0,
         streakDays: 0
     })
-    const [todaysQuests, setTodaysQuests] = useState<Quest[]>([])
+    const [favoritedQuests, setFavoritedQuests] = useState<Quest[]>([])
     const [loading, setLoading] = useState(true)
     const [completedQuestIds, setCompletedQuestIds] = useState<Set<string>>(new Set())
+    const [weeklyGoldEarned, setWeeklyGoldEarned] = useState(0)
 
     useEffect(() => {
         if (user) {
             loadCharacterStats()
-            loadTodaysQuests()
+            loadFavoritedQuests()
+            loadWeeklyGoldStats()
         }
     }, [user])
 
@@ -71,28 +78,74 @@ export function DailyHubClient() {
         }
     }
 
-    const loadTodaysQuests = async () => {
+    const loadWeeklyGoldStats = async () => {
         try {
-            const response = await fetch('/api/quests/daily')
+            // Get transactions from the last 7 days
+            const response = await fetch('/api/gold-transactions?limit=100')
             if (response.ok) {
-                const data = await response.json()
-                // Limit to 6 quests max for the daily hub
-                const quests = data.slice(0, 6).map((q: any) => ({
-                    ...q,
-                    // Ensure difficulty matches the expected type
-                    difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
-                }))
-                setTodaysQuests(quests)
+                const result = await response.json()
+                const transactions: GoldTransaction[] = result.data || []
+
+                // Calculate date 7 days ago
+                const sevenDaysAgo = new Date()
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+                // Sum up gold gained in the last 7 days
+                const weeklyGold = transactions
+                    .filter(t => {
+                        const transactionDate = new Date(t.created_at)
+                        return transactionDate >= sevenDaysAgo && t.transaction_type === 'gain'
+                    })
+                    .reduce((sum, t) => sum + t.amount, 0)
+
+                setWeeklyGoldEarned(weeklyGold)
+            }
+        } catch (error) {
+            console.error('Failed to load weekly gold stats:', error)
+        }
+    }
+
+    const loadFavoritedQuests = async () => {
+        try {
+            // First, get favorited quest IDs
+            const favoritesResponse = await fetch('/api/quests/favorites')
+            if (!favoritesResponse.ok) {
+                setFavoritedQuests([])
+                return
+            }
+
+            const favoritesData = await favoritesResponse.json()
+            const favoriteIds = favoritesData.favorites || []
+
+            if (favoriteIds.length === 0) {
+                setFavoritedQuests([])
+                return
+            }
+
+            // Then, get all quests and filter for favorites
+            const questsResponse = await fetch('/api/quests/daily')
+            if (questsResponse.ok) {
+                const allQuests = await questsResponse.json()
+                const favoriteQuests = allQuests
+                    .filter((q: any) => favoriteIds.includes(q.id))
+                    .slice(0, 6)
+                    .map((q: any) => ({
+                        ...q,
+                        difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
+                    }))
+
+                setFavoritedQuests(favoriteQuests)
 
                 // Initialize completed set
                 const completed = new Set<string>()
-                quests.forEach((q: Quest) => {
+                favoriteQuests.forEach((q: Quest) => {
                     if (q.completed) completed.add(q.id)
                 })
                 setCompletedQuestIds(completed)
             }
         } catch (error) {
-            console.error('Failed to load quests:', error)
+            console.error('Failed to load favorited quests:', error)
+            setFavoritedQuests([])
         } finally {
             setLoading(false)
         }
@@ -112,13 +165,14 @@ export function DailyHubClient() {
                 setCompletedQuestIds(prev => new Set(prev).add(quest.id))
 
                 // Update local state
-                setTodaysQuests(prev => prev.map(q =>
+                setFavoritedQuests(prev => prev.map(q =>
                     q.id === quest.id ? { ...q, completed: true } : q
                 ))
 
                 // Reload stats after a delay
                 setTimeout(() => {
                     loadCharacterStats()
+                    loadWeeklyGoldStats()
                 }, 1500)
             }
         } catch (error) {
@@ -139,13 +193,28 @@ export function DailyHubClient() {
 
     return (
         <div className="min-h-screen bg-black pb-20">
-            {/* Header Section */}
-            <HeaderSection
-                title={`Welcome, ${user?.firstName || 'Hero'}!`}
-                subtitle="Your daily adventure awaits. Complete quests, maintain your streak, and grow your kingdom."
-                defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
-                className="h-[300px] md:h-[400px]"
-            />
+            {/* Header Section with CTA */}
+            <div className="relative">
+                <HeaderSection
+                    title={`Welcome, ${user?.firstName || 'Hero'}!`}
+                    subtitle="Your daily adventure awaits. Complete quests, maintain your streak, and grow your kingdom."
+                    defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
+                    className="h-[300px] md:h-[400px]"
+                />
+
+                {/* CTA Button Overlay */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+                    <Link href="/kingdom">
+                        <Button
+                            size="lg"
+                            className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-6 text-lg shadow-2xl hover:shadow-amber-500/50 transition-all hover:scale-105"
+                        >
+                            <LayoutDashboard className="w-5 h-5 mr-2" />
+                            Enter Your Kingdom
+                        </Button>
+                    </Link>
+                </div>
+            </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 space-y-8">
 
@@ -168,7 +237,7 @@ export function DailyHubClient() {
                                 </div>
                             </div>
                             <div className="h-16 w-16 flex items-center justify-center bg-orange-950/30 rounded-full border border-orange-900/50">
-                                <StreakFlame streakDays={stats.streakDays} />
+                                <Flame className="w-8 h-8 text-orange-500" />
                             </div>
                         </CardContent>
                     </Card>
@@ -189,41 +258,55 @@ export function DailyHubClient() {
                                     ⭐
                                 </div>
                             </div>
-                            <div className="mt-2">
-                                <ChronicleProgressBar
-                                    currentLevel={stats.level}
-                                    currentXP={stats.experience}
-                                    xpToNextLevel={stats.experienceToNextLevel}
-                                    actName=""
-                                    actDescription=""
+                            <div className="mt-2 h-2 bg-black/50 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
+                                    style={{ width: `${(stats.experience / stats.experienceToNextLevel) * 100}%` }}
                                 />
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Gold Card */}
+                    {/* Gold Card with Weekly Stats */}
                     <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group">
                         <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-6 flex items-center justify-between relative z-10">
-                            <div>
-                                <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">Treasury</p>
-                                <div className="flex items-baseline gap-2 mt-1">
-                                    <span className="text-4xl font-bold text-white">{stats.gold}</span>
-                                    <span className="text-sm text-yellow-500">Gold</span>
+                        <CardContent className="p-6 relative z-10">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex-1">
+                                    <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">Treasury</p>
+                                    <div className="flex items-baseline gap-2 mt-1">
+                                        <span className="text-3xl font-bold text-white">{stats.gold}</span>
+                                        <span className="text-sm text-yellow-500">Gold</span>
+                                    </div>
+                                </div>
+                                <div className="h-12 w-12 flex items-center justify-center bg-yellow-950/30 rounded-full border border-yellow-900/50 text-2xl">
+                                    🪙
                                 </div>
                             </div>
-                            <div className="h-16 w-16 flex items-center justify-center bg-yellow-950/30 rounded-full border border-yellow-900/50 text-3xl">
-                                🪙
+                            <div className="mt-3 pt-3 border-t border-yellow-900/30 flex items-center gap-2">
+                                <TrendingUp className="w-4 h-4 text-green-400" />
+                                <span className="text-xs text-green-400 font-medium">
+                                    +{weeklyGoldEarned} earned this week
+                                </span>
                             </div>
                         </CardContent>
                     </Card>
+                </motion.div>
+
+                {/* Chronicles Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                    <ChroniclesCard currentLevel={stats.level} />
                 </motion.div>
 
                 {/* Quick Actions */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
+                    transition={{ duration: 0.5, delay: 0.15 }}
                     className="grid grid-cols-2 md:grid-cols-4 gap-4"
                 >
                     <Link href="/quests" className="block">
@@ -252,14 +335,14 @@ export function DailyHubClient() {
                     </Link>
                 </motion.div>
 
-                {/* Today's Quests */}
+                {/* Favorited Quests */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-amber-500 font-medieval tracking-wide">Today&apos;s Quests</h2>
+                        <h2 className="text-2xl font-bold text-amber-500 font-medieval tracking-wide">Your Favorite Quests</h2>
                         <Link href="/quests">
                             <Button variant="ghost" className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-2">
                                 View All <ArrowRight className="w-4 h-4" />
@@ -267,26 +350,26 @@ export function DailyHubClient() {
                         </Link>
                     </div>
 
-                    {todaysQuests.length === 0 ? (
+                    {favoritedQuests.length === 0 ? (
                         <Card className="bg-black/40 border-amber-900/30 border-dashed">
                             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                                 <div className="w-16 h-16 bg-amber-950/30 rounded-full flex items-center justify-center mb-4">
                                     <ScrollText className="w-8 h-8 text-amber-700" />
                                 </div>
-                                <h3 className="text-xl font-bold text-amber-500 mb-2">No Quests for Today</h3>
+                                <h3 className="text-xl font-bold text-amber-500 mb-2">No Favorite Quests Yet</h3>
                                 <p className="text-gray-400 max-w-md mb-6">
-                                    Your quest log is empty. Create a new quest to begin your daily adventure and earn rewards.
+                                    Star your favorite quests from the Quest Board to see them here for quick access.
                                 </p>
                                 <Link href="/quests">
                                     <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                                        Create First Quest
+                                        Browse Quest Board
                                     </Button>
                                 </Link>
                             </CardContent>
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {todaysQuests.map((quest, index) => (
+                            {favoritedQuests.map((quest, index) => (
                                 <motion.div
                                     key={quest.id}
                                     initial={{ opacity: 0, y: 20 }}
