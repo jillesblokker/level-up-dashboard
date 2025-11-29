@@ -189,14 +189,15 @@ export function DailyHubClient() {
                                     ⭐
                                 </div>
                             </div>
-                            <ChronicleProgressBar
-                                currentLevel={stats.level}
-                                currentXP={stats.experience}
-                                xpToNextLevel={stats.experienceToNextLevel}
-                                actName=""
-                                actDescription=""
-                                className="h-2 mt-2"
-                            />
+                            <div className="mt-2">
+                                <ChronicleProgressBar
+                                    currentLevel={stats.level}
+                                    currentXP={stats.experience}
+                                    xpToNextLevel={stats.experienceToNextLevel}
+                                    actName=""
+                                    actDescription=""
+                                />
+                            </div>
                         </CardContent>
                     </Card>
 
