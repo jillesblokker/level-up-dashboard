@@ -75,7 +75,7 @@ export async function updateCharacterStat(stat: keyof CharacterStats, value: num
  */
 export async function addToCharacterStat(stat: keyof CharacterStats, amount: number): Promise<boolean> {
   const currentStats = await loadCharacterStats();
-  const currentValue = currentStats[stat] || 0;
+  const currentValue = (currentStats[stat] as number) || 0;
   const updatedStats = { ...currentStats, [stat]: currentValue + amount };
   return await saveCharacterStats(updatedStats);
 }
@@ -388,7 +388,7 @@ export function addToCharacterStatSync(stat: keyof CharacterStats, amount: numbe
   }
 
   const currentStats = getCharacterStats();
-  const currentValue = currentStats[stat] || 0;
+  const currentValue = (currentStats[stat] as number) || 0;
   const newValue = currentValue + amount;
 
   console.log('[Character Stats Manager] addToCharacterStatSync:', { stat, currentValue, amount, newValue });
