@@ -18,6 +18,8 @@ interface HeaderSectionProps {
   onAnimationStart?: () => void;
   onAnimationEnd?: () => void;
   shouldRevealImage?: boolean;
+  ctaButton?: React.ReactNode;
+  ctaHref?: string;
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
@@ -32,6 +34,8 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   onAnimationStart,
   onAnimationEnd,
   shouldRevealImage = false,
+  ctaButton,
+  ctaHref,
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -46,7 +50,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
     if (imageLoaded && !animationComplete) {
       // Start animation
       onAnimationStart?.();
-      
+
       // Set a timeout to end animation after transition duration + scroll time
       animationTimeoutRef.current = setTimeout(() => {
         setAnimationComplete(true);
@@ -103,7 +107,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       ) : (
         <div className={cn("absolute inset-0", defaultBgColor)} aria-hidden="true" />
       )}
-      <div 
+      <div
         className={cn(
           "absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 transition-all duration-800 ease-out",
           imageLoaded ? "opacity-100" : "opacity-0",
@@ -117,6 +121,11 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
         </h1>
         {subtitle && (
           <p className="text-sm sm:text-base md:text-lg text-white/90 drop-shadow text-center mt-2 max-w-2xl">{subtitle}</p>
+        )}
+        {ctaButton && (
+          <div className="mt-6">
+            {ctaButton}
+          </div>
         )}
       </div>
       {canEdit && (

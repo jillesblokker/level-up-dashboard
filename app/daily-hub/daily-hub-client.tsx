@@ -107,33 +107,51 @@ export function DailyHubClient() {
 
     const loadFavoritedQuests = async () => {
         try {
+            console.log('[Daily Hub] Loading favorited quests...')
+
             // First, get favorited quest IDs
             const favoritesResponse = await fetch('/api/quests/favorites')
+            console.log('[Daily Hub] Favorites response status:', favoritesResponse.status)
+
             if (!favoritesResponse.ok) {
+                console.error('[Daily Hub] Failed to fetch favorites')
                 setFavoritedQuests([])
                 return
             }
 
             const favoritesData = await favoritesResponse.json()
+            console.log('[Daily Hub] Favorites data:', favoritesData)
             const favoriteIds = favoritesData.favorites || []
+            console.log('[Daily Hub] Favorite IDs:', favoriteIds)
 
             if (favoriteIds.length === 0) {
+                console.log('[Daily Hub] No favorite IDs found')
                 setFavoritedQuests([])
                 return
             }
 
             // Then, get all quests and filter for favorites
             const questsResponse = await fetch('/api/quests/daily')
+            console.log('[Daily Hub] Quests response status:', questsResponse.status)
+
             if (questsResponse.ok) {
                 const allQuests = await questsResponse.json()
+                console.log('[Daily Hub] All quests count:', allQuests.length)
+                console.log('[Daily Hub] All quests:', allQuests)
+
                 const favoriteQuests = allQuests
-                    .filter((q: any) => favoriteIds.includes(q.id))
+                    .filter((q: any) => {
+                        const isFavorite = favoriteIds.includes(q.id)
+                        console.log(`[Daily Hub] Quest ${q.id} (${q.name}) is favorite:`, isFavorite)
+                        return isFavorite
+                    })
                     .slice(0, 6)
                     .map((q: any) => ({
                         ...q,
                         difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
                     }))
 
+                console.log('[Daily Hub] Filtered favorite quests:', favoriteQuests)
                 setFavoritedQuests(favoriteQuests)
 
                 // Initialize completed set
@@ -144,7 +162,7 @@ export function DailyHubClient() {
                 setCompletedQuestIds(completed)
             }
         } catch (error) {
-            console.error('Failed to load favorited quests:', error)
+            console.error('[Daily Hub] Error loading favorited quests:', error)
             setFavoritedQuests([])
         } finally {
             setLoading(false)
@@ -194,16 +212,13 @@ export function DailyHubClient() {
     return (
         <div className="min-h-screen bg-black pb-20">
             {/* Header Section with CTA */}
-            <div className="relative">
-                <HeaderSection
-                    title={`Welcome, ${user?.firstName || 'Hero'}!`}
-                    subtitle="Your daily adventure awaits. Complete quests, maintain your streak, and grow your kingdom."
-                    defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
-                    className="h-[300px] md:h-[400px]"
-                />
-
-                {/* CTA Button Overlay */}
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+            <HeaderSection
+                title={`Welcome, ${user?.firstName || 'Hero'}!`}
+                subtitle="Your daily adventure awaits. Complete quests, maintain your streak, and grow your kingdom."
+                imageSrc="/images/daily-hub-hero.jpg"
+                defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
+                className="h-[300px] md:h-[400px]"
+                ctaButton={
                     <Link href="/kingdom">
                         <Button
                             size="lg"
@@ -213,8 +228,8 @@ export function DailyHubClient() {
                             Enter Your Kingdom
                         </Button>
                     </Link>
-                </div>
-            </div>
+                }
+            />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 space-y-8">
 
