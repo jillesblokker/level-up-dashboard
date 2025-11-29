@@ -1100,25 +1100,75 @@ export default function QuestsPage() {
   const handleChallengeToggle = async (challengeId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
 
+    // Find the challenge object
+    const challengeObj = challenges.find(c => c.id === challengeId);
+    if (!challengeObj) {
+      console.error('[CHALLENGE-TOGGLE] Challenge not found:', challengeId);
+      return;
+    }
+
+    console.log('[CHALLENGE-TOGGLE] Updating challenge state:', { challengeId, newCompleted, challengeName: challengeObj.name });
+
+    // Update local state (optimistic update)
+    setChallenges(prevChallenges =>
+      prevChallenges.map(challenge =>
+        challenge.id === challengeId
+          ? { ...challenge, completed: newCompleted }
+          : challenge
+      )
+    );
+
+    // 🎯 CRITICAL FIX: Apply rewards when completing challenge
+    if (newCompleted) {
+      const goldReward = challengeObj.gold || 50;
+      const xpReward = challengeObj.xp || 25;
+
+      console.log('[CHALLENGE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+
+      // Import and use character stats manager to apply rewards
+      import('@/lib/character-stats-manager').then(({ addToCharacterStatSync, getCharacterStats }) => {
+        // Get current stats for logging
+        const currentStats = getCharacterStats();
+        console.log('[CHALLENGE-TOGGLE] Current stats before reward:', currentStats);
+
+        // Apply rewards synchronously
+        addToCharacterStatSync('gold', goldReward);
+        addToCharacterStatSync('experience', xpReward);
+
+        // Get updated stats for logging
+        const updatedStats = getCharacterStats();
+        console.log('[CHALLENGE-TOGGLE] Updated stats after reward:', updatedStats);
+
+        // Show success toast with rewards
+        toast({
+          title: "⚔️ Challenge Complete!",
+          description: `${challengeObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+          duration: 4000,
+        });
+      }).catch(error => {
+        console.error('[CHALLENGE-TOGGLE] Error applying rewards:', error);
+        toast({
+          title: "Warning",
+          description: "Challenge completed but rewards may not have been applied. Please refresh the page.",
+          duration: 5000,
+        });
+      });
+    } else {
+      // Challenge uncompleted - just show toast
+      toast({
+        title: "Challenge Uncompleted",
+        description: `${challengeObj.name} marked as incomplete.`,
+        duration: 2000,
+      });
+    }
+
+    // Persist challenge completion to backend
     try {
-      // newCompleted is passed directly from the toggle button (it's already the target state)
-      console.log('[Challenge Toggle] Starting:', { challengeId, newCompleted, token: !!token });
-      console.log('[Challenge Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
-
-      // Update local state
-      setChallenges(prevChallenges =>
-        prevChallenges.map(challenge =>
-          challenge.id === challengeId
-            ? { ...challenge, completed: newCompleted }
-            : challenge
-        )
-      );
-
-      // Update in Supabase
       const response = await fetch('/api/challenges-ultra-simple', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           challengeId,
@@ -1126,42 +1176,17 @@ export default function QuestsPage() {
         })
       });
 
-      console.log('[Challenge Toggle] API Response:', { status: response.status, ok: response.ok });
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[Challenge Toggle] API Error:', errorText);
+        console.error('[CHALLENGE-TOGGLE] API Error:', errorText);
         throw new Error(`Failed to update challenge: ${response.status} - ${errorText}`);
       }
 
-      // Find the challenge name for the toast (use current state before update)
-      const challenge = challenges.find(c => c.id === challengeId);
-      if (challenge) {
-        if (newCompleted) {
-          // Calculate rewards based on challenge difficulty
-          const goldReward = challenge.gold || 50;
-          const xpReward = challenge.xp || 25;
-
-          toast({
-            title: "⚔️ Quest Complete!",
-            description: `${challenge.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
-            duration: 4000,
-          });
-        } else {
-          toast({
-            title: "Quest Uncompleted",
-            description: `${challenge.name} marked as incomplete.`,
-            duration: 2000,
-          });
-        }
-      }
+      console.log('[CHALLENGE-TOGGLE] Challenge persisted to backend successfully');
     } catch (error) {
-      console.error('Error toggling challenge:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update challenge. Please try again.",
-        duration: 3000,
-      });
+      console.error('[CHALLENGE-TOGGLE] Error persisting challenge:', error);
+      // Don't show error toast as rewards were already applied
+      // Just log for debugging
     }
   };
 
@@ -1553,21 +1578,70 @@ export default function QuestsPage() {
   const handleMilestoneToggle = async (milestoneId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
 
+    // Find the milestone object
+    const milestoneObj = milestones.find(m => m.id === milestoneId);
+    if (!milestoneObj) {
+      console.error('[MILESTONE-TOGGLE] Milestone not found:', milestoneId);
+      return;
+    }
+
+    console.log('[MILESTONE-TOGGLE] Updating milestone state:', { milestoneId, newCompleted, milestoneName: milestoneObj.name });
+
+    // Update local state (optimistic update)
+    setMilestones(prevMilestones =>
+      prevMilestones.map(milestone =>
+        milestone.id === milestoneId
+          ? { ...milestone, completed: newCompleted }
+          : milestone
+      )
+    );
+
+    // 🎯 CRITICAL FIX: Apply rewards when completing milestone
+    if (newCompleted) {
+      const goldReward = milestoneObj.gold || 100; // Milestones typically have higher rewards
+      const xpReward = milestoneObj.xp || 100;
+
+      console.log('[MILESTONE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+
+      // Import and use character stats manager to apply rewards
+      import('@/lib/character-stats-manager').then(({ addToCharacterStatSync, getCharacterStats }) => {
+        // Get current stats for logging
+        const currentStats = getCharacterStats();
+        console.log('[MILESTONE-TOGGLE] Current stats before reward:', currentStats);
+
+        // Apply rewards synchronously
+        addToCharacterStatSync('gold', goldReward);
+        addToCharacterStatSync('experience', xpReward);
+
+        // Get updated stats for logging
+        const updatedStats = getCharacterStats();
+        console.log('[MILESTONE-TOGGLE] Updated stats after reward:', updatedStats);
+
+        // Show success toast with rewards
+        toast({
+          title: "🏆 Milestone Complete!",
+          description: `${milestoneObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+          duration: 4000,
+        });
+      }).catch(error => {
+        console.error('[MILESTONE-TOGGLE] Error applying rewards:', error);
+        toast({
+          title: "Warning",
+          description: "Milestone completed but rewards may not have been applied. Please refresh the page.",
+          duration: 5000,
+        });
+      });
+    } else {
+      // Milestone uncompleted - just show toast
+      toast({
+        title: "Milestone Uncompleted",
+        description: `${milestoneObj.name} marked as incomplete.`,
+        duration: 2000,
+      });
+    }
+
+    // Persist milestone completion to backend
     try {
-      // newCompleted is passed directly from the toggle button (it's already the target state)
-      console.log('[Milestone Toggle] Starting:', { milestoneId, newCompleted, token: !!token });
-      console.log('[Milestone Toggle] Toast will show:', newCompleted ? 'COMPLETED' : 'UNCOMPLETED');
-
-      // Update local state
-      setMilestones(prevMilestones =>
-        prevMilestones.map(milestone =>
-          milestone.id === milestoneId
-            ? { ...milestone, completed: newCompleted }
-            : milestone
-        )
-      );
-
-      // Update in Supabase
       const response = await fetch('/api/milestones', {
         method: 'PUT',
         headers: {
@@ -1584,29 +1658,11 @@ export default function QuestsPage() {
         throw new Error('Failed to update milestone');
       }
 
-      const milestone = milestones.find(m => m.id === milestoneId);
-      if (milestone) {
-        if (newCompleted) {
-          toast({
-            title: "Milestone Completed!",
-            description: `${milestone.name} has been completed!`,
-            duration: 3000,
-          });
-        } else {
-          toast({
-            title: "Milestone Uncompleted",
-            description: `${milestone.name} has been marked as incomplete.`,
-            duration: 2000,
-          });
-        }
-      }
+      console.log('[MILESTONE-TOGGLE] Milestone persisted to backend successfully');
     } catch (error) {
-      console.error('Error toggling milestone:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update milestone. Please try again.",
-        duration: 3000,
-      });
+      console.error('[MILESTONE-TOGGLE] Error persisting milestone:', error);
+      // Don't show error toast as rewards were already applied
+      // Just log for debugging
     }
   };
 

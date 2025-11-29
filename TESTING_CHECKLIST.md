@@ -431,12 +431,26 @@ For each quest, verify:
 
 ## 🛡️ Character Stats Integrity (CRITICAL)
 
-### Reward Application
+### Reward Application - Quests
 - [x] Completing a quest ALWAYS increases gold
 - [x] Completing a quest ALWAYS increases XP
-- [x] Gold never decreases when earning rewards
-- [x] XP never decreases when earning rewards
+- [x] Gold never decreases when earning quest rewards
+- [x] XP never decreases when earning quest rewards
 - [x] Rewards match quest difficulty (Easy: 25/25, Medium: 50/50, Hard: 100/100)
+
+### Reward Application - Challenges
+- [x] Completing a challenge ALWAYS increases gold
+- [x] Completing a challenge ALWAYS increases XP
+- [x] Gold never decreases when earning challenge rewards
+- [x] XP never decreases when earning challenge rewards
+- [x] Challenge rewards are applied using addToCharacterStatSync
+
+### Reward Application - Milestones
+- [x] Completing a milestone ALWAYS increases gold
+- [x] Completing a milestone ALWAYS increases XP
+- [x] Gold never decreases when earning milestone rewards
+- [x] XP never decreases when earning milestone rewards
+- [x] Milestone rewards are applied using addToCharacterStatSync
 
 ### Stat Persistence
 - [x] Stats save to localStorage immediately
@@ -446,6 +460,8 @@ For each quest, verify:
 
 ### Concurrent Operations
 - [ ] Complete multiple quests rapidly - all rewards apply
+- [ ] Complete multiple challenges rapidly - all rewards apply
+- [ ] Complete multiple milestones rapidly - all rewards apply
 - [ ] Complete quest while page is loading - no data loss
 - [ ] Complete quest with slow network - optimistic update works
 - [ ] Server sync doesn't overwrite local changes
@@ -466,7 +482,7 @@ For each quest, verify:
 ### Debugging
 - [x] Console logs show all stat changes
 - [x] Console logs show before/after values
-- [x] Console logs show source of stat changes
+- [x] Console logs show source of stat changes (QUEST-TOGGLE, CHALLENGE-TOGGLE, MILESTONE-TOGGLE)
 - [x] Warnings appear for suspicious operations
 
 ---
