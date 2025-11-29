@@ -225,6 +225,7 @@ export default function QuestsPage() {
   const [editCustomChallengeData, setEditCustomChallengeData] = useState<any>(null);
   const [addQuestModalOpen, setAddQuestModalOpen] = useState(false);
   const [addQuestLoading, setAddQuestLoading] = useState(false);
+  const [addQuestError, setAddQuestError] = useState<string | null>(null);
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
   const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
@@ -1397,10 +1398,6 @@ export default function QuestsPage() {
     }
   };
 
-
-  // Add remaining missing variables and functions
-  const [milestones, setMilestones] = useState<any[]>([]);
-  const [addQuestError, setAddQuestError] = useState<string | null>(null);
 
   // Initialize challenges and milestones data - must be before early returns
   useEffect(() => {
