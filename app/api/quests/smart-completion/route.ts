@@ -15,9 +15,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     console.log('[Smart Quest Completion] Request body:', body);
-    
+
     const { questId, completed, xpReward, goldReward } = body;
-    
+
     if (!questId || typeof completed !== 'boolean') {
       console.error('[Smart Quest Completion] Invalid request data:', { questId, completed });
       return NextResponse.json({ error: 'Missing questId or completed' }, { status: 400 });
@@ -26,14 +26,14 @@ export async function POST(request: NextRequest) {
     console.log('[Smart Quest Completion] Processing quest:', { userId, questId, completed, xpReward, goldReward });
     console.log('[Smart Quest Completion] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
     console.log('[Smart Quest Completion] User ID type:', typeof userId, 'Length:', userId?.length, 'Format:', userId);
-    
+
     // 🔍 DEBUG: Log the action being performed
     if (completed) {
       console.log('[Smart Quest Completion] 🎯 ACTION: Marking quest as COMPLETED');
     } else {
       console.log('[Smart Quest Completion] 🧹 ACTION: Marking quest as INCOMPLETE (will delete record if exists)');
     }
-    
+
     // 🔍 VALIDATION LOGGING - Check if user ID is Clerk format
     const isClerkUserId = userId?.startsWith('user_');
     const isUUIDFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId || '');
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       isUUIDFormat,
       userIdFormat: isClerkUserId ? 'CLERK_TEXT' : isUUIDFormat ? 'UUID' : 'UNKNOWN'
     });
-    
+
     // 🔍 VALIDATION LOGGING - Check if quest ID is UUID format
     const isQuestUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(questId || '');
     console.log('[Smart Quest Completion] 🔍 Quest ID Analysis:', {
@@ -52,29 +52,29 @@ export async function POST(request: NextRequest) {
 
     // TEMPORARY FIX: Implement quest completion logic directly instead of using broken database function
     console.log('[Smart Quest Completion] Using direct implementation (bypassing broken function)');
-    
+
     // Validate that the quest exists in either quests OR challenges table
     const { data: questExists, error: questCheckError } = await supabaseServer
       .from('quests')
       .select('id')
       .eq('id', questId)
       .single();
-    
+
     const { data: challengeExists, error: challengeCheckError } = await supabaseServer
       .from('challenges')
       .select('id')
       .eq('id', questId)
       .single();
-    
+
     if (questCheckError && challengeCheckError) {
       console.error('[Smart Quest Completion] Quest not found in either table:', { questId });
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Quest not found',
         message: 'The quest you are trying to complete no longer exists in the database',
         questId: questId
       }, { status: 404 });
     }
-    
+
     // Check if completion record already exists
     const { data: existingRecord, error: fetchError } = await supabaseServer
       .from('quest_completion')
@@ -82,14 +82,14 @@ export async function POST(request: NextRequest) {
       .eq('user_id', userId)
       .eq('quest_id', questId)
       .single();
-    
+
     if (fetchError && fetchError.code !== 'PGRST116') {
       console.error('[Smart Quest Completion] Error fetching existing record:', fetchError);
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
-    
+
     let result;
-    
+
     if (completed) {
       // Mark as completed
       if (!existingRecord) {
@@ -106,12 +106,12 @@ export async function POST(request: NextRequest) {
           })
           .select()
           .single();
-        
+
         if (insertError) {
           console.error('[Smart Quest Completion] Insert error:', insertError);
           return NextResponse.json({ error: insertError.message }, { status: 500 });
         }
-        
+
         result = {
           success: true,
           action: 'inserted',
@@ -133,12 +133,12 @@ export async function POST(request: NextRequest) {
           .eq('quest_id', questId)
           .select()
           .single();
-        
+
         if (updateError) {
           console.error('[Smart Quest Completion] Update error:', updateError);
           return NextResponse.json({ error: updateError.message }, { status: 500 });
         }
-        
+
         result = {
           success: true,
           action: 'updated',
@@ -146,6 +146,64 @@ export async function POST(request: NextRequest) {
           xp_earned: xpReward || 50,
           gold_earned: goldReward || 25
         };
+      }
+
+      // Update character stats (Gold and XP)
+      try {
+        // Fetch current stats
+        const { data: currentStats, error: statsFetchError } = await supabaseServer
+          .from('character_stats')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+
+        if (!statsFetchError && currentStats) {
+          const newXp = (currentStats.experience || 0) + (xpReward || 50);
+          const newGold = (currentStats.gold || 0) + (goldReward || 25);
+
+          // Calculate new level if needed (simple formula for now, should match client)
+          // Level = floor(sqrt(XP / 100)) + 1
+          const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+
+          const { error: statsUpdateError } = await supabaseServer
+            .from('character_stats')
+            .update({
+              experience: newXp,
+              gold: newGold,
+              level: Math.max(newLevel, currentStats.level || 1),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+
+          if (statsUpdateError) {
+            console.error('[Smart Quest Completion] Failed to update character stats:', statsUpdateError);
+          } else {
+            console.log('[Smart Quest Completion] Updated character stats:', { newXp, newGold, newLevel });
+          }
+        } else {
+          // If no stats exist, create them
+          const newXp = xpReward || 50;
+          const newGold = goldReward || 25;
+          const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+
+          const { error: statsInsertError } = await supabaseServer
+            .from('character_stats')
+            .insert({
+              user_id: userId,
+              experience: newXp,
+              gold: newGold,
+              level: newLevel,
+              health: 100,
+              max_health: 100,
+              updated_at: new Date().toISOString()
+            });
+
+          if (statsInsertError) {
+            console.error('[Smart Quest Completion] Failed to create character stats:', statsInsertError);
+          }
+        }
+      } catch (statsError) {
+        console.error('[Smart Quest Completion] Error updating stats:', statsError);
       }
     } else {
       // Mark as incomplete (delete the record)
@@ -155,12 +213,12 @@ export async function POST(request: NextRequest) {
           .delete()
           .eq('user_id', userId)
           .eq('quest_id', questId);
-        
+
         if (deleteError) {
           console.error('[Smart Quest Completion] Delete error:', deleteError);
           return NextResponse.json({ error: deleteError.message }, { status: 500 });
         }
-        
+
         result = {
           success: true,
           action: 'deleted',
@@ -178,9 +236,9 @@ export async function POST(request: NextRequest) {
         };
       }
     }
-    
+
     console.log('[Smart Quest Completion] Direct implementation result:', result);
-    
+
     // Return the result
     return NextResponse.json({
       success: true,
@@ -190,7 +248,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[Smart Quest Completion] Unexpected error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
@@ -250,7 +308,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('[Smart Quest Completion] Unexpected error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });

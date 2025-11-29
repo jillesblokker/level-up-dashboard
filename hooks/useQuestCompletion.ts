@@ -135,6 +135,18 @@ export function useQuestCompletion() {
       // Call success callback
       onSuccess?.(newCompleted);
 
+      // Optimistically update character stats
+      if (newCompleted) {
+        try {
+          const { addToCharacterStatSync } = await import('@/lib/character-stats-manager');
+          if (questData.xp) addToCharacterStatSync('experience', questData.xp);
+          if (questData.gold) addToCharacterStatSync('gold', questData.gold);
+          console.log('[Quest Completion] Optimistically updated stats');
+        } catch (statsError) {
+          console.error('[Quest Completion] Failed to update local stats:', statsError);
+        }
+      }
+
       // Refresh character stats to update the UI
       if (newCompleted) {
         try {
