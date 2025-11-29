@@ -25,12 +25,34 @@ export async function GET() {
       return NextResponse.json({ stats: null });
     }
 
+    // Fetch streak data
+    const { data: streakData } = await supabaseServer
+      .from('streaks')
+      .select('current_streak')
+      .eq('user_id', userId)
+      .single();
+
     // Return the individual columns as stats object
     // We check both the dedicated column and the stats_data JSONB column
     // This provides a fallback if a column is missing in the schema but exists in the JSON blob
     const statsJson = data.stats_data || {};
 
+    // Calculate XP to next level
+    const currentLevel = data.level ?? statsJson.level ?? 1;
+    const baseXP = 100;
+    const experienceToNextLevel = Math.floor(baseXP * Math.pow(1.5, currentLevel - 1));
+
     return NextResponse.json({
+      level: data.level ?? statsJson.level ?? 1,
+      experience: data.experience ?? statsJson.experience ?? 0,
+      experienceToNextLevel,
+      gold: data.gold ?? statsJson.gold ?? 0,
+      health: data.health ?? statsJson.health ?? 100,
+      maxHealth: data.max_health ?? statsJson.max_health ?? 100,
+      buildTokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
+      kingdomExpansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
+      streakDays: streakData?.current_streak ?? 0,
+      updatedAt: data.updated_at ?? statsJson.updated_at,
       stats: {
         gold: data.gold ?? statsJson.gold ?? 0,
         experience: data.experience ?? statsJson.experience ?? 0,

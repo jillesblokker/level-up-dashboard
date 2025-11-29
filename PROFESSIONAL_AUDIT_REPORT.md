@@ -83,10 +83,7 @@ Kingdom Growth → Social Guilds → Seasonal Events → Prestige Reset
 - **Act II**: The Trials (Levels 11-30) - Squire to Knight
 - **Act III**: The Reign (Levels 31+) - Knight to Lord
 
-**Quest Renaming Examples**:
-- ❌ "Do 30 push-ups" → ✅ "Training at the Barracks"
-- ❌ "Read for 30 min" → ✅ "Study Ancient Scrolls"
-- ❌ "Meditate" → ✅ "Commune with the Old Gods"
+
 
 **NPC System**:
 - **The Mentor** (Tutorial guide)
