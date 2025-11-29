@@ -130,8 +130,8 @@ export function DailyHubClient() {
                 return
             }
 
-            // Then, get all quests and filter for favorites
-            const questsResponse = await fetch('/api/quests/daily')
+            // Then, get ALL quests (not just daily) and filter for favorites
+            const questsResponse = await fetch('/api/quests')
             console.log('[Daily Hub] Quests response status:', questsResponse.status)
 
             if (questsResponse.ok) {
