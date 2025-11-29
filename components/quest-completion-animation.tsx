@@ -91,7 +91,7 @@ export function QuestCompletionAnimation({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.3 }}
                                 >
-                                    "{questName}"
+                                    &quot;{questName}&quot;
                                 </motion.p>
 
                                 {/* Rewards */}

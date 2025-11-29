@@ -217,7 +217,7 @@ export function DailyHubClient() {
                         <CardHeader>
                             <CardTitle className="text-2xl text-amber-900 flex items-center gap-2">
                                 <span className="text-3xl">⚔️</span>
-                                Today's Quests
+                                Today&apos;s Quests
                             </CardTitle>
                             <CardDescription className="text-amber-700">
                                 Complete these tasks to grow your legend
