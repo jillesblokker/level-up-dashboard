@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import { calculateLevelFromExperience } from '@/lib/level-utils';
 
 // Smart Quest Completion API - Uses the intelligent database function
 export async function POST(request: NextRequest) {
@@ -148,7 +149,8 @@ export async function POST(request: NextRequest) {
         };
       }
 
-      // Update character stats (Gold and XP)
+
+      // Update character stats (Gold and XP) - Uses centralized level calculation
       try {
         // Fetch current stats
         const { data: currentStats, error: statsFetchError } = await supabaseServer
@@ -161,9 +163,8 @@ export async function POST(request: NextRequest) {
           const newXp = (currentStats.experience || 0) + (xpReward || 50);
           const newGold = (currentStats.gold || 0) + (goldReward || 25);
 
-          // Calculate new level if needed (simple formula for now, should match client)
-          // Level = floor(sqrt(XP / 100)) + 1
-          const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+          // Use proper level calculation that matches client
+          const newLevel = calculateLevelFromExperience(newXp);
 
           const { error: statsUpdateError } = await supabaseServer
             .from('character_stats')
@@ -177,14 +178,13 @@ export async function POST(request: NextRequest) {
 
           if (statsUpdateError) {
             console.error('[Smart Quest Completion] Failed to update character stats:', statsUpdateError);
-          } else {
-            console.log('[Smart Quest Completion] Updated character stats:', { newXp, newGold, newLevel });
+            // Don't fail the quest completion, but log the error
           }
         } else {
           // If no stats exist, create them
           const newXp = xpReward || 50;
           const newGold = goldReward || 25;
-          const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+          const newLevel = calculateLevelFromExperience(newXp);
 
           const { error: statsInsertError } = await supabaseServer
             .from('character_stats')
@@ -195,6 +195,7 @@ export async function POST(request: NextRequest) {
               level: newLevel,
               health: 100,
               max_health: 100,
+              build_tokens: 0,
               updated_at: new Date().toISOString()
             });
 
@@ -204,6 +205,7 @@ export async function POST(request: NextRequest) {
         }
       } catch (statsError) {
         console.error('[Smart Quest Completion] Error updating stats:', statsError);
+        // Don't fail the quest completion if stats update fails
       }
     } else {
       // Mark as incomplete (delete the record)
