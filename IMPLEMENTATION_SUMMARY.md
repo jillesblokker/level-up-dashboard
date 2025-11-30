@@ -43,6 +43,24 @@
 
 ---
 
+### 4. Refactored All Modals ✅
+**Problem**: Modals had inconsistent layouts and were hidden behind bottom nav on mobile.
+
+**Solution**:
+- Refactored 6 modals to use `ResponsiveModal`:
+  - Add Custom Quest
+  - Add Custom Milestone
+  - Add Custom Challenge
+  - Edit Custom Challenge
+  - Delete Confirmation
+  - Add Challenge Type
+- Added `pb-24` padding on mobile to ensure buttons are accessible
+- Standardized submit logic (moved from form onSubmit to button onClick where necessary)
+
+**Impact**: Uniform, accessible, and mobile-friendly modal experience across the app.
+
+---
+
 ## 🏗️ Infrastructure Improvements
 
 ### 1. ResponsiveModal Component
@@ -55,11 +73,13 @@
 - Backdrop with blur effect
 - Keyboard accessibility (ESC to close)
 - Customizable max-width (sm, md, lg, xl)
+- **Mobile Optimized**: Added bottom padding to account for navigation bar
 
 **Benefits**:
 - Consistent modal UX across the entire app
 - Reduced code duplication
 - Easier to maintain and update
+
 
 ---
 

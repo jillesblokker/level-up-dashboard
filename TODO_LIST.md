@@ -10,9 +10,10 @@
 - [x] **Delete Modal Refactor**: Updated Delete Confirmation modal to use ResponsiveModal component
 - [x] **Refactor Realm Page**: Updated `app/realm/page.tsx` to use the new `useAchievementUnlock` hook
 - [x] **Remove Duplicate Logic**: Cleaned up duplicate achievement unlock code (reduced from ~35 to ~15 lines)
+- [x] **Refactor All Modals**: Updated all modals (Add Quest, Add Challenge, Add Milestone, Edit Challenge, Add Challenge Type) to use ResponsiveModal component
+- [x] **Mobile Layout Fix**: Added bottom padding to ResponsiveModal for mobile bottom nav
 
 ## 📱 UI/UX Improvements
-- [ ] **Refactor All Modals**: Update remaining modals (Add Quest, Add Challenge, Add Milestone, Edit Challenge) to use ResponsiveModal component
 - [ ] **Mobile Testing**: Perform full regression test on real mobile device
 - [ ] **Toast Notifications**: Ensure toasts are not overlapping with bottom navigation
 

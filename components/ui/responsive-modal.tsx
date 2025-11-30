@@ -32,7 +32,7 @@ export function ResponsiveModal({
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pb-24 md:pb-4">
             {/* Backdrop */}
             <div
                 className="fixed inset-0 bg-black/80 backdrop-blur-sm"
@@ -43,7 +43,7 @@ export function ResponsiveModal({
             {/* Modal Container */}
             <div
                 className={cn(
-                    "relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full shadow-lg max-h-[90vh] flex flex-col",
+                    "relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full shadow-lg max-h-[85vh] md:max-h-[90vh] flex flex-col",
                     maxWidthClasses[maxWidth],
                     className
                 )}
