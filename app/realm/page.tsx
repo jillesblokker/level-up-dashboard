@@ -35,6 +35,8 @@ import { HeaderSection } from '@/components/HeaderSection';
 
 // Import new data loaders hook
 import { useDataLoaders } from '@/hooks/use-data-loaders';
+import { useAchievementUnlock } from '@/hooks/use-achievement-unlock';
+
 
 // Dynamic imports for performance optimization
 const RevealOverlay = dynamic(() => import('../reveal/page'), {
@@ -255,6 +257,8 @@ export default function RealmPage() {
         loadTileInventory,
         saveTileInventory
     } = useDataLoaders();
+    const { unlockAchievement } = useAchievementUnlock();
+
 
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);
@@ -624,42 +628,22 @@ export default function RealmPage() {
 
     // Achievement unlock effect
     useEffect(() => {
-        if (!hasVisitedRealm && isAuthLoaded) {
+        if (!hasVisitedRealm && isAuthLoaded && userId) {
             setHasVisitedRealm(true);
-            // Unlock the Necrion achievement (000) - only once per session
-            if (userId && !localStorage.getItem('unlocked_000')) {
-                localStorage.setItem('unlocked_000', 'true');
-                (async () => {
-                    const token = await getToken({ template: 'supabase' });
-                    fetch('/api/achievements/unlock', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ achievementId: '000' })
-                    })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Failed to unlock achievement');
-                        })
-                        .catch(err => {
-                            toast({
-                                title: 'Achievement Unlock Failed',
-                                description: 'Could not unlock the Necrion achievement. Please try again later.',
-                                variant: 'destructive',
-                            });
-                            console.error('Achievement unlock error:', err);
-                        });
-                })();
-                // Also unlock Necrion in the local creature store
-                discoverCreature('000');
-                toast({
-                    title: "New achievement",
-                    description: "Necrion - You've discovered the realm map!",
-                });
-            }
+
+            // Unlock the Necrion achievement (000) using the centralized hook
+            unlockAchievement({
+                achievementId: '000',
+                achievementName: 'Necrion',
+                description: "Necrion - You've discovered the realm map!",
+                onSuccess: () => {
+                    // Also unlock Necrion in the local creature store
+                    discoverCreature('000');
+                },
+            });
         }
-    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, toast, discoverCreature, getToken]);
+    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, unlockAchievement, discoverCreature]);
+
 
     // Load data from Supabase with localStorage fallback
     useEffect(() => {
