@@ -1970,7 +1970,7 @@ export default function QuestsPage() {
 
   return (
     <EnhancedErrorBoundary>
-      <div className="min-h-full quests-page-container scroll-prevent" style={{ overscrollBehavior: 'none' }}>
+      <div className="min-h-full quests-page-container scroll-prevent pb-20" style={{ overscrollBehavior: 'none' }}>
         {/* Keyboard Shortcuts Provider */}
         <KeyboardShortcutsProvider
           onNavigate={(route) => {
@@ -3083,29 +3083,33 @@ export default function QuestsPage() {
         )}
         {/* Add Custom Quest Modal */}
         {addQuestModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Add Custom Quest</h2>
-              <form onSubmit={e => { e.preventDefault(); handleAddQuestSubmit({ ...newQuest, id: Date.now().toString(), completed: false, isNew: true, category: String(newQuest.category || questCategories[0]) }); }}>
-                {addQuestError && <div className="mb-4 text-red-500 bg-red-900 p-2 rounded">{addQuestError}</div>}
-                <label className="block mb-2 text-sm font-medium">Name</label>
-                <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
-                <label className="block mb-2 text-sm font-medium">Description</label>
-                <textarea className="w-full mb-4 p-2 border rounded" value={newQuest.description} onChange={e => setNewQuest({ ...newQuest, description: e.target.value })} placeholder="Quest description" title="Quest description" aria-label="Quest description" />
-                <label className="block mb-2 text-sm font-medium">Category</label>
-                <select className="w-full mb-4 p-2 border rounded" value={newQuest.category} onChange={e => setNewQuest({ ...newQuest, category: e.target.value })} aria-label="Quest category">
-                  {questCategories.map((category: string) => (
-                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                  ))}
-                </select>
-                <label className="block mb-2 text-sm font-medium">Difficulty</label>
-                <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
-                <label className="block mb-2 text-sm font-medium">XP Reward</label>
-                <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.xp} onChange={e => setNewQuest({ ...newQuest, xp: Number(e.target.value) })} placeholder="XP" title="XP" aria-label="XP" />
-                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-                <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.gold} onChange={e => setNewQuest({ ...newQuest, gold: Number(e.target.value) })} placeholder="Gold" title="Gold" aria-label="Gold" />
-                <div className="flex justify-end gap-2">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full max-w-md shadow-lg max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+                <h2 className="text-lg font-semibold">Add Custom Quest</h2>
+              </div>
+              <form onSubmit={e => { e.preventDefault(); handleAddQuestSubmit({ ...newQuest, id: Date.now().toString(), completed: false, isNew: true, category: String(newQuest.category || questCategories[0]) }); }} className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 overflow-y-auto p-6">
+                  {addQuestError && <div className="mb-4 text-red-500 bg-red-900 p-2 rounded">{addQuestError}</div>}
+                  <label className="block mb-2 text-sm font-medium">Name</label>
+                  <input className="w-full mb-4 p-2 border rounded" value={newQuest.name} onChange={e => setNewQuest({ ...newQuest, name: e.target.value })} placeholder="Quest name" title="Quest name" aria-label="Quest name" required />
+                  <label className="block mb-2 text-sm font-medium">Description</label>
+                  <textarea className="w-full mb-4 p-2 border rounded" value={newQuest.description} onChange={e => setNewQuest({ ...newQuest, description: e.target.value })} placeholder="Quest description" title="Quest description" aria-label="Quest description" />
+                  <label className="block mb-2 text-sm font-medium">Category</label>
+                  <select className="w-full mb-4 p-2 border rounded" value={newQuest.category} onChange={e => setNewQuest({ ...newQuest, category: e.target.value })} aria-label="Quest category">
+                    {questCategories.map((category: string) => (
+                      <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                    ))}
+                  </select>
+                  <label className="block mb-2 text-sm font-medium">Difficulty</label>
+                  <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
+                  <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                  <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.xp} onChange={e => setNewQuest({ ...newQuest, xp: Number(e.target.value) })} placeholder="XP" title="XP" aria-label="XP" />
+                  <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                  <input type="number" className="w-full mb-4 p-2 border rounded" value={newQuest.gold} onChange={e => setNewQuest({ ...newQuest, gold: Number(e.target.value) })} placeholder="Gold" title="Gold" aria-label="Gold" />
+                </div>
+                <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                   <Button type="button" variant="secondary" onClick={() => setAddQuestModalOpen(false)} disabled={addQuestLoading}>Cancel</Button>
                   <Button type="submit" variant="default" disabled={addQuestLoading}>{addQuestLoading ? 'Adding...' : 'Add'}</Button>
                 </div>
