@@ -69,7 +69,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     }
 
     return (
-        <Card className="bg-[#1a1614] border-amber-800/40 shadow-xl overflow-hidden relative group h-[500px] flex flex-col">
+        <Card className="bg-[#1a1614] border-amber-800/40 shadow-xl overflow-hidden relative group h-[450px] md:h-[500px] flex flex-col">
             {/* Background Texture/Effect */}
             <div className="absolute inset-0 bg-[url('/images/parchment-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full pointer-events-none" />

@@ -340,10 +340,10 @@ export function DailyHubClient() {
                             <span className="text-green-200 group-hover:text-white">Kingdom</span>
                         </Button>
                     </Link>
-                    <Link href="/map" className="block">
+                    <Link href="/realm" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Map className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-blue-200 group-hover:text-white">World Map</span>
+                            <span className="text-blue-200 group-hover:text-white">Realm</span>
                         </Button>
                     </Link>
                     <Link href="/quests?new=true" className="block">

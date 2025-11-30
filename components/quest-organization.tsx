@@ -707,6 +707,25 @@ export function QuestOrganization({
                     </CardContent>
                   </Card>
                 ))}
+
+                {/* Add Quest Card */}
+                <Card
+                  className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-gray-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group"
+                  onClick={onAddQuest}
+                  aria-label="Add new quest"
+                >
+                  <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center min-h-[200px]">
+                    <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-800/30 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 group-hover:border-amber-600/50 group-hover:scale-110 transition-all">
+                      <Plus className="h-8 w-8 text-amber-500 group-hover:text-amber-400" />
+                    </div>
+                    <h3 className="font-semibold text-amber-400 mb-2 group-hover:text-amber-300">
+                      {currentLabels.addButton}
+                    </h3>
+                    <p className="text-sm text-gray-400 group-hover:text-gray-300">
+                      Create a new {context === 'quests' ? 'quest' : context === 'challenges' ? 'challenge' : 'milestone'} to track
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
             )}
           </div>
