@@ -113,42 +113,42 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                 </div>
             </CardHeader>
 
-            <CardContent className="relative z-10 flex-1 flex flex-col justify-between pt-2 pb-6">
+            <CardContent className="relative z-10 flex-1 flex flex-col pt-2 pb-4 min-h-0">
+                {/* Pagination Controls - Moved to top for better mobile accessibility */}
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-amber-800/20">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handlePrev}
+                        disabled={paragraphIndex === 0}
+                        className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
+                    >
+                        <ChevronLeft className="w-4 h-4 mr-1" />
+                        Prev
+                    </Button>
+
+                    <span className="text-xs text-amber-500/50 font-mono">
+                        {paragraphIndex + 1} / {paragraphs.length}
+                    </span>
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleNext}
+                        disabled={paragraphIndex === paragraphs.length - 1}
+                        className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
+                    >
+                        Next
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                </div>
+
                 {/* Lore Text Area */}
-                <div className="flex-1 relative pl-4 border-l-2 border-amber-800/50 min-h-0 flex flex-col">
+                <div className="flex-1 relative pl-4 border-l-2 border-amber-800/50 min-h-0 flex flex-col overflow-hidden">
                     <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-amber-900/50 scrollbar-track-transparent">
                         <p className="text-amber-200/90 font-serif leading-relaxed text-lg animate-in fade-in slide-in-from-right-4 duration-300 key={paragraphIndex}">
                             {paragraphs[paragraphIndex]}
                         </p>
-                    </div>
-
-                    {/* Pagination Controls */}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-amber-800/20">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handlePrev}
-                            disabled={paragraphIndex === 0}
-                            className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30"
-                        >
-                            <ChevronLeft className="w-4 h-4 mr-1" />
-                            Prev
-                        </Button>
-
-                        <span className="text-xs text-amber-500/50 font-mono">
-                            {paragraphIndex + 1} / {paragraphs.length}
-                        </span>
-
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleNext}
-                            disabled={paragraphIndex === paragraphs.length - 1}
-                            className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30"
-                        >
-                            Next
-                            <ChevronRight className="w-4 h-4 ml-1" />
-                        </Button>
                     </div>
                 </div>
 

@@ -236,7 +236,9 @@ export default function QuestsPage() {
     category: 'might',
     difficulty: 'medium',
     xp: 100,
-    gold: 50
+    gold: 50,
+    target: 1,
+    unit: ''
   });
   const [token, setToken] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -2870,81 +2872,90 @@ export default function QuestsPage() {
 
         {/* Add Milestone Modal */}
         {addMilestoneModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddMilestoneModalOpen(false)} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Add Milestone</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAddMilestoneModalOpen(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full max-w-md shadow-lg max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+                <h2 className="text-lg font-semibold">Add Custom Milestone</h2>
+              </div>
               <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  // TODO: Implement milestone creation
-                  // Add milestone
-                  setAddMilestoneModalOpen(false);
-                }}
+                onSubmit={e => e.preventDefault()}
+                className="flex flex-col flex-1 min-h-0"
               >
-                <label className="block mb-2 text-sm font-medium">Name</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newMilestone.name}
-                  onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
-                  placeholder="Milestone name"
-                  title="Milestone name"
-                  aria-label="Milestone name"
-                  required
-                />
-                <label className="block mb-2 text-sm font-medium">Description</label>
-                <textarea
-                  className="w-full mb-4 p-2 border rounded resize-none"
-                  rows={3}
-                  value={newMilestone.description}
-                  onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
-                  placeholder="Milestone description"
-                  title="Milestone description"
-                  aria-label="Milestone description"
-                />
-                <label className="block mb-2 text-sm font-medium">Category</label>
-                <select
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newMilestone.category}
-                  onChange={e => setNewMilestone({ ...newMilestone, category: e.target.value })}
-                  aria-label="Milestone category"
-                >
-                  {questCategories.map((category: string) => (
-                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                  ))}
-                </select>
-                <label className="block mb-2 text-sm font-medium">Difficulty</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newMilestone.difficulty}
-                  onChange={e => setNewMilestone({ ...newMilestone, difficulty: e.target.value })}
-                  placeholder="Difficulty"
-                  title="Difficulty"
-                  aria-label="Difficulty"
-                />
-                <label className="block mb-2 text-sm font-medium">XP Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newMilestone.xp}
-                  onChange={e => setNewMilestone({ ...newMilestone, xp: Number(e.target.value) })}
-                  placeholder="XP"
-                  title="XP"
-                  aria-label="XP"
-                />
-                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newMilestone.gold}
-                  onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
-                  placeholder="Gold"
-                  title="Gold"
-                  aria-label="Gold"
-                />
-                <div className="flex justify-end gap-2">
+                <div className="flex-1 overflow-y-auto p-6">
+                  <label className="block mb-2 text-sm font-medium">Name</label>
+                  <input
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.name}
+                    onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                    placeholder="Milestone name"
+                    title="Milestone name"
+                    aria-label="Milestone name"
+                    required
+                  />
+                  <label className="block mb-2 text-sm font-medium">Description</label>
+                  <textarea
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.description}
+                    onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
+                    placeholder="Description"
+                    title="Description"
+                    aria-label="Description"
+                  />
+                  <label className="block mb-2 text-sm font-medium">Category</label>
+                  <select
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.category}
+                    onChange={e => setNewMilestone({ ...newMilestone, category: e.target.value })}
+                    aria-label="Category"
+                  >
+                    {questCategories.map((category: string) => (
+                      <option key={category} value={category}>{getCategoryLabel(category)}</option>
+                    ))}
+                  </select>
+                  <label className="block mb-2 text-sm font-medium">Target Value</label>
+                  <input
+                    type="number"
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.target}
+                    onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
+                    placeholder="Target value"
+                    title="Target value"
+                    aria-label="Target value"
+                  />
+                  <label className="block mb-2 text-sm font-medium">Unit</label>
+                  <input
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.unit}
+                    onChange={e => setNewMilestone({ ...newMilestone, unit: e.target.value })}
+                    placeholder="Unit (e.g. km, kg, days)"
+                    title="Unit"
+                    aria-label="Unit"
+                  />
+                  <label className="block mb-2 text-sm font-medium">XP Reward</label>
+                  <input
+                    type="number"
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.xp}
+                    onChange={e => setNewMilestone({ ...newMilestone, xp: Number(e.target.value) })}
+                    placeholder="XP"
+                    title="XP"
+                    aria-label="XP"
+                  />
+                  <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+                  <input
+                    type="number"
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newMilestone.gold}
+                    onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
+                    placeholder="Gold"
+                    title="Gold"
+                    aria-label="Gold"
+                  />
+                </div>
+                <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                   <Button type="button" variant="secondary" onClick={() => setAddMilestoneModalOpen(false)}>Cancel</Button>
-                  <Button type="submit" variant="default">Add Milestone</Button>
+                  <Button type="submit" variant="default">Add</Button>
                 </div>
               </form>
             </div>
@@ -2952,60 +2963,65 @@ export default function QuestsPage() {
         )}
         {/* Add Custom Challenge Modal */}
         {addChallengeModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Add Custom Challenge</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
+            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full max-w-md shadow-lg max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+                <h2 className="text-lg font-semibold">Add Custom Challenge</h2>
+              </div>
               <form
                 onSubmit={e => e.preventDefault()}
+                className="flex flex-col flex-1 min-h-0"
               >
-                <label className="block mb-2 text-sm font-medium">Name</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newChallenge.name}
-                  onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
-                  placeholder="Challenge name"
-                  title="Challenge name"
-                  aria-label="Challenge name"
-                  required
-                />
-                <label className="block mb-2 text-sm font-medium">Instructions</label>
-                <textarea
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newChallenge.instructions}
-                  onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
-                  placeholder="Instructions"
-                  title="Instructions"
-                  aria-label="Instructions"
-                />
-                <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newChallenge.setsReps}
-                  onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
-                  placeholder="e.g. 3x12"
-                  title="Sets/Reps"
-                  aria-label="Sets/Reps"
-                />
-                <label className="block mb-2 text-sm font-medium">Tips</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newChallenge.tips}
-                  onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
-                  placeholder="Tips"
-                  title="Tips"
-                  aria-label="Tips"
-                />
-                <label className="block mb-2 text-sm font-medium">Weight</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={newChallenge.weight}
-                  onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
-                  placeholder="e.g. 8kg"
-                  title="Weight"
-                  aria-label="Weight"
-                />
-                <div className="flex justify-end gap-2">
+                <div className="flex-1 overflow-y-auto p-6">
+                  <label className="block mb-2 text-sm font-medium">Name</label>
+                  <input
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newChallenge.name}
+                    onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
+                    placeholder="Challenge name"
+                    title="Challenge name"
+                    aria-label="Challenge name"
+                    required
+                  />
+                  <label className="block mb-2 text-sm font-medium">Instructions</label>
+                  <textarea
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newChallenge.instructions}
+                    onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
+                    placeholder="Instructions"
+                    title="Instructions"
+                    aria-label="Instructions"
+                  />
+                  <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
+                  <input
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newChallenge.setsReps}
+                    onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
+                    placeholder="e.g. 3x12"
+                    title="Sets/Reps"
+                    aria-label="Sets/Reps"
+                  />
+                  <label className="block mb-2 text-sm font-medium">Tips</label>
+                  <input
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newChallenge.tips}
+                    onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
+                    placeholder="Tips"
+                    title="Tips"
+                    aria-label="Tips"
+                  />
+                  <label className="block mb-2 text-sm font-medium">Weight</label>
+                  <input
+                    className="w-full mb-4 p-2 border rounded"
+                    value={newChallenge.weight}
+                    onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
+                    placeholder="e.g. 8kg"
+                    title="Weight"
+                    aria-label="Weight"
+                  />
+                </div>
+                <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                   <Button type="button" variant="secondary" onClick={() => setAddChallengeModalOpen(false)}>Cancel</Button>
                   <Button type="submit" variant="default">Add</Button>
                 </div>

@@ -585,8 +585,8 @@ export default function RealmPage() {
                 if (userId) {
                     // Add a guard to prevent repeated calls for the same achievement
                     const achievementKey = `unlocked_${req.id}`;
-                    if (!sessionStorage.getItem(achievementKey)) {
-                        sessionStorage.setItem(achievementKey, 'true');
+                    if (!localStorage.getItem(achievementKey)) {
+                        localStorage.setItem(achievementKey, 'true');
                         (async () => {
                             try {
                                 const token = await getToken({ template: 'supabase' });
@@ -606,13 +606,13 @@ export default function RealmPage() {
                                 } else {
                                     const error = await response.json();
                                     console.error(`[Achievement Unlock] ❌ Failed to unlock achievement ${req.id}:`, error);
-                                    // Remove the session storage flag so it can be retried
-                                    sessionStorage.removeItem(achievementKey);
+                                    // Remove the storage flag so it can be retried
+                                    localStorage.removeItem(achievementKey);
                                 }
                             } catch (error) {
                                 console.error(`[Achievement Unlock] ❌ Error unlocking achievement ${req.id}:`, error);
-                                // Remove the session storage flag so it can be retried
-                                sessionStorage.removeItem(achievementKey);
+                                // Remove the storage flag so it can be retried
+                                localStorage.removeItem(achievementKey);
                             }
                         })();
                         discoverCreature(req.id);
@@ -627,8 +627,8 @@ export default function RealmPage() {
         if (!hasVisitedRealm && isAuthLoaded) {
             setHasVisitedRealm(true);
             // Unlock the Necrion achievement (000) - only once per session
-            if (userId && !sessionStorage.getItem('unlocked_000')) {
-                sessionStorage.setItem('unlocked_000', 'true');
+            if (userId && !localStorage.getItem('unlocked_000')) {
+                localStorage.setItem('unlocked_000', 'true');
                 (async () => {
                     const token = await getToken({ template: 'supabase' });
                     fetch('/api/achievements/unlock', {
