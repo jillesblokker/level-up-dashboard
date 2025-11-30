@@ -8,6 +8,8 @@
 - [x] **TypeScript Types**: Added proper interfaces for Quest, Challenge, and Milestone types
 - [x] **Achievement Hook**: Created `useAchievementUnlock` hook for centralized achievement logic
 - [x] **Delete Modal Refactor**: Updated Delete Confirmation modal to use ResponsiveModal component
+- [x] **Refactor Realm Page**: Updated `app/realm/page.tsx` to use the new `useAchievementUnlock` hook
+- [x] **Remove Duplicate Logic**: Cleaned up duplicate achievement unlock code (reduced from ~35 to ~15 lines)
 
 ## 📱 UI/UX Improvements
 - [ ] **Refactor All Modals**: Update remaining modals (Add Quest, Add Challenge, Add Milestone, Edit Challenge) to use ResponsiveModal component
@@ -15,8 +17,7 @@
 - [ ] **Toast Notifications**: Ensure toasts are not overlapping with bottom navigation
 
 ## 🛠️ Code Quality & Refactoring
-- [ ] **Refactor Realm Page**: Update `app/realm/page.tsx` to use the new `useAchievementUnlock` hook
-- [ ] **Remove Duplicate Logic**: Clean up any remaining duplicate achievement unlock code
+- [ ] **Search for More Achievement Unlocks**: Check if there are other places using manual achievement unlock logic
 
 ## 🚀 Features
 - [ ] **Edit Milestones**: Implement functionality to edit existing milestones (currently only "Add" is supported).
