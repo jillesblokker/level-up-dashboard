@@ -43,6 +43,8 @@ import { DailyProgressCard } from '@/components/daily-progress-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
 import { TarotCardDisplay } from '@/components/tarot-card'
 import { StreakIndicator } from "@/components/streak-indicator"
+import { ResponsiveModal } from "@/components/ui/responsive-modal"
+
 
 interface Quest {
   id: string;
@@ -3149,22 +3151,29 @@ export default function QuestsPage() {
           </div>
         )}
         {/* Delete Confirmation Modal */}
-        {deleteConfirmOpen && questToDelete && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={cancelDeleteQuest} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
-              <p>Are you sure you want to delete the quest &quot;{questToDelete.name}&quot;?</p>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>Cancel</Button>
-                <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>Delete</Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ResponsiveModal
+          isOpen={deleteConfirmOpen && !!questToDelete}
+          onClose={cancelDeleteQuest}
+          title="Delete Quest"
+          footer={
+            <>
+              <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>
+                Cancel
+              </Button>
+              <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>
+                Delete
+              </Button>
+            </>
+          }
+        >
+          <p>Are you sure you want to delete the quest &quot;{questToDelete?.name}&quot;?</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            This action cannot be undone.
+          </p>
+        </ResponsiveModal>
         {/* Add Challenge Type Modal */}
         {showAddChallengeTypeModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
             <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => setShowAddChallengeTypeModal(false)} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
               <h2 className="text-lg font-semibold mb-4">Add Challenge Type</h2>

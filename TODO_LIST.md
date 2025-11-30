@@ -1,15 +1,22 @@
 # Level Up Dashboard - Remaining Tasks & Improvements
 
+## ✅ Completed
+- [x] **Modal Z-Index**: Fixed all modals to use z-[100] to prevent bottom nav overlap
+- [x] **Double Dropdown**: Replaced native `<select>` with Shadcn `<Select>` in all modals
+- [x] **Achievement Persistence**: Switched from sessionStorage to localStorage for achievement unlocks
+- [x] **Reusable Modal Component**: Created `ResponsiveModal` component for consistent modal layouts
+- [x] **TypeScript Types**: Added proper interfaces for Quest, Challenge, and Milestone types
+- [x] **Achievement Hook**: Created `useAchievementUnlock` hook for centralized achievement logic
+- [x] **Delete Modal Refactor**: Updated Delete Confirmation modal to use ResponsiveModal component
+
 ## 📱 UI/UX Improvements
-- [ ] **Modal Consistency**: Update "Delete Confirmation" modal to use the same fixed header/footer layout as "Add Quest" and "Add Challenge" modals for better mobile experience.
-- [ ] **Mobile Navigation**: Verify that the bottom navigation bar does not obscure any other interactive elements (z-index fixes applied, but visual check needed).
-- [ ] **Double Dropdown**: Confirm that replacing native `<select>` with Shadcn `<Select>` has fully resolved the double icon issue across all browsers/devices.
-- [ ] **Toast Notifications**: Ensure toasts are not overlapping with the bottom navigation or other fixed elements on mobile.
+- [ ] **Refactor All Modals**: Update remaining modals (Add Quest, Add Challenge, Add Milestone, Edit Challenge) to use ResponsiveModal component
+- [ ] **Mobile Testing**: Perform full regression test on real mobile device
+- [ ] **Toast Notifications**: Ensure toasts are not overlapping with bottom navigation
 
 ## 🛠️ Code Quality & Refactoring
-- [ ] **Achievement Logic**: Refactor achievement unlock logic (currently in `app/realm/page.tsx`) into a dedicated hook or service (e.g., `useAchievementUnlock`) to centralize persistence checks and avoid code duplication.
-- [ ] **Type Safety**: Add proper TypeScript interfaces for all modal state objects (e.g., `newMilestone`, `newQuest`) to avoid `any` types and improve maintainability.
-- [ ] **Component Reusability**: Extract the "Modal Layout" (Fixed Header, Scrollable Content, Fixed Footer) into a reusable `ResponsiveModal` component to enforce consistency.
+- [ ] **Refactor Realm Page**: Update `app/realm/page.tsx` to use the new `useAchievementUnlock` hook
+- [ ] **Remove Duplicate Logic**: Clean up any remaining duplicate achievement unlock code
 
 ## 🚀 Features
 - [ ] **Edit Milestones**: Implement functionality to edit existing milestones (currently only "Add" is supported).
