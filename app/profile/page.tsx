@@ -221,7 +221,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="container max-w-4xl py-8" aria-label="profile-settings-section">
+    <main className="container max-w-4xl py-8 pb-24 md:pb-8" aria-label="profile-settings-section">
       {/* Hero Section */}
       <div className="relative mb-8 rounded-lg overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
@@ -271,7 +271,7 @@ export default function ProfilePage() {
                 <Sword className="w-3 h-3 mr-1" />
                 Active
               </Badge>
-              <Badge variant="outline" className="border-amber-500/30 text-amber-400 w-fit truncate max-w-full">
+              <Badge variant="outline" className="border-amber-500/30 text-amber-400 w-fit truncate max-w-[calc(100vw-8rem)] sm:max-w-full">
                 {user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ''}
               </Badge>
             </div>

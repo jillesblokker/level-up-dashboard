@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { HeaderSection } from '@/components/HeaderSection'
 import QuestCard from '@/components/quest-card'
-import { Loader2, Plus, ArrowRight, LayoutDashboard, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
+import { Loader2, Plus, ArrowRight, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
 
 interface Quest {
     id: string
@@ -225,12 +225,15 @@ export function DailyHubClient() {
                             size="lg"
                             className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-6 text-lg shadow-2xl hover:shadow-amber-500/50 transition-all hover:scale-105"
                         >
-                            <LayoutDashboard className="w-5 h-5 mr-2" />
+                            <span className="text-2xl mr-2">👑</span>
                             Enter Your Kingdom
                         </Button>
                     </Link>
                 }
             />
+
+            {/* Spacing between header and content - more on mobile */}
+            <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 space-y-8">
 
@@ -333,7 +336,7 @@ export function DailyHubClient() {
                     </Link>
                     <Link href="/kingdom" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group">
-                            <LayoutDashboard className="w-6 h-6 text-green-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-2xl group-hover:scale-110 transition-transform">👑</span>
                             <span className="text-green-200 group-hover:text-white">Kingdom</span>
                         </Button>
                     </Link>
