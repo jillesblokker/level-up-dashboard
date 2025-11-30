@@ -2872,7 +2872,7 @@ export default function QuestsPage() {
 
         {/* Add Milestone Modal */}
         {addMilestoneModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAddMilestoneModalOpen(false)} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full max-w-md shadow-lg max-h-[90vh] flex flex-col">
               <div className="p-6 border-b border-gray-200 dark:border-gray-800">
@@ -2968,7 +2968,7 @@ export default function QuestsPage() {
         )}
         {/* Add Custom Challenge Modal */}
         {addChallengeModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAddChallengeModalOpen(false)} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full max-w-md shadow-lg max-h-[90vh] flex flex-col">
               <div className="p-6 border-b border-gray-200 dark:border-gray-800">
@@ -3036,7 +3036,7 @@ export default function QuestsPage() {
         )}
         {/* Edit Custom Challenge Modal */}
         {editCustomChallengeIdx !== null && editCustomChallengeData && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
             <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
               <h2 className="text-lg font-semibold mb-4">Edit Custom Challenge</h2>
@@ -3104,7 +3104,7 @@ export default function QuestsPage() {
         )}
         {/* Add Custom Quest Modal */}
         {addQuestModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setAddQuestModalOpen(false)} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg w-full max-w-md shadow-lg max-h-[90vh] flex flex-col">
               <div className="p-6 border-b border-gray-200 dark:border-gray-800">
@@ -3150,7 +3150,7 @@ export default function QuestsPage() {
         )}
         {/* Delete Confirmation Modal */}
         {deleteConfirmOpen && questToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
             <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={cancelDeleteQuest} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
               <h2 className="text-lg font-semibold mb-4">Delete Quest</h2>
