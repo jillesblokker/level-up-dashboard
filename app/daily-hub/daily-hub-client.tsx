@@ -235,19 +235,19 @@ export function DailyHubClient() {
             {/* Spacing between header and content - more on mobile */}
             <div className="h-16 md:h-8" />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 space-y-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
 
                 {/* Stats Overview */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
                 >
                     {/* Streak Card */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group">
+                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-orange-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-6 flex items-center justify-between relative z-10">
+                        <CardContent className="p-5 md:p-6 flex items-center justify-between relative z-10">
                             <div>
                                 <p className="text-sm text-amber-200/70 font-medium uppercase tracking-wider">Current Streak</p>
                                 <div className="flex items-baseline gap-2 mt-1">
@@ -262,9 +262,9 @@ export function DailyHubClient() {
                     </Card>
 
                     {/* Level Card */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group">
+                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-6 relative z-10">
+                        <CardContent className="p-5 md:p-6 relative z-10">
                             <div className="flex items-center justify-between mb-2">
                                 <div>
                                     <p className="text-sm text-blue-200/70 font-medium uppercase tracking-wider">Level {stats.level}</p>
@@ -287,9 +287,9 @@ export function DailyHubClient() {
                     </Card>
 
                     {/* Gold Card with Weekly Stats */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group">
+                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-yellow-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-6 relative z-10">
+                        <CardContent className="p-5 md:p-6 relative z-10">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex-1">
                                     <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">Treasury</p>
@@ -326,28 +326,28 @@ export function DailyHubClient() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.15 }}
-                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                    className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
                 >
                     <Link href="/quests" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <ScrollText className="w-6 h-6 text-amber-500 group-hover:scale-110 transition-transform" />
                             <span className="text-amber-200 group-hover:text-white">Quest Board</span>
                         </Button>
                     </Link>
                     <Link href="/kingdom" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <span className="text-2xl group-hover:scale-110 transition-transform">👑</span>
                             <span className="text-green-200 group-hover:text-white">Kingdom</span>
                         </Button>
                     </Link>
                     <Link href="/map" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Map className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" />
                             <span className="text-blue-200 group-hover:text-white">World Map</span>
                         </Button>
                     </Link>
                     <Link href="/quests?new=true" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Plus className="w-6 h-6 text-purple-500 group-hover:scale-110 transition-transform" />
                             <span className="text-purple-200 group-hover:text-white">New Quest</span>
                         </Button>
@@ -360,10 +360,10 @@ export function DailyHubClient() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-amber-500 font-medieval tracking-wide">Your Favorite Quests</h2>
+                    <div className="flex items-center justify-between mb-4 md:mb-6">
+                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide">Your Favorite Quests</h2>
                         <Link href="/quests">
-                            <Button variant="ghost" className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-2">
+                            <Button variant="ghost" className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1 md:gap-2 text-sm md:text-base">
                                 View All <ArrowRight className="w-4 h-4" />
                             </Button>
                         </Link>
@@ -387,7 +387,7 @@ export function DailyHubClient() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                             {favoritedQuests.map((quest, index) => (
                                 <motion.div
                                     key={quest.id}
