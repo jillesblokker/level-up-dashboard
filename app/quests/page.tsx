@@ -2903,16 +2903,21 @@ export default function QuestsPage() {
                     aria-label="Description"
                   />
                   <label className="block mb-2 text-sm font-medium">Category</label>
-                  <select
-                    className="w-full mb-4 p-2 border rounded"
-                    value={newMilestone.category}
-                    onChange={e => setNewMilestone({ ...newMilestone, category: e.target.value })}
-                    aria-label="Category"
+                  <Select
+                    value={newMilestone.category || ''}
+                    onValueChange={(value) => setNewMilestone({ ...newMilestone, category: value })}
                   >
-                    {questCategories.map((category: string) => (
-                      <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full mb-4">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {questCategories.map((category: string) => (
+                        <SelectItem key={category} value={category}>
+                          {getCategoryLabel(category)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <label className="block mb-2 text-sm font-medium">Target Value</label>
                   <input
                     type="number"
@@ -3113,11 +3118,21 @@ export default function QuestsPage() {
                   <label className="block mb-2 text-sm font-medium">Description</label>
                   <textarea className="w-full mb-4 p-2 border rounded" value={newQuest.description} onChange={e => setNewQuest({ ...newQuest, description: e.target.value })} placeholder="Quest description" title="Quest description" aria-label="Quest description" />
                   <label className="block mb-2 text-sm font-medium">Category</label>
-                  <select className="w-full mb-4 p-2 border rounded" value={newQuest.category} onChange={e => setNewQuest({ ...newQuest, category: e.target.value })} aria-label="Quest category">
-                    {questCategories.map((category: string) => (
-                      <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                    ))}
-                  </select>
+                  <Select
+                    value={newQuest.category || ''}
+                    onValueChange={(value) => setNewQuest({ ...newQuest, category: value })}
+                  >
+                    <SelectTrigger className="w-full mb-4">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {questCategories.map((category: string) => (
+                        <SelectItem key={category} value={category}>
+                          {getCategoryLabel(category)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <label className="block mb-2 text-sm font-medium">Difficulty</label>
                   <input className="w-full mb-4 p-2 border rounded" value={newQuest.difficulty} onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })} placeholder="Difficulty" title="Difficulty" aria-label="Difficulty" />
                   <label className="block mb-2 text-sm font-medium">XP Reward</label>
