@@ -218,6 +218,7 @@ export function DailyHubClient() {
                 imageSrc="/images/daily-hub-hero.jpg"
                 defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
                 className="h-[300px] md:h-[400px]"
+                shouldRevealImage={true}
                 ctaButton={
                     <Link href="/kingdom">
                         <Button
