@@ -218,6 +218,8 @@ export default function QuestsPage() {
   const [editingChallenge, setEditingChallenge] = useState<any | null>(null);
   const [editMilestoneModalOpen, setEditMilestoneModalOpen] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<any | null>(null);
+  const [deleteMilestoneConfirmOpen, setDeleteMilestoneConfirmOpen] = useState(false);
+  const [milestoneToDelete, setMilestoneToDelete] = useState<any | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
   const [addChallengeModalOpen, setAddChallengeModalOpen] = useState(false);
@@ -1675,22 +1677,28 @@ export default function QuestsPage() {
     setEditMilestoneModalOpen(true);
   };
 
-  const handleMilestoneDelete = async (milestoneId: string) => {
-    if (!token || !userId) return;
+  const handleMilestoneDelete = (milestoneId: string) => {
+    const milestone = milestones.find(m => m.id === milestoneId);
+    if (milestone) {
+      setMilestoneToDelete(milestone);
+      setDeleteMilestoneConfirmOpen(true);
+    }
+  };
+
+  const confirmDeleteMilestone = async () => {
+    if (!token || !userId || !milestoneToDelete) return;
 
     try {
       // Remove from local state
-      setMilestones(prevMilestones => prevMilestones.filter(m => m.id !== milestoneId));
+      setMilestones(prevMilestones => prevMilestones.filter(m => m.id !== milestoneToDelete.id));
 
       // Delete from Supabase
-      const response = await fetch('/api/milestones', {
+      const response = await fetch(`/api/milestones?id=${milestoneToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          milestoneId
-        })
       });
 
       if (!response.ok) {
@@ -1699,15 +1707,17 @@ export default function QuestsPage() {
 
       toast({
         title: "Milestone Deleted",
-        description: "Milestone has been successfully deleted.",
-        duration: 2000,
+        description: `"${milestoneToDelete.name}" has been successfully deleted.`,
       });
+
+      setDeleteMilestoneConfirmOpen(false);
+      setMilestoneToDelete(null);
     } catch (error) {
       console.error('Error deleting milestone:', error);
       toast({
         title: "Error",
         description: "Failed to delete milestone. Please try again.",
-        duration: 3000,
+        variant: "destructive"
       });
     }
   };
@@ -2893,86 +2903,152 @@ export default function QuestsPage() {
         )}
 
         {/* Edit Milestone Modal */}
-        {editMilestoneModalOpen && editingMilestone && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  handleEditMilestoneSubmit(editingMilestone);
-                }}
+        <ResponsiveModal
+          isOpen={editMilestoneModalOpen && !!editingMilestone}
+          onClose={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
+          title="Edit Milestone"
+          footer={
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
               >
-                <label className="block mb-2 text-sm font-medium">Name</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingMilestone.name}
-                  onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
-                  placeholder="Milestone name"
-                  title="Milestone name"
-                  aria-label="Milestone name"
-                  required
-                />
-                <label className="block mb-2 text-sm font-medium">Description</label>
-                <textarea
-                  className="w-full mb-4 p-2 border rounded resize-none"
-                  rows={3}
-                  value={editingMilestone.description}
-                  onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
-                  placeholder="Milestone description"
-                  title="Milestone description"
-                  aria-label="Milestone description"
-                />
-                <label className="block mb-2 text-sm font-medium">Category</label>
-                <select
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingMilestone.category}
-                  onChange={e => setEditingMilestone({ ...editingMilestone, category: e.target.value })}
-                  aria-label="Milestone category"
-                >
-                  <option value="HIIT & Full Body">HIIT & Full Body</option>
-                </select>
-                <label className="block mb-2 text-sm font-medium">Difficulty</label>
-                <select
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingMilestone.difficulty}
-                  onChange={e => setEditingMilestone({ ...editingMilestone, difficulty: e.target.value })}
-                  aria-label="Milestone difficulty"
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-                <label className="block mb-2 text-sm font-medium">XP Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingMilestone.xp || 0}
-                  onChange={e => setEditingMilestone({ ...editingMilestone, xp: Number(e.target.value) })}
-                  placeholder="XP"
-                  title="XP"
-                  aria-label="XP"
-                />
-                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingMilestone.gold || 0}
-                  onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
-                  placeholder="Gold"
-                  title="Gold"
-                  aria-label="Gold"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="secondary" onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}>Cancel</Button>
-                  <Button type="submit" variant="default">Save</Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                onClick={() => handleEditMilestoneSubmit(editingMilestone)}
+              >
+                Save Changes
+              </Button>
+            </>
+          }
+        >
+          {editingMilestone && (
+            <>
+              <label className="block mb-2 text-sm font-medium">Name</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.name}
+                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
+                placeholder="Milestone name"
+                title="Milestone name"
+                aria-label="Milestone name"
+                required
+              />
+              <label className="block mb-2 text-sm font-medium">Description</label>
+              <textarea
+                className="w-full mb-4 p-2 border rounded resize-none"
+                rows={3}
+                value={editingMilestone.description}
+                onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
+                placeholder="Milestone description"
+                title="Milestone description"
+                aria-label="Milestone description"
+              />
+              <label className="block mb-2 text-sm font-medium">Category</label>
+              <Select
+                value={editingMilestone.category}
+                onValueChange={(value) => setEditingMilestone({ ...editingMilestone, category: value })}
+              >
+                <SelectTrigger className="w-full mb-4">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {questCategories.map((category: string) => (
+                    <SelectItem key={category} value={category}>
+                      {getCategoryLabel(category)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <label className="block mb-2 text-sm font-medium">Difficulty</label>
+              <Select
+                value={editingMilestone.difficulty}
+                onValueChange={(value) => setEditingMilestone({ ...editingMilestone, difficulty: value })}
+              >
+                <SelectTrigger className="w-full mb-4">
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+              <label className="block mb-2 text-sm font-medium">XP Reward</label>
+              <input
+                type="number"
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.xp}
+                onChange={e => setEditingMilestone({ ...editingMilestone, xp: Number(e.target.value) })}
+                placeholder="XP"
+                title="XP"
+                aria-label="XP"
+              />
+              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
+              <input
+                type="number"
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.gold}
+                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
+                placeholder="Gold"
+                title="Gold"
+                aria-label="Gold"
+              />
+              <label className="block mb-2 text-sm font-medium">Target</label>
+              <input
+                type="number"
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.target}
+                onChange={e => setEditingMilestone({ ...editingMilestone, target: Number(e.target.value) })}
+                placeholder="Target value"
+                title="Target value"
+                aria-label="Target value"
+              />
+              <label className="block mb-2 text-sm font-medium">Unit</label>
+              <input
+                className="w-full mb-4 p-2 border rounded"
+                value={editingMilestone.unit}
+                onChange={e => setEditingMilestone({ ...editingMilestone, unit: e.target.value })}
+                placeholder="Unit (e.g. times, minutes)"
+                title="Unit"
+                aria-label="Unit"
+              />
+            </>
+          )}
+        </ResponsiveModal>
+        {/* Delete Milestone Confirmation Modal */}
+        <ResponsiveModal
+          isOpen={deleteMilestoneConfirmOpen && !!milestoneToDelete}
+          onClose={() => { setDeleteMilestoneConfirmOpen(false); setMilestoneToDelete(null); }}
+          title="Delete Milestone"
+          footer={
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => { setDeleteMilestoneConfirmOpen(false); setMilestoneToDelete(null); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={confirmDeleteMilestone}
+              >
+                Delete
+              </Button>
+            </>
+          }
+        >
+          <p>Are you sure you want to delete the milestone &quot;{milestoneToDelete?.name}&quot;?</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            This action cannot be undone.
+          </p>
+        </ResponsiveModal>
         {/* Add Milestone Modal */}
         <ResponsiveModal
           isOpen={addMilestoneModalOpen}
