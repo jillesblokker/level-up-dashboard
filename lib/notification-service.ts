@@ -10,6 +10,7 @@ export interface NotificationData {
   timestamp: string
   action?: { label: string; href: string } | undefined
   image?: string | undefined
+  deduplicationId?: string
 }
 
 class NotificationService {
@@ -29,20 +30,20 @@ class NotificationService {
   public static getInstance(): NotificationService {
     if (typeof window === 'undefined') {
       return {
-        addNotification: () => {},
-        addQuestCompletion: () => {},
-        addAchievement: () => {},
-        addDiscovery: () => {},
-        markAsRead: () => {},
-        markAllAsRead: () => {},
-        deleteNotification: () => {},
+        addNotification: () => { },
+        addQuestCompletion: () => { },
+        addAchievement: () => { },
+        addDiscovery: () => { },
+        markAsRead: () => { },
+        markAllAsRead: () => { },
+        deleteNotification: () => { },
         getNotifications: () => [],
         getUnreadCount: () => 0,
-        saveNotifications: () => {},
-        dispatchNotificationEvent: () => {},
+        saveNotifications: () => { },
+        dispatchNotificationEvent: () => { },
       } as unknown as NotificationService
     }
-    
+
     if (!NotificationService.instance) {
       NotificationService.instance = new NotificationService()
     }
@@ -68,8 +69,22 @@ class NotificationService {
     type: NotificationData["type"],
     priority: "high" | "medium" | "low" = "medium",
     action?: { label: string; href: string },
-    image?: string
+    image?: string,
+    deduplicationId?: string
   ) {
+    // Check for duplicates
+    if (deduplicationId) {
+      // If a deduplication ID is provided, check if it already exists (read or unread)
+      const existing = this.notifications.find(n => n.deduplicationId === deduplicationId)
+      if (existing) return
+    } else {
+      // If no ID, check for exact duplicate of unread notifications to prevent spam
+      const existing = this.notifications.find(
+        n => n.title === title && n.message === message && !n.read
+      )
+      if (existing) return
+    }
+
     const notification: NotificationData = {
       id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10),
       title,
@@ -80,6 +95,7 @@ class NotificationService {
       timestamp: new Date().toISOString(),
       ...(action !== undefined ? { action } : {}),
       ...(image !== undefined ? { image } : {}),
+      ...(deduplicationId !== undefined ? { deduplicationId } : {}),
     }
 
     this.notifications.unshift(notification)
@@ -102,9 +118,8 @@ class NotificationService {
   }
 
   public addQuestCompletion(questTitle: string, rewards: { xp: number; gold: number; items?: string[] }) {
-    const message = `Completed: ${questTitle}\n+${rewards.xp} XP\n+${rewards.gold} Gold${
-      rewards.items ? `\nItems: ${rewards.items.join(", ")}` : ""
-    }`
+    const message = `Completed: ${questTitle}\n+${rewards.xp} XP\n+${rewards.gold} Gold${rewards.items ? `\nItems: ${rewards.items.join(", ")}` : ""
+      }`
 
     this.addNotification("Quest Complete!", message, "quest", "high", {
       label: "View Quests",

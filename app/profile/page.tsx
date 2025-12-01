@@ -10,12 +10,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { eventBus } from "@/app/lib/event-bus";
 import Cropper from 'react-easy-crop';
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogHeader } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogHeader, DialogClose } from '@/components/ui/dialog';
 import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database } from "lucide-react";
+import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X } from "lucide-react";
 import { useAudioContext } from "@/components/audio-provider";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
@@ -312,9 +312,13 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </DialogTrigger>
-          <DialogContent className="bg-gradient-to-br from-gray-900 via-black to-gray-900 border-2 border-amber-500/30 text-white max-w-sm shadow-2xl shadow-amber-500/10">
-            <DialogHeader className="relative pb-4">
+          <DialogContent className="bg-gradient-to-br from-gray-900 via-black to-gray-900 border-2 border-amber-500/30 text-white max-w-sm shadow-2xl shadow-amber-500/10 [&>button]:hidden">
+            <DialogHeader className="relative pb-4 flex flex-row items-center justify-center">
               <DialogTitle className="text-amber-400 font-medieval text-xl text-center tracking-wide pt-2">Character Statistics</DialogTitle>
+              <DialogClose className="absolute right-0 top-0 p-2 text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
             </DialogHeader>
             <div className="space-y-5 py-2">
               {/* Avatar and Name Section */}
