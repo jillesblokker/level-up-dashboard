@@ -313,8 +313,8 @@ export default function ProfilePage() {
             </Card>
           </DialogTrigger>
           <DialogContent className="bg-gradient-to-br from-gray-900 via-black to-gray-900 border-2 border-amber-500/30 text-white max-w-sm shadow-2xl shadow-amber-500/10">
-            <DialogHeader className="relative pb-2">
-              <DialogTitle className="text-amber-400 font-medieval text-2xl text-center tracking-wide">Character Statistics</DialogTitle>
+            <DialogHeader className="relative pb-4">
+              <DialogTitle className="text-amber-400 font-medieval text-xl text-center tracking-wide pt-2">Character Statistics</DialogTitle>
             </DialogHeader>
             <div className="space-y-5 py-2">
               {/* Avatar and Name Section */}
@@ -328,8 +328,8 @@ export default function ProfilePage() {
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  {/* Level Badge */}
-                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-500 to-amber-600 text-black px-4 py-1 rounded-full font-bold text-sm shadow-lg border-2 border-amber-400">
+                  {/* Level Badge - Right Corner */}
+                  <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black px-3 py-1 rounded-full font-bold text-xs shadow-lg border-2 border-amber-400 whitespace-nowrap">
                     Lvl {characterStats.level}
                   </div>
                 </div>

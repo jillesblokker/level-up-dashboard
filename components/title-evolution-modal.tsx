@@ -29,13 +29,13 @@ export function TitleEvolutionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
-      <div 
+      <div
         className="relative z-10 flex flex-col items-start p-6 gap-4 w-[539px] h-[440px] max-h-[662.4px] overflow-auto bg-[#111827] border border-[#92400E] shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] backdrop-blur-[2px] rounded-lg"
         style={{
           boxSizing: 'border-box',
@@ -119,10 +119,10 @@ export function TitleEvolutionModal({
             className="bg-[#92400E] text-white hover:bg-[#92400E]/90"
             onClick={onClose}
           >
-            Enter City
+            Enter Realm
           </Button>
         </div>
       </div>
     </div>
   );
-} 
+}
