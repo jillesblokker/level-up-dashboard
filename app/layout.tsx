@@ -25,6 +25,7 @@ import { KingdomNotificationManager } from '@/components/kingdom-notification-ma
 import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
 import { CharacterStatsSync } from '@/components/character-stats-sync'
 import { InstallPrompt } from '@/components/install-prompt'
+import { ParticleProvider } from '@/components/ui/particles'
 
 
 import { DayNightCycle } from '@/components/day-night-cycle'
@@ -152,17 +153,19 @@ export default function RootLayout({
                   <AudioProvider>
                     <Providers>
                       <ClientOnboardingProvider>
-                        <div className="flex flex-col h-full">
-                          <AuthGate>
-                            <CharacterStatsSync />
-                            <NavBar session={null} />
-                            <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                              {children}
-                            </main>
-                            <BottomNav />
-                            <SeasonalHuntWrapper />
-                          </AuthGate>
-                        </div>
+                        <ParticleProvider>
+                          <div className="flex flex-col h-full">
+                            <AuthGate>
+                              <CharacterStatsSync />
+                              <NavBar session={null} />
+                              <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                                {children}
+                              </main>
+                              <BottomNav />
+                              <SeasonalHuntWrapper />
+                            </AuthGate>
+                          </div>
+                        </ParticleProvider>
                       </ClientOnboardingProvider>
                       <LocalStorageMigrator />
                       <KingdomNotificationManager />
