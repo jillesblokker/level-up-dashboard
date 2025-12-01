@@ -291,24 +291,67 @@ export async function PUT(request: Request) {
   }
 }
 
-// POST: Handle bulk challenges data for migration
+// POST: Create a new challenge or handle bulk migration
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { challenges } = body;
 
-    if (!challenges || !Array.isArray(challenges)) {
-      return NextResponse.json({ error: 'Invalid challenges data' }, { status: 400 });
+    // Handle bulk migration (legacy/seed support)
+    if (body.challenges && Array.isArray(body.challenges)) {
+      const { challenges } = body;
+
+      const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+        logger.info(`Received challenges data for user: ${userId}, Count: ${challenges.length}`, 'Challenges POST');
+        return { success: true, message: 'Challenges data received' };
+      });
+
+      if (!result.success) {
+        return NextResponse.json({ error: result.error }, { status: 401 });
+      }
+      return NextResponse.json(result.data);
     }
 
-    // Use proper authentication
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      // For now, just return success since challenges are typically seeded data
-      // The actual challenge data is stored in the challenges table
-      // User-specific completion data is handled by the PUT method
-      logger.info(`Received challenges data for user: ${userId}, Count: ${challenges.length}`, 'Challenges POST');
+    // Handle single challenge creation
+    const { name, instructions, description, category, difficulty, xp, gold, setsReps, tips, weight } = body;
 
-      return { success: true, message: 'Challenges data received' };
+    if (!name || !category) {
+      return NextResponse.json({ error: 'Missing required fields (name, category)' }, { status: 400 });
+    }
+
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      logger.info(`Creating new challenge: ${name} for user: ${userId}`, 'Challenges POST');
+
+      // Map frontend fields to DB columns
+      // Note: 'instructions' from frontend maps to 'description' in DB usually, 
+      // but we'll prefer 'description' if provided.
+      // 'setsReps' maps to 'sets' or 'reps' depending on schema, we'll try 'sets' as a generic container
+      const challengeData = {
+        name,
+        description: description || instructions || '',
+        category,
+        difficulty: difficulty || 'medium',
+        xp: xp || 0,
+        gold: gold || 0,
+        sets: setsReps || null, // Storing sets/reps in 'sets' column
+        tips: tips || null,
+        weight: weight || null,
+        // We might want to mark this as a user-created challenge if the schema supports it
+        // e.g. created_by: userId
+      };
+
+      const { data: newChallenge, error } = await supabase
+        .from('challenges')
+        .insert([challengeData])
+        .select()
+        .single();
+
+      if (error) {
+        logger.error(`Database error creating challenge: ${error.message}`, 'Challenges POST');
+        throw error;
+      }
+
+      logger.info(`Successfully created challenge: ${newChallenge.id}`, 'Challenges POST');
+      return { success: true, data: newChallenge };
     });
 
     if (!result.success) {
@@ -317,7 +360,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    logger.error(`Error: ${error}`, 'Challenges POST');
+    logger.error(`Error in POST: ${error}`, 'Challenges POST');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1716,6 +1716,107 @@ export default function QuestsPage() {
     setAddMilestoneModalOpen(true);
   };
 
+  const handleAddMilestoneSubmit = async () => {
+    if (!token || !userId) return;
+
+    try {
+      const res = await fetch('/api/milestones', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...newMilestone,
+          category: newMilestone.category || 'might',
+          difficulty: 'medium',
+          xp: Number(newMilestone.xp) || 0,
+          gold: Number(newMilestone.gold) || 0,
+          target: Number(newMilestone.target) || 1,
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to add milestone');
+
+      const savedMilestone = await res.json();
+
+      setMilestones(prev => [...prev, { ...savedMilestone, completed: false }]);
+
+      toast({
+        title: "Milestone Added",
+        description: `"${newMilestone.name}" has been added to your milestones.`,
+      });
+
+      setAddMilestoneModalOpen(false);
+      setNewMilestone({ name: '', description: '', category: '', difficulty: 'medium', xp: 0, gold: 0, target: 1, unit: '' });
+
+    } catch (error) {
+      console.error('Error adding milestone:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add milestone. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddChallengeSubmit = async () => {
+    if (!token || !userId) return;
+
+    try {
+      const res = await fetch('/api/challenges', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: newChallenge.name,
+          instructions: newChallenge.instructions,
+          category: 'might', // Default or add selector
+          difficulty: 'medium',
+          xp: 10, // Default
+          gold: 5, // Default
+          setsReps: newChallenge.setsReps,
+          tips: newChallenge.tips,
+          weight: newChallenge.weight
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to add challenge');
+
+      const savedChallenge = await res.json();
+
+      // Update local state if we have a challenges list state
+      // Assuming 'challenges' state exists or we trigger a refetch
+      // For now, let's assume we need to refetch or update a list
+      // But looking at the code, challenges might be fetched in a useEffect
+      // Let's try to update 'challenges' state if it exists
+      setChallenges(prev => [...prev, savedChallenge]);
+
+      // Force reload or just notify
+      toast({
+        title: "Challenge Added",
+        description: `"${newChallenge.name}" has been added to your challenges.`,
+      });
+
+      setAddChallengeModalOpen(false);
+      setNewChallenge({ name: '', instructions: '', setsReps: '', tips: '', weight: '' });
+
+      // Trigger data reload if possible
+      // fetchChallenges(); // if exists
+
+    } catch (error) {
+      console.error('Error adding challenge:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add challenge. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+
   const handleChallengeCategoryChange = (value: string) => {
     setChallengeCategory(value);
   };
@@ -2889,10 +2990,7 @@ export default function QuestsPage() {
               <Button
                 type="button"
                 variant="default"
-                onClick={() => {
-                  handleAddMilestone();
-                  setAddMilestoneModalOpen(false);
-                }}
+                onClick={handleAddMilestoneSubmit}
               >
                 Add
               </Button>
@@ -2991,10 +3089,7 @@ export default function QuestsPage() {
               <Button
                 type="button"
                 variant="default"
-                onClick={() => {
-                  // TODO: Implement save logic
-                  setAddChallengeModalOpen(false);
-                }}
+                onClick={handleAddChallengeSubmit}
               >
                 Add
               </Button>
