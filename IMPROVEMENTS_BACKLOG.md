@@ -5,11 +5,11 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 ## ✅ Completed
 1.  **Skeleton Loading States**: ✓ Implemented skeleton loaders for quest, challenge, and milestone cards during data loading.
 2.  **Animated Counters**: ✓ Implemented smooth count-up animations for Gold and XP with ease-out cubic easing.
+3.  **Particle Effects**: ✓ Implemented particle bursts (gold, xp, confetti) and floating text on quest completion using Framer Motion.
 
 ## 🎨 UI/UX Polish
-3.  **Comprehensive Sound Design**: Integrate the existing audio system into *all* UI interactions (hover, toggle, tab switch, modal open) for a tactile feel.
-4.  **Mobile Haptics**: Implement `navigator.vibrate` patterns for key actions (completing a quest, leveling up, error states) to enhance mobile immersion.
-5.  **Particle Effects**: Add visual "juice" like confetti or flying coins when completing quests or claiming rewards.
+4.  **Comprehensive Sound Design**: Integrate the existing audio system into *all* UI interactions (hover, toggle, tab switch, modal open) for a tactile feel.
+5.  **Mobile Haptics**: Implement `navigator.vibrate` patterns for key actions (completing a quest, leveling up, error states) to enhance mobile immersion.
 6.  **Illustrated Empty States**: Replace text-only "No quests found" messages with custom medieval-themed illustrations and call-to-action buttons.
 7.  **Dynamic Weather**: Add subtle visual weather effects (rain, snow, sun beams) to the dashboard based on real-world data or randomization.
 8.  **Rich Text Descriptions**: Update Quest and Challenge descriptions to support Markdown (bold, lists, links) for better readability.
