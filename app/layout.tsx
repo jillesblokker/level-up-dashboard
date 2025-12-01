@@ -65,8 +65,6 @@ export const metadata: Metadata = {
   description: "A medieval-themed habit tracking app with quests, kingdom building, and character progression",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
     apple: "/icons/icon-152x152.png",
     other: {
       rel: "apple-touch-icon-precomposed",
