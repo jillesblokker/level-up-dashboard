@@ -21,6 +21,8 @@
 - [x] **PWA Manifest Enhancement**: Updated with shortcuts, better metadata, and proper icons
 - [x] **Install Prompt**: Added smart PWA install prompt with dismissal tracking
 - [x] **Service Worker Update**: Enhanced offline support with more cached routes
+- [x] **Character Statistics Redesign**: Complete visual overhaul with gradient backgrounds, improved hierarchy, and mobile optimizations
+- [x] **Mobile UI Polish**: Fixed modal spacing, badge positioning, and button text consistency
 
 ## 📱 UI/UX Improvements
 - [ ] **Mobile Testing**: Perform full regression test on real mobile device (use MOBILE_TESTING_CHECKLIST.md)

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
+import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 
 interface Quest {
   id: string
@@ -38,6 +39,7 @@ interface QuestOrganizationProps {
   hideOverview?: boolean
   hideCategoryOverview?: boolean
   onlyShowOverviews?: boolean
+  isLoading?: boolean
 }
 
 const categoryConfig = {
@@ -191,7 +193,8 @@ export function QuestOrganization({
   context = 'quests',
   hideOverview = false,
   hideCategoryOverview = false,
-  onlyShowOverviews = false
+  onlyShowOverviews = false,
+  isLoading = false
 }: QuestOrganizationProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
@@ -575,7 +578,13 @@ export function QuestOrganization({
 
           {/* Quest List */}
           <div className="space-y-4">
-            {sortedQuests.length === 0 ? (
+            {isLoading ? (
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <QuestCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : sortedQuests.length === 0 ? (
               <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
                 <CardContent className="p-8 text-center">
                   <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />

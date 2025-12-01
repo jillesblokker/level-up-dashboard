@@ -2187,6 +2187,7 @@ export default function QuestsPage() {
                         context="quests"
                         hideOverview={true}
                         hideCategoryOverview={true}
+                        isLoading={loading}
                       />
                     </div>
                   </TabsContent>
@@ -2238,6 +2239,7 @@ export default function QuestsPage() {
                       hideOverview={false}
                       hideCategoryOverview={false}
                       onlyShowOverviews={true}
+                      isLoading={loading}
                     />
 
                     {/* Quest Streak Summary Card */}
@@ -2466,6 +2468,7 @@ export default function QuestsPage() {
                       context="challenges"
                       hideOverview={true}
                       hideCategoryOverview={true}
+                      isLoading={loading}
                     />
                   </TabsContent>
 
@@ -2644,6 +2647,7 @@ export default function QuestsPage() {
                       showCategoryFilter={true}
                       context="challenges"
                       onlyShowOverviews={true}
+                      isLoading={loading}
                     />
                   </TabsContent>
                 </Tabs>
@@ -2672,6 +2676,7 @@ export default function QuestsPage() {
                       context="milestones"
                       hideOverview={true}
                       hideCategoryOverview={true}
+                      isLoading={loading}
                     />
                   </TabsContent>
 
@@ -2688,6 +2693,7 @@ export default function QuestsPage() {
                       showCategoryFilter={true}
                       context="milestones"
                       onlyShowOverviews={true}
+                      isLoading={loading}
                     />
                   </TabsContent>
                 </Tabs>
