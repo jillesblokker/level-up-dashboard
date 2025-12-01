@@ -312,40 +312,71 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </DialogTrigger>
-          <DialogContent className="bg-black/95 border-amber-800 text-white max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="text-amber-400 font-medieval text-xl text-center">Character Statistics</DialogTitle>
+          <DialogContent className="bg-gradient-to-br from-gray-900 via-black to-gray-900 border-2 border-amber-500/30 text-white max-w-sm shadow-2xl shadow-amber-500/10">
+            <DialogHeader className="relative pb-2">
+              <DialogTitle className="text-amber-400 font-medieval text-2xl text-center tracking-wide">Character Statistics</DialogTitle>
             </DialogHeader>
-            <div className="space-y-6 py-4">
+            <div className="space-y-5 py-2">
+              {/* Avatar and Name Section */}
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full border-2 border-amber-500 mb-3 overflow-hidden">
-                  <Avatar className="w-full h-full">
-                    <AvatarImage src={user?.imageUrl} />
-                    <AvatarFallback>{user?.firstName?.charAt(0) || "U"}</AvatarFallback>
-                  </Avatar>
+                <div className="relative mb-4">
+                  <div className="w-24 h-24 rounded-full border-4 border-amber-500 overflow-hidden shadow-lg shadow-amber-500/50 ring-4 ring-amber-500/20">
+                    <Avatar className="w-full h-full">
+                      <AvatarImage src={user?.imageUrl} />
+                      <AvatarFallback className="bg-gradient-to-br from-amber-600 to-amber-800 text-white text-2xl font-bold">
+                        {user?.firstName?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  {/* Level Badge */}
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-500 to-amber-600 text-black px-4 py-1 rounded-full font-bold text-sm shadow-lg border-2 border-amber-400">
+                    Lvl {characterStats.level}
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-white">{displayName}</h3>
-                <p className="text-amber-400/80 text-sm">Level {characterStats.level} Adventurer</p>
+                <h3 className="text-xl font-bold text-white mt-2">{displayName}</h3>
+                <p className="text-amber-400/90 text-sm font-semibold">Adventurer</p>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Experience</span>
-                    <span className="text-amber-400">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</span>
+              {/* Experience Progress */}
+              <div className="space-y-2 bg-gradient-to-br from-gray-800/50 to-gray-900/50 p-4 rounded-xl border border-amber-500/20">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-300 font-semibold">Experience</span>
+                  <span className="text-amber-400 font-bold">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</span>
+                </div>
+                <div className="relative">
+                  <Progress
+                    value={calculateLevelProgress(characterStats.experience) * 100}
+                    className="h-3 bg-gray-800 border border-amber-900/50"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse pointer-events-none rounded-full" />
+                </div>
+                <p className="text-xs text-gray-400 text-center">
+                  {Math.floor(characterStats.experienceToNextLevel - characterStats.experience)} XP to Level {characterStats.level + 1}
+                </p>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Gold Card */}
+                <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-950/20 p-4 rounded-xl border-2 border-yellow-600/30 text-center hover:border-yellow-500/50 transition-all shadow-lg">
+                  <div className="flex justify-center mb-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg">
+                      <span className="text-xl">💰</span>
+                    </div>
                   </div>
-                  <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2 bg-gray-800" />
+                  <div className="text-xs text-yellow-400/80 uppercase tracking-wider font-bold mb-1">Gold</div>
+                  <div className="text-2xl font-bold text-yellow-400">{characterStats.gold}</div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-900/50 p-3 rounded-lg border border-amber-800/20 text-center">
-                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Gold</div>
-                    <div className="text-xl font-bold text-amber-400">{characterStats.gold}</div>
+                {/* Streak Card */}
+                <div className="bg-gradient-to-br from-green-900/30 to-green-950/20 p-4 rounded-xl border-2 border-green-600/30 text-center hover:border-green-500/50 transition-all shadow-lg">
+                  <div className="flex justify-center mb-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                      <span className="text-xl">🔥</span>
+                    </div>
                   </div>
-                  <div className="bg-gray-900/50 p-3 rounded-lg border border-amber-800/20 text-center">
-                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Streak</div>
-                    <div className="text-xl font-bold text-green-400">Active</div>
-                  </div>
+                  <div className="text-xs text-green-400/80 uppercase tracking-wider font-bold mb-1">Streak</div>
+                  <div className="text-2xl font-bold text-green-400">Active</div>
                 </div>
               </div>
             </div>
