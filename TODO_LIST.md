@@ -16,19 +16,28 @@
 - [x] **Implement Add Challenge**: Connected Add Challenge modal to backend API
 - [x] **Edit Milestones**: Implemented functionality to edit existing milestones
 - [x] **Delete Milestones**: Implemented functionality to delete milestones with confirmation
+- [x] **Update Favicon**: Replaced with high-quality castle icon
+- [x] **Toast Notifications Fix**: Fixed toasts overlapping with bottom navigation
+- [x] **PWA Manifest Enhancement**: Updated with shortcuts, better metadata, and proper icons
+- [x] **Install Prompt**: Added smart PWA install prompt with dismissal tracking
+- [x] **Service Worker Update**: Enhanced offline support with more cached routes
 
 ## 📱 UI/UX Improvements
-- [ ] **Mobile Testing**: Perform full regression test on real mobile device
-- [ ] **Toast Notifications**: Ensure toasts are not overlapping with bottom navigation
+- [ ] **Mobile Testing**: Perform full regression test on real mobile device (use MOBILE_TESTING_CHECKLIST.md)
+- [ ] **Icon Generation**: Generate proper PNG icons from castle SVG for all sizes
 
 ## 🛠️ Code Quality & Refactoring
 - [ ] **Search for More Achievement Unlocks**: Check if there are other places using manual achievement unlock logic
+- [ ] **TypeScript Strict Mode**: Enable strict mode and fix type issues
 
 ## 🚀 Features
-- [ ] **Rich Text Descriptions**: Allow markdown or rich text in quest/challenge descriptions.
-- [ ] **Delete Milestones**: Add ability to delete custom milestones.
-- [ ] **Rich Text Descriptions**: Allow rich text or markdown in quest/challenge descriptions.
+- [ ] **Rich Text Descriptions**: Allow markdown or rich text in quest/challenge descriptions
+- [ ] **Push Notifications**: Implement quest reminders and achievement notifications
+- [ ] **Offline Queue**: Implement offline queue for quest completions
+- [ ] **Social Features**: Add leaderboards, friend system, or sharing
 
 ## 🧪 Testing
-- [ ] **Persistence Testing**: Add automated or manual test cases to verify that `localStorage` correctly persists achievement unlocks across session resets.
-- [ ] **Mobile Testing**: Perform a full regression test on a real mobile device to ensure touch targets are accessible and layout is stable.
+- [ ] **Persistence Testing**: Add automated or manual test cases to verify that `localStorage` correctly persists achievement unlocks across session resets
+- [ ] **Mobile Testing**: Perform a full regression test on a real mobile device to ensure touch targets are accessible and layout is stable
+- [ ] **PWA Testing**: Test installation flow on iOS Safari and Android Chrome
+- [ ] **Performance Testing**: Run Lighthouse audits and optimize based on results
