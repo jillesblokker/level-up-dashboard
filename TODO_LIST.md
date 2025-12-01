@@ -14,6 +14,8 @@
 - [x] **Mobile Layout Fix**: Added bottom padding to ResponsiveModal for mobile bottom nav
 - [x] **Implement Add Milestone**: Connected Add Milestone modal to backend API
 - [x] **Implement Add Challenge**: Connected Add Challenge modal to backend API
+- [x] **Edit Milestones**: Implemented functionality to edit existing milestones
+- [x] **Delete Milestones**: Implemented functionality to delete milestones with confirmation
 
 ## 📱 UI/UX Improvements
 - [ ] **Mobile Testing**: Perform full regression test on real mobile device
@@ -23,8 +25,6 @@
 - [ ] **Search for More Achievement Unlocks**: Check if there are other places using manual achievement unlock logic
 
 ## 🚀 Features
-- [ ] **Edit Milestones**: Implement functionality to edit existing milestones (currently only "Add" is supported).
-- [ ] **Delete Milestones**: Implement functionality to delete milestones.
 - [ ] **Rich Text Descriptions**: Allow markdown or rich text in quest/challenge descriptions.
 - [ ] **Delete Milestones**: Add ability to delete custom milestones.
 - [ ] **Rich Text Descriptions**: Allow rich text or markdown in quest/challenge descriptions.

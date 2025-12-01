@@ -70,6 +70,17 @@
 
 **Impact**: Users can now actually create and save new milestones and challenges.
 
+### 6. Edit & Delete Milestones ✅
+**Problem**: Milestones could be created but not edited or deleted.
+
+**Solution**:
+- Refactored "Edit Milestone Modal" to use `ResponsiveModal`.
+- Implemented `handleEditMilestoneSubmit` to call `PATCH /api/milestones`.
+- Implemented `confirmDeleteMilestone` to call `DELETE /api/milestones` with query params.
+- Added "Delete Milestone Confirmation Modal" for safety.
+
+**Impact**: Full CRUD capabilities for milestones.
+
 ---
 
 ## 🏗️ Infrastructure Improvements
