@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useOfflineSupport } from './useOfflineSupport';
 import { useQuestToasts } from '@/components/enhanced-toast-system';
+import { getTodaysCard } from '@/lib/tarot-data';
 
 interface QuestCompletionState {
   isLoading: boolean;
@@ -58,6 +59,32 @@ export function useQuestCompletion() {
         isOnline
       });
 
+      // Calculate bonuses from Tarot
+      const activeCard = getTodaysCard();
+      let xpReward = questData.xp || 50;
+      let goldReward = questData.gold || 25;
+
+      if (activeCard && newCompleted) {
+        const { effect } = activeCard;
+        const category = questData.category?.toLowerCase();
+
+        let applyBonus = false;
+        if (effect.type === 'xp_boost' || effect.type === 'gold_boost' || effect.type === 'mixed') {
+          applyBonus = true;
+        } else if (effect.type === 'category_boost' && effect.category && category) {
+          // Simple category matching
+          if (category.includes(effect.category.toLowerCase())) {
+            applyBonus = true;
+          }
+        }
+
+        if (applyBonus) {
+          if (effect.xpMultiplier) xpReward = Math.floor(xpReward * effect.xpMultiplier);
+          if (effect.goldMultiplier) goldReward = Math.floor(goldReward * effect.goldMultiplier);
+          console.log('[Quest Completion] Applied Tarot Bonus:', { card: activeCard.name, xpReward, goldReward });
+        }
+      }
+
       // If offline, add to queue and show optimistic update
       if (!isOnline) {
         console.log('[Quest Completion] Offline - adding to queue');
@@ -66,8 +93,8 @@ export function useQuestCompletion() {
           data: {
             questId,
             completed: newCompleted,
-            ...(questData.xp !== undefined && { xp: questData.xp }),
-            ...(questData.gold !== undefined && { gold: questData.gold }),
+            xp: xpReward,
+            gold: goldReward,
             ...(questData.category !== undefined && { category: questData.category }),
           },
         });
@@ -90,8 +117,8 @@ export function useQuestCompletion() {
         body: JSON.stringify({
           questId,
           completed: newCompleted,
-          xpReward: questData.xp || 50,
-          goldReward: questData.gold || 25,
+          xpReward,
+          goldReward,
         }),
       });
 
@@ -121,8 +148,8 @@ export function useQuestCompletion() {
       if (newCompleted) {
         questToasts.showQuestCompleted(
           questData.name,
-          questData.xp || 50,
-          questData.gold || 25
+          xpReward,
+          goldReward
         );
       } else {
         toast({
@@ -139,8 +166,8 @@ export function useQuestCompletion() {
       if (newCompleted) {
         try {
           const { addToCharacterStatSync } = await import('@/lib/character-stats-manager');
-          if (questData.xp) addToCharacterStatSync('experience', questData.xp);
-          if (questData.gold) addToCharacterStatSync('gold', questData.gold);
+          if (xpReward) addToCharacterStatSync('experience', xpReward);
+          if (goldReward) addToCharacterStatSync('gold', goldReward);
           console.log('[Quest Completion] Optimistically updated stats');
         } catch (statsError) {
           console.error('[Quest Completion] Failed to update local stats:', statsError);

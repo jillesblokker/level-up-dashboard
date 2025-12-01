@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface Quest {
   id: string
@@ -208,9 +209,17 @@ export function QuestOrganization({
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
 
   // Context-based labels
+  const getEmptyStateImage = () => {
+    switch (context) {
+      case 'challenges': return '/images/empty-states/challenges.png';
+      case 'milestones': return '/images/empty-states/milestones.png';
+      default: return '/images/empty-states/quests.png';
+    }
+  };
+
   const labels = {
     quests: {
-      title: 'Quest Overview',
+      title: 'Quests',
       subtitle: 'Track your quest progress and rewards',
       categories: 'Quest Categories',
       categoriesSubtitle: 'Progress by quest type',
@@ -218,7 +227,7 @@ export function QuestOrganization({
       searchPlaceholder: 'Search quests...',
       addButton: 'Add Quest',
       noItems: 'No quests found',
-      noItemsSubtitle: 'Try adjusting your filters or add a new quest',
+      noItemsSubtitle: 'Start your journey by adding a new quest',
       showing: 'quests'
     },
     challenges: {
@@ -586,10 +595,14 @@ export function QuestOrganization({
               </div>
             ) : sortedQuests.length === 0 ? (
               <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
-                <CardContent className="p-8 text-center">
-                  <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-300 mb-2">{currentLabels.noItems}</h3>
-                  <p className="text-gray-400">{currentLabels.noItemsSubtitle}</p>
+                <CardContent className="p-0">
+                  <EmptyState
+                    title={currentLabels.noItems}
+                    description={currentLabels.noItemsSubtitle}
+                    imageSrc={getEmptyStateImage()}
+                    actionLabel={currentLabels.addButton}
+                    onAction={onAddQuest}
+                  />
                 </CardContent>
               </Card>
             ) : (
