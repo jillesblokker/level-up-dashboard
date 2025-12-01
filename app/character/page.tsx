@@ -15,6 +15,7 @@ import { getCharacterStats } from "@/lib/character-stats-manager"
 import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
+import { AnimatedCounter } from '@/components/ui/animated-counter'
 
 import { HeaderSection } from '@/components/HeaderSection'
 
@@ -60,7 +61,7 @@ const categoryMeta = {
 export default function CharacterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [titles, setTitles] = useState<Title[]>([
     {
       id: "t1",
@@ -255,10 +256,10 @@ export default function CharacterPage() {
         ...perk,
         unlocked: perk.requiredLevel ? level >= perk.requiredLevel : perk.unlocked
       }));
-      
+
       // Save updated perks to localStorage for database
       localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
-      
+
       return updatedPerks;
     });
   }, []);
@@ -303,7 +304,7 @@ export default function CharacterPage() {
               return
             }
           }
-        } catch {}
+        } catch { }
         // Fallback localStorage
         const savedPerks = localStorage.getItem('character-perks')
         if (savedPerks) {
@@ -330,13 +331,13 @@ export default function CharacterPage() {
           { id: "wellness", name: "Wellness", category: "wellness", level: 1, experience: 0, experienceToNextLevel: 100, description: "Mental and physical well-being", icon: "☀️", color: "text-amber-400" },
           { id: "exploration", name: "Exploration", category: "exploration", level: 1, experience: 0, experienceToNextLevel: 100, description: "Discovery and adventure", icon: "🧭", color: "text-blue-400" }
         ];
-        
+
         // Merge saved strengths with defaults to ensure all categories are present
         const mergedStrengths = defaultStrengths.map(defaultStrength => {
           const savedStrength = strengths.find(s => s.category === defaultStrength.category);
           return savedStrength || defaultStrength;
         });
-        
+
         setStrengths(mergedStrengths);
       } catch (error) {
         console.error('Error loading strengths:', error)
@@ -369,12 +370,12 @@ export default function CharacterPage() {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         loadCharacterStats()
         loadPerks()
         loadStrengths()
         loadActivePotionPerks()
-        
+
       } catch (error) {
         console.error('Character page error:', error);
         setError(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -390,7 +391,7 @@ export default function CharacterPage() {
     window.addEventListener('character-perks-update', loadPerks)
     window.addEventListener('character-strengths-update', loadStrengths)
     window.addEventListener('character-inventory-update', loadActivePotionPerks)
-    
+
     return () => {
       window.removeEventListener('character-stats-update', loadCharacterStats)
       window.removeEventListener('character-perks-update', loadPerks)
@@ -403,10 +404,10 @@ export default function CharacterPage() {
   useEffect(() => {
     const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
     if (!userId) return;
-    
+
     // Disable polling to prevent infinite loops and page reloads
     console.log('[Character Page] Polling disabled to prevent infinite loops');
-    
+
     // Only load data once on mount
     // Data will be updated via event listeners instead
   }, []);
@@ -414,13 +415,13 @@ export default function CharacterPage() {
   // Helper function to check if perk can be activated (weekly cooldown)
   const canActivatePerk = (perk: Perk): boolean => {
     if (!perk.unlocked || perk.active) return false;
-    
+
     if (!perk.lastActivated) return true;
-    
+
     const lastActivated = new Date(perk.lastActivated);
     const now = new Date();
     const weekInMs = 7 * 24 * 60 * 60 * 1000;
-    
+
     return (now.getTime() - lastActivated.getTime()) >= weekInMs;
   };
 
@@ -433,16 +434,16 @@ export default function CharacterPage() {
   // Helper function to get time until perk expires
   const getTimeUntilExpiry = (perk: Perk): string => {
     if (!perk.active || !perk.expiresAt) return "";
-    
+
     const expiresAt = new Date(perk.expiresAt);
     const now = new Date();
     const timeRemaining = expiresAt.getTime() - now.getTime();
-    
+
     if (timeRemaining <= 0) return "Expired";
-    
+
     const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
     const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
-    
+
     return `${hours}h ${minutes}m remaining`;
   };
 
@@ -481,17 +482,17 @@ export default function CharacterPage() {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
 
-    const updatedPerks = perks.map(p => 
-      p.id === perkId 
-        ? { 
-            ...p, 
-            active: true, 
-            lastActivated: now.toISOString(),
-            expiresAt: expiresAt.toISOString()
-          } as Perk
+    const updatedPerks = perks.map(p =>
+      p.id === perkId
+        ? {
+          ...p,
+          active: true,
+          lastActivated: now.toISOString(),
+          expiresAt: expiresAt.toISOString()
+        } as Perk
         : p
     );
-    
+
     setPerks(updatedPerks);
 
     // Update character stats (deduct gold)
@@ -506,9 +507,9 @@ export default function CharacterPage() {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
       const uid = (window as any).__clerk?.user?.id
       if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
-    } catch {}
+    } catch { }
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks))
-    
+
     toast({
       title: "Perk Activated",
       description: `${perk.name} is now active for 24 hours!`,
@@ -517,20 +518,20 @@ export default function CharacterPage() {
 
   // Deactivate perk
   const deactivatePerk = async (perkId: string) => {
-    const updatedPerks = perks.map(p => 
-      p.id === perkId 
+    const updatedPerks = perks.map(p =>
+      p.id === perkId
         ? { ...p, active: false, expiresAt: undefined as string | undefined } as Perk
         : p
     );
-    
+
     setPerks(updatedPerks);
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
       const uid = (window as any).__clerk?.user?.id
       if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
-    } catch {}
+    } catch { }
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
-    
+
     const perk = perks.find(p => p.id === perkId);
     if (perk) {
       toast({
@@ -572,12 +573,12 @@ export default function CharacterPage() {
       return;
     }
 
-    const updatedPerks = perks.map(p => 
-      p.id === perkId 
+    const updatedPerks = perks.map(p =>
+      p.id === perkId
         ? { ...p, level: p.level + 1 } as Perk
         : p
     );
-    
+
     setPerks(updatedPerks);
 
     // Update character stats (deduct gold)
@@ -592,9 +593,9 @@ export default function CharacterPage() {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
       const uid = (window as any).__clerk?.user?.id
       if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
-    } catch {}
+    } catch { }
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
-    
+
     toast({
       title: "Perk Upgraded",
       description: `${perk.name} is now level ${perk.level + 1}!`,
@@ -610,21 +611,21 @@ export default function CharacterPage() {
         }
         return perk;
       });
-      
+
       if (JSON.stringify(updatedPerks) !== JSON.stringify(perks)) {
         setPerks(updatedPerks);
       }
     };
-    
+
     checkExpiredPerks();
     const interval = setInterval(checkExpiredPerks, 60000); // Check every minute
-    
+
     return () => clearInterval(interval);
   }, [perks]);
 
   const handleImageUpload = (file: File) => {
     setIsUploading(true)
-    
+
     try {
       const reader = new FileReader()
       reader.onload = (event) => {
@@ -679,10 +680,10 @@ export default function CharacterPage() {
                 <div>
                   <h3 className="font-semibold">Character Page Error</h3>
                   <p className="text-sm">{error}</p>
-                  <Button 
-                    onClick={() => window.location.reload()} 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    onClick={() => window.location.reload()}
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
                   >
                     Reload Page
@@ -725,7 +726,7 @@ export default function CharacterPage() {
                     <h3 className="text-lg font-medium">Level {characterStats.level}</h3>
                     <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
                     <p className="text-sm text-muted-foreground">
-                      {Math.floor(characterStats.experience)} / {characterStats.experienceToNextLevel} XP to Level {characterStats.level + 1}
+                      <AnimatedCounter value={Math.floor(characterStats.experience)} duration={800} /> / {characterStats.experienceToNextLevel} XP to Level {characterStats.level + 1}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -792,8 +793,8 @@ export default function CharacterPage() {
                     {perks
                       .filter((p) => p.active && p.unlocked)
                       .map((perk) => (
-                        <Card 
-                          key={perk.id} 
+                        <Card
+                          key={perk.id}
                           className="bg-black/50 border-amber-800/30"
                           aria-label={`active-bonus-${perk.id}`}
                         >
@@ -835,7 +836,7 @@ export default function CharacterPage() {
                         </Card>
                       ))}
                     {activePotionPerks.length > 0 && activePotionPerks.map((perk) => (
-                      <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}> 
+                      <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
                         <CardHeader className="pb-2">
                           <div className="flex items-center gap-2">
                             <CardTitle className="text-base font-medium">{perk.name} (Potion Perk)</CardTitle>
@@ -894,22 +895,21 @@ export default function CharacterPage() {
                     {TITLES.map((title) => {
                       const isUnlocked = characterStats.level >= title.level;
                       const isCurrent = characterStats.level === title.level;
-                      const rarity = title.level <= 20 ? "common" : 
-                                    title.level <= 40 ? "uncommon" : 
-                                    title.level <= 60 ? "rare" : 
-                                    title.level <= 80 ? "epic" : 
-                                    title.level <= 90 ? "legendary" : "mythic";
-                      
+                      const rarity = title.level <= 20 ? "common" :
+                        title.level <= 40 ? "uncommon" :
+                          title.level <= 60 ? "rare" :
+                            title.level <= 80 ? "epic" :
+                              title.level <= 90 ? "legendary" : "mythic";
+
                       return (
                         <Card
                           key={title.id}
-                          className={`w-full ${
-                            !isUnlocked
-                              ? "medieval-card-undiscovered"
-                              : isCurrent
-                                ? "medieval-card border-amber-500"
-                                : "medieval-card"
-                          }`}
+                          className={`w-full ${!isUnlocked
+                            ? "medieval-card-undiscovered"
+                            : isCurrent
+                              ? "medieval-card border-amber-500"
+                              : "medieval-card"
+                            }`}
                         >
                           <CardHeader className="pb-2">
                             <div className="flex justify-between">
@@ -961,11 +961,10 @@ export default function CharacterPage() {
                           <CardFooter>
                             {isUnlocked ? (
                               <Button
-                                className={`w-full ${
-                                  isCurrent
-                                    ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
-                                    : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
-                                }`}
+                                className={`w-full ${isCurrent
+                                  ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
+                                  : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
+                                  }`}
                                 disabled={isCurrent}
                               >
                                 {isCurrent ? "Current Title" : "Achieved"}
@@ -988,13 +987,12 @@ export default function CharacterPage() {
                     {perks.map((perk) => (
                       <Card
                         key={perk.id}
-                        className={`w-full ${
-                          !perk.unlocked
-                            ? "medieval-card-undiscovered"
-                            : perk.active
-                              ? "medieval-card border-purple-500"
-                              : "medieval-card"
-                        }`}
+                        className={`w-full ${!perk.unlocked
+                          ? "medieval-card-undiscovered"
+                          : perk.active
+                            ? "medieval-card border-purple-500"
+                            : "medieval-card"
+                          }`}
                       >
                         <CardHeader className="pb-2">
                           <div className="flex justify-between">
@@ -1009,7 +1007,7 @@ export default function CharacterPage() {
                               })()}
                               <CardTitle className="font-serif">{perk.name}</CardTitle>
                             </div>
-                            <Badge 
+                            <Badge
                               variant={perk.unlocked ? "default" : "secondary"}
                               className={perk.unlocked ? "" : "bg-gray-500"}
                             >
@@ -1033,7 +1031,7 @@ export default function CharacterPage() {
                               <span>Cost: {perk.activationCost} gold</span>
                             </div>
                           </div>
-                          
+
                           {perk.unlocked ? (
                             <div className="space-y-2">
                               {perk.active ? (
@@ -1102,7 +1100,7 @@ export default function CharacterPage() {
                               <span className="text-2xl">{strength.icon}</span>
                               <CardTitle className="font-serif">{strength.name}</CardTitle>
                             </div>
-                                                          <Badge className={strength.color.replace('text-', 'bg-')}>
+                            <Badge className={strength.color.replace('text-', 'bg-')}>
                               Lvl {strength.level}
                             </Badge>
                           </div>
@@ -1117,7 +1115,7 @@ export default function CharacterPage() {
                               <span>{strength.experience} / {strength.experienceToNextLevel}</span>
                             </div>
                             <Progress value={calculateStrengthProgress(strength)} className="h-2" />
-                                                          <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               {strength.experienceToNextLevel - strength.experience} XP to Lvl {strength.level + 1}
                             </p>
                           </div>

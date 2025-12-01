@@ -25,6 +25,7 @@ import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-man
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character";
 import { Bell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 
@@ -345,7 +346,9 @@ export default function ProfilePage() {
               <div className="space-y-2 bg-gradient-to-br from-gray-800/50 to-gray-900/50 p-4 rounded-xl border border-amber-500/20">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-300 font-semibold">Experience</span>
-                  <span className="text-amber-400 font-bold">{characterStats.experience} / {characterStats.experienceToNextLevel} XP</span>
+                  <span className="text-amber-400 font-bold">
+                    <AnimatedCounter value={characterStats.experience} duration={800} /> / {characterStats.experienceToNextLevel} XP
+                  </span>
                 </div>
                 <div className="relative">
                   <Progress
@@ -369,7 +372,9 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="text-xs text-yellow-400/80 uppercase tracking-wider font-bold mb-1">Gold</div>
-                  <div className="text-2xl font-bold text-yellow-400">{characterStats.gold}</div>
+                  <div className="text-2xl font-bold text-yellow-400">
+                    <AnimatedCounter value={characterStats.gold} duration={800} separator="," />
+                  </div>
                 </div>
 
                 {/* Streak Card */}
