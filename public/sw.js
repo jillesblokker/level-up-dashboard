@@ -1,7 +1,7 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-const CACHE_NAME = 'level-up-v1.0.1'
-const STATIC_CACHE = 'level-up-static-v1.0.1'
-const DYNAMIC_CACHE = 'level-up-dynamic-v1.0.1'
+const CACHE_NAME = 'level-up-v1.1.0'
+const STATIC_CACHE = 'level-up-static-v1.1.0'
+const DYNAMIC_CACHE = 'level-up-dynamic-v1.1.0'
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -9,8 +9,16 @@ const STATIC_FILES = [
   '/quests',
   '/kingdom',
   '/character',
+  '/achievements',
+  '/realm',
   '/manifest.json',
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-128x128.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-152x152.png',
   '/icons/icon-192x192.png',
+  '/icons/icon-384x384.png',
   '/icons/icon-512x512.png'
 ]
 

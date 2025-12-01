@@ -24,6 +24,7 @@ import { AudioProvider } from '@/components/audio-provider'
 import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
 import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
 import { CharacterStatsSync } from '@/components/character-stats-sync'
+import { InstallPrompt } from '@/components/install-prompt'
 
 
 import { DayNightCycle } from '@/components/day-night-cycle'
@@ -167,6 +168,7 @@ export default function RootLayout({
                       <KingdomNotificationManager />
                       <DayNightCycle />
                       <Toaster />
+                      <InstallPrompt />
 
                     </Providers>
                   </AudioProvider>
