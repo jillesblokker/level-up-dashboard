@@ -59,6 +59,17 @@
 
 **Impact**: Uniform, accessible, and mobile-friendly modal experience across the app.
 
+### 5. Implemented Feature Logic ✅
+**Problem**: "Add Milestone" and "Add Challenge" modals were UI-only placeholders with no backend connection.
+
+**Solution**:
+- Updated `app/api/challenges/route.ts` to support single challenge creation via POST.
+- Implemented `handleAddMilestoneSubmit` and `handleAddChallengeSubmit` in frontend.
+- Connected modals to these new handlers.
+- Added optimistic UI updates and toast notifications.
+
+**Impact**: Users can now actually create and save new milestones and challenges.
+
 ---
 
 ## 🏗️ Infrastructure Improvements

@@ -12,6 +12,8 @@
 - [x] **Remove Duplicate Logic**: Cleaned up duplicate achievement unlock code (reduced from ~35 to ~15 lines)
 - [x] **Refactor All Modals**: Updated all modals (Add Quest, Add Challenge, Add Milestone, Edit Challenge, Add Challenge Type) to use ResponsiveModal component
 - [x] **Mobile Layout Fix**: Added bottom padding to ResponsiveModal for mobile bottom nav
+- [x] **Implement Add Milestone**: Connected Add Milestone modal to backend API
+- [x] **Implement Add Challenge**: Connected Add Challenge modal to backend API
 
 ## 📱 UI/UX Improvements
 - [ ] **Mobile Testing**: Perform full regression test on real mobile device
@@ -22,6 +24,8 @@
 
 ## 🚀 Features
 - [ ] **Edit Milestones**: Implement functionality to edit existing milestones (currently only "Add" is supported).
+- [ ] **Delete Milestones**: Implement functionality to delete milestones.
+- [ ] **Rich Text Descriptions**: Allow markdown or rich text in quest/challenge descriptions.
 - [ ] **Delete Milestones**: Add ability to delete custom milestones.
 - [ ] **Rich Text Descriptions**: Allow rich text or markdown in quest/challenge descriptions.
 
