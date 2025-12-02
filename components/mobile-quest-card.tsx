@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
 interface MobileQuestCardProps {
   title: string
@@ -85,7 +86,7 @@ export default function MobileQuestCard({
   const progressPercentage = (progress / maxProgress) * 100
 
   return (
-    <Card 
+    <Card
       className={cn(
         "relative overflow-hidden transition-all duration-300 cursor-pointer group",
         "bg-black border border-amber-800/20",
@@ -108,7 +109,7 @@ export default function MobileQuestCard({
     >
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
+
       {/* Interactive Checkbox - Mobile Optimized */}
       <div className="absolute top-3 right-3 z-10">
         <button
@@ -116,8 +117,8 @@ export default function MobileQuestCard({
             "w-8 h-8 rounded-full border-2 transition-all duration-200",
             "flex items-center justify-center",
             "hover:scale-110 hover:shadow-lg",
-            status === 'completed' 
-              ? "bg-green-500 border-green-500 text-white" 
+            status === 'completed'
+              ? "bg-green-500 border-green-500 text-white"
               : "bg-transparent border-gray-400 text-transparent hover:border-amber-400",
             // Enhanced mobile touch target
             "min-w-[44px] min-h-[44px]",
@@ -141,8 +142,8 @@ export default function MobileQuestCard({
               "w-8 h-8 rounded-full transition-all duration-200",
               "flex items-center justify-center",
               "hover:scale-110 hover:shadow-lg",
-              isFavorited 
-                ? "bg-amber-500 text-white" 
+              isFavorited
+                ? "bg-amber-500 text-white"
                 : "bg-gray-800/50 text-gray-400 hover:bg-amber-500/20",
               // Enhanced mobile touch target
               "min-w-[44px] min-h-[44px]",
@@ -162,7 +163,7 @@ export default function MobileQuestCard({
       {/* Featured/New Badge */}
       {(isFeatured || isNew) && (
         <div className="absolute top-3 left-3 z-10">
-          <Badge 
+          <Badge
             className={cn(
               "text-xs font-bold px-2 py-1",
               isFeatured ? "bg-amber-500 text-white" : "bg-amber-500 text-white"
@@ -180,9 +181,10 @@ export default function MobileQuestCard({
             <h3 className="font-bold text-white text-lg leading-tight mb-1 truncate">
               {title}
             </h3>
-            <p className="text-gray-300 text-sm leading-relaxed line-clamp-2">
-              {description}
-            </p>
+            <div className="text-gray-300 text-sm leading-relaxed h-[2.5em] overflow-hidden relative">
+              <MarkdownRenderer content={description} />
+              <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-black to-transparent" />
+            </div>
           </div>
         </div>
 
@@ -205,14 +207,14 @@ export default function MobileQuestCard({
             <span className="text-xs text-gray-400">{progress}/{maxProgress}</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
-            <div 
+            <div
               className={cn(
                 "h-2 rounded-full transition-all duration-500",
-                status === 'completed' 
-                  ? "bg-green-500" 
+                status === 'completed'
+                  ? "bg-green-500"
                   : status === 'in-progress'
-                  ? "bg-amber-500"
-                  : "bg-gray-600"
+                    ? "bg-amber-500"
+                    : "bg-gray-600"
               )}
               style={{ width: `${Math.min(progressPercentage, 100)}%` }}
             />
@@ -235,9 +237,9 @@ export default function MobileQuestCard({
               <span className="text-sm text-white font-medium">{reward.experience}</span>
             </div>
           </div>
-          
+
           {/* Status Badge */}
-          <Badge 
+          <Badge
             className={cn(
               "text-xs font-semibold",
               status === 'completed' && "bg-green-600 text-white",
@@ -263,11 +265,11 @@ export default function MobileQuestCard({
             size="sm"
             className={cn(
               "flex-1 transition-all duration-300",
-              status === 'completed' 
+              status === 'completed'
                 ? "bg-green-600 hover:bg-green-700 text-white"
                 : status === 'in-progress'
-                ? "bg-amber-600 hover:bg-amber-700 text-white"
-                : "bg-gray-700 hover:bg-gray-600 text-white"
+                  ? "bg-amber-600 hover:bg-amber-700 text-white"
+                  : "bg-gray-700 hover:bg-gray-600 text-white"
             )}
             onClick={(e) => {
               e.stopPropagation()
@@ -276,7 +278,7 @@ export default function MobileQuestCard({
           >
             {status === 'completed' ? 'Undo' : 'Complete'}
           </Button>
-          
+
           {showEditDelete && (
             <>
               <Button

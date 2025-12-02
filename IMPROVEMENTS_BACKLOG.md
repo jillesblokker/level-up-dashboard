@@ -12,15 +12,11 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 7.  **Mobile Haptics**: ✓ Implemented `navigator.vibrate` patterns for key actions (completing a quest, tab switching, card flips).
 
 ## 🎨 UI/UX Polish
-8.  **Dynamic Weather**: Add subtle visual weather effects (rain, snow, sun beams) to the dashboard based on real-world data or randomization.
-9.  **Rich Text Descriptions**: Update Quest and Challenge descriptions to support Markdown (bold, lists, links) for better readability.
+8.  **Rich Text Descriptions**: Update Quest and Challenge descriptions to support Markdown (bold, lists, links) for better readability.
 
 ## 🎮 Game Mechanics & Content
-10. **Resource Economy**: Introduce basic resources (Wood, Stone, Iron) as rare drops from specific quest categories.
-11. **Crafting System**: Create a "Blacksmith" interface to craft equipment items using collected resources and Gold.
-12. **Inventory UI**: Build a dedicated Inventory screen to view and manage collected items, resources, and equipment.
-13. **Boss Battles**: Create a "Boss Battle" mode where completing a set of difficult challenges damages a visual boss enemy.
-14. **Guilds / Parties**: Allow users to form small groups (parties) to share progress or compete on leaderboards.
+9.  **Crafting System**: Create a "Blacksmith" interface to craft equipment items using collected resources and Gold.
+10. **Inventory UI**: Build a dedicated Inventory screen to view and manage collected items, resources, and equipment.
 
 ## 🛠️ Technical Improvements
 15. **PWA Install Prompt**: Create a custom, medieval-themed install prompt for iOS/Android users to encourage adding to home screen.

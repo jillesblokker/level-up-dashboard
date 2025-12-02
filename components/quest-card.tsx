@@ -10,6 +10,7 @@ import { useState } from "react"
 import { RewardAnimation } from "@/components/reward-animation"
 import { triggerConfetti } from "@/lib/confetti"
 import { useQuestAudio } from "@/components/audio-provider"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
 interface QuestCardProps {
   title: string
@@ -203,9 +204,10 @@ export default function QuestCard({
               <CardTitle className="text-lg font-bold text-white line-clamp-2 leading-tight">
                 {title}
               </CardTitle>
-              <CardDescription className="text-gray-400 mt-1 line-clamp-2 text-sm leading-relaxed">
-                {description}
-              </CardDescription>
+              <div className="text-gray-400 mt-1 text-sm leading-relaxed h-[3em] overflow-hidden relative">
+                <MarkdownRenderer content={description} />
+                <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black to-transparent" />
+              </div>
             </div>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
               {/* Status Badge - Only show for completed and in-progress */}
