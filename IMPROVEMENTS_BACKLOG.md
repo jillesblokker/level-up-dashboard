@@ -6,16 +6,16 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 1.  **Skeleton Loading States**: ✓ Implemented skeleton loaders for quest, challenge, and milestone cards during data loading.
 2.  **Animated Counters**: ✓ Implemented smooth count-up animations for Gold and XP with ease-out cubic easing.
 3.  **Particle Effects**: ✓ Implemented particle bursts (gold, xp, confetti) and floating text on quest completion using Framer Motion.
+4.  **Illustrated Empty States**: ✓ Replaced text-only empty states with custom medieval illustrations (scroll, sword, map) and action buttons.
+5.  **Daily Tarot System**: ✓ Integrated daily card drawing with gameplay modifiers (XP/Gold boosts) based on card type.
 
 ## 🎨 UI/UX Polish
-4.  **Comprehensive Sound Design**: Integrate the existing audio system into *all* UI interactions (hover, toggle, tab switch, modal open) for a tactile feel.
-5.  **Mobile Haptics**: Implement `navigator.vibrate` patterns for key actions (completing a quest, leveling up, error states) to enhance mobile immersion.
-6.  **Illustrated Empty States**: Replace text-only "No quests found" messages with custom medieval-themed illustrations and call-to-action buttons.
-7.  **Dynamic Weather**: Add subtle visual weather effects (rain, snow, sun beams) to the dashboard based on real-world data or randomization.
-8.  **Rich Text Descriptions**: Update Quest and Challenge descriptions to support Markdown (bold, lists, links) for better readability.
+6.  **Comprehensive Sound Design**: Integrate the existing audio system into *all* UI interactions (hover, toggle, tab switch, modal open) for a tactile feel.
+7.  **Mobile Haptics**: Implement `navigator.vibrate` patterns for key actions (completing a quest, leveling up, error states) to enhance mobile immersion.
+8.  **Dynamic Weather**: Add subtle visual weather effects (rain, snow, sun beams) to the dashboard based on real-world data or randomization.
+9.  **Rich Text Descriptions**: Update Quest and Challenge descriptions to support Markdown (bold, lists, links) for better readability.
 
 ## 🎮 Game Mechanics & Content
-9.  **Daily Tarot System**: Implement the "Fate" mechanic where players draw a daily card that modifies gameplay rules (e.g., "Double XP for Might quests").
 10. **Resource Economy**: Introduce basic resources (Wood, Stone, Iron) as rare drops from specific quest categories.
 11. **Crafting System**: Create a "Blacksmith" interface to craft equipment items using collected resources and Gold.
 12. **Inventory UI**: Build a dedicated Inventory screen to view and manage collected items, resources, and equipment.
