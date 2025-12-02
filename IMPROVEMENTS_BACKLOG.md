@@ -20,5 +20,4 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 ## 🛠️ Technical Improvements
 10. **Performance Monitoring**: Add Vercel Analytics or a lightweight logger to track core web vitals and user interactions.
 11. **Local Push Notifications**: Implement local notifications for quest reminders and "Quest Complete" alerts (even when the app is closed).
-12. **Accessibility Audit**: comprehensive audit to fix color contrast issues (especially Gold on Dark) and ensure full screen reader support.
-13. **PWA Icon Generation**: Generate and register the complete set of required PWA icons (72x72 to 512x512) for all platforms.
+12. **PWA Icon Generation**: Generate and register the complete set of required PWA icons (72x72 to 512x512) for all platforms.
