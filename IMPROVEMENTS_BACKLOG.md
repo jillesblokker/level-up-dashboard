@@ -11,13 +11,13 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 6.  **Comprehensive Sound Design**: ✓ Integrated audio system into Quest Completion, Navigation, and Tarot interactions.
 7.  **Mobile Haptics**: ✓ Implemented `navigator.vibrate` patterns for key actions (completing a quest, tab switching, card flips).
 8.  **Rich Text Descriptions**: ✓ Implemented custom Markdown renderer for quest/challenge descriptions (bold, italic, links, lists).
+9.  **PWA Install Prompt**: ✓ Created medieval-themed install prompt with iOS support, ornate borders, and benefits list.
 
 ## 🎨 UI/UX Polish
 
 ## 🎮 Game Mechanics & Content
 
 ## 🛠️ Technical Improvements
-9.  **PWA Install Prompt**: Create a custom, medieval-themed install prompt for iOS/Android users to encourage adding to home screen.
 10. **Performance Monitoring**: Add Vercel Analytics or a lightweight logger to track core web vitals and user interactions.
 11. **Local Push Notifications**: Implement local notifications for quest reminders and "Quest Complete" alerts (even when the app is closed).
 12. **Accessibility Audit**: comprehensive audit to fix color contrast issues (especially Gold on Dark) and ensure full screen reader support.
