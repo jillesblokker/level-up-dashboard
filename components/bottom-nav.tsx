@@ -6,10 +6,14 @@ import { Crown, Compass, MapIcon, Trophy, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { notificationService } from "@/lib/notification-service"
 import { useState, useEffect } from "react"
+import { useNavigationAudio } from "@/components/audio-provider"
+import { useHaptics, HapticPatterns } from "@/lib/haptics"
 
 export function BottomNav() {
     const pathname = usePathname()
     const [unreadCount, setUnreadCount] = useState(0)
+    const { onPageChange } = useNavigationAudio()
+    const { trigger } = useHaptics()
 
     useEffect(() => {
         // Initial count
@@ -54,6 +58,10 @@ export function BottomNav() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={() => {
+                                onPageChange()
+                                trigger(HapticPatterns.tabSwitch)
+                            }}
                             className={cn(
                                 "flex flex-col items-center justify-center min-w-[64px] px-3 py-2 rounded-lg transition-all duration-200 touch-manipulation",
                                 active

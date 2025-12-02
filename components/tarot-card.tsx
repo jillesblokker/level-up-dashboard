@@ -7,16 +7,23 @@ import { Sparkles, RefreshCw } from "lucide-react"
 import { TarotCard, drawRandomCard, hasDrawnCardToday, getTodaysCard, saveTodaysCard } from "@/lib/tarot-data"
 import { cn } from "@/lib/utils"
 
+import { useAudioContext } from "@/components/audio-provider"
+import { useHaptics, HapticPatterns } from "@/lib/haptics"
+
 export function TarotCardDisplay() {
     const [activeCard, setActiveCard] = useState<TarotCard | null>(getTodaysCard())
     const [isDrawing, setIsDrawing] = useState(false)
     const [showCard, setShowCard] = useState(!!getTodaysCard())
+    const { playSFX } = useAudioContext()
+    const { trigger } = useHaptics()
 
     const handleDrawCard = () => {
         if (hasDrawnCardToday()) return;
 
         setIsDrawing(true);
         setShowCard(false);
+        playSFX('page-turn');
+        trigger(HapticPatterns.soft);
 
         // Animate the draw
         setTimeout(() => {
@@ -28,6 +35,8 @@ export function TarotCardDisplay() {
             // Flip animation
             setTimeout(() => {
                 setShowCard(true);
+                playSFX('magic-spell');
+                trigger(HapticPatterns.cardFlip);
             }, 100);
         }, 1000);
     };

@@ -4,6 +4,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2 } from 'lucide-react';
 import { useQuestCompletion } from '@/hooks/useQuestCompletion';
 import { useParticles } from '@/components/ui/particles';
+import { useQuestAudio } from '@/components/audio-provider';
+import { useHaptics, HapticPatterns } from '@/lib/haptics';
 
 interface QuestToggleButtonProps {
   questId: string;
@@ -32,6 +34,8 @@ export function QuestToggleButton({
 }: QuestToggleButtonProps) {
   const { toggleQuestCompletion, isQuestPending } = useQuestCompletion();
   const { spawnParticles, spawnFloatingText } = useParticles();
+  const { onQuestComplete, onButtonClick } = useQuestAudio();
+  const { trigger } = useHaptics();
   const lastClickRef = useRef<{ x: number, y: number } | null>(null);
 
   const isPending = isQuestPending(questId);
@@ -59,15 +63,23 @@ export function QuestToggleButton({
       setTimeout(() => {
         spawnParticles(x, y, 'confetti', 12);
       }, 400);
+
+      // Audio & Haptics
+      onQuestComplete();
+      trigger(HapticPatterns.questComplete);
     }
   };
 
   const handleToggle = async () => {
     if (isDisabled) return;
 
+    onButtonClick();
+
     // Trigger effects if we are completing the quest
     if (!completed) {
       triggerEffects();
+    } else {
+      trigger(HapticPatterns.soft);
     }
 
     console.log('[QuestToggleButton] Debug:', {
