@@ -29,6 +29,7 @@ import { ParticleProvider } from '@/components/ui/particles'
 
 
 import { DayNightCycle } from '@/components/day-night-cycle'
+import { PerformanceMonitor } from '@/components/performance-monitor'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -172,7 +173,7 @@ export default function RootLayout({
                       <DayNightCycle />
                       <Toaster />
                       <InstallPrompt />
-
+                      <PerformanceMonitor />
                     </Providers>
                   </AudioProvider>
                 </TitleEvolutionProvider>
