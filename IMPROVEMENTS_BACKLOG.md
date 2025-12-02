@@ -12,12 +12,12 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 7.  **Mobile Haptics**: ✓ Implemented `navigator.vibrate` patterns for key actions (completing a quest, tab switching, card flips).
 8.  **Rich Text Descriptions**: ✓ Implemented custom Markdown renderer for quest/challenge descriptions (bold, italic, links, lists).
 9.  **PWA Install Prompt**: ✓ Created medieval-themed install prompt with iOS support, ornate borders, and benefits list.
+10. **PWA Icon Generation**: ✓ Generated complete icon set (72x72 to 512x512) and favicon.ico using the Level Up logo.
 
 ## 🎨 UI/UX Polish
 
 ## 🎮 Game Mechanics & Content
 
 ## 🛠️ Technical Improvements
-10. **Performance Monitoring**: Add Vercel Analytics or a lightweight logger to track core web vitals and user interactions.
-11. **Local Push Notifications**: Implement local notifications for quest reminders and "Quest Complete" alerts (even when the app is closed).
-12. **PWA Icon Generation**: Generate and register the complete set of required PWA icons (72x72 to 512x512) for all platforms.
+11. **Performance Monitoring**: Add Vercel Analytics or a lightweight logger to track core web vitals and user interactions.
+12. **Local Push Notifications**: Implement local notifications for quest reminders and "Quest Complete" alerts (even when the app is closed).
