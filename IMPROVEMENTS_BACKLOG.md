@@ -15,12 +15,10 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 ## 🎨 UI/UX Polish
 
 ## 🎮 Game Mechanics & Content
-9.  **Crafting System**: Create a "Blacksmith" interface to craft equipment items using collected resources and Gold.
-10. **Inventory UI**: Build a dedicated Inventory screen to view and manage collected items, resources, and equipment.
 
 ## 🛠️ Technical Improvements
-15. **PWA Install Prompt**: Create a custom, medieval-themed install prompt for iOS/Android users to encourage adding to home screen.
-16. **Performance Monitoring**: Add Vercel Analytics or a lightweight logger to track core web vitals and user interactions.
-17. **Local Push Notifications**: Implement local notifications for quest reminders and "Quest Complete" alerts (even when the app is closed).
-18. **Accessibility Audit**: comprehensive audit to fix color contrast issues (especially Gold on Dark) and ensure full screen reader support.
-19. **PWA Icon Generation**: Generate and register the complete set of required PWA icons (72x72 to 512x512) for all platforms.
+9.  **PWA Install Prompt**: Create a custom, medieval-themed install prompt for iOS/Android users to encourage adding to home screen.
+10. **Performance Monitoring**: Add Vercel Analytics or a lightweight logger to track core web vitals and user interactions.
+11. **Local Push Notifications**: Implement local notifications for quest reminders and "Quest Complete" alerts (even when the app is closed).
+12. **Accessibility Audit**: comprehensive audit to fix color contrast issues (especially Gold on Dark) and ensure full screen reader support.
+13. **PWA Icon Generation**: Generate and register the complete set of required PWA icons (72x72 to 512x512) for all platforms.
