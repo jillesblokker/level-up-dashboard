@@ -1,3 +1,5 @@
+import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
+
 export interface TarotCard {
     id: string;
     name: string;
@@ -188,15 +190,15 @@ export function getTodayDateString(): string {
 // Check if a card was drawn today
 export function hasDrawnCardToday(): boolean {
     if (typeof window === 'undefined') return false;
-    const lastDrawDate = localStorage.getItem('tarot-last-draw-date');
+    const lastDrawDate = getUserScopedItem('tarot-last-draw-date');
     return lastDrawDate === getTodayDateString();
 }
 
 // Get today's active card
 export function getTodaysCard(): TarotCard | null {
     if (typeof window === 'undefined') return null;
-    const lastDrawDate = localStorage.getItem('tarot-last-draw-date');
-    const cardData = localStorage.getItem('tarot-active-card');
+    const lastDrawDate = getUserScopedItem('tarot-last-draw-date');
+    const cardData = getUserScopedItem('tarot-active-card');
 
     if (lastDrawDate === getTodayDateString() && cardData) {
         try {
@@ -211,6 +213,6 @@ export function getTodaysCard(): TarotCard | null {
 // Save today's drawn card
 export function saveTodaysCard(card: TarotCard): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('tarot-last-draw-date', getTodayDateString());
-    localStorage.setItem('tarot-active-card', JSON.stringify(card));
+    setUserScopedItem('tarot-last-draw-date', getTodayDateString());
+    setUserScopedItem('tarot-active-card', JSON.stringify(card));
 }

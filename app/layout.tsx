@@ -30,6 +30,7 @@ import { ParticleProvider } from '@/components/ui/particles'
 
 import { DayNightCycle } from '@/components/day-night-cycle'
 import { PerformanceMonitor } from '@/components/performance-monitor'
+import { UserStorageInitializer } from '@/components/user-storage-initializer'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -152,6 +153,7 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <AudioProvider>
+                    <UserStorageInitializer />
                     <Providers>
                       <ClientOnboardingProvider>
                         <ParticleProvider>

@@ -1,4 +1,5 @@
 import { saveToSupabaseClient, loadFromSupabaseClient } from './supabase-persistence-client';
+import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
 
 export interface CharacterStats {
   gold: number;
@@ -99,7 +100,7 @@ export function getCharacterStats(): CharacterStats {
   }
 
   try {
-    const stored = localStorage.getItem('character-stats');
+    const stored = getUserScopedItem('character-stats');
     if (stored) {
       const stats = JSON.parse(stored);
       return {
@@ -109,7 +110,7 @@ export function getCharacterStats(): CharacterStats {
         health: stats.health || 100,
         max_health: stats.max_health || 100,
         build_tokens: stats.build_tokens || stats.buildTokens || 0,
-        kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
+        kingdom_expansions: parseInt(getUserScopedItem('kingdom-grid-expansions') || '0', 10)
       };
     }
   } catch (error) {
@@ -279,8 +280,8 @@ export async function fetchFreshCharacterStats(action: string = 'background-sync
           );
         }
 
-        localStorage.setItem('character-stats', JSON.stringify(freshStats));
-        localStorage.setItem('character-stats-last-local-update', Date.now().toString());
+        setUserScopedItem('character-stats', JSON.stringify(freshStats));
+        setUserScopedItem('character-stats-last-local-update', Date.now().toString());
 
         // Dispatch update event to notify all components
         window.dispatchEvent(new Event('character-stats-update'));
@@ -335,11 +336,11 @@ export function setCharacterStats(stats: Partial<CharacterStats>): void {
       build_tokens: updatedStats.build_tokens
     };
 
-    localStorage.setItem('character-stats', JSON.stringify(localStorageStats));
+    setUserScopedItem('character-stats', JSON.stringify(localStorageStats));
 
     // Save kingdom expansions separately
     if (stats.kingdom_expansions !== undefined) {
-      localStorage.setItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
+      setUserScopedItem('kingdom-grid-expansions', String(stats.kingdom_expansions));
     }
 
     console.log('[Character Stats Manager] Saved to localStorage:', localStorageStats);
