@@ -10,9 +10,9 @@ This backlog contains 20 targeted improvements to elevate the "Level Up" experie
 5.  **Daily Tarot System**: ✓ Integrated daily card drawing with gameplay modifiers (XP/Gold boosts) based on card type.
 6.  **Comprehensive Sound Design**: ✓ Integrated audio system into Quest Completion, Navigation, and Tarot interactions.
 7.  **Mobile Haptics**: ✓ Implemented `navigator.vibrate` patterns for key actions (completing a quest, tab switching, card flips).
+8.  **Rich Text Descriptions**: ✓ Implemented custom Markdown renderer for quest/challenge descriptions (bold, italic, links, lists).
 
 ## 🎨 UI/UX Polish
-8.  **Rich Text Descriptions**: Update Quest and Challenge descriptions to support Markdown (bold, lists, links) for better readability.
 
 ## 🎮 Game Mechanics & Content
 9.  **Crafting System**: Create a "Blacksmith" interface to craft equipment items using collected resources and Gold.
