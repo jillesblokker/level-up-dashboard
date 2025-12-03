@@ -17,22 +17,52 @@ interface NotificationCenterProps {
   children?: React.ReactNode
 }
 
+interface ExtendedNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  timestamp: string | Date;
+  read: boolean;
+  isServer: boolean;
+  original?: any;
+  action?: { href: string; label: string };
+}
+
 export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [open, setOpen] = useState(false)
+  const [serverNotifications, setServerNotifications] = useState<any[]>([])
+
+  const fetchServerNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (res.ok) {
+        setServerNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   useEffect(() => {
     setNotifications(notificationService.getNotifications())
+    fetchServerNotifications();
 
     // Listen for new notifications
     const handleNewNotification = () => {
       setNotifications(notificationService.getNotifications())
+      fetchServerNotifications();
     }
 
     window.addEventListener('newNotification', handleNewNotification)
+    // Also listen for friend updates to refresh notifications
+    window.addEventListener('friend-update', fetchServerNotifications)
 
     return () => {
       window.removeEventListener('newNotification', handleNewNotification)
+      window.removeEventListener('friend-update', fetchServerNotifications)
     }
   }, [])
 
@@ -43,13 +73,70 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   };
 
   // Add a function to mark notification as read
-  const handleMarkAsRead = (id: string) => {
-    notificationService.markAsRead(id)
-    setNotifications(notificationService.getNotifications())
+  const handleMarkAsRead = async (id: string, isServer = false) => {
+    if (isServer) {
+      try {
+        await fetch('/api/notifications', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, action: 'mark_read' })
+        });
+        fetchServerNotifications();
+      } catch (error) {
+        console.error("Error marking as read:", error);
+      }
+    } else {
+      notificationService.markAsRead(id)
+      setNotifications(notificationService.getNotifications())
+    }
   };
+
+  const handleFriendAction = async (notification: any, action: 'accept' | 'reject') => {
+    try {
+      const friendshipId = notification.data.friendshipId;
+      const res = await fetch(`/api/friends/${friendshipId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+
+      if (res.ok) {
+        // Mark notification as read
+        handleMarkAsRead(notification.id, true);
+        // Refresh notifications
+        fetchServerNotifications();
+        // Dispatch event to update friend list if needed
+        window.dispatchEvent(new Event('friend-update'));
+      }
+    } catch (error) {
+      console.error("Error responding to friend request:", error);
+    }
+  };
+
+  // Merge local and server notifications for display
+  const allNotifications: any[] = [
+    ...serverNotifications.map(n => ({
+      id: n.id,
+      title: n.type === 'friend_request' ? 'New Friend Request' :
+        n.type === 'friend_quest_received' ? 'New Quest Received' :
+          n.type === 'friend_request_accepted' ? 'Friend Request Accepted' : 'Notification',
+      message: n.type === 'friend_request' ? `${n.data.senderName} wants to be your ally!` :
+        n.type === 'friend_quest_received' ? `${n.data.senderName} sent you a quest: "${n.data.questTitle}"` :
+          n.type === 'friend_request_accepted' ? `${n.data.accepterName} is now your ally!` : '',
+      type: 'social',
+      timestamp: n.created_at,
+      read: n.is_read,
+      isServer: true,
+      original: n
+    })),
+    ...notifications.map(n => ({ ...n, isServer: false }))
+  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  const unreadCount = allNotifications.filter(n => !n.read).length;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'social': return '👥'
       case 'achievement': return '🏆'
       case 'quest': return '📜'
       case 'levelup': return '⭐'
@@ -64,6 +151,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
 
   const getNotificationColor = (type: string) => {
     switch (type) {
+      case 'social': return 'text-blue-400'
       case 'achievement': return 'text-amber-400'
       case 'quest': return 'text-amber-400'
       case 'levelup': return 'text-amber-500'
@@ -76,26 +164,8 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     }
   }
 
-  const getNotificationBgColor = (type: string) => {
-    switch (type) {
-      case 'achievement': return 'bg-amber-500/10 border-amber-500/20'
-      case 'quest': return 'bg-amber-500/10 border-amber-500/20'
-      case 'levelup': return 'bg-amber-500/10 border-amber-500/20'
-      case 'success': return 'bg-amber-500/10 border-amber-500/20'
-      case 'event': return 'bg-gray-500/10 border-gray-500/20'
-      case 'discovery': return 'bg-amber-500/10 border-amber-500/20'
-      case 'monster': return 'bg-red-500/10 border-red-500/20'
-      case 'system': return 'bg-gray-500/10 border-gray-500/20'
-      default: return 'bg-amber-500/10 border-amber-500/20'
-    }
-  }
+  // ... (keep existing helper functions)
 
-  const getPriorityBadge = (priority: 'high' | 'medium' | 'low' = 'medium') => {
-    // Remove red dots - background already indicates unread status
-    return null
-  }
-
-  // Enhanced Empty State Component
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center h-full p-6 relative overflow-hidden">
       {/* Background with medieval theme */}
@@ -143,9 +213,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         {children || (
           <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative">
             <Bell className="h-5 w-5" />
-            {notificationService.getUnreadCount() > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {notificationService.getUnreadCount() > 99 ? '99+' : notificationService.getUnreadCount()}
+                {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
             <span className="sr-only">Notifications</span>
@@ -165,9 +235,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                 <p className="text-gray-400 text-sm font-medium">Kingdom Messages & Updates</p>
               </div>
             </div>
-            {notificationService.getUnreadCount() > 0 && (
+            {unreadCount > 0 && (
               <div className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg">
-                {notificationService.getUnreadCount() > 99 ? '99+' : notificationService.getUnreadCount()}
+                {unreadCount > 99 ? '99+' : unreadCount}
               </div>
             )}
           </div>
@@ -175,11 +245,11 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
-          {notifications.length === 0 ? (
+          {allNotifications.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="divide-y divide-amber-800/10">
-              {notifications.map((notification) => (
+              {allNotifications.map((notification) => (
                 <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900/50 transition-all duration-200", !notification.read && "bg-gray-800/30")}>
                   <div className="flex items-start gap-4">
                     <div className={cn("text-2xl mt-1 flex-shrink-0", getNotificationColor(notification.type))}>
@@ -197,6 +267,15 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                       <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
                         {notification.message}
                       </p>
+
+                      {/* Action Buttons for Friend Requests */}
+                      {notification.isServer && notification.original.type === 'friend_request' && !notification.read && (
+                        <div className="flex gap-2 mt-3">
+                          <Button size="sm" onClick={() => handleFriendAction(notification.original, 'accept')}>Accept</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleFriendAction(notification.original, 'reject')}>Decline</Button>
+                        </div>
+                      )}
+
                       <div className="flex flex-wrap gap-2 mt-4">
                         {notification.action && (
                           <button
@@ -210,19 +289,21 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                         )}
                         {!notification.read && (
                           <button
-                            onClick={() => handleMarkAsRead(notification.id)}
+                            onClick={() => handleMarkAsRead(notification.id, notification.isServer)}
                             className="text-xs font-medium text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-md border border-blue-600/30 hover:bg-blue-900/20 hover:border-blue-500/50 transition-all duration-200"
                           >
                             Mark as Read
                           </button>
                         )}
-                        <button
-                          onClick={() => handleDelete(notification.id)}
-                          className="text-sm px-2 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
-                          aria-label="Delete notification"
-                        >
-                          🗑️
-                        </button>
+                        {!notification.isServer && (
+                          <button
+                            onClick={() => handleDelete(notification.id)}
+                            className="text-sm px-2 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
+                            aria-label="Delete notification"
+                          >
+                            🗑️
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

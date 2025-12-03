@@ -26,6 +26,8 @@ interface Quest {
   date?: Date
   isNew: boolean
   completionId?: string
+  isFriendQuest?: boolean
+  senderName?: string
 }
 
 interface QuestOrganizationProps {
@@ -618,7 +620,7 @@ export function QuestOrganization({
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-lg">
                             {categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}
                           </span>
@@ -629,6 +631,12 @@ export function QuestOrganization({
                           >
                             {categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}
                           </Badge>
+                          {quest.isFriendQuest && (
+                            <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 flex items-center gap-1 text-xs">
+                              <Star className="w-3 h-3" />
+                              Friend
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-1">
                           {quest.favorited && <Star className="h-4 w-4 text-amber-400 fill-current" />}

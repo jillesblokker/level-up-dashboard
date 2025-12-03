@@ -11,7 +11,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
-import { getAuth } from '@clerk/nextjs/server';
+import { getAuth, clerkClient } from '@clerk/nextjs/server';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
 import { supabaseServer } from '../../../lib/supabase/server-client';
@@ -131,6 +131,26 @@ export async function GET(request: Request) {
     if (questsError) {
       console.error('Quests fetch error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
+    }
+
+    // Fetch sender names for friend quests
+    if (quests) {
+      const senderIds = [...new Set(quests.filter(q => q.sender_id).map(q => q.sender_id))];
+      if (senderIds.length > 0) {
+        try {
+          const client = await clerkClient();
+          const senders = await client.users.getUserList({ userId: senderIds });
+          const senderMap = new Map(senders.data.map(u => [u.id, u.username || u.firstName || 'Unknown']));
+
+          quests.forEach((q: any) => {
+            if (q.sender_id) {
+              q.senderName = senderMap.get(q.sender_id);
+            }
+          });
+        } catch (e) {
+          console.error("Error fetching sender names:", e);
+        }
+      }
     }
 
     console.log('[Quests API] Quests fetched:', quests?.length || 0);

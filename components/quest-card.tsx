@@ -34,6 +34,8 @@ interface QuestCardProps {
   onEdit?: () => void
   onDelete?: () => void
   showEditDelete?: boolean
+  isFriendQuest?: boolean
+  senderName?: string
 }
 
 const difficultyConfig = {
@@ -68,7 +70,9 @@ export default function QuestCard({
   onComplete,
   onEdit,
   onDelete,
-  showEditDelete = false
+  showEditDelete = false,
+  isFriendQuest,
+  senderName
 }: QuestCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
@@ -183,27 +187,40 @@ export default function QuestCard({
           </div>
         )}
 
-        {/* Featured/New Badge */}
-        {(isFeatured || isNew) && (
-          <div className="absolute top-3 left-3 z-10">
-            <Badge
-              className={cn(
-                "text-xs font-bold px-2 py-1",
-                isFeatured ? "bg-amber-500 text-white" : "bg-amber-500 text-white"
-              )}
-            >
-              {isFeatured ? "Featured" : "New"}
-            </Badge>
+        {/* Featured/New/Friend Badge */}
+        {(isFeatured || isNew || isFriendQuest) && (
+          <div className="absolute top-3 left-3 z-10 flex gap-1">
+            {isFriendQuest && (
+              <Badge className="bg-blue-600 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
+                <Star className="w-3 h-3" />
+                Friend Quest
+              </Badge>
+            )}
+            {(isFeatured || isNew) && !isFriendQuest && (
+              <Badge
+                className={cn(
+                  "text-xs font-bold px-2 py-1",
+                  isFeatured ? "bg-amber-500 text-white" : "bg-green-500 text-white"
+                )}
+              >
+                {isFeatured ? "Featured" : "New"}
+              </Badge>
+            )}
           </div>
         )}
 
         {/* Card Header */}
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 pt-8"> {/* Added pt-8 to make room for badges */}
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-bold text-white line-clamp-2 leading-tight">
                 {title}
               </CardTitle>
+              {isFriendQuest && senderName && (
+                <p className="text-xs text-blue-400 font-medium mt-0.5 mb-1">
+                  Sent by {senderName}
+                </p>
+              )}
               <div className="text-gray-400 mt-1 text-sm leading-relaxed h-[3em] overflow-hidden relative">
                 <MarkdownRenderer content={description} />
                 <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black to-transparent" />
