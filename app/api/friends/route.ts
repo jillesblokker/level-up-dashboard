@@ -18,7 +18,13 @@ export async function GET(request: Request) {
 
         if (error) {
             console.error('Error fetching friends:', error);
-            return NextResponse.json({ error: 'Failed to fetch friends' }, { status: 500 });
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            return NextResponse.json({
+                error: 'Failed to fetch friends',
+                details: error.message,
+                hint: error.hint,
+                code: error.code
+            }, { status: 500 });
         }
 
         // Extract friend IDs
@@ -114,7 +120,13 @@ export async function POST(request: Request) {
 
         if (error) {
             console.error('Error creating friend request:', error);
-            return NextResponse.json({ error: 'Failed to send friend request' }, { status: 500 });
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            return NextResponse.json({
+                error: 'Failed to send friend request',
+                details: error.message,
+                hint: error.hint,
+                code: error.code
+            }, { status: 500 });
         }
 
         // Create notification for the recipient
