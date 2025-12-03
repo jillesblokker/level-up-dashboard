@@ -1,10 +1,12 @@
 // Replayability Types
-export type ReplayabilityFeature = 
-  | 'dailyQuests' 
-  | 'achievements' 
-  | 'collectibles' 
-  | 'challenges' 
+export type ReplayabilityFeature =
+  | 'dailyQuests'
+  | 'achievements'
+  | 'collectibles'
+  | 'challenges'
   | 'leaderboards';
+
+import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
 
 // Achievement Interface
 export interface Achievement {
@@ -192,7 +194,7 @@ export class ReplayabilityManager {
 
   private loadAchievementsFromStorage() {
     try {
-      const unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
+      const unlocked = JSON.parse(getUserScopedItem('achievements') || '[]');
       unlocked.forEach((id: string) => {
         const achievement = this.achievements.get(id);
         if (achievement) {
@@ -207,7 +209,7 @@ export class ReplayabilityManager {
   private saveAchievementsToStorage() {
     try {
       const unlocked = Array.from(this.achievements.values()).filter(a => a.isUnlocked).map(a => a.id);
-      localStorage.setItem('achievements', JSON.stringify(unlocked));
+      setUserScopedItem('achievements', JSON.stringify(unlocked));
     } catch (error) {
       // Error handling intentionally left empty to avoid breaking the UI if replayability fails
     }
@@ -311,7 +313,7 @@ export class ReplayabilityManager {
   public updateLeaderboard(entry: LeaderboardEntry) {
     const leaderboard = this.leaderboards.get(entry.category) || [];
     const existingEntry = leaderboard.find(e => e.userId === entry.userId);
-    
+
     if (existingEntry) {
       existingEntry.score = entry.score;
       existingEntry.timestamp = entry.timestamp;

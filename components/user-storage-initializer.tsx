@@ -40,7 +40,9 @@ export function UserStorageInitializer() {
                 'active-potion-perks',
                 'character-perks',
                 'streaks',
-                'property-timers'
+                'property-timers',
+                'achievements',
+                'onboarding-state'
             ];
 
             migrateLegacyData(keysToMigrate);

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { smartLogger } from '@/lib/smart-logger'
 
 interface OnboardingState {
@@ -46,7 +48,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
   // Load onboarding state from localStorage
   useEffect(() => {
-    const savedState = localStorage.getItem('onboarding-state')
+    const savedState = getUserScopedItem('onboarding-state')
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState)
@@ -72,8 +74,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const saveOnboardingState = (newState: Partial<OnboardingState>) => {
     const updatedState = { ...onboardingState, ...newState }
     setOnboardingState(updatedState)
-    localStorage.setItem('onboarding-state', JSON.stringify(updatedState))
-    
+    setUserScopedItem('onboarding-state', JSON.stringify(updatedState))
+
     smartLogger.info('useOnboarding', 'STATE_SAVED', {
       previousState: onboardingState,
       newState: updatedState,
@@ -87,7 +89,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       currentState: onboardingState,
       stackTrace: new Error().stack
     })
-    
+
     // Show if never completed and never skipped
     if (!onboardingState.hasCompletedOnboarding && !onboardingState.hasSkippedOnboarding) {
       smartLogger.info('useOnboarding', 'SHOULD_SHOW_TRUE', {
@@ -124,7 +126,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       onboardingState,
       isOnboardingOpen,
       shouldShowResult: shouldShowOnboarding(),
-      localStorage: localStorage.getItem('onboarding-state')
+      localStorage: getUserScopedItem('onboarding-state')
     })
   }
 
@@ -137,7 +139,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       callStack: new Error().stack?.split('\n').slice(1, 4).join('\n'),
       timestamp: new Date().toISOString()
     })
-    
+
     // If forceOpen is true, always open regardless of state
     if (forceOpen) {
       smartLogger.info('useOnboarding', 'FORCE_OPEN_ONBOARDING', {
@@ -159,7 +161,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       })
       return
     }
-    
+
     // Otherwise, check if it should be shown
     if (shouldShowOnboarding()) {
       smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_NORMAL', {
@@ -224,7 +226,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       hasSkippedOnboarding: false,
       lastShownAt: null
     })
-    
+
     // Also reset the provider's hasShownOnboardingRef if it exists
     if (typeof window !== 'undefined') {
       // Dispatch a custom event to reset the provider's state
