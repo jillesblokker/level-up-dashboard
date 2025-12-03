@@ -268,6 +268,8 @@ export default function RealmPage() {
     const [showInventory, setShowInventory] = useState(false);
     const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
     const [autoSave, setAutoSave] = useState(true);
+    const [gridInitialized, setGridInitialized] = useState(false);
+    const initialTileCountsRef = useRef<Record<string, number>>({});
     const [gameMode, setGameMode] = useState<'build' | 'move' | 'destroy'>('move');
     const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
@@ -569,13 +571,21 @@ export default function RealmPage() {
 
     // --- General achievement tracker ---
     useEffect(() => {
+        // Only track achievements after grid is initialized to avoid counting system-placed tiles
+        if (!gridInitialized) {
+            return;
+        }
+
         // Track tile actions for achievements
         const actionCounts: Record<string, number> = {};
         for (const req of creatureRequirements) {
             // e.g., 'forest_tiles_destroyed', 'ice_tiles_placed', etc.
             const [tileType, action] = req.action.split('_tiles_');
             if (action === 'placed' && tileType) {
-                actionCounts[req.action] = countTiles(grid, tileType as string);
+                const currentCount = countTiles(grid, tileType as string);
+                const initialCount = initialTileCountsRef.current[req.action] || 0;
+                // Only count tiles placed AFTER initialization (user-placed tiles)
+                actionCounts[req.action] = Math.max(0, currentCount - initialCount);
             } else if (action === 'destroyed') {
                 // Track destroyed tiles from localStorage
                 const achievementKey = `destroyed_${tileType}_tiles`;
@@ -624,7 +634,7 @@ export default function RealmPage() {
                 }
             }
         }
-    }, [grid, userId, discoverCreature, getToken]);
+    }, [grid, userId, discoverCreature, getToken, gridInitialized]);
 
     // Achievement unlock effect
     useEffect(() => {
@@ -791,6 +801,21 @@ export default function RealmPage() {
                 });
             } finally {
                 setIsLoading(false);
+
+                // Capture initial tile counts after grid is loaded
+                // This prevents system-placed tiles from triggering creature discoveries
+                setTimeout(() => {
+                    const initialCounts: Record<string, number> = {};
+                    for (const req of creatureRequirements) {
+                        const [tileType, action] = req.action.split('_tiles_');
+                        if (action === 'placed' && tileType) {
+                            initialCounts[req.action] = countTiles(grid, tileType as string);
+                        }
+                    }
+                    initialTileCountsRef.current = initialCounts;
+                    setGridInitialized(true);
+                    console.log('[Realm] Initial tile counts captured:', initialCounts);
+                }, 100);
             }
         };
 
