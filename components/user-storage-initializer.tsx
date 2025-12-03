@@ -43,7 +43,8 @@ export function UserStorageInitializer() {
                 'property-timers',
                 'achievements',
                 'onboarding-state',
-                'creature-store'  // Added to fix achievement leak
+                'creature-store',
+                'user-placed-tile-counts' // Added to track user-specific tile placements
             ];
 
             migrateLegacyData(keysToMigrate);
