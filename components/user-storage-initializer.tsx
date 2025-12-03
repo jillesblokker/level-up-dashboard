@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { setCurrentUserId, migrateLegacyData } from '@/lib/user-scoped-storage';
+import { setCurrentUserId, migrateLegacyData, cleanupLegacyData } from '@/lib/user-scoped-storage';
 
 /**
  * Initializes user-scoped localStorage on auth state change
@@ -46,6 +46,14 @@ export function UserStorageInitializer() {
             ];
 
             migrateLegacyData(keysToMigrate);
+
+            // Cleanup legacy data to prevent leaks to other users
+            // Only do this if we are sure migration has happened (which migrateLegacyData handles internally)
+            // But since migrateLegacyData might have run in a previous session, we check here too
+            const migrationKey = `__migration_complete_${userId}`;
+            if (typeof window !== 'undefined' && localStorage.getItem(migrationKey)) {
+                cleanupLegacyData(keysToMigrate);
+            }
         } else {
             console.log('[UserStorageInitializer] User logged out');
 

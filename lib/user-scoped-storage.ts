@@ -100,16 +100,9 @@ export function getUserScopedItem(baseKey: string): string | null {
             return scopedValue;
         }
 
-        // Fallback: check if there's a non-scoped value (for migration)
-        const legacyValue = localStorage.getItem(baseKey);
-        if (legacyValue !== null) {
-            // Migrate the value to user-scoped key
-            console.log(`[User-Scoped Storage] Migrating ${baseKey} to ${scopedKey}`);
-            localStorage.setItem(scopedKey, legacyValue);
-
-            // Keep legacy value for now (will be cleaned up later)
-            return legacyValue;
-        }
+        // REMOVED: Lazy migration fallback. 
+        // We now rely solely on UserStorageInitializer to handle migration.
+        // This prevents data leaking from one user to another via global keys.
 
         return null;
     } catch (e) {
@@ -213,6 +206,10 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
                     localStorage.setItem(scopedKey, legacyValue);
                     migratedCount++;
                     console.log(`[User-Scoped Storage] Migrated: ${baseKey} → ${scopedKey}`);
+
+                    // IMPORTANT: Remove the legacy key to prevent it from leaking to other users
+                    // This ensures "Clean Slate" for subsequent users
+                    localStorage.removeItem(baseKey);
                 }
             }
         } catch (e) {
@@ -224,4 +221,23 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
     localStorage.setItem(migrationKey, 'true');
 
     console.log(`[User-Scoped Storage] Migration complete. Migrated ${migratedCount} items.`);
+}
+
+/**
+ * Force cleanup of legacy data (useful for fixing data leaks)
+ */
+export function cleanupLegacyData(keysToClean: string[]): void {
+    if (typeof window === 'undefined') return;
+
+    console.log('[User-Scoped Storage] Cleaning up legacy global keys...');
+    let cleanedCount = 0;
+
+    keysToClean.forEach(key => {
+        if (localStorage.getItem(key) !== null) {
+            localStorage.removeItem(key);
+            cleanedCount++;
+        }
+    });
+
+    console.log(`[User-Scoped Storage] Cleanup complete. Removed ${cleanedCount} legacy items.`);
 }
