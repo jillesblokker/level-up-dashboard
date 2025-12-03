@@ -823,6 +823,27 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              {/* User ID Display */}
+              <div className="p-3 bg-gray-800/50 rounded-lg border border-amber-800/10 flex items-center justify-between group">
+                <div className="overflow-hidden">
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">User ID</p>
+                  <p className="text-sm text-gray-300 font-mono truncate" title={user?.id}>{user?.id}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-amber-500 hover:text-amber-400 hover:bg-amber-900/20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    if (user?.id) {
+                      navigator.clipboard.writeText(user.id);
+                      toast.success("User ID copied to clipboard");
+                    }
+                  }}
+                >
+                  <ClipboardCheck className="w-4 h-4" />
+                </Button>
+              </div>
+
               <form action={logout}>
                 <Button
                   type="submit"
