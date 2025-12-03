@@ -15,7 +15,7 @@ import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X } from "lucide-react";
+import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle } from "lucide-react";
 import { useAudioContext } from "@/components/audio-provider";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
@@ -53,6 +53,9 @@ export default function ProfilePage() {
     gold: 0
   });
   const [showStats, setShowStats] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   useEffect(() => {
     // Load notifications count
@@ -171,6 +174,48 @@ export default function ProfilePage() {
       toast.error("Failed to update profile");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+
+    // Verify user typed "DELETE" correctly
+    if (deleteConfirmText !== "DELETE") {
+      toast.error("Please type DELETE to confirm");
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      // Call the delete account API
+      const response = await fetch('/api/user/delete-account', {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete account');
+      }
+
+      // Clear all localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+      }
+
+      toast.success("Account deleted successfully. Redirecting...");
+
+      // Redirect to home page after a short delay
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to delete account");
+      setIsDeleting(false);
     }
   };
 
@@ -777,7 +822,7 @@ export default function ProfilePage() {
                 Account Actions
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <form action={logout}>
                 <Button
                   type="submit"
@@ -788,6 +833,15 @@ export default function ProfilePage() {
                   Log out
                 </Button>
               </form>
+
+              <Button
+                onClick={() => setShowDeleteDialog(true)}
+                variant="outline"
+                className="w-full border-red-800/50 text-red-500 hover:bg-red-900/30 hover:border-red-700"
+              >
+                <Trash2 className="h-5 w-5 mr-2" />
+                Delete Account
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -845,6 +899,70 @@ export default function ProfilePage() {
               className="bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800"
             >
               {isUploading ? "Saving..." : "Save Avatar"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md bg-gray-900 border-red-800/30">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-red-500 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Delete Account
+            </DialogTitle>
+            <DialogDescription className="text-gray-300 pt-4">
+              This action is <span className="text-red-500 font-bold">permanent and cannot be undone</span>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="bg-red-950/30 border border-red-800/30 rounded-lg p-4">
+              <p className="text-sm text-gray-300 mb-2">The following data will be permanently deleted:</p>
+              <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
+                <li>Your character stats (level, XP, gold)</li>
+                <li>All quests, challenges, and milestones</li>
+                <li>Your kingdom and inventory</li>
+                <li>All progress and achievements</li>
+                <li>Your account and email address</li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="delete-confirm" className="text-gray-300">
+                Type <span className="text-red-500 font-mono font-bold">DELETE</span> to confirm:
+              </Label>
+              <Input
+                id="delete-confirm"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE here"
+                className="bg-gray-800 border-red-800/30 text-white placeholder:text-gray-500"
+                disabled={isDeleting}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setDeleteConfirmText("");
+              }}
+              variant="outline"
+              className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting || deleteConfirmText !== "DELETE"}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {isDeleting ? "Deleting..." : "Delete Forever"}
             </Button>
           </div>
         </DialogContent>
