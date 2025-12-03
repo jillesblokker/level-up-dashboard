@@ -48,13 +48,10 @@ export function UserStorageInitializer() {
 
             migrateLegacyData(keysToMigrate);
 
-            // Cleanup legacy data to prevent leaks to other users
-            // Only do this if we are sure migration has happened (which migrateLegacyData handles internally)
-            // But since migrateLegacyData might have run in a previous session, we check here too
-            const migrationKey = `__migration_complete_${userId}`;
-            if (typeof window !== 'undefined' && localStorage.getItem(migrationKey)) {
-                cleanupLegacyData(keysToMigrate);
-            }
+            // ALWAYS cleanup legacy data after migration to prevent leaks to other users
+            // This runs for every user login to ensure global keys are removed
+            // Even if this user just migrated, we clean up to protect future users
+            cleanupLegacyData(keysToMigrate);
         } else {
             console.log('[UserStorageInitializer] User logged out');
 
