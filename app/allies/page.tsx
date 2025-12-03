@@ -64,6 +64,7 @@ export default function AlliesPage() {
     const [compareModalOpen, setCompareModalOpen] = useState(false);
     const [compareStats, setCompareStats] = useState<any>(null);
     const [myStats, setMyStats] = useState<any>(null);
+    const [coverImage, setCoverImage] = useState<string>('');
 
     useEffect(() => {
         fetchFriends();
@@ -79,7 +80,25 @@ export default function AlliesPage() {
             // For now, let's use placeholders or fetch if possible.
             questsCompleted: '?'
         });
+
+        // Load cover image from localStorage
+        const savedImage = localStorage.getItem('allies-cover-image');
+        if (savedImage) {
+            setCoverImage(savedImage);
+        }
     }, []);
+
+    const handleImageUpload = async (file: File) => {
+        const reader = new FileReader();
+        reader.onload = async (event: ProgressEvent<FileReader>) => {
+            if (event.target?.result) {
+                const imageData = event.target.result as string;
+                setCoverImage(imageData);
+                localStorage.setItem('allies-cover-image', imageData);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
 
     const fetchFriends = async () => {
         try {
@@ -217,8 +236,11 @@ export default function AlliesPage() {
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-0">
             <HeaderSection
-                title="Allies"
+                title="ALLIES"
                 subtitle="Manage your friends, compare stats, and send quests."
+                imageSrc={coverImage || ""}
+                canEdit={!!user?.id}
+                onImageUpload={handleImageUpload}
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">

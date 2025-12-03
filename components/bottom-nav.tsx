@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Crown, Compass, MapIcon, Trophy, User } from "lucide-react"
+import { Crown, Compass, MapIcon, Trophy, User, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { notificationService } from "@/lib/notification-service"
 import { useState, useEffect } from "react"
@@ -38,7 +38,7 @@ export function BottomNav() {
         { href: "/kingdom", label: "Kingdom", icon: Crown },
         { href: "/quests", label: "Tasks", icon: Compass },
         { href: "/realm", label: "Realm", icon: MapIcon },
-        { href: "/achievements", label: "Achievements", icon: Trophy },
+        { href: "/allies", label: "Allies", icon: Users },
         { href: "/profile", label: "Profile", icon: User },
     ]
 

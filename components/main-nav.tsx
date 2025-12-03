@@ -106,6 +106,21 @@ export function MainNav() {
               Character
             </Link>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href="/allies"
+              className={cn(
+                "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
+                pathname?.startsWith("/allies")
+                  ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
+                  : "text-white"
+              )}
+              aria-label="Navigate to Allies"
+              aria-current={pathname?.startsWith("/allies") ? "page" : undefined}
+            >
+              Allies
+            </Link>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </div>
