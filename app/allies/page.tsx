@@ -85,6 +85,9 @@ export default function AlliesPage() {
         const savedImage = localStorage.getItem('allies-cover-image');
         if (savedImage) {
             setCoverImage(savedImage);
+        } else {
+            // Use default allies cover image
+            setCoverImage('/images/allies-cover.jpg');
         }
     }, []);
 
