@@ -244,6 +244,7 @@ export default function AlliesPage() {
                 imageSrc={coverImage || ""}
                 canEdit={!!user?.id}
                 onImageUpload={handleImageUpload}
+                shouldRevealImage={true}
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
