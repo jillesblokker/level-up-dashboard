@@ -42,7 +42,8 @@ export function UserStorageInitializer() {
                 'streaks',
                 'property-timers',
                 'achievements',
-                'onboarding-state'
+                'onboarding-state',
+                'creature-store'  // Added to fix achievement leak
             ];
 
             migrateLegacyData(keysToMigrate);

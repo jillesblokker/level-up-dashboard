@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { grantAchievementRewards } from '@/lib/achievement-rewards';
+import { getCurrentUserId } from '@/lib/user-scoped-storage';
 
 export interface Creature {
   id: string;
@@ -452,7 +453,7 @@ export const useCreatureStore = create<CreatureStore>()(
               c.id === creatureId ? { ...c, discovered: true } : c
             ),
           }));
-          
+
           // Grant achievement rewards
           grantAchievementRewards(creatureId, creature.name);
         }
@@ -465,7 +466,10 @@ export const useCreatureStore = create<CreatureStore>()(
       },
     }),
     {
-      name: 'creature-store',
+      name: (() => {
+        const userId = getCurrentUserId();
+        return userId ? `user_${userId}_creature-store` : 'creature-store';
+      })(),
     }
   )
 ); 
