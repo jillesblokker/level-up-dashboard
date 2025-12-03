@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
@@ -11,11 +12,13 @@ if (supabaseUrl && supabaseServiceRoleKey) {
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      console.error('[API/quests/new] Missing authorization header');
+    // Get userId from Clerk
+    const { userId } = await auth();
+    if (!userId) {
+      console.error('[API/quests/new] Unauthorized - no userId');
       return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
+
     if (!supabase) {
       console.error('[API/quests/new] Supabase client not initialized');
       return new NextResponse(JSON.stringify({ error: 'Supabase client not initialized.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
@@ -37,6 +40,7 @@ export async function POST(request: Request) {
           difficulty,
           xp_reward: xp_reward ?? 0,
           gold_reward: gold_reward ?? 0,
+          user_id: userId, // Assign quest to the current user
         },
       ])
       .select()

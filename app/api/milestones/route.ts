@@ -6,10 +6,11 @@ import logger from '@/lib/logger';
 export async function GET(request: Request) {
   try {
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      // Fetch all global milestones (no user_id filter needed for global definitions)
+      // Fetch milestones (user's own + global milestones with user_id = NULL)
       const { data: allMilestones, error: milestonesError } = await supabase
         .from('milestones')
-        .select('*');
+        .select('*')
+        .or(`user_id.is.null,user_id.eq.${userId}`);
       if (milestonesError) {
         console.error('[Milestones] Error fetching milestones:', milestonesError);
         throw milestonesError;

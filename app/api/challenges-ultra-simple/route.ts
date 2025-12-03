@@ -14,11 +14,12 @@ export async function GET() {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Fetch all challenges
+        // Fetch all challenges (user's own + global challenges with user_id = NULL)
         console.log('[Challenges-Ultra-Simple] Fetching challenges...');
         const { data: allChallenges, error: challengesError } = await supabaseServer
             .from('challenges')
-            .select('*');
+            .select('*')
+            .or(`user_id.is.null,user_id.eq.${userId}`);
 
         if (challengesError) {
             console.error('[Challenges-Ultra-Simple] Challenges error:', challengesError);

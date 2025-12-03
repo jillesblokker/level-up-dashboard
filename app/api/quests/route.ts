@@ -61,10 +61,10 @@ export async function GET(request: Request) {
         supabaseClientInitialized: !!supabase,
       });
     }
-    
+
     // Secure Clerk JWT verification
     const userId = await getUserIdFromRequest(request);
-    
+
     // Diagnostic endpoint to check quest_completion table directly
     if (searchParams.get('debug') === '1') {
       try {
@@ -72,12 +72,12 @@ export async function GET(request: Request) {
           .from('quest_completion')
           .select('*')
           .eq('user_id', userId);
-        
+
         // Also fetch challenges to compare
         const { data: challenges, error: challengesError } = await supabase
           .from('challenges')
           .select('id, name, title');
-        
+
         // Show detailed comparison
         const detailedCompletions = debugCompletions?.map(completion => ({
           completion_id: completion.id,
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
           challenge_ids: challenges?.map(c => c.id).slice(0, 3), // First 3 challenge IDs
           challenge_names: challenges?.map(c => c.name).slice(0, 3) // First 3 challenge names
         })) || [];
-        
+
         return NextResponse.json({
           debug: true,
           userId,
@@ -122,15 +122,17 @@ export async function GET(request: Request) {
 
     // FIXED: Fetch from quests table (which has the actual quest definitions)
     // Fetching quest definitions from quests table
+    // Filter to show: user's own quests OR global quests (user_id IS NULL)
     const { data: quests, error: questsError } = await supabase
       .from('quests')
-      .select('*');
+      .select('*')
+      .or(`user_id.is.null,user_id.eq.${userId}`);
 
     if (questsError) {
       console.error('Quests fetch error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
-    
+
     console.log('[Quests API] Quests fetched:', quests?.length || 0);
     if (quests && quests.length > 0) {
       console.log('[Quests API] First few quests:', quests.slice(0, 3).map(q => ({
@@ -147,7 +149,7 @@ export async function GET(request: Request) {
     // FIXED: Use the simple, working approach that directly fetches quest completion data
     // This bypasses all the complex logic and uses the proven method
     console.log('[Quests API] Using proven simple approach...');
-    
+
     // Get user's quest completions from quest_completion table
     const { data: questCompletions, error: completionsError } = await supabase
       .from('quest_completion')
@@ -182,7 +184,7 @@ export async function GET(request: Request) {
       day: '2-digit'
     }).format(now);
     const today = netherlandsDate; // Format: YYYY-MM-DD
-    
+
     if (questCompletions) {
       console.log('[Quests API] Processing quest completions for daily habit tracking:', {
         totalRecords: questCompletions.length,
@@ -195,17 +197,17 @@ export async function GET(request: Request) {
           gold_earned: c.gold_earned
         }))
       });
-      
+
       // Group completions by quest_id to handle multiple completions of the same quest
       const questCompletionGroups = new Map();
-      
+
       questCompletions.forEach((completion: any) => {
         if (!questCompletionGroups.has(completion.quest_id)) {
           questCompletionGroups.set(completion.quest_id, []);
         }
         questCompletionGroups.get(completion.quest_id).push(completion);
       });
-      
+
       // For each quest, find TODAY'S completion record
       questCompletionGroups.forEach((completions, questId) => {
         // Find completion record for today
@@ -220,7 +222,7 @@ export async function GET(request: Request) {
           }).format(utcDate);
           return netherlandsDate === today;
         });
-        
+
         console.log('[Quests API] Processing quest for today:', {
           quest_id: questId,
           total_completions: completions.length,
@@ -231,7 +233,7 @@ export async function GET(request: Request) {
             gold_earned: todayCompletion.gold_earned
           } : null
         });
-        
+
         // Show as completed ONLY if there's a completion record for today with completed=true
         if (todayCompletion && todayCompletion.completed === true) {
           completedQuests.set(questId, {
@@ -255,7 +257,7 @@ export async function GET(request: Request) {
       const completion = completedQuests.get(quest.id);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
-      
+
       console.log('[Quests API] Mapping quest:', {
         questId: quest.id,
         questName: quest.name,
@@ -265,7 +267,7 @@ export async function GET(request: Request) {
         completionDate,
         completionData: completion
       });
-      
+
       return {
         id: quest.id,
         name: quest.name,
@@ -291,7 +293,7 @@ export async function GET(request: Request) {
     console.log('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
     console.log('[Quests API] Completed quests:', completedQuestsList);
     console.log('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
-    
+
     // Add cache-busting headers to prevent Next.js from caching the response
     const response = NextResponse.json(questsWithCompletions);
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -320,9 +322,9 @@ export async function POST(request: Request) {
     }
     const body = await request.json();
     const { title, category, questId } = questCompletionSchema.parse(body);
-    
+
     let actualQuestId: string;
-    
+
     if (questId) {
       // If questId is provided directly, use it
       actualQuestId = questId;
@@ -333,14 +335,14 @@ export async function POST(request: Request) {
         .select('id')
         .eq('name', title)
         .single();
-      
+
       if (questError || !questData) {
         return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
       }
-      
+
       actualQuestId = questData.id;
     }
-    
+
     // Create the quest completion using the actual quest ID
     const { data: questCompletion, error } = await supabase
       .from('quest_completion')
@@ -384,9 +386,9 @@ export async function PUT(request: Request) {
     }
     const body = await request.json();
     const { title: updateTitle, completed, questId } = questUpdateSchema.parse(body);
-    
+
     let actualQuestId: string;
-    
+
     if (questId) {
       // If questId is provided directly, use it
       actualQuestId = questId;
@@ -397,14 +399,14 @@ export async function PUT(request: Request) {
         .select('id')
         .eq('name', updateTitle)
         .single();
-      
+
       if (questError || !questData) {
         return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
       }
-      
+
       actualQuestId = questData.id;
     }
-    
+
     // Find or create quest completion
     const { data: completions, error: findError } = await supabase
       .from('quest_completion')
@@ -458,7 +460,7 @@ export async function PUT(request: Request) {
           experience: 50,
           gold: 25
         };
-        
+
         // Update character stats
         await supabase
           .from('character_stats')
@@ -467,7 +469,7 @@ export async function PUT(request: Request) {
             gold: (character as any)['gold'] + defaultRewards.gold
           })
           .eq('user_id', userId);
-        
+
         // CRITICAL FIX: Update quest_completion with XP and gold earned
         try {
           await supabase
@@ -486,7 +488,7 @@ export async function PUT(request: Request) {
             console.warn('[Quest API] Could not add missing columns:', rpcError);
           }
         }
-        
+
         // Log experience and gold rewards
         await grantReward({
           userId,
