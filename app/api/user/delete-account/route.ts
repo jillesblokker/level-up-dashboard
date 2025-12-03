@@ -25,8 +25,10 @@ export async function DELETE() {
         const tablesToClean = [
             'character_stats',
             'quest_completion',
+            'quest_progress',     // Added
             'challenge_completion',
             'milestone_completion',
+            'milestone_progress', // Added
             'quests',           // User's custom quests
             'challenges',       // User's custom challenges (if any)
             'milestones',       // User's custom milestones (if any)
@@ -34,11 +36,16 @@ export async function DELETE() {
             'property_timers',
             'realm_grids',
             'realm_tiles',
+            'tile_inventory',   // Added
             'inventory_items',
             'achievements',
             'kingdom_events',
+            'kingdom_event_log', // Added
             'quest_favorites',
             'game_settings',
+            'user_preferences',  // Added
+            'image_descriptions', // Added
+            'users',             // Added (custom users table if exists)
         ];
 
         // Delete user data from all tables
