@@ -43,6 +43,14 @@ export async function GET(request: Request) {
             limit: 100,
         });
 
+        // Fetch character stats for titles and last_seen
+        const { data: statsData } = await supabaseServer
+            .from('character_stats')
+            .select('user_id, title, last_seen')
+            .in('user_id', friendIds);
+
+        const statsMap = new Map(statsData?.map(s => [s.user_id, s]) || []);
+
         // Map users to a lookup map
         const userMap = new Map(users.data.map(u => [u.id, u]));
 
@@ -65,6 +73,8 @@ export async function GET(request: Request) {
                 status: f.status,
                 isSender, // To know if I sent the request or received it
                 createdAt: f.created_at,
+                title: statsMap.get(otherId)?.title,
+                lastSeen: statsMap.get(otherId)?.last_seen
             };
 
             if (f.status === 'accepted') {

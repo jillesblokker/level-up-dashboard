@@ -4,9 +4,11 @@ import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -19,6 +21,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCharacterStats } from "@/lib/character-stats-manager"
 import { calculateLevelFromExperience } from "@/types/character"
+import { AchievementsModal } from "@/components/achievements-modal"
+import { GiftModal } from "@/components/gift-modal"
 
 interface Friend {
     id: string; // Friendship ID
@@ -28,6 +32,8 @@ interface Friend {
     status: 'accepted' | 'pending';
     isSender: boolean;
     createdAt?: string;
+    title?: string;
+    lastSeen?: string;
     stats?: {
         level: number;
         gold: number;
@@ -94,8 +100,17 @@ export default function AlliesPage() {
     // Comparison Modal state
     const [compareModalOpen, setCompareModalOpen] = useState(false);
     const [compareStats, setCompareStats] = useState<any>(null);
-    const [myStats, setMyStats] = useState<any>(null);
+    const [myStats, setMyStats] = useState<any>({
+        level: 1,
+        gold: 0,
+        xp: 0,
+        quests: { total: 0, breakdown: {} },
+        challenges: { total: 0, breakdown: {} },
+        milestones: { total: 0, breakdown: {} }
+    });
     const [coverImage, setCoverImage] = useState<string>('');
+    const [achievementsOpen, setAchievementsOpen] = useState(false);
+    const [giftModalOpen, setGiftModalOpen] = useState(false);
 
     useEffect(() => {
         if (user?.id) {
@@ -309,6 +324,13 @@ export default function AlliesPage() {
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
+                <div className="flex justify-end">
+                    <Button variant="outline" onClick={() => setAchievementsOpen(true)} className="gap-2 border-yellow-500/20 hover:bg-yellow-500/10 hover:text-yellow-600">
+                        <Trophy className="w-4 h-4 text-yellow-500" />
+                        Achievements
+                    </Button>
+                </div>
+
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-3 mb-8">
                         <TabsTrigger value="allies" className="flex items-center gap-2">
@@ -353,12 +375,28 @@ export default function AlliesPage() {
                                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
                                                 {/* Avatar and Info */}
                                                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                    <Avatar className="h-14 w-14 border-2 border-primary/20 flex-shrink-0">
-                                                        <AvatarImage src={friend.imageUrl} />
-                                                        <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                    </Avatar>
+                                                    <div className="relative">
+                                                        <Avatar className="h-14 w-14 border-2 border-primary/20 flex-shrink-0">
+                                                            <AvatarImage src={friend.imageUrl} />
+                                                            <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                        </Avatar>
+                                                        {/* Status Indicator */}
+                                                        <div className={cn(
+                                                            "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background",
+                                                            !friend.lastSeen ? "bg-gray-400" :
+                                                                (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-green-500 animate-pulse" :
+                                                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-yellow-500" : "bg-gray-400"
+                                                        )} title={friend.lastSeen ? `Last seen: ${new Date(friend.lastSeen).toLocaleString()}` : "Offline"} />
+                                                    </div>
                                                     <div className="min-w-0 flex-1">
-                                                        <h4 className="font-semibold text-lg truncate">{friend.username}</h4>
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className="font-semibold text-lg truncate">{friend.username}</h4>
+                                                            {friend.title && (
+                                                                <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
+                                                                    {friend.title}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                                                             <Users className="w-3 h-3" />
                                                             Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString()}
@@ -383,7 +421,19 @@ export default function AlliesPage() {
                                                         className="flex-1 sm:flex-none"
                                                     >
                                                         <Scroll className="w-4 h-4 mr-2" />
-                                                        Send Quest
+                                                        Quest
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        onClick={() => {
+                                                            setSelectedFriend(friend);
+                                                            setGiftModalOpen(true);
+                                                        }}
+                                                        className="flex-1 sm:flex-none"
+                                                    >
+                                                        <Gift className="w-4 h-4 mr-2" />
+                                                        Gift
                                                     </Button>
                                                 </div>
                                             </div>

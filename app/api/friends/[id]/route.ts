@@ -71,14 +71,52 @@ export async function PUT(
                     accepterName: recipientName,
                     friendshipId: friendshipId
                 }
+            }
             });
 
-        return NextResponse.json({ success: true, status: 'accepted' });
+    // Check Achievements for both users
+    try {
+        const { AchievementManager } = await import('@/lib/achievement-manager');
+        const achievementManager = new AchievementManager(supabaseServer);
 
-    } catch (error) {
-        console.error('Error responding to friend request:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        // Count friends for recipient (current user)
+        const { count: recipientFriendCount } = await supabaseServer
+            .from('friends')
+            .select('*', { count: 'exact', head: true })
+            .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+            .eq('status', 'accepted');
+
+        // Count friends for sender
+        const { count: senderFriendCount } = await supabaseServer
+            .from('friends')
+            .select('*', { count: 'exact', head: true })
+            .or(`user_id.eq.${friendship.user_id},friend_id.eq.${friendship.user_id}`)
+            .eq('status', 'accepted');
+
+        // Check recipient achievements
+        if (recipientFriendCount) {
+            await achievementManager.checkAndUnlock(userId, 'first_friend', recipientFriendCount);
+            await achievementManager.checkAndUnlock(userId, 'five_friends', recipientFriendCount);
+            await achievementManager.checkAndUnlock(userId, 'ten_friends', recipientFriendCount);
+        }
+
+        // Check sender achievements
+        if (senderFriendCount) {
+            await achievementManager.checkAndUnlock(friendship.user_id, 'first_friend', senderFriendCount);
+            await achievementManager.checkAndUnlock(friendship.user_id, 'five_friends', senderFriendCount);
+            await achievementManager.checkAndUnlock(friendship.user_id, 'ten_friends', senderFriendCount);
+        }
+    } catch (achError) {
+        console.error('Error checking achievements:', achError);
+        // Don't fail the request if achievements fail
     }
+
+    return NextResponse.json({ success: true, status: 'accepted' });
+
+} catch (error) {
+    console.error('Error responding to friend request:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+}
 }
 
 // DELETE /api/friends/[id] - Unfriend

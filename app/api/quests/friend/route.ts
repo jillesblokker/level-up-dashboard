@@ -75,6 +75,27 @@ export async function POST(request: Request) {
                 }
             });
 
+        // Check Achievements for sender
+        try {
+            const { AchievementManager } = await import('@/lib/achievement-manager');
+            const achievementManager = new AchievementManager(supabaseServer);
+
+            // Count quests sent by user
+            const { count: sentCount } = await supabaseServer
+                .from('quests')
+                .select('*', { count: 'exact', head: true })
+                .eq('sender_id', userId)
+                .eq('is_friend_quest', true);
+
+            if (sentCount) {
+                await achievementManager.checkAndUnlock(userId, 'first_quest_sent', sentCount);
+                await achievementManager.checkAndUnlock(userId, 'five_quests_sent', sentCount);
+                await achievementManager.checkAndUnlock(userId, 'ten_quests_sent', sentCount);
+            }
+        } catch (achError) {
+            console.error('Error checking achievements:', achError);
+        }
+
         return NextResponse.json({ success: true, quest });
 
     } catch (error) {
