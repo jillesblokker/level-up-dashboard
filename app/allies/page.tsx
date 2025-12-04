@@ -149,10 +149,19 @@ export default function AlliesPage() {
                 setSearchResults(prev => prev.filter(u => u.id !== targetUserId));
             } else {
                 const error = await res.json();
-                toast({ title: "Error", description: error.error, variant: "destructive" });
+                if (res.status === 500) {
+                    toast({
+                        title: "System Update Required",
+                        description: "The social features database tables are missing. Please run the migration script.",
+                        variant: "destructive",
+                        duration: 10000
+                    });
+                } else {
+                    toast({ title: "Error", description: error.error || "Failed to send request", variant: "destructive" });
+                }
             }
         } catch (error) {
-            toast({ title: "Error", description: "Failed to send request", variant: "destructive" });
+            toast({ title: "Error", description: "Failed to send request. Check console for details.", variant: "destructive" });
         }
     };
 

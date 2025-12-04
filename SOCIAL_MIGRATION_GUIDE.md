@@ -26,6 +26,14 @@ psql "postgresql://postgres:[YOUR-PASSWORD]@[YOUR-PROJECT-REF].supabase.co:5432/
   -f migrations/add-social-features.sql
 ```
 
+### Option 3: Using the Migration Script (Node.js)
+
+If you have your `DATABASE_URL` in `.env.local`, you can run:
+
+```bash
+node scripts/migrate-social.js
+```
+
 ## What This Migration Creates
 
 1. **`friends` table** - Stores friend relationships
