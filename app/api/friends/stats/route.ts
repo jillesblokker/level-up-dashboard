@@ -35,33 +35,69 @@ export async function GET(request: Request) {
             .eq('user_id', friendId)
             .single();
 
-        // 3. Fetch Completion Counts
-        const { count: questsCompleted } = await supabaseServer
+        // 3. Fetch Detailed Breakdowns
+
+        // Quests
+        const { data: quests } = await supabaseServer
+            .from('quests')
+            .select('id, category')
+            .or(`user_id.is.null,user_id.eq.${friendId}`);
+
+        const { data: questCompletions } = await supabaseServer
             .from('quest_completion')
-            .select('*', { count: 'exact', head: true })
+            .select('quest_id')
             .eq('user_id', friendId);
 
-        const { count: challengesCompleted } = await supabaseServer
+        // Challenges
+        const { data: challenges } = await supabaseServer
+            .from('challenges')
+            .select('id, category')
+            .or(`user_id.is.null,user_id.eq.${friendId}`);
+
+        const { data: challengeCompletions } = await supabaseServer
             .from('challenge_completion')
-            .select('*', { count: 'exact', head: true })
+            .select('challenge_id')
             .eq('user_id', friendId);
 
-        const { count: milestonesCompleted } = await supabaseServer
+        // Milestones
+        const { data: milestones } = await supabaseServer
+            .from('milestones')
+            .select('id, category')
+            .or(`user_id.is.null,user_id.eq.${friendId}`);
+
+        const { data: milestoneCompletions } = await supabaseServer
             .from('milestone_completion')
-            .select('*', { count: 'exact', head: true })
+            .select('milestone_id')
             .eq('user_id', friendId);
 
-        // 4. Fetch detailed breakdown (optional, can be added later)
-        // For now, just total counts and main stats
+        // Helper to calculate breakdown
+        const calculateBreakdown = (items: any[], completions: any[], idField: string) => {
+            const completedIds = new Set(completions?.map(c => c[idField]) || []);
+            const breakdown: Record<string, number> = {};
+            let total = 0;
+
+            items?.forEach(item => {
+                if (completedIds.has(item.id)) {
+                    breakdown[item.category] = (breakdown[item.category] || 0) + 1;
+                    total++;
+                }
+            });
+
+            return { total, breakdown };
+        };
+
+        const questStats = calculateBreakdown(quests || [], questCompletions || [], 'quest_id');
+        const challengeStats = calculateBreakdown(challenges || [], challengeCompletions || [], 'challenge_id');
+        const milestoneStats = calculateBreakdown(milestones || [], milestoneCompletions || [], 'milestone_id');
 
         return NextResponse.json({
             stats: {
                 level: stats?.level || 1,
                 xp: stats?.xp || 0,
                 gold: stats?.gold || 0,
-                questsCompleted: questsCompleted || 0,
-                challengesCompleted: challengesCompleted || 0,
-                milestonesCompleted: milestonesCompleted || 0,
+                quests: questStats,
+                challenges: challengeStats,
+                milestones: milestoneStats
             }
         });
 

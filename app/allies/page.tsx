@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -27,16 +27,44 @@ interface Friend {
     imageUrl: string;
     status: 'accepted' | 'pending';
     isSender: boolean;
-    createdAt?: string; // Added optional createdAt
+    createdAt?: string;
     stats?: {
         level: number;
         gold: number;
         xp: number;
-        questsCompleted: number;
-        challengesCompleted: number;
-        milestonesCompleted: number;
+        quests: { total: number; breakdown: Record<string, number> };
+        challenges: { total: number; breakdown: Record<string, number> };
+        milestones: { total: number; breakdown: Record<string, number> };
     };
 }
+
+const CATEGORY_ICONS: Record<string, any> = {
+    might: Sword,
+    knowledge: Book,
+    honor: Crown,
+    castle: Shield,
+    craft: Hammer,
+    vitality: Heart,
+    wellness: Zap,
+    social: Users,
+    creative: Star,
+    mental: Book,
+    physical: Sword
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+    might: "text-red-500",
+    knowledge: "text-blue-500",
+    honor: "text-amber-500",
+    castle: "text-slate-500",
+    craft: "text-orange-500",
+    vitality: "text-green-500",
+    wellness: "text-cyan-500",
+    social: "text-pink-500",
+    creative: "text-purple-500",
+    mental: "text-indigo-500",
+    physical: "text-rose-500"
+};
 
 export default function AlliesPage() {
     const { user } = useUser();
@@ -58,7 +86,9 @@ export default function AlliesPage() {
         title: "",
         description: "",
         difficulty: "medium",
-        category: "physical"
+        category: "physical",
+        xp: 50,
+        gold: 10
     });
 
     // Comparison Modal state
@@ -72,14 +102,13 @@ export default function AlliesPage() {
         // Load my stats
         const stats = getCharacterStats();
         const level = calculateLevelFromExperience(stats.experience);
-        // We also need quest completion counts, which might need an API call or we can just show basic stats for now
         setMyStats({
             level,
             gold: stats.gold,
             xp: stats.experience,
-            // For quests/challenges, we'd ideally fetch from API or store locally. 
-            // For now, let's use placeholders or fetch if possible.
-            questsCompleted: '?'
+            quests: { total: 0, breakdown: {} },
+            challenges: { total: 0, breakdown: {} },
+            milestones: { total: 0, breakdown: {} }
         });
 
         // Load cover image from localStorage
@@ -214,14 +243,21 @@ export default function AlliesPage() {
                 body: JSON.stringify({
                     friendId: selectedFriend.friendId,
                     ...questForm,
-                    rewards: { xp: 50, gold: 10 } // Default rewards for now
+                    rewards: { xp: questForm.xp, gold: questForm.gold }
                 })
             });
 
             if (res.ok) {
                 toast({ title: "Quest Sent", description: `Quest sent to ${selectedFriend.username}!` });
                 setQuestModalOpen(false);
-                setQuestForm({ title: "", description: "", difficulty: "medium", category: "physical" });
+                setQuestForm({
+                    title: "",
+                    description: "",
+                    difficulty: "medium",
+                    category: "physical",
+                    xp: 50,
+                    gold: 10
+                });
             } else {
                 toast({ title: "Error", description: "Failed to send quest", variant: "destructive" });
             }
@@ -438,7 +474,7 @@ export default function AlliesPage() {
 
             {/* SEND QUEST MODAL */}
             <Dialog open={questModalOpen} onOpenChange={setQuestModalOpen}>
-                <DialogContent>
+                <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle>Send Quest to {selectedFriend?.username}</DialogTitle>
                         <DialogDescription>Create a custom quest for your ally. They will receive a notification.</DialogDescription>
@@ -491,8 +527,39 @@ export default function AlliesPage() {
                                         <SelectItem value="mental">Mental</SelectItem>
                                         <SelectItem value="creative">Creative</SelectItem>
                                         <SelectItem value="social">Social</SelectItem>
+                                        <SelectItem value="might">Might</SelectItem>
+                                        <SelectItem value="knowledge">Knowledge</SelectItem>
+                                        <SelectItem value="honor">Honor</SelectItem>
+                                        <SelectItem value="castle">Castle</SelectItem>
+                                        <SelectItem value="craft">Craft</SelectItem>
+                                        <SelectItem value="vitality">Vitality</SelectItem>
+                                        <SelectItem value="wellness">Wellness</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-blue-500" /> XP Reward
+                                </Label>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    value={questForm.xp}
+                                    onChange={(e) => setQuestForm({ ...questForm, xp: parseInt(e.target.value) || 0 })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="flex items-center gap-2">
+                                    <Coins className="w-4 h-4 text-yellow-500" /> Gold Reward
+                                </Label>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    value={questForm.gold}
+                                    onChange={(e) => setQuestForm({ ...questForm, gold: parseInt(e.target.value) || 0 })}
+                                />
                             </div>
                         </div>
                     </div>
@@ -505,51 +572,253 @@ export default function AlliesPage() {
 
             {/* COMPARE MODAL */}
             <Dialog open={compareModalOpen} onOpenChange={setCompareModalOpen}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Ally Comparison</DialogTitle>
-                        <DialogDescription>Comparing your stats with {selectedFriend?.username}</DialogDescription>
+                        <DialogTitle className="text-2xl font-medieval text-center text-amber-500">Ally Comparison</DialogTitle>
+                        <DialogDescription className="text-center">
+                            Comparing your stats with <span className="font-bold text-primary">{selectedFriend?.username}</span>
+                        </DialogDescription>
                     </DialogHeader>
 
-                    {compareStats ? (
-                        <div className="grid grid-cols-3 gap-4 py-6">
-                            {/* YOU */}
-                            <div className="text-center space-y-2">
-                                <h4 className="font-bold text-primary">You</h4>
-                                <div className="p-4 bg-accent/10 rounded-lg h-16 flex flex-col justify-center">
-                                    <div className="text-2xl font-bold">{myStats?.level || '?'}</div>
+                    {compareStats && myStats ? (
+                        <div className="space-y-8 py-4">
+                            {/* MAIN STATS HEADER */}
+                            <div className="grid grid-cols-3 gap-4 items-center bg-accent/5 p-6 rounded-xl border border-border/50">
+                                {/* YOU */}
+                                <div className="text-center space-y-2">
+                                    <Avatar className="w-20 h-20 mx-auto border-4 border-primary/20">
+                                        <AvatarImage src={user?.imageUrl} />
+                                        <AvatarFallback>ME</AvatarFallback>
+                                    </Avatar>
+                                    <h4 className="font-bold text-lg">You</h4>
+                                    <Badge variant="outline" className="text-xs">Level {myStats.level}</Badge>
                                 </div>
-                                <div className="p-4 bg-accent/10 rounded-lg h-16 flex flex-col justify-center">
-                                    <div className="text-2xl font-bold text-yellow-500">{myStats?.gold || '?'}</div>
+
+                                {/* VS */}
+                                <div className="text-center space-y-4">
+                                    <div className="text-4xl font-medieval text-muted-foreground/50">VS</div>
                                 </div>
-                                <div className="p-4 bg-accent/10 rounded-lg h-16 flex flex-col justify-center">
-                                    <div className="text-2xl font-bold text-blue-500">{myStats?.questsCompleted || '?'}</div>
+
+                                {/* FRIEND */}
+                                <div className="text-center space-y-2">
+                                    <Avatar className="w-20 h-20 mx-auto border-4 border-primary/20">
+                                        <AvatarImage src={selectedFriend?.imageUrl} />
+                                        <AvatarFallback>{selectedFriend?.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    <h4 className="font-bold text-lg">{selectedFriend?.username}</h4>
+                                    <Badge variant="outline" className="text-xs">Level {compareStats.level}</Badge>
                                 </div>
                             </div>
 
-                            {/* METRIC LABELS */}
-                            <div className="space-y-4 flex flex-col justify-center text-center text-sm font-medium text-muted-foreground">
-                                <div className="h-16 flex items-center justify-center">Level</div>
-                                <div className="h-16 flex items-center justify-center">Gold Earned</div>
-                                <div className="h-16 flex items-center justify-center">Quests Completed</div>
-                            </div>
+                            {/* DETAILED STATS TABS */}
+                            <Tabs defaultValue="overview" className="w-full">
+                                <TabsList className="grid w-full grid-cols-4 mb-8">
+                                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                                    <TabsTrigger value="quests">Quests</TabsTrigger>
+                                    <TabsTrigger value="challenges">Challenges</TabsTrigger>
+                                    <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                                </TabsList>
 
-                            {/* FRIEND */}
-                            <div className="text-center space-y-2">
-                                <h4 className="font-bold text-primary">{selectedFriend?.username}</h4>
-                                <div className="p-4 bg-accent/10 rounded-lg h-16 flex flex-col justify-center">
-                                    <div className="text-2xl font-bold">{compareStats.level}</div>
-                                </div>
-                                <div className="p-4 bg-accent/10 rounded-lg h-16 flex flex-col justify-center">
-                                    <div className="text-2xl font-bold text-yellow-500">{compareStats.gold}</div>
-                                </div>
-                                <div className="p-4 bg-accent/10 rounded-lg h-16 flex flex-col justify-center">
-                                    <div className="text-2xl font-bold text-blue-500">{compareStats.questsCompleted}</div>
-                                </div>
-                            </div>
+                                {/* OVERVIEW TAB */}
+                                <TabsContent value="overview" className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {/* XP */}
+                                        <Card>
+                                            <CardContent className="pt-6 text-center space-y-2">
+                                                <Star className="w-8 h-8 mx-auto text-blue-500" />
+                                                <div className="text-sm text-muted-foreground">Total XP</div>
+                                                <div className="flex justify-between items-center px-4 pt-2">
+                                                    <span className="font-bold">{myStats.xp.toLocaleString()}</span>
+                                                    <span className="text-xs text-muted-foreground">vs</span>
+                                                    <span className="font-bold text-primary">{compareStats.xp.toLocaleString()}</span>
+                                                </div>
+                                                <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                    <div className="bg-blue-500 h-full" style={{ width: `${(myStats.xp / (myStats.xp + compareStats.xp)) * 100}%` }} />
+                                                    <div className="bg-primary h-full" style={{ width: `${(compareStats.xp / (myStats.xp + compareStats.xp)) * 100}%` }} />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* GOLD */}
+                                        <Card>
+                                            <CardContent className="pt-6 text-center space-y-2">
+                                                <Coins className="w-8 h-8 mx-auto text-yellow-500" />
+                                                <div className="text-sm text-muted-foreground">Total Gold</div>
+                                                <div className="flex justify-between items-center px-4 pt-2">
+                                                    <span className="font-bold">{myStats.gold.toLocaleString()}</span>
+                                                    <span className="text-xs text-muted-foreground">vs</span>
+                                                    <span className="font-bold text-primary">{compareStats.gold.toLocaleString()}</span>
+                                                </div>
+                                                <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                    <div className="bg-yellow-500 h-full" style={{ width: `${(myStats.gold / (myStats.gold + compareStats.gold)) * 100}%` }} />
+                                                    <div className="bg-primary h-full" style={{ width: `${(compareStats.gold / (myStats.gold + compareStats.gold)) * 100}%` }} />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* TOTAL COMPLETIONS */}
+                                        <Card>
+                                            <CardContent className="pt-6 text-center space-y-2">
+                                                <Trophy className="w-8 h-8 mx-auto text-amber-500" />
+                                                <div className="text-sm text-muted-foreground">Total Completions</div>
+                                                <div className="flex justify-between items-center px-4 pt-2">
+                                                    <span className="font-bold">
+                                                        {(myStats.quests?.total || 0) + (myStats.challenges?.total || 0) + (myStats.milestones?.total || 0)}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">vs</span>
+                                                    <span className="font-bold text-primary">
+                                                        {(compareStats.quests?.total || 0) + (compareStats.challenges?.total || 0) + (compareStats.milestones?.total || 0)}
+                                                    </span>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </TabsContent>
+
+                                {/* QUESTS TAB */}
+                                <TabsContent value="quests" className="space-y-6">
+                                    <div className="text-center mb-6">
+                                        <h3 className="text-xl font-bold flex items-center justify-center gap-2">
+                                            <Scroll className="w-6 h-6 text-primary" />
+                                            Quests Completed
+                                        </h3>
+                                        <div className="flex justify-center gap-8 mt-2 text-lg">
+                                            <div>You: <span className="font-bold">{myStats.quests?.total || 0}</span></div>
+                                            <div>{selectedFriend?.username}: <span className="font-bold text-primary">{compareStats.quests?.total || 0}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {Object.keys(CATEGORY_ICONS).map(category => {
+                                            const myCount = myStats.quests?.breakdown?.[category] || 0;
+                                            const friendCount = compareStats.quests?.breakdown?.[category] || 0;
+                                            if (myCount === 0 && friendCount === 0) return null;
+
+                                            const Icon = CATEGORY_ICONS[category] || Star;
+                                            const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+
+                                            return (
+                                                <div key={category} className="bg-card p-4 rounded-lg border flex items-center gap-4">
+                                                    <div className={`p-3 rounded-full bg-accent/10 ${colorClass}`}>
+                                                        <Icon className="w-6 h-6" />
+                                                    </div>
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="flex justify-between items-end">
+                                                            <span className="capitalize font-medium">{category}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-sm">
+                                                            <span className="w-8 text-right font-bold">{myCount}</span>
+                                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                                <div className={`h-full opacity-50 ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(myCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                                <div className={`h-full ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(friendCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                            </div>
+                                                            <span className={`w-8 font-bold ${colorClass}`}>{friendCount}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </TabsContent>
+
+                                {/* CHALLENGES TAB */}
+                                <TabsContent value="challenges" className="space-y-6">
+                                    <div className="text-center mb-6">
+                                        <h3 className="text-xl font-bold flex items-center justify-center gap-2">
+                                            <Sword className="w-6 h-6 text-red-500" />
+                                            Challenges Completed
+                                        </h3>
+                                        <div className="flex justify-center gap-8 mt-2 text-lg">
+                                            <div>You: <span className="font-bold">{myStats.challenges?.total || 0}</span></div>
+                                            <div>{selectedFriend?.username}: <span className="font-bold text-primary">{compareStats.challenges?.total || 0}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {Object.keys(CATEGORY_ICONS).map(category => {
+                                            const myCount = myStats.challenges?.breakdown?.[category] || 0;
+                                            const friendCount = compareStats.challenges?.breakdown?.[category] || 0;
+                                            if (myCount === 0 && friendCount === 0) return null;
+
+                                            const Icon = CATEGORY_ICONS[category] || Star;
+                                            const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+
+                                            return (
+                                                <div key={category} className="bg-card p-4 rounded-lg border flex items-center gap-4">
+                                                    <div className={`p-3 rounded-full bg-accent/10 ${colorClass}`}>
+                                                        <Icon className="w-6 h-6" />
+                                                    </div>
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="flex justify-between items-end">
+                                                            <span className="capitalize font-medium">{category}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-sm">
+                                                            <span className="w-8 text-right font-bold">{myCount}</span>
+                                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                                <div className={`h-full opacity-50 ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(myCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                                <div className={`h-full ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(friendCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                            </div>
+                                                            <span className={`w-8 font-bold ${colorClass}`}>{friendCount}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </TabsContent>
+
+                                {/* MILESTONES TAB */}
+                                <TabsContent value="milestones" className="space-y-6">
+                                    <div className="text-center mb-6">
+                                        <h3 className="text-xl font-bold flex items-center justify-center gap-2">
+                                            <Trophy className="w-6 h-6 text-amber-500" />
+                                            Milestones Achieved
+                                        </h3>
+                                        <div className="flex justify-center gap-8 mt-2 text-lg">
+                                            <div>You: <span className="font-bold">{myStats.milestones?.total || 0}</span></div>
+                                            <div>{selectedFriend?.username}: <span className="font-bold text-primary">{compareStats.milestones?.total || 0}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {Object.keys(CATEGORY_ICONS).map(category => {
+                                            const myCount = myStats.milestones?.breakdown?.[category] || 0;
+                                            const friendCount = compareStats.milestones?.breakdown?.[category] || 0;
+                                            if (myCount === 0 && friendCount === 0) return null;
+
+                                            const Icon = CATEGORY_ICONS[category] || Star;
+                                            const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+
+                                            return (
+                                                <div key={category} className="bg-card p-4 rounded-lg border flex items-center gap-4">
+                                                    <div className={`p-3 rounded-full bg-accent/10 ${colorClass}`}>
+                                                        <Icon className="w-6 h-6" />
+                                                    </div>
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="flex justify-between items-end">
+                                                            <span className="capitalize font-medium">{category}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-sm">
+                                                            <span className="w-8 text-right font-bold">{myCount}</span>
+                                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                                <div className={`h-full opacity-50 ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(myCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                                <div className={`h-full ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(friendCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                            </div>
+                                                            <span className={`w-8 font-bold ${colorClass}`}>{friendCount}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
                         </div>
                     ) : (
-                        <div className="py-12 text-center">Loading stats...</div>
+                        <div className="py-12 text-center flex flex-col items-center justify-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                            <p className="text-muted-foreground">Summoning stats from the archives...</p>
+                        </div>
                     )}
                 </DialogContent>
             </Dialog>
