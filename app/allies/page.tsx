@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -270,8 +271,15 @@ export default function AlliesPage() {
                     <TabsContent value="allies" className="space-y-4">
                         {friends.length === 0 ? (
                             <Card className="text-center p-8">
-                                <CardContent className="pt-6">
-                                    <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                                <CardContent className="pt-6 flex flex-col items-center">
+                                    <div className="relative w-48 h-48 mb-6">
+                                        <Image
+                                            src="/images/empty-states/allies.png"
+                                            alt="No allies yet"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
                                     <h3 className="text-lg font-semibold mb-2">No Allies Yet</h3>
                                     <p className="text-muted-foreground mb-4">Add friends to compare stats and send quests!</p>
                                     <Button onClick={() => setActiveTab("add")}>Find Friends</Button>
@@ -342,6 +350,19 @@ export default function AlliesPage() {
                                             </Button>
                                         </div>
                                     ))}
+                                    {searchResults.length === 0 && !searchQuery && !isSearching && (
+                                        <div className="text-center py-8 flex flex-col items-center">
+                                            <div className="relative w-40 h-40 mb-4 opacity-80">
+                                                <Image
+                                                    src="/images/empty-states/search.png"
+                                                    alt="Search for friends"
+                                                    fill
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                            <p className="text-muted-foreground">Search for your friends by username to add them to your allies.</p>
+                                        </div>
+                                    )}
                                     {searchResults.length === 0 && searchQuery && !isSearching && (
                                         <p className="text-center text-muted-foreground py-4">No users found matching &quot;{searchQuery}&quot;</p>
                                     )}
@@ -353,8 +374,15 @@ export default function AlliesPage() {
                     {/* REQUESTS TAB */}
                     <TabsContent value="requests" className="space-y-4">
                         {requests.length === 0 ? (
-                            <div className="text-center py-12 text-muted-foreground">
-                                <Mail className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                            <div className="text-center py-12 text-muted-foreground flex flex-col items-center">
+                                <div className="relative w-40 h-40 mb-4 opacity-80">
+                                    <Image
+                                        src="/images/empty-states/requests.png"
+                                        alt="No requests"
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
                                 <p>No pending friend requests.</p>
                             </div>
                         ) : (
