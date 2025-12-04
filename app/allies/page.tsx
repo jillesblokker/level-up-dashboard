@@ -98,28 +98,43 @@ export default function AlliesPage() {
     const [coverImage, setCoverImage] = useState<string>('');
 
     useEffect(() => {
-        fetchFriends();
-        // Load my stats
-        const stats = getCharacterStats();
-        const level = calculateLevelFromExperience(stats.experience);
-        setMyStats({
-            level,
-            gold: stats.gold,
-            xp: stats.experience,
-            quests: { total: 0, breakdown: {} },
-            challenges: { total: 0, breakdown: {} },
-            milestones: { total: 0, breakdown: {} }
-        });
+        if (user?.id) {
+            fetchFriends();
+            fetchMyStats();
+        }
 
         // Load cover image from localStorage
         const savedImage = localStorage.getItem('allies-cover-image');
         if (savedImage) {
             setCoverImage(savedImage);
         } else {
-            // Use default allies cover image
             setCoverImage('/images/allies-cover.jpg');
         }
-    }, []);
+    }, [user?.id]);
+
+    const fetchMyStats = async () => {
+        if (!user?.id) return;
+        try {
+            const res = await fetch(`/api/friends/stats?friendId=${user.id}`);
+            const data = await res.json();
+            if (res.ok) {
+                setMyStats(data.stats);
+            }
+        } catch (error) {
+            console.error("Error fetching my stats:", error);
+            // Fallback to local stats if API fails
+            const stats = getCharacterStats();
+            const level = calculateLevelFromExperience(stats.experience);
+            setMyStats({
+                level,
+                gold: stats.gold,
+                xp: stats.experience,
+                quests: { total: 0, breakdown: {} },
+                challenges: { total: 0, breakdown: {} },
+                milestones: { total: 0, breakdown: {} }
+            });
+        }
+    };
 
     const handleImageUpload = async (file: File) => {
         const reader = new FileReader();
@@ -331,27 +346,46 @@ export default function AlliesPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 {friends.map(friend => (
-                                    <Card key={friend.id} className="overflow-hidden">
-                                        <CardContent className="p-4 flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-12 w-12 border-2 border-primary/20">
-                                                    <AvatarImage src={friend.imageUrl} />
-                                                    <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <h4 className="font-semibold">{friend.username}</h4>
-                                                    <p className="text-xs text-muted-foreground">Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString()}</p>
+                                    <Card key={friend.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                                        <CardContent className="p-0">
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
+                                                {/* Avatar and Info */}
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <Avatar className="h-14 w-14 border-2 border-primary/20 flex-shrink-0">
+                                                        <AvatarImage src={friend.imageUrl} />
+                                                        <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="min-w-0 flex-1">
+                                                        <h4 className="font-semibold text-lg truncate">{friend.username}</h4>
+                                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                            <Users className="w-3 h-3" />
+                                                            Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => openCompareModal(friend)}>
-                                                    <Target className="w-4 h-4 mr-1" /> Compare
-                                                </Button>
-                                                <Button size="sm" onClick={() => openQuestModal(friend)}>
-                                                    <Scroll className="w-4 h-4 mr-1" /> Send Quest
-                                                </Button>
+
+                                                {/* Action Buttons */}
+                                                <div className="flex gap-2 w-full sm:w-auto">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => openCompareModal(friend)}
+                                                        className="flex-1 sm:flex-none"
+                                                    >
+                                                        <Target className="w-4 h-4 mr-2" />
+                                                        Compare
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => openQuestModal(friend)}
+                                                        className="flex-1 sm:flex-none"
+                                                    >
+                                                        <Scroll className="w-4 h-4 mr-2" />
+                                                        Send Quest
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -688,37 +722,59 @@ export default function AlliesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {Object.keys(CATEGORY_ICONS).map(category => {
-                                            const myCount = myStats.quests?.breakdown?.[category] || 0;
-                                            const friendCount = compareStats.quests?.breakdown?.[category] || 0;
-                                            if (myCount === 0 && friendCount === 0) return null;
+                                    {(myStats.quests?.total || 0) === 0 && (compareStats.quests?.total || 0) === 0 ? (
+                                        <div className="text-center py-12 space-y-4">
+                                            <div className="relative w-32 h-32 mx-auto opacity-50">
+                                                <Image
+                                                    src="/images/empty-states/quests.png"
+                                                    alt="No quests completed"
+                                                    fill
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                            <p className="text-muted-foreground">No quests completed yet. Start your journey!</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {Object.keys(CATEGORY_ICONS).map(category => {
+                                                const myCount = myStats.quests?.breakdown?.[category] || 0;
+                                                const friendCount = compareStats.quests?.breakdown?.[category] || 0;
+                                                if (myCount === 0 && friendCount === 0) return null;
 
-                                            const Icon = CATEGORY_ICONS[category] || Star;
-                                            const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const Icon = CATEGORY_ICONS[category] || Star;
+                                                const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const total = myCount + friendCount;
+                                                const myPercent = total > 0 ? (myCount / total) * 100 : 0;
+                                                const friendPercent = total > 0 ? (friendCount / total) * 100 : 0;
 
-                                            return (
-                                                <div key={category} className="bg-card p-4 rounded-lg border flex items-center gap-4">
-                                                    <div className={`p-3 rounded-full bg-accent/10 ${colorClass}`}>
-                                                        <Icon className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="flex justify-between items-end">
-                                                            <span className="capitalize font-medium">{category}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-sm">
-                                                            <span className="w-8 text-right font-bold">{myCount}</span>
-                                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden flex">
-                                                                <div className={`h-full opacity-50 ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(myCount / (myCount + friendCount || 1)) * 100}%` }} />
-                                                                <div className={`h-full ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(friendCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                return (
+                                                    <div key={category} className="bg-card p-4 rounded-lg border">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <div className={`p-2 rounded-full bg-accent/10 ${colorClass}`}>
+                                                                <Icon className="w-5 h-5" />
                                                             </div>
-                                                            <span className={`w-8 font-bold ${colorClass}`}>{friendCount}</span>
+                                                            <span className="capitalize font-medium flex-1">{category}</span>
+                                                            <div className="flex items-center gap-4 text-sm">
+                                                                <span className="font-bold">{myCount}</span>
+                                                                <span className="text-muted-foreground">vs</span>
+                                                                <span className={`font-bold ${colorClass}`}>{friendCount}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="h-3 bg-secondary rounded-full overflow-hidden flex">
+                                                            <div
+                                                                className="bg-blue-500 h-full transition-all"
+                                                                style={{ width: `${myPercent}%` }}
+                                                            />
+                                                            <div
+                                                                className={`h-full transition-all ${colorClass.replace('text-', 'bg-')}`}
+                                                                style={{ width: `${friendPercent}%` }}
+                                                            />
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </TabsContent>
 
                                 {/* CHALLENGES TAB */}
@@ -734,37 +790,59 @@ export default function AlliesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {Object.keys(CATEGORY_ICONS).map(category => {
-                                            const myCount = myStats.challenges?.breakdown?.[category] || 0;
-                                            const friendCount = compareStats.challenges?.breakdown?.[category] || 0;
-                                            if (myCount === 0 && friendCount === 0) return null;
+                                    {(myStats.challenges?.total || 0) === 0 && (compareStats.challenges?.total || 0) === 0 ? (
+                                        <div className="text-center py-12 space-y-4">
+                                            <div className="relative w-32 h-32 mx-auto opacity-50">
+                                                <Image
+                                                    src="/images/empty-states/challenges.png"
+                                                    alt="No challenges completed"
+                                                    fill
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                            <p className="text-muted-foreground">No challenges completed yet. Face the trials!</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {Object.keys(CATEGORY_ICONS).map(category => {
+                                                const myCount = myStats.challenges?.breakdown?.[category] || 0;
+                                                const friendCount = compareStats.challenges?.breakdown?.[category] || 0;
+                                                if (myCount === 0 && friendCount === 0) return null;
 
-                                            const Icon = CATEGORY_ICONS[category] || Star;
-                                            const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const Icon = CATEGORY_ICONS[category] || Star;
+                                                const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const total = myCount + friendCount;
+                                                const myPercent = total > 0 ? (myCount / total) * 100 : 0;
+                                                const friendPercent = total > 0 ? (friendCount / total) * 100 : 0;
 
-                                            return (
-                                                <div key={category} className="bg-card p-4 rounded-lg border flex items-center gap-4">
-                                                    <div className={`p-3 rounded-full bg-accent/10 ${colorClass}`}>
-                                                        <Icon className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="flex justify-between items-end">
-                                                            <span className="capitalize font-medium">{category}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-sm">
-                                                            <span className="w-8 text-right font-bold">{myCount}</span>
-                                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden flex">
-                                                                <div className={`h-full opacity-50 ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(myCount / (myCount + friendCount || 1)) * 100}%` }} />
-                                                                <div className={`h-full ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(friendCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                return (
+                                                    <div key={category} className="bg-card p-4 rounded-lg border">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <div className={`p-2 rounded-full bg-accent/10 ${colorClass}`}>
+                                                                <Icon className="w-5 h-5" />
                                                             </div>
-                                                            <span className={`w-8 font-bold ${colorClass}`}>{friendCount}</span>
+                                                            <span className="capitalize font-medium flex-1">{category}</span>
+                                                            <div className="flex items-center gap-4 text-sm">
+                                                                <span className="font-bold">{myCount}</span>
+                                                                <span className="text-muted-foreground">vs</span>
+                                                                <span className={`font-bold ${colorClass}`}>{friendCount}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="h-3 bg-secondary rounded-full overflow-hidden flex">
+                                                            <div
+                                                                className="bg-blue-500 h-full transition-all"
+                                                                style={{ width: `${myPercent}%` }}
+                                                            />
+                                                            <div
+                                                                className={`h-full transition-all ${colorClass.replace('text-', 'bg-')}`}
+                                                                style={{ width: `${friendPercent}%` }}
+                                                            />
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </TabsContent>
 
                                 {/* MILESTONES TAB */}
@@ -780,37 +858,59 @@ export default function AlliesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {Object.keys(CATEGORY_ICONS).map(category => {
-                                            const myCount = myStats.milestones?.breakdown?.[category] || 0;
-                                            const friendCount = compareStats.milestones?.breakdown?.[category] || 0;
-                                            if (myCount === 0 && friendCount === 0) return null;
+                                    {(myStats.milestones?.total || 0) === 0 && (compareStats.milestones?.total || 0) === 0 ? (
+                                        <div className="text-center py-12 space-y-4">
+                                            <div className="relative w-32 h-32 mx-auto opacity-50">
+                                                <Image
+                                                    src="/images/empty-states/milestones.png"
+                                                    alt="No milestones achieved"
+                                                    fill
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                            <p className="text-muted-foreground">No milestones achieved yet. Reach for greatness!</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {Object.keys(CATEGORY_ICONS).map(category => {
+                                                const myCount = myStats.milestones?.breakdown?.[category] || 0;
+                                                const friendCount = compareStats.milestones?.breakdown?.[category] || 0;
+                                                if (myCount === 0 && friendCount === 0) return null;
 
-                                            const Icon = CATEGORY_ICONS[category] || Star;
-                                            const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const Icon = CATEGORY_ICONS[category] || Star;
+                                                const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const total = myCount + friendCount;
+                                                const myPercent = total > 0 ? (myCount / total) * 100 : 0;
+                                                const friendPercent = total > 0 ? (friendCount / total) * 100 : 0;
 
-                                            return (
-                                                <div key={category} className="bg-card p-4 rounded-lg border flex items-center gap-4">
-                                                    <div className={`p-3 rounded-full bg-accent/10 ${colorClass}`}>
-                                                        <Icon className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="flex justify-between items-end">
-                                                            <span className="capitalize font-medium">{category}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-sm">
-                                                            <span className="w-8 text-right font-bold">{myCount}</span>
-                                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden flex">
-                                                                <div className={`h-full opacity-50 ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(myCount / (myCount + friendCount || 1)) * 100}%` }} />
-                                                                <div className={`h-full ${colorClass.replace('text-', 'bg-')}`} style={{ width: `${(friendCount / (myCount + friendCount || 1)) * 100}%` }} />
+                                                return (
+                                                    <div key={category} className="bg-card p-4 rounded-lg border">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <div className={`p-2 rounded-full bg-accent/10 ${colorClass}`}>
+                                                                <Icon className="w-5 h-5" />
                                                             </div>
-                                                            <span className={`w-8 font-bold ${colorClass}`}>{friendCount}</span>
+                                                            <span className="capitalize font-medium flex-1">{category}</span>
+                                                            <div className="flex items-center gap-4 text-sm">
+                                                                <span className="font-bold">{myCount}</span>
+                                                                <span className="text-muted-foreground">vs</span>
+                                                                <span className={`font-bold ${colorClass}`}>{friendCount}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="h-3 bg-secondary rounded-full overflow-hidden flex">
+                                                            <div
+                                                                className="bg-blue-500 h-full transition-all"
+                                                                style={{ width: `${myPercent}%` }}
+                                                            />
+                                                            <div
+                                                                className={`h-full transition-all ${colorClass.replace('text-', 'bg-')}`}
+                                                                style={{ width: `${friendPercent}%` }}
+                                                            />
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </TabsContent>
                             </Tabs>
                         </div>

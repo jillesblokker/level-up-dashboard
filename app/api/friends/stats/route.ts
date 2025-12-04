@@ -16,16 +16,18 @@ export async function GET(request: Request) {
     }
 
     try {
-        // 1. Verify friendship
-        const { data: friendship } = await supabaseServer
-            .from('friends')
-            .select('*')
-            .or(`and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`)
-            .eq('status', 'accepted')
-            .single();
+        // 1. Verify friendship (skip if fetching own stats)
+        if (friendId !== userId) {
+            const { data: friendship } = await supabaseServer
+                .from('friends')
+                .select('*')
+                .or(`and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`)
+                .eq('status', 'accepted')
+                .single();
 
-        if (!friendship) {
-            return NextResponse.json({ error: 'Not friends with this user' }, { status: 403 });
+            if (!friendship) {
+                return NextResponse.json({ error: 'Not friends with this user' }, { status: 403 });
+            }
         }
 
         // 2. Fetch Character Stats (Level, Gold, XP)
