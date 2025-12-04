@@ -708,49 +708,53 @@ export default function AlliesPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {/* XP */}
                                         <Card>
-                                            <CardContent className="pt-6 text-center space-y-2">
+                                            <CardContent className="pt-6 text-center space-y-3">
                                                 <Star className="w-8 h-8 mx-auto text-blue-500" />
                                                 <div className="text-sm text-muted-foreground">Total XP</div>
-                                                <div className="flex justify-between items-center px-4 pt-2">
-                                                    <span className="font-bold">{myStats.xp.toLocaleString()}</span>
-                                                    <span className="text-xs text-muted-foreground">vs</span>
-                                                    <span className="font-bold text-primary">{compareStats.xp.toLocaleString()}</span>
-                                                </div>
-                                                <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
-                                                    <div className="bg-blue-500 h-full" style={{ width: `${(myStats.xp / (myStats.xp + compareStats.xp)) * 100}%` }} />
-                                                    <div className="bg-primary h-full" style={{ width: `${(compareStats.xp / (myStats.xp + compareStats.xp)) * 100}%` }} />
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <span className="font-bold text-lg">{myStats.xp.toLocaleString()}</span>
+                                                        <span className="text-xs text-muted-foreground">vs</span>
+                                                        <span className="font-bold text-lg text-primary">{compareStats.xp.toLocaleString()}</span>
+                                                    </div>
+                                                    <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                        <div className="bg-blue-500 h-full" style={{ width: `${(myStats.xp / (myStats.xp + compareStats.xp)) * 100}%` }} />
+                                                        <div className="bg-primary h-full" style={{ width: `${(compareStats.xp / (myStats.xp + compareStats.xp)) * 100}%` }} />
+                                                    </div>
                                                 </div>
                                             </CardContent>
                                         </Card>
 
                                         {/* GOLD */}
                                         <Card>
-                                            <CardContent className="pt-6 text-center space-y-2">
+                                            <CardContent className="pt-6 text-center space-y-3">
                                                 <Coins className="w-8 h-8 mx-auto text-yellow-500" />
                                                 <div className="text-sm text-muted-foreground">Total Gold</div>
-                                                <div className="flex justify-between items-center px-4 pt-2">
-                                                    <span className="font-bold">{myStats.gold.toLocaleString()}</span>
-                                                    <span className="text-xs text-muted-foreground">vs</span>
-                                                    <span className="font-bold text-primary">{compareStats.gold.toLocaleString()}</span>
-                                                </div>
-                                                <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
-                                                    <div className="bg-yellow-500 h-full" style={{ width: `${(myStats.gold / (myStats.gold + compareStats.gold)) * 100}%` }} />
-                                                    <div className="bg-primary h-full" style={{ width: `${(compareStats.gold / (myStats.gold + compareStats.gold)) * 100}%` }} />
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <span className="font-bold text-lg">{myStats.gold.toLocaleString()}</span>
+                                                        <span className="text-xs text-muted-foreground">vs</span>
+                                                        <span className="font-bold text-lg text-primary">{compareStats.gold.toLocaleString()}</span>
+                                                    </div>
+                                                    <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
+                                                        <div className="bg-yellow-500 h-full" style={{ width: `${(myStats.gold / (myStats.gold + compareStats.gold)) * 100}%` }} />
+                                                        <div className="bg-primary h-full" style={{ width: `${(compareStats.gold / (myStats.gold + compareStats.gold)) * 100}%` }} />
+                                                    </div>
                                                 </div>
                                             </CardContent>
                                         </Card>
 
                                         {/* TOTAL COMPLETIONS */}
                                         <Card>
-                                            <CardContent className="pt-6 text-center space-y-2">
+                                            <CardContent className="pt-6 text-center space-y-3">
                                                 <Trophy className="w-8 h-8 mx-auto text-amber-500" />
                                                 <div className="text-sm text-muted-foreground">Total Completions</div>
-                                                <div className="flex justify-between items-center px-4 pt-2">
-                                                    <span className="font-bold">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <span className="font-bold text-lg">
                                                         {(myStats.quests?.total || 0) + (myStats.challenges?.total || 0) + (myStats.milestones?.total || 0)}
                                                     </span>
                                                     <span className="text-xs text-muted-foreground">vs</span>
-                                                    <span className="font-bold text-primary">
+                                                    <span className="font-bold text-lg text-primary">
                                                         {(compareStats.quests?.total || 0) + (compareStats.challenges?.total || 0) + (compareStats.milestones?.total || 0)}
                                                     </span>
                                                 </div>
