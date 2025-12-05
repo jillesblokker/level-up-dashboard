@@ -194,6 +194,18 @@ export default function Page() {
               is_hidden: false,
               unlock_condition: 'Send 10 quests to friends'
             },
+            {
+              id: '112',
+              name: 'Grand Questmaster',
+              description: 'Send 10 quests to friends and earn the title of Questmaster',
+              category: 'social',
+              difficulty: 'hard',
+              xp_reward: 500,
+              gold_reward: 100,
+              image_url: '/images/achievements/112.png',
+              is_hidden: false,
+              unlock_condition: 'Send 10 quests to friends'
+            },
             // Ally achievements (107-111)
             {
               id: '107',
@@ -252,6 +264,18 @@ export default function Page() {
               xp_reward: 150,
               gold_reward: 75,
               image_url: '/images/achievements/111.png',
+              is_hidden: false,
+              unlock_condition: 'Send 10 quests to friends'
+            },
+            {
+              id: '112',
+              name: 'Grand Questmaster',
+              description: 'Send 10 quests to friends and earn the title of Questmaster',
+              category: 'social',
+              difficulty: 'hard',
+              xp_reward: 500,
+              gold_reward: 100,
+              image_url: '/images/achievements/112.png',
               is_hidden: false,
               unlock_condition: 'Send 10 quests to friends'
             }
@@ -553,6 +577,53 @@ export default function Page() {
                             <Image
                               src={achievement.image_url}
                               alt={monsterName}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={'/images/undiscovered.png'}
+                              alt="Undiscovered Achievement"
+                              fill
+                              className="object-cover opacity-50"
+                            />
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
+          {/* Alliance Achievements Section */}
+          {achievementDefinitions.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-amber-400 mb-4">Alliance Achievements</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="alliance-achievement-cards-grid">
+                {achievementDefinitions
+                  .filter(achievement => {
+                    // Only show alliance achievements (107-112)
+                    const achievementId = parseInt(achievement.id);
+                    return achievementId >= 107 && achievementId <= 112;
+                  })
+                  .map(achievement => {
+                    if (!achievement) return null;
+                    const unlocked = isUnlocked(achievement.id);
+                    const unlockDate = getUnlockDate(achievement.id);
+
+                    return (
+                      <Card
+                        key={achievement.id}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
+                        aria-label={`alliance-achievement-card-${achievement.id}`}
+                      >
+                        {/* Full-width/height image only */}
+                        <div className="absolute inset-0 w-full h-full">
+                          {unlocked ? (
+                            <Image
+                              src={achievement.image_url}
+                              alt={achievement.name}
                               fill
                               className="object-cover"
                             />
