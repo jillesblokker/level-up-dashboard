@@ -157,3 +157,41 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+// Delete a quest (only if owned by user)
+export async function DELETE(request: Request) {
+  logger.info(`🚨 ENDPOINT HIT - Method: ${request.method}, URL: ${request.url}`, 'QUESTS-COMPLETE DELETE');
+
+  try {
+    const userId = await getUserIdFromRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await request.json();
+    if (!id) {
+      return NextResponse.json({ error: 'Missing quest ID' }, { status: 400 });
+    }
+
+    logger.info(`Attempting to delete quest: ${id} for user ${userId}`, 'QUESTS-COMPLETE DELETE');
+
+    // Delete directly from quests table
+    // RLS should enforce ownership (user_id = auth.uid())
+    // ensuring users can't delete system quests or others' quests
+    const { error } = await supabase
+      .from('quests')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId); // Explicit check for safety
+
+    if (error) {
+      logger.error(`Error deleting quest: ${error.message}`, 'QUESTS-COMPLETE DELETE');
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error(`Error processing delete: ${error}`, 'QUESTS-COMPLETE DELETE');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
