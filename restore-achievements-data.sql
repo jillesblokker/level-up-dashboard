@@ -76,7 +76,14 @@ INSERT INTO achievement_definitions (id, name, description, category, difficulty
 -- Milestone Creatures
 ('104', 'Shello Discovered', 'Discover the cheerful turtle Shello', 'discovery', 'easy', 50, 25, '/images/creatures/104.png', 'Complete your first milestone'),
 ('105', 'Turtoisy Discovered', 'Discover the wise turtle Turtoisy', 'discovery', 'medium', 75, 50, '/images/creatures/105.png', 'Complete 5 milestones'),
-('106', 'Turtlo Discovered', 'Discover the legendary turtle Turtlo', 'discovery', 'hard', 100, 100, '/images/creatures/106.png', 'Complete 10 milestones');
+('106', 'Turtlo Discovered', 'Discover the legendary turtle Turtlo', 'discovery', 'hard', 100, 100, '/images/creatures/106.png', 'Complete 10 milestones'),
+-- Alliance Achievements
+('107', 'First Alliance', 'Add your first ally to your fellowship', 'social', 'easy', 50, 10, '/images/achievements/107.png', 'Add your first friend'),
+('108', 'Guild Founder', 'Gather 5 allies to your cause', 'social', 'medium', 100, 50, '/images/achievements/108.png', 'Add 5 friends'),
+('109', 'Fellowship Leader', 'Unite 10 allies under your banner', 'social', 'hard', 200, 100, '/images/achievements/109.png', 'Add 10 friends'),
+('110', 'Quest Giver', 'Send your first quest to an ally', 'social', 'easy', 50, 10, '/images/achievements/110.png', 'Send your first quest to a friend'),
+('111', 'Master Strategist', 'Send 10 quests to challenge your allies', 'social', 'hard', 150, 75, '/images/achievements/111.png', 'Send 5 quests to friends'),
+('112', 'Grand Questmaster', 'Send 10 quests to friends and earn the title of Questmaster', 'social', 'hard', 500, 100, '/images/achievements/112.png', 'Send 10 quests to friends');
 
 -- Insert sample achievement unlocks for testing (replace 'user_2z5XXhrBco0CJWC' with your actual user ID)
 -- You can modify these or remove them if you don't want sample data

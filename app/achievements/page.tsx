@@ -53,7 +53,96 @@ export default function Page() {
       try {
         const response = await fetch('/api/achievement-definitions');
         if (response.ok) {
-          const data = await response.json();
+          let data: AchievementDefinition[] = await response.json();
+
+          // Ensure alliance achievements (107-112) are present
+          const allianceIds = ['107', '108', '109', '110', '111', '112'];
+          const missingAlliance = allianceIds.some(id => !data.find(a => a.id === id));
+
+          if (missingAlliance) {
+            console.log('Missing alliance achievements in DB, merging fallback definitions');
+            // Hardcoded alliance achievements to merge
+            const allianceAchievements: AchievementDefinition[] = [
+              {
+                id: '107',
+                name: 'First Alliance',
+                description: 'Add your first ally to your fellowship',
+                category: 'social',
+                difficulty: 'easy',
+                xp_reward: 50,
+                gold_reward: 10,
+                image_url: '/images/achievements/107.png',
+                is_hidden: false,
+                unlock_condition: 'Add your first friend'
+              },
+              {
+                id: '108',
+                name: 'Guild Founder',
+                description: 'Gather 5 allies to your cause',
+                category: 'social',
+                difficulty: 'medium',
+                xp_reward: 100,
+                gold_reward: 50,
+                image_url: '/images/achievements/108.png',
+                is_hidden: false,
+                unlock_condition: 'Add 5 friends'
+              },
+              {
+                id: '109',
+                name: 'Fellowship Leader',
+                description: 'Unite 10 allies under your banner',
+                category: 'social',
+                difficulty: 'hard',
+                xp_reward: 200,
+                gold_reward: 100,
+                image_url: '/images/achievements/109.png',
+                is_hidden: false,
+                unlock_condition: 'Add 10 friends'
+              },
+              {
+                id: '110',
+                name: 'Quest Giver',
+                description: 'Send your first quest to an ally',
+                category: 'social',
+                difficulty: 'easy',
+                xp_reward: 50,
+                gold_reward: 10,
+                image_url: '/images/achievements/110.png',
+                is_hidden: false,
+                unlock_condition: 'Send your first quest to a friend'
+              },
+              {
+                id: '111',
+                name: 'Master Strategist',
+                description: 'Send 10 quests to challenge your allies',
+                category: 'social',
+                difficulty: 'hard',
+                xp_reward: 150,
+                gold_reward: 75,
+                image_url: '/images/achievements/111.png',
+                is_hidden: false,
+                unlock_condition: 'Send 5 quests to friends'
+              },
+              {
+                id: '112',
+                name: 'Grand Questmaster',
+                description: 'Send 10 quests to friends and earn the title of Questmaster',
+                category: 'social',
+                difficulty: 'hard',
+                xp_reward: 500,
+                gold_reward: 100,
+                image_url: '/images/achievements/112.png',
+                is_hidden: false,
+                unlock_condition: 'Send 10 quests to friends'
+              }
+            ];
+
+            // Merge unique definitions
+            const existingIds = new Set(data.map(a => a.id));
+            const toAdd = allianceAchievements.filter(a => !existingIds.has(a.id));
+            data = [...data, ...toAdd];
+          }
+
           // Fetched achievement definitions
           setAchievementDefinitions(data);
         } else {
