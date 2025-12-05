@@ -186,7 +186,23 @@ export async function DELETE(request: Request) {
       // Continue anyway, as we want to delete the quest
     }
 
-    // 2. Delete directly from quests table
+    // 2. Delete associated favorites
+    const { error: favError } = await supabase
+      .from('quest_favorites')
+      .delete()
+      .eq('quest_id', id);
+
+    if (favError) logger.warn(`Error deleting favorites: ${favError.message}`, 'QUESTS-COMPLETE DELETE');
+
+    // 3. Delete associated progress (if table exists)
+    const { error: progError } = await supabase
+      .from('quest_progress')
+      .delete()
+      .eq('quest_id', id);
+
+    if (progError) logger.warn(`Error deleting progress: ${progError.message}`, 'QUESTS-COMPLETE DELETE');
+
+    // 4. Delete directly from quests table
     // RLS should enforce ownership (user_id = auth.uid())
     // ensuring users can't delete system quests or others' quests
     const { error } = await supabase
