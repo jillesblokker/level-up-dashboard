@@ -97,7 +97,8 @@ INSERT INTO achievements (user_id, achievement_id, achievement_name, description
 ('user_2z5XXhrBco0CJWC', '004', 'Dolphio Discovered', 'Discover the playful water creature Dolphio', NOW() - INTERVAL '1 day');
 
 -- Set up proper constraints and indexes
-ALTER TABLE achievements ADD CONSTRAINT IF NOT EXISTS unique_user_achievement UNIQUE (user_id, achievement_id);
+ALTER TABLE achievements DROP CONSTRAINT IF EXISTS unique_user_achievement;
+ALTER TABLE achievements ADD CONSTRAINT unique_user_achievement UNIQUE (user_id, achievement_id);
 
 -- Enable RLS on both tables
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
