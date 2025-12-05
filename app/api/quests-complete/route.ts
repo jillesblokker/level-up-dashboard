@@ -168,7 +168,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await request.json();
+    const body = await request.json();
+    const id = body.id || body.questId;
+
     if (!id) {
       return NextResponse.json({ error: 'Missing quest ID' }, { status: 400 });
     }
