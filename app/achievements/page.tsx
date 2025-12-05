@@ -537,6 +537,53 @@ export default function Page() {
             </div>
           </div>
 
+          {/* Alliance Achievements Section */}
+          {achievementDefinitions.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-amber-400 mb-4">Alliance Achievements</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="alliance-achievement-cards-grid">
+                {achievementDefinitions
+                  .filter(achievement => {
+                    // Only show alliance achievements (107-112)
+                    const achievementId = parseInt(achievement.id);
+                    return achievementId >= 107 && achievementId <= 112;
+                  })
+                  .map(achievement => {
+                    if (!achievement) return null;
+                    const unlocked = isUnlocked(achievement.id);
+                    const unlockDate = getUnlockDate(achievement.id);
+
+                    return (
+                      <Card
+                        key={achievement.id}
+                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
+                        aria-label={`alliance-achievement-card-${achievement.id}`}
+                      >
+                        {/* Full-width/height image only */}
+                        <div className="absolute inset-0 w-full h-full">
+                          {unlocked ? (
+                            <Image
+                              src={achievement.image_url}
+                              alt={achievement.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={'/images/undiscovered.png'}
+                              alt="Undiscovered Achievement"
+                              fill
+                              className="object-cover opacity-50"
+                            />
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
           {/* New Monster Achievements Section */}
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
@@ -577,53 +624,6 @@ export default function Page() {
                             <Image
                               src={achievement.image_url}
                               alt={monsterName}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={'/images/undiscovered.png'}
-                              alt="Undiscovered Achievement"
-                              fill
-                              className="object-cover opacity-50"
-                            />
-                          )}
-                        </div>
-                      </Card>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
-
-          {/* Alliance Achievements Section */}
-          {achievementDefinitions.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">Alliance Achievements</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="alliance-achievement-cards-grid">
-                {achievementDefinitions
-                  .filter(achievement => {
-                    // Only show alliance achievements (107-112)
-                    const achievementId = parseInt(achievement.id);
-                    return achievementId >= 107 && achievementId <= 112;
-                  })
-                  .map(achievement => {
-                    if (!achievement) return null;
-                    const unlocked = isUnlocked(achievement.id);
-                    const unlockDate = getUnlockDate(achievement.id);
-
-                    return (
-                      <Card
-                        key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
-                        aria-label={`alliance-achievement-card-${achievement.id}`}
-                      >
-                        {/* Full-width/height image only */}
-                        <div className="absolute inset-0 w-full h-full">
-                          {unlocked ? (
-                            <Image
-                              src={achievement.image_url}
-                              alt={achievement.name}
                               fill
                               className="object-cover"
                             />
