@@ -114,7 +114,7 @@ export default function Page() {
               {
                 id: '111',
                 name: 'Master Strategist',
-                description: 'Send 10 quests to challenge your allies',
+                description: 'Send 5 quests to challenge your allies',
                 category: 'social',
                 difficulty: 'hard',
                 xp_reward: 150,
@@ -274,14 +274,14 @@ export default function Page() {
             {
               id: '111',
               name: 'Master Strategist',
-              description: 'Send 10 quests to challenge your allies',
+              description: 'Send 5 quests to challenge your allies',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 150,
               gold_reward: 75,
               image_url: '/images/achievements/111.png',
               is_hidden: false,
-              unlock_condition: 'Send 10 quests to friends'
+              unlock_condition: 'Send 5 quests to friends'
             },
             {
               id: '112',
@@ -295,79 +295,6 @@ export default function Page() {
               is_hidden: false,
               unlock_condition: 'Send 10 quests to friends'
             },
-            // Ally achievements (107-111)
-            {
-              id: '107',
-              name: 'First Alliance',
-              description: 'Add your first ally to your fellowship',
-              category: 'social',
-              difficulty: 'easy',
-              xp_reward: 50,
-              gold_reward: 10,
-              image_url: '/images/achievements/107.png',
-              is_hidden: false,
-              unlock_condition: 'Add your first friend'
-            },
-            {
-              id: '108',
-              name: 'Guild Founder',
-              description: 'Gather 5 allies to your cause',
-              category: 'social',
-              difficulty: 'medium',
-              xp_reward: 100,
-              gold_reward: 50,
-              image_url: '/images/achievements/108.png',
-              is_hidden: false,
-              unlock_condition: 'Add 5 friends'
-            },
-            {
-              id: '109',
-              name: 'Fellowship Leader',
-              description: 'Unite 10 allies under your banner',
-              category: 'social',
-              difficulty: 'hard',
-              xp_reward: 200,
-              gold_reward: 100,
-              image_url: '/images/achievements/109.png',
-              is_hidden: false,
-              unlock_condition: 'Add 10 friends'
-            },
-            {
-              id: '110',
-              name: 'Quest Giver',
-              description: 'Send your first quest to an ally',
-              category: 'social',
-              difficulty: 'easy',
-              xp_reward: 50,
-              gold_reward: 10,
-              image_url: '/images/achievements/110.png',
-              is_hidden: false,
-              unlock_condition: 'Send your first quest to a friend'
-            },
-            {
-              id: '111',
-              name: 'Master Strategist',
-              description: 'Send 10 quests to challenge your allies',
-              category: 'social',
-              difficulty: 'hard',
-              xp_reward: 150,
-              gold_reward: 75,
-              image_url: '/images/achievements/111.png',
-              is_hidden: false,
-              unlock_condition: 'Send 10 quests to friends'
-            },
-            {
-              id: '112',
-              name: 'Grand Questmaster',
-              description: 'Send 10 quests to friends and earn the title of Questmaster',
-              category: 'social',
-              difficulty: 'hard',
-              xp_reward: 500,
-              gold_reward: 100,
-              image_url: '/images/achievements/112.png',
-              is_hidden: false,
-              unlock_condition: 'Send 10 quests to friends'
-            }
           ];
           setAchievementDefinitions(fallbackDefinitions);
         }
