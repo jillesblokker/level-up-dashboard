@@ -133,125 +133,125 @@ export default function Page() {
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Fairy'
             },
-            // Ally achievements (207-211)
+            // Ally achievements (107-111)
             {
-              id: '207',
+              id: '107',
               name: 'First Alliance',
               description: 'Add your first ally to your fellowship',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
               gold_reward: 10,
-              image_url: '/images/achievements/207.png',
+              image_url: '/images/achievements/107.png',
               is_hidden: false,
               unlock_condition: 'Add your first friend'
             },
             {
-              id: '208',
+              id: '108',
               name: 'Guild Founder',
               description: 'Gather 5 allies to your cause',
               category: 'social',
               difficulty: 'medium',
               xp_reward: 100,
               gold_reward: 50,
-              image_url: '/images/achievements/208.png',
+              image_url: '/images/achievements/108.png',
               is_hidden: false,
               unlock_condition: 'Add 5 friends'
             },
             {
-              id: '209',
+              id: '109',
               name: 'Fellowship Leader',
               description: 'Unite 10 allies under your banner',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 200,
               gold_reward: 100,
-              image_url: '/images/achievements/209.png',
+              image_url: '/images/achievements/109.png',
               is_hidden: false,
               unlock_condition: 'Add 10 friends'
             },
             {
-              id: '210',
+              id: '110',
               name: 'Quest Giver',
               description: 'Send your first quest to an ally',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
               gold_reward: 10,
-              image_url: '/images/achievements/210.png',
+              image_url: '/images/achievements/110.png',
               is_hidden: false,
               unlock_condition: 'Send your first quest to a friend'
             },
             {
-              id: '211',
+              id: '111',
               name: 'Master Strategist',
               description: 'Send 10 quests to challenge your allies',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 150,
               gold_reward: 75,
-              image_url: '/images/achievements/211.png',
+              image_url: '/images/achievements/111.png',
               is_hidden: false,
               unlock_condition: 'Send 10 quests to friends'
             },
-            // Ally achievements (207-211)
+            // Ally achievements (107-111)
             {
-              id: '207',
+              id: '107',
               name: 'First Alliance',
               description: 'Add your first ally to your fellowship',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
               gold_reward: 10,
-              image_url: '/images/achievements/207.png',
+              image_url: '/images/achievements/107.png',
               is_hidden: false,
               unlock_condition: 'Add your first friend'
             },
             {
-              id: '208',
+              id: '108',
               name: 'Guild Founder',
               description: 'Gather 5 allies to your cause',
               category: 'social',
               difficulty: 'medium',
               xp_reward: 100,
               gold_reward: 50,
-              image_url: '/images/achievements/208.png',
+              image_url: '/images/achievements/108.png',
               is_hidden: false,
               unlock_condition: 'Add 5 friends'
             },
             {
-              id: '209',
+              id: '109',
               name: 'Fellowship Leader',
               description: 'Unite 10 allies under your banner',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 200,
               gold_reward: 100,
-              image_url: '/images/achievements/209.png',
+              image_url: '/images/achievements/109.png',
               is_hidden: false,
               unlock_condition: 'Add 10 friends'
             },
             {
-              id: '210',
+              id: '110',
               name: 'Quest Giver',
               description: 'Send your first quest to an ally',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
               gold_reward: 10,
-              image_url: '/images/achievements/210.png',
+              image_url: '/images/achievements/110.png',
               is_hidden: false,
               unlock_condition: 'Send your first quest to a friend'
             },
             {
-              id: '211',
+              id: '111',
               name: 'Master Strategist',
               description: 'Send 10 quests to challenge your allies',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 150,
               gold_reward: 75,
-              image_url: '/images/achievements/211.png',
+              image_url: '/images/achievements/111.png',
               is_hidden: false,
               unlock_condition: 'Send 10 quests to friends'
             }
@@ -553,53 +553,6 @@ export default function Page() {
                             <Image
                               src={achievement.image_url}
                               alt={monsterName}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={'/images/undiscovered.png'}
-                              alt="Undiscovered Achievement"
-                              fill
-                              className="object-cover opacity-50"
-                            />
-                          )}
-                        </div>
-                      </Card>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
-
-          {/* Ally Achievements Section */}
-          {achievementDefinitions.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">Alliance & Fellowship</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="ally-achievement-cards-grid">
-                {achievementDefinitions
-                  .filter(achievement => {
-                    // Only show ally achievements (207-211)
-                    const achievementId = parseInt(achievement.id);
-                    return achievementId >= 207 && achievementId <= 211;
-                  })
-                  .map(achievement => {
-                    if (!achievement) return null;
-                    const unlocked = isUnlocked(achievement.id);
-                    const unlockDate = getUnlockDate(achievement.id);
-
-                    return (
-                      <Card
-                        key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
-                        aria-label={`ally-achievement-card-${achievement.id}`}
-                      >
-                        {/* Full-width/height image only */}
-                        <div className="absolute inset-0 w-full h-full">
-                          {unlocked ? (
-                            <Image
-                              src={achievement.image_url}
-                              alt={achievement.name}
                               fill
                               className="object-cover"
                             />

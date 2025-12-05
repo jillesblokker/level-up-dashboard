@@ -436,6 +436,61 @@ const initialCreatures: Creature[] = [
     discovered: false,
     stats: { hp: 120, attack: 20, defense: 40, speed: 6, type: 'Water' },
     requirement: 'Complete 10 milestones'
+  },
+  {
+    id: '107',
+    number: '#107',
+    name: 'First Alliance',
+    description: 'A friendly companion that appears when you add your first ally to your fellowship.',
+    image: '/images/achievements/107.png',
+    category: 'social',
+    discovered: false,
+    stats: { hp: 50, attack: 10, defense: 10, speed: 15, type: 'Social' },
+    requirement: 'Add your first friend'
+  },
+  {
+    id: '108',
+    number: '#108',
+    name: 'Guild Founder',
+    description: 'A loyal companion that appears when you gather 5 allies to your cause.',
+    image: '/images/achievements/108.png',
+    category: 'social',
+    discovered: false,
+    stats: { hp: 75, attack: 15, defense: 15, speed: 18, type: 'Social' },
+    requirement: 'Add 5 friends'
+  },
+  {
+    id: '109',
+    number: '#109',
+    name: 'Fellowship Leader',
+    description: 'A noble companion that appears when you unite 10 allies under your banner.',
+    image: '/images/achievements/109.png',
+    category: 'social',
+    discovered: false,
+    stats: { hp: 100, attack: 20, defense: 20, speed: 20, type: 'Social' },
+    requirement: 'Add 10 friends'
+  },
+  {
+    id: '110',
+    number: '#110',
+    name: 'Quest Giver',
+    description: 'A helpful companion that appears when you send your first quest to an ally.',
+    image: '/images/achievements/110.png',
+    category: 'social',
+    discovered: false,
+    stats: { hp: 60, attack: 12, defense: 12, speed: 16, type: 'Social' },
+    requirement: 'Send your first quest to a friend'
+  },
+  {
+    id: '111',
+    number: '#111',
+    name: 'Master Strategist',
+    description: 'A wise companion that appears when you send 10 quests to challenge your allies.',
+    image: '/images/achievements/111.png',
+    category: 'social',
+    discovered: false,
+    stats: { hp: 90, attack: 18, defense: 18, speed: 22, type: 'Social' },
+    requirement: 'Send 10 quests to friends'
   }
 ];
 
