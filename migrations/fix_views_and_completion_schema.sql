@@ -1,10 +1,13 @@
--- Comprehensive Fix for Quest Completion Schema and Views
-
 -- 1. Drop dependent views (Cascade or Explicit)
 DROP VIEW IF EXISTS user_quest_progress CASCADE;
 DROP VIEW IF EXISTS clean_quest_completions CASCADE;
 
--- 2. Alter table schema - This is the core fix for UUID support
+-- 2. Drop the Foreign Key Constraint (Critical step!)
+-- We cannot have a FK to 'quests' if we store both UUIDs and non-UUID numbers in this column.
+-- Also TEXT column cannot FK to UUID column.
+ALTER TABLE quest_completion DROP CONSTRAINT IF EXISTS fk_quest;
+
+-- 3. Alter table schema - This is the core fix for UUID support
 -- We change quest_id to TEXT to allow alphanumeric IDs (UUIDs)
 ALTER TABLE quest_completion ALTER COLUMN quest_id TYPE text;
 
