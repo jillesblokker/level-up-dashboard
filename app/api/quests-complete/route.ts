@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../lib/supabase/server-client';
-import logger from '@/lib/logger';
+
 
 const supabase = supabaseServer;
 
@@ -11,7 +11,7 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
     const { userId } = getAuth(request as NextRequest);
     return userId || null;
   } catch (e) {
-    logger.error(`JWT verification failed: ${e}`, 'Clerk');
+    console.error(`JWT verification failed: ${e}`, 'Clerk');
     return null;
   }
 }
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     }
 
     if (!supabase) {
-      logger.error('Supabase client not initialized.', 'QUESTS GET');
+      console.error('Supabase client not initialized.', 'QUESTS GET');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       .select('*');
 
     if (questsError) {
-      logger.error(`Quests fetch error: ${questsError.message}`, 'QUESTS GET');
+      console.error(`Quests fetch error: ${questsError.message}`, 'QUESTS GET');
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       .eq('user_id', userId);
 
     if (completionsError) {
-      logger.error(`Quest completions fetch error: ${completionsError?.message}`, 'QUESTS GET');
+      console.error(`Quest completions fetch error: ${completionsError?.message}`, 'QUESTS GET');
       // If the table doesn't exist, continue with empty completions
     }
 
@@ -81,35 +81,35 @@ export async function GET(request: Request) {
 
     return NextResponse.json(questsWithCompletions);
   } catch (error) {
-    logger.error(`Error fetching quests: ${error instanceof Error ? error.stack : error}`, 'QUESTS GET');
+    console.error(`Error fetching quests: ${error instanceof Error ? error.stack : error}`, 'QUESTS GET');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // Update a quest completion status
 export async function PUT(request: Request) {
-  logger.info(`🚨 ENDPOINT HIT - Method: ${request.method}, URL: ${request.url}`, 'QUESTS-COMPLETE PUT');
+  console.log(`🚨 ENDPOINT HIT - Method: ${request.method}, URL: ${request.url}`, 'QUESTS-COMPLETE PUT');
 
   try {
     // Secure Clerk JWT verification
     const userId = await getUserIdFromRequest(request);
     if (!userId) {
-      logger.error('Unauthorized - no valid Clerk JWT', 'QUESTS-COMPLETE PUT');
+      console.error('Unauthorized - no valid Clerk JWT', 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
 
     if (!supabase) {
-      logger.error('Supabase client not initialized', 'QUESTS-COMPLETE PUT');
+      console.error('Supabase client not initialized', 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
     const body = await request.json();
-    logger.info(`Request body: ${JSON.stringify(body)}`, 'QUESTS-COMPLETE PUT');
+    console.log(`Request body: ${JSON.stringify(body)}`, 'QUESTS-COMPLETE PUT');
 
     // Quest completion request
     const { title, completed } = body;
 
-    logger.info(`Processing quest completion: userId=${userId}, title=${title}, completed=${completed}`, 'QUESTS-COMPLETE PUT');
+    console.log(`Processing quest completion: userId=${userId}, title=${title}, completed=${completed}`, 'QUESTS-COMPLETE PUT');
 
     // Find the quest by name to get its ID
     const { data: quest, error: questError } = await supabase
@@ -119,14 +119,14 @@ export async function PUT(request: Request) {
       .single();
 
     if (questError || !quest) {
-      logger.error(`Quest not found: ${JSON.stringify({ questError, title })}`, 'QUESTS-COMPLETE PUT');
+      console.error(`Quest not found: ${JSON.stringify({ questError, title })}`, 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
     }
 
-    logger.info(`Quest found: questId=${quest.id}, title=${title}, xpReward=${quest.xp_reward}, goldReward=${quest.gold_reward}`, 'QUESTS-COMPLETE PUT');
+    console.log(`Quest found: questId=${quest.id}, title=${title}, xpReward=${quest.xp_reward}, goldReward=${quest.gold_reward}`, 'QUESTS-COMPLETE PUT');
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF DIRECT TABLE OPERATIONS
-    logger.info('Using smart quest completion system...', 'QUESTS-COMPLETE PUT');
+    console.log('Using smart quest completion system...', 'QUESTS-COMPLETE PUT');
 
     // Call the smart completion function
     // Ensure questId is properly cast to UUID type
@@ -139,11 +139,11 @@ export async function PUT(request: Request) {
     });
 
     if (smartError) {
-      logger.error(`Smart completion error: ${smartError.message}`, 'QUESTS-COMPLETE PUT');
+      console.error(`Smart completion error: ${smartError.message}`, 'QUESTS-COMPLETE PUT');
       return NextResponse.json({ error: smartError.message }, { status: 500 });
     }
 
-    logger.info(`Smart completion result: ${JSON.stringify(smartResult)}`, 'QUESTS-COMPLETE PUT');
+    console.log(`Smart completion result: ${JSON.stringify(smartResult)}`, 'QUESTS-COMPLETE PUT');
 
     // Extract completion data from smart result
     const questCompletion = smartResult.record;
@@ -153,14 +153,14 @@ export async function PUT(request: Request) {
       message: `Quest ${completed ? 'completed' : 'uncompleted'} successfully`
     });
   } catch (error) {
-    logger.error(`Error updating quest completion: ${error instanceof Error ? error.stack : error}`, 'QUESTS-COMPLETE PUT');
+    console.error(`Error updating quest completion: ${error instanceof Error ? error.stack : error}`, 'QUESTS-COMPLETE PUT');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // Delete a quest (only if owned by user)
 export async function DELETE(request: Request) {
-  logger.info(`🚨 ENDPOINT HIT - Method: ${request.method}, URL: ${request.url}`, 'QUESTS-COMPLETE DELETE');
+  console.log(`🚨 ENDPOINT HIT - Method: ${request.method}, URL: ${request.url}`, 'QUESTS-COMPLETE DELETE');
 
   try {
     const userId = await getUserIdFromRequest(request);
@@ -175,7 +175,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing quest ID' }, { status: 400 });
     }
 
-    logger.info(`Attempting to delete quest: ${id} for user ${userId}`, 'QUESTS-COMPLETE DELETE');
+    console.log(`Attempting to delete quest: ${id} for user ${userId}`, 'QUESTS-COMPLETE DELETE');
 
     // 1. Manually delete associated completions first (avoids FK constraint issues)
     const { error: completionError } = await supabase
@@ -184,7 +184,7 @@ export async function DELETE(request: Request) {
       .eq('quest_id', id);
 
     if (completionError) {
-      logger.warn(`Error deleting quest completions: ${completionError.message}`, 'QUESTS-COMPLETE DELETE');
+      console.warn(`Error deleting quest completions: ${completionError.message}`, 'QUESTS-COMPLETE DELETE');
       // Continue anyway, as we want to delete the quest
     }
 
@@ -194,7 +194,7 @@ export async function DELETE(request: Request) {
       .delete()
       .eq('quest_id', id);
 
-    if (favError) logger.warn(`Error deleting favorites: ${favError.message}`, 'QUESTS-COMPLETE DELETE');
+    if (favError) console.warn(`Error deleting favorites: ${favError.message}`, 'QUESTS-COMPLETE DELETE');
 
     // 3. Delete associated progress (if table exists)
     const { error: progError } = await supabase
@@ -202,7 +202,7 @@ export async function DELETE(request: Request) {
       .delete()
       .eq('quest_id', id);
 
-    if (progError) logger.warn(`Error deleting progress: ${progError.message}`, 'QUESTS-COMPLETE DELETE');
+    if (progError) console.warn(`Error deleting progress: ${progError.message}`, 'QUESTS-COMPLETE DELETE');
 
     // 4. Delete directly from quests table
     // RLS should enforce ownership (user_id = auth.uid())
@@ -214,13 +214,13 @@ export async function DELETE(request: Request) {
       .eq('user_id', userId); // Explicit check for safety
 
     if (error) {
-      logger.error(`Error deleting quest: ${error.message}`, 'QUESTS-COMPLETE DELETE');
+      console.error(`Error deleting quest: ${error.message}`, 'QUESTS-COMPLETE DELETE');
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error(`Error processing delete: ${error}`, 'QUESTS-COMPLETE DELETE');
+    console.error(`Error processing delete: ${error}`, 'QUESTS-COMPLETE DELETE');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
