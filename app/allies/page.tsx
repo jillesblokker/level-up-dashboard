@@ -23,6 +23,7 @@ import { getCharacterStats } from "@/lib/character-stats-manager"
 import { calculateLevelFromExperience } from "@/types/character"
 import { AchievementsModal } from "@/components/achievements-modal"
 import { GiftModal } from "@/components/gift-modal"
+import { AllianceStreakCard } from "@/components/alliance-streak-card"
 
 interface Friend {
     id: string; // Friendship ID
@@ -324,6 +325,9 @@ export default function AlliesPage() {
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
+                {/* Alliance Streak Card */}
+                {user?.id && <AllianceStreakCard userId={user.id} />}
+
                 <div className="flex justify-end">
                     <Button variant="outline" onClick={() => setAchievementsOpen(true)} className="gap-2 border-yellow-500/20 hover:bg-yellow-500/10 hover:text-yellow-600">
                         <Trophy className="w-4 h-4 text-yellow-500" />

@@ -96,7 +96,17 @@ export async function POST(request: Request) {
             console.error('Error checking achievements:', achError);
         }
 
+        // Update alliance streak for sending quest
+        try {
+            const { AllianceStreakManager } = await import('@/lib/alliance-streak-manager');
+            const streakManager = new AllianceStreakManager(supabaseServer);
+            await streakManager.updateStreak(userId);
+        } catch (streakError) {
+            console.error('Error updating alliance streak:', streakError);
+        }
+
         return NextResponse.json({ success: true, quest });
+
 
     } catch (error) {
         console.error('Unexpected error sending friend quest:', error);

@@ -164,6 +164,51 @@ export async function POST(request: NextRequest) {
                 updated_at: new Date().toISOString()
             })
 
+        // Check if this is a friend quest and notify sender
+        if (quest.is_friend_quest && quest.sender_id) {
+            try {
+                // Mark quest as completed and notified
+                await supabase
+                    .from('quests')
+                    .update({
+                        completed_at: new Date().toISOString(),
+                        completion_notified: true
+                    })
+                    .eq('id', questId);
+
+                // Get sender and recipient info
+                const { data: senderData } = await supabase
+                    .from('character_stats')
+                    .select('user_id')
+                    .eq('user_id', quest.sender_id)
+                    .single();
+
+                if (senderData) {
+                    // Send notification to sender
+                    await supabase
+                        .from('notifications')
+                        .insert({
+                            user_id: quest.sender_id,
+                            type: 'friend_quest_completed',
+                            data: {
+                                questId: questId,
+                                questName: quest.name,
+                                completedBy: userId,
+                                completedAt: new Date().toISOString()
+                            }
+                        });
+                }
+
+                // Update alliance streak for completing friend quest
+                const { AllianceStreakManager } = await import('@/lib/alliance-streak-manager');
+                const streakManager = new AllianceStreakManager(supabase);
+                await streakManager.updateStreak(userId);
+            } catch (notifyError) {
+                console.error('Error notifying sender:', notifyError);
+                // Don't fail the whole request if notification fails
+            }
+        }
+
         return NextResponse.json({
             success: true,
             rewards,
