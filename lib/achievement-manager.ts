@@ -28,7 +28,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'New Alliance',
         description: 'Add your first friend',
         icon: 'UserPlus',
-        image: '/images/achievements/112.png',
+        image: '/images/achievements/107.png',
         requirement: 1,
         reward: { xp: 50, gold: 10 }
     },
@@ -37,7 +37,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Popular Companion',
         description: 'Add 5 friends',
         icon: 'Users',
-        image: '/images/achievements/113.png',
+        image: '/images/achievements/108.png',
         requirement: 5,
         reward: { xp: 200, gold: 50, title: 'Companion' }
     },
@@ -46,7 +46,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Guild Leader',
         description: 'Add 10 friends',
         icon: 'Crown',
-        image: '/images/achievements/114.png',
+        image: '/images/achievements/109.png',
         requirement: 10,
         reward: { xp: 500, gold: 100, title: 'Leader' }
     },
@@ -55,7 +55,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Quest Giver',
         description: 'Send your first quest to a friend',
         icon: 'Scroll',
-        image: '/images/achievements/115.png',
+        image: '/images/achievements/110.png',
         requirement: 1,
         reward: { xp: 50, gold: 10 }
     },
@@ -64,7 +64,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Task Master',
         description: 'Send 5 quests to friends',
         icon: 'ScrollText',
-        image: '/images/achievements/116.png',
+        image: '/images/achievements/111.png',
         requirement: 5,
         reward: { xp: 200, gold: 50 }
     },
@@ -73,7 +73,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Grand Questmaster',
         description: 'Send 10 quests to friends',
         icon: 'BookOpen',
-        image: '/images/achievements/115.png',
+        image: '/images/achievements/112.png',
         requirement: 10,
         reward: { xp: 500, gold: 100, title: 'Questmaster' }
     }
