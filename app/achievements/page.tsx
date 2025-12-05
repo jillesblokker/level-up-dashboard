@@ -143,8 +143,11 @@ export default function Page() {
             data = [...data, ...toAdd];
           }
 
+          // Deduplicate all achievements by ID just in case
+          const uniqueData = Array.from(new Map(data.map(item => [item.id, item])).values());
+
           // Fetched achievement definitions
-          setAchievementDefinitions(data);
+          setAchievementDefinitions(uniqueData);
         } else {
           console.error('Failed to fetch achievement definitions:', response.status);
           // Fallback to hardcoded definitions if API fails
