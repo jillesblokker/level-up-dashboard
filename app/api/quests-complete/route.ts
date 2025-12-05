@@ -175,7 +175,18 @@ export async function DELETE(request: Request) {
 
     logger.info(`Attempting to delete quest: ${id} for user ${userId}`, 'QUESTS-COMPLETE DELETE');
 
-    // Delete directly from quests table
+    // 1. Manually delete associated completions first (avoids FK constraint issues)
+    const { error: completionError } = await supabase
+      .from('quest_completion')
+      .delete()
+      .eq('quest_id', id);
+
+    if (completionError) {
+      logger.warn(`Error deleting quest completions: ${completionError.message}`, 'QUESTS-COMPLETE DELETE');
+      // Continue anyway, as we want to delete the quest
+    }
+
+    // 2. Delete directly from quests table
     // RLS should enforce ownership (user_id = auth.uid())
     // ensuring users can't delete system quests or others' quests
     const { error } = await supabase
