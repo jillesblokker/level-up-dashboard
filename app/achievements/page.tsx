@@ -540,7 +540,6 @@ export default function Page() {
           {/* Alliance Achievements Section */}
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">Alliance Achievements</h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="alliance-achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
