@@ -11,6 +11,12 @@ ALTER TABLE quest_completion DROP CONSTRAINT IF EXISTS fk_quest;
 -- We change quest_id to TEXT to allow alphanumeric IDs (UUIDs)
 ALTER TABLE quest_completion ALTER COLUMN quest_id TYPE text;
 
+-- 3a. Ensure required columns exist (Fixes 'column does not exist' errors)
+ALTER TABLE quest_completion ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE quest_completion ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE quest_completion ADD COLUMN IF NOT EXISTS xp_earned INTEGER DEFAULT 0;
+ALTER TABLE quest_completion ADD COLUMN IF NOT EXISTS gold_earned INTEGER DEFAULT 0;
+
 -- 3. Recreate clean_quest_completions View
 CREATE VIEW clean_quest_completions AS
 SELECT 
