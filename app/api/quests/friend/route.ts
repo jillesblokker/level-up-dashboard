@@ -38,6 +38,7 @@ export async function POST(request: Request) {
             .from('quests')
             .insert({
                 user_id: friendId, // The recipient owns the quest
+                name: title, // Satisfy NOT NULL constraint on 'name'
                 title,
                 description,
                 difficulty,
