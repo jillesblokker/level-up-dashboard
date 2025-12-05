@@ -6,6 +6,7 @@ import { ACHIEVEMENTS, AchievementDefinition } from '@/lib/achievement-manager';
 import { Trophy, Lock, CheckCircle2, Users, Crown, Scroll, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import Image from 'next/image';
 
 interface AchievementsModalProps {
     open: boolean;
@@ -89,10 +90,23 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                 >
                                     <div className="flex items-start gap-4">
                                         <div className={cn(
-                                            "p-3 rounded-full flex items-center justify-center shrink-0",
-                                            isUnlocked ? "bg-yellow-500/20 text-yellow-500" : "bg-muted text-muted-foreground"
+                                            "relative w-24 h-32 rounded-lg overflow-hidden shrink-0 border-2",
+                                            isUnlocked ? "border-yellow-500/50" : "border-muted"
                                         )}>
-                                            {isUnlocked ? <Icon className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                                            <Image
+                                                src={achievement.image}
+                                                alt={achievement.title}
+                                                fill
+                                                className={cn(
+                                                    "object-cover",
+                                                    !isUnlocked && "grayscale opacity-50"
+                                                )}
+                                            />
+                                            {!isUnlocked && (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                                    <Lock className="w-8 h-8 text-white" />
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex-1 space-y-1">
