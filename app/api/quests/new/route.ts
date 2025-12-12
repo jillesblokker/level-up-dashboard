@@ -49,6 +49,7 @@ export async function POST(request: Request) {
           difficulty,
           xp_reward,
           gold_reward,
+          is_recurring: false, // Default to non-recurring for now
           user_id: userId, // Assign quest to the current user
         },
       ])

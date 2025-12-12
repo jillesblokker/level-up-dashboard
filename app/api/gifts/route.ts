@@ -82,21 +82,7 @@ export async function POST(request: Request) {
 
         // Validate sender has resources (e.g., gold)
         if (itemType === 'gold') {
-            const { data: stats } = await supabaseServer
-                .from('character_stats')
-                .select('gold')
-                .eq('user_id', userId)
-                .single();
-
-            if (!stats || stats.gold < amount) {
-                return NextResponse.json({ error: 'Insufficient gold' }, { status: 400 });
-            }
-
-            // Deduct gold from sender
-            await supabaseServer
-                .from('character_stats')
-                .update({ gold: stats.gold - amount })
-                .eq('user_id', userId);
+            return NextResponse.json({ error: 'Sending gold is not allowed' }, { status: 400 });
         }
 
         // Create gift record
