@@ -154,5 +154,30 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         type: 'special',
         greetings: ["The shadows whisper...", "I see all.", "Darkness falls."],
         scale: 1.0
+    },
+    // Animals
+    '901': {
+        id: '901',
+        name: 'Wooly Sheep',
+        filename: 'sheep.png',
+        type: 'nature',
+        greetings: ["Baaa...", "Munch munch."],
+        scale: 1.0
+    },
+    '902': {
+        id: '902',
+        name: 'Wild Horse',
+        filename: 'horse.png',
+        type: 'nature',
+        greetings: ["Neigh!", "Snort."],
+        scale: 1.2
+    },
+    '903': {
+        id: '903',
+        name: 'Happy Penguin',
+        filename: 'penguin.png',
+        type: 'ice',
+        greetings: ["Noot noot!", "Slide!"],
+        scale: 0.8
     }
 };

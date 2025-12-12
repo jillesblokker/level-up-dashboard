@@ -20,6 +20,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const closeOnboarding = () => {
     console.log('OnboardingProvider: Closing onboarding')
     setIsOnboardingOpen(false)
+    // Save to localStorage so it doesn't automatically reopen
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('onboarding-completed', 'true')
+    }
   }
 
   const completeOnboarding = () => {

@@ -353,7 +353,7 @@ export default function RealmPage() {
     }, []);
 
     // Handler for animal interactions
-    const handleAnimalInteraction = useCallback((animalType: 'horse' | 'sheep' | 'penguin' | 'eagle') => {
+    const handleAnimalInteraction = useCallback(async (animalType: 'horse' | 'sheep' | 'penguin' | 'eagle') => {
         if (animalType === 'horse') {
             setHorseCaught(true);
             localStorage.setItem('animal-horse-state', 'true');
@@ -366,9 +366,33 @@ export default function RealmPage() {
                 title: "Horse Tamed!",
                 description: "You successfully tamed the wild horse!",
             });
+        } else if (animalType === 'sheep') {
+            try {
+                const res = await fetch('/api/creatures/interact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ instanceId: `sheep-${Date.now()}`, definitionId: '901' })
+                });
+                const data = await res.json();
+                if (data.reward) {
+                    toast({ title: "Sheep Shaved!", description: data.message });
+                    gainGold(data.reward.amount, 'sheep-shave');
+                } else if (data.cooldown) {
+                    toast({ title: "Recently Shaved", description: data.message, variant: "destructive" });
+                } else {
+                    toast({ title: "Baaa!", description: data.message || "The sheep looks happy." });
+                }
+            } catch (e) {
+                console.error("Sheep interaction failed", e);
+                toast({ title: "Error", description: "Failed to interact with sheep", variant: "destructive" });
+            }
+        } else if (animalType === 'penguin') {
+            toast({
+                title: "Noot Noot!",
+                description: "The penguin slides around happily! You feel refreshed.",
+            });
         }
-        // Add other animal interactions here as needed
-    }, []);
+    }, [toast]);
 
 
 
@@ -495,6 +519,34 @@ export default function RealmPage() {
             });
         }
     }, [characterPosition, horsePos, isHorsePresent, horseCaught, grid]);
+
+    // Sheep interaction logic
+    useEffect(() => {
+        if (!Array.isArray(grid) || !isSheepPresent || !sheepPos) return;
+
+        // Check if player is on the same tile as sheep
+        if (characterPosition.x === sheepPos.x && characterPosition.y === sheepPos.y) {
+            setAnimalInteractionModal({
+                isOpen: true,
+                animalType: 'sheep',
+                animalName: 'Wooly Sheep'
+            });
+        }
+    }, [characterPosition, sheepPos, isSheepPresent, grid]);
+
+    // Penguin interaction logic
+    useEffect(() => {
+        if (!Array.isArray(grid) || !isPenguinPresent || !penguinPos) return;
+
+        // Check if player is on the same tile as penguin
+        if (characterPosition.x === penguinPos.x && characterPosition.y === penguinPos.y) {
+            setAnimalInteractionModal({
+                isOpen: true,
+                animalType: 'penguin',
+                animalName: 'Happy Penguin'
+            });
+        }
+    }, [characterPosition, penguinPos, isPenguinPresent, grid]);
 
     // --- Load and transform completed mystery tiles on page load ---
     useEffect(() => {
