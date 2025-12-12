@@ -343,14 +343,14 @@ export default function RealmPage() {
     const [sheepCaught, setSheepCaught] = useState(() => {
         if (typeof window !== 'undefined') {
             const cooldown = localStorage.getItem('animal-sheep-cooldown');
-            return cooldown && Date.now() < parseInt(cooldown);
+            return !!(cooldown && Date.now() < parseInt(cooldown));
         }
         return false;
     });
     const [penguinCaught, setPenguinCaught] = useState(() => {
         if (typeof window !== 'undefined') {
             const cooldown = localStorage.getItem('animal-penguin-cooldown');
-            return cooldown && Date.now() < parseInt(cooldown);
+            return !!(cooldown && Date.now() < parseInt(cooldown));
         }
         return false;
     });
