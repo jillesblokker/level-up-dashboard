@@ -102,7 +102,7 @@ export function InstallPrompt() {
                 {/* Main content */}
                 <div className={cn(
                     "relative overflow-hidden rounded-lg shadow-2xl",
-                    "bg-gradient-to-br from-amber-950/98 via-amber-900/95 to-orange-950/98",
+                    "bg-gradient-to-br from-amber-950 via-amber-900 to-orange-950",
                     "border-2 border-amber-600/40",
                     "backdrop-blur-md"
                 )}>
