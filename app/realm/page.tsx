@@ -401,7 +401,7 @@ export default function RealmPage() {
                 });
                 const data = await res.json();
                 if (data.reward && data.shaved) {
-                    toast({ title: "Sheep Shaved!", description: data.message });
+                    toast({ title: "Sheep Shaved! 🐑", description: `${data.message} - You earned ${data.reward.amount} XP!` });
                     gainExperience(data.reward.amount, 'sheep-shave');
                     setIsSheepPresent(false);
                     setSheepCaught(true);
@@ -429,8 +429,8 @@ export default function RealmPage() {
                 const data = await res.json();
                 if (data.reward && data.shaved) { // API returns 'shaved' flag on success
                     toast({
-                        title: "Noot Noot!",
-                        description: data.message,
+                        title: "Noot Noot! 🐧",
+                        description: `${data.message} - You earned ${data.reward.amount} XP!`,
                     });
                     gainExperience(data.reward.amount, 'penguin-play');
                     setIsPenguinPresent(false);
@@ -450,7 +450,7 @@ export default function RealmPage() {
                 toast({ title: "Error", description: "Failed to interact with penguin", variant: "destructive" });
             }
         }
-    }, [toast]);
+    }, [toast, gainExperience]);
 
 
 

@@ -83,7 +83,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   // Get user level from character stats
   const [userLevel, setUserLevel] = useState(1);
   const [rareTilesData, setRareTilesData] = useState<RareTile[]>([]);
-  
+
   useEffect(() => {
     const loadUserLevel = () => {
       try {
@@ -105,35 +105,35 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         console.error('Error loading rare tiles data:', error);
       }
     };
-    
+
     loadUserLevel();
     loadRareTilesData();
   }, [user?.id, supabase, isLoading]);
 
-      // Listen for rare tile unlock/clear events
-    useEffect(() => {
-      const handleRareTileUnlocked = () => {
-        // Refresh the rare tiles data when a rare tile is unlocked
-        if (user?.id && supabase) {
-          loadRareTiles(supabase, user.id).then(setRareTilesData);
-        }
-      };
+  // Listen for rare tile unlock/clear events
+  useEffect(() => {
+    const handleRareTileUnlocked = () => {
+      // Refresh the rare tiles data when a rare tile is unlocked
+      if (user?.id && supabase) {
+        loadRareTiles(supabase, user.id).then(setRareTilesData);
+      }
+    };
 
-      const handleRareTileCleared = () => {
-        // Refresh the rare tiles data when a rare tile is cleared
-        if (user?.id && supabase) {
-          loadRareTiles(supabase, user.id).then(setRareTilesData);
-        }
-      };
+    const handleRareTileCleared = () => {
+      // Refresh the rare tiles data when a rare tile is cleared
+      if (user?.id && supabase) {
+        loadRareTiles(supabase, user.id).then(setRareTilesData);
+      }
+    };
 
-      window.addEventListener('rare-tile-unlocked', handleRareTileUnlocked);
-      window.addEventListener('rare-tile-cleared', handleRareTileCleared);
+    window.addEventListener('rare-tile-unlocked', handleRareTileUnlocked);
+    window.addEventListener('rare-tile-cleared', handleRareTileCleared);
 
-      return () => {
-        window.removeEventListener('rare-tile-unlocked', handleRareTileUnlocked);
-        window.removeEventListener('rare-tile-cleared', handleRareTileCleared);
-      };
-    }, [user?.id]);
+    return () => {
+      window.removeEventListener('rare-tile-unlocked', handleRareTileUnlocked);
+      window.removeEventListener('rare-tile-cleared', handleRareTileCleared);
+    };
+  }, [user?.id]);
 
   // Create a comprehensive list of all possible tiles
   const allPossibleTiles: InventoryItem[] = [
@@ -144,17 +144,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     { id: 'mountain', name: 'Mountain', type: 'mountain', quantity: 0, cost: 100, connections: [], description: 'Rocky terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mountain tile', image: '/images/tiles/mountain-tile.png' },
     { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 125, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.png' },
     { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 150, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.png' },
-    
+
     // Settlement Tiles (Level 20-40) - Human communities, mid-range pricing
     { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.png' },
     { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.png' },
-    
+
     // Development Tiles (Level 40-60) - Advanced infrastructure, higher but achievable pricing
     { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.png' },
     { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.png' },
     { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.png' },
     { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.png' },
-    
+
     // Advanced Tiles (Level 60-80) - Complex structures, premium pricing but not excessive
     { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.png' },
     { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.png' },
@@ -166,7 +166,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   const getTilesByCategory = (categoryId: string) => {
     const category = tileCategories.find(cat => cat.id === categoryId);
     if (!category) return [];
-    
+
     if (category.id === 'rare') {
       // Handle rare tiles differently
       return RARE_TILES.map(rareTile => {
@@ -175,7 +175,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         const loadedRareTile = rareTilesData.find(rt => rt.id === rareTile.id);
         const isUnlocked = loadedRareTile?.unlocked || isRareTileUnlocked(rareTile);
 
-        
+
         return {
           id: rareTile.id,
           name: rareTile.name,
@@ -195,17 +195,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         };
       });
     }
-    
+
     // Get all possible tiles for this category
     const categoryTiles = allPossibleTiles.filter(tile => category.tiles.includes(tile.type));
-    
+
     // Merge with user's actual inventory to get correct quantities
     return categoryTiles.map(possibleTile => {
       const userTile = tiles.find(t => t.type === possibleTile.type);
-      
+
       // Check if tile is unlocked based on user level
       const isUnlocked = userLevel >= category.minLevel;
-      
+
       // For foundation tiles (level 0-20), give starting quantities to new players
       let quantity = 0;
       if (category.id === 'foundation' && userLevel >= 1) {
@@ -215,7 +215,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         // For other categories, use user's quantity or 0
         quantity = userTile?.quantity || 0;
       }
-      
+
       return {
         ...possibleTile,
         quantity: quantity,
@@ -233,9 +233,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         onUpdateTiles(tiles);
       }
     };
-    
+
     window.addEventListener('tile-inventory-update', handleTileInventoryUpdate);
-    
+
     return () => {
       window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
     };
@@ -243,7 +243,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
   const handleBuyTile = async (tile: InventoryItem, e: React.MouseEvent) => {
     e.stopPropagation()
-    
+
     const quantity = buyQuantities[tile.type] || 1
     const totalCost = tile.cost * quantity
 
@@ -271,16 +271,16 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         });
 
         // Update parent component's state immediately
-        const newTiles = tiles.map(item => 
-          item.type === tile.type 
+        const newTiles = tiles.map(item =>
+          item.type === tile.type
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
         onUpdateTiles(newTiles)
-        
+
         // Reset the quantity after purchase
         setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
-        
+
         // Show success message
         toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`)
       }
@@ -301,7 +301,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     if (rareTile) {
       return rareTile.image;
     }
-    
+
     switch (type) {
       case 'city':
         return '/images/tiles/city-tile.png'
@@ -317,20 +317,20 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full h-full">
         {/* Main Tabs */}
         <TabsList className="mb-6 w-full flex bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-lg p-1">
-          <TabsTrigger 
-            value="place" 
+          <TabsTrigger
+            value="place"
             className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
           >
             Place Tiles
           </TabsTrigger>
-          <TabsTrigger 
-            value="buy" 
+          <TabsTrigger
+            value="buy"
             className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
           >
             Buy Tiles
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="place" className="space-y-6">
           {/* Category Dropdown */}
           <div className="space-y-4">
@@ -345,10 +345,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevel >= category.minLevel;
-                  
+
                   return (
-                    <SelectItem 
-                      key={category.id} 
+                    <SelectItem
+                      key={category.id}
                       value={category.id}
                       className={cn(
                         "cursor-pointer",
@@ -374,16 +374,16 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Tile Grid */}
           <div className="space-y-4">
             {(() => {
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
-              
+
               // For place tab, use getTilesByCategory to show all tiles in category (same as buy tab)
               const categoryTiles = getTilesByCategory(selectedCategory);
-              
+
               if (!categoryTiles.length) {
                 return (
                   <div className="text-center py-12">
@@ -391,7 +391,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       {userLevel < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {userLevel < category.minLevel 
+                      {userLevel < category.minLevel
                         ? `Unlock at level ${category.minLevel}`
                         : 'No tiles in this category'
                       }
@@ -399,7 +399,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   </div>
                 );
               }
-              
+
               return (
                 <ScrollArea className="h-full w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
@@ -427,39 +427,39 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               }}
                               aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
                             >
-                        <div className="aspect-square relative group">
-                          <Image
-                            src={getTileImage(tile.type)}
-                            alt={tile.name}
-                            fill
-                            className="object-cover transition-transform duration-200 group-hover:scale-110"
-                          />
-                          <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                            {tile.quantity}
-                          </div>
-                          {userLevel < category.minLevel && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                              <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
-                                🔒 Lvl {category.minLevel}
-                              </span>
-                            </div>
-                          )}
-                          {category.id === 'rare' && !tile.unlocked && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                              <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                🔒
-                              </span>
-                            </div>
-                          )}
-                          {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                              <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
-                                Buy More
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                                                      <div className="p-4 bg-background/95 backdrop-blur-sm">
+                              <div className="aspect-square relative group">
+                                <Image
+                                  src={getTileImage(tile.type)}
+                                  alt={tile.name}
+                                  fill
+                                  className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                />
+                                <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                  {tile.quantity}
+                                </div>
+                                {userLevel < category.minLevel && (
+                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
+                                      🔒 Lvl {category.minLevel}
+                                    </span>
+                                  </div>
+                                )}
+                                {category.id === 'rare' && !tile.unlocked && (
+                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
+                                      🔒
+                                    </span>
+                                  </div>
+                                )}
+                                {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
+                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
+                                      Buy More
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-4 bg-background/95 backdrop-blur-sm">
                                 <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                 <div className="text-xs text-muted-foreground text-center">
                                   <span className="text-amber-500 font-medium">{tile.cost} gold</span>
@@ -473,7 +473,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
+                                    className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setActiveTab('buy');
@@ -501,7 +501,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           </div>
         </TabsContent>
         <TabsContent value="buy" className="space-y-6">
-          
+
           {/* Category Dropdown */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -515,10 +515,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevel >= category.minLevel;
-                  
+
                   return (
-                    <SelectItem 
-                      key={category.id} 
+                    <SelectItem
+                      key={category.id}
                       value={category.id}
                       className={cn(
                         "cursor-pointer",
@@ -544,15 +544,15 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               </SelectContent>
             </Select>
           </div>
-              
-                        {/* Tile Grid */}
+
+          {/* Tile Grid */}
           <div className="space-y-4">
             {(() => {
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
-              
+
               const categoryTiles = getTilesByCategory(selectedCategory);
-              
+
               if (!categoryTiles.length) {
                 return (
                   <div className="text-center py-12">
@@ -560,7 +560,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       {userLevel < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {userLevel < category.minLevel 
+                      {userLevel < category.minLevel
                         ? `Unlock at level ${category.minLevel}`
                         : 'No tiles in this category'
                       }
@@ -568,7 +568,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   </div>
                 );
               }
-              
+
               return (
                 <ScrollArea className="h-full w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
@@ -584,86 +584,86 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                 tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
                               )}
                             >
-                        <div className="aspect-square relative group">
-                          <Image
-                            src={getTileImage(tile.type)}
-                            alt={tile.name}
-                            fill
-                            className="object-cover transition-transform duration-200 group-hover:scale-110"
-                          />
-                          <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                            {tile.quantity}
-                          </div>
-                          {userLevel < category.minLevel && (
-                            <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
-                              🔒 Lvl {category.minLevel}
-                            </span>
-                          )}
-                          {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
-                            <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
-                              Buyable
-                            </span>
-                          )}
+                              <div className="aspect-square relative group">
+                                <Image
+                                  src={getTileImage(tile.type)}
+                                  alt={tile.name}
+                                  fill
+                                  className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                />
+                                <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                  {tile.quantity}
+                                </div>
+                                {userLevel < category.minLevel && (
+                                  <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
+                                    🔒 Lvl {category.minLevel}
+                                  </span>
+                                )}
+                                {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
+                                  <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
+                                    Buyable
+                                  </span>
+                                )}
+                                {category.id === 'rare' && !tile.unlocked && (
+                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
+                                      🔒
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-4 bg-background/95 backdrop-blur-sm">
+                                <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
+                                <div className="text-xs text-muted-foreground text-center mb-3">
+                                  <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                                </div>
+                                <div className="flex gap-2 items-center justify-center">
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    value={buyQuantities[tile.type] || 1}
+                                    onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
+                                    className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
+                                    id={`buy-quantity-${tile.type}`}
+                                    name={`buy-quantity-${tile.type}`}
+                                    disabled={userLevel < category.minLevel}
+                                  />
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className={cn(
+                                      "flex-1 min-h-[40px] h-10",
+                                      userLevel >= category.minLevel
+                                        ? "bg-amber-600 border-amber-500 hover:bg-amber-500 text-white font-semibold"
+                                        : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
+                                    )}
+                                    onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
+                                    disabled={userLevel < category.minLevel}
+                                    aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
+                                  >
+                                    {userLevel < category.minLevel ? 'Locked' : 'Buy'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </Card>
+                          </TooltipTrigger>
                           {category.id === 'rare' && !tile.unlocked && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                              <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                🔒
-                              </span>
-                            </div>
+                            <TooltipContent>
+                              <p>A secret... come back another day... :)</p>
+                            </TooltipContent>
                           )}
-                        </div>
-                        <div className="p-4 bg-background/95 backdrop-blur-sm">
-                          <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
-                          <div className="text-xs text-muted-foreground text-center mb-3">
-                            <span className="text-amber-500 font-medium">{tile.cost} gold</span>
-                          </div>
-                          <div className="flex gap-2 items-center justify-center">
-                            <Input
-                              type="number"
-                              min="1"
-                              value={buyQuantities[tile.type] || 1}
-                              onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                              className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
-                              id={`buy-quantity-${tile.type}`}
-                              name={`buy-quantity-${tile.type}`}
-                              disabled={userLevel < category.minLevel}
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className={cn(
-                                "flex-1 min-h-[40px] h-10",
-                                userLevel >= category.minLevel 
-                                  ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-500"
-                                  : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
-                              )}
-                              onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
-                              disabled={userLevel < category.minLevel}
-                              aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
-                            >
-                              {userLevel < category.minLevel ? 'Locked' : 'Buy'}
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    </TooltipTrigger>
-                    {category.id === 'rare' && !tile.unlocked && (
-                      <TooltipContent>
-                        <p>A secret... come back another day... :)</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-                  ))}
-                </div>
-              </ScrollArea>
-            );
-          })()}
-        </div>
-      </TabsContent>
-    </Tabs>
-  </>
-)
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </div>
+                </ScrollArea>
+              );
+            })()}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </>
+  )
 }
 
 // Function to render tile previews
@@ -681,7 +681,7 @@ function renderTilePreview(type: string) {
           </svg>
         </div>
       );
-      
+
     case 'water':
       return (
         <div className="w-full h-full bg-blue-600">
@@ -693,7 +693,7 @@ function renderTilePreview(type: string) {
           </svg>
         </div>
       );
-      
+
     case 'mountain':
       return (
         <div className="w-full h-full bg-gray-600">
@@ -703,7 +703,7 @@ function renderTilePreview(type: string) {
           </svg>
         </div>
       );
-      
+
     case 'forest':
       return (
         <div className="w-full h-full bg-green-800">
@@ -753,7 +753,7 @@ function renderTilePreview(type: string) {
           </svg>
         </div>
       );
-      
+
     default:
       return <div className="w-full h-full bg-gray-500"></div>;
   }
