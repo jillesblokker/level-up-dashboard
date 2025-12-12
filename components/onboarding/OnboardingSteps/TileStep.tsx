@@ -67,11 +67,20 @@ export function TileStep({ onNext }: TileStepProps) {
           {tileInventory.map((tile) => (
             <Card
               key={tile.id}
+              role="button"
+              tabIndex={0}
+              aria-label={`${tile.name} tile, costs ${tile.cost} gold, quantity ${tile.quantity}`}
               className={`bg-gray-800/50 border transition-all duration-300 cursor-pointer ${selectedTile === tile.id
-                  ? 'border-amber-500 bg-amber-500/10'
-                  : 'border-amber-800/20 hover:border-amber-500/40'
+                ? 'border-amber-500 bg-amber-500/10'
+                : 'border-amber-800/20 hover:border-amber-500/40'
                 }`}
               onClick={() => setSelectedTile(tile.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedTile(tile.id);
+                }
+              }}
             >
               <CardContent className="p-3 md:p-4">
                 <div className="text-center space-y-2 md:space-y-3">
@@ -97,12 +106,12 @@ export function TileStep({ onNext }: TileStepProps) {
                     <MapIcon className="h-6 w-6 md:h-8 md:w-8 text-amber-400 fallback-icon" style={{ display: 'flex' }} />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white text-sm md:text-base">{tile.name}</h4>
+                    <h4 className="font-semibold text-white text-sm md:text-base">{tile.name}</h4>
                     <div className="flex items-center justify-center space-x-1 md:space-x-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-amber-500/20 text-amber-200 border-amber-500/30">
                         {tile.cost} gold
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-blue-500/20 text-blue-200 border-blue-500/30">
                         Qty: {tile.quantity}
                       </Badge>
                     </div>
@@ -116,7 +125,8 @@ export function TileStep({ onNext }: TileStepProps) {
                       handleBuyTile(tile.id)
                     }}
                     disabled={goldBalance < tile.cost}
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-black text-xs"
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs"
+                    aria-label={`Buy ${tile.name} for ${tile.cost} gold`}
                   >
                     <ShoppingCart className="h-3 w-3 mr-1" />
                     Buy
