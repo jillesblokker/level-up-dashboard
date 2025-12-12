@@ -26,22 +26,22 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid creature definition' }, { status: 400 });
         }
 
-        // Logic Check: Is it a sheep? (ID '001' is sheep in our mapping usually, let's verify or assume)
-        // Adjust this check based on your actual IDs. 
-        // Assuming '001' is Sheep based on previous context.
+        // Logic Check: Is it an animal that gives rewards? (Sheep or Penguin)
         const isSheep = def.name.toLowerCase().includes('sheep');
+        const isPenguin = def.name.toLowerCase().includes('penguin');
 
-        if (!isSheep) {
-            // For now, only sheep give rewards. Others just interact.
+        if (!isSheep && !isPenguin) {
+            // For now, only sheep and penguins give rewards. Others just interact.
             return NextResponse.json({
                 message: `You greeted the ${def.name}. It looked at you weirdly.`,
                 interacted: true
             });
         }
 
+        const interactionType = isSheep ? 'shave' : 'play';
+        const relatedId = isSheep ? 'sheep-shave' : 'penguin-play';
+
         // Check last interaction time for this user and this creature type
-        // Note: We track by TYPE (definitionId) for now, not specific instance 
-        // because instances are re-generated on client on reload.
         const fiveDaysAgo = new Date();
         fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
             .select('*')
             .eq('user_id', userId)
             .eq('creature_definition_id', definitionId)
-            .eq('interaction_type', 'shave')
+            .eq('interaction_type', interactionType)
             .gt('occurred_at', fiveDaysAgo.toISOString())
             .order('occurred_at', { ascending: false })
             .limit(1);
@@ -63,20 +63,21 @@ export async function POST(request: NextRequest) {
         if (recentInteractions && recentInteractions.length > 0) {
             const lastTime = new Date(recentInteractions[0].occurred_at);
             const daysLeft = 5 - Math.floor((Date.now() - lastTime.getTime()) / (1000 * 60 * 60 * 24));
+            const actionVerb = isSheep ? 'shaved' : 'played with';
 
             return NextResponse.json({
-                message: `This sheep has already been shaved! Wool grows back in ${daysLeft} days.`,
+                message: `You have already ${actionVerb} this ${def.name.toLowerCase()}! Come back in ${daysLeft} days.`,
                 cooldown: true
             });
         }
 
         // Apply Reward
-        const rewardAmount = 20;
+        const rewardAmount = 50;
         const success = await grantReward({
             userId,
-            type: 'gold',
+            type: 'exp',
             amount: rewardAmount,
-            relatedId: 'sheep-shave',
+            relatedId: relatedId,
             context: { source: 'creature_interaction', creature: def.name }
         });
 
@@ -91,13 +92,17 @@ export async function POST(request: NextRequest) {
                 user_id: userId,
                 creature_definition_id: definitionId,
                 creature_instance_id: instanceId, // Optional, logged for debug
-                interaction_type: 'shave'
+                interaction_type: interactionType
             });
 
+        const successMessage = isSheep
+            ? `You shaved the sheep! +${rewardAmount} XP`
+            : `You played with the penguin! +${rewardAmount} XP`;
+
         return NextResponse.json({
-            message: `You shaved the sheep! +${rewardAmount} Gold`,
-            reward: { type: 'gold', amount: rewardAmount },
-            shaved: true
+            message: successMessage,
+            reward: { type: 'exp', amount: rewardAmount },
+            shaved: true // Keeping property name for frontend compatibility, though semantically 'interacted'
         });
 
     } catch (error) {

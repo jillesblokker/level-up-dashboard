@@ -58,7 +58,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
         {features.map((feature, index) => {
           const Icon = feature.icon
           return (
-            <Card key={index} className="bg-gray-900/40 border border-amber-900/30 hover:border-amber-500/40 hover:bg-gray-900/60 transition-all duration-300 group">
+            <Card key={index} className="bg-gray-900/40 border-amber-900/30 hover:border-amber-500/40 hover:bg-gray-900/60 transition-all duration-300 group text-gray-100">
               <CardContent className="p-4 flex items-start space-x-3">
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/20 transition-colors">
                   <Icon className="h-4 w-4 text-amber-500 group-hover:text-amber-400 group-hover:scale-110 transition-transform duration-300" />

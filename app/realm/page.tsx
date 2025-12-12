@@ -303,7 +303,13 @@ export default function RealmPage() {
     });
     const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
     const [isHorsePresent, setIsHorsePresent] = useState(true);
-    const [isPenguinPresent, setIsPenguinPresent] = useState(false);
+    const [isPenguinPresent, setIsPenguinPresent] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-penguin-cooldown');
+            if (cooldown && Date.now() < parseInt(cooldown)) return false;
+        }
+        return false; // Default to false until we check grid for ice
+    });
     const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
@@ -321,7 +327,13 @@ export default function RealmPage() {
         }
         return { x: 5, y: 2 };
     });
-    const [isSheepPresent, setIsSheepPresent] = useState(true);
+    const [isSheepPresent, setIsSheepPresent] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-sheep-cooldown');
+            if (cooldown && Date.now() < parseInt(cooldown)) return false;
+        }
+        return true;
+    });
     const [horseCaught, setHorseCaught] = useState(() => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('animal-horse-state') === 'true';
@@ -374,11 +386,16 @@ export default function RealmPage() {
                     body: JSON.stringify({ instanceId: `sheep-${Date.now()}`, definitionId: '901' })
                 });
                 const data = await res.json();
-                if (data.reward) {
+                if (data.reward && data.shaved) {
                     toast({ title: "Sheep Shaved!", description: data.message });
-                    gainGold(data.reward.amount, 'sheep-shave');
+                    gainExperience(data.reward.amount, 'sheep-shave');
+                    setIsSheepPresent(false);
+                    // Set 5-day cooldown
+                    const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
+                    localStorage.setItem('animal-sheep-cooldown', cooldownTime.toString());
                 } else if (data.cooldown) {
                     toast({ title: "Recently Shaved", description: data.message, variant: "destructive" });
+                    setIsSheepPresent(false); // Hide it if we know it's on cooldown
                 } else {
                     toast({ title: "Baaa!", description: data.message || "The sheep looks happy." });
                 }
@@ -387,10 +404,33 @@ export default function RealmPage() {
                 toast({ title: "Error", description: "Failed to interact with sheep", variant: "destructive" });
             }
         } else if (animalType === 'penguin') {
-            toast({
-                title: "Noot Noot!",
-                description: "The penguin slides around happily! You feel refreshed.",
-            });
+            try {
+                const res = await fetch('/api/creatures/interact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ instanceId: `penguin-${Date.now()}`, definitionId: '903' })
+                });
+                const data = await res.json();
+                if (data.reward && data.shaved) { // API returns 'shaved' flag on success
+                    toast({
+                        title: "Noot Noot!",
+                        description: data.message,
+                    });
+                    gainExperience(data.reward.amount, 'penguin-play');
+                    setIsPenguinPresent(false);
+                    // Set 5-day cooldown
+                    const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
+                    localStorage.setItem('animal-penguin-cooldown', cooldownTime.toString());
+                } else if (data.cooldown) {
+                    toast({ title: "Tired Penguin", description: data.message, variant: "destructive" });
+                    setIsPenguinPresent(false);
+                } else {
+                    toast({ title: "Noot Noot!", description: data.message });
+                }
+            } catch (e) {
+                console.error("Penguin interaction failed", e);
+                toast({ title: "Error", description: "Failed to interact with penguin", variant: "destructive" });
+            }
         }
     }, [toast]);
 
@@ -423,6 +463,16 @@ export default function RealmPage() {
     // --- Penguin respawn and disappearance logic ---
     useEffect(() => {
         if (!Array.isArray(grid)) return;
+
+        // Check cooldown first
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-penguin-cooldown');
+            if (cooldown && Date.now() < parseInt(cooldown)) {
+                if (isPenguinPresent) setIsPenguinPresent(false);
+                return;
+            }
+        }
+
         const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
 
         if (!hasIce && isPenguinPresent) {

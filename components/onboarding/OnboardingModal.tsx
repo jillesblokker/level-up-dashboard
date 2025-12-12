@@ -229,7 +229,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
 
       <div className="relative w-full max-w-4xl mx-4 flex flex-col items-center justify-center h-full max-h-[90vh]">
-        <Card className="relative w-full overflow-hidden flex flex-col bg-gray-950 border-amber-900/40 shadow-2xl">
+        <Card className="relative w-full overflow-hidden flex flex-col bg-gray-950 border-amber-900/40 shadow-2xl text-gray-100">
           {/* Header */}
           <div className="flex-none flex items-center justify-between p-4 md:p-6 border-b border-amber-900/30 bg-gradient-to-r from-amber-900/80 to-black/80">
             <div className="flex items-center space-x-3">

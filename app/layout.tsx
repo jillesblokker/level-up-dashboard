@@ -70,11 +70,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icons/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/thrivehaven_fav.png", type: "image/png" },
       { url: "/icons/icon-192x192.png", type: "image/png", sizes: "192x192" },
       { url: "/icons/icon-512x512.png", type: "image/png", sizes: "512x512" }
     ],
-    shortcut: "/icons/favicon.svg",
+    shortcut: "/icons/thrivehaven_fav.png",
     apple: [
       { url: "/icons/apple-icon.png" },
       { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" }
