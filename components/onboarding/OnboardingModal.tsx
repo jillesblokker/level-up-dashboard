@@ -88,12 +88,12 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   const [isSkipping, setIsSkipping] = useState(false)
   const [canClose, setCanClose] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
-  
+
   // Ensure component is mounted before using portal
   useEffect(() => {
     setIsMounted(true)
   }, [])
-  
+
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -104,7 +104,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
         triggerSource: 'force_open_from_guide_button',
         timestamp: new Date().toISOString()
       })
-      
+
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
@@ -116,14 +116,14 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   useEffect(() => {
     if (isOpen) {
       // Don't focus anything automatically - let user interact naturally
-      
+
       // Debug: Check if modal is in DOM and ensure it's visible
       setTimeout(() => {
-        const modal = document.querySelector('[data-modal-container="onboarding-standalone"]') as HTMLElement || 
-                     document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
+        const modal = document.querySelector('[data-modal-container="onboarding-standalone"]') as HTMLElement ||
+          document.querySelector('[data-modal-container="onboarding"]') as HTMLElement
         if (modal) {
-          
-          
+
+
           smartLogger.info('OnboardingModal', 'VISIBILITY_ENFORCED', {
             action: 'enforce_modal_visibility',
             modalFound: true
@@ -143,10 +143,10 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     if (!canClose) {
       return
     }
-    
+
     onClose()
   }
-  
+
   // Debug canClose changes
   useEffect(() => {
   }, [canClose])
@@ -187,15 +187,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   const currentStepData = ONBOARDING_STEPS[currentStep] as OnboardingStep | undefined
-  
+
   // Safety check for undefined currentStepData
   if (!currentStepData) {
     return null
   }
-  
+
   const CurrentStepComponent = currentStepData.component
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100
-  
+
   const currentStepComponent = React.createElement(ONBOARDING_STEPS[currentStep]?.component || WelcomeStep, {
     onNext: handleNext,
     onPrevious: handlePrevious,
@@ -226,76 +226,87 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       )}
 
     >
-      
-      
-      <div className="relative w-full max-w-4xl mx-4">
-        <Card className="relative overflow-hidden">
+
+
+      <div className="relative w-full max-w-4xl mx-4 flex flex-col items-center justify-center h-full max-h-[90vh]">
+        <Card className="relative w-full overflow-hidden flex flex-col bg-gray-950 border-amber-900/40 shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-amber-500 to-amber-600">
+          <div className="flex-none flex items-center justify-between p-4 md:p-6 border-b border-amber-900/30 bg-gradient-to-r from-amber-900/80 to-black/80">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                <BookOpen className="w-4 h-4 text-amber-800" />
+              <div className="w-8 h-8 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <BookOpen className="w-4 h-4 text-amber-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Welcome to Thrivehaven</h2>
-                <p className="text-amber-100 text-sm">Let&apos;s get you started on your journey</p>
+                <h2 className="text-lg md:text-xl font-bold text-white font-serif tracking-wide">Welcome to Thrivehaven</h2>
+                <p className="text-amber-200/60 text-xs md:text-sm">Let&apos;s get you started on your journey</p>
               </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-amber-600"
+              className="text-amber-200/60 hover:text-white hover:bg-amber-900/40"
               aria-label="Close onboarding"
             >
               <X className="w-4 h-4" />
             </Button>
           </div>
 
-          {/* Content */}
-          <div className="p-6">
-            <div className="min-h-[400px]">
+          {/* Content - Scrollable Area */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar bg-black/40">
+            <div className="min-h-[300px] flex flex-col justify-center">
               {currentStepComponent}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t bg-gray-50">
-            <div className="flex items-center space-x-2">
-              <div className="flex space-x-1">
+          <div className="flex-none flex items-center justify-between p-4 md:p-6 border-t border-amber-900/30 bg-black/60 backdrop-blur-sm">
+            <div className="flex items-center space-x-3">
+              <div className="flex space-x-1.5">
                 {ONBOARDING_STEPS.map((_, index) => (
                   <div
                     key={index}
                     className={cn(
-                      "w-2 h-2 rounded-full transition-colors",
-                      index === currentStep ? "bg-amber-500" : "bg-gray-300"
+                      "w-1.5 h-1.5 rounded-full transition-all duration-300",
+                      index === currentStep
+                        ? "bg-amber-500 w-4 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                        : "bg-gray-700"
                     )}
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-xs text-amber-500/60 font-medium">
                 Step {currentStep + 1} of {ONBOARDING_STEPS.length}
               </span>
             </div>
-            
-            <div className="flex space-x-2">
+
+            <div className="flex space-x-3">
               {currentStep > 0 && (
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={handlePrevious}
+                  className="text-amber-200/60 hover:text-white hover:bg-amber-900/20"
                   aria-label="Previous step"
                 >
-                  Previous
+                  Back
                 </Button>
               )}
-              
+
               {currentStep < ONBOARDING_STEPS.length - 1 ? (
-                <Button onClick={handleNext} aria-label="Next step">
-                  Next
+                <Button
+                  onClick={handleNext}
+                  className="bg-amber-600 hover:bg-amber-500 text-white border border-amber-500/50 shadow-[0_0_10px_rgba(217,119,6,0.2)]"
+                  aria-label="Next step"
+                >
+                  Next Quest
                 </Button>
               ) : (
-                <Button onClick={handleComplete} aria-label="Complete onboarding">
-                  Get Started
+                <Button
+                  onClick={handleComplete}
+                  className="bg-green-700 hover:bg-green-600 text-white border border-green-500/50 shadow-[0_0_10px_rgba(21,128,61,0.3)] animate-pulse"
+                  aria-label="Complete onboarding"
+                >
+                  Enter Kingdom
                 </Button>
               )}
             </div>
@@ -309,6 +320,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   if (typeof window !== 'undefined' && document.body) {
     return createPortal(modalContent, document.body)
   }
-  
+
   return modalContent
 } 
