@@ -100,4 +100,5 @@ export async function grantReward({
   console.log('[grantReward] Logging event:', logArgs);
   const result = await logKingdomEvent(logArgs);
   console.log('[grantReward] Event logged:', result);
+  return true;
 }

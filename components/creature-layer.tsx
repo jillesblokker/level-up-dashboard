@@ -33,45 +33,51 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         }
     }, [playerPosition]);
 
-    // 1. Fetch Unlocked Achievements & Spawn Creatures
+    const [hiddenCreatures, setHiddenCreatures] = useState<Set<string>>(new Set());
+
+    // 1. Fetch Unlocked Achievements, Spawn Creatures, AND Check Cooldowns
     useEffect(() => {
         const fetchUnlockedCreatures = async () => {
             // console.log('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
 
             try {
-                if (!isLoaded) {
-                    // console.log('[CreatureLayer] Clerk not loaded yet, waiting...');
-                    return;
+                if (!isLoaded || !user) return;
+
+                // Parallel fetch: Achievements AND Recent Interactions
+                const [achievementsRes, interactionsRes] = await Promise.all([
+                    fetch('/api/achievements'),
+                    fetch('/api/creatures/interactions') // New endpoint to get active cooldowns
+                ]);
+
+                // Handle Achievements
+                let achievements = [];
+                if (achievementsRes.ok) {
+                    const data = await achievementsRes.json();
+                    achievements = Array.isArray(data) ? data : (data.achievements || []);
                 }
 
-                if (!user) {
-                    // console.log('[CreatureLayer] No user logged in, skipping creature spawn');
-                    return;
+                // Handle Interactions/Cooldowns
+                const hiddenIds = new Set<string>();
+                if (interactionsRes.ok) {
+                    const data = await interactionsRes.json();
+                    // data.cooldowns is array of definitionIds that are currently on cooldown
+                    if (data.cooldowns && Array.isArray(data.cooldowns)) {
+                        data.cooldowns.forEach((id: string) => hiddenIds.add(id));
+                    }
                 }
+                setHiddenCreatures(hiddenIds);
 
-                // console.log('[CreatureLayer] User found:', user.id);
-
-                // Fetch unlocked achievements from your API
-                const response = await fetch('/api/achievements');
-
-                if (!response.ok) {
-                    console.error('[CreatureLayer] Error fetching achievements:', response.statusText);
-                    return;
-                }
-
-                const data = await response.json();
-                // API returns an array of achievements directly, or an object with error
-                const achievements = Array.isArray(data) ? data : (data.achievements || []);
-
-                // console.log('[CreatureLayer] Achievements fetched:', achievements.length);
 
                 if (!achievements || achievements.length === 0) {
-                    // console.log('[CreatureLayer] No achievements found. Spawning test creatures for development.');
-                    // Spawn a few test creatures for development/testing
+                    // Test creatures logic...
+                    // (Keep existing test logic but maybe filter by hiddenIds too if testing cooldowns)
                     const testCreatures: ActiveCreature[] = [];
-                    const testIds = ['001', '004', '007', '010', '013']; // One of each type
+                    const testIds = ['001', '004', '007', '010', '013'];
 
                     testIds.forEach(id => {
+                        // Skip if on cooldown
+                        if (hiddenIds.has(id)) return;
+
                         const def = CREATURE_DEFINITIONS[id];
                         if (def) {
                             const spawnPoint = findRandomSpawnPoint(grid, def.type);
@@ -83,25 +89,22 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                     targetPosition: spawnPoint,
                                     state: 'idle'
                                 });
-                                // console.log(`[CreatureLayer] Spawned test creature ${def.name} at`, spawnPoint);
                             }
                         }
                     });
-
                     setActiveCreatures(testCreatures);
                     return;
                 }
 
                 const unlockedIds = achievements.map((a: any) => a.achievement_id || a.id);
-                // console.log('[CreatureLayer] Unlocked achievement IDs:', unlockedIds);
-
                 const creaturesToSpawn: ActiveCreature[] = [];
 
-                // For each unlocked achievement, check if it has a corresponding creature
                 unlockedIds.forEach((id: string) => {
+                    // Skip if on cooldown (shaved recently)
+                    if (hiddenIds.has(id)) return;
+
                     const def = CREATURE_DEFINITIONS[id];
                     if (def) {
-                        // Find a valid spawn point
                         const spawnPoint = findRandomSpawnPoint(grid, def.type);
                         if (spawnPoint) {
                             creaturesToSpawn.push({
@@ -111,14 +114,10 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 targetPosition: spawnPoint,
                                 state: 'idle'
                             });
-                            // console.log(`[CreatureLayer] Spawned creature ${def.name} at`, spawnPoint);
-                        } else {
-                            console.warn(`[CreatureLayer] No valid spawn point found for creature ${def.name} (type: ${def.type})`);
                         }
                     }
                 });
 
-                // console.log('[CreatureLayer] Total creatures spawned:', creaturesToSpawn.length);
                 setActiveCreatures(creaturesToSpawn);
             } catch (error) {
                 console.error('[CreatureLayer] Unexpected error:', error);
