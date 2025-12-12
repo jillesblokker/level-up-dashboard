@@ -401,8 +401,8 @@ export default function RealmPage() {
                 });
                 const data = await res.json();
                 if (data.reward && data.shaved) {
-                    toast({ title: "Sheep Shaved! 🐑", description: `${data.message} - You earned ${data.reward.amount} XP!` });
-                    gainExperience(data.reward.amount, 'sheep-shave');
+                    toast({ title: "Sheep Shaved! 🐑", description: data.message });
+                    gainGold(data.reward.amount, 'sheep-shave');
                     setIsSheepPresent(false);
                     setSheepCaught(true);
                     // Set 5-day cooldown
@@ -430,9 +430,9 @@ export default function RealmPage() {
                 if (data.reward && data.shaved) { // API returns 'shaved' flag on success
                     toast({
                         title: "Noot Noot! 🐧",
-                        description: `${data.message} - You earned ${data.reward.amount} XP!`,
+                        description: data.message,
                     });
-                    gainExperience(data.reward.amount, 'penguin-play');
+                    gainGold(data.reward.amount, 'penguin-play');
                     setIsPenguinPresent(false);
                     setPenguinCaught(true);
                     // Set 5-day cooldown
@@ -450,7 +450,7 @@ export default function RealmPage() {
                 toast({ title: "Error", description: "Failed to interact with penguin", variant: "destructive" });
             }
         }
-    }, [toast, gainExperience]);
+    }, [toast, gainGold]);
 
 
 

@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
         }
 
         // Apply Reward
-        const rewardAmount = 50;
+        const rewardAmount = 25;
         const success = await grantReward({
             userId,
-            type: 'exp',
+            type: 'gold',
             amount: rewardAmount,
             relatedId: relatedId,
             context: { source: 'creature_interaction', creature: def.name }
@@ -96,12 +96,12 @@ export async function POST(request: NextRequest) {
             });
 
         const successMessage = isSheep
-            ? `You shaved the sheep! +${rewardAmount} XP`
-            : `You played with the penguin! +${rewardAmount} XP`;
+            ? `25 gold for the silver white fur of shaving Shaun the sheep!`
+            : `25 gold found for petting the penguin!`;
 
         return NextResponse.json({
             message: successMessage,
-            reward: { type: 'exp', amount: rewardAmount },
+            reward: { type: 'gold', amount: rewardAmount },
             shaved: true // Keeping property name for frontend compatibility, though semantically 'interacted'
         });
 
