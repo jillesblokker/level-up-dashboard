@@ -32,11 +32,18 @@
 }
 
 /* Override all Tailwind grid classes for quests and challenges */
-.app\/quests\/page\.tsx .lg\\:grid-cols-4,
-.app\/quests\/page\.tsx .xl\\:grid-cols-4,
-.app\/quests\/page\.tsx .2xl\\:grid-cols-5 {
+/* 
+  Legacy specific overrides commented out to fix build errors. 
+  Scoping styles to file paths (.app/quests/page.tsx) is not standard CSS and breaks parsers.
+  If specific grid layouts are needed, apply a custom class in the relevant component.
+*/
+/* 
+.lg\:grid-cols-4,
+.xl\:grid-cols-4,
+.2xl\:grid-cols-5 {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-}
+} 
+*/
 
 /* Mobile dropdown scrolling fix */
 .dropdown-menu-scrollable {
