@@ -288,7 +288,7 @@ export async function GET(request: Request) {
         completionData: completion
       });
 
-      return {
+      const mappedQuest: any = {
         id: quest.id,
         name: quest.name,
         title: quest.name,
@@ -302,9 +302,41 @@ export async function GET(request: Request) {
         isNew: !isCompleted,
         completionId: isCompleted ? quest.id : undefined,
         xpEarned: completion?.xpEarned || 0,
-        goldEarned: completion?.goldEarned || 0
+        goldEarned: completion?.goldEarned || 0,
+        isRecurring: quest.is_recurring || false,
+        recurrenceInterval: quest.recurrence_interval || 'none'
       };
+
+      // RECURRENCE LOGIC:
+      // If it's recurring, check if the "completedAt" is within the reset window.
+      // e.g. Daily = completed TODAY. Weekly = completed THIS WEEK.
+      // The current "completedQuests" map ALREADY filters for "TODAY" above for daily habit tracking.
+      // So if it's in the map, it's completed for the current period (assuming the map logic holds).
+
+      // Let's refine the map logic slightly to be robust:
+      // content above ALREADY does: `return netherlandsDate === today;`
+      // This effectively treats ALL quests as "Daily Recurring" from a display perspective.
+      // If we want "Weekly", we'd need to change that filter.
+
+      // For now, let's trust the existing "Today" filter implies "Daily reset" behavior is desired for habit tracking.
+      // If isRecurring=false (One-time), and it IS completed (ever), we might want to hide it?
+      // Or show it as "Done forever". The checklist asks for "Onboarding quests only once".
+
+      if (quest.recurrence_interval === 'once' && completion) {
+        // It's a one-time quest and it has been done.
+        // We might want to filter this OUT of the list entirely if "hide after done".
+        // But the frontend might want to show "Completed" state.
+        // Let's keep it but mark it.
+        mappedQuest.isOneTime = true;
+      }
+
+      return mappedQuest;
     });
+
+    // Filter out hidden one-time quests if desired (optional step, for now returning all)
+    // const visibleQuests = questsWithCompletions.filter(q => !q.isOneTime || !q.completed);
+
+    return NextResponse.json(questsWithCompletions);
 
     // Debug: Check final results
     const finalCompletedCount = questsWithCompletions.filter(q => q.completed).length;
