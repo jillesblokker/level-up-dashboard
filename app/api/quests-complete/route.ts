@@ -114,9 +114,12 @@ export async function PUT(request: Request) {
     // Find the quest by name to get its ID
     const { data: quest, error: questError } = await supabase
       .from('quests')
-      .select('id, xp_reward, gold_reward')
+      .select('id, xp_reward, gold_reward, sender_id')
       .eq('name', title)
       .single();
+
+    // Cast to any to temporarily bypass strict type checking on partial select results
+    const diffQuest = quest as any;
 
     if (questError || !quest) {
       console.error(`Quest not found: ${JSON.stringify({ questError, title })}`, 'QUESTS-COMPLETE PUT');
@@ -147,6 +150,34 @@ export async function PUT(request: Request) {
 
     // Extract completion data from smart result
     const questCompletion = smartResult.record;
+
+    // SOCIAL NOTIFICATION LOGIC:
+    // Check if this quest was sent by a friend
+    if (completed && diffQuest.sender_id && diffQuest.sender_id !== userId) {
+      console.log('Quest was sent by friend, triggering notification...', 'QUESTS-COMPLETE PUT');
+      try {
+        // Import clerk client dynamically to avoid circular deps if any
+        const { clerkClient } = await import('@clerk/nextjs/server');
+        const client = await clerkClient();
+        const completer = await client.users.getUser(userId);
+        const completerName = completer.username || completer.firstName || 'A friend';
+
+        await supabase.from('notifications').insert({
+          user_id: diffQuest.sender_id, // Send TO the original sender
+          type: 'quest_completed', // Ensure this type is valid in your DB constraint or use a fallback
+          data: {
+            completerId: userId,
+            completerName: completerName,
+            questName: title,
+            xpEarned: diffQuest.xp_reward || 50
+          }
+        });
+        console.log('Notification sent to sender:', diffQuest.sender_id, 'QUESTS-COMPLETE PUT');
+      } catch (notifError) {
+        console.error('Error sending social notification:', notifError, 'QUESTS-COMPLETE PUT');
+        // Don't fail the request if notification fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
