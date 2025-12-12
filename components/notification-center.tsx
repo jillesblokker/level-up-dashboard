@@ -113,6 +113,27 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     }
   };
 
+  const handleQuestAction = async (notification: any, action: 'accept' | 'reject') => {
+    try {
+      const res = await fetch('/api/quests/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId: notification.id, action })
+      });
+
+      if (res.ok) {
+        // Mark notification as read
+        handleMarkAsRead(notification.id, true);
+        // Refresh notifications
+        fetchServerNotifications();
+        // Trigger quest update
+        window.dispatchEvent(new Event('quest-update'));
+      }
+    } catch (error) {
+      console.error("Error responding to quest:", error);
+    }
+  };
+
   // Merge local and server notifications for display
   const allNotifications: any[] = [
     ...serverNotifications.map(n => ({
@@ -273,6 +294,14 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                         <div className="flex gap-2 mt-3">
                           <Button size="sm" onClick={() => handleFriendAction(notification.original, 'accept')}>Accept</Button>
                           <Button size="sm" variant="outline" onClick={() => handleFriendAction(notification.original, 'reject')}>Decline</Button>
+                        </div>
+                      )}
+
+                      {/* Action Buttons for Quest Requests */}
+                      {notification.isServer && notification.original.type === 'friend_quest_received' && !notification.read && (
+                        <div className="flex gap-2 mt-3">
+                          <Button size="sm" onClick={() => handleQuestAction(notification.original, 'accept')} className="bg-amber-600 hover:bg-amber-700 text-white border-none">Accept Quest</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleQuestAction(notification.original, 'reject')} className="border-amber-600/50 text-amber-200 hover:bg-amber-900/30">Decline</Button>
                         </div>
                       )}
 

@@ -9,6 +9,7 @@ interface CreatureLayerProps {
     tileSize: number;
     mapType: 'kingdom' | 'realm';
     playerPosition?: { x: number; y: number }; // Optional: actual player position for tooltips
+    onCreatureClick?: (creature: ActiveCreature) => void;
 }
 
 interface ActiveCreature {
@@ -19,7 +20,7 @@ interface ActiveCreature {
     state: 'idle' | 'walking';
 }
 
-export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLayerProps, 'tileSize'>) {
+export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }: Omit<CreatureLayerProps, 'tileSize'>) {
     const [activeCreatures, setActiveCreatures] = useState<ActiveCreature[]>([]);
     const [playerTile, setPlayerTile] = useState<{ row: number; col: number } | null>(null);
     const { user, isLoaded } = useUser();
@@ -252,12 +253,16 @@ export function CreatureLayer({ grid, mapType, playerPosition }: Omit<CreatureLa
                 return (
                     <div
                         key={creature.instanceId}
-                        className="absolute transition-all duration-[3000ms] ease-in-out"
+                        className="absolute transition-all duration-[3000ms] ease-in-out pointer-events-auto cursor-pointer hover:scale-110 z-20"
                         style={{
                             top: `${(creature.position.row / rows) * 100}%`,
                             left: `${(creature.position.col / cols) * 100}%`,
                             width: `${(1 / cols) * 100}%`,
                             height: `${(1 / rows) * 100}%`,
+                        }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onCreatureClick?.(creature);
                         }}
                     >
                         <CreatureSprite

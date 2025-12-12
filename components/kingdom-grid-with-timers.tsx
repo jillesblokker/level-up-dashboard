@@ -1374,6 +1374,15 @@ export function KingdomGridWithTimers({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const handleCreatureClick = (creature: any) => {
+    // Determine creature name from definition ID or similar
+    // For now, showing a generic message
+    toast({
+      title: "Creature Spotted! 👀",
+      description: "This creature seems friendly but shy. (Interactions coming soon!)",
+    })
+  }
+
   const renderGridWithBorder = () => {
     const rows = grid.length
     const cols = grid[0]?.length || 6
