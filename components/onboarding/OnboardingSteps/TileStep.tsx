@@ -24,9 +24,9 @@ export function TileStep({ onNext }: TileStepProps) {
   const handleBuyTile = (tileId: string) => {
     const tile = tileInventory.find(t => t.id === tileId)
     if (tile && goldBalance >= tile.cost) {
-      setTileInventory(prev => 
-        prev.map(t => 
-          t.id === tileId 
+      setTileInventory(prev =>
+        prev.map(t =>
+          t.id === tileId
             ? { ...t, quantity: t.quantity + 1 }
             : t
         )
@@ -38,9 +38,9 @@ export function TileStep({ onNext }: TileStepProps) {
   const handlePlaceTile = (tileId: string) => {
     const tile = tileInventory.find(t => t.id === tileId)
     if (tile && tile.quantity > 0) {
-      setTileInventory(prev => 
-        prev.map(t => 
-          t.id === tileId 
+      setTileInventory(prev =>
+        prev.map(t =>
+          t.id === tileId
             ? { ...t, quantity: t.quantity - 1 }
             : t
         )
@@ -65,20 +65,19 @@ export function TileStep({ onNext }: TileStepProps) {
         <h3 className="text-base md:text-lg font-semibold text-white">Tile Inventory</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           {tileInventory.map((tile) => (
-            <Card 
-              key={tile.id} 
-              className={`bg-gray-800/50 border transition-all duration-300 cursor-pointer ${
-                selectedTile === tile.id 
-                  ? 'border-amber-500 bg-amber-500/10' 
+            <Card
+              key={tile.id}
+              className={`bg-gray-800/50 border transition-all duration-300 cursor-pointer ${selectedTile === tile.id
+                  ? 'border-amber-500 bg-amber-500/10'
                   : 'border-amber-800/20 hover:border-amber-500/40'
-              }`}
+                }`}
               onClick={() => setSelectedTile(tile.id)}
             >
               <CardContent className="p-3 md:p-4">
                 <div className="text-center space-y-2 md:space-y-3">
                   <div className="w-12 h-12 md:w-16 md:h-16 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={`/images/tiles/${tile.id}-tile.png`} 
+                    <img
+                      src={`/images/tiles/${tile.id}-tile.png`}
                       alt={tile.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -108,7 +107,7 @@ export function TileStep({ onNext }: TileStepProps) {
                       </Badge>
                     </div>
                   </div>
-                  
+
                   {/* Buy Button */}
                   <Button
                     size="sm"
@@ -153,7 +152,7 @@ export function TileStep({ onNext }: TileStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Tile System</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Buying Tiles</h5>
             <p className="text-sm text-gray-300">
               Use gold to purchase tiles from the inventory. Different tiles have different costs.
@@ -174,7 +173,7 @@ export function TileStep({ onNext }: TileStepProps) {
           Try buying a tile and then placing it in your kingdom!
         </p>
         {tileInventory.some(t => t.quantity > 0) && (
-                      <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3">
+          <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3">
             <p className="text-amber-400 font-medium">
               Great! You have tiles in your inventory. Select one to place it.
             </p>

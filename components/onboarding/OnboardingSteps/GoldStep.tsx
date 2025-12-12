@@ -118,13 +118,13 @@ export function GoldStep({ onNext }: GoldStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Gold Economy</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Earning</h5>
             <p className="text-sm text-gray-300">
               Complete quests to earn gold. Different quests give different rewards.
             </p>
           </div>
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Spending</h5>
             <p className="text-sm text-gray-300">
               Use gold to buy tiles, items, and unlock new content for your kingdom.

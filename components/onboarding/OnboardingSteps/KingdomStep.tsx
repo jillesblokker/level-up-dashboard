@@ -51,19 +51,18 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
         <h3 className="text-lg font-semibold text-white">Kingdom Grid</h3>
         <div className="flex justify-center">
           <div className="grid grid-cols-4 gap-1 bg-gray-800/50 border border-amber-800/20 rounded-lg p-4">
-            {kingdomGrid.map((row, rowIndex) => 
+            {kingdomGrid.map((row, rowIndex) =>
               row.map((tile, colIndex) => (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  className={`w-12 h-12 rounded border transition-all duration-300 ${
-                    tile 
-                      ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-amber-500/40' 
+                  className={`w-12 h-12 rounded border transition-all duration-300 ${tile
+                      ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-amber-500/40'
                       : 'bg-gray-700/50 border-gray-600/30'
-                  }`}
+                    }`}
                 >
                   {tile && (
                     <div className="w-full h-full flex items-center justify-center overflow-hidden">
-                      <img 
+                      <img
                         src={`/images/tiles/${tile}-tile.png`}
                         alt={`${tile} tile`}
                         className="w-full h-full object-cover"
@@ -109,13 +108,13 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Kingdom Building</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Tile Placement</h5>
             <p className="text-sm text-gray-300">
               Place tiles strategically to build your kingdom. Each tile adds value and expands your realm.
             </p>
           </div>
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Kingdom Growth</h5>
             <p className="text-sm text-gray-300">
               Watch your kingdom grow as you add more tiles. Larger kingdoms unlock new features.

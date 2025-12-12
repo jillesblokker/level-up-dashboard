@@ -72,8 +72,8 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                 <span className="text-gray-300">Experience</span>
                 <span className="text-amber-400">{currentXP} / {maxXP} XP</span>
               </div>
-              <Progress 
-                value={progress} 
+              <Progress
+                value={progress}
                 className="h-3 bg-gray-700"
                 style={{
                   '--progress-background': 'rgb(245 158 11)',
@@ -109,7 +109,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
           <h4 className="text-md font-semibold text-white">Newly Unlocked</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {unlockedContent.map((content, index) => (
-              <Card key={index} className="bg-amber-500/10 border border-amber-500/20">
+              <Card key={index} className="bg-amber-500/10 border border-amber-500/20 text-white">
                 <CardContent className="p-3 text-center">
                   <Unlock className="h-5 w-5 text-amber-400 mx-auto mb-2" />
                   <p className="text-sm font-medium text-white">{content}</p>
@@ -127,21 +127,19 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
           {lockedFeatures.map((feature, index) => {
             const Icon = feature.icon
             const isUnlocked = currentLevel >= feature.level
-            
+
             return (
-              <Card 
-                key={index} 
-                className={`border transition-all duration-300 ${
-                  isUnlocked 
-                    ? 'bg-amber-500/10 border-amber-500/20' 
+              <Card
+                key={index}
+                className={`border transition-all duration-300 ${isUnlocked
+                    ? 'bg-amber-500/10 border-amber-500/20'
                     : 'bg-gray-800/50 border-gray-700/50'
-                }`}
+                  }`}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isUnlocked ? 'bg-amber-500/20' : 'bg-gray-700/50'
-                    }`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isUnlocked ? 'bg-amber-500/20' : 'bg-gray-700/50'
+                      }`}>
                       <Icon className={`h-4 w-4 ${isUnlocked ? 'text-amber-400' : 'text-gray-500'}`} />
                     </div>
                     <div className="flex-1">
@@ -174,13 +172,13 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Progression Benefits</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Level Up Rewards</h5>
             <p className="text-sm text-gray-300">
               Each level unlocks new quests, tiles, and special features for your kingdom.
             </p>
           </div>
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Experience Gain</h5>
             <p className="text-sm text-gray-300">
               Complete quests to earn experience points and advance your character.

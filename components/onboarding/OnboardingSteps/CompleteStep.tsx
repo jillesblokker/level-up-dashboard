@@ -92,7 +92,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       {/* Next Steps */}
       <div className="space-y-4">
         <h4 className="text-lg font-semibold text-white">Your Next Steps</h4>
-        <Card className="bg-amber-500/10 border border-amber-500/20">
+        <Card className="bg-amber-500/10 border border-amber-500/20 text-white">
           <CardContent className="p-4">
             <div className="space-y-3">
               {nextSteps.map((step, index) => (
@@ -118,7 +118,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
               Complete quests daily to maintain a steady flow of gold and experience.
             </p>
           </div>
-                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Strategic Building</h5>
             <p className="text-sm text-gray-300">
               Plan your kingdom layout carefully to maximize efficiency and aesthetics.

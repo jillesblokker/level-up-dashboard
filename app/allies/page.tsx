@@ -384,8 +384,13 @@ export default function AlliesPage() {
                                                         )} title={friend.lastSeen ? `Last seen: ${new Date(friend.lastSeen).toLocaleString()}` : "Offline"} />
                                                     </div>
                                                     <div className="min-w-0 flex-1">
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-2 flex-wrap">
                                                             <h4 className="font-semibold text-lg truncate">{friend.username}</h4>
+                                                            {friend.stats?.level && (
+                                                                <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/30">
+                                                                    Lvl {friend.stats.level}
+                                                                </Badge>
+                                                            )}
                                                             {friend.title && (
                                                                 <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
                                                                     {friend.title}
