@@ -19,6 +19,8 @@ interface MapGridProps {
   isHorsePresent?: boolean;
   isSheepPresent?: boolean;
   horseCaught?: boolean;
+  sheepCaught?: boolean;
+  penguinCaught?: boolean;
 }
 
 const getTileImage = (tileType: string) => {
@@ -88,7 +90,9 @@ export function MapGrid({
   isPenguinPresent = false,
   isHorsePresent = false,
   isSheepPresent = false,
-  horseCaught = false
+  horseCaught = false,
+  sheepCaught = false,
+  penguinCaught = false
 }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(80);
@@ -316,8 +320,8 @@ export function MapGrid({
         </div>
 
         {/* Animal Overlays - positioned within the grid container */}
-        {/* Penguin - appears on ice tiles */}
-        {isPenguinPresent && penguinPos && (
+        {/* Penguin - appears on ice tiles, disappears when caught */}
+        {isPenguinPresent && penguinPos && !penguinCaught && (
           <div
             className="absolute z-20 pointer-events-none"
             style={{
@@ -356,8 +360,8 @@ export function MapGrid({
           </div>
         )}
 
-        {/* Sheep - appears on grass tiles */}
-        {isSheepPresent && sheepPos && (
+        {/* Sheep - appears on grass tiles, disappears when caught */}
+        {isSheepPresent && sheepPos && !sheepCaught && (
           <div
             className="absolute z-20 pointer-events-none"
             style={{

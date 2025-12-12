@@ -340,6 +340,20 @@ export default function RealmPage() {
         }
         return false;
     });
+    const [sheepCaught, setSheepCaught] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-sheep-cooldown');
+            return cooldown && Date.now() < parseInt(cooldown);
+        }
+        return false;
+    });
+    const [penguinCaught, setPenguinCaught] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-penguin-cooldown');
+            return cooldown && Date.now() < parseInt(cooldown);
+        }
+        return false;
+    });
     const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
 
     // Load actual inventory from database and apply starting quantities if needed
@@ -390,12 +404,14 @@ export default function RealmPage() {
                     toast({ title: "Sheep Shaved!", description: data.message });
                     gainExperience(data.reward.amount, 'sheep-shave');
                     setIsSheepPresent(false);
+                    setSheepCaught(true);
                     // Set 5-day cooldown
                     const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
                     localStorage.setItem('animal-sheep-cooldown', cooldownTime.toString());
                 } else if (data.cooldown) {
                     toast({ title: "Recently Shaved", description: data.message, variant: "destructive" });
                     setIsSheepPresent(false); // Hide it if we know it's on cooldown
+                    setSheepCaught(true);
                 } else {
                     toast({ title: "Baaa!", description: data.message || "The sheep looks happy." });
                 }
@@ -418,12 +434,14 @@ export default function RealmPage() {
                     });
                     gainExperience(data.reward.amount, 'penguin-play');
                     setIsPenguinPresent(false);
+                    setPenguinCaught(true);
                     // Set 5-day cooldown
                     const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
                     localStorage.setItem('animal-penguin-cooldown', cooldownTime.toString());
                 } else if (data.cooldown) {
                     toast({ title: "Tired Penguin", description: data.message, variant: "destructive" });
                     setIsPenguinPresent(false);
+                    setPenguinCaught(true);
                 } else {
                     toast({ title: "Noot Noot!", description: data.message });
                 }
@@ -2842,6 +2860,8 @@ export default function RealmPage() {
                         isHorsePresent={isHorsePresent}
                         isSheepPresent={isSheepPresent}
                         horseCaught={horseCaught}
+                        sheepCaught={sheepCaught}
+                        penguinCaught={penguinCaught}
                     />
                 </div>
                 {/* Overlay Inventory Panel */}
