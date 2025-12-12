@@ -69,7 +69,16 @@ export const metadata: Metadata = {
   description: "A medieval-themed habit tracking app with quests, kingdom building, and character progression",
   manifest: "/manifest.json",
   icons: {
-    apple: "/icons/icon-152x152.png",
+    icon: [
+      { url: "/icons/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192x192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icons/icon-512x512.png", type: "image/png", sizes: "512x512" }
+    ],
+    shortcut: "/icons/favicon.svg",
+    apple: [
+      { url: "/icons/apple-icon.png" },
+      { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" }
+    ],
     other: {
       rel: "apple-touch-icon-precomposed",
       url: "/icons/icon-152x152.png",

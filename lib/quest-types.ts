@@ -3,7 +3,7 @@ export interface Quest {
   title: string;
   description: string;
   category: string;
-  difficulty: "easy" | "medium" | "hard" | "epic";
+  difficulty: "easy" | "medium" | "hard" | "epic" | "legendary";
   rewards: {
     xp: number;
     gold: number;

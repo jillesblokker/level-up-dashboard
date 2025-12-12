@@ -2798,26 +2798,7 @@ export default function QuestsPage() {
                   title="Difficulty"
                   aria-label="Difficulty"
                 />
-                <label className="block mb-2 text-sm font-medium">XP Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingQuest.xp || 0}
-                  onChange={e => setEditingQuest({ ...editingQuest, xp: Number(e.target.value) })}
-                  placeholder="XP"
-                  title="XP"
-                  aria-label="XP"
-                />
-                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingQuest.gold || 0}
-                  onChange={e => setEditingQuest({ ...editingQuest, gold: Number(e.target.value) })}
-                  placeholder="Gold"
-                  title="Gold"
-                  aria-label="Gold"
-                />
+
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
                   <Button type="submit" variant="default">Save</Button>
@@ -2879,26 +2860,7 @@ export default function QuestsPage() {
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
                 </select>
-                <label className="block mb-2 text-sm font-medium">XP Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingChallenge.xp || 0}
-                  onChange={e => setEditingChallenge({ ...editingChallenge, xp: Number(e.target.value) })}
-                  placeholder="XP"
-                  title="XP"
-                  aria-label="XP"
-                />
-                <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-                <input
-                  type="number"
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingChallenge.gold || 0}
-                  onChange={e => setEditingChallenge({ ...editingChallenge, gold: Number(e.target.value) })}
-                  placeholder="Gold"
-                  title="Gold"
-                  aria-label="Gold"
-                />
+
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>Cancel</Button>
                   <Button type="submit" variant="default">Save</Button>
@@ -2984,26 +2946,7 @@ export default function QuestsPage() {
                   <SelectItem value="hard">Hard</SelectItem>
                 </SelectContent>
               </Select>
-              <label className="block mb-2 text-sm font-medium">XP Reward</label>
-              <input
-                type="number"
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.xp}
-                onChange={e => setEditingMilestone({ ...editingMilestone, xp: Number(e.target.value) })}
-                placeholder="XP"
-                title="XP"
-                aria-label="XP"
-              />
-              <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-              <input
-                type="number"
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.gold}
-                onChange={e => setEditingMilestone({ ...editingMilestone, gold: Number(e.target.value) })}
-                placeholder="Gold"
-                title="Gold"
-                aria-label="Gold"
-              />
+
               <label className="block mb-2 text-sm font-medium">Target</label>
               <input
                 type="number"
@@ -3133,26 +3076,7 @@ export default function QuestsPage() {
             title="Unit"
             aria-label="Unit"
           />
-          <label className="block mb-2 text-sm font-medium">XP Reward</label>
-          <input
-            type="number"
-            className="w-full mb-4 p-2 border rounded"
-            value={newMilestone.xp}
-            onChange={e => setNewMilestone({ ...newMilestone, xp: Number(e.target.value) })}
-            placeholder="XP"
-            title="XP"
-            aria-label="XP"
-          />
-          <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-          <input
-            type="number"
-            className="w-full mb-4 p-2 border rounded"
-            value={newMilestone.gold}
-            onChange={e => setNewMilestone({ ...newMilestone, gold: Number(e.target.value) })}
-            placeholder="Gold"
-            title="Gold"
-            aria-label="Gold"
-          />
+
         </ResponsiveModal>
         {/* Add Custom Challenge Modal */}
         <ResponsiveModal
@@ -3393,26 +3317,7 @@ export default function QuestsPage() {
             title="Difficulty"
             aria-label="Difficulty"
           />
-          <label className="block mb-2 text-sm font-medium">XP Reward</label>
-          <input
-            type="number"
-            className="w-full mb-4 p-2 border rounded"
-            value={newQuest.xp}
-            onChange={e => setNewQuest({ ...newQuest, xp: Number(e.target.value) })}
-            placeholder="XP"
-            title="XP"
-            aria-label="XP"
-          />
-          <label className="block mb-2 text-sm font-medium">Gold Reward</label>
-          <input
-            type="number"
-            className="w-full mb-4 p-2 border rounded"
-            value={newQuest.gold}
-            onChange={e => setNewQuest({ ...newQuest, gold: Number(e.target.value) })}
-            placeholder="Gold"
-            title="Gold"
-            aria-label="Gold"
-          />
+
         </ResponsiveModal>
         {/* Delete Confirmation Modal */}
         <ResponsiveModal

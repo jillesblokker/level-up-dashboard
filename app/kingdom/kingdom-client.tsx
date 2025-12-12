@@ -43,6 +43,7 @@ import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import { saveKingdomGrid, saveKingdomTimers, saveKingdomItems, saveKingdomTileStates, loadKingdomGrid, loadKingdomTimers, loadKingdomItems, loadKingdomTileStates } from '@/lib/supabase-persistence-client'
+import { KingdomGuide } from '@/components/kingdom/kingdom-guide'
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number>,
@@ -1241,6 +1242,7 @@ export function KingdomClient() {
   return (
     <div className="min-h-screen">
       {/* Main Content with Tabs */}
+      <KingdomGuide />
       <HeaderSection
         title="KINGDOM"
         imageSrc={coverImage || ""}

@@ -19,7 +19,7 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
   const defaultStats: CharacterStats = {
     health: 100,
     max_health: 100,
-    gold: 0,
+    gold: 500,
     experience: 0,
     level: 1,
     build_tokens: 0,
@@ -89,7 +89,7 @@ export function getCharacterStats(): CharacterStats {
   // Check if we're on the client side
   if (typeof window === 'undefined') {
     return {
-      gold: 0,
+      gold: 500,
       experience: 0,
       level: 1,
       health: 100,
@@ -118,7 +118,7 @@ export function getCharacterStats(): CharacterStats {
   }
 
   return {
-    gold: 0,
+    gold: 500,
     experience: 0,
     level: 1,
     health: 100,

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import logger from '@/lib/logger';
+import { calculateRewards } from '@/lib/game-logic';
 
 const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Amsterdam',
@@ -312,7 +313,7 @@ export async function POST(request: Request) {
     }
 
     // Handle single challenge creation
-    const { name, instructions, description, category, difficulty, xp, gold, setsReps, tips, weight } = body;
+    const { name, instructions, description, category, difficulty, setsReps, tips, weight } = body;
 
     if (!name || !category) {
       return NextResponse.json({ error: 'Missing required fields (name, category)' }, { status: 400 });
@@ -325,13 +326,14 @@ export async function POST(request: Request) {
       // Note: 'instructions' from frontend maps to 'description' in DB usually, 
       // but we'll prefer 'description' if provided.
       // 'setsReps' maps to 'sets' or 'reps' depending on schema, we'll try 'sets' as a generic container
+      const rewards = calculateRewards(difficulty || 'medium');
       const challengeData = {
         name,
         description: description || instructions || '',
         category,
         difficulty: difficulty || 'medium',
-        xp: xp || 0,
-        gold: gold || 0,
+        xp: rewards.xp,
+        gold: rewards.gold,
         sets: setsReps || null, // Storing sets/reps in 'sets' column
         tips: tips || null,
         weight: weight || null,
@@ -369,7 +371,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, description, category, difficulty, xp, gold } = body;
+    const { id, name, description, category, difficulty } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Challenge ID is required' }, { status: 400 });
@@ -387,8 +389,8 @@ export async function PATCH(request: Request) {
           description: description || undefined,
           category: category || undefined,
           difficulty: difficulty || undefined,
-          xp: xp || undefined,
-          gold: gold || undefined,
+          xp: difficulty ? calculateRewards(difficulty).xp : undefined,
+          gold: difficulty ? calculateRewards(difficulty).gold : undefined,
         })
         .eq('id', id)
         .select()

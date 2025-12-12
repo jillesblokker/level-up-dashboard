@@ -30,11 +30,11 @@ export const questSchema = z.object({
   category: z.enum(['might', 'agility', 'intelligence', 'knowledge', 'social', 'spiritual'], {
     errorMap: () => ({ message: 'Please select a valid category' })
   }),
-  difficulty: z.enum(['easy', 'medium', 'hard'], {
+  difficulty: z.enum(['easy', 'medium', 'hard', 'epic', 'legendary'], {
     errorMap: () => ({ message: 'Please select a valid difficulty' })
   }),
-  xp: z.number().min(0, 'XP must be 0 or greater').max(10000, 'XP cannot exceed 10,000'),
-  gold: z.number().min(0, 'Gold must be 0 or greater').max(10000, 'Gold cannot exceed 10,000'),
+  xp: z.number().min(0, 'XP must be 0 or greater').max(10000, 'XP cannot exceed 10,000').optional(),
+  gold: z.number().min(0, 'Gold must be 0 or greater').max(10000, 'Gold cannot exceed 10,000').optional(),
   tags: z.array(z.string()).optional(),
   isRepeatable: z.boolean().optional(),
   cooldownHours: z.number().min(0).optional(),
@@ -58,9 +58,9 @@ export const challengeSchema = z.object({
   category: z.enum(['strength', 'condition', 'knowledge', 'nutrition', 'mental'], {
     errorMap: () => ({ message: 'Please select a valid category' })
   }),
-  difficulty: z.enum(['easy', 'medium', 'hard']),
-  xp: z.number().min(0).max(10000),
-  gold: z.number().min(0).max(10000),
+  difficulty: z.enum(['easy', 'medium', 'hard', 'epic', 'legendary']),
+  xp: z.number().min(0).max(10000).optional(),
+  gold: z.number().min(0).max(10000).optional(),
   target: z.number().min(1, 'Target must be at least 1'),
   unit: z.string().optional(),
   frequency: z.enum(['daily', 'weekly', 'monthly']).optional(),
@@ -81,9 +81,9 @@ export const milestoneSchema = z.object({
   name: z.string().min(1, 'Milestone name is required').max(100),
   description: z.string().max(500).optional(),
   category: z.enum(['might', 'agility', 'intelligence', 'knowledge', 'social', 'spiritual']),
-  difficulty: z.enum(['easy', 'medium', 'hard']),
-  xp: z.number().min(0).max(10000),
-  gold: z.number().min(0).max(10000),
+  difficulty: z.enum(['easy', 'medium', 'hard', 'epic', 'legendary']),
+  xp: z.number().min(0).max(10000).optional(),
+  gold: z.number().min(0).max(10000).optional(),
   target: z.number().min(1, 'Target must be at least 1'),
   progress: z.number().min(0).optional(),
   isRepeatable: z.boolean().optional(),

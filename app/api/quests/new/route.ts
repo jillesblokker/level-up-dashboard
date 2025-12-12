@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
+import { calculateRewards } from '@/lib/game-logic';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
@@ -25,7 +26,15 @@ export async function POST(request: Request) {
     }
     const body = await request.json();
     console.log('[API/quests/new] Received body:', body);
-    const { name, description, category, difficulty, xp_reward, gold_reward } = body;
+
+
+    const { name, description, category, difficulty } = body;
+
+    // Calculate rewards based on difficulty
+    const rewards = calculateRewards(difficulty || 'medium');
+    const xp_reward = rewards.xp;
+    const gold_reward = rewards.gold;
+
     if (!name || !category) {
       console.error('[API/quests/new] Missing required fields:', { name, category });
       return new NextResponse(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
@@ -38,8 +47,8 @@ export async function POST(request: Request) {
           description,
           category,
           difficulty,
-          xp_reward: xp_reward ?? 0,
-          gold_reward: gold_reward ?? 0,
+          xp_reward,
+          gold_reward,
           user_id: userId, // Assign quest to the current user
         },
       ])

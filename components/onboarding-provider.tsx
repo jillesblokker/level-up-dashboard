@@ -10,18 +10,18 @@ interface OnboardingProviderProps {
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
   const [hasShownOnboarding, setHasShownOnboarding] = useState(false)
-  
+
   // Simple onboarding state management
   const openOnboarding = () => {
     console.log('OnboardingProvider: Opening onboarding')
     setIsOnboardingOpen(true)
   }
-  
+
   const closeOnboarding = () => {
     console.log('OnboardingProvider: Closing onboarding')
     setIsOnboardingOpen(false)
   }
-  
+
   const completeOnboarding = () => {
     console.log('OnboardingProvider: Completing onboarding')
     setHasShownOnboarding(true)
@@ -31,17 +31,20 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       localStorage.setItem('onboarding-completed', 'true')
     }
   }
-  
+
   // Check if onboarding should be shown on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const completed = localStorage.getItem('onboarding-completed')
-      if (completed === 'true') {
+      if (completed !== 'true') {
+        // Delay slightly to ensure smooth rendering
+        setTimeout(() => setIsOnboardingOpen(true), 500)
+      } else {
         setHasShownOnboarding(true)
       }
     }
   }, [])
-  
+
   // Expose onboarding functions globally for the guide button
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -52,9 +55,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       globalWindow.isOnboardingOpen = isOnboardingOpen
     }
   }, [isOnboardingOpen])
-  
+
   console.log('OnboardingProvider: Rendering with isOpen:', isOnboardingOpen)
-  
+
   return (
     <>
       {children}

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import logger from '@/lib/logger';
+import { calculateRewards } from '@/lib/game-logic';
 
 export async function GET(request: Request) {
   try {
@@ -62,13 +63,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, category, difficulty, xp, gold, target, icon } = body;
+    const { name, description, category, difficulty, target, icon } = body;
 
     if (!name || !category) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const rewards = calculateRewards(difficulty || 'medium');
       // Create new milestone (global definition)
       const { data: newMilestone, error } = await supabase
         .from('milestones')
@@ -78,8 +80,8 @@ export async function POST(request: Request) {
             description: description || name,
             category,
             difficulty: difficulty || 'medium',
-            xp: xp || 0,
-            gold: gold || 0,
+            xp: rewards.xp,
+            gold: rewards.gold,
             target: target || 1,
             icon: icon || '🎯',
           },
@@ -208,7 +210,7 @@ export async function PUT(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, description, category, difficulty, xp, gold } = body;
+    const { id, name, description, category, difficulty } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Milestone ID is required' }, { status: 400 });
@@ -226,8 +228,8 @@ export async function PATCH(request: Request) {
           description: description || undefined,
           category: category || undefined,
           difficulty: difficulty || undefined,
-          xp: xp || undefined,
-          gold: gold || undefined,
+          xp: difficulty ? calculateRewards(difficulty).xp : undefined,
+          gold: difficulty ? calculateRewards(difficulty).gold : undefined,
         })
         .eq('id', id)
         .select()
