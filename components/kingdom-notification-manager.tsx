@@ -11,9 +11,11 @@ export function KingdomNotificationManager() {
     const { isSignedIn, isLoaded } = useAuth()
     const [readyCount, setReadyCount] = useState(0)
     const lastReadyCountRef = useRef(0)
+    const [unreadNotifications, setUnreadNotifications] = useState<any[]>([])
+    const toastedNotificationIds = useRef<Set<string>>(new Set())
     const { sendNotification, permission } = useNotifications()
 
-    // Poll for timer updates
+    // Poll for timer updates and social notifications
     useEffect(() => {
         if (!isLoaded || !isSignedIn) return
 
@@ -69,22 +71,71 @@ export function KingdomNotificationManager() {
             }
         }
 
+        const checkSocialNotifications = async () => {
+            try {
+                const res = await fetchWithAuth('/api/notifications', { method: 'GET' })
+                if (res && res.ok) {
+                    const json = await res.json()
+                    const notifications = json?.notifications || []
+                    const unread = notifications.filter((n: any) => !n.is_read)
+
+                    setUnreadNotifications(unread)
+
+                    unread.forEach((n: any) => {
+                        if (!toastedNotificationIds.current.has(n.id)) {
+                            toastedNotificationIds.current.add(n.id)
+
+                            // Determine content based on type
+                            let title = "New Notification"
+                            let body = "You have a new activity in the realm."
+
+                            if (n.type === 'quest_received') {
+                                title = "New Quest Received! 📜"
+                                body = `${n.data?.senderName || 'An ally'} sent you a quest: ${n.data?.questName}`
+                            } else if (n.type === 'quest_completed_ally') {
+                                title = "Quest Completed! ✨"
+                                body = `${n.data?.senderName || 'An ally'} completed the quest you sent!`
+                            }
+
+                            toast({
+                                title,
+                                description: body,
+                                duration: 8000,
+                            })
+
+                            if (document.hidden && permission === 'granted') {
+                                sendNotification(title, {
+                                    body,
+                                    tag: `notif-${n.id}`,
+                                    icon: '/icons/icon-192x192.png'
+                                })
+                            }
+                        }
+                    })
+                }
+            } catch (error) {
+                console.error("[KingdomNotifications] Error checking social notifications:", error)
+            }
+        }
+
         // Check immediately
         checkTimers()
+        checkSocialNotifications()
 
-        // Check every 10 seconds for more responsive updates
-        const interval = setInterval(checkTimers, 10000)
+        // Check timers every 10 seconds, notifications every 30 seconds
+        const timerInterval = setInterval(checkTimers, 10000)
+        const notifInterval = setInterval(checkSocialNotifications, 30000)
 
         // Listen for collection events to update immediately
         const handleCollection = () => {
-            // Wait a moment for the API to update, then check
             setTimeout(checkTimers, 500)
         }
 
         window.addEventListener('kingdom-building-collected', handleCollection)
 
         return () => {
-            clearInterval(interval)
+            clearInterval(timerInterval)
+            clearInterval(notifInterval)
             window.removeEventListener('kingdom-building-collected', handleCollection)
         }
     }, [isLoaded, isSignedIn, toast, permission, sendNotification])

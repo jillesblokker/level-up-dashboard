@@ -70,6 +70,7 @@
     overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
   }
 
   /* Safe area handling */

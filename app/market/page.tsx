@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Coins, Filter, Search, ShoppingCart } from "lucide-react"
 import Link from "next/link"
+import { getCharacterStats, addToCharacterStatSync, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
+import { addTileToInventory } from "@/lib/tile-inventory-manager"
+import { useUser } from "@clerk/nextjs"
+import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +31,7 @@ interface Tile {
 }
 
 export default function MarketPage() {
+  const { user } = useUser()
   const [goldBalance, setGoldBalance] = useState(1000)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -131,11 +136,28 @@ export default function MarketPage() {
       setShowOnboarding(true)
     }
 
-    // Load gold balance from localStorage
-    const savedGold = localStorage.getItem("levelup-gold-balance")
-    if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold, 10))
+    // Track visit for New Player Checklist
+    if (user) {
+      setUserPreference('onboarding_market_visited', true)
     }
+
+    // Load initial stats
+    const stats = getCharacterStats()
+    setGoldBalance(stats.gold)
+
+    // Fetch fresh stats and sync
+    fetchFreshCharacterStats('market-mount').then(fresh => {
+      if (fresh) setGoldBalance(fresh.gold)
+    })
+
+    // Listen for stats updates
+    const handleStatsUpdate = () => {
+      const updated = getCharacterStats()
+      setGoldBalance(updated.gold)
+    }
+
+    window.addEventListener('character-stats-update', handleStatsUpdate)
+    return () => window.removeEventListener('character-stats-update', handleStatsUpdate)
   }, [])
 
   const handleCloseOnboarding = (dontShowAgain: boolean) => {
@@ -204,18 +226,31 @@ export default function MarketPage() {
       return
     }
 
-    // Deduct gold
-    setGoldBalance(goldBalance - totalCost)
+    // Deduct gold via global manager
+    addToCharacterStatSync('gold', -totalCost)
 
-    // Save to localStorage
-    localStorage.setItem("levelup-gold-balance", (goldBalance - totalCost).toString())
+    // Add tiles to inventory
+    if (user?.id) {
+      cart.forEach(tile => {
+        addTileToInventory(user.id, {
+          id: tile.id,
+          name: tile.name,
+          type: tile.type as any,
+          quantity: 1,
+          cost: tile.cost,
+          rarity: tile.rarity as any,
+          category: tile.category as any,
+          connections: tile.connections
+        })
+      })
+    }
 
     // Clear cart
     setCart([])
 
     toast({
       title: "Purchase successful",
-      description: `You've purchased ${cart.length} tiles for ${totalCost} gold.`,
+      description: `You've purchased ${cart.length} tiles for ${totalCost} gold. Tiles have been added to your inventory.`,
     })
   }
 
@@ -351,7 +386,7 @@ export default function MarketPage() {
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-sm overflow-hidden">
-                            <TileCard 
+                            <TileCard
                               tile={{
                                 id: item.id,
                                 name: item.name,
@@ -360,9 +395,9 @@ export default function MarketPage() {
                                 type: item.type,
                                 connections: item.connections,
                                 rarity: item.rarity
-                              }} 
+                              }}
                               owned={false}
-                              onPurchase={() => {}}
+                              onPurchase={() => { }}
                             />
                           </div>
                           <span className="text-sm font-medium">{item.name}</span>
@@ -413,7 +448,7 @@ export default function MarketPage() {
                 <Card key={tile.id} className="bg-black border-amber-800/20 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="aspect-square w-full rounded-md overflow-hidden mb-3">
-                      <TileCard 
+                      <TileCard
                         tile={{
                           id: tile.id,
                           name: tile.name,
@@ -422,9 +457,9 @@ export default function MarketPage() {
                           type: tile.type,
                           connections: tile.connections,
                           rarity: tile.rarity
-                        }} 
+                        }}
                         owned={false}
-                        onPurchase={() => {}}
+                        onPurchase={() => { }}
                       />
                     </div>
                     <div className="flex justify-between items-start mb-2">

@@ -26,6 +26,7 @@ import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { cn } from "@/lib/utils"
+import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
@@ -260,6 +261,13 @@ export default function RealmPage() {
     } = useDataLoaders();
     const { unlockAchievement } = useAchievementUnlock();
 
+
+    // Track visit for New Player Checklist
+    useEffect(() => {
+        if (user) {
+            setUserPreference('onboarding_realm_visited', true)
+        }
+    }, [user])
 
     const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
     const [isLoading, setIsLoading] = useState(true);

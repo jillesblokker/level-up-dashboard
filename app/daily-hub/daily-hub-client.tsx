@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import { HeaderSection } from '@/components/HeaderSection'
 import QuestCard from '@/components/quest-card'
 import { Loader2, Plus, ArrowRight, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
+import { NewPlayerProgress } from '@/components/onboarding/NewPlayerProgress'
 
 interface Quest {
     id: string
@@ -311,6 +312,9 @@ export function DailyHubClient() {
                         </CardContent>
                     </Card>
                 </motion.div>
+
+                {/* New Player Progress */}
+                <NewPlayerProgress />
 
                 {/* Chronicles Section */}
                 <motion.div

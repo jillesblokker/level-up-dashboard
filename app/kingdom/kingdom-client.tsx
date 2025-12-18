@@ -323,6 +323,7 @@ export function KingdomClient() {
   const [showEntrance, setShowEntrance] = useState(true);
   const [zoomed, setZoomed] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
+  const isInitialSaveRef = useRef(true);
 
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
@@ -331,6 +332,7 @@ export function KingdomClient() {
   const [sellingModalOpen, setSellingModalOpen] = useState(false);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
   const [challenges, setChallenges] = useState<any[]>([]);
+  const isInventoryLoadingRef = useRef(false);
 
   // Debug: Log kingdom tiles configuration
   useEffect(() => {
@@ -539,9 +541,15 @@ export function KingdomClient() {
     }
   }, [getToken]);
 
-  // Save kingdomGrid to Supabase whenever it changes
+  // Save kingdomGrid to Supabase whenever it changes, skipping initial mount load
   useEffect(() => {
     if (kingdomGrid && kingdomGrid.length > 0) {
+      if (isInitialSaveRef.current) {
+        isInitialSaveRef.current = false;
+        console.log('[Kingdom] Skipping initial grid save as it was just loaded');
+        return;
+      }
+
       console.log('[Kingdom] Saving kingdomGrid to Supabase:', {
         gridLength: kingdomGrid.length,
         hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
@@ -841,20 +849,35 @@ export function KingdomClient() {
 
   // All useEffect hooks at the top
   // All useEffect hooks at the top
+  // Intro Animation Sequence Orchestration
   useEffect(() => {
+    // 1. Initial State: Show Overlay
     setShowEntrance(true);
     setZoomed(false);
     setFadeOut(false);
-    // Start zoom shortly after mount
+
+    // 2. Lock Scroll Immediately
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    // 3. Sequential Animation Steps
     const zoomTimeout = setTimeout(() => setZoomed(true), 100);
-    // Start fade out (container fade) when screen is fully black (3s zoom + 0.1s start)
     const fadeTimeout = setTimeout(() => setFadeOut(true), 3100);
-    // Remove overlay after container fade completes (1s duration)
-    const hideTimeout = setTimeout(() => setShowEntrance(false), 4100);
+    const hideTimeout = setTimeout(() => {
+      setShowEntrance(false);
+      // Wait for HeaderSection's internal 1.5s animation before unlocking
+      setTimeout(() => {
+        document.body.style.overflow = '';
+        document.body.style.touchAction = '';
+      }, 1500);
+    }, 4100);
+
     return () => {
       clearTimeout(zoomTimeout);
       clearTimeout(fadeTimeout);
       clearTimeout(hideTimeout);
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     };
   }, []);
 
@@ -879,156 +902,46 @@ export function KingdomClient() {
     loadKingdomGrid();
   }, [user?.id]);
 
-  // 🎯 LOAD CHALLENGES ON COMPONENT MOUNT
-  useEffect(() => {
-    if (!user?.id) return;
 
-    const loadChallenges = async () => {
-      try {
-        const response = await fetch('/api/challenges-ultra-simple');
-        if (response.ok) {
-          const challengesData = await response.json();
-          setChallenges(challengesData);
-          localStorage.setItem('challenges', JSON.stringify(challengesData));
-          console.log('[Kingdom] Initial challenges loaded:', challengesData.length);
-        }
-      } catch (error) {
-        console.warn('[Kingdom] Failed to load initial challenges:', error);
-        // Try localStorage fallback
-        try {
-          const savedChallenges = localStorage.getItem('challenges');
-          if (savedChallenges) {
-            const parsedChallenges = JSON.parse(savedChallenges);
-            setChallenges(parsedChallenges);
-            console.log('[Kingdom] Loaded challenges from localStorage:', parsedChallenges.length);
-          }
-        } catch (localError) {
-          console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
-        }
+  // Consolidated Inventory & Challenges Loading Logic
+  const loadInventory = useCallback(async () => {
+    if (!user?.id || isInventoryLoadingRef.current) return;
+
+    try {
+      isInventoryLoadingRef.current = true;
+      setInventoryLoading(true);
+
+      // 1. Fetch Parallel Data
+      const [equipped, stored, stats, challengesResponse] = await Promise.all([
+        getEquippedItems(user.id),
+        getStoredItems(user.id),
+        getTotalStats(user.id),
+        fetch('/api/challenges-ultra-simple').catch(() => null)
+      ]);
+
+      // 2. Handle Challenges
+      let finalChallenges = [];
+      if (challengesResponse?.ok) {
+        finalChallenges = await challengesResponse.json();
+        localStorage.setItem('challenges', JSON.stringify(finalChallenges));
+      } else {
+        const saved = localStorage.getItem('challenges');
+        if (saved) finalChallenges = JSON.parse(saved);
       }
-    };
+      setChallenges(finalChallenges);
 
-    loadChallenges();
-  }, [user?.id]);
+      // 3. Normalize & Update Items
+      const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => ({
+        ...item,
+        stats: item.stats || {},
+        description: item.description || '',
+      }) as KingdomInventoryItem);
 
-  useEffect(() => {
-    if (!user?.id) return;
-    setInventoryLoading(true);
-    const loadInventory = async () => {
-      try {
-        // Removed debugging log
-        const equipped = await getEquippedItems(user.id);
-        const stored = await getStoredItems(user.id);
-        const stats = await getTotalStats(user.id);
+      const normEquipped = normalize(equipped);
 
-        // 🎯 LOAD CHALLENGES DATA
-        let challenges = [];
-        try {
-          const challengesResponse = await fetch('/api/challenges-ultra-simple');
-          if (challengesResponse.ok) {
-            challenges = await challengesResponse.json();
-            console.log('[Kingdom] Loaded challenges:', challenges.length);
-
-            // 🎯 SAVE CHALLENGES TO LOCALSTORAGE FOR PERSISTENCE
-            localStorage.setItem('challenges', JSON.stringify(challenges));
-            setChallenges(challenges);
-          }
-        } catch (error) {
-          console.warn('[Kingdom] Failed to load challenges:', error);
-          // Try to load from localStorage as fallback
-          try {
-            const savedChallenges = localStorage.getItem('challenges');
-            if (savedChallenges) {
-              challenges = JSON.parse(savedChallenges);
-              setChallenges(challenges);
-              console.log('[Kingdom] Loaded challenges from localStorage:', challenges.length);
-            }
-          } catch (localError) {
-            console.warn('[Kingdom] Failed to load challenges from localStorage:', localError);
-          }
-        }
-
-        // Debug logging to see what we're getting
-        console.log('[Kingdom] Inventory data:', {
-          equipped: equipped,
-          equippedType: typeof equipped,
-          equippedIsArray: Array.isArray(equipped),
-          stored: stored,
-          storedType: typeof stored,
-          storedIsArray: Array.isArray(stored),
-          stats: stats,
-          challenges: challenges.length
-        });
-
-        // Normalize items to always have a 'stats' property and description
-        const normalizeItems = (items: any[]) => {
-          if (!Array.isArray(items)) {
-            console.warn('[Kingdom] Items is not an array:', items);
-            return [];
-          }
-          return items.map(item => ({
-            ...item,
-            stats: (item as any).stats || {},
-            description: (item as any).description || '',
-          }) as KingdomInventoryItem);
-        };
-
-        // Ensure equipped and stored are arrays with defensive programming
-        const equippedArray = Array.isArray(equipped) ? equipped : [];
-        const storedArray = Array.isArray(stored) ? stored : [];
-
-        // Filter equipped items safely
-        const equippableItems = equippedArray.filter(item => {
-          try {
-            return isEquippable(item);
-          } catch (error) {
-            console.warn('[Kingdom] Error filtering item:', item, error);
-            return false;
-          }
-        });
-
-        let equippedItemsToShow = normalizeItems(equippableItems);
-
-        // 🎯 SHOW DEFAULT ITEMS if no items are equipped
-        if (equippedItemsToShow.length === 0) {
-          // No equipped items found, showing default items
-          equippedItemsToShow = defaultInventoryItems.map(item => ({
-            ...item,
-            stats: item.stats || {},
-            description: item.description || '',
-            equipped: true,
-            type: item.type as any, // Convert to compatible type
-            category: item.type,
-          })) as KingdomInventoryItem[];
-        }
-
-        setEquippedItems(equippedItemsToShow);
-        setStoredItems(normalizeItems(storedArray));
-
-        // 🎯 CALCULATE STATS from equipped items (including defaults)
-        const calculatedStats = equippedItemsToShow.reduce(
-          (totals, item) => {
-            try {
-              const itemStats = item?.stats || {};
-              return {
-                movement: totals.movement + (itemStats.movement || 0),
-                attack: totals.attack + (itemStats.attack || 0),
-                defense: totals.defense + (itemStats.defense || 0),
-              };
-            } catch (error) {
-              console.warn('[Kingdom] Error calculating stats for item:', item, error);
-              return totals; // Return unchanged totals on error
-            }
-          },
-          { movement: 0, attack: 0, defense: 0 }
-        );
-
-        setTotalStats(calculatedStats);
-        // Removed debugging log
-      } catch (error) {
-        console.error('[Kingdom] Error loading inventory:', error);
-        // Show default items on error too
-        const defaultItems = defaultInventoryItems.map(item => ({
+      // If no items are equipped, show default inventory items as a fallback
+      if (normEquipped.length === 0) {
+        const defaults = defaultInventoryItems.map(item => ({
           ...item,
           stats: item.stats || {},
           description: item.description || '',
@@ -1036,100 +949,64 @@ export function KingdomClient() {
           type: item.type as any,
           category: item.type,
         })) as KingdomInventoryItem[];
-        setEquippedItems(defaultItems);
-        setStoredItems([]);
-
-        // Calculate stats from default items
-        const defaultStats = defaultItems.reduce(
-          (totals, item) => {
-            try {
-              const itemStats = item?.stats || {};
-              return {
-                movement: totals.movement + (itemStats.movement || 0),
-                attack: totals.attack + (itemStats.attack || 0),
-                defense: totals.defense + (itemStats.defense || 0),
-              };
-            } catch (error) {
-              console.warn('[Kingdom] Error calculating default stats for item:', item, error);
-              return totals; // Return unchanged totals on error
-            }
-          },
-          { movement: 0, attack: 0, defense: 0 }
-        );
-        setTotalStats(defaultStats);
-      } finally {
-        setInventoryLoading(false);
+        setEquippedItems(defaults);
+      } else {
+        setEquippedItems(normEquipped);
       }
-    };
 
-    loadInventory();
+      setStoredItems(normalize(stored));
 
-    const handleInventoryUpdate = () => {
-      // Only reload if not currently loading to prevent rapid fire requests
-      if (!document.querySelector('[data-inventory-loading="true"]')) {
-        loadInventory();
-      }
-    };
+      // 4. Update Stats
+      setTotalStats(stats || { movement: 0, attack: 0, defense: 0 });
 
-    window.addEventListener('character-inventory-update', handleInventoryUpdate);
+    } catch (error) {
+      console.error('[Kingdom] Inventory load failed:', error);
+    } finally {
+      setInventoryLoading(false);
+      isInventoryLoadingRef.current = false;
+    }
+  }, [user?.id]);
 
-    // 🎯 LISTEN FOR QUEST COMPLETION GOLD/XP UPDATES
+  // Initial Load
+  useEffect(() => {
+    if (user?.id) {
+      loadInventory();
+    }
+  }, [user?.id, loadInventory]);
+
+  // Event Listeners for Dynamic Updates
+  useEffect(() => {
+    if (!user?.id) return;
+
     let goldUpdateTimeout: NodeJS.Timeout | null = null;
     let xpUpdateTimeout: NodeJS.Timeout | null = null;
 
-    const handleGoldUpdate = (event: Event) => {
-      // Debounce gold updates to prevent infinite loops
-      if (goldUpdateTimeout) {
-        clearTimeout(goldUpdateTimeout);
-      }
-      goldUpdateTimeout = setTimeout(() => {
-        // Only reload if not currently loading to prevent rapid fire requests
-        if (!document.querySelector('[data-inventory-loading="true"]')) {
-          loadInventory();
-        }
-      }, 5000); // 5 second debounce to prevent infinite loops
+    const handleUpdate = () => loadInventory();
+
+    const handleGoldUpdate = () => {
+      if (goldUpdateTimeout) clearTimeout(goldUpdateTimeout);
+      goldUpdateTimeout = setTimeout(loadInventory, 5000);
     };
 
-    const handleXPUpdate = (event: Event) => {
-      // Debounce XP updates to prevent infinite loops
-      if (xpUpdateTimeout) {
-        clearTimeout(xpUpdateTimeout);
-      }
-      xpUpdateTimeout = setTimeout(() => {
-        // Only reload if not currently loading to prevent rapid fire requests
-        if (!document.querySelector('[data-inventory-loading="true"]')) {
-          loadInventory();
-        }
-      }, 5000); // 5 second debounce to prevent infinite loops
+    const handleXPUpdate = () => {
+      if (xpUpdateTimeout) clearTimeout(xpUpdateTimeout);
+      xpUpdateTimeout = setTimeout(loadInventory, 5000);
     };
 
-    // 🎯 LISTEN FOR CHALLENGE COMPLETION EVENTS
-    const handleChallengeUpdate = (event: Event) => {
-      console.log('[Kingdom] Challenge update event received:', event);
-      // Reload challenges when they're updated
-      loadInventory();
-    };
-
-    window.addEventListener('character-inventory-update', handleInventoryUpdate);
+    window.addEventListener('character-inventory-update', handleUpdate);
     window.addEventListener('gold-update', handleGoldUpdate);
     window.addEventListener('xp-update', handleXPUpdate);
-    window.addEventListener('challenge-update', handleChallengeUpdate);
+    window.addEventListener('challenge-update', handleUpdate);
 
     return () => {
-      window.removeEventListener('character-inventory-update', handleInventoryUpdate);
+      window.removeEventListener('character-inventory-update', handleUpdate);
       window.removeEventListener('gold-update', handleGoldUpdate);
       window.removeEventListener('xp-update', handleXPUpdate);
-      window.removeEventListener('challenge-update', handleChallengeUpdate);
-
-      // Clean up timeouts
-      if (goldUpdateTimeout) {
-        clearTimeout(goldUpdateTimeout);
-      }
-      if (xpUpdateTimeout) {
-        clearTimeout(xpUpdateTimeout);
-      }
+      window.removeEventListener('challenge-update', handleUpdate);
+      if (goldUpdateTimeout) clearTimeout(goldUpdateTimeout);
+      if (xpUpdateTimeout) clearTimeout(xpUpdateTimeout);
     };
-  }, [user?.id]);
+  }, [user?.id, loadInventory]);
 
   useEffect(() => {
     if (!user?.id) return;

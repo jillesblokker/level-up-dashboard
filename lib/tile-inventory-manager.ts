@@ -2,99 +2,101 @@ import { InventoryItem } from '@/lib/inventory-manager';
 import { authenticatedFetch } from './auth-helpers';
 
 export interface TileInventoryItem extends InventoryItem {
-  cost?: number;
-  connections?: any[];
-  rotation?: number;
-  last_updated?: string;
-  version?: number;
+    cost?: number;
+    connections?: any[];
+    rotation?: number;
+    last_updated?: string;
+    rarity?: string;
+    category?: string;
+    version?: number;
 }
 
 export async function getTileInventory(userId: string): Promise<TileInventoryItem[]> {
-  if (!userId) return [];
-  
-  try {
-    const response = await authenticatedFetch('/api/tile-inventory', {}, 'Tile Inventory');
-    
-    if (!response) {
-      return [];
-    }
+    if (!userId) return [];
 
-    if (!response.ok) {
-      console.error('[Tile Inventory] Failed to fetch tile inventory:', response.status, response.statusText);
-      return [];
-    }
+    try {
+        const response = await authenticatedFetch('/api/tile-inventory', {}, 'Tile Inventory');
 
-    const data = await response.json();
-    return data || [];
-  } catch (error) {
-    console.error('[Tile Inventory] Error fetching tile inventory:', error);
-    return [];
-  }
+        if (!response) {
+            return [];
+        }
+
+        if (!response.ok) {
+            console.error('[Tile Inventory] Failed to fetch tile inventory:', response.status, response.statusText);
+            return [];
+        }
+
+        const data = await response.json();
+        return data || [];
+    } catch (error) {
+        console.error('[Tile Inventory] Error fetching tile inventory:', error);
+        return [];
+    }
 }
 
 export async function addTileToInventory(userId: string, tile: TileInventoryItem) {
-  // Removed debugging log
-  
-  if (!userId) {
-    console.error('[Tile Inventory Manager] No userId provided');
-    return;
-  }
-  
-  try {
     // Removed debugging log
-    const response = await authenticatedFetch('/api/tile-inventory', {
-      method: 'POST',
-      body: JSON.stringify({ tile }),
-    }, 'Add Tile Inventory');
 
-    if (!response) {
-      console.error('[Tile Inventory Manager] No response from API');
-      return;
+    if (!userId) {
+        console.error('[Tile Inventory Manager] No userId provided');
+        return;
     }
 
-    // Removed debugging log
-    
-    if (!response.ok) {
-      console.error('[Tile Inventory Manager] Failed to add tile to inventory:', response.status, response.statusText);
-      return;
-    }
+    try {
+        // Removed debugging log
+        const response = await authenticatedFetch('/api/tile-inventory', {
+            method: 'POST',
+            body: JSON.stringify({ tile }),
+        }, 'Add Tile Inventory');
 
-    // Removed debugging log
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event('tile-inventory-update'));
-  } catch (error) {
-    console.error('[Tile Inventory] Error adding tile to inventory:', error);
-  }
+        if (!response) {
+            console.error('[Tile Inventory Manager] No response from API');
+            return;
+        }
+
+        // Removed debugging log
+
+        if (!response.ok) {
+            console.error('[Tile Inventory Manager] Failed to add tile to inventory:', response.status, response.statusText);
+            return;
+        }
+
+        // Removed debugging log
+        // Dispatch event to notify components
+        window.dispatchEvent(new Event('tile-inventory-update'));
+    } catch (error) {
+        console.error('[Tile Inventory] Error adding tile to inventory:', error);
+    }
 }
 
 export async function removeTileFromInventory(userId: string, tileId: string, quantity: number = 1) {
-  if (!userId) return;
-  
-  try {
-    const response = await authenticatedFetch(`/api/tile-inventory?tileId=${encodeURIComponent(tileId)}&quantity=${quantity}`, {
-      method: 'DELETE',
-    }, 'Remove Tile Inventory');
+    if (!userId) return;
 
-    if (!response) {
-      return;
+    try {
+        const response = await authenticatedFetch(`/api/tile-inventory?tileId=${encodeURIComponent(tileId)}&quantity=${quantity}`, {
+            method: 'DELETE',
+        }, 'Remove Tile Inventory');
+
+        if (!response) {
+            return;
+        }
+
+        if (!response.ok) {
+            console.error('[Tile Inventory] Failed to remove tile from inventory:', response.status, response.statusText);
+            return;
+        }
+
+        // Dispatch event to notify components
+        window.dispatchEvent(new Event('tile-inventory-update'));
+    } catch (error) {
+        console.error('[Tile Inventory] Error removing tile from inventory:', error);
     }
-
-    if (!response.ok) {
-      console.error('[Tile Inventory] Failed to remove tile from inventory:', response.status, response.statusText);
-      return;
-    }
-
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event('tile-inventory-update'));
-  } catch (error) {
-    console.error('[Tile Inventory] Error removing tile from inventory:', error);
-  }
 }
 
 export async function updateTileInInventory(userId: string, tileId: string, updates: Partial<TileInventoryItem>) {
-  // For now, we'll implement this as remove + add since the API doesn't have a dedicated update endpoint
-  // This could be optimized later by adding a PATCH endpoint
-  // Removed debugging log
+    // For now, we'll implement this as remove + add since the API doesn't have a deleted update endpoint
+    // This could be optimized later by adding a PATCH endpoint
+    // Removed debugging log
 }
 
 // Legacy functions for backward compatibility - these now use the API routes

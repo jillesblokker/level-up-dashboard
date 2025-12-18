@@ -6,19 +6,16 @@ const DYNAMIC_CACHE = 'level-up-dynamic-v1.1.0'
 // Files to cache for offline functionality
 const STATIC_FILES = [
   '/',
+  '/daily-hub',
+  '/market',
   '/quests',
   '/kingdom',
   '/character',
   '/achievements',
   '/realm',
   '/manifest.json',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
+  '/icons/thrivehaven_fav.png',
   '/icons/icon-192x192.png',
-  '/icons/icon-384x384.png',
   '/icons/icon-512x512.png'
 ]
 
@@ -32,7 +29,7 @@ self.addEventListener('install', (event) => {
         return Promise.allSettled(
           STATIC_FILES.map(url =>
             cache.add(url).catch(err => {
-              // Silently handle cache failures to keep console clean
+              console.warn(`[SW] Failed to cache static file: ${url}`, err)
               return null
             })
           )
@@ -41,9 +38,6 @@ self.addEventListener('install', (event) => {
       .then(() => {
         console.log('[SW] Static files caching completed')
         return self.skipWaiting()
-      })
-      .catch((error) => {
-        console.error('[SW] Failed to cache static files:', error)
       })
   )
 })
@@ -64,15 +58,7 @@ self.addEventListener('activate', (event) => {
         )
       })
       .then(() => {
-        console.log('[SW] Service worker activated')
-        // Clear all caches to handle authentication changes
-        return Promise.all([
-          caches.delete(STATIC_CACHE),
-          caches.delete(DYNAMIC_CACHE)
-        ])
-      })
-      .then(() => {
-        console.log('[SW] All caches cleared for fresh start')
+        console.log('[SW] Service worker activated and ready')
         return self.clients.claim()
       })
   )
@@ -84,64 +70,55 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
 
   // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return
-  }
+  if (request.method !== 'GET') return
 
-  // Skip external requests
+  // Skip external requests except for fonts/images from trusted sources
   if (url.origin !== location.origin) {
+    if (url.origin.includes('fonts.googleapis.com') || url.origin.includes('fonts.gstatic.com')) {
+      // Font caching logic could go here
+    }
     return
   }
 
   // Skip ALL API requests - never cache API responses
   if (url.pathname.startsWith('/api/')) {
-    console.log('[SW] Skipping cache for API request:', request.url)
-    return fetch(request, {
-      redirect: 'follow'
-    })
+    return event.respondWith(fetch(request))
   }
 
-  event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          console.log('[SW] Serving from cache:', request.url)
-          return cachedResponse
-        }
+  // Strategy: Cache First for Images and Audio, Network First for everything else
+  const isMedia = url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|mp3|wav|ogg)$/)
 
-        console.log('[SW] Fetching from network:', request.url)
-        return fetch(request, {
-          redirect: 'follow' // Ensure redirects are followed
+  if (isMedia) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse
+        return fetch(request).then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) return networkResponse
+          const responseToCache = networkResponse.clone()
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(request, responseToCache)
+          })
+          return networkResponse
         })
-          .then((response) => {
-            // Don't cache redirects or non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic' || response.redirected) {
-              return response
-            }
-
-            // Clone the response for caching
-            const responseToCache = response.clone()
-
-            // Cache dynamic content
-            caches.open(DYNAMIC_CACHE)
-              .then((cache) => {
-                cache.put(request, responseToCache)
-              })
-
-            return response
-          })
-          .catch((error) => {
-            console.error('[SW] Network fetch failed:', error)
-
-            // Return offline page for navigation requests
-            if (request.destination === 'document') {
-              return caches.match('/offline.html')
-            }
-
-            throw error
-          })
       })
-  )
+    )
+  } else {
+    // Network first for pages and other assets
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (!response || response.status !== 200 || response.type !== 'basic') return response
+          const responseToCache = response.clone()
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(request, responseToCache)
+          })
+          return response
+        })
+        .catch(() => {
+          return caches.match(request)
+        })
+    )
+  }
 })
 
 // Background sync for quest completions

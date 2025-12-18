@@ -123,7 +123,7 @@ export async function GET(request: Request) {
     // FIXED: Fetch from quests table (which has the actual quest definitions)
     // Fetching quest definitions from quests table
     // Filter to show: user's own quests OR global quests (user_id IS NULL)
-    const { data: quests, error: questsError } = await supabase
+    let { data: quests, error: questsError } = await supabase
       .from('quests')
       .select('*')
       .or(`user_id.is.null,user_id.eq.${userId}`);
@@ -131,6 +131,39 @@ export async function GET(request: Request) {
     if (questsError) {
       console.error('Quests fetch error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
+    }
+
+    // --- AUTO-SEEDING FOR NEW USERS ---
+    // If no quests are found for this user, seed the default onboarding quests
+    if (quests && quests.length === 0) {
+      console.log(`[Quests API] No quests found for user ${userId}. Seeding defaults...`);
+      try {
+        const { defaultQuests } = await import('@/lib/quest-sample-data');
+        const seededQuests = defaultQuests.map(q => ({
+          user_id: userId,
+          name: (q as any).title || (q as any).name,
+          description: q.description,
+          category: q.category,
+          difficulty: q.difficulty,
+          xp_reward: (q as any).rewards?.xp || 50,
+          gold_reward: (q as any).rewards?.gold || 25,
+          is_active: true
+        }));
+
+        const { data: newQuests, error: seedError } = await supabase
+          .from('quests')
+          .insert(seededQuests)
+          .select();
+
+        if (seedError) {
+          console.error('[Quests API] Seeding error:', seedError);
+        } else if (newQuests) {
+          console.log(`[Quests API] Successfully seeded ${newQuests.length} quests`);
+          quests = newQuests;
+        }
+      } catch (seedCatch) {
+        console.error('[Quests API] Unexpected seeding catch:', seedCatch);
+      }
     }
 
     // Fetch sender names for friend quests
