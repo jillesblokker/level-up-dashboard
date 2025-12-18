@@ -1189,10 +1189,8 @@ export function KingdomClient() {
         }}
         className=""
         shouldRevealImage={true}
+        guideComponent={<KingdomGuide />}
       />
-
-      {/* Main Content with Tabs */}
-      <KingdomGuide />
 
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>

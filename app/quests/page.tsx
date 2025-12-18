@@ -7,8 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
+import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStat, getCharacterStats, addToCharacterStatSync } from '@/lib/character-stats-manager'
@@ -2111,6 +2112,29 @@ export default function QuestsPage() {
           imageSrc="/images/quests-header.jpg"
           defaultBgColor="bg-amber-900"
           shouldRevealImage={true}
+          guideComponent={
+            <PageGuide
+              title="Quests"
+              subtitle="The foundation of your progression"
+              sections={[
+                {
+                  title: "Daily Tasks",
+                  icon: CheckCircle2,
+                  content: "Short, repeatable tasks that maintain your discipline. Complete these to earn consistent gold and keep your 'Thrivehaven' buildings active."
+                },
+                {
+                  title: "Epic Challenges",
+                  icon: Zap,
+                  content: "Difficult feats with major rewards. These require focus and often grant rare items or large chunks of experience for your character."
+                },
+                {
+                  title: "Life Milestones",
+                  icon: Trophy,
+                  content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile."
+                }
+              ]}
+            />
+          }
         />
         <MobileLayoutWrapper className="quests-page-container">
           <MobileContentWrapper>

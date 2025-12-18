@@ -20,6 +20,7 @@ interface HeaderSectionProps {
   shouldRevealImage?: boolean;
   ctaButton?: React.ReactNode;
   ctaHref?: string;
+  guideComponent?: React.ReactNode;
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
@@ -36,6 +37,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   shouldRevealImage = false,
   ctaButton,
   ctaHref,
+  guideComponent,
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -128,6 +130,11 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           </div>
         )}
       </div>
+      {guideComponent && (
+        <div className="absolute top-4 right-4 z-20">
+          {guideComponent}
+        </div>
+      )}
       {canEdit && (
         <>
           {(!imageSrc || (isHovering && !showUploadModal)) && (

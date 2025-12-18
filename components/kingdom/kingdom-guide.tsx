@@ -36,7 +36,7 @@ export function KingdomGuide({ open: controlledOpen, onOpenChange }: KingdomGuid
             <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-amber-200"
+                className="bg-black/50 hover:bg-black/70 text-amber-200 border border-amber-500/20 backdrop-blur-sm rounded-full w-10 h-10 transition-all hover:scale-110"
                 onClick={() => handleOpenChange(true)}
             >
                 <HelpCircle className="h-6 w-6" />

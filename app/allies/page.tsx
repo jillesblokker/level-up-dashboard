@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 import { HeaderSection } from "@/components/HeaderSection"
+import { PageGuide } from "@/components/page-guide"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -317,11 +318,35 @@ export default function AlliesPage() {
         <div className="min-h-screen bg-background pb-20 md:pb-0">
             <HeaderSection
                 title="ALLIES"
-                subtitle="Manage your friends, compare stats, and send quests."
-                imageSrc={coverImage || ""}
+                subtitle="Forge alliances and conquer together"
+                imageSrc={coverImage || "/images/allies-header.jpg"}
                 canEdit={!!user?.id}
                 onImageUpload={handleImageUpload}
+                defaultBgColor="bg-blue-900"
                 shouldRevealImage={true}
+                guideComponent={
+                    <PageGuide
+                        title="Allies"
+                        subtitle="Join forces with fellow pioneers"
+                        sections={[
+                            {
+                                title: "Sending Quests",
+                                icon: Scroll,
+                                content: "Help your friends level up! Send them custom quests and challenges to earn rewards together."
+                            },
+                            {
+                                title: "Gifting & Support",
+                                icon: Gift,
+                                content: "Feeling generous? Send gold or resources as gifts to help your allies prosper in their journey."
+                            },
+                            {
+                                title: "Visitation Mode",
+                                icon: UserCheck,
+                                content: "Visit your allies' kingdoms and realms to see their progress and get inspiration for your own domain!"
+                            }
+                        ]}
+                    />
+                }
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">

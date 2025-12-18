@@ -15,7 +15,7 @@ import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/l
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical, Users } from 'lucide-react'
+import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -34,6 +34,7 @@ import { getCharacterStats } from '@/lib/character-stats-manager';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
+import { PageGuide } from '@/components/page-guide';
 
 // Import new data loaders hook
 import { useDataLoaders } from '@/hooks/use-data-loaders';
@@ -2697,6 +2698,29 @@ export default function RealmPage() {
                     setTimeout(() => setIsIntroPlaying(false), 1500);
                 }}
                 shouldRevealImage={true}
+                guideComponent={
+                    <PageGuide
+                        title="Realm"
+                        subtitle="Pioneer a mystical world beyond your borders"
+                        sections={[
+                            {
+                                title: "Exploration Mode",
+                                icon: Compass,
+                                content: "Switch to 'Move' mode to navigate the realm. Discover hidden secrets, rare resources, and mystical events as you uncover the fog."
+                            },
+                            {
+                                title: "Mystical Building",
+                                icon: Tent,
+                                content: "Use 'Build' mode to place mystical tiles. Different tiles require specific ingredients and can grant unique bonuses to your kingdom."
+                            },
+                            {
+                                title: "Survival & Combat",
+                                icon: ShieldCheck,
+                                content: "The realm is dangerous! Monsters may spawn as you explore. Ensure your character is equipped with strong gear from your inventory to survive battles."
+                            }
+                        ]}
+                    />
+                }
             />
             <RealmAnimationWrapper
                 isAnimating={isAnimating}
