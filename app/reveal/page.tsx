@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 function Page() {
   const [doorOpen, setDoorOpen] = useState(false);
@@ -11,6 +12,7 @@ function Page() {
   const [showOverlay, setShowOverlay] = useState(true);
   const [announce, setAnnounce] = useState('');
   const [isMobilePortrait, setIsMobilePortrait] = useState(false);
+  const [blockInteractions, setBlockInteractions] = useState(true);
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -56,9 +58,13 @@ function Page() {
       setAnnounce('The door is opening.');
       // Wait for door animation, then remove overlay
       setTimeout(() => {
-        setShowOverlay(false);
         setFadeBackground(true);
         setHideBackground(true);
+        // Add a small extra delay before actually unmounting to allow fade to finish
+        setTimeout(() => {
+          setShowOverlay(false);
+          setBlockInteractions(false);
+        }, 800);
       }, DOOR_ANIMATION_DURATION);
     }, INITIAL_DELAY);
 
@@ -84,8 +90,10 @@ function Page() {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen min-w-screen flex items-center justify-center relative overflow-hidden"
-      style={{}}
+      className={cn(
+        "fixed inset-0 min-h-screen min-w-screen flex items-center justify-center overflow-hidden z-[100]",
+        blockInteractions ? "pointer-events-auto" : "pointer-events-none"
+      )}
       aria-label="reveal-animation-container"
     >
       {/* ARIA live region for screen readers */}

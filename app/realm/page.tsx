@@ -301,6 +301,22 @@ export default function RealmPage() {
     const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRevealImage, setShouldRevealImage] = useState(false);
+    const [isIntroPlaying, setIsIntroPlaying] = useState(true);
+
+    // Lock scroll during realm intro animation
+    useEffect(() => {
+        if (!isLoading && isIntroPlaying) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        };
+    }, [isLoading, isIntroPlaying]);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
     const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
         if (typeof window !== 'undefined') {
@@ -2647,7 +2663,11 @@ export default function RealmPage() {
                 imageSrc="/images/realm-header.jpg"
                 defaultBgColor="bg-blue-900"
                 onAnimationStart={() => setIsAnimating(true)}
-                onAnimationEnd={() => setIsAnimating(false)}
+                onAnimationEnd={() => {
+                    setIsAnimating(false);
+                    // Unlock interactions only after header is fully revealed (1.5s duration)
+                    setTimeout(() => setIsIntroPlaying(false), 1500);
+                }}
                 shouldRevealImage={true}
             />
             <RealmAnimationWrapper

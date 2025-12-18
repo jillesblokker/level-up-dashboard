@@ -10,9 +10,9 @@ interface RealmAnimationWrapperProps {
   onImageReveal?: (shouldReveal: boolean) => void
 }
 
-export function RealmAnimationWrapper({ 
-  children, 
-  isAnimating, 
+export function RealmAnimationWrapper({
+  children,
+  isAnimating,
   className = "",
   onImageReveal
 }: RealmAnimationWrapperProps) {
@@ -27,21 +27,21 @@ export function RealmAnimationWrapper({
   const smoothScrollToTop = (duration: number = 1000) => {
     const startPosition = window.scrollY
     const startTime = performance.now()
-    
+
     const animateScroll = (currentTime: number) => {
       const elapsed = currentTime - startTime
       const progress = Math.min(elapsed / duration, 1)
-      
+
       // Easing function for smooth animation
       const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
       const easedProgress = easeInOutCubic(progress)
-      
+
       const newPosition = startPosition - (startPosition * easedProgress)
       window.scrollTo(0, newPosition)
-      
+
       // Update scroll progress for visual feedback
       setScrollProgress(progress * 100)
-      
+
       if (progress < 1) {
         requestAnimationFrame(animateScroll)
       } else {
@@ -49,7 +49,7 @@ export function RealmAnimationWrapper({
         setScrollProgress(100)
       }
     }
-    
+
     requestAnimationFrame(animateScroll)
   }
 
@@ -58,23 +58,23 @@ export function RealmAnimationWrapper({
     const startPosition = window.scrollY
     const targetPosition = 0 // Scroll to very top to show header image
     const startTime = performance.now()
-    
+
     const animateScroll = (currentTime: number) => {
       const elapsed = currentTime - startTime
       const progress = Math.min(elapsed / duration, 1)
-      
+
       // Easing function for smooth animation
       const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
       const easedProgress = easeInOutCubic(progress)
-      
+
       const newPosition = startPosition + (targetPosition - startPosition) * easedProgress
       window.scrollTo(0, newPosition)
-      
+
       if (progress < 1) {
         requestAnimationFrame(animateScroll)
       }
     }
-    
+
     requestAnimationFrame(animateScroll)
   }
 
@@ -84,23 +84,23 @@ export function RealmAnimationWrapper({
     const startPosition = window.scrollY
     const targetPosition = headerHeight
     const startTime = performance.now()
-    
+
     const animateScroll = (currentTime: number) => {
       const elapsed = currentTime - startTime
       const progress = Math.min(elapsed / duration, 1)
-      
+
       // Easing function for smooth animation
       const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
       const easedProgress = easeInOutCubic(progress)
-      
+
       const newPosition = startPosition + (targetPosition - startPosition) * easedProgress
       window.scrollTo(0, newPosition)
-      
+
       if (progress < 1) {
         requestAnimationFrame(animateScroll)
       }
     }
-    
+
     requestAnimationFrame(animateScroll)
   }
 
@@ -109,38 +109,38 @@ export function RealmAnimationWrapper({
     if (isAnimating && animationState === 'idle') {
       // Save current scroll position
       setScrollPosition(window.scrollY)
-      
+
       // Start animation sequence
       setAnimationState('starting')
-      
-      // Begin smooth scroll to top - FURTHER OPTIMIZED: Reduced to 200ms
-      smoothScrollToTop(200)
-      
-      // Begin animation after scroll starts - FURTHER OPTIMIZED: Reduced to 10ms
+
+      // Begin smooth scroll to top
+      smoothScrollToTop(500)
+
+      // Begin animation after scroll starts
       animationTimeoutRef.current = setTimeout(() => {
         setAnimationState('animating')
-        
-        // End animation after transition duration - FURTHER OPTIMIZED: Reduced to 150ms
+
+        // End animation after transition duration
         animationTimeoutRef.current = setTimeout(() => {
           setAnimationState('ending')
-          
-          // Complete animation and trigger image reveal - FURTHER OPTIMIZED: Reduced to 30ms
+
+          // Complete animation and trigger image reveal
           animationTimeoutRef.current = setTimeout(() => {
             setAnimationState('idle')
-            
+
             // Trigger image reveal immediately so header image is visible
             onImageReveal?.(true)
-            
-            // First, scroll down to show content (buttons and grid) - FURTHER OPTIMIZED: Reduced to 150ms
-            scrollDownToContent(150)
-            
-            // After 0.2 seconds, scroll to show header image - FURTHER OPTIMIZED: Reduced to 200ms
+
+            // First, scroll down to show content (buttons and grid)
+            scrollDownToContent(600)
+
+            // After 0.4 seconds, scroll to show header image
             setTimeout(() => {
-              scrollToShowHeader(300) // FURTHER OPTIMIZED: Reduced to 300ms
-            }, 200)
-          }, 30)
-        }, 150)
-      }, 10)
+              scrollToShowHeader(800)
+            }, 400)
+          }, 100)
+        }, 800)
+      }, 50)
     }
 
     return () => {
@@ -155,13 +155,13 @@ export function RealmAnimationWrapper({
     if (animationState === 'animating') {
       // Store current scroll position
       const currentScroll = window.scrollY
-      
+
       // Prevent scrolling
       const preventScroll = (e: Event) => {
         e.preventDefault()
         window.scrollTo(0, currentScroll)
       }
-      
+
       // Add event listeners
       document.addEventListener('wheel', preventScroll, { passive: false })
       document.addEventListener('touchmove', preventScroll, { passive: false })
@@ -170,15 +170,15 @@ export function RealmAnimationWrapper({
           e.preventDefault()
         }
       })
-      
+
       return () => {
         document.removeEventListener('wheel', preventScroll)
         document.removeEventListener('touchmove', preventScroll)
       }
     }
-    
+
     // Return empty cleanup function when not animating
-    return () => {}
+    return () => { }
   }, [animationState])
 
   // Restore scroll position after animation (only if not scrolled to top)
@@ -230,27 +230,27 @@ export function RealmAnimationWrapper({
     >
       {/* Animation overlay */}
       {animationState === 'animating' && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/40 backdrop-blur-md z-[9999] pointer-events-none"
           style={{
             animation: 'fadeInOut 0.5s ease-in-out'
           }}
         />
       )}
-      
+
       {children}
-      
+
       {/* Animation indicator */}
       {animationState === 'animating' && (
         <div className="fixed top-4 right-4 z-50 bg-amber-500/90 text-black px-3 py-1 rounded-full text-sm font-medium shadow-lg">
           Revealing Realm... {Math.round(scrollProgress)}%
         </div>
       )}
-      
+
       {/* Scroll progress bar */}
       {animationState === 'animating' && (
         <div className="fixed top-0 left-0 w-full h-1 bg-gray-800 z-50">
-          <div 
+          <div
             className="h-full bg-amber-500 transition-all duration-100 ease-out"
             style={{ width: `${scrollProgress}%` }}
           />
