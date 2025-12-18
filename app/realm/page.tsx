@@ -249,7 +249,7 @@ export default function RealmPage() {
     const { getToken } = useAuth();
     const userId = user?.id;
     const searchParams = useSearchParams();
-    const visitUserId = searchParams.get('visit');
+    const visitUserId = searchParams?.get('visit');
     const isVisiting = !!visitUserId && visitUserId !== userId;
     const isGuest = !user;
     const router = useRouter();
@@ -912,13 +912,13 @@ export default function RealmPage() {
                 }
 
                 // Load character position
-                const position = await loadCharacterPosition(userId);
+                const position = await loadCharacterPosition(targetId);
                 if (position) {
                     setCharacterPosition(position);
                 }
 
                 // Load tile inventory
-                const inventoryResult = await loadTileInventory(userId);
+                const inventoryResult = await loadTileInventory(targetId);
                 if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
                     // Merge with initial inventory
                     const mergedInventory = { ...initialInventory };
