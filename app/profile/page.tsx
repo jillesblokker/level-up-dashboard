@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle } from "lucide-react";
 import { useAudioContext } from "@/components/audio-provider";
+import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 import { NotificationCenter } from "@/components/notification-center";
@@ -55,6 +57,7 @@ export default function ProfilePage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [dayNightEnabled, setDayNightEnabled] = useState(true);
 
   useEffect(() => {
     // Load notifications count
@@ -85,6 +88,20 @@ export default function ProfilePage() {
       }
     };
     loadStats();
+
+    // Load Day/Night preference
+    const savedDayNight = localStorage.getItem("day-night-cycle-enabled");
+    if (savedDayNight !== null) {
+      setDayNightEnabled(savedDayNight === "true");
+    }
+
+    // Sync from Supabase
+    getUserPreference("day-night-cycle-enabled").then(val => {
+      if (val !== null) {
+        setDayNightEnabled(!!val);
+        localStorage.setItem("day-night-cycle-enabled", val.toString());
+      }
+    });
 
     return () => {
       window.removeEventListener('newNotification', handleNewNotification);
@@ -731,6 +748,30 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </Link>
+
+              {/* Day/Night Cycle Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
+                <div className="flex items-center gap-3">
+                  <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-base font-medium text-white">Day/Night Cycle</p>
+                    <p className="text-xs text-gray-400">Atmosphere changes based on local time</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={dayNightEnabled}
+                  onCheckedChange={(checked) => {
+                    setDayNightEnabled(checked);
+                    localStorage.setItem("day-night-cycle-enabled", checked.toString());
+                    setUserPreference("day-night-cycle-enabled", checked);
+
+                    // Dispatch event for components to react
+                    window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }));
+
+                    toast.success(checked ? "Day/Night Cycle Enabled" : "Day/Night Cycle Disabled");
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
 
