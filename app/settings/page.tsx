@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Shield, Play } from "lucide-react"
+import { ArrowLeft, Save, User, Shield, Play, Palette } from "lucide-react"
+import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager"
 import Link from "next/link"
 // import { useSession, signIn, signOut } from "next-auth/react"
 import { Switch } from "@/components/ui/switch"
@@ -37,6 +38,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
+  const [dayNightEnabled, setDayNightEnabled] = useState(true)
 
   // Load user data
   useEffect(() => {
@@ -61,6 +63,20 @@ export default function SettingsPage() {
 
       // Check if user is connected to GitHub (placeholder for now)
       setIsGithubConnected(false)
+
+      // Load Day/Night preference
+      const savedDayNight = localStorage.getItem("day-night-cycle-enabled")
+      if (savedDayNight !== null) {
+        setDayNightEnabled(savedDayNight === "true")
+      }
+
+      // Sync from Supabase
+      getUserPreference("day-night-cycle-enabled").then(val => {
+        if (val !== null) {
+          setDayNightEnabled(!!val)
+          localStorage.setItem("day-night-cycle-enabled", val.toString())
+        }
+      })
     } catch (error) {
       console.error("Error loading user data:", error)
     }
@@ -70,14 +86,14 @@ export default function SettingsPage() {
   useEffect(() => {
     const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
     if (!userId) return;
-    
+
     const pollInterval = setInterval(() => {
       // Reload settings
       if (typeof window !== 'undefined') {
         window.location.reload();
       }
     }, 5000); // Poll every 5 seconds
-    
+
     return () => clearInterval(pollInterval);
   }, []);
 
@@ -151,6 +167,7 @@ export default function SettingsPage() {
               onChange={e => setActiveTab(e.target.value)}
             >
               <option value="profile">Profile</option>
+              <option value="appearance">Appearance</option>
               <option value="account">Account</option>
             </select>
           </div>
@@ -158,6 +175,10 @@ export default function SettingsPage() {
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-amber-900/20">
               <User className="mr-2 h-4 w-4" />
               Profile
+            </TabsTrigger>
+            <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-amber-900/20">
+              <Palette className="mr-2 h-4 w-4" />
+              Appearance
             </TabsTrigger>
             <TabsTrigger value="account" className="text-white data-[state=active]:bg-amber-900/20">
               <Shield className="mr-2 h-4 w-4" />
@@ -209,6 +230,44 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="appearance" className="space-y-6">
+            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-white">Visual Preferences</CardTitle>
+                <CardDescription className="text-gray-400">Customize your kingdom&apos;s atmosphere</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center">
+                      <Palette className="w-4 h-4 mr-2 text-amber-500" />
+                      Day/Night Cycle
+                    </Label>
+                    <p className="text-sm text-gray-400 max-w-md">
+                      Automatically adjust lighting and atmosphere based on your local time (Night: 8 PM - 6 AM).
+                    </p>
+                  </div>
+                  <Switch
+                    checked={dayNightEnabled}
+                    onCheckedChange={(checked) => {
+                      setDayNightEnabled(checked)
+                      localStorage.setItem("day-night-cycle-enabled", checked.toString())
+                      setUserPreference("day-night-cycle-enabled", checked)
+
+                      // Dispatch event for components to react
+                      window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }))
+
+                      toast({
+                        title: checked ? "Day/Night Cycle Enabled" : "Day/Night Cycle Disabled",
+                        description: checked ? "Atmosphere will now change based on time." : "Atmosphere will remain static.",
+                      })
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="account" className="space-y-6">
             <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
               <CardHeader>
@@ -249,12 +308,12 @@ export default function SettingsPage() {
             <div>
               <h2 className="text-2xl font-semibold">GitHub Connection</h2>
               <p className="text-gray-500">
-                {isGithubConnected 
-                  ? "Your account is connected to GitHub" 
+                {isGithubConnected
+                  ? "Your account is connected to GitHub"
                   : "Connect your account to GitHub to sync your data"}
               </p>
             </div>
-            
+
             <Switch
               checked={isGithubConnected}
               onCheckedChange={handleGithubToggle}

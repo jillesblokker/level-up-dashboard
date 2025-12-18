@@ -7,10 +7,28 @@ import { cn } from "@/lib/utils"
 export function DayNightCycle() {
     const [isNight, setIsNight] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const [isEnabled, setIsEnabled] = useState(true)
 
     useEffect(() => {
         setMounted(true)
+
+        // Initial state from localStorage
+        const savedSetting = localStorage.getItem("day-night-cycle-enabled")
+        if (savedSetting !== null) {
+            setIsEnabled(savedSetting === "true")
+        }
+
         const checkTime = () => {
+            // Re-check setting on each interval
+            const currentSetting = localStorage.getItem("day-night-cycle-enabled")
+            const currentlyEnabled = currentSetting === null || currentSetting === "true"
+
+            if (!currentlyEnabled) {
+                document.documentElement.classList.remove('medieval-night')
+                setIsNight(false)
+                return
+            }
+
             const hour = new Date().getHours()
             // Night is between 8 PM (20:00) and 6 AM (06:00)
             const nightTime = hour >= 20 || hour < 6
@@ -23,12 +41,29 @@ export function DayNightCycle() {
             }
         }
 
+        // Listen for immediate setting changes
+        const handleSettingsChange = (e: any) => {
+            if (e.detail && typeof e.detail.enabled === 'boolean') {
+                setIsEnabled(e.detail.enabled)
+                if (!e.detail.enabled) {
+                    document.documentElement.classList.remove('medieval-night')
+                } else {
+                    checkTime() // Re-evaluate immediately if enabled
+                }
+            }
+        }
+
+        window.addEventListener('settings:dayNightChanged', handleSettingsChange)
+
         checkTime()
         const interval = setInterval(checkTime, 60000) // Check every minute
-        return () => clearInterval(interval)
+        return () => {
+            clearInterval(interval)
+            window.removeEventListener('settings:dayNightChanged', handleSettingsChange)
+        }
     }, [])
 
-    if (!mounted) return null
+    if (!mounted || !isEnabled) return null
 
     return (
         <div className={cn(
