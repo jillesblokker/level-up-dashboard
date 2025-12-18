@@ -130,11 +130,11 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
       </div>
       {canEdit && (
         <>
-          {isHovering && !showUploadModal && (
-            <div className="absolute top-4 right-4 z-20">
+          {(!imageSrc || (isHovering && !showUploadModal)) && (
+            <div className="absolute bottom-4 left-4 z-20">
               <Button
                 onClick={() => setShowUploadModal(true)}
-                className="bg-amber-700 hover:bg-amber-600 text-black rounded-full h-12 w-12 flex items-center justify-center shadow-xl"
+                className="bg-amber-700 hover:bg-amber-600 text-black rounded-full h-12 w-12 flex items-center justify-center shadow-xl border-2 border-amber-900/50"
                 size="icon"
                 aria-label="Edit banner image"
               >
