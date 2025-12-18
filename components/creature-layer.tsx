@@ -252,12 +252,13 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                 return (
                     <div
                         key={creature.instanceId}
-                        className="absolute transition-all duration-[3000ms] ease-in-out pointer-events-auto cursor-pointer hover:scale-110 z-20"
+                        className="absolute transition-all ease-in-out pointer-events-auto cursor-pointer hover:scale-110 z-20"
                         style={{
                             top: `${(creature.position.row / rows) * 100}%`,
                             left: `${(creature.position.col / cols) * 100}%`,
                             width: `${(1 / cols) * 100}%`,
                             height: `${(1 / rows) * 100}%`,
+                            transitionDuration: '3000ms'
                         }}
                         onClick={(e) => {
                             e.stopPropagation();

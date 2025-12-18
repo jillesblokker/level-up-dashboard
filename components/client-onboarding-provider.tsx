@@ -1,27 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { OnboardingProvider } from './onboarding-provider';
+import { OnboardingProvider } from '@/hooks/use-onboarding';
 
 interface ClientOnboardingProviderProps {
   children: React.ReactNode;
 }
 
 export function ClientOnboardingProvider({ children }: ClientOnboardingProviderProps) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Only render OnboardingProvider on the client side
-  if (!isClient) {
-    return <>{children}</>;
-  }
-
+  // Always render OnboardingProvider. 
+  // Internal hooks handling localStorage will safely do nothing during SSR.
   return (
     <OnboardingProvider>
       {children}
     </OnboardingProvider>
   );
-} 
+}

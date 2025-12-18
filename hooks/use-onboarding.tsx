@@ -4,6 +4,7 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 import { useRouter } from 'next/navigation'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { smartLogger } from '@/lib/smart-logger'
+import { OnboardingModal } from '@/components/onboarding/OnboardingModal'
 
 interface OnboardingState {
   hasCompletedOnboarding: boolean
@@ -257,6 +258,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   return (
     <OnboardingContext.Provider value={contextValue}>
       {children}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={closeOnboarding}
+        onComplete={completeOnboarding}
+      />
     </OnboardingContext.Provider>
   )
 }
