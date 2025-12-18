@@ -28,7 +28,7 @@ function useDebounce<T extends (...args: any[]) => any>(
   delay: number
 ): T {
   const timeoutRef = useRef<NodeJS.Timeout>();
-  
+
   return useCallback((...args: Parameters<T>) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -203,7 +203,7 @@ function formatXAxisLabel(dateString: string, timePeriod: TimePeriod): { day: st
 
   try {
     let date: Date;
-    
+
     if (timePeriod === 'year') {
       // For year view, dateString is YYYY-MM format
       date = new Date(dateString + '-01T00:00:00Z');
@@ -216,11 +216,11 @@ function formatXAxisLabel(dateString: string, timePeriod: TimePeriod): { day: st
       const day = date.getDate();
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
-      
+
       // For all period, show fewer labels to avoid overcrowding
-      return { 
-        day: `${day}/${month}`, 
-        date: year.toString() 
+      return {
+        day: `${day}/${month}`,
+        date: year.toString()
       };
     } else {
       // For week/month view, dateString is YYYY-MM-DD format
@@ -229,10 +229,10 @@ function formatXAxisLabel(dateString: string, timePeriod: TimePeriod): { day: st
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
       const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
-      
-      return { 
+
+      return {
         day: weekday.charAt(0), // First letter only
-        date: `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}` 
+        date: `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`
       };
     }
   } catch (error) {
@@ -302,18 +302,18 @@ function CustomTooltip({ active, payload, label }: any) {
     // Get the data point that contains category information
     const dataPoint = payload[0]?.payload;
     const categories = dataPoint?.categories || {};
-    
+
     return (
       <div className="rounded-lg border border-amber-700 bg-black/90 p-3 shadow-lg">
         <div className="text-xs text-amber-400 font-bold mb-2">{label}</div>
-        
+
         {/* Show total value */}
         <div className="flex items-center gap-2 mb-2">
           <span className="w-2 h-2 rounded-full inline-block bg-amber-500" />
           <span className="text-white text-sm font-semibold">{payload[0]?.value}</span>
           <span className="text-gray-400 text-xs">total</span>
         </div>
-        
+
         {/* Show category breakdown if available */}
         {Object.keys(categories).length > 0 && (
           <div className="space-y-1">
@@ -349,7 +349,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
   // Prevent overflow: scale bars to max height
   const maxBarHeight = 160;
   const maxValue = Math.max(...graphData.map(d => d.value), 1);
-  
+
   // Improve Y-axis scaling for better readability
   const getYAxisDomain = () => {
     if (maxValue === 0) return [0, 1];
@@ -359,7 +359,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
     if (maxValue <= 1000) return [0, Math.max(1000, maxValue + 100)];
     return [0, maxValue * 1.1]; // Add 10% padding
   };
-  
+
   const yAxisDomain = getYAxisDomain();
   // For scroll: set min width per bar
   let minBarWidth = 40;
@@ -384,7 +384,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
       if (graphData.length > 0) {
         const firstDate = graphData[0]?.day;
         const lastDate = graphData[graphData.length - 1]?.day;
-        
+
         if (firstDate && lastDate && firstDate !== lastDate) {
           try {
             const firstYear = new Date(firstDate + 'T00:00:00Z').getFullYear();
@@ -404,13 +404,13 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
       }
       return 'All Time';
     }
-    
+
     if (timePeriod === 'year') return new Date().getFullYear().toString();
-    
+
     if (graphData.length > 0) {
       const firstDate = graphData[0]?.day;
       const lastDate = graphData[graphData.length - 1]?.day;
-      
+
       if (firstDate && lastDate && firstDate !== lastDate) {
         try {
           const firstYear = new Date(firstDate + 'T00:00:00Z').getFullYear();
@@ -438,38 +438,38 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
           {chartType === 'bar' ? (
             <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
-                          <XAxis
-              dataKey="day"
-              tick={({ x, y, payload, index }) => {
-                if (!isValidDateString(payload.value)) return <g />;
-                
-                // For month view, show only 3 labels: first, middle, and last
-                if (timePeriod === 'month') {
-                  const totalDays = graphData.length;
-                  const shouldShowLabel = index === 0 || index === Math.floor(totalDays / 2) || index === totalDays - 1;
-                  if (!shouldShowLabel) return <g />;
-                }
-                
-                // For 'all' period, show fewer labels to avoid overcrowding
-                if (timePeriod === 'all') {
-                  const totalDays = graphData.length;
-                  const shouldShowLabel = index === 0 || index === totalDays - 1 || index % Math.max(1, Math.floor(totalDays / 10)) === 0;
-                  if (!shouldShowLabel) return <g />;
-                }
-                
-                const { day, date } = formatXAxisLabel(payload.value, timePeriod);
-                return (
-                  <g transform={`translate(${x},${y})`}>
-                    <text x={0} y={-8} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">{day}</text>
-                    <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="10">{date}</text>
-                  </g>
-                );
-              }}
-              axisLine={{ stroke: "#444" }}
-              tickLine={false}
-              interval={0}
-              minTickGap={minBarWidth}
-            />
+              <XAxis
+                dataKey="day"
+                tick={({ x, y, payload, index }) => {
+                  if (!isValidDateString(payload.value)) return <g />;
+
+                  // For month view, show only 3 labels: first, middle, and last
+                  if (timePeriod === 'month') {
+                    const totalDays = graphData.length;
+                    const shouldShowLabel = index === 0 || index === Math.floor(totalDays / 2) || index === totalDays - 1;
+                    if (!shouldShowLabel) return <g />;
+                  }
+
+                  // For 'all' period, show fewer labels to avoid overcrowding
+                  if (timePeriod === 'all') {
+                    const totalDays = graphData.length;
+                    const shouldShowLabel = index === 0 || index === totalDays - 1 || index % Math.max(1, Math.floor(totalDays / 10)) === 0;
+                    if (!shouldShowLabel) return <g />;
+                  }
+
+                  const { day, date } = formatXAxisLabel(payload.value, timePeriod);
+                  return (
+                    <g transform={`translate(${x},${y})`}>
+                      <text x={0} y={-8} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">{day}</text>
+                      <text x={0} y={8} textAnchor="middle" fill="#bbb" fontSize="10">{date}</text>
+                    </g>
+                  );
+                }}
+                axisLine={{ stroke: "#444" }}
+                tickLine={false}
+                interval={0}
+                minTickGap={minBarWidth}
+              />
               <YAxis tick={{ fill: "#888" }} axisLine={{ stroke: "#444" }} domain={yAxisDomain} allowDecimals={false} />
               <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "#222", opacity: 0.1 }} />
               <Bar
@@ -562,12 +562,12 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
           )}
         </ResponsiveContainer>
       </div>
-      
+
       {/* Year display below the chart */}
       <div className="text-center">
         <h5 className="text-gray-400 text-sm font-medium">{getYearRange()}</h5>
       </div>
-      
+
       <style jsx>{`
         .bar-glow {
           filter: drop-shadow(0 0 8px #fbbf24cc) drop-shadow(0 0 16px #fbbf24aa);
@@ -592,7 +592,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
     // Use navigation date if available, otherwise use current date
     const baseDate = navigationDate || new Date();
     let newDate: Date;
-    
+
     switch (timePeriod) {
       case 'week':
         // Navigate by weeks from the current navigation position
@@ -626,7 +626,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         fetchData();
         return;
     }
-    
+
     // Store the navigation date for API calls
     setNavigationDate(newDate);
     // Fetch data for the new period
@@ -635,7 +635,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
   const fetchData = useCallback(async () => {
     console.log('[Kingdom Stats Component] fetchData called with:', { authUserId, isLoaded, activeTab, timePeriod });
-    
+
     if (!authUserId || !isLoaded) {
       console.log('[Kingdom Stats Component] Not ready to fetch data:', { authUserId, isLoaded });
       return;
@@ -644,23 +644,26 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
     try {
       setIsLoading(true);
       console.log('[Kingdom Stats Component] 🚀 Fetching data from API...');
-      
-              // Add cache-busting parameter to force fresh API call and see backend debugging
+
+      // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
       let apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
-      
+      if (userId && userId !== authUserId) {
+        apiUrl += `&userId=${userId}`;
+      }
+
       // Add navigation date if available
       if (navigationDate) {
         const dateParam = navigationDate.toISOString().split('T')[0];
         apiUrl += `&date=${dateParam}`;
       }
-      
+
       console.log('[Kingdom Stats Component] 🔗 API URL:', apiUrl);
       console.log('[Kingdom Stats Component] 🔑 Auth token present:', !!getToken);
-      
+
       const token = await getToken();
       console.log('[Kingdom Stats Component] 🔑 Token retrieved, length:', token?.length || 0);
-      
+
       const res = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -686,7 +689,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         successValue: data.success,
         keys: Object.keys(data)
       });
-      
+
       // Check if we have data in the response
       if (data.data && Array.isArray(data.data) && data.data.length > 0) {
         console.log('[Kingdom Stats Component] 📊 Setting graph data:', data.data);
@@ -716,31 +719,31 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   }, [authUserId, isLoaded, activeTab, timePeriod, navigationDate, getToken]);
 
   useEffect(() => {
-      // Call fetchData when dependencies change
-  fetchData();
-}, [fetchData]);
+    // Call fetchData when dependencies change
+    fetchData();
+  }, [fetchData]);
 
-// Create debounced version of fetchData to prevent excessive API calls
-const debouncedFetchData = useDebounce(fetchData, 1000); // 1 second delay
+  // Create debounced version of fetchData to prevent excessive API calls
+  const debouncedFetchData = useDebounce(fetchData, 1000); // 1 second delay
 
-// 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
-useSupabaseRealtimeSync({
-  table: 'quest_completion',
-  userId: authUserId,
-  onChange: debouncedFetchData
-});
+  // 🎯 REAL-TIME SUPABASE SUBSCRIPTIONS for instant updates
+  useSupabaseRealtimeSync({
+    table: 'quest_completion',
+    userId: authUserId,
+    onChange: debouncedFetchData
+  });
 
-useSupabaseRealtimeSync({
-  table: 'challenge_completion',
-  userId: authUserId,
-  onChange: debouncedFetchData
-});
+  useSupabaseRealtimeSync({
+    table: 'challenge_completion',
+    userId: authUserId,
+    onChange: debouncedFetchData
+  });
 
-useSupabaseRealtimeSync({
-  table: 'milestone_completion',
-  userId: authUserId,
-  onChange: debouncedFetchData
-});
+  useSupabaseRealtimeSync({
+    table: 'milestone_completion',
+    userId: authUserId,
+    onChange: debouncedFetchData
+  });
 
   // Keep legacy event listeners for backward compatibility
   useEffect(() => {
@@ -791,7 +794,7 @@ useSupabaseRealtimeSync({
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                
+
                 {/* Time period dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -806,7 +809,7 @@ useSupabaseRealtimeSync({
                     <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -848,7 +851,7 @@ useSupabaseRealtimeSync({
               </DropdownMenu>
             </div>
 
-                        {/* Desktop: Full layout */}
+            {/* Desktop: Full layout */}
             <div className="hidden md:flex items-center space-x-3">
               {/* Left side: Time period and chart type */}
               {/* Time period navigation */}
@@ -862,7 +865,7 @@ useSupabaseRealtimeSync({
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                
+
                 {/* Time period dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -877,7 +880,7 @@ useSupabaseRealtimeSync({
                     <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -983,7 +986,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     // Use navigation date if available, otherwise use current date
     const baseDate = navigationDate || new Date();
     let newDate: Date;
-    
+
     switch (timePeriod) {
       case 'week':
         // Navigate by weeks from the current navigation position
@@ -1017,7 +1020,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
         fetchData();
         return;
     }
-    
+
     // Store the navigation date for API calls
     setNavigationDate(newDate);
     // Fetch data for the new period
@@ -1046,16 +1049,19 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
       let apiUrl = `/api/kingdom-stats-v2?tab=${activeTab}&period=${timePeriod}&_t=${timestamp}`;
-      
+      if (userId && userId !== authUserId) {
+        apiUrl += `&userId=${userId}`;
+      }
+
       // Add navigation date if available
       if (navigationDate) {
         const dateParam = navigationDate.toISOString().split('T')[0];
         apiUrl += `&date=${dateParam}`;
       }
-      
+
       console.log('[Gains Component] 🔗 API URL:', apiUrl);
       console.log('[Gains Component] 🔑 Token length:', token.length);
-      
+
       const res = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -1158,7 +1164,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                
+
                 {/* Time period dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -1173,7 +1179,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                     <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -1230,7 +1236,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  
+
                   {/* Time period dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -1245,7 +1251,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                       <DropdownMenuItem onClick={() => setTimePeriod('year')}>Year</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -1320,9 +1326,9 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
           ) : !hasData ? (
-            activeTab === 'gold-gained' || activeTab === 'gold-spent' ? <GoldEmptyState /> : 
-            activeTab === 'experience' ? <ExperienceEmptyState /> : 
-            <LevelEmptyState />
+            activeTab === 'gold-gained' || activeTab === 'gold-spent' ? <GoldEmptyState /> :
+              activeTab === 'experience' ? <ExperienceEmptyState /> :
+                <LevelEmptyState />
           ) : (
             <ChartBlock
               graphData={graphData}

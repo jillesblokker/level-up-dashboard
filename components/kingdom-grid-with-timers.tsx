@@ -40,6 +40,7 @@ interface KingdomGridWithTimersProps {
   onGridUpdate?: (newGrid: Tile[][]) => void
   onGoldEarned?: (amount: number) => void
   onItemFound?: (item: { image: string; name: string; type: string }) => void
+  readOnly?: boolean
 }
 
 interface TileTimer {
@@ -58,7 +59,8 @@ export function KingdomGridWithTimers({
   onGridExpand,
   onGridUpdate,
   onGoldEarned,
-  onItemFound
+  onItemFound,
+  readOnly = false
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
@@ -1132,6 +1134,7 @@ export function KingdomGridWithTimers({
 
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
+    if (readOnly) return;
     // Removed debugging log
 
     // If in placement mode, handle property placement

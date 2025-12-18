@@ -2,7 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useUser, useAuth } from "@clerk/nextjs";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { HeaderSection } from "@/components/HeaderSection"
@@ -11,7 +13,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { useUser, useAuth } from '@clerk/nextjs'
 import {
   getKingdomInventory,
   getEquippedItems,
@@ -42,8 +43,24 @@ import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
-import { saveKingdomGrid, saveKingdomTimers, saveKingdomItems, saveKingdomTileStates, loadKingdomGrid, loadKingdomTimers, loadKingdomItems, loadKingdomTileStates } from '@/lib/supabase-persistence-client'
+import {
+  saveKingdomGrid,
+  saveKingdomTimers,
+  saveKingdomItems,
+  saveKingdomTileStates,
+  loadKingdomGrid,
+  loadKingdomTimers,
+  loadKingdomItems,
+  loadKingdomTileStates
+} from '@/lib/supabase-persistence-client'
 import { KingdomGuide } from '@/components/kingdom/kingdom-guide'
+import dynamic from 'next/dynamic';
+const RevealOverlay = dynamic(() => import('../reveal/page'), {
+  ssr: false,
+  loading: () => null
+});
+import { Users, Crown, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number>,
@@ -308,6 +325,11 @@ export function KingdomClient() {
   const { user } = useUser();
   const { getToken } = useAuth();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const visitUserId = searchParams?.get('visit');
+  const isVisiting = !!visitUserId && visitUserId !== user?.id;
+
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
@@ -349,43 +371,49 @@ export function KingdomClient() {
       try {
         const token = await getToken();
 
-        // Load timers from Supabase with localStorage fallback
-        const savedTimers = await loadKingdomTimers(token);
-        if (!savedTimers || Object.keys(savedTimers).length === 0) {
-          console.log('[Kingdom] Creating default timers...');
+        // Initialize timers for default kingdom tiles (only if they don't exist and not visiting)
+        if (!isVisiting) {
+          const savedTimers = await loadKingdomTimers(token);
+          if (!savedTimers || Object.keys(savedTimers).length === 0) {
+            console.log('[Kingdom] Creating default timers...');
 
-          const defaultTimers = {
-            '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
-            '2,1': { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
-            '3,1': { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-            '4,1': { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-            '5,1': { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
-            '1,2': { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-            '2,2': { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-            '3,2': { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-            '4,2': { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-            '5,2': { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-            '1,3': { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-            '2,3': { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-            '3,3': { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-            '4,3': { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-            '5,3': { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-            '1,4': { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
-            '2,4': { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-            '3,4': { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-            '4,4': { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-            '5,4': { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
-          };
+            const defaultTimers = {
+              '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
+              '2,1': { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
+              '3,1': { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
+              '4,1': { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
+              '5,1': { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+              '1,2': { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
+              '2,2': { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
+              '3,2': { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+              '4,2': { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
+              '5,2': { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
+              '1,3': { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
+              '2,3': { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
+              '3,3': { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+              '4,3': { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
+              '5,3': { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
+              '1,4': { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
+              '2,4': { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+              '3,4': { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
+              '4,4': { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
+              '5,4': { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+            };
 
-          // Save default timers to Supabase
-          await saveKingdomTimers(defaultTimers, token);
-          console.log('[Kingdom] Default timers created and saved to Supabase');
-        } else {
-          console.log('[Kingdom] Using existing timers from Supabase');
+            // Save default timers to Supabase
+            await saveKingdomTimers(defaultTimers, token);
+            console.log('[Kingdom] Default timers created and saved to Supabase');
+          } else {
+            console.log('[Kingdom] Using existing timers from Supabase');
+          }
         }
 
+
+        // Load data for the target user (self or ally)
+        const targetId = isVisiting ? visitUserId : null;
+
         // Load kingdom grid from Supabase with localStorage fallback
-        const savedGrid = await loadKingdomGrid(token);
+        const savedGrid = await loadKingdomGrid(token, targetId);
         if (savedGrid && savedGrid.length > 0) {
           try {
             console.log('[Kingdom] Loading existing grid from Supabase...');
@@ -1117,7 +1145,39 @@ export function KingdomClient() {
   }
   // After animation, show the main content immediately
   return (
-    <div className="min-h-screen">
+    <div className={cn(
+      "min-h-screen relative",
+      isVisiting && "grayscale-[0.3] brightness-[1.1] [filter:hue-rotate(180deg)_saturate(1.5)]"
+    )}>
+      {isVisiting && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-blue-900/90 text-white px-6 py-3 rounded-2xl border-2 border-blue-400/50 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
+            <Users className="w-6 h-6 text-blue-300" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold tracking-wider text-sm text-blue-100 italic">ENVOY MODE</span>
+            <span className="text-xs text-blue-300/80">Exploring Ally&apos;s Kingdom</span>
+          </div>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-9 px-4 rounded-xl bg-blue-500 text-white hover:bg-blue-400 border-none ml-2"
+            onClick={() => router.push('/allies')}
+          >
+            Return Home
+          </Button>
+        </div>
+      )}
+
+      <RevealOverlay />
+
+      <HeaderSection
+        title={isVisiting ? "Ally Kingdom" : "Kingdom"}
+        subtitle={isVisiting ? "Observing the prosperity of your ally" : "Manage your kingdom and grow your prosperity"}
+        imageSrc={coverImage || "/images/Kingdom.png"}
+        defaultBgColor="bg-[#2a1a0a]"
+      />
+
       {/* Main Content with Tabs */}
       <KingdomGuide />
       <HeaderSection
@@ -1155,8 +1215,8 @@ export function KingdomClient() {
           <TabsList className="mb-6 w-full grid grid-cols-4">
             <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
             <TabsTrigger value="journey">Journey</TabsTrigger>
-            <TabsTrigger value="inventory">Bag</TabsTrigger>
-            <TabsTrigger value="rewards">Rewards</TabsTrigger>
+            {!isVisiting && <TabsTrigger value="inventory">Bag</TabsTrigger>}
+            {!isVisiting && <TabsTrigger value="rewards">Rewards</TabsTrigger>}
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
@@ -1166,13 +1226,14 @@ export function KingdomClient() {
                 <div className="flex items-center justify-center w-full">
                   <KingdomGridWithTimers
                     grid={kingdomGrid}
-                    onTilePlace={handlePlaceKingdomTile}
+                    onTilePlace={isVisiting ? () => { } : handlePlaceKingdomTile}
                     selectedTile={selectedKingdomTile}
-                    setSelectedTile={setSelectedKingdomTile}
-                    onGridExpand={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                    onGridUpdate={(newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                    onGoldEarned={handleKingdomTileGoldEarned}
-                    onItemFound={handleKingdomTileItemFound}
+                    setSelectedTile={isVisiting ? () => { } : setSelectedKingdomTile}
+                    onGridExpand={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                    onGridUpdate={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                    onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
+                    onItemFound={isVisiting ? () => { } : handleKingdomTileItemFound}
+                    readOnly={isVisiting}
                   />
                 </div>
               )}
@@ -1183,22 +1244,26 @@ export function KingdomClient() {
               {/* Kingdom Stats and Gains - Most Important for Kingdom Page */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <KingdomStatsBlock userId={user?.id || null} />
+                  <KingdomStatsBlock userId={visitUserId || user?.id || null} />
                 </div>
                 <div className="w-full" aria-label="king-stats-block-container">
-                  <KingStatsBlock userId={user?.id || null} />
+                  <KingStatsBlock userId={visitUserId || user?.id || null} />
                 </div>
               </div>
 
               {/* Progression Visualization */}
-              <div className="mb-6">
-                <ProgressionVisualization />
-              </div>
+              {!isVisiting && (
+                <div className="mb-6">
+                  <ProgressionVisualization />
+                </div>
+              )}
 
               {/* Economy Transparency */}
-              <div className="mb-6">
-                <EconomyTransparency />
-              </div>
+              {!isVisiting && (
+                <div className="mb-6">
+                  <EconomyTransparency />
+                </div>
+              )}
             </div>
           </TabsContent>
           <TabsContent value="inventory">

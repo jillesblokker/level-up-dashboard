@@ -15,9 +15,9 @@ import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/l
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical } from 'lucide-react'
+import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical, Users } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -248,6 +248,9 @@ export default function RealmPage() {
     const { user, isLoaded: isAuthLoaded } = useUser();
     const { getToken } = useAuth();
     const userId = user?.id;
+    const searchParams = useSearchParams();
+    const visitUserId = searchParams.get('visit');
+    const isVisiting = !!visitUserId && visitUserId !== userId;
     const isGuest = !user;
     const router = useRouter();
     const { discoverCreature } = useCreatureStore();
@@ -817,12 +820,15 @@ export default function RealmPage() {
     // Load data from Supabase with localStorage fallback
     useEffect(() => {
         const loadUserData = async () => {
-            if (!isAuthLoaded || isGuest || !userId) return;
+            if (!isAuthLoaded || (isGuest && !isVisiting) || (!userId && !isVisiting)) return;
 
             setIsLoading(true);
             try {
                 // Load grid data
-                const gridResult = await loadGridData(userId);
+                const targetId = isVisiting ? visitUserId : userId;
+                if (!targetId) return;
+
+                const gridResult = await loadGridData(targetId);
 
                 if (gridResult && gridResult.data) {
                     // The API returns { data: { grid: [...] } }, so we need to access gridResult.data.grid
@@ -833,7 +839,7 @@ export default function RealmPage() {
                     } else {
                         // Try to load from realm-tiles API instead of CSV
                         try {
-                            const res = await fetch('/api/realm-tiles');
+                            const res = await fetch(`/api/realm-tiles${isVisiting ? `?userId=${visitUserId}` : ''}`);
                             const data = await res.json();
                             if (res.ok && data.tiles && Array.isArray(data.tiles)) {
                                 const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
@@ -870,7 +876,7 @@ export default function RealmPage() {
                 } else {
                     // Fallback to API or create base grid
                     try {
-                        const res = await fetch('/api/realm-tiles');
+                        const res = await fetch(`/api/realm-tiles${isVisiting ? `?userId=${visitUserId}` : ''}`);
                         const data = await res.json();
                         if (res.ok && data.tiles && Array.isArray(data.tiles)) {
                             const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
@@ -2655,11 +2661,33 @@ export default function RealmPage() {
     }
 
     return (
-        <>
+        <div className={cn(
+            "relative min-h-screen",
+            isVisiting && "grayscale-[0.3] brightness-[1.1] [filter:hue-rotate(180deg)_saturate(1.5)]"
+        )}>
+            {isVisiting && (
+                <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-blue-900/90 text-white px-6 py-3 rounded-2xl border-2 border-blue-400/50 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
+                        <Users className="w-6 h-6 text-blue-300" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-bold tracking-wider text-sm text-blue-100 italic">ENVOY MODE</span>
+                        <span className="text-xs text-blue-300/80">Exploring Ally&apos;s Realm</span>
+                    </div>
+                    <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-9 px-4 rounded-xl bg-blue-500 text-white hover:bg-blue-400 border-none ml-2"
+                        onClick={() => router.push('/allies')}
+                    >
+                        Return Home
+                    </Button>
+                </div>
+            )}
             <RevealOverlay />
             <HeaderSection
-                title="Realm"
-                subtitle="Explore and build your mystical realm"
+                title={isVisiting ? "Ally Realm" : "Realm"}
+                subtitle={isVisiting ? "Observing a fellow pioneer's journey" : "Explore and build your mystical realm"}
                 imageSrc="/images/realm-header.jpg"
                 defaultBgColor="bg-blue-900"
                 onAnimationStart={() => setIsAnimating(true)}
@@ -2675,133 +2703,135 @@ export default function RealmPage() {
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
-                <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
-                    {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
-                    <div className="flex flex-1 flex-col gap-2 overflow-visible">
-                        {/* Main Action Buttons - Always visible */}
-                        <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                            <Button
-                                variant={gameMode === 'move' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setGameMode('move')}
-                                className={cn(
-                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
-                                    gameMode === 'move'
-                                        ? "bg-blue-500 text-white hover:bg-blue-600"
-                                        : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                                )}
-                                aria-label="movement-mode-button"
-                            >
-                                <Move className="w-4 h-4" />
-                                <span className="hidden md:inline">Move</span>
-                            </Button>
-                            <Button
-                                variant={gameMode === 'build' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setGameMode('build')}
-                                className={cn(
-                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
-                                    gameMode === 'build'
-                                        ? "bg-amber-500 text-white hover:bg-amber-600"
-                                        : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                                )}
-                                aria-label="build-mode-button"
-                            >
-                                <Hammer className="w-4 h-4" />
-                                <span className="hidden md:inline">Build</span>
-                            </Button>
-                            <Button
-                                variant={gameMode === 'destroy' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setGameMode('destroy')}
-                                className={cn(
-                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
-                                    gameMode === 'destroy'
-                                        ? "bg-red-500 text-white hover:bg-red-600"
-                                        : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
-                                )}
-                                aria-label="destroy-mode-button"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                <span className="hidden md:inline">Destroy</span>
-                            </Button>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={expandMap}
-                                        disabled={!canExpand}
-                                        aria-label="Expand Map"
-                                        className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
-                                    >
-                                        <PlusCircle className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Expand</span>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent
-                                    side="top"
-                                    className="bg-gray-900 text-white border-amber-800/30"
-                                >
-                                    {canExpand
-                                        ? 'Expand your realm map to unlock 3 more rows'
-                                        : `Become level ${nextExpansionLevel} to unlock 3 more rows`
-                                    }
-                                </TooltipContent>
-                            </Tooltip>
-                            {/* Inventory Button */}
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowInventory(!showInventory)}
-                                className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                                aria-label="toggle-inventory-button"
-                            >
-                                <Package className="w-4 h-4" />
-                                <span className="hidden sm:inline">Inventory</span>
-                            </Button>
-
-                            {/* Kebab Menu for Secondary Actions */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
-                                        aria-label="more-actions-menu"
-                                    >
-                                        <MoreVertical className="w-4 h-4" />
-                                        <span className="hidden sm:inline">More</span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2">
-                                        <Trash2 className="w-4 h-4" />
-                                        Reset Map
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
-                                        <RotateCcw className="w-4 h-4" />
-                                        Reset Position
-                                    </DropdownMenuItem>
-                                    {/* Auto Save Toggle */}
-                                    <div className="px-2 py-1.5">
-                                        <div className="flex items-center space-x-2">
-                                            <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
-                                            <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
-                                        </div>
-                                    </div>
-                                    {/* Manual Sync Button */}
-                                    {pendingSyncCount > 0 && (
-                                        <DropdownMenuItem onClick={syncPendingTilePlacements} className="flex items-center gap-2 text-amber-400">
-                                            <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
-                                            Sync ({pendingSyncCount})
-                                        </DropdownMenuItem>
+                {!isVisiting && (
+                    <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
+                        {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
+                        <div className="flex flex-1 flex-col gap-2 overflow-visible">
+                            {/* Main Action Buttons - Always visible */}
+                            <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                <Button
+                                    variant={gameMode === 'move' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setGameMode('move')}
+                                    className={cn(
+                                        "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                        gameMode === 'move'
+                                            ? "bg-blue-500 text-white hover:bg-blue-600"
+                                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
                                     )}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    aria-label="movement-mode-button"
+                                >
+                                    <Move className="w-4 h-4" />
+                                    <span className="hidden md:inline">Move</span>
+                                </Button>
+                                <Button
+                                    variant={gameMode === 'build' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setGameMode('build')}
+                                    className={cn(
+                                        "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                        gameMode === 'build'
+                                            ? "bg-amber-500 text-white hover:bg-amber-600"
+                                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                    )}
+                                    aria-label="build-mode-button"
+                                >
+                                    <Hammer className="w-4 h-4" />
+                                    <span className="hidden md:inline">Build</span>
+                                </Button>
+                                <Button
+                                    variant={gameMode === 'destroy' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setGameMode('destroy')}
+                                    className={cn(
+                                        "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                        gameMode === 'destroy'
+                                            ? "bg-red-500 text-white hover:bg-red-600"
+                                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                    )}
+                                    aria-label="destroy-mode-button"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    <span className="hidden md:inline">Destroy</span>
+                                </Button>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={expandMap}
+                                            disabled={!canExpand}
+                                            aria-label="Expand Map"
+                                            className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
+                                        >
+                                            <PlusCircle className="w-4 h-4" />
+                                            <span className="hidden sm:inline">Expand</span>
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                        side="top"
+                                        className="bg-gray-900 text-white border-amber-800/30"
+                                    >
+                                        {canExpand
+                                            ? 'Expand your realm map to unlock 3 more rows'
+                                            : `Become level ${nextExpansionLevel} to unlock 3 more rows`
+                                        }
+                                    </TooltipContent>
+                                </Tooltip>
+                                {/* Inventory Button */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowInventory(!showInventory)}
+                                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                                    aria-label="toggle-inventory-button"
+                                >
+                                    <Package className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Inventory</span>
+                                </Button>
+
+                                {/* Kebab Menu for Secondary Actions */}
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                                            aria-label="more-actions-menu"
+                                        >
+                                            <MoreVertical className="w-4 h-4" />
+                                            <span className="hidden sm:inline">More</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-48">
+                                        <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2">
+                                            <Trash2 className="w-4 h-4" />
+                                            Reset Map
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
+                                            <RotateCcw className="w-4 h-4" />
+                                            Reset Position
+                                        </DropdownMenuItem>
+                                        {/* Auto Save Toggle */}
+                                        <div className="px-2 py-1.5">
+                                            <div className="flex items-center space-x-2">
+                                                <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
+                                                <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
+                                            </div>
+                                        </div>
+                                        {/* Manual Sync Button */}
+                                        {pendingSyncCount > 0 && (
+                                            <DropdownMenuItem onClick={syncPendingTilePlacements} className="flex items-center gap-2 text-amber-400">
+                                                <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+                                                Sync ({pendingSyncCount})
+                                            </DropdownMenuItem>
+                                        )}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Network Status Indicator */}
                 {!isOnline && (
@@ -3151,6 +3181,6 @@ export default function RealmPage() {
                     onBattleComplete={handleBattleComplete}
                 />
             </RealmAnimationWrapper>
-        </>
+        </div>
     );
 }

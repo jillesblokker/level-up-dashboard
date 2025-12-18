@@ -158,4 +158,49 @@ export function withAuth<T>(
 
     return { data: result.data, userId: result.userId };
   };
-} 
+}
+
+/**
+ * Complete authentication flow for visiting another user's data (friends only)
+ */
+export async function authenticatedFriendQuery<T>(
+  request: Request,
+  targetUserId: string,
+  queryFn: (supabase: typeof supabaseServer, targetId: string) => Promise<T>
+): Promise<{ success: boolean; data?: T; error?: string; userId?: string }> {
+  console.log(`[AuthenticatedFriendQuery] Requesting data for ${targetUserId} by ${request.url}`);
+
+  // Step 1: Verify requester's JWT
+  const authResult = await verifyClerkJWT(request);
+  if (!authResult.success || !authResult.userId) {
+    return { success: false, error: 'Authentication failed' };
+  }
+  const currentUserId = authResult.userId;
+
+  // Step 2: If visiting self, proceed directly
+  if (currentUserId === targetUserId) {
+    const queryResult = await querySupabaseWithServiceKey(targetUserId, queryFn);
+    return { ...queryResult, userId: currentUserId };
+  }
+
+  // Step 3: Check friendship status
+  try {
+    const { data: friendship, error } = await supabaseServer
+      .from('friends')
+      .select('status')
+      .or(`and(user_id.eq.${currentUserId},friend_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_id.eq.${currentUserId})`)
+      .single();
+
+    if (error || !friendship || friendship.status !== 'accepted') {
+      console.log(`[AuthenticatedFriendQuery] Forbidden: Users ${currentUserId} and ${targetUserId} are not allies.`);
+      return { success: false, error: 'Forbidden: You are not allies with this player.' };
+    }
+
+    // Step 4: Proceed with query on targetUserId
+    const queryResult = await querySupabaseWithServiceKey(targetUserId, queryFn);
+    return { ...queryResult, userId: currentUserId };
+  } catch (err) {
+    console.error('[AuthenticatedFriendQuery] Friendship check failed:', err);
+    return { success: false, error: 'Internal server error during friendship verification' };
+  }
+}

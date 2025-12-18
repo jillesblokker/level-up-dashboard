@@ -1,31 +1,44 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import { authenticatedSupabaseQuery, authenticatedFriendQuery } from '@/lib/supabase/jwt-verification';
 
 // GET: Return the kingdom grid for the user
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const visitUserId = searchParams.get('userId');
+
+    const result = await (visitUserId
+      ? authenticatedFriendQuery(request, visitUserId, async (supabase, userId) => {
+        const { data, error } = await supabase
+          .from('kingdom_grid')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+
+        if (error && error.code !== 'PGRST116') throw error;
+        return { grid: data?.grid_data || null };
+      })
+      : authenticatedSupabaseQuery(request, async (supabase, userId) => {
+        const { data, error } = await supabase
+          .from('kingdom_grid')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+
+        if (error && error.code !== 'PGRST116') throw error;
+        return { grid: data?.grid_data || null };
+      })
+    );
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: result.error?.includes('Forbidden') ? 403 : 401 });
     }
 
-    const { data, error } = await supabaseServer
-      .from('kingdom_grid')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    if (!data) {
-      return NextResponse.json({ grid: null });
-    }
-
-    return NextResponse.json({ grid: data.grid_data });
+    return NextResponse.json(result.data);
   } catch (error) {
+    console.error('[Kingdom Grid GET] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -62,4 +75,4 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

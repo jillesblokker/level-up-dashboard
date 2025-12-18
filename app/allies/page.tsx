@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
@@ -74,6 +75,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function AlliesPage() {
     const { user } = useUser();
+    const router = useRouter();
     const { toast } = useToast();
     const [activeTab, setActiveTab] = useState("allies");
     const [friends, setFriends] = useState<Friend[]>([]);
@@ -405,7 +407,7 @@ export default function AlliesPage() {
                                                 </div>
 
                                                 {/* Action Buttons */}
-                                                <div className="flex gap-2 w-full sm:w-auto">
+                                                <div className="flex gap-2 w-full sm:w-auto flex-wrap">
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -414,6 +416,24 @@ export default function AlliesPage() {
                                                     >
                                                         <Target className="w-4 h-4 mr-2" />
                                                         Compare
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
+                                                        className="flex-1 sm:flex-none border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+                                                    >
+                                                        <Crown className="w-4 h-4 mr-2" />
+                                                        Visit Kingdom
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => router.push(`/realm?visit=${friend.friendId}`)}
+                                                        className="flex-1 sm:flex-none border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
+                                                    >
+                                                        <Shield className="w-4 h-4 mr-2" />
+                                                        Visit Realm
                                                     </Button>
                                                     <Button
                                                         size="sm"
@@ -977,6 +997,6 @@ export default function AlliesPage() {
                 </DialogContent>
             </Dialog>
 
-        </div>
+        </div >
     )
 }

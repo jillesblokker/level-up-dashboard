@@ -66,10 +66,13 @@ export async function loadFromSupabaseClient<T>(
 
     if (response.ok) {
       const result = await response.json();
-      if (result.stats || result.progress || result.grid || result.timers || result.items || result.states) {
+      if (result.stats || result.progress || result.grid || result.timers || result.items || result.states || result.tiles) {
         console.log(`[Supabase Persistence Client] ✅ Data loaded from Supabase: ${endpoint}`);
-        const data = result.stats || result.progress || result.grid || result.timers || result.items || result.states;
-        setUserScopedItem(localStorageKey, JSON.stringify(data));
+        const data = result.stats || result.progress || result.grid || result.timers || result.items || result.states || result.tiles;
+        const isVisit = endpoint.includes('userId=');
+        if (!isVisit) {
+          setUserScopedItem(localStorageKey, JSON.stringify(data));
+        }
         return data;
       }
     }
@@ -91,8 +94,9 @@ export async function saveKingdomGrid(grid: any, token?: string | null): Promise
   return await saveToSupabaseClient('/api/kingdom-grid', { grid }, 'kingdom-grid', token);
 }
 
-export async function loadKingdomGrid(token?: string | null): Promise<any> {
-  return await loadFromSupabaseClient('/api/kingdom-grid', 'kingdom-grid', [], token);
+export async function loadKingdomGrid(token?: string | null, visitUserId?: string | null): Promise<any> {
+  const endpoint = visitUserId ? `/api/kingdom-grid?userId=${visitUserId}` : '/api/kingdom-grid';
+  return await loadFromSupabaseClient(endpoint, 'kingdom-grid', [], token);
 }
 
 // Kingdom Timers
@@ -100,8 +104,9 @@ export async function saveKingdomTimers(timers: any, token?: string | null): Pro
   return await saveToSupabaseClient('/api/kingdom-timers', { timers }, 'kingdom-tile-timers', token);
 }
 
-export async function loadKingdomTimers(token?: string | null): Promise<any> {
-  return await loadFromSupabaseClient('/api/kingdom-timers', 'kingdom-tile-timers', {}, token);
+export async function loadKingdomTimers(token?: string | null, visitUserId?: string | null): Promise<any> {
+  const endpoint = visitUserId ? `/api/kingdom-timers?userId=${visitUserId}` : '/api/kingdom-timers';
+  return await loadFromSupabaseClient(endpoint, 'kingdom-tile-timers', {}, token);
 }
 
 // Kingdom Items

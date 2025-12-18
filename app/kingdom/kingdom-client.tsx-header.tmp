@@ -1,0 +1,51 @@
+"use client"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
+import { useUser, useAuth } from "@clerk/nextjs";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { HeaderSection } from "@/components/HeaderSection"
+import { defaultInventoryItems } from "@/app/lib/default-inventory"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
+import { useToast } from "@/components/ui/use-toast"
+import {
+  getKingdomInventory,
+  getEquippedItems,
+  getStoredItems,
+  equipItem,
+  unequipItem,
+  getTotalStats,
+  addToInventory,
+  type InventoryItem
+} from "@/lib/inventory-manager"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
+import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
+import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
+import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
+import { KingdomGridWithTimers } from '@/components/kingdom-grid-with-timers';
+import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
+import { cn } from "@/lib/utils"
+import { KingdomNotificationManager } from "@/components/kingdom-notification-manager";
+import { 
+  loadKingdomGrid, 
+  saveKingdomGrid, 
+  loadKingdomTimers, 
+  saveKingdomTimers,
+  loadKingdomItems,
+  saveKingdomItems
+} from "@/lib/supabase-persistence-client";
+import { RevealOverlay } from "@/app/reveal/page";
+import { Users, Crown, Shield } from "lucide-react";
