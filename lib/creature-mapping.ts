@@ -161,7 +161,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Wooly Sheep',
         filename: 'sheep.png',
         type: 'nature',
-        greetings: ["Baaa...", "Munch munch."],
+        greetings: ["Baaa... would you mind a trim?", "The grass is exceptionally green today!", "Munch munch... oh, hello traveler!"],
         scale: 1.0
     },
     '902': {
@@ -169,7 +169,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Wild Horse',
         filename: 'horse.png',
         type: 'nature',
-        greetings: ["Neigh!", "Snort."],
+        greetings: ["Neigh! The wind is perfect for a gallop.", "*Snort* Ready to explore the realm?", "I can carry you across the widest plains."],
         scale: 1.2
     },
     '903': {
@@ -177,7 +177,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Happy Penguin',
         filename: 'penguin.png',
         type: 'ice',
-        greetings: ["Noot noot!", "Slide!"],
+        greetings: ["Noot noot! Spare some fish?", "Slide! It's better than walking, trust me.", "Waddle you doing today? *Giggle*"],
         scale: 0.8
     }
 };

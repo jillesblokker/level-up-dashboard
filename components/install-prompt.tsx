@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { X, Download, Share, Plus, Crown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
+import { setUserPreference, getUserPreference } from '@/lib/user-preferences-manager'
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>
@@ -15,57 +17,68 @@ export function InstallPrompt() {
     const [showPrompt, setShowPrompt] = useState(false)
     const [isInstalled, setIsInstalled] = useState(false)
     const [isIOS, setIsIOS] = useState(false)
+    const [dontShowAgain, setDontShowAgain] = useState(false)
     const [isInStandaloneMode, setIsInStandaloneMode] = useState(false)
 
     useEffect(() => {
-        // Check if already installed
-        const standalone = window.matchMedia('(display-mode: standalone)').matches
-        setIsInStandaloneMode(standalone)
+        const checkInstallState = async () => {
+            // Check if already installed
+            const standalone = window.matchMedia('(display-mode: standalone)').matches
+            setIsInStandaloneMode(standalone)
 
-        if (standalone) {
-            setIsInstalled(true)
-            return
-        }
-
-        // Detect iOS
-        const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-        setIsIOS(iOS)
-
-        // Check if user has dismissed the prompt before
-        const dismissed = localStorage.getItem('pwa-install-dismissed')
-        if (dismissed) {
-            const dismissedDate = new Date(dismissed)
-            const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24)
-
-            // Show again after 7 days
-            if (daysSinceDismissed < 7) {
+            if (standalone) {
+                setIsInstalled(true)
                 return
+            }
+
+            // Detect iOS
+            const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+            setIsIOS(iOS)
+
+            // Check if user has permanently dismissed the prompt via database
+            const permanentlyDismissed = await getUserPreference('pwa-install-permanent-dismiss')
+            if (permanentlyDismissed === true) {
+                return
+            }
+
+            // Check if user has dismissed the prompt before in this session/recently
+            const dismissed = localStorage.getItem('pwa-install-dismissed')
+            if (dismissed) {
+                const dismissedDate = new Date(dismissed)
+                const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24)
+
+                // Show again after 7 days
+                if (daysSinceDismissed < 7) {
+                    return
+                }
+            }
+
+            // For iOS, show prompt after delay
+            if (iOS) {
+                setTimeout(() => {
+                    setShowPrompt(true)
+                }, 30000) // 30 seconds
+            }
+
+            // For Android/Desktop
+            const handler = (e: Event) => {
+                e.preventDefault()
+                setDeferredPrompt(e as BeforeInstallPromptEvent)
+
+                // Show prompt after user has been on the site for 30 seconds
+                setTimeout(() => {
+                    setShowPrompt(true)
+                }, 30000)
+            }
+
+            window.addEventListener('beforeinstallprompt', handler)
+
+            return () => {
+                window.removeEventListener('beforeinstallprompt', handler)
             }
         }
 
-        // For iOS, show prompt after delay
-        if (iOS) {
-            setTimeout(() => {
-                setShowPrompt(true)
-            }, 30000) // 30 seconds
-        }
-
-        // For Android/Desktop
-        const handler = (e: Event) => {
-            e.preventDefault()
-            setDeferredPrompt(e as BeforeInstallPromptEvent)
-
-            // Show prompt after user has been on the site for 30 seconds
-            setTimeout(() => {
-                setShowPrompt(true)
-            }, 30000)
-        }
-
-        window.addEventListener('beforeinstallprompt', handler)
-
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handler)
-        }
+        checkInstallState()
     }, [])
 
     const handleInstall = async () => {
@@ -77,12 +90,18 @@ export function InstallPrompt() {
         if (outcome === 'accepted') {
             setShowPrompt(false)
             setDeferredPrompt(null)
+            if (dontShowAgain) {
+                await setUserPreference('pwa-install-permanent-dismiss', true)
+            }
         }
     }
 
-    const handleDismiss = () => {
+    const handleDismiss = async () => {
         setShowPrompt(false)
         localStorage.setItem('pwa-install-dismissed', new Date().toISOString())
+        if (dontShowAgain) {
+            await setUserPreference('pwa-install-permanent-dismiss', true)
+        }
     }
 
     if (isInstalled || !showPrompt) {
@@ -130,7 +149,7 @@ export function InstallPrompt() {
                                     Join the Kingdom
                                 </h3>
                                 <p className="text-sm text-amber-200/80 leading-relaxed">
-                                    Install Level Up for instant access, offline quests, and a true hero&apos;s experience!
+                                    Install Level Up for instant access and a true hero&apos;s experience!
                                 </p>
                             </div>
                         </div>
@@ -143,11 +162,7 @@ export function InstallPrompt() {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-amber-100">
                                 <span className="text-amber-500">🏰</span>
-                                <span>Works offline - complete quests anywhere</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-amber-100">
-                                <span className="text-amber-500">👑</span>
-                                <span>Full-screen immersive experience</span>
+                                <span>Expand your realm on the world map</span>
                             </div>
                         </div>
 
@@ -171,7 +186,7 @@ export function InstallPrompt() {
                                 </ol>
                             </div>
                         ) : (
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 mb-4">
                                 <Button
                                     onClick={handleInstall}
                                     className={cn(
@@ -195,11 +210,23 @@ export function InstallPrompt() {
                             </div>
                         )}
 
+                        <div className="flex items-center space-x-2 mt-2 px-1">
+                            <Checkbox
+                                id="pwa-dont-show"
+                                checked={dontShowAgain}
+                                onCheckedChange={(checked) => setDontShowAgain(checked === true)}
+                                className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-amber-950"
+                            />
+                            <label htmlFor="pwa-dont-show" className="text-xs text-amber-200/60 cursor-pointer">
+                                Don&apos;t show this invitation again
+                            </label>
+                        </div>
+
                         {isIOS && (
                             <Button
                                 onClick={handleDismiss}
                                 variant="ghost"
-                                className="w-full mt-2 text-amber-200 hover:text-white hover:bg-amber-800/50 border border-amber-700/30"
+                                className="w-full mt-4 text-amber-200 hover:text-white hover:bg-amber-800/50 border border-amber-700/30"
                             >
                                 Maybe Later
                             </Button>

@@ -8,17 +8,20 @@ import { smartLogger } from '@/lib/smart-logger'
 interface OnboardingState {
   hasCompletedOnboarding: boolean
   hasSkippedOnboarding: boolean
+  hasHiddenGateway: boolean
   lastShownAt: number | null
 }
 
 interface OnboardingContextType {
   onboardingState: OnboardingState
   isOnboardingOpen: boolean
+  showGateway: boolean
   shouldShowOnboarding: () => boolean
   openOnboarding: (forceOpen?: boolean) => void
   closeOnboarding: () => void
   completeOnboarding: () => void
   skipOnboarding: () => void
+  hideGateway: () => void
   resetOnboarding: () => void
   debugOnboardingState: () => void
 }
@@ -33,9 +36,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [onboardingState, setOnboardingState] = useState<OnboardingState>({
     hasCompletedOnboarding: false,
     hasSkippedOnboarding: false,
+    hasHiddenGateway: false,
     lastShownAt: null
   })
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
+  const [showGateway, setShowGateway] = useState(false)
 
   // Debug: Log state changes
   useEffect(() => {
@@ -164,21 +169,18 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
     // Otherwise, check if it should be shown
     if (shouldShowOnboarding()) {
-      smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_NORMAL', {
-        action: 'normal_open',
-        reason: 'should_show_is_true',
-        shouldShowResult: shouldShowOnboarding()
-      })
-      setIsOnboardingOpen(true)
+      if (!onboardingState.hasHiddenGateway) {
+        setShowGateway(true)
+      } else {
+        setIsOnboardingOpen(true)
+      }
       saveOnboardingState({ lastShownAt: Date.now() })
-    } else {
-      smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_SKIPPED', {
-        action: 'skip_open',
-        reason: 'should_show_is_false',
-        shouldShowResult: shouldShowOnboarding(),
-        onboardingState: onboardingState
-      })
     }
+  }
+
+  const hideGateway = () => {
+    setShowGateway(false)
+    saveOnboardingState({ hasHiddenGateway: true })
   }
 
   // Close onboarding
@@ -241,11 +243,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const contextValue: OnboardingContextType = {
     onboardingState,
     isOnboardingOpen,
+    showGateway,
     shouldShowOnboarding,
     openOnboarding,
     closeOnboarding,
     completeOnboarding,
     skipOnboarding,
+    hideGateway,
     resetOnboarding,
     debugOnboardingState
   }
