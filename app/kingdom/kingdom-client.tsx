@@ -1172,18 +1172,10 @@ export function KingdomClient() {
       <RevealOverlay />
 
       <HeaderSection
-        title={isVisiting ? "Ally Kingdom" : "Kingdom"}
+        title={isVisiting ? "Ally Kingdom" : "KINGDOM"}
         subtitle={isVisiting ? "Observing the prosperity of your ally" : "Manage your kingdom and grow your prosperity"}
         imageSrc={coverImage || "/images/Kingdom.png"}
-        defaultBgColor="bg-[#2a1a0a]"
-      />
-
-      {/* Main Content with Tabs */}
-      <KingdomGuide />
-      <HeaderSection
-        title="KINGDOM"
-        imageSrc={coverImage || ""}
-        canEdit={!!user?.id}
+        canEdit={!!user?.id && !isVisiting}
         onImageUpload={async (file) => {
           const reader = new FileReader();
           reader.onload = async (event: ProgressEvent<FileReader>) => {
@@ -1198,6 +1190,9 @@ export function KingdomClient() {
         className=""
         shouldRevealImage={true}
       />
+
+      {/* Main Content with Tabs */}
+      <KingdomGuide />
 
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>
