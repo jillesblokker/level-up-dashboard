@@ -466,7 +466,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
           return transactionDay === day;
         }) || [];
 
-        const dailyGained = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+        const dailyGained = transactionsOnDay.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
         counts[day] = dailyGained;
       });
     }
@@ -544,7 +544,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
           return transactionDay === day;
         }) || [];
 
-        const dailySpent = transactionsOnDay.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+        const dailySpent = transactionsOnDay.reduce((sum: number, t: any) => sum + Math.abs(t.amount || 0), 0);
         counts[day] = dailySpent;
       });
     }
@@ -618,7 +618,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
           return transactionDay === day;
         }) || [];
 
-        const dailyAmount = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+        const dailyAmount = transactionsOnDay.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
         counts[day] = dailyAmount;
       });
     }
@@ -705,7 +705,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
           return transactionDay === day;
         }) || [];
 
-        const dailyExp = transactionsOnDay.reduce((sum, t) => sum + (t.amount || 0), 0);
+        const dailyExp = transactionsOnDay.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
         const level = Math.floor(Math.sqrt(dailyExp / 100)) + 1;
         counts[day] = level;
       });
