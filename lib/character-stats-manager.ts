@@ -34,7 +34,11 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
  */
 export async function saveCharacterStats(stats: Partial<CharacterStats>): Promise<boolean> {
   // Load existing stats and merge with new stats
-  const existingStats = await loadCharacterStats();
+  // 🔴 CRITICAL FIX: Use getCharacterStats() instead of loadCharacterStats()
+  // loadCharacterStats() fetches from server and overwrites localStorage, which
+  // clobbers optimistic updates (like rapid gold clicks) that haven't synced yet.
+  // We want to merge the new stats into the CURRENT LOCAL state.
+  const existingStats = getCharacterStats();
   const rawMergedStats = { ...existingStats, ...stats };
 
   // Sanitize stats to ensure no NaNs are sent
@@ -66,7 +70,7 @@ export async function saveCharacterStats(stats: Partial<CharacterStats>): Promis
  * Updates a specific stat value
  */
 export async function updateCharacterStat(stat: keyof CharacterStats, value: number): Promise<boolean> {
-  const currentStats = await loadCharacterStats();
+  const currentStats = getCharacterStats();
   const updatedStats = { ...currentStats, [stat]: value };
   return await saveCharacterStats(updatedStats);
 }
@@ -75,7 +79,7 @@ export async function updateCharacterStat(stat: keyof CharacterStats, value: num
  * Adds to a specific stat value (for gold, experience, etc.)
  */
 export async function addToCharacterStat(stat: keyof CharacterStats, amount: number): Promise<boolean> {
-  const currentStats = await loadCharacterStats();
+  const currentStats = getCharacterStats();
   const currentValue = (currentStats[stat] as number) || 0;
   const updatedStats = { ...currentStats, [stat]: currentValue + amount };
   return await saveCharacterStats(updatedStats);
