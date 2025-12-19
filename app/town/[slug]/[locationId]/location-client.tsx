@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast"
 import { getCharacterStats } from "@/lib/character-stats-manager"
 import { HeaderSection } from "@/components/HeaderSection"
+import { PageGuide } from "@/components/page-guide"
 import Image from "next/image"
 
 interface LocationItem {
@@ -94,7 +95,7 @@ export default function LocationClient({ slug, locationId }: Props) {
         if (user?.id) {
           const stats = getCharacterStats()
           setGold(stats?.gold || 0)
-          
+
           try {
             const response = await fetch('/api/inventory', {
               credentials: 'include'
@@ -111,13 +112,13 @@ export default function LocationClient({ slug, locationId }: Props) {
         console.error("Failed to load character stats:", error)
       }
     }
-    
+
     loadStats()
 
     // Listen for updates
     window.addEventListener("character-stats-update", loadStats)
     window.addEventListener("character-inventory-update", loadStats)
-    
+
     return () => {
       window.removeEventListener("character-stats-update", loadStats)
       window.removeEventListener("character-inventory-update", loadStats)
@@ -185,7 +186,7 @@ export default function LocationClient({ slug, locationId }: Props) {
           body: JSON.stringify({ item: inventoryItem }),
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           console.error('Failed to add item to inventory:', response.status);
         }
@@ -209,9 +210,32 @@ export default function LocationClient({ slug, locationId }: Props) {
         title={location.name}
         subtitle={location.description}
         imageSrc={locationImage}
-        canEdit={false}
+        canEdit={true}
         defaultBgColor="bg-green-900"
         shouldRevealImage={true}
+        guideComponent={
+          <PageGuide
+            title={location.name}
+            subtitle="Local services and lore"
+            sections={[
+              {
+                title: "Town Services",
+                icon: Building,
+                content: "Each town offers unique services, from the local tavern to specialized shops and traders."
+              },
+              {
+                title: "Royal Stables",
+                icon: Footprints,
+                content: "Acquire trusty steeds with unique movement bonuses to speed up your travel across the realm."
+              },
+              {
+                title: "Marketplace",
+                icon: ShoppingBag,
+                content: "Trade your artifacts for gold or buy rare items, scrolls, and books to aid your journey."
+              }
+            ]}
+          />
+        }
       />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto p-4">
@@ -284,7 +308,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                     ).map((artifact) => {
                       const invItem = Array.isArray(inventory) ? inventory.find(inv => inv.id === artifact.id) : null
                       if (!invItem) return null
-                      
+
                       // Get artifact image from the artifact folder
                       let imagePath = "/images/items/placeholder.jpg";
                       if (artifact.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.png";
@@ -292,7 +316,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                       if (artifact.name === "Restful Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
                       if (artifact.name === "Mystic Brew") imagePath = "/images/items/artifact/potion/artifact-potion.png";
                       // Add more artifact mappings as needed
-                      
+
                       return (
                         <Card key={artifact.id} className="flex flex-col">
                           <div className="w-full aspect-[4/3] relative bg-black">

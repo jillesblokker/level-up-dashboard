@@ -24,6 +24,7 @@ export function UserNav() {
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { settings, setSettings, currentMusic, isPlaying, stopMusic, toggleMusic } = useAudioContext();
+  const isAdmin = user?.emailAddresses?.[0]?.emailAddress === 'jillesblokker@gmail.com';
 
   useEffect(() => {
     setIsClient(true);
@@ -130,29 +131,33 @@ export function UserNav() {
               <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
                 <ClipboardCheck className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
-                  <span className="text-base font-medium text-white">Requirements</span>
+                  <span className="text-base font-medium text-white">Adventurer&apos;s Guide</span>
                   <p className="text-xs text-gray-400">View system requirements</p>
                 </div>
               </DropdownMenuItem>
             </Link>
-            <Link href="/design-system">
-              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
-                <Palette className="h-5 w-5 text-amber-400" />
-                <div className="flex-1 text-left">
-                  <span className="text-base font-medium text-white">Design System</span>
-                  <p className="text-xs text-gray-400">View design components</p>
-                </div>
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/admin/stored-data">
-              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation" aria-label="Stored Data">
-                <Database className="h-5 w-5 text-amber-400" />
-                <div className="flex-1 text-left">
-                  <span className="text-base font-medium text-white">Stored Data</span>
-                  <p className="text-xs text-gray-400">Manage local data</p>
-                </div>
-              </DropdownMenuItem>
-            </Link>
+            {isAdmin && (
+              <>
+                <Link href="/design-system">
+                  <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+                    <Palette className="h-5 w-5 text-amber-400" />
+                    <div className="flex-1 text-left">
+                      <span className="text-base font-medium text-white">Design System</span>
+                      <p className="text-xs text-gray-400">View design components</p>
+                    </div>
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/admin/stored-data">
+                  <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation" aria-label="Stored Data">
+                    <Database className="h-5 w-5 text-amber-400" />
+                    <div className="flex-1 text-left">
+                      <span className="text-base font-medium text-white">Stored Data</span>
+                      <p className="text-xs text-gray-400">Manage local data</p>
+                    </div>
+                  </DropdownMenuItem>
+                </Link>
+              </>
+            )}
             <DropdownMenuItem className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
               <button
                 className="w-full text-left cursor-pointer flex items-center gap-3"
@@ -165,8 +170,8 @@ export function UserNav() {
               >
                 <BookOpen className="h-5 w-5 text-amber-400" />
                 <div className="flex-1">
-                  <span className="text-base font-medium text-white">Guide</span>
-                  <p className="text-xs text-gray-400">Open tutorial</p>
+                  <span className="text-base font-medium text-white">Tutorial</span>
+                  <p className="text-xs text-gray-400">Open interactive tutorial</p>
                 </div>
               </button>
             </DropdownMenuItem>

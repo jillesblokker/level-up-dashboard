@@ -34,6 +34,7 @@ const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
   const { settings, setSettings, stopMusic, toggleMusic } = useAudioContext();
+  const isAdmin = user?.emailAddresses?.[0]?.emailAddress === 'jillesblokker@gmail.com';
   const [isUploading, setIsUploading] = useState(false);
   const [displayName, setDisplayName] = useState((user?.unsafeMetadata?.['user_name'] as string) || user?.username || user?.emailAddresses[0]?.emailAddress || "");
   const [avatarBgColor, setAvatarBgColor] = useState(user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937");
@@ -714,7 +715,7 @@ export default function ProfilePage() {
               >
                 <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-base font-medium text-white">Guide</p>
+                  <p className="text-base font-medium text-white">Tutorial</p>
                   <p className="text-xs text-gray-400">Open the interactive tutorial</p>
                 </div>
               </button>
@@ -723,31 +724,35 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                   <ClipboardCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-base font-medium text-white">Requirements</p>
+                    <p className="text-base font-medium text-white">Adventurer&apos;s Guide</p>
                     <p className="text-xs text-gray-400">View system requirements</p>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/design-system" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                  <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-base font-medium text-white">Design System</p>
-                    <p className="text-xs text-gray-400">View design components</p>
-                  </div>
-                </div>
-              </Link>
+              {isAdmin && (
+                <>
+                  <Link href="/design-system" className="block">
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                      <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-base font-medium text-white">Design System</p>
+                        <p className="text-xs text-gray-400">View design components</p>
+                      </div>
+                    </div>
+                  </Link>
 
-              <Link href="/admin/stored-data" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                  <Database className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-base font-medium text-white">Stored Data</p>
-                    <p className="text-xs text-gray-400">Manage local data</p>
-                  </div>
-                </div>
-              </Link>
+                  <Link href="/admin/stored-data" className="block">
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                      <Database className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-base font-medium text-white">Stored Data</p>
+                        <p className="text-xs text-gray-400">Manage local data</p>
+                      </div>
+                    </div>
+                  </Link>
+                </>
+              )}
 
               {/* Day/Night Cycle Toggle */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">

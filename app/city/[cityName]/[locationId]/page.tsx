@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home } from "lucide-react"
+import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast"
 import { getCharacterStats } from "@/lib/character-stats-manager"
 import { HeaderSection } from "@/components/HeaderSection"
+import { PageGuide } from "@/components/page-guide"
 import Image from "next/image"
 
 interface LocationItem {
@@ -35,31 +36,31 @@ const locationData: Record<string, any> = {
     description: "A bustling marketplace where merchants sell their wares.",
     icon: ShoppingBag,
     items: [
-      { 
-        id: "health-elixir", 
-        name: "Health Elixir", 
-        description: "A potent healing elixir brewed from rare herbs.", 
-        price: 50, 
+      {
+        id: "health-elixir",
+        name: "Health Elixir",
+        description: "A potent healing elixir brewed from rare herbs.",
+        price: 50,
         type: "item",
         emoji: "🧪",
         image: "/images/items/potion/potion-health.png",
         stats: { defense: 1 }
       },
-      { 
-        id: "mana-crystal", 
-        name: "Mana Crystal", 
-        description: "A crystallized form of pure magical energy.", 
-        price: 75, 
+      {
+        id: "mana-crystal",
+        name: "Mana Crystal",
+        description: "A crystallized form of pure magical energy.",
+        price: 75,
         type: "item",
         emoji: "💎",
         image: "/images/items/potion/potion-exp.png",
         stats: { attack: 1 }
       },
-      { 
-        id: "merchants-charm", 
-        name: "Merchant's Charm", 
-        description: "A lucky charm that brings fortune in trade.", 
-        price: 100, 
+      {
+        id: "merchants-charm",
+        name: "Merchant's Charm",
+        description: "A lucky charm that brings fortune in trade.",
+        price: 100,
         type: "artifact",
         emoji: "🍀",
         image: "/images/items/artifact/ring/artifact-ringo.png"
@@ -71,31 +72,31 @@ const locationData: Record<string, any> = {
     description: "A master forge where legendary weapons and armor are crafted.",
     icon: Swords,
     items: [
-      { 
-        id: "sunforged-blade", 
-        name: "Sunforged Blade", 
-        description: "A blade forged in magical flames, gleaming with inner light.", 
-        price: 200, 
+      {
+        id: "sunforged-blade",
+        name: "Sunforged Blade",
+        description: "A blade forged in magical flames, gleaming with inner light.",
+        price: 200,
         type: "equipment",
         emoji: "⚔️",
         image: "/images/items/sword/sword-sunblade.png",
         stats: { attack: 4 }
       },
-      { 
-        id: "shadowmail", 
-        name: "Shadowmail", 
-        description: "Dark, flexible armor that moves like silk but protects like steel.", 
-        price: 250, 
+      {
+        id: "shadowmail",
+        name: "Shadowmail",
+        description: "Dark, flexible armor that moves like silk but protects like steel.",
+        price: 250,
         type: "equipment",
         emoji: "🥋",
         image: "/images/items/armor/armor-darko.png",
         stats: { defense: 4 }
       },
-      { 
-        id: "guardian-shield", 
-        name: "Guardian Shield", 
-        description: "An enchanted shield that seems to move on its own to protect its wielder.", 
-        price: 180, 
+      {
+        id: "guardian-shield",
+        name: "Guardian Shield",
+        description: "An enchanted shield that seems to move on its own to protect its wielder.",
+        price: 180,
         type: "equipment",
         emoji: "🛡️",
         image: "/images/items/shield/shield-blockado.png",
@@ -108,31 +109,31 @@ const locationData: Record<string, any> = {
     description: "An ancient repository of magical knowledge and forgotten lore.",
     icon: BookOpen,
     items: [
-      { 
-        id: "tome-of-power", 
-        name: "Tome of Power", 
-        description: "Ancient writings containing powerful magical knowledge.", 
-        price: 300, 
+      {
+        id: "tome-of-power",
+        name: "Tome of Power",
+        description: "Ancient writings containing powerful magical knowledge.",
+        price: 300,
         type: "book",
         emoji: "📚",
         image: "/images/items/scroll/scroll-perkamento.png",
         stats: { attack: 2 }
       },
-      { 
-        id: "scroll-of-wisdom", 
-        name: "Scroll of Wisdom", 
-        description: "A mystical scroll that enhances the reader's understanding.", 
-        price: 250, 
+      {
+        id: "scroll-of-wisdom",
+        name: "Scroll of Wisdom",
+        description: "A mystical scroll that enhances the reader's understanding.",
+        price: 250,
         type: "scroll",
         emoji: "📜",
         image: "/images/items/scroll/scroll-memento.png",
         stats: { defense: 2 }
       },
-      { 
-        id: "crystal-codex", 
-        name: "Crystal Codex", 
-        description: "A book bound in crystalline pages that shimmer with magic.", 
-        price: 400, 
+      {
+        id: "crystal-codex",
+        name: "Crystal Codex",
+        description: "A book bound in crystalline pages that shimmer with magic.",
+        price: 400,
         type: "book",
         emoji: "💠",
         image: "/images/items/scroll/scroll-scrolly.png",
@@ -145,29 +146,29 @@ const locationData: Record<string, any> = {
     description: "The administrative heart of the city, where important matters are decided.",
     icon: Building,
     items: [
-      { 
-        id: "noble-signet", 
-        name: "Noble Signet", 
-        description: "A ring bearing the city's seal, granting special privileges.", 
-        price: 500, 
+      {
+        id: "noble-signet",
+        name: "Noble Signet",
+        description: "A ring bearing the city's seal, granting special privileges.",
+        price: 500,
         type: "artifact",
         emoji: "💍",
         image: "/images/items/artifact/ring/artifact-ringo.png"
       },
-      { 
-        id: "royal-decree", 
-        name: "Royal Decree", 
-        description: "An official document granting special trading rights.", 
-        price: 750, 
+      {
+        id: "royal-decree",
+        name: "Royal Decree",
+        description: "An official document granting special trading rights.",
+        price: 750,
         type: "scroll",
         emoji: "📜",
         image: "/images/items/scroll/scroll-perkamento.png"
       },
-      { 
-        id: "governors-medallion", 
-        name: "Governor's Medallion", 
-        description: "A symbol of authority in the city.", 
-        price: 1000, 
+      {
+        id: "governors-medallion",
+        name: "Governor's Medallion",
+        description: "A symbol of authority in the city.",
+        price: 1000,
         type: "artifact",
         emoji: "🏅",
         image: "/images/items/artifact/crown/artifact-crowny.png"
@@ -179,31 +180,31 @@ const locationData: Record<string, any> = {
     description: "A welcoming establishment offering rest, refreshment, and local gossip.",
     icon: Home,
     items: [
-      { 
-        id: "travelers-feast", 
-        name: "Traveler's Feast", 
-        description: "A hearty meal that restores vitality.", 
-        price: 30, 
+      {
+        id: "travelers-feast",
+        name: "Traveler's Feast",
+        description: "A hearty meal that restores vitality.",
+        price: 30,
         type: "item",
         emoji: "🍖",
         image: "/images/items/potion/potion-health.png",
         stats: { defense: 1 }
       },
-      { 
-        id: "mystic-brew", 
-        name: "Mystic Brew", 
-        description: "A special drink that enhances magical abilities.", 
-        price: 45, 
+      {
+        id: "mystic-brew",
+        name: "Mystic Brew",
+        description: "A special drink that enhances magical abilities.",
+        price: 45,
         type: "item",
         emoji: "🍺",
         image: "/images/items/potion/potion-exp.png",
         stats: { attack: 1 }
       },
-      { 
-        id: "restful-charm", 
-        name: "Restful Charm", 
-        description: "A magical trinket that ensures peaceful sleep.", 
-        price: 100, 
+      {
+        id: "restful-charm",
+        name: "Restful Charm",
+        description: "A magical trinket that ensures peaceful sleep.",
+        price: 100,
         type: "artifact",
         emoji: "💫",
         image: "/images/items/artifact/ring/artifact-ringo.png"
@@ -266,7 +267,7 @@ function getItemImagePath(item: LocationItem): string {
   if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
   if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
   if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
-  
+
   // Handle variations for items with multiple images
   const variations = [
     "/images/items/sword/sword-irony.png",
@@ -317,13 +318,13 @@ export default function CityLocationPage() {
         console.error("Failed to load character stats:", error)
       }
     }
-    
+
     loadStats()
 
     // Listen for updates
     window.addEventListener("character-stats-update", loadStats)
     window.addEventListener("character-inventory-update", loadStats)
-    
+
     return () => {
       window.removeEventListener("character-stats-update", loadStats)
       window.removeEventListener("character-inventory-update", loadStats)
@@ -385,7 +386,7 @@ export default function CityLocationPage() {
           body: JSON.stringify({ item: inventoryItem }),
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           console.error('Failed to add item to inventory:', response.status);
         }
@@ -422,8 +423,31 @@ export default function CityLocationPage() {
         <HeaderSection
           title={location.name}
           imageSrc={locationImage}
-          canEdit={false}
+          canEdit={true}
           shouldRevealImage={true}
+          guideComponent={
+            <PageGuide
+              title={location.name}
+              subtitle="Metropolitan services"
+              sections={[
+                {
+                  title: "City Districts",
+                  icon: Building,
+                  content: "Large cities feature distinct districts, from the industrial blacksmith forge to the prestigious town hall."
+                },
+                {
+                  title: "Market & Trade",
+                  icon: ShoppingBag,
+                  content: "The marketplace offers the widest variety of goods, artifacts, and mystical elixirs in the land."
+                },
+                {
+                  title: "Knowledge & Lore",
+                  icon: BookOpen,
+                  content: "Visit the city library to study ancient tomes and unlock specialized knowledge scrolls."
+                }
+              ]}
+            />
+          }
         />
 
         <Card className="mb-6">

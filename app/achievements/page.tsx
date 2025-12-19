@@ -7,6 +7,8 @@ import { useCreatureStore } from '@/stores/creatureStore'
 import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
+import { PageGuide } from '@/components/page-guide'
+import { Trophy, Users, Sword, Crosshair } from 'lucide-react'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
 
 import LoadingAchievements from './loading'
@@ -467,6 +469,29 @@ export default function Page() {
           imageSrc="/images/achievements-header.jpg"
           canEdit={true}
           shouldRevealImage={true}
+          guideComponent={
+            <PageGuide
+              title="Achievements"
+              subtitle="Your legacy in Thrivehaven"
+              sections={[
+                {
+                  title: "Creature Collection",
+                  icon: Crosshair,
+                  content: "Discover and unlock rare mythical creatures by exploring the realm and meeting unique requirements."
+                },
+                {
+                  title: "Battle Glories",
+                  icon: Sword,
+                  content: "Defeat monsters in legendary battles to earn prestigious trophies for your collection."
+                },
+                {
+                  title: "Social Deeds",
+                  icon: Users,
+                  content: "Forge alliances and support your fellow pioneers to unlock unique social achievements."
+                }
+              ]}
+            />
+          }
         />
         <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (

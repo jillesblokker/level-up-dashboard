@@ -18,6 +18,7 @@ import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strengt
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
 import { HeaderSection } from '@/components/HeaderSection'
+import { PageGuide } from '@/components/page-guide'
 
 // Character progression types
 interface Title {
@@ -668,6 +669,29 @@ export default function CharacterPage() {
         onImageUpload={handleImageUpload}
         defaultBgColor="bg-amber-900"
         shouldRevealImage={true}
+        guideComponent={
+          <PageGuide
+            title="Character"
+            subtitle="Master your attributes"
+            sections={[
+              {
+                title: "Titles",
+                icon: Crown,
+                content: "Earn and equip prestigious titles that reflect your level and accomplishments in the realm."
+              },
+              {
+                title: "Perks",
+                icon: Heart,
+                content: "Activate mystical blessings and permanent perks to boost your experience and gold gains."
+              },
+              {
+                title: "Strengths",
+                icon: Sword,
+                content: "Track your progress across various disciplines like Might, Knowledge, and Honor."
+              }
+            ]}
+          />
+        }
       />
 
       {/* Error Display */}
