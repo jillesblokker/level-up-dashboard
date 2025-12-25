@@ -140,7 +140,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
             completed_at, 
             original_completion_date, 
             completed,
-            quests!inner(category)
+            quests(category)
           `)
       .eq('user_id', userId)
       .eq('completed', true)
@@ -219,7 +219,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
           // Prioritize completed_at over original_completion_date for current data
           const completionDate = c.completed_at || c.original_completion_date;
           if (!completionDate) return false;
-          const completionDay = new Date(completionDate).toISOString().slice(0, 10);
+          const d = new Date(completionDate);
+          const completionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return completionDay === day;
         }) || [];
 
@@ -308,7 +309,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
         const completionsOnDay = completions?.filter((c: any) => {
           if (!c.date) return false;
           // Convert ISO timestamp to date string (YYYY-MM-DD) for comparison
-          const completionDay = new Date(c.date).toISOString().slice(0, 10);
+          const d = new Date(c.date);
+          const completionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return completionDay === day;
         }) || [];
 
@@ -387,7 +389,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
         const completionsOnDay = completions?.filter((c: any) => {
           if (!c.date) return false;
           // Convert ISO timestamp to date string (YYYY-MM-DD)
-          const completionDay = new Date(c.date).toISOString().slice(0, 10);
+          const d = new Date(c.date);
+          const completionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return completionDay === day;
         }) || [];
 
@@ -461,8 +464,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
       days.forEach(day => {
         const transactionsOnDay = transactions?.filter((t: any) => {
           if (!t.created_at) return false;
-          const transactionDate = new Date(t.created_at);
-          const transactionDay = transactionDate.toISOString().slice(0, 10);
+          const d = new Date(t.created_at);
+          const transactionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return transactionDay === day;
         }) || [];
 
@@ -539,8 +542,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
       days.forEach(day => {
         const transactionsOnDay = transactions?.filter((t: any) => {
           if (!t.created_at) return false;
-          const transactionDate = new Date(t.created_at);
-          const transactionDay = transactionDate.toISOString().slice(0, 10);
+          const d = new Date(t.created_at);
+          const transactionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return transactionDay === day;
         }) || [];
 
@@ -613,8 +616,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
       days.forEach(day => {
         const transactionsOnDay = transactions?.filter((t: any) => {
           if (!t.created_at) return false;
-          const transactionDate = new Date(t.created_at);
-          const transactionDay = transactionDate.toISOString().slice(0, 10);
+          const d = new Date(t.created_at);
+          const transactionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return transactionDay === day;
         }) || [];
 
@@ -700,8 +703,8 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
       days.forEach(day => {
         const transactionsOnDay = transactions?.filter((t: any) => {
           if (!t.created_at) return false;
-          const transactionDate = new Date(t.created_at);
-          const transactionDay = transactionDate.toISOString().slice(0, 10);
+          const d = new Date(t.created_at);
+          const transactionDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return transactionDay === day;
         }) || [];
 

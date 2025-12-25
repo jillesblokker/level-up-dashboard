@@ -702,9 +702,9 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
           hasValue: item.value !== undefined && item.value !== null
         })));
         setGraphData(data.data);
-      } else if (data.success && data.data && Array.isArray(data.data)) {
-        console.log('[Kingdom Stats Component] 📊 Setting graph data (success format):', data.data);
-        console.log('[Kingdom Stats Component] 🔍 Week view data sample:', data.data.slice(0, 3));
+      } else if (data.data && Array.isArray(data.data)) {
+        // Success but empty or zero-value data
+        console.log('[Kingdom Stats Component] 📊 Setting graph data (empty or all-zero):', data.data);
         setGraphData(data.data);
       } else {
         console.log('[Kingdom Stats Component] ⚠️ API returned no valid data structure:', data);
@@ -767,7 +767,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   }, []);
 
   // Show chart only if there is at least one non-zero value in the data
-  const hasData = graphData.length > 0;
+  const hasData = graphData.length > 0 && graphData.some(d => d.value > 0);
 
   return (
     <Card className="bg-black border-amber-800">
@@ -1136,8 +1136,8 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     };
   }, []);
 
-  // Show chart if there is data (even if values are 0)
-  const hasData = graphData.length > 0;
+  // Show chart only if there is at least one non-zero value in the data
+  const hasData = graphData.length > 0 && graphData.some(d => d.value > 0);
 
   return (
     <Card className="bg-black border-amber-800">

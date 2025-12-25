@@ -155,6 +155,16 @@ export function useQuestCompletion() {
           finalXP,
           finalGold
         );
+
+        // DISPATCH EVENT for graph and stats update
+        import('@/lib/kingdom-events').then(mod => {
+          mod.emitQuestCompletedWithRewards(
+            questData.name,
+            finalGold,
+            finalXP,
+            'quest-completion'
+          );
+        });
       } else {
         toast({
           title: "Quest Uncompleted",

@@ -111,15 +111,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('[Smart Quest Completion] Verified Rewards:', { baseXP, baseGold, verifiedXP, verifiedGold, category });
+    const completionTable = questData ? 'quest_completion' : 'challenge_completion';
+    const idColumn = questData ? 'quest_id' : 'challenge_id';
+
+    console.log('[Smart Quest Completion] Verified Rewards:', { baseXP, baseGold, verifiedXP, verifiedGold, category, completionTable });
 
     // Check if completion record already exists
     const { data: existingRecord, error: fetchError } = await supabaseServer
-      .from('quest_completion')
+      .from(completionTable)
       .select('*')
       .eq('user_id', userId)
-      .eq('quest_id', questId)
-      .single();
+      .eq(idColumn, questId)
+      .maybeSingle();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       console.error('[Smart Quest Completion] Error fetching existing record:', fetchError);
@@ -132,16 +135,23 @@ export async function POST(request: NextRequest) {
       // Mark as completed
       if (!existingRecord) {
         // Insert new completion record
+        const insertPayload: any = {
+          user_id: userId,
+          [idColumn]: questId,
+          completed: true,
+          xp_earned: verifiedXP,
+          gold_earned: verifiedGold
+        };
+
+        if (questData) {
+          insertPayload.completed_at = new Date().toISOString();
+        } else {
+          insertPayload.date = new Date().toISOString().split('T')[0];
+        }
+
         const { error: insertError } = await supabaseServer
-          .from('quest_completion')
-          .insert({
-            user_id: userId,
-            quest_id: questId,
-            completed: true,
-            completed_at: new Date().toISOString(),
-            xp_earned: verifiedXP,
-            gold_earned: verifiedGold
-          });
+          .from(completionTable)
+          .insert(insertPayload);
 
         if (insertError) {
           console.error('[Smart Quest Completion] Insert error:', insertError);
@@ -151,16 +161,23 @@ export async function POST(request: NextRequest) {
         result = { success: true, action: 'inserted', xp_earned: verifiedXP, gold_earned: verifiedGold };
       } else {
         // Update existing record
+        const updatePayload: any = {
+          completed: true,
+          xp_earned: verifiedXP,
+          gold_earned: verifiedGold
+        };
+
+        if (questData) {
+          updatePayload.completed_at = new Date().toISOString();
+        } else {
+          updatePayload.date = new Date().toISOString().split('T')[0];
+        }
+
         const { error: updateError } = await supabaseServer
-          .from('quest_completion')
-          .update({
-            completed: true,
-            completed_at: new Date().toISOString(),
-            xp_earned: verifiedXP,
-            gold_earned: verifiedGold
-          })
+          .from(completionTable)
+          .update(updatePayload)
           .eq('user_id', userId)
-          .eq('quest_id', questId);
+          .eq(idColumn, questId);
 
         if (updateError) {
           console.error('[Smart Quest Completion] Update error:', updateError);
@@ -195,14 +212,14 @@ export async function POST(request: NextRequest) {
     } else {
       // Uncomplete: Revoke exactly what was earned if it was recent
       if (existingRecord) {
-        const revokedXP = existingRecord.xp_earned || baseXP;
-        const revokedGold = existingRecord.gold_earned || baseGold;
+        const revokedXP = (existingRecord as any).xp_earned || baseXP;
+        const revokedGold = (existingRecord as any).gold_earned || baseGold;
 
         await supabaseServer
-          .from('quest_completion')
+          .from(completionTable)
           .delete()
           .eq('user_id', userId)
-          .eq('quest_id', questId);
+          .eq(idColumn, questId);
 
         // Revoke stats
         const { data: currentStats } = await supabaseServer

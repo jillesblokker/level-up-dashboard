@@ -39,23 +39,15 @@ export function ProgressionVisualization() {
     const loadStats = () => {
       try {
         const characterStats = getCharacterStats()
-        const level = calculateLevelFromExperience(characterStats.experience || 0)
+        const level = characterStats.level || calculateLevelFromExperience(characterStats.experience || 0)
 
-        // Get quest completion count from localStorage
-        const questsData = JSON.parse(localStorage.getItem('quests') || '[]')
-        const completedQuests = questsData.filter((q: any) => q.completed).length
-
-        // Get tiles placed count from localStorage
-        const kingdomGrid = JSON.parse(localStorage.getItem('kingdom-grid') || '[]')
-        const placedTiles = kingdomGrid.flat().filter((tile: any) => tile && tile.type !== 'empty').length
-
-        setStats({
+        // Get total XP from database-synced stats
+        setStats(prev => ({
+          ...prev,
           experience: characterStats.experience || 0,
           gold: characterStats.gold || 0,
-          level,
-          questsCompleted: completedQuests,
-          tilesPlaced: placedTiles
-        })
+          level
+        }))
       } catch (error) {
         console.error('Error loading stats:', error)
       }
