@@ -11,7 +11,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase';
 import { useAuth, useUser } from '@clerk/nextjs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { getCharacterStats } from '@/lib/character-stats-manager';
+import { getCharacterStats } from '@/lib/character-stats-service';
 import { useTitleEvolution } from '@/hooks/title-evolution-context'
 import { migrateLocalStorageToSupabase, checkMigrationStatus } from '@/lib/migration-utils';
 import { useAudioContext } from '@/components/audio-provider';

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { addToKingdomInventory } from '@/lib/inventory-manager'
-import { getCharacterStats } from '@/lib/character-stats-manager'
+import { getCharacterStats } from '@/lib/character-stats-service'
 import { spendGold, hasEnoughGold } from '@/lib/gold-manager'
 
 export default function ShopPage() {

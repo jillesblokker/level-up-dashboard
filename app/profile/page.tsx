@@ -23,7 +23,7 @@ import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 import { NotificationCenter } from "@/components/notification-center";
 import { notificationService } from "@/lib/notification-service";
-import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-manager";
+import { getCharacterStats, fetchFreshCharacterStats, CharacterStats as ServiceCharacterStats } from "@/lib/character-stats-service";
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character";
 import { Bell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -78,7 +78,7 @@ export default function ProfilePage() {
         });
       }
 
-      const freshStats = await loadCharacterStats();
+      const freshStats = await fetchFreshCharacterStats();
       if (freshStats) {
         const currentLevel = calculateLevelFromExperience(freshStats.experience);
         setCharacterStats({

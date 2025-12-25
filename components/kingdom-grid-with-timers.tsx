@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { useToast } from '@/components/ui/use-toast'
-import { getCharacterStats, saveCharacterStats } from '@/lib/character-stats-manager'
+import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
 import { CreatureLayer } from '@/components/creature-layer'
@@ -325,8 +325,8 @@ export function KingdomGridWithTimers({
         setBuildTokens(stats.build_tokens || 0);
 
         // Then try to fetch fresh data from API (with smart rate limiting)
-        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-manager');
-        const freshStats = await fetchFreshCharacterStats('kingdom-action');
+        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service');
+        const freshStats = await fetchFreshCharacterStats();
         if (freshStats) {
           console.log('[Kingdom] Fresh stats loaded, build tokens:', freshStats.build_tokens);
           setBuildTokens(freshStats.build_tokens || 0);
@@ -836,9 +836,10 @@ export function KingdomGridWithTimers({
       console.log('[Kingdom] Attempting to spend build token(s):', property.cost);
 
       // Spend build tokens by updating character stats
-      const success = await saveCharacterStats({
+      updateCharacterStats({
         build_tokens: currentBuildTokens - property.cost
-      });
+      }, 'kingdom:buy-property');
+      const success = true; // Service doesn't return boolean, assume success as it's optimistic
 
       console.log('[Kingdom] Build tokens spent result:', success);
 

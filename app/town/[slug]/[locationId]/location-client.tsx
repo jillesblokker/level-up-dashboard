@@ -7,7 +7,7 @@ import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints } 
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { getCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats } from "@/lib/character-stats-service"
 import { HeaderSection } from "@/components/HeaderSection"
 import { PageGuide } from "@/components/page-guide"
 import Image from "next/image"

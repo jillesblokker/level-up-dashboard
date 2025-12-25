@@ -30,7 +30,7 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
-import { getCharacterStats } from '@/lib/character-stats-manager';
+import { getCharacterStats } from '@/lib/character-stats-service';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
