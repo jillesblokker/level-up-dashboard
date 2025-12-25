@@ -1145,8 +1145,7 @@ export function KingdomClient() {
   // After animation, show the main content immediately
   return (
     <div className={cn(
-      "min-h-screen relative",
-      isVisiting && "brightness-[1.05]"
+      "min-h-screen relative"
     )}>
       {isVisiting && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-slate-900/90 text-white px-6 py-3 rounded-2xl border-2 border-amber-500/30 backdrop-blur-xl shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
