@@ -94,7 +94,7 @@ export async function getAllUserPreferences(): Promise<Record<string, any>> {
 export async function migrateLocalStorageToSupabase(): Promise<void> {
   try {
     console.log('[User Preferences] 🚀 Starting localStorage migration to Supabase...');
-    
+
     // List of localStorage keys to migrate
     const keysToMigrate = [
       'autoSave',
@@ -141,7 +141,7 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
     }
 
     console.log(`[User Preferences] 🎉 Migration complete! Migrated: ${migratedCount}, Failed: ${failedCount}`);
-    
+
     if (failedCount === 0) {
       console.log('[User Preferences] 🧹 Clearing migrated localStorage data...');
       keysToMigrate.forEach(key => localStorage.removeItem(key));
@@ -158,14 +158,27 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
 export async function syncPreferencesToLocalStorage(): Promise<void> {
   try {
     console.log('[User Preferences] 🔄 Syncing preferences to localStorage...');
-    
+
     const preferences = await getAllUserPreferences();
     let syncedCount = 0;
 
     for (const [key, value] of Object.entries(preferences)) {
       try {
-        localStorage.setItem(key, JSON.stringify(value));
+        const oldValue = localStorage.getItem(key);
+        // Note: localStorage stores strings, but value might be any type. 
+        // JSON.stringify handles booleans correctly ("true"/"false")
+        const newValue = typeof value === 'string' ? value : JSON.stringify(value);
+
+        localStorage.setItem(key, newValue);
         syncedCount++;
+
+        // Special handling for Day/Night cycle to trigger immediate update
+        if (key === 'day-night-cycle-enabled') {
+          // Dispatch event to update DayNightCycle component immediately
+          // The event expects { enabled: boolean }
+          const isEnabled = value === true || value === "true";
+          window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: isEnabled } }));
+        }
       } catch (error) {
         console.error(`[User Preferences] Error syncing ${key} to localStorage:`, error);
       }

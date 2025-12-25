@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
 import { setCurrentUserId, migrateLegacyData, cleanupLegacyData } from '@/lib/user-scoped-storage';
+import { syncPreferencesToLocalStorage } from '@/lib/user-preferences-manager';
 
 /**
  * Initializes user-scoped localStorage on auth state change
@@ -53,6 +54,10 @@ export function UserStorageInitializer() {
             // This runs for every user login to ensure global keys are removed
             // Even if this user just migrated, we clean up to protect future users
             cleanupLegacyData(keysToMigrate);
+
+            // Sync user preferences (like Day/Night cycle) from Supabase to localStorage
+            syncPreferencesToLocalStorage();
+
         } else {
             console.log('[UserStorageInitializer] User logged out');
 
