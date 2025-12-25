@@ -138,17 +138,27 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
             id, 
             quest_id, 
             completed_at, 
-            original_completion_date, 
-            completed,
-            quests(category)
+            completed
           `)
       .eq('user_id', userId)
       .eq('completed', true)
-      .or(`completed_at.gte.${earliestDate.toISOString()},original_completion_date.gte.${earliestDate.toISOString()}`);
+      .gte('completed_at', earliestDate.toISOString());
 
     if (error) {
+      console.error('[Kingdom Stats] Quest query error:', error);
       throw error;
     }
+
+    // Since we removed the join to avoid errors if FK is missing,
+    // we fetch quests separately to map categories
+    const { data: questsMap } = await supabase
+      .from('quests')
+      .select('id, category');
+
+    const categories: Record<string, string> = {};
+    questsMap?.forEach((q: any) => {
+      categories[q.id] = q.category || 'general';
+    });
 
     // Aggregate by day and category - show daily completions with category breakdown
     let counts: Record<string, number> = {};
@@ -165,7 +175,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
         const completionDate = c.completed_at || c.original_completion_date;
         if (completionDate) {
           const month = completionDate.slice(0, 7);
-          const category = c.quests?.category || 'unknown';
+          const category = categories[c.quest_id] || 'unknown';
           if (counts[month] !== undefined) {
             counts[month]++;
             categoryData[month] = categoryData[month] || {};
@@ -183,7 +193,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
           if (completionDate) {
             const date = new Date(completionDate);
             const dayKey = date.toISOString().slice(0, 10);
-            const category = c.quests?.category || 'unknown';
+            const category = categories[c.quest_id] || 'unknown';
 
             if (!dailyData[dayKey]) {
               dailyData[dayKey] = 0;
@@ -228,7 +238,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
 
         // Group by category for this day
         completionsOnDay.forEach((c: any) => {
-          const category = c.quests?.category || 'unknown';
+          const category = categories[c.quest_id] || 'unknown';
           categoryData[day]![category] = (categoryData[day]![category] || 0) + 1;
         });
       });
@@ -249,7 +259,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
       .select('id, challenge_id, date, completed')
       .eq('user_id', userId)
       .eq('completed', true)
-      .gte('date', earliestDate.toISOString()); // Use full timestamp for comparison
+      .gte('date', earliestDate.toISOString().split('T')[0]);
 
     if (error) {
       throw error;
@@ -329,7 +339,7 @@ async function fetchStatsForUser(supabase: any, userId: string, tab: string, per
       .select('id, milestone_id, date, completed')
       .eq('user_id', userId)
       .eq('completed', true)
-      .gte('date', earliestDate.toISOString()); // Use full timestamp for comparison
+      .gte('date', earliestDate.toISOString().split('T')[0]);
 
     if (error) {
       throw error;

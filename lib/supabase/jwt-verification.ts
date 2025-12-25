@@ -105,7 +105,11 @@ export async function querySupabaseWithServiceKey<T>(
     console.error('[Supabase Query] Error:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Database query failed'
+      error: error && typeof error === 'object' && 'message' in error
+        ? (error as any).message
+        : error instanceof Error
+          ? error.message
+          : 'Database query failed'
     };
   }
 }
