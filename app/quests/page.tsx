@@ -2632,6 +2632,15 @@ export default function QuestsPage() {
                       onQuestEdit={handleMilestoneEdit}
                       onQuestDelete={handleMilestoneDelete}
                       onAddQuest={handleAddMilestone}
+                      onQuestDuplicate={(quest) => {
+                        console.log('Duplicating quest:', quest.name);
+                        openQuickAdd({
+                          name: quest.name,
+                          description: quest.description,
+                          category: quest.category,
+                          difficulty: quest.difficulty
+                        });
+                      }}
                       showCategoryFilter={true}
                       context="milestones"
                       hideOverview={true}

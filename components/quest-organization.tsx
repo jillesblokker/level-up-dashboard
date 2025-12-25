@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -36,6 +36,7 @@ interface QuestOrganizationProps {
   onQuestFavorite: (questId: string) => void
   onQuestEdit: (quest: Quest) => void
   onQuestDelete: (questId: string) => void
+  onQuestDuplicate?: (quest: Quest) => void
   onAddQuest: () => void
   showCategoryFilter?: boolean
   context?: 'quests' | 'challenges' | 'milestones'
@@ -191,6 +192,7 @@ export function QuestOrganization({
   onQuestFavorite,
   onQuestEdit,
   onQuestDelete,
+  onQuestDuplicate,
   onAddQuest,
   showCategoryFilter = true,
   context = 'quests',
@@ -654,8 +656,22 @@ export function QuestOrganization({
                             }}
                             variant="checkbox"
                           />
-                          {/* Edit and Delete buttons */}
+                          {/* Edit, Copy, and Delete buttons */}
                           <div className="flex items-center gap-1 ml-2">
+                            {onQuestDuplicate && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-gray-400 hover:text-blue-400"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onQuestDuplicate(quest);
+                                }}
+                                title="Duplicate"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"

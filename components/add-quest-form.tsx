@@ -34,9 +34,10 @@ const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vita
 interface AddQuestFormProps {
     onSuccess: () => void;
     onCancel: () => void;
+    initialData?: any;
 }
 
-export function AddQuestForm({ onSuccess, onCancel }: AddQuestFormProps) {
+export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormProps) {
     const { getToken } = useAuth()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -46,6 +47,18 @@ export function AddQuestForm({ onSuccess, onCancel }: AddQuestFormProps) {
         category: 'might',
         difficulty: 'medium'
     })
+
+    // Init with data if provided
+    React.useEffect(() => {
+        if (initialData) {
+            setNewQuest({
+                name: initialData.name || '',
+                description: initialData.description || '',
+                category: initialData.category || 'might',
+                difficulty: initialData.difficulty || 'medium'
+            })
+        }
+    }, [initialData])
 
     const difficultySettings = {
         easy: { label: 'Novice', color: 'text-green-400', gold: 10, xp: 20, icon: <Star className="w-4 h-4" /> },
@@ -97,6 +110,28 @@ export function AddQuestForm({ onSuccess, onCancel }: AddQuestFormProps) {
         }
     }
 
+    const handleQuestNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const name = e.target.value;
+        const lowerName = name.toLowerCase();
+        let updates: Partial<typeof newQuest> = { name };
+
+        // Smart Category Detection
+        if (lowerName.match(/\b(run|gym|lift|workout|pushups|squats|train|exercise|sprint|jog)\b/)) updates.category = 'might';
+        else if (lowerName.match(/\b(read|study|learn|research|book|course|listen)\b/)) updates.category = 'knowledge';
+        else if (lowerName.match(/\b(meditate|sleep|drink|water|relax|breathe|stretch|yoga)\b/)) updates.category = 'vitality';
+        else if (lowerName.match(/\b(code|debug|fix|build|create|design|draw|paint|write|craft)\b/)) updates.category = 'craft';
+        else if (lowerName.match(/\b(call|email|meet|date|family|friend|talk|social)\b/)) updates.category = 'honor'; // Honor often relates to social bonds/reputation
+        else if (lowerName.match(/\b(clean|tidy|chore|organize|house|ledger|money|budget)\b/)) updates.category = 'castle';
+        else if (lowerName.match(/\b(walk|hike|explore|visit|travel|drive)\b/)) updates.category = 'exploration';
+        else if (lowerName.match(/\b(morning|night|routine|habit|sun)\b/)) updates.category = 'wellness';
+
+        // Smart Difficulty Detection
+        if (lowerName.match(/\b(hard|epic|huge|boss|marathon|project)\b/)) updates.difficulty = 'epic';
+        else if (lowerName.match(/\b(easy|quick|small|tiny|fast)\b/)) updates.difficulty = 'easy';
+
+        setNewQuest(prev => ({ ...prev, ...updates }));
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6 py-2">
             {error && (
@@ -114,7 +149,7 @@ export function AddQuestForm({ onSuccess, onCancel }: AddQuestFormProps) {
                     <input
                         className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/30 rounded-xl focus:border-amber-500/50 focus:bg-gray-900/80 outline-none transition-all duration-300 text-lg placeholder:text-gray-600 shadow-inner"
                         value={newQuest.name}
-                        onChange={e => setNewQuest({ ...newQuest, name: e.target.value })}
+                        onChange={handleQuestNameChange}
                         placeholder="What is your objective?"
                         required
                         autoFocus

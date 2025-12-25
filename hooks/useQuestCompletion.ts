@@ -150,11 +150,21 @@ export function useQuestCompletion() {
         const finalXP = responseData.verifiedRewards?.xp ?? xpReward;
         const finalGold = responseData.verifiedRewards?.gold ?? goldReward;
 
-        questToasts.showQuestCompleted(
-          questData.name,
-          finalXP,
-          finalGold
-        );
+        // Show Quest Completed Toast with UNDO action
+        const toastId = questToasts.addToast({
+          type: 'success',
+          title: 'Quest Completed! 🎉',
+          description: `${questData.name} completed! +${finalXP} XP, +${finalGold} Gold`,
+          duration: 5000,
+          action: {
+            label: 'Undo',
+            onClick: () => {
+              // Trigger toggle again to revert
+              console.log('[Quest Completion] Undoing completion for:', questId);
+              toggleQuestCompletion(questId, true, questData, onSuccess, onError);
+            }
+          }
+        });
 
         // DISPATCH EVENT for graph and stats update
         import('@/lib/kingdom-events').then(mod => {

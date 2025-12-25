@@ -5,7 +5,7 @@ import { ResponsiveModal } from './ui/responsive-modal'
 import { AddQuestForm } from './add-quest-form'
 
 interface QuickAddContextType {
-    openQuickAdd: () => void
+    openQuickAdd: (initialData?: any) => void
     closeQuickAdd: () => void
 }
 
@@ -13,14 +13,17 @@ const QuickAddContext = createContext<QuickAddContextType | undefined>(undefined
 
 export function QuickAddProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false)
+    const [initialData, setInitialData] = useState<any>(undefined)
 
-    const openQuickAdd = () => {
-        console.log('[QuickAddProvider] Opening modal')
+    const openQuickAdd = (data?: any) => {
+        console.log('[QuickAddProvider] Opening modal', data ? 'with data' : '')
+        setInitialData(data)
         setIsOpen(true)
     }
     const closeQuickAdd = () => {
         console.log('[QuickAddProvider] Closing modal')
         setIsOpen(false)
+        setInitialData(undefined) // Reset data on close
     }
 
     return (
@@ -29,9 +32,10 @@ export function QuickAddProvider({ children }: { children: ReactNode }) {
             <ResponsiveModal
                 isOpen={isOpen}
                 onClose={closeQuickAdd}
-                title="Add New Quest"
+                title={initialData ? "Duplicate Quest" : "Add New Quest"}
             >
                 <AddQuestForm
+                    initialData={initialData}
                     onSuccess={() => {
                         closeQuickAdd()
                         // Optionally dispatch a global event to refresh lists
