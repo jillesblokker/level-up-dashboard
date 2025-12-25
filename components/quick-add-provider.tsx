@@ -14,8 +14,14 @@ const QuickAddContext = createContext<QuickAddContextType | undefined>(undefined
 export function QuickAddProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false)
 
-    const openQuickAdd = () => setIsOpen(true)
-    const closeQuickAdd = () => setIsOpen(false)
+    const openQuickAdd = () => {
+        console.log('[QuickAddProvider] Opening modal')
+        setIsOpen(true)
+    }
+    const closeQuickAdd = () => {
+        console.log('[QuickAddProvider] Closing modal')
+        setIsOpen(false)
+    }
 
     return (
         <QuickAddContext.Provider value={{ openQuickAdd, closeQuickAdd }}>

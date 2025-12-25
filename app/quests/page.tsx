@@ -45,6 +45,7 @@ import { ChroniclesCard } from '@/components/chronicles-card'
 import { TarotCardDisplay } from '@/components/tarot-card'
 import { StreakIndicator } from "@/components/streak-indicator"
 import { ResponsiveModal } from "@/components/ui/responsive-modal"
+import { useQuickAdd } from "@/components/quick-add-provider"
 
 
 interface Quest {
@@ -177,6 +178,7 @@ function getStreakBonus(streak: number) {
 export default function QuestsPage() {
   const { isLoaded: isClerkLoaded, user } = useUser();
   const { getToken } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
 
@@ -2140,7 +2142,7 @@ export default function QuestsPage() {
                         onQuestFavorite={handleQuestFavorite}
                         onQuestEdit={handleEditQuest}
                         onQuestDelete={handleDeleteQuest}
-                        onAddQuest={() => setAddQuestModalOpen(true)}
+                        onAddQuest={() => openQuickAdd()}
                         showCategoryFilter={true}
                         context="quests"
                         hideOverview={true}
@@ -2191,7 +2193,7 @@ export default function QuestsPage() {
                       onQuestFavorite={handleQuestFavorite}
                       onQuestEdit={handleEditQuest}
                       onQuestDelete={handleDeleteQuest}
-                      onAddQuest={() => setAddQuestModalOpen(true)}
+                      onAddQuest={() => openQuickAdd()}
                       showCategoryFilter={false}
                       context="quests"
                       hideOverview={false}

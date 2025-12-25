@@ -168,11 +168,11 @@ export default function RootLayout({
                     <UserStorageInitializer />
                     <Providers>
                       <ClientOnboardingProvider>
-                        <QuickAddProvider>
-                          <KeyboardShortcutsProvider />
-                          <ParticleProvider>
-                            <div className="flex flex-col h-full">
-                              <AuthGate>
+                        <AuthGate>
+                          <QuickAddProvider>
+                            <KeyboardShortcutsProvider />
+                            <ParticleProvider>
+                              <div className="flex flex-col h-full">
                                 <CharacterStatsSync />
                                 <NavBar session={null} />
                                 <main className="flex-1 relative pb-24 lg:landscape:pb-0">
@@ -180,10 +180,10 @@ export default function RootLayout({
                                 </main>
                                 <BottomNav />
                                 <SeasonalHuntWrapper />
-                              </AuthGate>
-                            </div>
-                          </ParticleProvider>
-                        </QuickAddProvider>
+                              </div>
+                            </ParticleProvider>
+                          </QuickAddProvider>
+                        </AuthGate>
                       </ClientOnboardingProvider>
                       <LocalStorageMigrator />
                       <KingdomNotificationManager />

@@ -32,7 +32,7 @@ export function ResponsiveModal({
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pb-24 md:pb-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pb-24 md:pb-4">
             {/* Backdrop */}
             <div
                 className="fixed inset-0 bg-black/80 backdrop-blur-sm"
