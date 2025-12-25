@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Coins, Sword, Castle, Trophy, TrendingUp } from 'lucide-react'
-import { getCharacterStats } from '@/lib/character-stats-manager'
+import { getCharacterStats } from '@/lib/character-stats-service'
 import { calculateLevelFromExperience } from '@/types/character'
 
 interface ProgressionStep {
@@ -40,15 +40,15 @@ export function ProgressionVisualization() {
       try {
         const characterStats = getCharacterStats()
         const level = calculateLevelFromExperience(characterStats.experience || 0)
-        
+
         // Get quest completion count from localStorage
         const questsData = JSON.parse(localStorage.getItem('quests') || '[]')
         const completedQuests = questsData.filter((q: any) => q.completed).length
-        
+
         // Get tiles placed count from localStorage
         const kingdomGrid = JSON.parse(localStorage.getItem('kingdom-grid') || '[]')
         const placedTiles = kingdomGrid.flat().filter((tile: any) => tile && tile.type !== 'empty').length
-        
+
         setStats({
           experience: characterStats.experience || 0,
           gold: characterStats.gold || 0,
@@ -62,11 +62,11 @@ export function ProgressionVisualization() {
     }
 
     loadStats()
-    
+
     // Listen for updates
     const handleStatsUpdate = () => loadStats()
     window.addEventListener('character-stats-update', handleStatsUpdate)
-    
+
     return () => {
       window.removeEventListener('character-stats-update', handleStatsUpdate)
     }
@@ -138,7 +138,7 @@ export function ProgressionVisualization() {
                         <p className="text-sm text-gray-400">{step.description}</p>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-300">Progress</span>
@@ -146,14 +146,14 @@ export function ProgressionVisualization() {
                           {step.value} / {step.target}
                         </span>
                       </div>
-                      <Progress 
-                        value={getProgressPercentage(step.value, step.target)} 
+                      <Progress
+                        value={getProgressPercentage(step.value, step.target)}
                         className="h-2"
                       />
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 {/* Arrow connector */}
                 {index < progressionSteps.length - 1 && (
                   <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">

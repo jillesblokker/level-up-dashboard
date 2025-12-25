@@ -38,12 +38,12 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [buildTokens, setBuildTokens] = useState(0);
 
-  // Load build tokens from Supabase
+  // Load build tokens from service
   useEffect(() => {
     (async () => {
       try {
-        const { loadCharacterStats } = await import('@/lib/character-stats-manager');
-        const stats = await loadCharacterStats();
+        const { getCharacterStats } = await import('@/lib/character-stats-service');
+        const stats = getCharacterStats();
         setBuildTokens(stats.build_tokens || 0);
       } catch {
         setBuildTokens(0);
@@ -57,14 +57,14 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       // Removed debugging log
       return;
     }
-    
+
     async function fetchComebackChallenges() {
       try {
         // Removed debugging log
         const res = await fetch(`/api/comeback-challenges?category=${encodeURIComponent(category)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+
         if (res.ok) {
           const contentType = res.headers.get('content-type');
           if (contentType && contentType.includes('application/json')) {
@@ -91,7 +91,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       // Removed debugging log
       return;
     }
-    
+
     setLoadingAction('safety_net');
     try {
       const res = await fetch('/api/streaks-direct', {
@@ -107,7 +107,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
         toast({
           title: 'Safety Net Activated! 🛡️',
@@ -137,7 +137,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       // Removed debugging log
       return;
     }
-    
+
     if (buildTokens < 5) {
       toast({
         title: 'Insufficient Build Tokens',
@@ -146,7 +146,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       });
       return;
     }
-    
+
     setLoadingAction('reconstruct');
     try {
       const res = await fetch('/api/streaks-direct', {
@@ -163,20 +163,20 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
         // Deduct build tokens and persist
         setBuildTokens(prev => {
           const newVal = Math.max(0, (prev || 0) - 5);
-          import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
-            saveCharacterStats({ build_tokens: newVal });
+          import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
+            updateCharacterStats({ build_tokens: newVal }, 'streak-reconstruction');
           });
           return newVal;
         });
-        
+
         // Trigger character stats update
         window.dispatchEvent(new Event('character-stats-update'));
-        
+
         toast({
           title: 'Streak Reconstructed! ⚡',
           description: data.message,
@@ -205,7 +205,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       // Removed debugging log
       return;
     }
-    
+
     setLoadingAction(`comeback_${challengeName}`);
     try {
       const res = await fetch('/api/comeback-challenges', {
@@ -222,14 +222,14 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
         toast({
           title: 'Comeback Challenge Complete! 🎉',
           description: data.message,
         });
         onStreakUpdate();
-        
+
         // Refresh comeback challenges
         const refreshRes = await fetch(`/api/comeback-challenges?category=${encodeURIComponent(category)}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -262,7 +262,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   const missedDaysThisWeek = streakData.missed_days_this_week || 0;
   const isStreakBroken = !!streakData.streak_broken_date;
   const maxStreakAchieved = streakData.max_streak_achieved || streakData.streak_days || 0;
-  
+
   // Check if recovery features are available (new database fields exist)
   const recoveryFeaturesAvailable = streakData.hasOwnProperty('resilience_points');
 
@@ -288,7 +288,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                       headers: { 'Content-Type': 'application/json' },
                     });
                     const result = await response.json();
-                    
+
                     if (result.success) {
                       if (result.alreadyMigrated) {
                         toast({
@@ -309,13 +309,13 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                       // Show manual migration instructions
                       const instructions = result.manualInstructions;
                       const sqlCode = instructions.sql.replace(/^\s+/gm, ''); // Remove leading whitespace
-                      
+
                       toast({
                         title: "Manual Migration Required",
                         description: "Automated migration failed. Check the console for manual instructions.",
                         duration: 8000,
                       });
-                      
+
                       // Log detailed instructions to console
                       console.log('🔧 MANUAL MIGRATION REQUIRED');
                       console.log('=====================================');
@@ -329,7 +329,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                       console.log('');
                       console.log('ℹ️ Note:', instructions.note);
                       console.log('=====================================');
-                      
+
                       // Copy SQL to clipboard if possible
                       if (navigator.clipboard) {
                         try {
@@ -366,12 +366,12 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
           </CardContent>
         </Card>
       )}
-      
+
       {/* Main Recovery Section - Side by side on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Streak Recovery System - Takes 2/3 width on desktop */}
         <div className="lg:col-span-2">
-                          <Card className="medieval-card-royal h-full shadow-lg" aria-label="streak-recovery-status-card">
+          <Card className="medieval-card-royal h-full shadow-lg" aria-label="streak-recovery-status-card">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl font-bold text-blue-200">
                 <Heart className="w-6 h-6 text-blue-400" />
@@ -424,7 +424,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         {/* Safety Net Action - Takes 1/3 width on desktop */}
         {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
           <div className="lg:col-span-1">
-                            <Card className="medieval-card-deep h-full shadow-lg" aria-label="safety-net-card">
+            <Card className="medieval-card-deep h-full shadow-lg" aria-label="safety-net-card">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-3 text-xl font-bold text-green-200">
                   <Shield className="w-6 h-6 text-green-400" />
@@ -472,8 +472,8 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 disabled={loadingAction === 'reconstruct' || buildTokens < 5}
                 className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
               >
-                {loadingAction === 'reconstruct' ? 'Reconstructing...' : 
-                 buildTokens < 5 ? 'Need 5 Build Tokens' : 'Reconstruct Streak'}
+                {loadingAction === 'reconstruct' ? 'Reconstructing...' :
+                  buildTokens < 5 ? 'Need 5 Build Tokens' : 'Reconstruct Streak'}
               </Button>
             </CardContent>
           </Card>
@@ -482,7 +482,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
       {/* Comeback Challenges */}
       {recoveryFeaturesAvailable && qualifiesForComeback && comebackChallenges.length > 0 && (
-                        <Card className="medieval-card-earth shadow-lg" aria-label="comeback-challenges-card">
+        <Card className="medieval-card-earth shadow-lg" aria-label="comeback-challenges-card">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-orange-200">
               <AlertTriangle className="w-6 h-6 text-orange-400" />

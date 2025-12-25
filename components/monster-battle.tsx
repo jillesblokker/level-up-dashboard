@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Shield, Sword, Zap, Heart, Shield as Armor } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { gainGold } from '@/lib/gold-manager'
-import { updateCharacterStat } from '@/lib/character-stats-manager'
+import { addToCharacterStat } from '@/lib/character-stats-service'
 import { toast } from '@/components/ui/use-toast'
 import Image from 'next/image'
 
@@ -90,21 +90,21 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
 
   const monster = monsterData[monsterType]
-  
+
 
 
   // Generate new sequence for current round
   const generateSequence = useCallback((round: number) => {
     const roundLength = 2 + round // Starts with 3 items, adds 1 each round
     const newSequence: string[] = []
-    
+
     for (let i = 0; i < roundLength; i++) {
       const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)]
       if (randomWeapon) {
         newSequence.push(randomWeapon.id)
       }
     }
-    
+
     return newSequence
   }, [])
 
@@ -113,7 +113,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     setIsShowingSequence(true)
     setIsPlayerTurn(false)
     setCurrentSequenceIndex(0)
-    
+
     for (let i = 0; i < sequenceToShow.length; i++) {
       const weaponId = sequenceToShow[i]
       if (weaponId) {
@@ -124,7 +124,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         await new Promise(resolve => setTimeout(resolve, 300)) // Brief pause between weapons
       }
     }
-    
+
     setIsShowingSequence(false)
     setIsPlayerTurn(true)
     setCurrentSequenceIndex(0)
@@ -138,38 +138,38 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       setGoldLost(0)
       setPlayerSequence([])
       setCurrentSequenceIndex(0)
-      
+
       // Generate initial sequence
       const initialSequence = generateSequence(1)
       setSequence(initialSequence)
-      
+
       // Show sequence after a brief delay
       const timer = setTimeout(() => {
         showSequence(initialSequence)
       }, 1000)
-      
+
       return () => clearTimeout(timer)
     }
     // Return empty cleanup function when modal is not open
-    return () => {}
+    return () => { }
   }, [isOpen, generateSequence, showSequence])
 
   // Handle weapon click
   const handleWeaponClick = (weaponId: string) => {
     if (!isPlayerTurn || isShowingSequence || gameState !== 'playing') return
-    
+
     const newPlayerSequence = [...playerSequence, weaponId]
     setPlayerSequence(newPlayerSequence)
-    
+
     // Check if sequence is correct so far
     const isCorrect = newPlayerSequence.every((item, index) => item === sequence[index])
-    
+
     if (!isCorrect) {
       // Player made a mistake
       handleRoundLoss()
       return
     }
-    
+
     // Check if round is complete
     if (newPlayerSequence.length === sequence.length) {
       if (currentRound === 5) {
@@ -180,11 +180,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         const nextRound = currentRound + 1
         setCurrentRound(nextRound)
         setPlayerSequence([])
-        
+
         // Generate new sequence for next round
         const newSequence = generateSequence(nextRound)
         setSequence(newSequence)
-        
+
         // Show new sequence after a delay
         setTimeout(() => {
           showSequence(newSequence)
@@ -197,13 +197,13 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     const lostGold = 10
     setGoldLost(prev => prev + lostGold)
     gainGold(-lostGold, 'monster-battle-loss')
-    
+
     toast({
       title: "Round Failed!",
       description: `You lost ${lostGold} gold! Try to remember the sequence better.`,
       variant: "destructive",
     })
-    
+
     // Continue to next round or end game
     if (currentRound === 5) {
       handleGameLoss()
@@ -211,11 +211,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       const nextRound = currentRound + 1
       setCurrentRound(nextRound)
       setPlayerSequence([])
-      
+
       // Generate new sequence for next round
       const newSequence = generateSequence(nextRound)
       setSequence(newSequence)
-      
+
       // Show new sequence after a delay
       setTimeout(() => {
         showSequence(newSequence)
@@ -226,11 +226,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const handleGameWin = () => {
     const earnedGold = 100
     const earnedXP = 100
-    
+
     setGameState('won')
     gainGold(earnedGold, 'monster-battle-win')
-            updateCharacterStat('experience', earnedXP)
-    
+    addToCharacterStat('experience', earnedXP, 'monster-battle-win')
+
     // Add success animation class
     const battleContainer = document.querySelector('.monster-battle-container')
     if (battleContainer) {
@@ -239,7 +239,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         battleContainer.classList.remove('animate-pulse', 'bg-green-500/20', 'border-green-500')
       }, 1000)
     }
-    
+
     // Unlock achievement for defeating this monster
     if (monster.achievementId) {
       console.log('Attempting to unlock monster achievement:', monster.achievementId, 'for monster:', monster.name)
@@ -256,7 +256,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         console.error('Failed to unlock achievement:', error)
       })
     }
-    
+
     // Show improved thematic victory message based on monster type
     const monsterVictoryMessages = {
       '201': { title: "🐉 Dragon Slayer!", description: `After an epic Simon Says battle, you have vanquished the Ancient Dragon Dragoni and earned ${earnedGold} gold and ${earnedXP} XP for your legendary victory!` },
@@ -266,7 +266,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       '205': { title: "🦄 Pegasus Tamed!", description: `After a mystical Simon Says battle, you have tamed the Mystical Pegasus Peggie and earned ${earnedGold} gold and ${earnedXP} XP for your enchanting victory!` },
       '206': { title: "🧚 Fairy Friend!", description: `After a delightful Simon Says battle, you have befriended the Enchanted Fairy Fairiel and earned ${earnedGold} gold and ${earnedXP} XP for your charming victory!` }
     };
-    
+
     const message = monsterVictoryMessages[monster.achievementId as keyof typeof monsterVictoryMessages];
     if (message) {
       toast({
@@ -280,7 +280,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         description: `You defeated the ${monster.name}! Earned ${earnedGold} gold and ${earnedXP} XP! Achievement unlocked!`,
       });
     }
-    
+
     setTimeout(() => {
       onBattleComplete(true, earnedGold, earnedXP)
       onClose()
@@ -289,13 +289,13 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
   const handleGameLoss = () => {
     setGameState('lost')
-    
+
     toast({
       title: "Defeat!",
       description: `The ${monster.name} was too strong! You lost ${goldLost} gold total.`,
       variant: "destructive",
     })
-    
+
     setTimeout(() => {
       onBattleComplete(false, -goldLost, 0)
       onClose()
@@ -305,7 +305,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   if (!isOpen) return null
 
   return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black backdrop-blur-sm">
       <Card className="monster-battle-container w-full max-w-2xl bg-gray-900 border-amber-800/30 text-white transition-all duration-300">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-400">
@@ -315,13 +315,13 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
             Round {currentRound}/5 • Difficulty: {monster.difficulty}
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* Monster Card */}
-                      <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800">
+          <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800">
             <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-              <img 
-                src={monster.image} 
+              <img
+                src={monster.image}
                 alt={monster.name}
                 className="w-full h-full object-cover"
                 onLoad={() => {

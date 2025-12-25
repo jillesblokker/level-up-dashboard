@@ -17,7 +17,7 @@ import { useAuth } from "@clerk/nextjs"
 import { useToast } from "@/components/ui/use-toast"
 import { storageService } from '@/lib/storage-service'
 import { Quest } from '@/lib/quest-types'
-import { updateCharacterStat, getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from '@/lib/character-stats-manager'
+import { getCharacterStats, updateCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import QuestCard from './quest-card'
 import { pollingService, createPollingConfig } from '@/lib/polling-service';
 import { errorHandler, ErrorHandler } from '@/lib/error-handler';
@@ -59,11 +59,11 @@ const milestoneCategories = [
 ];
 
 const defaultMilestoneCards: Record<string, { title: string; description: string }> = {
-  might:    { title: '300 Pushups in One Day', description: 'Complete 300 pushups in a single day' },
-  knowledge:{ title: '365 Days of Spanish', description: 'Practice Spanish every day for a year' },
-  honor:    { title: 'Wake Up Before 6AM for 100 Days', description: 'Wake up before 6AM for 100 consecutive days' },
-  castle:   { title: 'Host 50 Dinners for Friends', description: 'Host 50 dinners or gatherings at your home' },
-  craft:    { title: 'Complete a 365-Day Drawing Challenge', description: 'Draw something every day for a year' },
+  might: { title: '300 Pushups in One Day', description: 'Complete 300 pushups in a single day' },
+  knowledge: { title: '365 Days of Spanish', description: 'Practice Spanish every day for a year' },
+  honor: { title: 'Wake Up Before 6AM for 100 Days', description: 'Wake up before 6AM for 100 consecutive days' },
+  castle: { title: 'Host 50 Dinners for Friends', description: 'Host 50 dinners or gatherings at your home' },
+  craft: { title: 'Complete a 365-Day Drawing Challenge', description: 'Draw something every day for a year' },
   vitality: { title: 'Plank 3:00', description: 'Hold a plank for 3 minutes straight' },
   wellness: { title: 'Do a Yoga Session', description: 'Stretch to avoid a stretcher. Keep those shoulders down' },
   exploration: { title: 'Hike 2km', description: 'Why are you running' },
@@ -110,7 +110,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const [streaks, setStreaks] = useState<Record<string, number>>({});
   const [completionDates, setCompletionDates] = useState<Record<string, string>>({});
   const [addModalOpen, setAddModalOpen] = useState<string | null>(null);
-  
+
   // Remove all persistence effects - components will use temporary state
   // useEffect(() => { storageService.set(CUSTOM_MILESTONES_KEY, customMilestones); }, [customMilestones]); // Removed
   // useEffect(() => { storageService.set(MILESTONE_PROGRESS_KEY, progress); }, [progress]); // Removed
@@ -162,16 +162,16 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     if (milestones && milestones.length > 0) {
       const completedIds = milestones.filter(m => m.completed).map(m => m.id);
       setCheckedMilestones(completedIds);
-      
+
       // Sync local completed and progress state with database state
       const completedState: Record<string, boolean> = {};
       const progressState: Record<string, number> = {};
-      
+
       milestones.forEach(milestone => {
         completedState[milestone.id] = milestone.completed;
         progressState[milestone.id] = milestone.progress;
       });
-      
+
       setCompleted(completedState);
       setProgress(progressState);
     }
@@ -204,13 +204,13 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           icon: newMilestone.icon,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to create milestone');
       }
-      
+
       const newMilestoneData = await response.json();
-      
+
       const milestone: Milestone = {
         id: newMilestoneData.id,
         name: newMilestoneData.name,
@@ -223,7 +223,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         target: newMilestone.target,
         completed: false
       };
-      
+
       setMilestones(prev => [...prev, milestone]);
       setNewMilestone({
         name: "",
@@ -233,7 +233,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         target: 1,
       });
       setIsDialogOpen(false);
-      
+
       toast({
         title: "Success",
         description: "Milestone created successfully!",
@@ -251,7 +251,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const handleDeleteMilestone = async (id: string) => {
     try {
       if (!token) throw new Error('No Clerk token');
-      
+
       // Call backend API to delete milestone
       const response = await fetch(`/api/milestones/${id}`, {
         method: 'DELETE',
@@ -259,16 +259,16 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
         const err = await response.text();
         console.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
-      
+
       // Set the last edit time to prevent polling from overwriting
       pollingService.setLastEditTime('milestones');
-      
+
       // Remove from local state
       setMilestones(prev => {
         const filtered = prev.filter(m => m.id !== id);
@@ -278,7 +278,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
-      
+
       toast({
         title: 'Success',
         description: 'Milestone deleted successfully!',
@@ -362,7 +362,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const handleEditMilestoneSubmit = async (updatedMilestone: Milestone) => {
     try {
       if (!token) throw new Error('No Clerk token');
-      
+
       // Call backend API to update milestone
       const response = await fetch(`/api/milestones/${updatedMilestone.id}`, {
         method: 'PATCH',
@@ -378,20 +378,20 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           // Add other fields as needed
         }),
       });
-      
+
       if (!response.ok) {
         const err = await response.text();
         console.error('Edit error:', err);
         throw new Error(err || 'Failed to update milestone');
       }
-      
+
       // Set the last edit time to prevent polling from overwriting
       pollingService.setLastEditTime('milestones');
       setMilestones(prev => {
         const updated = prev.map(m => m.id === updatedMilestone.id ? { ...m, ...updatedMilestone } : m);
         return updated;
       });
-      
+
       toast({
         title: 'Success',
         description: 'Milestone updated successfully!',
@@ -431,7 +431,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   const handleDeleteCustomMilestone = async (category: string, id: string) => {
     try {
       if (!token) throw new Error('No Clerk token');
-      
+
       // Call backend API to delete milestone
       const response = await fetch(`/api/milestones/${id}`, {
         method: 'DELETE',
@@ -439,16 +439,16 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
         const err = await response.text();
         console.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
-      
+
       // Set the last edit time to prevent polling from overwriting
       pollingService.setLastEditTime('milestones');
-      
+
       // Update local state - remove from both milestones and customMilestones
       setMilestones(prev => prev.filter(m => m.id !== id));
       setCustomMilestones(prev => ({ ...prev, [category]: (prev[category] || []).filter(m => m.id !== id) }));
@@ -456,7 +456,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       setCompleted(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setStreaks(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
       setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
-      
+
       toast({
         title: 'Success',
         description: 'Milestone deleted successfully!',
@@ -540,18 +540,18 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
   // Polling for milestone changes using centralized service
   useEffect(() => {
     if (!userId || !token) return;
-    
+
     const fetchMilestones = async () => {
       const response = await fetch('/api/milestones', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
         throw await errorHandler.handleFetchError(response, 'milestones-polling');
       }
-      
+
       const milestoneData = await ErrorHandler.safeJsonParse(response);
       return milestoneData;
     };
@@ -571,7 +571,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
     if (token) {
       pollingService.startPolling('milestones', fetchMilestones, config);
     }
-    
+
     return () => {
       pollingService.stopPolling('milestones');
     };
@@ -593,7 +593,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           // Filter milestones and custom milestones by selected category
           const filteredMilestones = milestones.filter(m => m.category?.toLowerCase() === selectedCategoryObj.key.toLowerCase());
           const filteredCustomMilestones = (customMilestones[selectedCategoryObj.key] || []);
-          
+
           // Create default milestone only if no milestones exist for this category
           const allMilestones = [...filteredMilestones, ...filteredCustomMilestones];
           if (allMilestones.length === 0) {
@@ -620,17 +620,17 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
                 {allMilestones.length === 0 ? (
                   <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
-                                  ) : (
-                    allMilestones.map(milestone => (
-                      <MilestoneCard
-                        key={milestone.id}
-                        milestone={milestone}
-                        onDelete={handleDeleteMilestone}
-                        onUpdateProgress={handleToggleCompletion}
-                        onEdit={handleEditMilestone}
-                      />
-                    ))
-                  )}
+                ) : (
+                  allMilestones.map(milestone => (
+                    <MilestoneCard
+                      key={milestone.id}
+                      milestone={milestone}
+                      onDelete={handleDeleteMilestone}
+                      onUpdateProgress={handleToggleCompletion}
+                      onEdit={handleEditMilestone}
+                    />
+                  ))
+                )}
                 {/* Add Custom Milestone Card */}
                 <Card
                   className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
@@ -774,7 +774,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const { toast } = useToast();
-  
+
   // Handler for card click (toggles completion)
   const handleCardClick = async (e: React.MouseEvent) => {
     // Prevent toggling if clicking on buttons
@@ -805,7 +805,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
   const progressPercentage = (milestone.progress / 100) * 100;
 
   return (
-    <Card 
+    <Card
       className={cn(
         "relative overflow-hidden transition-all duration-300 cursor-pointer group",
         "bg-black border border-amber-800/20",
@@ -822,9 +822,9 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
     >
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
+
       {/* Interactive Checkbox */}
-      <div 
+      <div
         className="absolute top-3 right-3 z-10 cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
@@ -835,8 +835,8 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
         <div className={cn(
           "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
           "hover:scale-110 hover:shadow-lg",
-          completed 
-                            ? "bg-amber-500 border-amber-500 text-white" 
+          completed
+            ? "bg-amber-500 border-amber-500 text-white"
             : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
         )}>
           {completed ? (
@@ -899,8 +899,8 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
               {milestone.progress} / 100
             </span>
           </div>
-          <Progress 
-            value={progressPercentage} 
+          <Progress
+            value={progressPercentage}
             className="h-2 bg-gray-700"
           />
         </div>
@@ -938,7 +938,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
           <Button
             className={cn(
               "w-full transition-all duration-300",
-              completed 
+              completed
                 ? "bg-amber-600 hover:bg-amber-700 text-white"
                 : "bg-amber-500 hover:bg-amber-600 text-black"
             )}

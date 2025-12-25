@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
 import { UserNav } from "@/components/user-nav"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
-import { getCharacterStats, loadCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
 
 interface CustomSession {
@@ -74,7 +74,7 @@ export function NavBar({ session }: NavBarProps) {
 
         // Only fetch fresh data from Supabase if requested
         if (fetchServer) {
-          const freshStats = await loadCharacterStats()
+          const freshStats = await fetchFreshCharacterStats()
           if (freshStats) {
             const currentLevel = calculateLevelFromExperience(freshStats.experience)
             // Only update if server has more experience (to prevent regression)

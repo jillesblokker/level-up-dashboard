@@ -125,8 +125,8 @@ export function KingdomGridWithTimers({
   useEffect(() => {
     (async () => {
       try {
-        const { loadCharacterStats } = await import('@/lib/character-stats-manager')
-        const stats = await loadCharacterStats()
+        const { getCharacterStats } = await import('@/lib/character-stats-service')
+        const stats = getCharacterStats()
         setKingdomExpansions(stats.kingdom_expansions || 0)
       } catch {
         setKingdomExpansions(0)
@@ -138,8 +138,8 @@ export function KingdomGridWithTimers({
   useEffect(() => {
     (async () => {
       try {
-        const { loadCharacterStats } = await import('@/lib/character-stats-manager')
-        const stats = await loadCharacterStats()
+        const { getCharacterStats } = await import('@/lib/character-stats-service')
+        const stats = getCharacterStats()
         setBuildTokens(stats.build_tokens || 0)
       } catch {
         setBuildTokens(0)
@@ -299,8 +299,8 @@ export function KingdomGridWithTimers({
     // Update expansion count
     setKingdomExpansions((prev: number) => {
       const newVal = prev + 1;
-      import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
-        saveCharacterStats({ kingdom_expansions: newVal });
+      import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
+        updateCharacterStats({ kingdom_expansions: newVal }, 'kingdom-expansion');
       });
       return newVal;
     });
@@ -1567,8 +1567,8 @@ export function KingdomGridWithTimers({
                     if (success) {
                       setBuildTokens(prev => {
                         const newVal = (prev || 0) + 1;
-                        import('@/lib/character-stats-manager').then(({ saveCharacterStats }) => {
-                          saveCharacterStats({ build_tokens: newVal });
+                        import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
+                          updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
                         });
                         return newVal;
                       });
@@ -1579,7 +1579,7 @@ export function KingdomGridWithTimers({
                 }}
                 className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
                 disabled={(() => {
-                  const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+                  const stats = getCharacterStats();
                   return (stats.gold || 0) < 1000;
                 })()}
               >

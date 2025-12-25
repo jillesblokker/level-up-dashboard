@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { ArrowUp, ArrowDown, Coins, ShoppingCart, TrendingUp, Calculator } from 'lucide-react'
-import { getCharacterStats } from '@/lib/character-stats-manager'
+import { getCharacterStats } from '@/lib/character-stats-service'
 
 interface EconomyTransaction {
   type: 'earned' | 'spent'

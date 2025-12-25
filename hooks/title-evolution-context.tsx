@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
-import { getCharacterStats } from '@/lib/character-stats-manager';
+import { getCharacterStats } from '@/lib/character-stats-service';
 import { calculateLevelFromExperience } from '@/types/character';
 import { getCurrentTitle } from '@/lib/title-manager';
 
@@ -126,12 +126,12 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
         if (userId && lastProcessedLevel > 0) {
           await setUserPreference('title-evolution-last-processed', String(lastProcessedLevel));
         }
-      } catch {}
+      } catch { }
       try {
         if (typeof window !== 'undefined') {
           localStorage.setItem('title-evolution-last-processed', String(lastProcessedLevel));
         }
-      } catch {}
+      } catch { }
     })();
   }, [lastProcessedLevel, userId]);
 
@@ -143,14 +143,14 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
       setLastProcessedLevel(prev => Math.max(prev, newLevel));
       // Save remotely as well
       if (userId) {
-        setUserPreference('title-evolution-last-processed', String(newLevel)).catch(() => {});
+        setUserPreference('title-evolution-last-processed', String(newLevel)).catch(() => { });
       }
       // Fallback local storage
       try {
         if (typeof window !== 'undefined') {
           localStorage.setItem('title-evolution-last-processed', String(newLevel));
         }
-      } catch {}
+      } catch { }
     }
     setEvolution(null);
   };

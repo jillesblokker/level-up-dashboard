@@ -165,9 +165,9 @@ export function useQuestCompletion() {
       // Optimistically update character stats
       if (newCompleted) {
         try {
-          const { addToCharacterStatSync } = await import('@/lib/character-stats-manager');
-          if (xpReward) addToCharacterStatSync('experience', xpReward);
-          if (goldReward) addToCharacterStatSync('gold', goldReward);
+          const { addToCharacterStat } = await import('@/lib/character-stats-service');
+          if (xpReward) addToCharacterStat('experience', xpReward, 'quest:complete');
+          if (goldReward) addToCharacterStat('gold', goldReward, 'quest:complete');
           console.log('[Quest Completion] Optimistically updated stats');
         } catch (statsError) {
           console.error('[Quest Completion] Failed to update local stats:', statsError);
@@ -177,8 +177,8 @@ export function useQuestCompletion() {
       // Refresh character stats to update the UI
       if (newCompleted) {
         try {
-          const { fetchFreshCharacterStats } = await import('@/lib/character-stats-manager');
-          await fetchFreshCharacterStats('quest-completion');
+          const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service');
+          await fetchFreshCharacterStats();
           console.log('[Quest Completion] Character stats refreshed');
         } catch (statsError) {
           console.error('[Quest Completion] Failed to refresh stats:', statsError);
