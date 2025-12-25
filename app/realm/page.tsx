@@ -15,7 +15,7 @@ import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/l
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck } from 'lucide-react'
+import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -1764,87 +1764,131 @@ export default function RealmPage() {
         }
     };
 
-    // Expand map function
-    const expandMap = async () => {
-        if (!canExpand) {
-            toast({
-                title: '🔒 Realm Locked',
-                description: `The ancient barriers hold strong! Reach level ${nextExpansionLevel} to unlock the realm's hidden depths!`,
-                variant: 'destructive',
-            });
-            return;
+    // --- Kingdom Passive Rewards System ---
+    const [passiveRewards, setPassiveRewards] = useState<{ gold: number, xp: number } | null>(null);
+    const [lastCollectionTime, setLastCollectionTime] = useState<number>(() => {
+        if (typeof window !== 'undefined') {
+            return parseInt(localStorage.getItem('kingdom_last_collection') || Date.now().toString());
         }
-        const currentRows = grid.length;
-        const currentCols = grid[0]?.length || GRID_COLS;
-        const newRows = currentRows + 3;
+        return Date.now();
+    });
 
-        // Create new grid with 3 additional rows
-        const newGrid: Tile[][] = [];
+    // Calculate passive income based on owned tiles
+    useEffect(() => {
+        if (!grid.length) return;
 
-        // Add existing rows
-        for (let y = 0; y < currentRows; y++) {
-            const currentRow = grid[y];
-            if (currentRow && Array.isArray(currentRow)) {
-                newGrid[y] = [...currentRow];
-            }
-        }
+        const calculateRewards = () => {
+            const now = Date.now();
+            const timeDiffHours = (now - lastCollectionTime) / (1000 * 60 * 60);
 
-        // Add 3 new rows
-        for (let y = currentRows; y < newRows; y++) {
-            newGrid[y] = new Array(currentCols);
-            for (let x = 0; x < currentCols; x++) {
-                let tileType: TileType = 'empty';
+            // Cap at 24 hours of accumulation
+            const effectiveHours = Math.min(timeDiffHours, 24);
 
-                // First and last columns are mountain tiles
-                if (x === 0 || x === currentCols - 1) {
-                    tileType = 'mountain';
-                } else {
-                    // Random mystery tile (1 in 20 chance for each non-mountain tile)
-                    if (Math.random() < 0.05) {
-                        tileType = 'mystery';
+            if (effectiveHours < 0.1) return; // Minimum 6 minutes to show something
+
+            let hourlyGold = 0;
+            let hourlyXp = 0;
+
+            // Calculate rates based on placed tiles
+            grid.forEach(row => {
+                row.forEach(tile => {
+                    if (tile.type !== 'empty' && tile.type !== 'grass') {
+                        // Base rate: 1% of cost per hour (approx)
+                        // This is arbitrary for the QoL feature to feel rewarding
+                        const baseValue = tile.cost || 100;
+                        hourlyGold += Math.floor(baseValue * 0.05);
+                        hourlyXp += Math.floor(baseValue * 0.02);
                     }
-                }
+                });
+            });
 
-                newGrid[y]![x] = {
-                    ...defaultTile(tileType),
-                    x,
-                    y,
-                    id: `${tileType}-${x}-${y}`,
-                    image: getTileImage(tileType)
-                };
-            }
-        }
+            // Add base kingdom generation
+            hourlyGold += 10;
+            hourlyXp += 5;
 
-        setGrid(newGrid);
-        // Persist all new tiles in the new rows to the backend
-        try {
-            if (!Array.isArray(newGrid)) return;
-            for (let y = currentRows; y < newRows; y++) {
-                if (!Array.isArray(newGrid[y])) continue;
-                for (let x = 0; x < currentCols; x++) {
-                    const tile = newGrid[y]?.[x];
-                    if (!tile) continue;
-                    const tileTypeNum = tileTypeToNumeric[tile.type];
-                    if (typeof tileTypeNum === 'undefined') continue;
-                    await fetch('/api/realm-tiles', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ x, y, tile_type: tileTypeNum })
-                    });
-                }
+            const pendingGold = Math.floor(hourlyGold * effectiveHours);
+            const pendingXp = Math.floor(hourlyXp * effectiveHours);
+
+            if (pendingGold > 0 || pendingXp > 0) {
+                setPassiveRewards({ gold: pendingGold, xp: pendingXp });
             }
-        } catch (err) {
-            toast({ title: 'Error', description: 'Failed to save expanded map tiles', variant: 'destructive' });
-        }
-        setExpansions(prev => {
-            const newVal = prev + 1;
-            localStorage.setItem('realm-expansions', String(newVal));
-            return newVal;
-        });
+        };
+
+        const interval = setInterval(calculateRewards, 60000); // Check every minute
+        calculateRewards(); // Initial check
+
+        return () => clearInterval(interval);
+    }, [grid, lastCollectionTime]);
+
+    const handleCollectRewards = async () => {
+        if (!passiveRewards) return;
+
+        // Play sound/animation logic here if available
+
+        // Add rewards
+        await gainGold(passiveRewards.gold, 'kingdom-passive');
+        await gainExperience(passiveRewards.xp, 'kingdom-passive');
+
         toast({
-            title: "🌍 Realm Expanded!",
-            description: "The mystical boundaries shift! Three new rows of land emerge from the cosmic void!",
+            title: "💰 Royal Treasury Collected!",
+            description: `You collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP from your kingdom!`,
+            className: "bg-gradient-to-r from-amber-500/20 to-yellow-600/20 border-amber-500/50 text-amber-100" // Gold theme
         });
+
+        // Trigger coin burst event for visual effect
+        // Assuming a global event listener or we can add a simple local state for animation
+        window.dispatchEvent(new CustomEvent('coin-burst', {
+            detail: { amount: passiveRewards.gold, x: window.innerWidth / 2, y: window.innerHeight / 2 }
+        }));
+
+        // Reset
+        setPassiveRewards(null);
+        setLastCollectionTime(Date.now());
+        localStorage.setItem('kingdom_last_collection', Date.now().toString());
+    };
+
+    // --- Render Helper for Treasury ---
+    const renderTreasury = () => {
+        if (!passiveRewards || (passiveRewards.gold === 0 && passiveRewards.xp === 0)) return null;
+
+        return (
+            <div className="fixed top-24 right-4 z-40 animate-in slide-in-from-right-5 fade-in duration-500">
+                <Card className="bg-gradient-to-br from-gray-900 to-amber-950/80 border-amber-500/50 shadow-xl shadow-amber-900/20 backdrop-blur-md w-64 overflow-hidden group hover:scale-105 transition-transform duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-50 animate-pulse" />
+                    <CardContent className="p-4 relative">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-bold text-amber-400 text-sm uppercase tracking-wider flex items-center gap-2">
+                                <Crown className="w-4 h-4" /> Treasury
+                            </h3>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center text-amber-200">
+                                <span className="text-xs text-amber-400/80">Taxes Collected</span>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <div className="flex-1 bg-black/40 rounded p-2 border border-amber-500/20 flex flex-col items-center">
+                                    <span className="text-xl font-bold text-amber-400">{passiveRewards.gold}</span>
+                                    <span className="text-[10px] text-amber-500/70 uppercase">Gold</span>
+                                </div>
+                                <div className="flex-1 bg-black/40 rounded p-2 border border-blue-500/20 flex flex-col items-center">
+                                    <span className="text-xl font-bold text-blue-400">{passiveRewards.xp}</span>
+                                    <span className="text-[10px] text-blue-500/70 uppercase">XP</span>
+                                </div>
+                            </div>
+
+                            <Button
+                                className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold border-t border-white/20 shadow-lg active:scale-95 transition-all"
+                                onClick={handleCollectRewards}
+                            >
+                                Collect Taxes
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
     };
 
     // Handler to reset the map to the initial grid
