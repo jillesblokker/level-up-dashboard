@@ -42,6 +42,8 @@ import { EconomyTransparency } from '@/components/economy-transparency';
 import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
+import { gainExperience } from '@/lib/experience-manager';
+import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-service';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import {
   saveKingdomGrid,
@@ -137,23 +139,20 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
   if (item.type === 'item' && item.name) {
     const key = item.name.toLowerCase();
     if (key === 'health potion') {
-      // Restore health (if tracked) or show a toast
-      // (Assume health is tracked in character-stats)
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"health":100}')
-      stats.health = Math.min((stats.health || 100) + 50, 100)
-      localStorage.setItem('character-stats', JSON.stringify(stats))
+      // Restore health via unified service
+      const stats = getCharacterStats();
+      const newHealth = Math.min((stats.health || 0) + 50, stats.max_health || 100);
+      updateCharacterStats({ health: newHealth }, 'item-use:health-potion');
       return `You used a Health Potion and restored 50 health!`;
     }
     if (key === 'gold potion') {
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"gold":0}')
-      stats.gold = (stats.gold || 0) + 50
-      localStorage.setItem('character-stats', JSON.stringify(stats))
+      // Use the dedicated gold manager
+      gainGold(50, 'item-use:gold-potion');
       return `You used a Gold Potion and gained 50 gold!`;
     }
     if (key === 'experience potion' || key === 'exp potion') {
-      const stats = JSON.parse(localStorage.getItem('character-stats') || '{"experience":0}')
-      stats.experience = (stats.experience || 0) + 50
-      localStorage.setItem('character-stats', JSON.stringify(stats))
+      // Use the dedicated experience manager
+      gainExperience(50, 'item-use:experience-potion', 'general');
       return `You used an Experience Potion and gained 50 XP!`;
     }
     // Other potions: use perk logic

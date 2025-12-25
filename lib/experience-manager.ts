@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast"
 import { calculateLevelFromExperience, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
 import { emitExperienceGained } from "@/lib/kingdom-events"
-import { getCharacterStats, addToCharacterStatSync, updateCharacterStatSync } from "@/lib/character-stats-manager"
+import { getCharacterStats, addToCharacterStat, updateCharacterStats } from "@/lib/character-stats-service"
 import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
@@ -32,7 +32,7 @@ async function getEquippedPerks(): Promise<Perk[]> {
         }
       }
     }
-  } catch {}
+  } catch { }
   // Fallback to local
   try {
     const savedPerks = localStorage.getItem('character-perks');
@@ -90,7 +90,7 @@ function calculatePerkBonus(baseAmount: number, category: string, equippedPerks:
 
 export async function gainExperience(amount: number, source: string, category: string = 'general') {
   try {
-    // Get current stats using the character stats manager
+    // Get current stats using the unified service
     const currentStats = getCharacterStats()
 
     // Get equipped perks and calculate bonus
@@ -98,46 +98,19 @@ export async function gainExperience(amount: number, source: string, category: s
     const perkBonus = calculatePerkBonus(amount, category, equippedPerks)
     const totalAmount = amount + perkBonus
 
-    // Calculate new stats
+    // Calculate new stats locally
     const newExperience = currentStats.experience + totalAmount
     const newLevel = calculateLevelFromExperience(newExperience)
-    
-    // Update stats using the character stats manager (synchronous for immediate effect)
-    // addToCharacterStatSync already recalculates the level, so we don't need to set it separately
-    addToCharacterStatSync('experience', totalAmount);
+
+    // Update stats using the unified service (handles state, event, and sync)
+    // We update both experience and level at once to ensure consistency
+    updateCharacterStats({
+      experience: newExperience,
+      level: newLevel
+    }, source);
 
     // Log experience transaction to database for audit trail
     await logExperienceTransaction(totalAmount, newExperience, 'gain', source, { category, perkBonus, baseAmount: amount });
-
-    // Also save to database to keep mobile and desktop in sync
-    const saveToDatabase = async () => {
-      try {
-        const response = await fetchWithAuth('/api/character-stats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            stats: {
-              experience: newExperience,
-              level: newLevel,
-              gold: currentStats.gold,
-              health: currentStats.health,
-              max_health: currentStats.max_health
-            }
-          })
-        });
-        
-        if (response.ok) {
-          // Removed debugging log
-        } else {
-          console.error('[Experience Manager] Failed to save stats to database:', response.status);
-        }
-      } catch (error) {
-        console.error('[Experience Manager] Error saving to database:', error);
-      }
-    };
-    
-    // Save to database in the background
-    saveToDatabase();
 
     // Emit kingdom event for tracking weekly progress
     emitExperienceGained(totalAmount, source)
@@ -152,11 +125,11 @@ export async function gainExperience(amount: number, source: string, category: s
     if (newLevel > oldLevel) {
       // Level up notification
       createExperienceGainedNotification(
-        newLevel - oldLevel, 
+        newLevel - oldLevel,
         'level-up',
         0
       )
-      
+
       // Dispatch level up event
       const levelUpEvent = new CustomEvent('level-up', {
         detail: { oldLevel, newLevel, totalExperience: newExperience }
@@ -164,29 +137,29 @@ export async function gainExperience(amount: number, source: string, category: s
       window.dispatchEvent(levelUpEvent)
     }
 
-    return { 
-      success: true, 
-      amount: totalAmount, 
-      newExperience, 
+    return {
+      success: true,
+      amount: totalAmount,
+      newExperience,
       newLevel,
       perkBonus,
       leveledUp: newLevel > oldLevel
     }
   } catch (error) {
     console.error('[Experience Manager] Error gaining experience:', error)
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     }
   }
 }
 
 // New function to log experience transactions to database
 async function logExperienceTransaction(
-  amount: number, 
-  totalAfter: number, 
-  transactionType: 'gain' | 'spend', 
-  source: string, 
+  amount: number,
+  totalAfter: number,
+  transactionType: 'gain' | 'spend',
+  source: string,
   metadata?: any
 ) {
   try {
@@ -213,4 +186,4 @@ async function logExperienceTransaction(
     console.warn('[Experience Manager] Error logging transaction:', error);
     // Don't fail the main operation if logging fails
   }
-} 
+}

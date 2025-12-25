@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { emitGoldGained } from "@/lib/kingdom-events";
-import { getCharacterStats, addToCharacterStatSync } from "@/lib/character-stats-manager";
+import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
 import { createGoldGainedNotification } from "@/lib/notifications";
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achievement-messages";
@@ -8,11 +8,11 @@ import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achieve
 // Enhanced gold manager with database transaction logging
 export async function gainGold(amount: number, source: string, metadata?: any) {
   try {
-    // Get current stats using the character stats manager
+    // Get current stats using the unified service
     const currentStats = getCharacterStats();
 
-    // Add gold to stats using synchronous update for immediate effect
-    addToCharacterStatSync('gold', amount);
+    // Add gold using the unified service (handles validation and syncing)
+    addToCharacterStat('gold', amount, source);
 
     // Log transaction to database for audit trail
     const newBalance = currentStats.gold + amount;
@@ -35,7 +35,7 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
     // Show improved toast notification for achievements
     const achievementId = getAchievementIdFromSource(source);
     const achievementMessage = achievementId ? getAchievementMessage(achievementId) : null;
-    
+
     if (achievementMessage) {
       toast({
         title: achievementMessage.title,
@@ -45,28 +45,22 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
       // Create improved toast messages for common sources
       let title = "Gold Gained! 💰";
       let description = `+${amount} gold from ${source}`;
-      
+
       if (source === 'kingdom-tile-reward') {
         title = "🏰 Kingdom Prosperity!";
-        description = `Your kingdom buildings generated ${amount} gold!`;
-      } else if (source === 'mystery-events') {
-        title = "🔮 Treasure Discovered!";
-        description = `You found ${amount} gold in a treasure chest!`;
-      } else if (source === 'quest-completion') {
+        description = `Your kingdom flourishes! +${amount} gold collected.`;
+      } else if (source.startsWith('quest-')) {
         title = "⚔️ Quest Reward!";
-        description = `Quest completed! You earned ${amount} gold!`;
-      } else if (source === 'daily-bonus') {
-        title = "🌅 Daily Blessing!";
-        description = `Daily kingdom prosperity: ${amount} gold!`;
-      } else if (source === 'weekly-bonus') {
-        title = "📅 Weekly Fortune!";
-        description = `Weekly kingdom earnings: ${amount} gold!`;
+        description = `Quest completed! Earned ${amount} gold.`;
+      } else if (source.startsWith('achievement-')) {
+        title = "🏆 Achievement Unlocked!";
+        description = `Legendary deed! Earned ${amount} gold.`;
       } else if (source.startsWith('tile-collect:')) {
-        const tileType = source.split(':')[1];
-        title = "🏰 Building Income!";
-        description = `Your ${tileType} building produced ${amount} gold!`;
+        const tileName = source.split(':')[1] || 'building';
+        title = "🏗️ Resources Collected!";
+        description = `${tileName} produced ${amount} gold.`;
       }
-      
+
       toast({
         title,
         description,
@@ -83,7 +77,7 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
 export async function spendGold(amount: number, source: string, metadata?: any) {
   try {
     console.log('[Gold Manager] spendGold called with:', { amount, source, metadata });
-    
+
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats();
     console.log('[Gold Manager] Current stats:', currentStats);
@@ -101,15 +95,15 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
     }
 
     console.log('[Gold Manager] Gold check passed, proceeding with purchase...');
-    
+
     // Subtract gold from stats using synchronous update for immediate effect
-    addToCharacterStatSync('gold', -amount);
+    addToCharacterStat('gold', -amount, source);
     console.log('[Gold Manager] Gold subtracted from stats');
 
     // Log transaction to database for audit trail
     const newBalance = currentStats.gold - amount;
     console.log('[Gold Manager] New balance will be:', newBalance);
-    
+
     try {
       await logGoldTransaction(-amount, newBalance, 'spend', source, metadata);
       console.log('[Gold Manager] Transaction logged to database');
@@ -154,10 +148,10 @@ export function hasEnoughGold(amount: number): boolean {
 
 // New function to log gold transactions to database
 async function logGoldTransaction(
-  amount: number, 
-  balanceAfter: number, 
-  transactionType: 'gain' | 'spend', 
-  source: string, 
+  amount: number,
+  balanceAfter: number,
+  transactionType: 'gain' | 'spend',
+  source: string,
   metadata?: any
 ) {
   try {

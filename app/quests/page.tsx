@@ -12,7 +12,7 @@ import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
-import { updateCharacterStat, getCharacterStats, addToCharacterStatSync } from '@/lib/character-stats-manager'
+import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { toast } from '@/components/ui/use-toast'
 import QuestCard from '@/components/quest-card'
 import React from 'react'
@@ -794,13 +794,8 @@ export default function QuestsPage() {
 
       // Removed debugging log
 
-      // Update build tokens in Supabase
-      import('@/lib/character-stats-manager').then(({ loadCharacterStats, saveCharacterStats }) => {
-        loadCharacterStats().then(current => {
-          const currentBuildTokens = current.build_tokens || 0;
-          saveCharacterStats({ build_tokens: currentBuildTokens + buildTokensEarned });
-        });
-      });
+      // Update build tokens using unified service
+      addToCharacterStat('build_tokens', buildTokensEarned, 'quest-streak-completion');
 
       // Trigger kingdom update for build tokens
       window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
@@ -864,13 +859,8 @@ export default function QuestsPage() {
 
       // Removed debugging log
 
-      // Update build tokens in Supabase
-      import('@/lib/character-stats-manager').then(({ loadCharacterStats, saveCharacterStats }) => {
-        loadCharacterStats().then(current => {
-          const currentBuildTokens = current.build_tokens || 0;
-          saveCharacterStats({ build_tokens: currentBuildTokens + buildTokensEarned });
-        });
-      });
+      // Update build tokens using unified service
+      addToCharacterStat('build_tokens', buildTokensEarned, 'challenge-streak-completion');
 
       // Trigger kingdom update for build tokens
       window.dispatchEvent(new CustomEvent('kingdom:buildTokensGained', { detail: buildTokensEarned }));
@@ -964,33 +954,15 @@ export default function QuestsPage() {
 
       console.log('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
-      // Import and use character stats manager to apply rewards
-      import('@/lib/character-stats-manager').then(({ addToCharacterStatSync, getCharacterStats }) => {
-        // Get current stats for logging
-        const currentStats = getCharacterStats();
-        console.log('[QUEST-TOGGLE] Current stats before reward:', currentStats);
+      // Apply rewards using unified service
+      addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
+      addToCharacterStat('experience', xpReward, `quest-completion:${questId}`);
 
-        // Apply rewards synchronously
-        addToCharacterStatSync('gold', goldReward);
-        addToCharacterStatSync('experience', xpReward);
-
-        // Get updated stats for logging
-        const updatedStats = getCharacterStats();
-        console.log('[QUEST-TOGGLE] Updated stats after reward:', updatedStats);
-
-        // Show success toast with rewards
-        toast({
-          title: "⚔️ Quest Complete!",
-          description: `${questObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
-          duration: 4000,
-        });
-      }).catch(error => {
-        console.error('[QUEST-TOGGLE] Error applying rewards:', error);
-        toast({
-          title: "Warning",
-          description: "Quest completed but rewards may not have been applied. Please refresh the page.",
-          duration: 5000,
-        });
+      // Show success toast with rewards
+      toast({
+        title: "⚔️ Quest Complete!",
+        description: `${questObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+        duration: 4000,
       });
     } else {
       // Quest uncompleted - just show toast
@@ -1132,33 +1104,15 @@ export default function QuestsPage() {
 
       console.log('[CHALLENGE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
-      // Import and use character stats manager to apply rewards
-      import('@/lib/character-stats-manager').then(({ addToCharacterStatSync, getCharacterStats }) => {
-        // Get current stats for logging
-        const currentStats = getCharacterStats();
-        console.log('[CHALLENGE-TOGGLE] Current stats before reward:', currentStats);
+      // Apply rewards using unified service
+      addToCharacterStat('gold', goldReward, `challenge-completion:${challengeId}`);
+      addToCharacterStat('experience', xpReward, `challenge-completion:${challengeId}`);
 
-        // Apply rewards synchronously
-        addToCharacterStatSync('gold', goldReward);
-        addToCharacterStatSync('experience', xpReward);
-
-        // Get updated stats for logging
-        const updatedStats = getCharacterStats();
-        console.log('[CHALLENGE-TOGGLE] Updated stats after reward:', updatedStats);
-
-        // Show success toast with rewards
-        toast({
-          title: "⚔️ Challenge Complete!",
-          description: `${challengeObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
-          duration: 4000,
-        });
-      }).catch(error => {
-        console.error('[CHALLENGE-TOGGLE] Error applying rewards:', error);
-        toast({
-          title: "Warning",
-          description: "Challenge completed but rewards may not have been applied. Please refresh the page.",
-          duration: 5000,
-        });
+      // Show success toast with rewards
+      toast({
+        title: "⚔️ Challenge Complete!",
+        description: `${challengeObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+        duration: 4000,
       });
     } else {
       // Challenge uncompleted - just show toast
@@ -1610,33 +1564,15 @@ export default function QuestsPage() {
 
       console.log('[MILESTONE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
-      // Import and use character stats manager to apply rewards
-      import('@/lib/character-stats-manager').then(({ addToCharacterStatSync, getCharacterStats }) => {
-        // Get current stats for logging
-        const currentStats = getCharacterStats();
-        console.log('[MILESTONE-TOGGLE] Current stats before reward:', currentStats);
+      // Apply rewards using unified service
+      addToCharacterStat('gold', goldReward, `milestone-completion:${milestoneId}`);
+      addToCharacterStat('experience', xpReward, `milestone-completion:${milestoneId}`);
 
-        // Apply rewards synchronously
-        addToCharacterStatSync('gold', goldReward);
-        addToCharacterStatSync('experience', xpReward);
-
-        // Get updated stats for logging
-        const updatedStats = getCharacterStats();
-        console.log('[MILESTONE-TOGGLE] Updated stats after reward:', updatedStats);
-
-        // Show success toast with rewards
-        toast({
-          title: "🏆 Milestone Complete!",
-          description: `${milestoneObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
-          duration: 4000,
-        });
-      }).catch(error => {
-        console.error('[MILESTONE-TOGGLE] Error applying rewards:', error);
-        toast({
-          title: "Warning",
-          description: "Milestone completed but rewards may not have been applied. Please refresh the page.",
-          duration: 5000,
-        });
+      // Show success toast with rewards
+      toast({
+        title: "🏆 Milestone Complete!",
+        description: `${milestoneObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+        duration: 4000,
       });
     } else {
       // Milestone uncompleted - just show toast

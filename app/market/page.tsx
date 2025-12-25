@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Coins, Filter, Search, ShoppingCart } from "lucide-react"
 import Link from "next/link"
-import { getCharacterStats, addToCharacterStatSync, fetchFreshCharacterStats } from "@/lib/character-stats-manager"
+import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
 import { setUserPreference } from "@/lib/user-preferences-manager"
@@ -146,7 +146,7 @@ export default function MarketPage() {
     setGoldBalance(stats.gold)
 
     // Fetch fresh stats and sync
-    fetchFreshCharacterStats('market-mount').then(fresh => {
+    fetchFreshCharacterStats().then(fresh => {
       if (fresh) setGoldBalance(fresh.gold)
     })
 
@@ -226,8 +226,8 @@ export default function MarketPage() {
       return
     }
 
-    // Deduct gold via global manager
-    addToCharacterStatSync('gold', -totalCost)
+    // Deduct gold via unified service
+    addToCharacterStat('gold', -totalCost, 'market-purchase')
 
     // Add tiles to inventory
     if (user?.id) {
