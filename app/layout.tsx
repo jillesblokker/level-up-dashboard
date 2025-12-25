@@ -70,18 +70,19 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icons/thrivehaven_fav.png", type: "image/png" },
+      { url: "/favicon.png", type: "image/png" },
       { url: "/icons/icon-192x192.png", type: "image/png", sizes: "192x192" },
       { url: "/icons/icon-512x512.png", type: "image/png", sizes: "512x512" }
     ],
-    shortcut: "/icons/thrivehaven_fav.png",
+    shortcut: "/favicon.png",
     apple: [
-      { url: "/icons/apple-icon.png" },
+      { url: "/apple-touch-icon.png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
       { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" }
     ],
     other: {
       rel: "apple-touch-icon-precomposed",
-      url: "/icons/icon-152x152.png",
+      url: "/apple-touch-icon-precomposed.png",
     },
   },
   appleWebApp: {
