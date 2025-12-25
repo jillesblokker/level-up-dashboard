@@ -215,4 +215,11 @@ export function saveTodaysCard(card: TarotCard): void {
     if (typeof window === 'undefined') return;
     setUserScopedItem('tarot-last-draw-date', getTodayDateString());
     setUserScopedItem('tarot-active-card', JSON.stringify(card));
+
+    // Sync to server for secure reward verification
+    fetch('/api/tarot/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ card })
+    }).catch(err => console.error('[Tarot] Failed to sync to server:', err));
 }

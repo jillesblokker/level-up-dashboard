@@ -1146,7 +1146,7 @@ export function KingdomClient() {
   return (
     <div className={cn(
       "min-h-screen relative",
-      isVisiting && "grayscale-[0.3] brightness-[1.1] [filter:hue-rotate(180deg)_saturate(1.5)]"
+      isVisiting && "brightness-[1.05]"
     )}>
       {isVisiting && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-blue-900/90 text-white px-6 py-3 rounded-2xl border-2 border-blue-400/50 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">

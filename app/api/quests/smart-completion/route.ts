@@ -51,30 +51,67 @@ export async function POST(request: NextRequest) {
       questIdFormat: isQuestUUID ? 'UUID' : 'TEXT'
     });
 
-    // TEMPORARY FIX: Implement quest completion logic directly instead of using broken database function
-    console.log('[Smart Quest Completion] Using direct implementation (bypassing broken function)');
+    // 🚀 SERVER-SIDE REWARD VERIFICATION
+    console.log('[Smart Quest Completion] Verifying rewards server-side...');
 
-    // Validate that the quest exists in either quests OR challenges table
-    const { data: questExists, error: questCheckError } = await supabaseServer
+    // 1. Fetch quest/challenge details (Source of Truth)
+    const { data: questData, error: questError } = await supabaseServer
       .from('quests')
-      .select('id')
+      .select('id, xp_reward, gold_reward, category')
       .eq('id', questId)
-      .single();
+      .maybeSingle();
 
-    const { data: challengeExists, error: challengeCheckError } = await supabaseServer
+    const { data: challengeData, error: challengeError } = !questData ? await supabaseServer
       .from('challenges')
-      .select('id')
+      .select('id, xp, gold, category')
       .eq('id', questId)
-      .single();
+      .maybeSingle() : { data: null, error: null };
 
-    if (questCheckError && challengeCheckError) {
-      console.error('[Smart Quest Completion] Quest not found in either table:', { questId });
-      return NextResponse.json({
-        error: 'Quest not found',
-        message: 'The quest you are trying to complete no longer exists in the database',
-        questId: questId
-      }, { status: 404 });
+    if (!questData && !challengeData) {
+      console.error('[Smart Quest Completion] Quest/Challenge not found:', { questId });
+      return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
     }
+
+    // Determine base rewards
+    const targetData = questData || challengeData;
+    let baseXP = questData ? questData.xp_reward : (challengeData?.xp || 50);
+    let baseGold = questData ? questData.gold_reward : (challengeData?.gold || 25);
+    const category = targetData?.category?.toLowerCase() || 'general';
+
+    // 2. Fetch User's Daily Fate (Tarot) from DB
+    const { data: prefData } = await supabaseServer
+      .from('user_preferences')
+      .select('preferences')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const preferences = prefData?.preferences || {};
+    const dailyFate = preferences.daily_fate;
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    let verifiedXP = baseXP;
+    let verifiedGold = baseGold;
+
+    // Apply Tarot multipliers if they drawn a card today
+    if (dailyFate && dailyFate.date === todayStr && dailyFate.card) {
+      const effect = dailyFate.card.effect;
+      let applyBonus = false;
+
+      if (effect.type === 'xp_boost' || effect.type === 'gold_boost' || effect.type === 'mixed') {
+        applyBonus = true;
+      } else if (effect.type === 'category_boost' && effect.category && category) {
+        if (category.includes(effect.category.toLowerCase())) {
+          applyBonus = true;
+        }
+      }
+
+      if (applyBonus) {
+        if (effect.xpMultiplier) verifiedXP = Math.floor(verifiedXP * effect.xpMultiplier);
+        if (effect.goldMultiplier) verifiedGold = Math.floor(verifiedGold * effect.goldMultiplier);
+      }
+    }
+
+    console.log('[Smart Quest Completion] Verified Rewards:', { baseXP, baseGold, verifiedXP, verifiedGold, category });
 
     // Check if completion record already exists
     const { data: existingRecord, error: fetchError } = await supabaseServer
@@ -95,157 +132,104 @@ export async function POST(request: NextRequest) {
       // Mark as completed
       if (!existingRecord) {
         // Insert new completion record
-        const { data: insertData, error: insertError } = await supabaseServer
+        const { error: insertError } = await supabaseServer
           .from('quest_completion')
           .insert({
             user_id: userId,
             quest_id: questId,
             completed: true,
             completed_at: new Date().toISOString(),
-            xp_earned: xpReward || 50,
-            gold_earned: goldReward || 25
-          })
-          .select()
-          .single();
+            xp_earned: verifiedXP,
+            gold_earned: verifiedGold
+          });
 
         if (insertError) {
           console.error('[Smart Quest Completion] Insert error:', insertError);
           return NextResponse.json({ error: insertError.message }, { status: 500 });
         }
 
-        result = {
-          success: true,
-          action: 'inserted',
-          message: 'Quest marked as completed',
-          xp_earned: xpReward || 50,
-          gold_earned: goldReward || 25
-        };
+        result = { success: true, action: 'inserted', xp_earned: verifiedXP, gold_earned: verifiedGold };
       } else {
         // Update existing record
-        const { data: updateData, error: updateError } = await supabaseServer
+        const { error: updateError } = await supabaseServer
           .from('quest_completion')
           .update({
             completed: true,
             completed_at: new Date().toISOString(),
-            xp_earned: xpReward || 50,
-            gold_earned: goldReward || 25
+            xp_earned: verifiedXP,
+            gold_earned: verifiedGold
           })
           .eq('user_id', userId)
-          .eq('quest_id', questId)
-          .select()
-          .single();
+          .eq('quest_id', questId);
 
         if (updateError) {
           console.error('[Smart Quest Completion] Update error:', updateError);
           return NextResponse.json({ error: updateError.message }, { status: 500 });
         }
 
-        result = {
-          success: true,
-          action: 'updated',
-          message: 'Quest completion updated',
-          xp_earned: xpReward || 50,
-          gold_earned: goldReward || 25
-        };
+        result = { success: true, action: 'updated', xp_earned: verifiedXP, gold_earned: verifiedGold };
       }
 
+      // 3. Update character stats (Verified amounts only)
+      const { data: currentStats, error: statsFetchError } = await supabaseServer
+        .from('character_stats')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-      // Update character stats (Gold and XP) - Uses centralized level calculation
-      try {
-        // Fetch current stats
-        const { data: currentStats, error: statsFetchError } = await supabaseServer
+      if (!statsFetchError && currentStats) {
+        const newXp = (currentStats.experience || 0) + verifiedXP;
+        const newGold = (currentStats.gold || 0) + verifiedGold;
+        const newLevel = calculateLevelFromExperience(newXp);
+
+        await supabaseServer
           .from('character_stats')
-          .select('*')
-          .eq('user_id', userId)
-          .single();
-
-        if (!statsFetchError && currentStats) {
-          const newXp = (currentStats.experience || 0) + (xpReward || 50);
-          const newGold = (currentStats.gold || 0) + (goldReward || 25);
-
-          // Use proper level calculation that matches client
-          const newLevel = calculateLevelFromExperience(newXp);
-
-          const { error: statsUpdateError } = await supabaseServer
-            .from('character_stats')
-            .update({
-              experience: newXp,
-              gold: newGold,
-              level: Math.max(newLevel, currentStats.level || 1),
-              updated_at: new Date().toISOString()
-            })
-            .eq('user_id', userId);
-
-          if (statsUpdateError) {
-            console.error('[Smart Quest Completion] Failed to update character stats:', statsUpdateError);
-            // Don't fail the quest completion, but log the error
-          }
-        } else {
-          // If no stats exist, create them
-          const newXp = xpReward || 50;
-          const newGold = goldReward || 25;
-          const newLevel = calculateLevelFromExperience(newXp);
-
-          const { error: statsInsertError } = await supabaseServer
-            .from('character_stats')
-            .insert({
-              user_id: userId,
-              experience: newXp,
-              gold: newGold,
-              level: newLevel,
-              health: 100,
-              max_health: 100,
-              build_tokens: 0,
-              updated_at: new Date().toISOString()
-            });
-
-          if (statsInsertError) {
-            console.error('[Smart Quest Completion] Failed to create character stats:', statsInsertError);
-          }
-        }
-      } catch (statsError) {
-        console.error('[Smart Quest Completion] Error updating stats:', statsError);
-        // Don't fail the quest completion if stats update fails
+          .update({
+            experience: newXp,
+            gold: newGold,
+            level: Math.max(newLevel, currentStats.level || 1),
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', userId);
       }
     } else {
-      // Mark as incomplete (delete the record)
+      // Uncomplete: Revoke exactly what was earned if it was recent
       if (existingRecord) {
-        const { error: deleteError } = await supabaseServer
+        const revokedXP = existingRecord.xp_earned || baseXP;
+        const revokedGold = existingRecord.gold_earned || baseGold;
+
+        await supabaseServer
           .from('quest_completion')
           .delete()
           .eq('user_id', userId)
           .eq('quest_id', questId);
 
-        if (deleteError) {
-          console.error('[Smart Quest Completion] Delete error:', deleteError);
-          return NextResponse.json({ error: deleteError.message }, { status: 500 });
+        // Revoke stats
+        const { data: currentStats } = await supabaseServer
+          .from('character_stats')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+
+        if (currentStats) {
+          await supabaseServer
+            .from('character_stats')
+            .update({
+              experience: Math.max(0, (currentStats.experience || 0) - revokedXP),
+              gold: Math.max(0, (currentStats.gold || 0) - revokedGold),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
         }
 
-        result = {
-          success: true,
-          action: 'deleted',
-          message: 'Quest marked as incomplete',
-          deletedRecord: {
-            quest_id: questId,
-            user_id: userId
-          }
-        };
-      } else {
-        result = {
-          success: true,
-          action: 'no_change',
-          message: 'Quest was already incomplete'
-        };
+        result = { success: true, action: 'deleted' };
       }
     }
 
-    console.log('[Smart Quest Completion] Direct implementation result:', result);
-
-    // Return the result
     return NextResponse.json({
       success: true,
       data: result,
-      message: 'Quest completion processed directly'
+      verifiedRewards: completed ? { xp: verifiedXP, gold: verifiedGold } : null
     });
 
   } catch (error) {

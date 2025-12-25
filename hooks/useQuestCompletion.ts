@@ -146,10 +146,14 @@ export function useQuestCompletion() {
 
       // Success - show appropriate toast
       if (newCompleted) {
+        // Use verified rewards from server if available
+        const finalXP = responseData.verifiedRewards?.xp ?? xpReward;
+        const finalGold = responseData.verifiedRewards?.gold ?? goldReward;
+
         questToasts.showQuestCompleted(
           questData.name,
-          xpReward,
-          goldReward
+          finalXP,
+          finalGold
         );
       } else {
         toast({
