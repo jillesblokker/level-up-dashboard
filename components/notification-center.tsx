@@ -270,74 +270,163 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
             <EmptyState />
           ) : (
             <div className="divide-y divide-amber-800/10">
-              {allNotifications.map((notification) => (
-                <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900/50 transition-all duration-200", !notification.read && "bg-gray-800/30")}>
-                  <div className="flex items-start gap-4">
-                    <div className={cn("text-2xl mt-1 flex-shrink-0", getNotificationColor(notification.type))}>
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className={cn("font-semibold text-sm flex items-center text-white leading-tight", getNotificationColor(notification.type))}>
-                          {notification.title}
-                        </h4>
-                        <span className="text-xs text-gray-500 font-medium">
-                          {new Date(notification.timestamp).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
-                        {notification.message}
-                      </p>
+              {(() => {
+                // Group notifications
+                const groupedNotifications = allNotifications.reduce((acc: any[], current) => {
+                  if (current.type === 'achievement') {
+                    const achievementGroup = acc.find(n => n.type === 'achievement_group');
+                    if (achievementGroup) {
+                      achievementGroup.items.push(current);
+                      // Update group timestamp to most recent
+                      if (new Date(current.timestamp) > new Date(achievementGroup.timestamp)) {
+                        achievementGroup.timestamp = current.timestamp;
+                      }
+                      current.read = true // Mark items as effectively handled in group context for now, but really we count unread in group
+                    } else {
+                      acc.push({
+                        type: 'achievement_group',
+                        id: 'achievement-group',
+                        title: 'Achievements Unlocked',
+                        timestamp: current.timestamp,
+                        items: [current]
+                      });
+                    }
+                  } else {
+                    acc.push(current);
+                  }
+                  return acc;
+                }, []);
 
-                      {/* Action Buttons for Friend Requests */}
-                      {notification.isServer && notification.original.type === 'friend_request' && !notification.read && (
-                        <div className="flex gap-2 mt-3">
-                          <Button size="sm" onClick={() => handleFriendAction(notification.original, 'accept')}>Accept</Button>
-                          <Button size="sm" variant="outline" onClick={() => handleFriendAction(notification.original, 'reject')}>Decline</Button>
+                return groupedNotifications.map((notification) => {
+                  if (notification.type === 'achievement_group') {
+                    const unreadCount = notification.items.filter((n: any) => !n.read).length;
+                    // eslint-disable-next-line react-hooks/rules-of-hooks
+                    const [isExpanded, setIsExpanded] = useState(false);
+
+                    return (
+                      <div key={notification.id} className="border-b border-amber-800/10">
+                        <div
+                          className={cn(
+                            "p-4 hover:bg-gray-900/50 transition-all duration-200 cursor-pointer flex items-center justify-between",
+                            unreadCount > 0 && "bg-gray-800/30"
+                          )}
+                          onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="text-2xl mt-1 text-amber-400">🏆</div>
+                            <div>
+                              <h4 className="font-semibold text-sm text-white">Achievements</h4>
+                              <p className="text-sm text-gray-400">
+                                {notification.items.length} new achievement{notification.items.length !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="sm" className="text-gray-400">
+                            {isExpanded ? 'Collapse' : 'Expand'}
+                          </Button>
                         </div>
-                      )}
 
-                      {/* Action Buttons for Quest Requests */}
-                      {notification.isServer && notification.original.type === 'friend_quest_received' && !notification.read && (
-                        <div className="flex gap-2 mt-3">
-                          <Button size="sm" onClick={() => handleQuestAction(notification.original, 'accept')} className="bg-amber-600 hover:bg-amber-700 text-white border-none">Accept Quest</Button>
-                          <Button size="sm" variant="outline" onClick={() => handleQuestAction(notification.original, 'reject')} className="border-amber-600/50 text-amber-200 hover:bg-amber-900/30">Decline</Button>
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {notification.action && (
-                          <button
-                            onClick={() => {
-                              window.location.href = notification.action!.href
-                            }}
-                            className="text-xs font-medium text-amber-400 hover:text-amber-300 px-3 py-1.5 rounded-md border border-amber-600/30 hover:bg-amber-900/20 hover:border-amber-500/50 transition-all duration-200"
-                          >
-                            View Details →
-                          </button>
-                        )}
-                        {!notification.read && (
-                          <button
-                            onClick={() => handleMarkAsRead(notification.id, notification.isServer)}
-                            className="text-xs font-medium text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-md border border-blue-600/30 hover:bg-blue-900/20 hover:border-blue-500/50 transition-all duration-200"
-                          >
-                            Mark as Read
-                          </button>
-                        )}
-                        {!notification.isServer && (
-                          <button
-                            onClick={() => handleDelete(notification.id)}
-                            className="text-sm px-2 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
-                            aria-label="Delete notification"
-                          >
-                            🗑️
-                          </button>
+                        {isExpanded && (
+                          <div className="bg-gray-900/30 divide-y divide-amber-800/10">
+                            {notification.items.map((item: any) => (
+                              <div key={item.id} className="p-4 pl-12 relative hover:bg-gray-900/50 transition-all duration-200">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h5 className="font-medium text-amber-400 text-sm">{item.title}</h5>
+                                    <p className="text-sm text-gray-300 mt-1">{item.message}</p>
+                                    <span className="text-xs text-gray-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
+                                  </div>
+                                  {!item.isServer && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(item.id);
+                                      }}
+                                      className="text-gray-500 hover:text-red-400"
+                                    >
+                                      <span className="sr-only">Delete</span>
+                                      🗑️
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
+                    )
+                  }
+
+                  return (
+                    <div key={notification.id} className={cn("p-4 relative hover:bg-gray-900/50 transition-all duration-200", !notification.read && "bg-gray-800/30")}>
+                      <div className="flex items-start gap-4">
+                        <div className={cn("text-2xl mt-1 flex-shrink-0", getNotificationColor(notification.type))}>
+                          {getNotificationIcon(notification.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className={cn("font-semibold text-sm flex items-center text-white leading-tight", getNotificationColor(notification.type))}>
+                              {notification.title}
+                            </h4>
+                            <span className="text-xs text-gray-500 font-medium">
+                              {new Date(notification.timestamp).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+                            {notification.message}
+                          </p>
+
+                          {/* Action Buttons for Friend Requests */}
+                          {notification.isServer && notification.original.type === 'friend_request' && !notification.read && (
+                            <div className="flex gap-2 mt-3">
+                              <Button size="sm" onClick={() => handleFriendAction(notification.original, 'accept')}>Accept</Button>
+                              <Button size="sm" variant="outline" onClick={() => handleFriendAction(notification.original, 'reject')}>Decline</Button>
+                            </div>
+                          )}
+
+                          {/* Action Buttons for Quest Requests */}
+                          {notification.isServer && notification.original.type === 'friend_quest_received' && !notification.read && (
+                            <div className="flex gap-2 mt-3">
+                              <Button size="sm" onClick={() => handleQuestAction(notification.original, 'accept')} className="bg-amber-600 hover:bg-amber-700 text-white border-none">Accept Quest</Button>
+                              <Button size="sm" variant="outline" onClick={() => handleQuestAction(notification.original, 'reject')} className="border-amber-600/50 text-amber-200 hover:bg-amber-900/30">Decline</Button>
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            {notification.action && (
+                              <button
+                                onClick={() => {
+                                  window.location.href = notification.action!.href
+                                }}
+                                className="text-xs font-medium text-amber-400 hover:text-amber-300 px-3 py-1.5 rounded-md border border-amber-600/30 hover:bg-amber-900/20 hover:border-amber-500/50 transition-all duration-200"
+                              >
+                                View Details →
+                              </button>
+                            )}
+                            {!notification.read && (
+                              <button
+                                onClick={() => handleMarkAsRead(notification.id, notification.isServer)}
+                                className="text-xs font-medium text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-md border border-blue-600/30 hover:bg-blue-900/20 hover:border-blue-500/50 transition-all duration-200"
+                              >
+                                Mark as Read
+                              </button>
+                            )}
+                            {!notification.isServer && (
+                              <button
+                                onClick={() => handleDelete(notification.id)}
+                                className="text-sm px-2 py-1.5 rounded-md border border-red-600/30 hover:bg-red-900/20 hover:border-red-500/50 transition-all duration-200"
+                                aria-label="Delete notification"
+                              >
+                                🗑️
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  )
+                })
+              })()}
             </div>
           )}
         </div>
