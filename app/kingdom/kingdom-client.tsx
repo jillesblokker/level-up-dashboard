@@ -1149,18 +1149,18 @@ export function KingdomClient() {
       isVisiting && "brightness-[1.05]"
     )}>
       {isVisiting && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-blue-900/90 text-white px-6 py-3 rounded-2xl border-2 border-blue-400/50 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
-            <Users className="w-6 h-6 text-blue-300" />
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-slate-900/90 text-white px-6 py-3 rounded-2xl border-2 border-amber-500/30 backdrop-blur-xl shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+            <Users className="w-6 h-6 text-amber-500" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold tracking-wider text-sm text-blue-100 italic">ENVOY MODE</span>
-            <span className="text-xs text-blue-300/80">Exploring Ally&apos;s Kingdom</span>
+            <span className="font-bold tracking-wider text-sm text-amber-400 italic">ENVOY MODE</span>
+            <span className="text-xs text-amber-200/60 font-medium">Exploring Ally&apos;s Kingdom</span>
           </div>
           <Button
             size="sm"
             variant="secondary"
-            className="h-9 px-4 rounded-xl bg-blue-500 text-white hover:bg-blue-400 border-none ml-2"
+            className="h-9 px-4 rounded-xl bg-amber-600 text-black hover:bg-amber-500 border-none ml-2 font-bold"
             onClick={() => router.push('/allies')}
           >
             Return Home
