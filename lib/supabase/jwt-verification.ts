@@ -23,10 +23,14 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
     // Prefer Authorization header for SPA-originated requests
     const authHeader = request.headers.get('authorization');
+    console.log('[JWT Verification] Auth Header present:', !!authHeader);
+
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
+      console.log('[JWT Verification] Token found, length:', token.length);
       try {
         const parts = token.split('.');
+        console.log('[JWT Verification] Token parts:', parts.length);
         if (parts.length === 3 && parts[1]) {
           // Decode base64url (not regular base64)
           const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -36,6 +40,7 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
           console.log('[JWT Verification] Token payload:', { sub: payload.sub, exp: payload.exp });
 
           if (payload.sub) {
+            console.log('[JWT Verification] Success with Header Auth, userId:', payload.sub);
             return { success: true, userId: payload.sub };
           }
         }

@@ -973,10 +973,10 @@ export default function QuestsPage() {
       });
     }
 
-    // Persist quest completion to backend
+    // Persist quest completion to backend using the smart-completion API
     try {
-      const response = await fetch('/api/quests-complete', {
-        method: 'PUT',
+      const response = await fetch('/api/quests/smart-completion', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -984,12 +984,14 @@ export default function QuestsPage() {
         body: JSON.stringify({
           questId,
           completed: newCompleted,
-          userId
+          xpReward: questObj.xp || 50,
+          goldReward: questObj.gold || 25
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to update quest: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to update quest: ${response.status} ${errorData.error || ''}`);
       }
 
       console.log('[QUEST-TOGGLE] Quest persisted to backend successfully');
@@ -1051,6 +1053,7 @@ export default function QuestsPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           questId
@@ -1123,24 +1126,25 @@ export default function QuestsPage() {
       });
     }
 
-    // Persist challenge completion to backend
+    // Persist challenge completion to backend using the standardized smart-completion API
     try {
-      const response = await fetch('/api/challenges-ultra-simple', {
-        method: 'PUT',
+      const response = await fetch('/api/quests/smart-completion', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          challengeId,
-          completed: newCompleted
+          questId: challengeId,
+          completed: newCompleted,
+          xpReward: challengeObj.xp || 50,
+          goldReward: challengeObj.gold || 25
         })
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[CHALLENGE-TOGGLE] API Error:', errorText);
-        throw new Error(`Failed to update challenge: ${response.status} - ${errorText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to update challenge: ${response.status} ${errorData.error || ''}`);
       }
 
       console.log('[CHALLENGE-TOGGLE] Challenge persisted to backend successfully');
@@ -1955,6 +1959,7 @@ export default function QuestsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(quest)
       });

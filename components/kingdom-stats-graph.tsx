@@ -675,7 +675,14 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       console.log('[Kingdom Stats Component] 📡 Response URL:', res.url);
 
       if (!res.ok) {
-        throw new Error(`API error: ${res.status} ${res.statusText}`);
+        let errorDetail = '';
+        try {
+          const errorJson = await res.json();
+          errorDetail = errorJson.error || errorJson.message || '';
+        } catch (e) {
+          // Body not JSON
+        }
+        throw new Error(`API error: ${res.status} ${res.statusText} ${errorDetail}`);
       }
 
       const data = await res.json();
@@ -1074,7 +1081,14 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       console.log('[Gains Component] 📡 Response URL:', res.url);
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        let errorDetail = '';
+        try {
+          const errorJson = await res.json();
+          errorDetail = errorJson.error || errorJson.message || '';
+        } catch (e) {
+          // Body not JSON
+        }
+        throw new Error(`API error: ${res.status} ${res.statusText} ${errorDetail}`);
       }
 
       const { data } = await res.json();
