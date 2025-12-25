@@ -90,8 +90,16 @@ export function KeyboardShortcutsProvider({
   return null
 }
 
-export function KeyboardShortcutsHelp() {
-  const [isOpen, setIsOpen] = useState(false)
+interface KeyboardShortcutsHelpProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
+}
+
+export function KeyboardShortcutsHelp({ isOpen: propOpen, onOpenChange, trigger }: KeyboardShortcutsHelpProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isOpen = propOpen !== undefined ? propOpen : internalOpen
+  const setIsOpen = onOpenChange || setInternalOpen
 
   const shortcutsByCategory = SHORTCUTS.reduce((acc, shortcut) => {
     if (!acc[shortcut.category]) {
@@ -103,12 +111,19 @@ export function KeyboardShortcutsHelp() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Keyboard className="w-4 h-4" />
-          Shortcuts
-        </Button>
-      </DialogTrigger>
+      {trigger && (
+        <DialogTrigger asChild>
+          {trigger}
+        </DialogTrigger>
+      )}
+      {!trigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Keyboard className="w-4 h-4" />
+            Shortcuts
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" role="dialog" aria-label="keyboard-shortcuts-help">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

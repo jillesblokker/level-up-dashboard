@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX, ChevronRight } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX, ChevronRight, Keyboard } from "lucide-react"
+import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useAudioContext } from "@/components/audio-provider";
@@ -175,6 +176,20 @@ export function UserNav() {
                 </div>
               </button>
             </DropdownMenuItem>
+            <KeyboardShortcutsHelp
+              trigger={
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation cursor-pointer"
+                >
+                  <Keyboard className="h-5 w-5 text-amber-400" />
+                  <div className="flex-1">
+                    <span className="text-base font-medium text-white">Shortcuts</span>
+                    <p className="text-xs text-gray-400">View keyboard commands</p>
+                  </div>
+                </DropdownMenuItem>
+              }
+            />
           </DropdownMenuGroup>
           <DropdownMenuSeparator className="bg-amber-800/20" />
 

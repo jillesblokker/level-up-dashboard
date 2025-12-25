@@ -422,6 +422,16 @@ export default function QuestsPage() {
 
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
+    const handleQuestAdded = () => {
+      console.log('[QuestsPage] Global quest added event received, refreshing...');
+      setRefreshTrigger(prev => prev + 1);
+    };
+
+    window.addEventListener('quest-added', handleQuestAdded);
+    return () => window.removeEventListener('quest-added', handleQuestAdded);
+  }, []);
+
+  useEffect(() => {
     // Removed debugging log
     if (!token || !user) {
       // Removed debugging log

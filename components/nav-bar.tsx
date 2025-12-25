@@ -14,7 +14,6 @@ import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useQuickAdd } from "@/components/quick-add-provider"
-import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 
 interface CustomSession {
   user?: {
@@ -174,7 +173,6 @@ export function NavBar({ session }: NavBarProps) {
             </div>
           </div>
           <div className="flex items-center space-x-1 pr-2 border-r border-gray-800">
-            <KeyboardShortcutsHelp />
             <Button
               variant="ghost"
               size="icon"
