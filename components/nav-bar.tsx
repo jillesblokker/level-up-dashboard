@@ -11,6 +11,10 @@ import { UserNav } from "@/components/user-nav"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import { useQuickAdd } from "@/components/quick-add-provider"
+import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 
 interface CustomSession {
   user?: {
@@ -26,6 +30,7 @@ interface NavBarProps {
 
 export function NavBar({ session }: NavBarProps) {
   const { isSignedIn, isLoaded } = useUser()
+  const { openQuickAdd } = useQuickAdd()
   const [isClient, setIsClient] = useState(false)
   const [characterStats, setCharacterStats] = useState({
     level: 1,
@@ -167,6 +172,18 @@ export function NavBar({ session }: NavBarProps) {
               <Coins className="h-4 w-4" />
               <span className="text-sm font-medium">{characterStats.gold}</span>
             </div>
+          </div>
+          <div className="flex items-center space-x-1 pr-2 border-r border-gray-800">
+            <KeyboardShortcutsHelp />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full"
+              onClick={() => openQuickAdd()}
+              title="Quick Add Quest (N)"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
           </div>
           <div className="relative">
             <NotificationCenter />

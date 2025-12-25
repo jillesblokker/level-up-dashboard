@@ -21,23 +21,23 @@ const SHORTCUTS: Shortcut[] = [
   { key: 'K', description: 'Go to Kingdom', category: 'Navigation' },
   { key: 'I', description: 'Open Inventory', category: 'Navigation' },
   { key: 'A', description: 'Go to Achievements', category: 'Navigation' },
-  
+
   // Actions
   { key: 'N', description: 'Add New Quest', category: 'Actions' },
   { key: 'E', description: 'Edit Selected Item', category: 'Actions' },
   { key: 'Delete', description: 'Delete Selected Item', category: 'Actions' },
   { key: 'Enter', description: 'Complete Selected Item', category: 'Actions' },
   { key: 'F', description: 'Toggle Favorite', category: 'Actions' },
-  
+
   // Kingdom
   { key: 'B', description: 'Buy Tile', category: 'Kingdom' },
   { key: 'P', description: 'Place Tile', category: 'Kingdom' },
   { key: 'R', description: 'Rotate Tile', category: 'Kingdom' },
-  
+
   // Movement
   { key: 'W/A/S/D', description: 'Move Character', category: 'Movement' },
   { key: 'Arrow Keys', description: 'Move Character', category: 'Movement' },
-  
+
   // System
   { key: 'H', description: 'Show Help', category: 'System' },
   { key: 'Escape', description: 'Close Modal/Dialog', category: 'System' },
@@ -53,43 +53,46 @@ interface KeyboardShortcutsProps {
   onShowHelp?: () => void
 }
 
-export function KeyboardShortcutsProvider({ 
-  onNavigate,
-  onAddQuest,
+import { useRouter } from 'next/navigation'
+import { useQuickAdd } from './quick-add-provider'
+
+export function KeyboardShortcutsProvider({
   onAddChallenge,
   onAddMilestone,
   onBuyTile,
   onShowHelp
-}: KeyboardShortcutsProps) {
+}: Omit<KeyboardShortcutsProps, 'onNavigate' | 'onAddQuest'>) {
   const [shortcuts] = useState(() => new KeyboardShortcuts())
-  
+  const router = useRouter()
+  const { openQuickAdd } = useQuickAdd()
+
   useEffect(() => {
     // Register shortcuts
-    shortcuts.register('q', () => onNavigate?.('/quests'))
-    shortcuts.register('c', () => onNavigate?.('/quests?tab=challenges'))
-    shortcuts.register('m', () => onNavigate?.('/quests?tab=milestones'))
-    shortcuts.register('k', () => onNavigate?.('/kingdom'))
-    shortcuts.register('i', () => onNavigate?.('/inventory'))
-    shortcuts.register('a', () => onNavigate?.('/achievements'))
-    
-    shortcuts.register('n', () => onAddQuest?.())
+    shortcuts.register('q', () => router.push('/quests'))
+    shortcuts.register('c', () => router.push('/quests?tab=challenges'))
+    shortcuts.register('m', () => router.push('/quests?tab=milestones'))
+    shortcuts.register('k', () => router.push('/kingdom'))
+    shortcuts.register('i', () => router.push('/inventory'))
+    shortcuts.register('a', () => router.push('/achievements'))
+
+    shortcuts.register('n', () => openQuickAdd())
     shortcuts.register('b', () => onBuyTile?.())
     shortcuts.register('h', () => onShowHelp?.())
-    
+
     // Enable shortcuts
     shortcuts.enable()
-    
+
     return () => {
       shortcuts.disable()
     }
-  }, [shortcuts, onNavigate, onAddQuest, onAddChallenge, onAddMilestone, onBuyTile, onShowHelp])
-  
+  }, [shortcuts, router, openQuickAdd, onAddChallenge, onAddMilestone, onBuyTile, onShowHelp])
+
   return null
 }
 
 export function KeyboardShortcutsHelp() {
   const [isOpen, setIsOpen] = useState(false)
-  
+
   const shortcutsByCategory = SHORTCUTS.reduce((acc, shortcut) => {
     if (!acc[shortcut.category]) {
       acc[shortcut.category] = []
@@ -97,7 +100,7 @@ export function KeyboardShortcutsHelp() {
     acc[shortcut.category]!.push(shortcut)
     return acc
   }, {} as Record<string, Shortcut[]>)
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -116,7 +119,7 @@ export function KeyboardShortcutsHelp() {
             Quick keyboard commands to navigate and perform actions faster
           </p>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {Object.entries(shortcutsByCategory).map(([category, shortcuts]) => (
             <div key={category}>
@@ -134,7 +137,7 @@ export function KeyboardShortcutsHelp() {
             </div>
           ))}
         </div>
-        
+
         <div className="mt-6 p-4 bg-amber-900/20 rounded-lg">
           <p className="text-sm text-amber-300">
             💡 Tip: Keyboard shortcuts work when you&apos;re not typing in input fields
@@ -147,24 +150,24 @@ export function KeyboardShortcutsHelp() {
 
 export function KeyboardShortcutsIndicator() {
   const [showIndicator, setShowIndicator] = useState(false)
-  
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) return // Ignore modifier keys
-      
+
       const key = e.key.toLowerCase()
       if (['q', 'c', 'm', 'k', 'i', 'a', 'n', 'b', 'h'].includes(key)) {
         setShowIndicator(true)
         setTimeout(() => setShowIndicator(false), 1000)
       }
     }
-    
+
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
-  
+
   if (!showIndicator) return null
-  
+
   return (
     <div className="fixed bottom-4 right-4 bg-amber-500 text-black px-3 py-2 rounded-lg shadow-lg z-50 animate-pulse">
       <div className="flex items-center gap-2">

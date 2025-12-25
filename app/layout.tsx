@@ -28,6 +28,8 @@ import { InstallPrompt } from '@/components/install-prompt'
 import { ParticleProvider } from '@/components/ui/particles'
 
 
+import { QuickAddProvider } from '@/components/quick-add-provider'
+import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { DayNightCycle } from '@/components/day-night-cycle'
 import { PerformanceMonitor } from '@/components/performance-monitor'
 import { UserStorageInitializer } from '@/components/user-storage-initializer'
@@ -166,19 +168,22 @@ export default function RootLayout({
                     <UserStorageInitializer />
                     <Providers>
                       <ClientOnboardingProvider>
-                        <ParticleProvider>
-                          <div className="flex flex-col h-full">
-                            <AuthGate>
-                              <CharacterStatsSync />
-                              <NavBar session={null} />
-                              <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                                {children}
-                              </main>
-                              <BottomNav />
-                              <SeasonalHuntWrapper />
-                            </AuthGate>
-                          </div>
-                        </ParticleProvider>
+                        <QuickAddProvider>
+                          <KeyboardShortcutsProvider />
+                          <ParticleProvider>
+                            <div className="flex flex-col h-full">
+                              <AuthGate>
+                                <CharacterStatsSync />
+                                <NavBar session={null} />
+                                <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                                  {children}
+                                </main>
+                                <BottomNav />
+                                <SeasonalHuntWrapper />
+                              </AuthGate>
+                            </div>
+                          </ParticleProvider>
+                        </QuickAddProvider>
                       </ClientOnboardingProvider>
                       <LocalStorageMigrator />
                       <KingdomNotificationManager />

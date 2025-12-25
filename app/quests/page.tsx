@@ -2028,24 +2028,7 @@ export default function QuestsPage() {
   return (
     <EnhancedErrorBoundary>
       <div className="min-h-full quests-page-container scroll-prevent pb-20" style={{ overscrollBehavior: 'none' }}>
-        {/* Keyboard Shortcuts Provider */}
-        <KeyboardShortcutsProvider
-          onNavigate={(route) => {
-            // TODO: Implement navigation
-            // Navigate to route
-          }}
-          onAddQuest={() => setAddQuestModalOpen(true)}
-          onAddChallenge={() => setAddChallengeModalOpen(true)}
-          onAddMilestone={() => setAddMilestoneModalOpen(true)}
-          onBuyTile={() => {
-            // TODO: Navigate to kingdom and open tile purchase
-            // Buy tile
-          }}
-          onShowHelp={() => {
-            // TODO: Show help modal
-            // Show help
-          }}
-        />
+
 
         <HeaderSection
           title="Message Board"
@@ -3193,96 +3176,10 @@ export default function QuestsPage() {
                 onChange={e => setEditCustomChallengeData({ ...editCustomChallengeData, weight: e.target.value })}
                 placeholder="e.g. 8kg"
                 title="Weight"
-                aria-label="Weight"
+                aria-label="Difficulty"
               />
             </>
           )}
-        </ResponsiveModal>
-        {/* Add Custom Quest Modal */}
-        <ResponsiveModal
-          isOpen={addQuestModalOpen}
-          onClose={() => setAddQuestModalOpen(false)}
-          title="Add Custom Quest"
-          footer={
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setAddQuestModalOpen(false)}
-                disabled={addQuestLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="default"
-                disabled={addQuestLoading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleAddQuestSubmit({
-                    ...newQuest,
-                    id: Date.now().toString(),
-                    completed: false,
-                    isNew: true,
-                    category: String(newQuest.category || questCategories[0])
-                  });
-                }}
-              >
-                {addQuestLoading ? 'Adding...' : 'Add'}
-              </Button>
-            </>
-          }
-        >
-          {addQuestError && (
-            <div className="mb-4 text-red-500 bg-red-900 p-2 rounded">
-              {addQuestError}
-            </div>
-          )}
-          <label className="block mb-2 text-sm font-medium">Name</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newQuest.name}
-            onChange={e => setNewQuest({ ...newQuest, name: e.target.value })}
-            placeholder="Quest name"
-            title="Quest name"
-            aria-label="Quest name"
-            required
-          />
-          <label className="block mb-2 text-sm font-medium">Description</label>
-          <textarea
-            className="w-full mb-4 p-2 border rounded"
-            value={newQuest.description}
-            onChange={e => setNewQuest({ ...newQuest, description: e.target.value })}
-            placeholder="Quest description"
-            title="Quest description"
-            aria-label="Quest description"
-          />
-          <label className="block mb-2 text-sm font-medium">Category</label>
-          <Select
-            value={newQuest.category || ''}
-            onValueChange={(value) => setNewQuest({ ...newQuest, category: value })}
-          >
-            <SelectTrigger className="w-full mb-4">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {questCategories.map((category: string) => (
-                <SelectItem key={category} value={category}>
-                  {getCategoryLabel(category)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <label className="block mb-2 text-sm font-medium">Difficulty</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newQuest.difficulty}
-            onChange={e => setNewQuest({ ...newQuest, difficulty: e.target.value })}
-            placeholder="Difficulty"
-            title="Difficulty"
-            aria-label="Difficulty"
-          />
-
         </ResponsiveModal>
         {/* Delete Confirmation Modal */}
         <ResponsiveModal
