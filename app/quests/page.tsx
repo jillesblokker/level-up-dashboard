@@ -1053,7 +1053,7 @@ export default function QuestsPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           questId
@@ -1955,11 +1955,11 @@ export default function QuestsPage() {
       setQuests(prevQuests => [...prevQuests, newQuest]);
 
       // Add to Supabase
-      const response = await fetch('/api/quests-complete', {
+      const response = await fetch('/api/quests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(quest)
       });

@@ -661,7 +661,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       console.log('[Kingdom Stats Component] 🔗 API URL:', apiUrl);
       console.log('[Kingdom Stats Component] 🔑 Auth token present:', !!getToken);
 
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       console.log('[Kingdom Stats Component] 🔑 Token retrieved, length:', token?.length || 0);
 
       const res = await fetch(apiUrl, {
@@ -1047,7 +1047,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
     setIsLoading(true);
     try {
-      const token = await getToken();
+      const token = await getToken({ template: 'supabase' });
       if (!token) {
         console.log('[Gains Component] No token available');
         return;

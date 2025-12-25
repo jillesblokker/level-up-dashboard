@@ -66,8 +66,8 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       return { success: true, userId };
     }
 
-    console.log('[JWT Verification] No valid authentication found');
-    return { success: false, error: 'No valid authentication found' };
+    console.log('[JWT Verification] No valid authentication found (No header and Clerk session failed)');
+    return { success: false, error: 'Authentication failed: No valid token found in Authorization header and session check failed.' };
   } catch (error) {
     console.error('[JWT Verification] Clerk verification failed:', error);
     return { success: false, error: 'JWT verification failed' };
