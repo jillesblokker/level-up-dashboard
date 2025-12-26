@@ -33,8 +33,6 @@ import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { DayNightCycle } from '@/components/day-night-cycle'
 import { PerformanceMonitor } from '@/components/performance-monitor'
 import { UserStorageInitializer } from '@/components/user-storage-initializer'
-import { FocusModeProvider } from '@/components/focus-mode-context'
-import { FocusModeOverlay } from '@/components/focus-mode-overlay'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -172,21 +170,18 @@ export default function RootLayout({
                       <ClientOnboardingProvider>
                         <AuthGate>
                           <QuickAddProvider>
-                            <FocusModeProvider>
-                              <FocusModeOverlay />
-                              <KeyboardShortcutsProvider />
-                              <ParticleProvider>
-                                <div className="flex flex-col h-full">
-                                  <CharacterStatsSync />
-                                  <NavBar session={null} />
-                                  <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                                    {children}
-                                  </main>
-                                  <BottomNav />
-                                  <SeasonalHuntWrapper />
-                                </div>
-                              </ParticleProvider>
-                            </FocusModeProvider>
+                            <KeyboardShortcutsProvider />
+                            <ParticleProvider>
+                              <div className="flex flex-col h-full">
+                                <CharacterStatsSync />
+                                <NavBar session={null} />
+                                <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                                  {children}
+                                </main>
+                                <BottomNav />
+                                <SeasonalHuntWrapper />
+                              </div>
+                            </ParticleProvider>
                           </QuickAddProvider>
                         </AuthGate>
                       </ClientOnboardingProvider>

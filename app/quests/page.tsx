@@ -175,13 +175,10 @@ function getStreakBonus(streak: number) {
   return Math.min(streak * 5, 50);
 }
 
-import { useFocusMode } from '@/components/focus-mode-context'
-
 export default function QuestsPage() {
   const { isLoaded: isClerkLoaded, user } = useUser();
   const { getToken } = useAuth();
   const { openQuickAdd } = useQuickAdd();
-  const { setFocusQuest } = useFocusMode();
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
 
@@ -2145,7 +2142,6 @@ export default function QuestsPage() {
                         onQuestFavorite={handleQuestFavorite}
                         onQuestEdit={handleEditQuest}
                         onQuestDelete={handleDeleteQuest}
-                        onQuestFocus={(quest) => setFocusQuest(quest)}
                         onAddQuest={() => openQuickAdd()}
                         showCategoryFilter={true}
                         context="quests"
@@ -2197,7 +2193,6 @@ export default function QuestsPage() {
                       onQuestFavorite={handleQuestFavorite}
                       onQuestEdit={handleEditQuest}
                       onQuestDelete={handleDeleteQuest}
-                      onQuestFocus={(quest) => setFocusQuest(quest)}
                       onAddQuest={() => openQuickAdd()}
                       showCategoryFilter={false}
                       context="quests"
@@ -2428,7 +2423,6 @@ export default function QuestsPage() {
                       onQuestFavorite={() => { }} // Challenges don't have favorites
                       onQuestEdit={handleEditChallenge}
                       onQuestDelete={(challengeId) => handleDeleteChallenge(challengeId)}
-                      onQuestFocus={(quest) => setFocusQuest(quest)}
                       onAddQuest={() => setAddChallengeModalOpen(true)}
                       showCategoryFilter={true}
                       context="challenges"
