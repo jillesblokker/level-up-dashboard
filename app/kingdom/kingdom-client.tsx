@@ -43,7 +43,7 @@ import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
-import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service';
+import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-service';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import {
   saveKingdomGrid,
@@ -353,30 +353,7 @@ export function KingdomClient() {
   const [sellingModalOpen, setSellingModalOpen] = useState(false);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
   const [challenges, setChallenges] = useState<any[]>([]);
-
   const isInventoryLoadingRef = useRef(false);
-  const [animationsEnabled, setAnimationsEnabled] = useState(true);
-
-  // Check animation preference
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedAnim = localStorage.getItem('animations-enabled');
-      if (savedAnim === 'false') {
-        setAnimationsEnabled(false);
-        setShowEntrance(false);
-      }
-    }
-
-    // Listen for changes
-    const handleAnimChange = (e: CustomEvent<{ enabled: boolean }>) => {
-      setAnimationsEnabled(e.detail.enabled);
-      if (!e.detail.enabled) {
-        setShowEntrance(false);
-      }
-    };
-    window.addEventListener('settings:animationsChanged', handleAnimChange as EventListener);
-    return () => window.removeEventListener('settings:animationsChanged', handleAnimChange as EventListener);
-  }, []);
 
   // Debug: Log kingdom tiles configuration
   useEffect(() => {

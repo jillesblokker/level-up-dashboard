@@ -39,7 +39,6 @@ export default function SettingsPage() {
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
   const [dayNightEnabled, setDayNightEnabled] = useState(true)
-  const [animationsEnabled, setAnimationsEnabled] = useState(true)
 
   // Load user data
   useEffect(() => {
@@ -76,22 +75,6 @@ export default function SettingsPage() {
         if (val !== null) {
           setDayNightEnabled(!!val)
           localStorage.setItem("day-night-cycle-enabled", val.toString())
-        }
-      })
-
-      // Load Animations preference
-      const savedAnimations = localStorage.getItem("animations-enabled")
-      if (savedAnimations !== null) {
-        setAnimationsEnabled(savedAnimations === "true")
-      } else {
-        // Default to true if not set
-        setAnimationsEnabled(true)
-      }
-
-      getUserPreference("animations-enabled").then(val => {
-        if (val !== null) {
-          setAnimationsEnabled(!!val)
-          localStorage.setItem("animations-enabled", val.toString())
         }
       })
     } catch (error) {
@@ -277,34 +260,6 @@ export default function SettingsPage() {
                       toast({
                         title: checked ? "Day/Night Cycle Enabled" : "Day/Night Cycle Disabled",
                         description: checked ? "Atmosphere will now change based on time." : "Atmosphere will remain static.",
-                      })
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
-                  <div className="space-y-1">
-                    <Label className="text-white text-base font-medium flex items-center">
-                      <Play className="w-4 h-4 mr-2 text-amber-500" />
-                      Map Animations
-                    </Label>
-                    <p className="text-sm text-gray-400 max-w-md">
-                      Enable immersive clouds, transitions, and weather effects on the map.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={animationsEnabled}
-                    onCheckedChange={(checked) => {
-                      setAnimationsEnabled(checked)
-                      localStorage.setItem("animations-enabled", checked.toString())
-                      setUserPreference("animations-enabled", checked)
-
-                      // Dispatch event for components to react
-                      window.dispatchEvent(new CustomEvent('settings:animationsChanged', { detail: { enabled: checked } }))
-
-                      toast({
-                        title: checked ? "Animations Enabled" : "Animations Disabled",
-                        description: checked ? "Map visual effects active." : "Simplified view enabled for better performance.",
                       })
                     }}
                   />

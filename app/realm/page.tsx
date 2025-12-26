@@ -30,7 +30,7 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
-import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service';
+import { getCharacterStats } from '@/lib/character-stats-service';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
@@ -265,28 +265,6 @@ export default function RealmPage() {
     } = useDataLoaders();
     const { unlockAchievement } = useAchievementUnlock();
 
-    // Animation Settings
-    const [animationsEnabled, setAnimationsEnabled] = useState(true);
-
-    // Load animation preference
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedAnim = localStorage.getItem('animations-enabled');
-            if (savedAnim === 'false') {
-                setAnimationsEnabled(false);
-            }
-        }
-
-        const handleAnimChange = (e: CustomEvent<{ enabled: boolean }>) => {
-            setAnimationsEnabled(e.detail.enabled);
-        };
-
-        window.addEventListener('settings:animationsChanged', handleAnimChange as EventListener);
-        return () => {
-            window.removeEventListener('settings:animationsChanged', handleAnimChange as EventListener);
-        };
-    }, []);
-
 
     // Track visit for New Player Checklist
     useEffect(() => {
@@ -344,25 +322,22 @@ export default function RealmPage() {
         };
     }, [isLoading, isIntroPlaying]);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
-    // Hydration fix: Initialize with null/default, load from localStorage in useEffect
-    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(null);
+    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('animal-horse-position');
+            if (saved) return JSON.parse(saved);
+        }
+        return { x: 10, y: 4 };
+    });
     const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
     const [isHorsePresent, setIsHorsePresent] = useState(true);
-    const [isPenguinPresent, setIsPenguinPresent] = useState(false);
-
-    // Load animal positions and states
-    useEffect(() => {
+    const [isPenguinPresent, setIsPenguinPresent] = useState(() => {
         if (typeof window !== 'undefined') {
-            const savedHorse = localStorage.getItem('animal-horse-position');
-            if (savedHorse) setHorsePos(JSON.parse(savedHorse));
-            else setHorsePos({ x: 10, y: 4 });
-
-            const penguinCooldown = localStorage.getItem('animal-penguin-cooldown');
-            if (penguinCooldown && Date.now() < parseInt(penguinCooldown)) {
-                setIsPenguinPresent(false);
-            }
+            const cooldown = localStorage.getItem('animal-penguin-cooldown');
+            if (cooldown && Date.now() < parseInt(cooldown)) return false;
         }
-    }, []);
+        return false; // Default to false until we check grid for ice
+    });
     const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
@@ -373,46 +348,41 @@ export default function RealmPage() {
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
     const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
-    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(null);
-    const [isSheepPresent, setIsSheepPresent] = useState(true);
-    const [horseCaught, setHorseCaught] = useState(false);
-    const [sheepCaught, setSheepCaught] = useState(false);
-    const [penguinCaught, setPenguinCaught] = useState(false);
-    const [characterStats, setCharacterStats] = useState(() => ({
-        level: 1,
-        experience: 0,
-        gold: 0,
-        health: 100,
-        max_health: 100,
-        build_tokens: 0,
-        kingdom_expansions: 0
-    }));
-
-    // Load remaining animal states
-    useEffect(() => {
+    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(() => {
         if (typeof window !== 'undefined') {
-            // Sheep Pos
-            const savedSheep = localStorage.getItem('animal-sheep-position');
-            if (savedSheep) setSheepPos(JSON.parse(savedSheep));
-            else setSheepPos({ x: 5, y: 2 });
-
-            // Sheep Present
-            const sheepCooldown = localStorage.getItem('animal-sheep-cooldown');
-            if (sheepCooldown && Date.now() < parseInt(sheepCooldown)) setIsSheepPresent(false);
-
-            // Caught states
-            setHorseCaught(localStorage.getItem('animal-horse-state') === 'true');
-
-            const sheepCd = localStorage.getItem('animal-sheep-cooldown');
-            setSheepCaught(!!(sheepCd && Date.now() < parseInt(sheepCd)));
-
-            const penguinCd = localStorage.getItem('animal-penguin-cooldown');
-            setPenguinCaught(!!(penguinCd && Date.now() < parseInt(penguinCd)));
-
-            // Character Stats
-            setCharacterStats(getCharacterStats());
+            const saved = localStorage.getItem('animal-sheep-position');
+            if (saved) return JSON.parse(saved);
         }
-    }, [isAuthLoaded]); // Add auth dependency if stats depend on user, mostly just run client-side
+        return { x: 5, y: 2 };
+    });
+    const [isSheepPresent, setIsSheepPresent] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-sheep-cooldown');
+            if (cooldown && Date.now() < parseInt(cooldown)) return false;
+        }
+        return true;
+    });
+    const [horseCaught, setHorseCaught] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('animal-horse-state') === 'true';
+        }
+        return false;
+    });
+    const [sheepCaught, setSheepCaught] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-sheep-cooldown');
+            return !!(cooldown && Date.now() < parseInt(cooldown));
+        }
+        return false;
+    });
+    const [penguinCaught, setPenguinCaught] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const cooldown = localStorage.getItem('animal-penguin-cooldown');
+            return !!(cooldown && Date.now() < parseInt(cooldown));
+        }
+        return false;
+    });
+    const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
 
     // Load actual inventory from database and apply starting quantities if needed
     const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
@@ -1166,20 +1136,6 @@ export default function RealmPage() {
 
 
 
-
-    const expandMap = useCallback(async () => {
-        const stats = getCharacterStats();
-        const currentExpansions = stats.kingdom_expansions || 0;
-
-        // Optimistically update locally
-        updateCharacterStats({ kingdom_expansions: currentExpansions + 1 }, 'expansion');
-
-        // Update local state
-        setCharacterStats(prev => ({ ...prev, kingdom_expansions: currentExpansions + 1 }));
-
-        toast({ title: "Land Expanded", description: "You have claimed more territory! (Reload to see changes if not immediate)" });
-    }, [toast]);
-
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
         // Removed debugging log
@@ -1810,17 +1766,12 @@ export default function RealmPage() {
 
     // --- Kingdom Passive Rewards System ---
     const [passiveRewards, setPassiveRewards] = useState<{ gold: number, xp: number } | null>(null);
-    const [lastCollectionTime, setLastCollectionTime] = useState<number>(Date.now());
-
-    // Initialize lastCollectionTime from localStorage
-    useEffect(() => {
+    const [lastCollectionTime, setLastCollectionTime] = useState<number>(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('kingdom_last_collection');
-            if (saved) {
-                setLastCollectionTime(parseInt(saved));
-            }
+            return parseInt(localStorage.getItem('kingdom_last_collection') || Date.now().toString());
         }
-    }, []);
+        return Date.now();
+    });
 
     // Calculate passive income based on owned tiles
     useEffect(() => {
@@ -2415,16 +2366,12 @@ export default function RealmPage() {
     }, [grid, penguinPos, isPenguinPresent]);
 
     // Expansion gating logic
-    const [expansions, setExpansions] = useState<number>(0);
-
-    useEffect(() => {
+    const [expansions, setExpansions] = useState<number>(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('realm-expansions');
-            if (saved) {
-                setExpansions(parseInt(saved, 10));
-            }
+            return parseInt(localStorage.getItem('realm-expansions') || '0', 10);
         }
-    }, []);
+        return 0;
+    });
     const [playerLevel, setPlayerLevel] = useState<number>(1);
     useEffect(() => {
         // Get player level from character stats
@@ -2492,13 +2439,7 @@ export default function RealmPage() {
     }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
 
     // Network status and resilience
-    const [isOnline, setIsOnline] = useState(true);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setIsOnline(navigator.onLine);
-        }
-    }, []);
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'unstable'>('online');
     const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
@@ -2825,7 +2766,7 @@ export default function RealmPage() {
                 }
             />
             <RealmAnimationWrapper
-                isAnimating={isIntroPlaying && animationsEnabled}
+                isAnimating={isAnimating}
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
