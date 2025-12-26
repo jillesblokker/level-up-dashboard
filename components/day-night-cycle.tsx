@@ -10,9 +10,12 @@ export function DayNightCycle() {
     const [isEnabled, setIsEnabled] = useState(true)
 
     useEffect(() => {
+        // Only run on client
+        if (typeof window === 'undefined') return;
+
         setMounted(true)
 
-        // Initial state from localStorage
+        // Initial state from localStorage (after mount)
         const savedSetting = localStorage.getItem("day-night-cycle-enabled")
         if (savedSetting !== null) {
             setIsEnabled(savedSetting === "true")
