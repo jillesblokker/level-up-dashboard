@@ -1810,12 +1810,17 @@ export default function RealmPage() {
 
     // --- Kingdom Passive Rewards System ---
     const [passiveRewards, setPassiveRewards] = useState<{ gold: number, xp: number } | null>(null);
-    const [lastCollectionTime, setLastCollectionTime] = useState<number>(() => {
+    const [lastCollectionTime, setLastCollectionTime] = useState<number>(Date.now());
+
+    // Initialize lastCollectionTime from localStorage
+    useEffect(() => {
         if (typeof window !== 'undefined') {
-            return parseInt(localStorage.getItem('kingdom_last_collection') || Date.now().toString());
+            const saved = localStorage.getItem('kingdom_last_collection');
+            if (saved) {
+                setLastCollectionTime(parseInt(saved));
+            }
         }
-        return Date.now();
-    });
+    }, []);
 
     // Calculate passive income based on owned tiles
     useEffect(() => {
@@ -2410,12 +2415,16 @@ export default function RealmPage() {
     }, [grid, penguinPos, isPenguinPresent]);
 
     // Expansion gating logic
-    const [expansions, setExpansions] = useState<number>(() => {
+    const [expansions, setExpansions] = useState<number>(0);
+
+    useEffect(() => {
         if (typeof window !== 'undefined') {
-            return parseInt(localStorage.getItem('realm-expansions') || '0', 10);
+            const saved = localStorage.getItem('realm-expansions');
+            if (saved) {
+                setExpansions(parseInt(saved, 10));
+            }
         }
-        return 0;
-    });
+    }, []);
     const [playerLevel, setPlayerLevel] = useState<number>(1);
     useEffect(() => {
         // Get player level from character stats
@@ -2483,7 +2492,13 @@ export default function RealmPage() {
     }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
 
     // Network status and resilience
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [isOnline, setIsOnline] = useState(true);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setIsOnline(navigator.onLine);
+        }
+    }, []);
     const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'unstable'>('online');
     const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
