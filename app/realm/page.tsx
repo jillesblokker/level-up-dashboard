@@ -30,7 +30,7 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
-import { getCharacterStats } from '@/lib/character-stats-service';
+import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
@@ -63,6 +63,7 @@ const AnimalInteractionModal = dynamic(() => import('@/components/animal-interac
 // Constants
 const GRID_COLS = 13;
 const INITIAL_ROWS = 7
+const EXPANSION_INCREMENT = 3 // Expand by 3 rows/cols each time
 const AUTOSAVE_INTERVAL = 30000 // 30 seconds
 
 const defaultTile = (type: TileType): Tile => ({
@@ -1134,6 +1135,45 @@ export default function RealmPage() {
         loadInventoryItems();
     }, [userId, isAuthLoaded]);
 
+    // Map expansion function
+    const expandMap = async () => {
+        if (!canExpand) return;
+
+        const newSize = INITIAL_ROWS + (expansions + 1) * EXPANSION_INCREMENT;
+
+        // Create a new larger grid
+        const newGrid: Tile[][] = [];
+        for (let y = 0; y < newSize; y++) {
+            const row: Tile[] = [];
+            for (let x = 0; x < newSize; x++) {
+                row.push({ ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` });
+            }
+            newGrid.push(row);
+        }
+
+        // Copy existing tiles to new grid
+        grid.forEach((row, y) => {
+            row.forEach((tile, x) => {
+                if (newGrid[y] && newGrid[y][x]) {
+                    newGrid[y][x] = tile;
+                }
+            });
+        });
+
+        setGrid(newGrid);
+        setExpansions(expansions + 1);
+        localStorage.setItem('realm-expansions', (expansions + 1).toString());
+
+        // Update character stats to track expansion
+        await updateCharacterStats({
+            gold: characterStats.gold - 100, // Cost 100 gold to expand
+        });
+
+        toast({
+            title: "🗺️ Map Expanded!",
+            description: `Your realm has grown to ${newSize}x${newSize}!`,
+        });
+    };
 
 
     // Place tile: update grid and send only the changed tile to backend
