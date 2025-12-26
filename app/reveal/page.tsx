@@ -13,7 +13,17 @@ function Page() {
   const [announce, setAnnounce] = useState('');
   const [isMobilePortrait, setIsMobilePortrait] = useState(false);
   const [blockInteractions, setBlockInteractions] = useState(true);
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [animationsEnabled, setAnimationsEnabled] = useState(true);
+
+  // Check preferences
+  useEffect(() => {
+    const savedAnim = localStorage.getItem('animations-enabled');
+    if (savedAnim === 'false') {
+      setAnimationsEnabled(false);
+    }
+  }, []);
+
+  const prefersReducedMotion = (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || !animationsEnabled;
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Detect mobile portrait mode
@@ -72,6 +82,7 @@ function Page() {
     const scaleTimer = setTimeout(() => {
       setScaleBackground(true);
     }, BG_SCALE_START);
+
     return () => {
       clearTimeout(timer);
       clearTimeout(scaleTimer);
@@ -165,4 +176,4 @@ function Page() {
   );
 }
 
-export default Page; 
+export default Page;

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2, Copy } from "lucide-react"
+import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2, Copy, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { RewardAnimation } from "@/components/reward-animation"
@@ -34,6 +34,7 @@ interface QuestCardProps {
   onEdit?: () => void
   onDelete?: () => void
   onDuplicate?: () => void
+  onFocus?: () => void
   showEditDelete?: boolean
   isFriendQuest?: boolean
   senderName?: string
@@ -72,6 +73,7 @@ export default function QuestCard({
   onEdit,
   onDelete,
   onDuplicate,
+  onFocus,
   showEditDelete = false,
   isFriendQuest,
   senderName
@@ -157,9 +159,27 @@ export default function QuestCard({
           </div>
         </div>
 
-        {/* Edit and Delete Buttons */}
+        {/* Edit, Delete, and Focus Buttons */}
         {showEditDelete && (
           <div className="absolute top-3 right-12 z-10 flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-purple-400 hover:text-purple-300 bg-black/50 hover:bg-black/70 rounded-full"
+              aria-label={`Enter Focus Mode: ${title}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                // We'll use a dynamic import or assuming the context is available
+                // For this component, simpler to just emit an event or use the context if imported
+                // But we haven't imported the hook yet in this file.
+                // Let's assume we add the hook import at the top.
+                onFocus?.();
+              }}
+              tabIndex={-1}
+              title="Zen Mode"
+            >
+              <Eye className="w-3 h-3" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy, Eye } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -37,6 +37,7 @@ interface QuestOrganizationProps {
   onQuestEdit: (quest: Quest) => void
   onQuestDelete: (questId: string) => void
   onQuestDuplicate?: (quest: Quest) => void
+  onQuestFocus?: (quest: Quest) => void
   onAddQuest: () => void
   showCategoryFilter?: boolean
   context?: 'quests' | 'challenges' | 'milestones'
@@ -193,6 +194,7 @@ export function QuestOrganization({
   onQuestEdit,
   onQuestDelete,
   onQuestDuplicate,
+  onQuestFocus,
   onAddQuest,
   showCategoryFilter = true,
   context = 'quests',
@@ -658,6 +660,20 @@ export function QuestOrganization({
                           />
                           {/* Edit, Copy, and Delete buttons */}
                           <div className="flex items-center gap-1 ml-2">
+                            {onQuestFocus && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-gray-400 hover:text-purple-400"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onQuestFocus(quest);
+                                }}
+                                title="Zen Mode"
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                            )}
                             {onQuestDuplicate && (
                               <Button
                                 variant="ghost"
