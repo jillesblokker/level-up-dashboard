@@ -1,5 +1,6 @@
 import { authenticatedFetch } from './auth-helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { z } from 'zod';
 
 export interface InventoryItem {
   name: string
@@ -18,6 +19,12 @@ export interface InventoryItem {
   equipped?: boolean
 }
 
+// Zod Schema for robust runtime validation
+const InventoryResponseSchema = z.union([
+  z.array(z.any()),
+  z.object({ data: z.array(z.any()) }).transform(d => d.data)
+]);
+
 // Fetch all inventory items for the given user
 export async function getInventory(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
@@ -30,19 +37,14 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
       return [];
     }
 
-    const data = await response.json();
+    const rawData = await response.json();
+    const result = InventoryResponseSchema.safeParse(rawData);
 
-    // Handle { data: [...] } format
-    if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
-      return data.data;
+    if (result.success) {
+      return result.data as InventoryItem[];
     }
 
-    // Handle direct array
-    if (Array.isArray(data)) {
-      return data;
-    }
-
-    console.warn('[Inventory Manager] Unexpected inventory response format:', data);
+    console.warn('[Inventory Manager] Validation failed for inventory data:', result.error);
     return [];
   } catch (error) {
     console.error('Error fetching inventory:', error);
