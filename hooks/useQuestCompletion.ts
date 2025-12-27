@@ -109,7 +109,7 @@ export function useQuestCompletion() {
       }
 
       // Make API call (online)
-      const response = await fetch('/api/quests/smart-completion', {
+      const response = await fetch('/api/smart-completion', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
