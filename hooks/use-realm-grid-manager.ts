@@ -55,14 +55,15 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
 
             // Load Grid
             const gridResult = await loadGridData(userId);
-            if (gridResult && gridResult.data && Array.isArray(gridResult.data) && gridResult.data.length > 0) {
+            // gridResult IS the data (Tile[][]), not { data: ... }
+            if (gridResult && Array.isArray(gridResult) && gridResult.length > 0) {
                 try {
                     // Basic validation
-                    const validatedGrid = GridSchema.parse(gridResult.data);
+                    const validatedGrid = GridSchema.parse(gridResult);
                     setGrid(validatedGrid as unknown as Tile[][]);
                 } catch (e) {
                     console.warn('Grid validation failed, using raw data', e);
-                    setGrid(gridResult.data);
+                    setGrid(gridResult);
                 }
             } else {
                 // Fallback to initial grid (seed)

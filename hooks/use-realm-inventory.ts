@@ -26,9 +26,10 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
 
             const inventoryResult = await loadTileInventory(userId);
 
-            if (inventoryResult && inventoryResult.data) {
-                const items: TileInventoryItem[] = Object.values(inventoryResult.data)
-                    .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
+            // inventoryResult IS the data object (Record<string, any>)
+            if (inventoryResult && typeof inventoryResult === 'object') {
+                const items: TileInventoryItem[] = Object.values(inventoryResult)
+                    .filter((t: any) => t && t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
                     .map((t: any) => ({
                         ...t,
                         cost: t.cost ?? 0,
