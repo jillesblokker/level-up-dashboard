@@ -169,32 +169,37 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     if (category.id === 'rare') {
       // Handle rare tiles differently
       // Safety check for RARE_TILES
-      const safeRareTiles = Array.isArray(RARE_TILES) ? RARE_TILES : [];
-      return safeRareTiles.map(rareTile => {
-        if (!rareTile) return null; // Safety check
-        const userTile = tiles && Array.isArray(tiles) ? tiles.find(t => t.type === rareTile.type) : null;
-        // Use loaded rare tiles data if available, otherwise fall back to date-based check
-        const loadedRareTile = rareTilesData.find(rt => rt.id === rareTile.id);
-        const isUnlocked = loadedRareTile?.unlocked || isRareTileUnlocked(rareTile);
+      try {
+        const safeRareTiles = Array.isArray(RARE_TILES) ? RARE_TILES : [];
+        return safeRareTiles.map(rareTile => {
+          if (!rareTile) return null; // Safety check
+          const userTile = tiles && Array.isArray(tiles) ? tiles.find(t => t.type === rareTile.type) : null;
+          // Use loaded rare tiles data if available, otherwise fall back to date-based check
+          const loadedRareTile = rareTilesData.find(rt => rt.id === rareTile.id);
+          const isUnlocked = loadedRareTile?.unlocked || isRareTileUnlocked(rareTile);
 
-        return {
-          id: rareTile.id,
-          name: rareTile.name,
-          type: rareTile.type as TileType,
-          quantity: userTile?.quantity || 0,
-          cost: rareTile.cost,
-          connections: [],
-          rotation: 0 as 0,
-          revealed: true,
-          isVisited: false,
-          x: 0,
-          y: 0,
-          ariaLabel: `${rareTile.name} tile`,
-          image: rareTile.image,
-          description: rareTile.description,
-          unlocked: isUnlocked
-        };
-      }).filter(Boolean) as InventoryItem[]; // Filter out nulls
+          return {
+            id: rareTile.id,
+            name: rareTile.name,
+            type: rareTile.type as TileType,
+            quantity: userTile?.quantity || 0,
+            cost: rareTile.cost,
+            connections: [],
+            rotation: 0 as 0,
+            revealed: true,
+            isVisited: false,
+            x: 0,
+            y: 0,
+            ariaLabel: `${rareTile.name} tile`,
+            image: rareTile.image,
+            description: rareTile.description,
+            unlocked: isUnlocked
+          };
+        }).filter(Boolean) as InventoryItem[]; // Filter out nulls
+      } catch (err) {
+        console.error('Error processing rare tiles:', err);
+        return [];
+      }
     }
 
     // Get all possible tiles for this category
