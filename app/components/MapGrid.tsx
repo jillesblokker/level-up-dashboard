@@ -240,83 +240,89 @@ export function MapGrid({
           {/* Living World Creature Layer */}
           <CreatureLayer grid={grid} mapType="realm" playerPosition={playerPosition} />
 
-          {grid.map((row, y) => (
-            <div key={`row-${y}`} role="row" aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
-              {row.map((tile, x) => (
-                <div
-                  key={tile.id}
-                  className={`relative tile ${tile.type} ${tile.isVisited ? 'visited' : ''} ${tile.isMainTile ? 'main-tile' : ''}`}
-                  style={{
-                    transform: `rotate(${tile.rotation}deg)`,
-                    cursor: 'pointer',
-                    width: `${tileSize}px`,
-                    height: `${tileSize}px`,
-                    gridColumn: x + 1,
-                    gridRow: y + 1,
-                    // Mobile touch optimization
-                    touchAction: 'manipulation'
-                  }}
-                  onClick={() => onTileClick(x, y)}
-                  onKeyDown={(e) => handleKeyDown(e, x, y)}
-                  role="gridcell"
-                  tabIndex={0}
-                  aria-label={`${tile.type} tile at position ${x},${y}${playerPosition.x === x && playerPosition.y === y ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
-                >
-                  <Image
-                    src={getTileImage(tile.type)}
-                    alt={tile.name}
-                    width={tileSize}
-                    height={tileSize}
-                    className="tile-image"
-                    priority
-                    onError={(e) => {
-                      console.warn(`Failed to load tile image for ${tile.type}, using fallback`);
-                      e.currentTarget.src = '/images/tiles/empty-tile.png';
-                    }}
-                    style={{
-                      // Mobile optimization
-                      objectFit: 'cover',
-                      userSelect: 'none',
-                      WebkitUserSelect: 'none'
-                    }}
-                  />
-                  {playerPosition.x === x && playerPosition.y === y && (
-                    <div className="absolute inset-0 flex items-center justify-center">
+          {grid.map((row, y) => {
+            if (!Array.isArray(row)) return null;
+            return (
+              <div key={`row-${y}`} role="row" aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
+                {row.map((tile, x) => {
+                  if (!tile) return null;
+                  return (
+                    <div
+                      key={tile.id || `${x}-${y}`}
+                      className={`relative tile ${tile.type} ${tile.isVisited ? 'visited' : ''} ${tile.isMainTile ? 'main-tile' : ''}`}
+                      style={{
+                        transform: `rotate(${tile.rotation}deg)`,
+                        cursor: 'pointer',
+                        width: `${tileSize}px`,
+                        height: `${tileSize}px`,
+                        gridColumn: x + 1,
+                        gridRow: y + 1,
+                        // Mobile touch optimization
+                        touchAction: 'manipulation'
+                      }}
+                      onClick={() => onTileClick(x, y)}
+                      onKeyDown={(e) => handleKeyDown(e, x, y)}
+                      role="gridcell"
+                      tabIndex={0}
+                      aria-label={`${tile.type} tile at position ${x},${y}${playerPosition.x === x && playerPosition.y === y ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
+                    >
                       <Image
-                        src={getCharacterImage(playerLevel)}
-                        alt="Character"
-                        width={Math.floor(tileSize * 0.5)}
-                        height={Math.floor(tileSize * 0.5)}
-                        className="character-image"
+                        src={getTileImage(tile.type)}
+                        alt={tile.name || tile.type}
+                        width={tileSize}
+                        height={tileSize}
+                        className="tile-image"
                         priority
                         onError={(e) => {
-                          console.warn('Failed to load character image, using fallback');
-                          e.currentTarget.src = '/images/character/squire.png';
+                          console.warn(`Failed to load tile image for ${tile.type}, using fallback`);
+                          e.currentTarget.src = '/images/tiles/empty-tile.png';
+                        }}
+                        style={{
+                          // Mobile optimization
+                          objectFit: 'cover',
+                          userSelect: 'none',
+                          WebkitUserSelect: 'none'
                         }}
                       />
+                      {playerPosition.x === x && playerPosition.y === y && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Image
+                            src={getCharacterImage(playerLevel)}
+                            alt="Character"
+                            width={Math.floor(tileSize * 0.5)}
+                            height={Math.floor(tileSize * 0.5)}
+                            className="character-image"
+                            priority
+                            onError={(e) => {
+                              console.warn('Failed to load character image, using fallback');
+                              e.currentTarget.src = '/images/character/squire.png';
+                            }}
+                          />
+                        </div>
+                      )}
+                      {/* Monster overlay */}
+                      {tile.hasMonster && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Image
+                            src={`/images/Monsters/${getMonsterImageName(tile.hasMonster)}.png`}
+                            alt={`${tile.hasMonster} monster`}
+                            width={Math.floor(tileSize * 0.6)}
+                            height={Math.floor(tileSize * 0.6)}
+                            className="monster-image"
+                            priority
+                            onError={(e) => {
+                              console.warn(`Failed to load monster image for ${tile.hasMonster}`);
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {/* Monster overlay */}
-                  {tile.hasMonster && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src={`/images/Monsters/${getMonsterImageName(tile.hasMonster)}.png`}
-                        alt={`${tile.hasMonster} monster`}
-                        width={Math.floor(tileSize * 0.6)}
-                        height={Math.floor(tileSize * 0.6)}
-                        className="monster-image"
-                        priority
-                        onError={(e) => {
-                          console.warn(`Failed to load monster image for ${tile.hasMonster}`);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         {/* Animal Overlays - positioned within the grid container */}

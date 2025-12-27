@@ -346,12 +346,20 @@ function RealmPageContent() {
                     if (next[y] && clickedTile) next[y][x] = clickedTile as Tile;
                     return next;
                 });
+                toast({ title: 'Error', description: 'Failed to place tile', variant: 'destructive' });
             } else {
-                // Check for spawns
-                const updatedGrid = grid.map(row => row.slice());
-                if (updatedGrid[y] && updatedGrid[y][x]) {
+                // Determine the new grid state for saving and spawning checks
+                // We recreate the grid change locally to save it
+                const updatedGrid = grid.map(row => row.map(t => ({ ...t })));
+                if (updatedGrid[y]?.[x]) {
                     updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
                 }
+
+                // Immediately save the full grid state to ensure persistence
+                if (userId) {
+                    saveGridData(userId, updatedGrid).catch(e => console.error('Failed to background save grid:', e));
+                }
+
                 const spawnResult = checkMonsterSpawn(updatedGrid, tileType);
                 if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
                     const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
@@ -367,6 +375,7 @@ function RealmPageContent() {
                             }
                             return next;
                         });
+                        // We strictly should save again here, but the monster spawn is rare and can be caught by autosave
                     }
                 }
             }
@@ -998,35 +1007,30 @@ function RealmPageContent() {
                 </div>
                 {/* Overlay Inventory Panel */}
                 {showInventory && (
-                    <div id="tile-inventory-panel" role="dialog" aria-modal="true" aria-label="Tile Inventory Panel" className="absolute top-[60px] right-0 h-[calc(100%-60px-2rem)] md:h-[calc(100%-60px-3rem)] w-96 max-w-[90vw] bg-gray-800/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-30 p-2 shadow-2xl">
-                        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">Tile Inventory</h2>
-                            <Button
-                                ref={closeBtnRef}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowInventory(false)}
-                                aria-label="close-inventory-button"
-                                className="min-w-[44px] min-h-[44px]"
-                            >
-                                <X className="w-6 h-6" />
-                            </Button>
-                        </div>
-                        <ScrollArea className="flex-1 p-4">
-
-                            <TileInventory
-                                tiles={inventoryAsItems}
-                                selectedTile={selectedTile}
-                                onSelectTile={setSelectedTile}
-                                onUpdateTiles={(newTiles) => {
-                                    setInventoryAsItems(newTiles);
-                                }}
-                                activeTab={inventoryTab}
-                                setActiveTab={setInventoryTab}
-                                onOutOfTiles={(tile) => toast({ title: 'No more tiles of this type', description: 'Buy more!' })}
-                            />
-                        </ScrollArea>
-                    </div>
+                    <Dialog open={showInventory} onOpenChange={setShowInventory}>
+                        <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col">
+                            <DialogHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left">
+                                <DialogTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
+                                    <span className="text-3xl">🏰</span>
+                                    Realm Inventory
+                                </DialogTitle>
+                                <DialogDescription className="text-gray-400">
+                                    Manage your tiles and expanded territory.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex-1 overflow-hidden p-0 relative">
+                                <TileInventory
+                                    tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
+                                    selectedTile={selectedTile}
+                                    onSelectTile={handleTileSelection}
+                                    onUpdateTiles={setInventoryAsItems}
+                                    activeTab={inventoryTab}
+                                    setActiveTab={setInventoryTab}
+                                    onOutOfTiles={(tile) => setInventoryTab('buy')}
+                                />
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 )}
 
                 {/* Event Modals */}
@@ -1294,6 +1298,6 @@ function RealmPageContent() {
                     </div>
                 )}
             </RealmAnimationWrapper>
-        </div>
+        </div >
     );
 }

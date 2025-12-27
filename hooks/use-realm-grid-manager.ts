@@ -122,8 +122,9 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
         return () => clearTimeout(saveTimeout);
     }, [grid, autoSave, isLoading, userId, gridInitialized, saveGridData]);
 
-    const expandMap = useCallback(() => {
+    const expandMap = useCallback(async () => {
         const newSize = INITIAL_ROWS + (expansions + 1) * EXPANSION_INCREMENT;
+        let updatedGrid: Tile[][] = [];
 
         setGrid(prevGrid => {
             const newGrid = Array.from({ length: newSize }, (_, y) =>
@@ -140,6 +141,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                     };
                 })
             );
+            updatedGrid = newGrid;
             return newGrid;
         });
 
@@ -147,11 +149,30 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
         setExpansions(newExpansions);
         localStorage.setItem('realm-expansions', newExpansions.toString());
 
+        // Immediately save the new grid to backend
+        if (userId) {
+            setSaveStatus('saving');
+            try {
+                // Wait a microtask to ensure updatedGrid is captured if needed, though closure captures it here
+                const result = await saveGridData(userId, updatedGrid);
+                if (result.success) {
+                    setSaveStatus('saved');
+                    setTimeout(() => setSaveStatus('idle'), 2000);
+                } else {
+                    setSaveStatus('error');
+                    toast({ title: 'Error', description: 'Failed to save expanded map.', variant: 'destructive' });
+                }
+            } catch (error) {
+                console.error('Failed to save expanded map:', error);
+                setSaveStatus('error');
+            }
+        }
+
         toast({
             title: "Realm Expanded!",
             description: `Your realm is now larger. You can now place tiles up to ${newSize} rows deep!`,
         });
-    }, [expansions, toast]);
+    }, [expansions, userId, saveGridData, toast]);
 
     const updateCharacterPosition = useCallback((x: number, y: number) => {
         setCharacterPosition({ x, y });
