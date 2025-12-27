@@ -56,18 +56,21 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             // Load Grid
             const gridResult = await loadGridData(userId);
             // gridResult IS the data (Tile[][]), not { data: ... }
+            console.log('[useRealmGridManager] Loaded grid data:', gridResult ? `(Array length: ${Array.isArray(gridResult) ? gridResult.length : 'N/A'}, Type: ${typeof gridResult})` : 'null/undefined');
+
             if (gridResult && Array.isArray(gridResult) && gridResult.length > 0) {
                 try {
                     // Basic validation
                     const validatedGrid = GridSchema.parse(gridResult);
                     setGrid(validatedGrid as unknown as Tile[][]);
+                    console.log('[useRealmGridManager] Grid validated and set.');
                 } catch (e) {
                     console.warn('Grid validation failed, using raw data', e);
                     setGrid(gridResult);
                 }
             } else {
                 // Fallback to initial grid (seed)
-                console.log('[useRealmGridManager] No saved grid found, loading initial grid from seed...');
+                console.log('[useRealmGridManager] No saved grid found or invalid format, loading initial grid from seed...');
                 const initialGrid = await loadAndProcessInitialGrid();
                 setGrid(initialGrid);
             }

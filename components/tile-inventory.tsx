@@ -76,7 +76,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       minLevel: 0,
       maxLevel: 100,
       description: 'Special tiles available on specific dates',
-      tiles: RARE_TILES.map(tile => tile.type)
+      tiles: (Array.isArray(RARE_TILES) ? RARE_TILES : []).map(tile => tile && tile.type ? tile.type : '')
     }
   ];
 
@@ -135,9 +135,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     };
   }, [user?.id]);
 
+  // Determine user level safely
+  const userLevelValue = userLevel || 1;
+
   // Create a comprehensive list of all possible tiles
+  // Memoized or static definition to prevent re-creation on every render
   const allPossibleTiles: InventoryItem[] = [
-    // Foundation Tiles (Level 0-20) - Basic terrain, affordable for new players
+    // Foundation Tiles (Level 0-20)
     { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.png' },
     { id: 'water', name: 'Water', type: 'water', quantity: 0, cost: 50, connections: [], description: 'Water body', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Water tile', image: '/images/tiles/water-tile.png' },
     { id: 'forest', name: 'Forest', type: 'forest', quantity: 0, cost: 75, connections: [], description: 'Dense woodland', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Forest tile', image: '/images/tiles/forest-tile.png' },
@@ -145,17 +149,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 125, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.png' },
     { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 150, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.png' },
 
-    // Settlement Tiles (Level 20-40) - Human communities, mid-range pricing
+    // Settlement Tiles (Level 20-40)
     { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.png' },
     { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.png' },
 
-    // Development Tiles (Level 40-60) - Advanced infrastructure, higher but achievable pricing
+    // Development Tiles (Level 40-60)
     { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.png' },
     { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.png' },
     { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.png' },
     { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.png' },
 
-    // Advanced Tiles (Level 60-80) - Complex structures, premium pricing but not excessive
+    // Advanced Tiles (Level 60-80)
     { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.png' },
     { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.png' },
     { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.png' },
@@ -169,7 +173,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     if (category.id === 'rare') {
       // Handle rare tiles differently
-      return RARE_TILES.map(rareTile => {
+      // Safety check for RARE_TILES
+      const safeRareTiles = Array.isArray(RARE_TILES) ? RARE_TILES : [];
+      return safeRareTiles.map(rareTile => {
         if (!rareTile) return null; // Safety check
         const userTile = tiles.find(t => t.type === rareTile.type);
         // Use loaded rare tiles data if available, otherwise fall back to date-based check
@@ -205,11 +211,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       const userTile = tiles.find(t => t.type === possibleTile.type);
 
       // Check if tile is unlocked based on user level
-      const isUnlocked = userLevel >= category.minLevel;
+      const isUnlocked = userLevelValue >= category.minLevel;
 
       // For foundation tiles (level 0-20), give starting quantities to new players
       let quantity = 0;
-      if (category.id === 'foundation' && userLevel >= 1) {
+      if (category.id === 'foundation' && userLevelValue >= 1) {
         // If user has tiles, use their quantity. If not, start with 5
         quantity = userTile ? userTile.quantity : 5;
       } else {
