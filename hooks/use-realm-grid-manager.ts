@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Tile, TileType } from '@/types/tiles';
 import { useDataLoaders } from './use-data-loaders';
-import { createBaseGrid, GRID_COLS, INITIAL_ROWS, EXPANSION_INCREMENT, defaultTile, getTileImage } from '@/app/realm/realm-utils';
+import { createBaseGrid, GRID_COLS, INITIAL_ROWS, EXPANSION_INCREMENT, defaultTile, getTileImage, INITIAL_POS } from '@/app/realm/realm-utils';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
 import { z } from 'zod';
+import { loadAndProcessInitialGrid } from '@/lib/grid-loader';
 
 // Schema for tile validation
 const TileSchema = z.object({
@@ -23,10 +24,10 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
     const { toast } = useToast();
     const { loadGridData, saveGridData, loadCharacterPosition, saveCharacterPosition } = useDataLoaders();
 
-    const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
+    const [grid, setGrid] = useState<Tile[][]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 2, y: 0 });
+    const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>(INITIAL_POS);
     const [expansions, setExpansions] = useState<number>(0);
     const [autoSave, setAutoSave] = useState(true);
     const [gridInitialized, setGridInitialized] = useState(false);
@@ -54,7 +55,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
 
             // Load Grid
             const gridResult = await loadGridData(userId);
-            if (gridResult && gridResult.data) {
+            if (gridResult && gridResult.data && Array.isArray(gridResult.data) && gridResult.data.length > 0) {
                 try {
                     // Basic validation
                     const validatedGrid = GridSchema.parse(gridResult.data);
@@ -63,11 +64,20 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                     console.warn('Grid validation failed, using raw data', e);
                     setGrid(gridResult.data);
                 }
+            } else {
+                // Fallback to initial grid (seed)
+                console.log('[useRealmGridManager] No saved grid found, loading initial grid from seed...');
+                const initialGrid = await loadAndProcessInitialGrid();
+                setGrid(initialGrid);
             }
 
             // Load Position
             const posResult = await loadCharacterPosition(userId);
-            if (posResult) setCharacterPosition(posResult);
+            if (posResult && typeof posResult.x === 'number' && typeof posResult.y === 'number') {
+                setCharacterPosition(posResult);
+            } else {
+                setCharacterPosition(INITIAL_POS);
+            }
 
             // Load Expansions
             const savedExpansions = localStorage.getItem('realm-expansions');
