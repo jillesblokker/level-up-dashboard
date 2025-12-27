@@ -12,13 +12,11 @@ import { useUser } from '@clerk/nextjs'
 import { useAuth } from '@clerk/nextjs'
 import React from "react"
 import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/lib/grid-loader"
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Settings, Save, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown } from 'lucide-react'
+import { X, Hammer, Move, Package, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { gainGold } from '@/lib/gold-manager'
@@ -30,11 +28,28 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
-import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service';
+import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
 import { PageGuide } from '@/components/page-guide';
+
+// Import realm utilities and constants
+import {
+    GRID_COLS,
+    INITIAL_ROWS,
+    EXPANSION_INCREMENT,
+    defaultTile,
+    getTileImage,
+    createBaseGrid,
+    INITIAL_POS
+} from './realm-utils';
+
+// Import new custom hooks
+import { useRealmAnimals } from '@/hooks/use-realm-animals';
+import { useRealmPassiveRewards } from '@/hooks/use-realm-passive-rewards';
+import { useRealmGridManager } from '@/hooks/use-realm-grid-manager';
+import { useRealmInventory } from '@/hooks/use-realm-inventory';
 
 // Import new data loaders hook
 import { useDataLoaders } from '@/hooks/use-data-loaders';
@@ -60,97 +75,7 @@ const AnimalInteractionModal = dynamic(() => import('@/components/animal-interac
     ssr: false
 });
 
-// Constants
-const GRID_COLS = 13;
-const INITIAL_ROWS = 7
-const EXPANSION_INCREMENT = 3 // Expand by 3 rows/cols each time
-const AUTOSAVE_INTERVAL = 30000 // 30 seconds
-
-const defaultTile = (type: TileType): Tile => ({
-    id: type,
-    name: type.charAt(0).toUpperCase() + type.slice(1),
-    description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
-    type,
-    connections: [],
-    rotation: 0,
-    revealed: true,
-    isVisited: false,
-    x: 0,
-    y: 0,
-    ariaLabel: `${type} tile`,
-    image: `/images/tiles/${type}-tile.png`,
-    cost: 0,
-    quantity: 0
-});
-
-// Special handling for tiles that might not have exact image files
-const getTileImage = (type: TileType): string => {
-    // Check if the exact image exists, otherwise use a fallback
-    const exactPath = `/images/tiles/${type}-tile.png`;
-
-    return exactPath;
-};
-
-const allTileTypes: TileType[] = [
-    'empty', 'mountain', 'grass', 'forest', 'water', 'city', 'town', 'mystery',
-    'portal-entrance', 'portal-exit', 'snow', 'cave', 'dungeon', 'castle', 'ice', 'desert',
-    'lava', 'volcano'
-];
-
-const initialInventory: Record<TileType, Tile> = {
-    grass: { ...defaultTile('grass'), cost: 25, owned: 10 },
-    water: { ...defaultTile('water'), cost: 50, owned: 10 },
-    forest: { ...defaultTile('forest'), cost: 75, owned: 10 },
-    mountain: { ...defaultTile('mountain'), cost: 20, owned: 10 },
-    desert: { ...defaultTile('desert'), cost: 100, owned: 10 },
-    ice: { ...defaultTile('ice'), cost: 120, owned: 10 },
-    snow: { ...defaultTile('snow'), cost: 125, owned: 10 },
-    cave: { ...defaultTile('cave'), cost: 200, owned: 5 },
-    town: { ...defaultTile('town'), cost: 250, owned: 1 },
-    city: { ...defaultTile('city'), cost: 300, owned: 1 },
-    castle: { ...defaultTile('castle'), cost: 500, owned: 1 },
-    dungeon: { ...defaultTile('dungeon'), cost: 400, owned: 2 },
-    volcano: { ...defaultTile('volcano'), cost: 500, owned: 1 },
-    lava: { ...defaultTile('lava'), cost: 200, owned: 5 },
-    'portal-entrance': { ...defaultTile('portal-entrance'), cost: 250, owned: 1 },
-    'portal-exit': { ...defaultTile('portal-exit'), cost: 250, owned: 1 },
-    mystery: { ...defaultTile('mystery'), cost: 300, owned: 1 },
-    empty: { ...defaultTile('empty'), cost: 0, owned: 0 },
-    sheep: { ...defaultTile('sheep'), cost: 0, owned: 0 },
-    horse: { ...defaultTile('horse'), cost: 0, owned: 0 },
-    special: { ...defaultTile('special'), cost: 0, owned: 0 },
-    swamp: { ...defaultTile('swamp'), cost: 0, owned: 0 },
-    treasure: { ...defaultTile('treasure'), cost: 0, owned: 0 },
-    monster: { ...defaultTile('monster'), cost: 0, owned: 0 },
-    vacant: { ...defaultTile('empty'), cost: 0, owned: 0 }, // Use empty tile as fallback for vacant
-    // Property tiles
-    archery: { ...defaultTile('archery'), cost: 150, owned: 0 },
-    blacksmith: { ...defaultTile('blacksmith'), cost: 200, owned: 0 },
-    sawmill: { ...defaultTile('sawmill'), cost: 120, owned: 0 },
-    fisherman: { ...defaultTile('fisherman'), cost: 120, owned: 0 },
-    grocery: { ...defaultTile('grocery'), cost: 160, owned: 0 },
-    foodcourt: { ...defaultTile('foodcourt'), cost: 250, owned: 0 },
-    well: { ...defaultTile('well'), cost: 100, owned: 0 },
-    windmill: { ...defaultTile('windmill'), cost: 180, owned: 0 },
-    fountain: { ...defaultTile('fountain'), cost: 180, owned: 0 },
-    house: { ...defaultTile('house'), cost: 100, owned: 0 },
-    inn: { ...defaultTile('inn'), cost: 220, owned: 0 },
-    jousting: { ...defaultTile('jousting'), cost: 300, owned: 0 },
-    mansion: { ...defaultTile('mansion'), cost: 500, owned: 0 },
-    mayor: { ...defaultTile('mayor'), cost: 800, owned: 0 },
-};
-
-const createBaseGrid = (): Tile[][] => {
-    return Array.from({ length: INITIAL_ROWS }, (_, y) =>
-        Array.from({ length: GRID_COLS }, (_, x) => ({
-            ...defaultTile('grass'),
-            x,
-            y,
-            id: `grass-${x}-${y}`,
-            image: getTileImage('grass') // Use the corrected image path
-        }))
-    );
-};
+// Utilities and constants (GRID_COLS, INITIAL_ROWS, defaultTile, etc.) moved to realm-utils.ts
 
 const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
     try {
@@ -170,50 +95,7 @@ const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
     }
 };
 
-// Helper to get adjacent positions
-function getAdjacentPositions(x: number, y: number, grid: any[][]): { x: number; y: number }[] {
-    const positions: { x: number; y: number }[] = [];
-    if (!grid || !Array.isArray(grid) || !Array.isArray(grid[0])) return positions;
-    // up
-    if (
-        y > 0 &&
-        Array.isArray(grid[y - 1]) &&
-        typeof x === 'number' &&
-        // @ts-ignore: runtime guard ensures grid[y-1][x] is defined
-        grid[y - 1][x] !== undefined
-    ) {
-        positions.push({ x, y: y - 1 });
-    }
-    // down
-    if (
-        y < grid.length - 1 &&
-        Array.isArray(grid[y + 1]) &&
-        typeof x === 'number' &&
-        // @ts-ignore: runtime guard ensures grid[y+1][x] is defined
-        grid[y + 1][x] !== undefined
-    ) {
-        positions.push({ x, y: y + 1 });
-    }
-    // left
-    if (
-        x > 0 &&
-        Array.isArray(grid[y]) &&
-        // @ts-ignore: runtime guard ensures grid[y][x-1] is defined
-        grid[y][x - 1] !== undefined
-    ) {
-        positions.push({ x: x - 1, y });
-    }
-    // right
-    if (
-        Array.isArray(grid[y]) &&
-        x < grid[y].length - 1 &&
-        // @ts-ignore: runtime guard ensures grid[y][x+1] is defined
-        grid[y][x + 1] !== undefined
-    ) {
-        positions.push({ x: x + 1, y });
-    }
-    return positions;
-}
+// (Helper getAdjacentPositions moved to realm-utils.ts)
 
 function assignTile(row: Tile[], x: number, tile: Tile) {
     row[x] = {
@@ -226,24 +108,7 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
 }
 
 // --- Creature achievement requirement mapping ---
-const creatureRequirements = [
-    { id: '001', action: 'forest_tiles_destroyed', threshold: 1 },
-    { id: '002', action: 'forest_tiles_destroyed', threshold: 5 },
-    { id: '003', action: 'forest_tiles_destroyed', threshold: 10 },
-    { id: '004', action: 'water_tiles_placed', threshold: 1 },
-    { id: '005', action: 'water_tiles_placed', threshold: 5 },
-    { id: '006', action: 'water_tiles_placed', threshold: 10 },
-    { id: '007', action: 'forest_tiles_placed', threshold: 1 },
-    { id: '008', action: 'forest_tiles_placed', threshold: 5 },
-    { id: '009', action: 'forest_tiles_placed', threshold: 10 },
-    { id: '010', action: 'mountain_tiles_destroyed', threshold: 1 },
-    { id: '011', action: 'mountain_tiles_destroyed', threshold: 5 },
-    { id: '012', action: 'mountain_tiles_destroyed', threshold: 10 },
-    { id: '013', action: 'ice_tiles_placed', threshold: 1 },
-    { id: '014', action: 'ice_tiles_placed', threshold: 5 },
-    { id: '015', action: 'ice_tiles_placed', threshold: 10 },
-    // Add more as needed
-];
+// (Moved to realm-utils.ts)
 
 export default function RealmPage() {
     return (
@@ -279,86 +144,25 @@ function RealmPageContent() {
         setIsMounted(true);
     }, []);
 
+    // --- Realm State Management via Hooks ---
+    const {
+        grid, setGrid,
+        isLoading,
+        saveStatus,
+        characterPosition, setCharacterPosition,
+        expansions, expandMap,
+        autoSave, setAutoSave,
+        gridInitialized,
+        userPlacedTilesRef,
+        recordTilePlacement
+    } = useRealmGridManager(userId, isMounted);
 
-    // Track visit for New Player Checklist
-    useEffect(() => {
-        if (user) {
-            setUserPreference('onboarding_realm_visited', true)
-        }
-    }, [user])
-
-    const [grid, setGrid] = useState<Tile[][]>(createBaseGrid());
-    const [isLoading, setIsLoading] = useState(true);
-    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>({ x: 2, y: 0 });
-    const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
-    const [showInventory, setShowInventory] = useState(false);
-    const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
-    const [autoSave, setAutoSave] = useState(true);
-    const [gridInitialized, setGridInitialized] = useState(false);
-    // Track tiles explicitly placed by the user (not system-generated)
-    // Initialize from localStorage if available to persist progress
-    const userPlacedTilesRef = useRef<Record<string, number>>({});
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedCounts = getUserScopedItem('user-placed-tile-counts');
-            if (savedCounts) {
-                try {
-                    userPlacedTilesRef.current = JSON.parse(savedCounts);
-                } catch (e) {
-                    console.error('Failed to parse user-placed-tile-counts', e);
-                }
-            }
-        }
-    }, []);
-    const [gameMode, setGameMode] = useState<'build' | 'move' | 'destroy'>('move');
-    const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
-    const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
-    const defaultCharacterPosition = { x: 2, y: 0 };
-    const [hasCheckedInitialPosition, setHasCheckedInitialPosition] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [shouldRevealImage, setShouldRevealImage] = useState(false);
-    const [isIntroPlaying, setIsIntroPlaying] = useState(true);
-
-    // Lock scroll during realm intro animation
-    useEffect(() => {
-        if (!isLoading && isIntroPlaying) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.touchAction = 'none';
-        } else {
-            document.body.style.overflow = '';
-            document.body.style.touchAction = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-            document.body.style.touchAction = '';
-        };
-    }, [isLoading, isIntroPlaying]);
-    const closeBtnRef = useRef<HTMLButtonElement>(null);
-    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>({ x: 10, y: 4 });
-    const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
-    const [isHorsePresent, setIsHorsePresent] = useState(true);
-    const [isPenguinPresent, setIsPenguinPresent] = useState(false);
-    const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
-    const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
-    const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
-    const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
-    const [mysteryEvent, setMysteryEvent] = useState<{ open: boolean, event: any, choice?: string } | null>(null);
-    const [castleDiceRolling, setCastleDiceRolling] = useState(false);
-    const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
-    const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
-    const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
-    const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
-    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>({ x: 5, y: 2 });
-    const [isSheepPresent, setIsSheepPresent] = useState(true);
-    const [horseCaught, setHorseCaught] = useState(false);
-    const [sheepCaught, setSheepCaught] = useState(false);
-    const [penguinCaught, setPenguinCaught] = useState(false);
-    const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
-
-    // Load actual inventory from database and apply starting quantities if needed
-    const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
+    const {
+        inventory,
+        inventoryAsItems,
+        setInventoryAsItems,
+        updateTileQuantity
+    } = useRealmInventory(userId, isMounted);
 
     // Animal interaction modal state
     const [animalInteractionModal, setAnimalInteractionModal] = useState<{
@@ -367,6 +171,33 @@ function RealmPageContent() {
         animalName: string;
     } | null>(null);
 
+    const {
+        horsePos, eaglePos, isHorsePresent, isPenguinPresent, penguinPos,
+        sheepPos, isSheepPresent, horseCaught, sheepCaught, penguinCaught,
+        handleAnimalInteraction
+    } = useRealmAnimals(grid, isMounted, characterPosition, setAnimalInteractionModal);
+
+    const {
+        passiveRewards,
+        handleCollectRewards
+    } = useRealmPassiveRewards(grid, isMounted);
+
+    // Track visit for New Player Checklist
+    useEffect(() => {
+        if (user) {
+            setUserPreference('onboarding_realm_visited', true)
+        }
+    }, [user])
+
+    const [showInventory, setShowInventory] = useState(false);
+    const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
+    const [gameMode, setGameMode] = useState<'build' | 'move' | 'destroy'>('move');
+    const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
+    const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [shouldRevealImage, setShouldRevealImage] = useState(false);
+    const [isIntroPlaying, setIsIntroPlaying] = useState(true);
+
     // Monster battle state
     const [battleOpen, setBattleOpen] = useState(false);
     const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon');
@@ -374,778 +205,56 @@ function RealmPageContent() {
     // Tile size state for animal positioning
     const [tileSize, setTileSize] = useState(80);
 
+    const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
+    const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
+    const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
+    const [mysteryEvent, setMysteryEvent] = useState<{ open: boolean, event: any, choice?: string } | null>(null);
+    const [castleDiceRolling, setCastleDiceRolling] = useState(false);
+    const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
+    const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
+    const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
+    const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
+
+    useEffect(() => {
+        // Load initial stats
+        const stats = getCharacterStats();
+        if (stats) setCharacterStats(stats);
+
+        // Fetch fresh stats from server
+        if (userId) {
+            fetchFreshCharacterStats().then(freshStats => {
+                if (freshStats) setCharacterStats(freshStats);
+            });
+        }
+    }, [userId]);
+
+    // Mystery tile transformation effect
+    useEffect(() => {
+        if (mysteryEventCompleted && lastMysteryTile) {
+            setGrid(prev => {
+                const next = prev.map(row => [...row]);
+                const x = lastMysteryTile.x;
+                const y = lastMysteryTile.y;
+                if (next[y]?.[x]) {
+                    next[y][x] = { ...defaultTile('grass'), x, y, id: `grass-${x}-${y}`, revealed: true };
+                }
+                return next;
+            });
+            setMysteryEventCompleted(false);
+            setLastMysteryTile(null);
+        }
+    }, [mysteryEventCompleted, lastMysteryTile, setGrid]);
+    const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
+    const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+
     // Handler for tile size changes from MapGrid
     const handleTileSizeChange = useCallback((newTileSize: number) => {
         setTileSize(newTileSize);
     }, []);
 
-    // Handler for animal interactions
-    const handleAnimalInteraction = useCallback(async (animalType: 'horse' | 'sheep' | 'penguin' | 'eagle') => {
-        if (animalType === 'horse') {
-            setHorseCaught(true);
-            localStorage.setItem('animal-horse-state', 'true');
-
-            // Dispatch horse-caught event
-            window.dispatchEvent(new CustomEvent('horse-caught'));
-
-            // Show notification
-            toast({
-                title: "Horse Tamed!",
-                description: "You successfully tamed the wild horse!",
-            });
-        } else if (animalType === 'sheep') {
-            try {
-                const res = await fetch('/api/creatures/interact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ instanceId: `sheep-${Date.now()}`, definitionId: '901' })
-                });
-                const data = await res.json();
-                if (data.reward && data.shaved) {
-                    toast({ title: "Sheep Shaved! 🐑", description: data.message });
-                    gainGold(data.reward.amount, 'sheep-shave');
-                    setIsSheepPresent(false);
-                    setSheepCaught(true);
-                    // Set 5-day cooldown
-                    const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
-                    localStorage.setItem('animal-sheep-cooldown', cooldownTime.toString());
-                } else if (data.cooldown) {
-                    toast({ title: "Recently Shaved", description: data.message, variant: "destructive" });
-                    setIsSheepPresent(false); // Hide it if we know it's on cooldown
-                    setSheepCaught(true);
-                } else {
-                    toast({ title: "Baaa!", description: data.message || "The sheep looks happy." });
-                }
-            } catch (e) {
-                console.error("Sheep interaction failed", e);
-                toast({ title: "Error", description: "Failed to interact with sheep", variant: "destructive" });
-            }
-        } else if (animalType === 'penguin') {
-            try {
-                const res = await fetch('/api/creatures/interact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ instanceId: `penguin-${Date.now()}`, definitionId: '903' })
-                });
-                const data = await res.json();
-                if (data.reward && data.shaved) { // API returns 'shaved' flag on success
-                    toast({
-                        title: "Noot Noot! 🐧",
-                        description: data.message,
-                    });
-                    gainGold(data.reward.amount, 'penguin-play');
-                    setIsPenguinPresent(false);
-                    setPenguinCaught(true);
-                    // Set 5-day cooldown
-                    const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
-                    localStorage.setItem('animal-penguin-cooldown', cooldownTime.toString());
-                } else if (data.cooldown) {
-                    toast({ title: "Tired Penguin", description: data.message, variant: "destructive" });
-                    setIsPenguinPresent(false);
-                    setPenguinCaught(true);
-                } else {
-                    toast({ title: "Noot Noot!", description: data.message });
-                }
-            } catch (e) {
-                console.error("Penguin interaction failed", e);
-                toast({ title: "Error", description: "Failed to interact with penguin", variant: "destructive" });
-            }
-        }
-    }, [toast, gainGold]);
-
-
-
-    // --- Penguin and Achievement Logic Helpers ---
-    function findFirstIceTile(grid: Tile[][]): { x: number; y: number } | null {
-        for (let y = 0; y < grid.length; y++) {
-            const row = grid[y];
-            if (!row) continue;
-            for (let x = 0; x < row.length; x++) {
-                if (row[x]?.type === 'ice') return { x, y };
-            }
-        }
-        return null;
-    }
-
-    function countTiles(grid: Tile[][], type: string): number {
-        let count = 0;
-        for (let y = 0; y < grid.length; y++) {
-            const row = grid[y];
-            if (!row) continue;
-            for (let x = 0; x < row.length; x++) {
-                if (row[x]?.type === type) count++;
-            }
-        }
-        return count;
-    }
-
-    // --- Penguin respawn and disappearance logic ---
-    useEffect(() => {
-        if (!Array.isArray(grid)) return;
-
-        // Check cooldown first
-        if (typeof window !== 'undefined') {
-            const cooldown = localStorage.getItem('animal-penguin-cooldown');
-            if (cooldown && Date.now() < parseInt(cooldown)) {
-                if (isPenguinPresent) setIsPenguinPresent(false);
-                return;
-            }
-        }
-
-        const hasIce = grid.some(row => row && row.some(tile => tile?.type === 'ice'));
-
-        if (!hasIce && isPenguinPresent) {
-            setIsPenguinPresent(false);
-            setPenguinPos(null);
-        } else if (hasIce && !isPenguinPresent) {
-            // Find the first ice tile, prioritizing center tiles
-            let bestIcePos = null;
-            const centerX = Math.floor(GRID_COLS / 2);
-            const centerY = Math.floor(INITIAL_ROWS / 2);
-
-            // First try to find ice tiles in the center area
-            for (let y = centerY - 1; y <= centerY + 1; y++) {
-                for (let x = centerX - 1; x <= centerX + 1; x++) {
-                    if (y >= 0 && y < grid.length && x >= 0 && x < GRID_COLS) {
-                        const tile = grid[y]?.[x];
-                        if (tile?.type === 'ice') {
-                            bestIcePos = { x, y };
-                            break;
-                        }
-                    }
-                }
-                if (bestIcePos) break;
-            }
-
-            // If no center ice tile found, find any ice tile
-            if (!bestIcePos) {
-                bestIcePos = findFirstIceTile(grid);
-            }
-
-            if (bestIcePos) {
-                setPenguinPos(bestIcePos);
-                setIsPenguinPresent(true);
-            }
-        }
-    }, [grid]);
-
-    // Debug animal states (commented out to reduce console spam)
-    // useEffect(() => {
-    //   console.log('[Realm] Animal states - horse:', { isHorsePresent, horsePos, horseCaught });
-    //   console.log('[Realm] Animal states - sheep:', { isSheepPresent, sheepPos });
-    //   console.log('[Realm] Animal states - penguin:', { isPenguinPresent, penguinPos });
-    //   console.log('[Realm] Grid bounds:', { cols: GRID_COLS, rows: INITIAL_ROWS });
-    // }, [isHorsePresent, horsePos, horseCaught, isSheepPresent, sheepPos, isPenguinPresent, penguinPos]);
-
-    // Animal movement logic
-    useEffect(() => {
-        if (!Array.isArray(grid)) return;
-
-        const moveAnimals = () => {
-            // Move sheep every 5 seconds
-            if (isSheepPresent && sheepPos) {
-                // console.log('[Realm] Sheep movement - current position:', sheepPos);
-                const adjacentPositions = getAdjacentPositions(sheepPos.x, sheepPos.y, grid);
-                // console.log('[Realm] Sheep movement - adjacent positions:', adjacentPositions);
-
-                const validPositions = adjacentPositions.filter(pos => {
-                    const tile = grid[pos.y]?.[pos.x];
-                    const isValid = tile && tile.type === 'grass' && !tile.hasMonster;
-                    // console.log('[Realm] Sheep movement - checking position:', pos, 'tile type:', tile?.type, 'has monster:', tile?.hasMonster, 'valid:', isValid);
-                    return isValid;
-                });
-
-                // console.log('[Realm] Sheep movement - valid positions:', validPositions);
-
-                if (validPositions.length > 0) {
-                    const newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
-                    if (newPos) {
-                        setSheepPos(newPos);
-                        localStorage.setItem('sheepPos', JSON.stringify(newPos));
-                        // console.log('[Realm] Sheep moved to:', newPos);
-                    }
-                } else {
-                    // console.log('[Realm] Sheep movement - no valid positions found');
-                }
-            }
-        };
-
-        const interval = setInterval(moveAnimals, 5000); // Move every 5 seconds
-        return () => clearInterval(interval);
-    }, [grid, isSheepPresent, sheepPos]);
-
-    // Horse interaction logic
-    useEffect(() => {
-        if (!Array.isArray(grid) || !isHorsePresent || horseCaught || !horsePos) return;
-
-        // Check if player is on the same tile as horse
-        if (characterPosition.x === horsePos.x && characterPosition.y === horsePos.y) {
-            // Show animal interaction modal
-            setAnimalInteractionModal({
-                isOpen: true,
-                animalType: 'horse',
-                animalName: 'Wild Horse'
-            });
-        }
-    }, [characterPosition, horsePos, isHorsePresent, horseCaught, grid]);
-
-    // Sheep interaction logic
-    useEffect(() => {
-        if (!Array.isArray(grid) || !isSheepPresent || !sheepPos) return;
-
-        // Check if player is on the same tile as sheep
-        if (characterPosition.x === sheepPos.x && characterPosition.y === sheepPos.y) {
-            setAnimalInteractionModal({
-                isOpen: true,
-                animalType: 'sheep',
-                animalName: 'Wooly Sheep'
-            });
-        }
-    }, [characterPosition, sheepPos, isSheepPresent, grid]);
-
-    // Penguin interaction logic
-    useEffect(() => {
-        if (!Array.isArray(grid) || !isPenguinPresent || !penguinPos) return;
-
-        // Check if player is on the same tile as penguin
-        if (characterPosition.x === penguinPos.x && characterPosition.y === penguinPos.y) {
-            setAnimalInteractionModal({
-                isOpen: true,
-                animalType: 'penguin',
-                animalName: 'Happy Penguin'
-            });
-        }
-    }, [characterPosition, penguinPos, isPenguinPresent, grid]);
-
-    // --- Load and transform completed mystery tiles on page load ---
-    useEffect(() => {
-        if (typeof window !== 'undefined' && grid.length > 0) {
-            const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
-            if (completedMysteryTiles.length > 0) {
-                let gridChanged = false;
-                const newGrid = grid.map(row => row.slice());
-
-                completedMysteryTiles.forEach((tileKey: string) => {
-                    const parts = tileKey.split('-');
-                    if (parts.length === 2) {
-                        const xStr = parts[0];
-                        const yStr = parts[1];
-                        if (xStr && yStr) {
-                            const x = parseInt(xStr, 10);
-                            const y = parseInt(yStr, 10);
-
-                            if (!isNaN(x) && !isNaN(y) && newGrid[y]?.[x] && newGrid[y][x].type === 'mystery') {
-                                // Transform mystery tile to grass tile
-                                newGrid[y][x] = {
-                                    ...defaultTile('grass'),
-                                    x,
-                                    y,
-                                    id: `grass-${x}-${y}`,
-                                    image: getTileImage('grass')
-                                };
-                                gridChanged = true;
-                            }
-                        }
-                    }
-                });
-
-                if (gridChanged) {
-                    setGrid(newGrid);
-                }
-            }
-        }
-    }, [grid.length]); // Only run when grid is loaded
-
-    // --- Listen for mystery-event-completed and update grid ---
-    useEffect(() => {
-        function handler() {
-            if (lastMysteryTile) {
-                const { x, y } = lastMysteryTile;
-                if (typeof x === 'number' && typeof y === 'number') {
-                    const newGrid = grid.map(row => row.slice());
-                    if (newGrid[y]?.[x]) {
-                        // Change mystery tile to grass tile
-                        newGrid[y][x] = {
-                            ...defaultTile('grass'),
-                            x,
-                            y,
-                            id: `grass-${x}-${y}`,
-                            image: getTileImage('grass')
-                        };
-                        setGrid(newGrid);
-
-                        // Save to backend
-                        fetch('/api/realm-tiles', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['grass'] })
-                        }).catch(() => {
-                            toast({ title: 'Error', description: 'Failed to save grass tile', variant: 'destructive' });
-                        });
-
-                        // Save completed mystery tile to localStorage for persistence
-                        if (typeof window !== 'undefined') {
-                            const completedMysteryTiles = JSON.parse(localStorage.getItem('mystery-completed-tiles') || '[]');
-                            const tileKey = `${x}-${y}`;
-                            if (!completedMysteryTiles.includes(tileKey)) {
-                                completedMysteryTiles.push(tileKey);
-                                localStorage.setItem('mystery-completed-tiles', JSON.stringify(completedMysteryTiles));
-                            }
-                        }
-
-                        if (typeof window !== 'undefined') {
-                            window.dispatchEvent(new CustomEvent('update-grid', { detail: { grid: newGrid } }));
-                        }
-                    }
-                }
-                setLastMysteryTile(null);
-                setMysteryEventCompleted(false);
-            }
-        }
-        window.addEventListener('mystery-event-completed', handler);
-        return () => window.removeEventListener('mystery-event-completed', handler);
-    }, [lastMysteryTile, grid]);
-
-    // --- General achievement tracker ---
-    useEffect(() => {
-        // Only track achievements after grid is initialized
-        if (!gridInitialized) {
-            return;
-        }
-
-        // Track tile actions for achievements using explicit user-placed counts
-        const actionCounts: Record<string, number> = {};
-        for (const req of creatureRequirements) {
-            const [tileType, action] = req.action.split('_tiles_');
-            if (action === 'placed' && tileType) {
-                // Use explicit user-placed tile tracking instead of grid counts
-                const userPlacedKey = `${tileType}_tiles_placed`;
-                actionCounts[req.action] = userPlacedTilesRef.current[userPlacedKey] || 0;
-            } else if (action === 'destroyed') {
-                // Track destroyed tiles from localStorage
-                const achievementKey = `destroyed_${tileType}_tiles`;
-                actionCounts[req.action] = parseInt(localStorage.getItem(achievementKey) || '0');
-            }
-        }
-
-        for (const req of creatureRequirements) {
-            const count = actionCounts[req.action];
-            if (typeof count === 'number' && typeof req.threshold === 'number' && count >= req.threshold) {
-                // Unlock achievement if not already unlocked
-                if (userId) {
-                    // Add a guard to prevent repeated calls for the same achievement
-                    const achievementKey = `unlocked_${req.id}`;
-                    if (!localStorage.getItem(achievementKey)) {
-                        localStorage.setItem(achievementKey, 'true');
-                        (async () => {
-                            try {
-                                const token = await getToken({ template: 'supabase' });
-                                console.log(`[Achievement Unlock] Attempting to unlock achievement ${req.id}`);
-                                const response = await fetch('/api/achievements/unlock', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({ achievementId: req.id })
-                                });
-
-                                if (response.ok) {
-                                    const result = await response.json();
-                                    console.log(`[Achievement Unlock] ✅ Successfully unlocked achievement ${req.id}:`, result);
-                                } else {
-                                    const error = await response.json();
-                                    console.error(`[Achievement Unlock] ❌ Failed to unlock achievement ${req.id}:`, error);
-                                    // Remove the storage flag so it can be retried
-                                    localStorage.removeItem(achievementKey);
-                                }
-                            } catch (error) {
-                                console.error(`[Achievement Unlock] ❌ Error unlocking achievement ${req.id}:`, error);
-                                // Remove the storage flag so it can be retried
-                                localStorage.removeItem(achievementKey);
-                            }
-                        })();
-                        discoverCreature(req.id);
-                    }
-                }
-            }
-        }
-    }, [grid, userId, discoverCreature, getToken, gridInitialized]);
-
-    // Achievement unlock effect
-    useEffect(() => {
-        if (!hasVisitedRealm && isAuthLoaded && userId) {
-            setHasVisitedRealm(true);
-
-            // Unlock the Necrion achievement (000) using the centralized hook
-            unlockAchievement({
-                achievementId: '000',
-                achievementName: 'Necrion',
-                description: "Necrion - You've discovered the realm map!",
-                onSuccess: () => {
-                    // Also unlock Necrion in the local creature store
-                    discoverCreature('000');
-                },
-            });
-        }
-    }, [hasVisitedRealm, isAuthLoaded, userId, setHasVisitedRealm, unlockAchievement, discoverCreature]);
-
-
-    // Load data from Supabase with localStorage fallback
-    useEffect(() => {
-        const loadUserData = async () => {
-            if (!isAuthLoaded || (isGuest && !isVisiting) || (!userId && !isVisiting)) return;
-
-            setIsLoading(true);
-            try {
-                // Load grid data
-                const targetId = isVisiting ? visitUserId : userId;
-                if (!targetId) return;
-
-                const gridResult = await loadGridData(targetId);
-
-                if (gridResult && gridResult.data) {
-                    // The API returns { data: { grid: [...] } }, so we need to access gridResult.data.grid
-                    const actualGridData = gridResult.data.grid;
-
-                    if (actualGridData && Array.isArray(actualGridData)) {
-                        setGrid(actualGridData);
-                    } else {
-                        // Try to load from realm-tiles API instead of CSV
-                        try {
-                            const res = await fetch(`/api/realm-tiles${isVisiting ? `?userId=${visitUserId}` : ''}`);
-                            const data = await res.json();
-                            if (res.ok && data.tiles && Array.isArray(data.tiles)) {
-                                const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
-                                const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
-                                    Array.from({ length: GRID_COLS }, (_, x) => defaultTile('grass'))
-                                );
-                                data.tiles.forEach((row: any) => {
-                                    if (!row) return;
-                                    if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
-                                    for (let x = 0; x < GRID_COLS; x++) {
-                                        const typeNum = row[`tile_${x}_type`];
-                                        const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'grass' : 'grass';
-                                        const rowArr = gridArr[row.y];
-                                        if (!rowArr || typeof rowArr[x] === 'undefined') continue;
-                                        rowArr[x] = {
-                                            ...defaultTile(tileType),
-                                            x,
-                                            y: row.y,
-                                            id: `${tileType}-${x}-${row.y}`,
-                                        };
-                                    }
-                                });
-                                setGrid(gridArr);
-                            } else {
-                                const initialGrid = await loadInitialGridFromCSV();
-                                setGrid(initialGrid);
-                            }
-                        } catch (err) {
-                            console.error('[Realm] Error loading tiles:', err);
-                            const initialGrid = await loadInitialGridFromCSV();
-                            setGrid(initialGrid);
-                        }
-                    }
-                } else {
-                    // Fallback to API or create base grid
-                    try {
-                        const res = await fetch(`/api/realm-tiles${isVisiting ? `?userId=${visitUserId}` : ''}`);
-                        const data = await res.json();
-                        if (res.ok && data.tiles && Array.isArray(data.tiles)) {
-                            const maxRow = Math.max(...data.tiles.map((row: any) => row.y ?? 0), INITIAL_ROWS - 1);
-                            const gridArr: Tile[][] = Array.from({ length: maxRow + 1 }, (_, y) =>
-                                Array.from({ length: GRID_COLS }, (_, x) => defaultTile('empty'))
-                            );
-                            data.tiles.forEach((row: any) => {
-                                if (!row) return;
-                                if (!gridArr[row.y] || !Array.isArray(gridArr[row.y])) return;
-                                for (let x = 0; x < GRID_COLS; x++) {
-                                    const typeNum = row[`tile_${x}_type`];
-                                    const tileType = typeof typeNum === 'number' ? numericToTileType[typeNum] || 'empty' : 'empty';
-                                    const rowArr = gridArr[row.y];
-                                    if (!rowArr || typeof rowArr[x] === 'undefined') continue;
-                                    rowArr[x] = {
-                                        ...defaultTile(tileType),
-                                        x,
-                                        y: row.y,
-                                        id: `${tileType}-${x}-${row.y}`,
-                                    };
-                                }
-                            });
-                            setGrid(gridArr);
-                        } else {
-                            const initialGrid = await loadInitialGridFromCSV();
-                            setGrid(initialGrid);
-                        }
-                    } catch (err) {
-                        console.error('[Realm] Error loading tiles:', err);
-                        const initialGrid = await loadInitialGridFromCSV();
-                        setGrid(initialGrid);
-                    }
-                }
-
-                // Load character position
-                const position = await loadCharacterPosition(targetId);
-                if (position) {
-                    setCharacterPosition(position);
-                }
-
-                // Load tile inventory
-                const inventoryResult = await loadTileInventory(targetId);
-                if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
-                    // Merge with initial inventory
-                    const mergedInventory = { ...initialInventory };
-                    Object.entries(inventoryResult.data).forEach(([tileId, item]: [string, any]) => {
-                        if (!item || typeof item !== 'object') {
-                            console.warn('[Realm] Invalid inventory item:', item);
-                            return;
-                        }
-                        const tileType = item.type as TileType;
-                        if (mergedInventory[tileType]) {
-                            mergedInventory[tileType] = {
-                                ...mergedInventory[tileType],
-                                owned: item.quantity || 0,
-                                quantity: item.quantity || 0, // Update quantity property too
-                                cost: item.cost || mergedInventory[tileType].cost
-                            };
-                        }
-                    });
-                    setInventory(mergedInventory);
-                } else {
-                    // If no inventory data, start with empty quantities instead of defaults
-                    const emptyInventory = { ...initialInventory };
-                    Object.keys(emptyInventory).forEach(tileType => {
-                        emptyInventory[tileType as TileType] = {
-                            ...emptyInventory[tileType as TileType],
-                            owned: 0,
-                            quantity: 0
-                        };
-                    });
-                    setInventory(emptyInventory);
-                }
-
-                // Load hasVisitedRealm from localStorage as fallback
-                const visited = localStorage.getItem('hasVisitedRealm');
-                if (visited === 'true') {
-                    setHasVisitedRealm(true);
-                }
-
-            } catch (error) {
-                console.error('Error loading user data:', error);
-                toast({
-                    title: 'Error',
-                    description: 'Failed to load your data. Using default settings.',
-                    variant: 'destructive'
-                });
-            } finally {
-                setIsLoading(false);
-                // Mark grid as initialized so achievement tracking can begin
-                // But achievements will only trigger for explicitly user-placed tiles
-                setGridInitialized(true);
-            }
-        };
-
-        loadUserData();
-    }, [isAuthLoaded, isGuest, userId, getToken]);
-
-    // --- Polling for grid changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS ---
-    useEffect(() => {
-        if (!isAuthLoaded || isGuest || !userId) return;
-
-        // Disable polling to prevent infinite loops
-        console.log('[Realm Page] Polling disabled to prevent infinite loops');
-
-        // Only load grid data once on mount
-        // Grid will be updated via event listeners instead
-    }, [isAuthLoaded, isGuest, userId, loadGridData, getToken]);
-
-    // Auto-save grid to Supabase with localStorage fallback
-    useEffect(() => {
-        if (!autoSave || isLoading || !userId) return;
-
-        const saveTimeout = setTimeout(async () => {
-            try {
-                setSaveStatus('saving');
-
-                // Save to Supabase with localStorage fallback
-                const result = await saveGridData(userId, grid);
-
-                if (result.success) {
-                    setSaveStatus('saved');
-                    setTimeout(() => setSaveStatus('idle'), 2000);
-                } else {
-                    setSaveStatus('error');
-                    setTimeout(() => setSaveStatus('idle'), 3000);
-                }
-            } catch (error) {
-                console.error('Save error:', error);
-                setSaveStatus('error');
-                setTimeout(() => setSaveStatus('idle'), 3000);
-            }
-        }, 1000);
-
-        return () => clearTimeout(saveTimeout);
-    }, [grid, autoSave, isLoading, userId, getToken]);
-
-    // Listen for tile inventory updates
-    useEffect(() => {
-        const handleTileInventoryUpdate = async () => {
-            if (!userId) return;
-
-            try {
-                // Comment out database reload since onUpdateTiles is working correctly
-                // The database reload was causing race conditions and overwriting correct data
-                /*
-                // Reload tile inventory
-                const inventoryResult = await loadTileInventory(userId);
-                if (inventoryResult && inventoryResult.data && Object.keys(inventoryResult.data).length > 0) {
-                    // Merge with initial inventory
-                    const mergedInventory = { ...initialInventory };
-                    Object.entries(inventoryResult.data).forEach(([tileId, item]: [string, any]) => {
-                        if (!item || typeof item !== 'object') {
-                            return;
-                        }
-                        const tileType = item.type as TileType;
-                        if (mergedInventory[tileType]) {
-                            mergedInventory[tileType] = {
-                                ...mergedInventory[tileType],
-                                owned: item.quantity || 0,
-                                quantity: item.quantity || 0,
-                                cost: item.cost || mergedInventory[tileType].cost
-                            };
-                        }
-                    });
-                    setInventory(mergedInventory);
-                    
-                    // Also update inventoryAsItems
-                    const items: TileInventoryItem[] = Object.values(inventoryResult.data)
-                        .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
-                        .map((t: any) => ({
-                            ...t,
-                            cost: t.cost ?? 0,
-                            quantity: t.quantity || 0,
-                        }));
-                    setInventoryAsItems(items);
-                }
-                */
-            } catch (error) {
-                console.error('[Realm] Error reloading tile inventory:', error);
-            }
-        };
-
-        window.addEventListener('tile-inventory-update', handleTileInventoryUpdate);
-
-        return () => {
-            window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
-        };
-    }, [userId, getToken]);
-
-    // Load inventory items from database and apply starting quantities if needed
-    useEffect(() => {
-        const loadInventoryItems = async () => {
-            if (!userId) return;
-
-            // Get user level for starting quantities
-            const userLevel = (() => {
-                try {
-                    const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-                    return stats.level || 1;
-                } catch (error) {
-                    return 1;
-                }
-            })();
-
-            try {
-                const inventoryResult = await loadTileInventory(userId);
-
-                if (inventoryResult && inventoryResult.data) {
-                    const items: TileInventoryItem[] = Object.values(inventoryResult.data)
-                        .filter((t: any) => t.type !== 'empty' && !['sheep', 'horse', 'special', 'swamp', 'treasure', 'monster'].includes(t.type))
-                        .map((t: any) => ({
-                            ...t,
-                            cost: t.cost ?? 0,
-                            quantity: t.quantity || 0,
-                        }));
-
-                    // Check if user has any foundation tiles, if not, give starting quantities
-                    const foundationTiles = ['grass', 'water', 'forest', 'mountain'];
-                    const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
-
-                    if (!hasFoundationTiles && userLevel >= 1) {
-                        // Give starting quantities for foundation tiles
-                        foundationTiles.forEach(tileType => {
-                            const existingItem = items.find(item => item.type === tileType);
-                            if (!existingItem || existingItem.quantity === 0) {
-                                items.push({
-                                    id: tileType,
-                                    name: tileType.charAt(0).toUpperCase() + tileType.slice(1),
-                                    type: tileType as TileType,
-                                    quantity: 5,
-                                    cost: 0,
-                                    connections: [],
-                                    description: '',
-                                    rotation: 0 as 0 | 90 | 180 | 270,
-                                    revealed: true,
-                                    isVisited: false,
-                                    x: 0,
-                                    y: 0,
-                                    ariaLabel: `${tileType} tile`,
-                                    image: `/images/tiles/${tileType}-tile.png`,
-                                });
-                            }
-                        });
-                    }
-
-                    setInventoryAsItems(items);
-                }
-            } catch (error) {
-                console.error('[Realm] Error loading inventory items:', error);
-            }
-        };
-
-        loadInventoryItems();
-    }, [userId, isAuthLoaded]);
-
-    // Map expansion function
-    const expandMap = async () => {
-        if (!canExpand) return;
-
-        const newSize = INITIAL_ROWS + (expansions + 1) * EXPANSION_INCREMENT;
-
-        // Create a new larger grid
-        const newGrid: Tile[][] = [];
-        for (let y = 0; y < newSize; y++) {
-            const row: Tile[] = [];
-            for (let x = 0; x < newSize; x++) {
-                row.push({ ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` });
-            }
-            newGrid.push(row);
-        }
-
-        // Copy existing tiles to new grid
-        grid.forEach((row, y) => {
-            row.forEach((tile, x) => {
-                if (newGrid[y] && newGrid[y][x]) {
-                    newGrid[y][x] = tile;
-                }
-            });
-        });
-
-        setGrid(newGrid);
-        setExpansions(expansions + 1);
-        localStorage.setItem('realm-expansions', (expansions + 1).toString());
-
-        // Update character stats to track expansion
-        await updateCharacterStats({
-            gold: characterStats.gold - 100, // Cost 100 gold to expand
-        });
-
-        toast({
-            title: "🗺️ Map Expanded!",
-            description: `Your realm has grown to ${newSize}x${newSize}!`,
-        });
-    };
+    // --- Interaction Handlers ---
+    // (Local handlers moved to hooks)
 
 
     // Place tile: update grid and send only the changed tile to backend
@@ -1207,328 +316,62 @@ function RealmPageContent() {
             return newGrid;
         });
 
-        // Track user-placed tile for achievement system
+        // Update inventory and placement counts via hooks
         const tileType = selectedTile.type;
         const userPlacedKey = `${tileType}_tiles_placed`;
-        userPlacedTilesRef.current[userPlacedKey] = (userPlacedTilesRef.current[userPlacedKey] || 0) + 1;
-
-        // Persist user-placed tile counts to user-scoped storage
-        setUserScopedItem('user-placed-tile-counts', JSON.stringify(userPlacedTilesRef.current));
+        updateTileQuantity(tileType, -1);
+        recordTilePlacement(tileType);
 
         console.log('[Realm] User placed tile:', tileType, 'Total:', userPlacedTilesRef.current[userPlacedKey]);
 
-        // Update inventory - handle both owned and quantity properties
-        setInventory(prev => {
-            const newInventory = { ...prev };
-            const invTile = newInventory[selectedTile.type];
-            if (invTile) {
-                // If we're using the selectedTile (which has quantity), update the main inventory
-                if (hasTileInSelected) {
-                    invTile.owned = Math.max(0, (invTile.owned ?? 0) - 1);
-                } else {
-                    // If we're using the main inventory, update owned
-                    invTile.owned = Math.max(0, (invTile.owned ?? 0) - 1);
-                }
-            }
-
-            // Save inventory to Supabase
-            if (userId) {
-                saveTileInventory(userId, newInventory).catch(error => {
-                    console.error('Failed to save inventory:', error);
-                });
-            }
-
-            return newInventory;
-        });
-
-        // Also update the selectedTile quantity if it has one
+        // Update selectedTile quantity if it has one
         if (hasTileInSelected && selectedTile.quantity !== undefined) {
             setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, prev.quantity - 1) } : null);
         }
 
-        // Save only the changed tile with retry logic
+        // Save tile to backend
         try {
-            if (!selectedTile?.type) {
-                console.error('No tile type selected');
-                toast({ title: '🎯 No Target Selected', description: 'Choose your weapon! Select a tile type from your inventory first.', variant: 'destructive' });
-                return;
-            }
-
-            const tileTypeNum = tileTypeToNumeric[selectedTile.type];
-            if (typeof tileTypeNum === 'undefined') {
-                console.error('Invalid tile type:', selectedTile.type);
-                toast({ title: '⚠️ Unknown Material', description: 'This mysterious tile type defies classification! The realm doesn\'t recognize it.', variant: 'destructive' });
-                return;
-            }
-
-            // Removed debugging log
-
-            // Enhanced fetch with retry logic and timeout
-            const saveTileWithRetry = async (attempt: number = 1): Promise<Response> => {
-                const maxAttempts = 3;
-                const timeoutMs = 10000; // 10 second timeout
-
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-                    const response = await fetch('/api/realm-tiles', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ x, y, tile_type: tileTypeNum }),
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeoutId);
-                    return response;
-                } catch (error) {
-                    if (error instanceof Error && error.name === 'AbortError') {
-                        console.warn(`[Realm] Tile save attempt ${attempt} timed out`);
-                    } else {
-                        console.warn(`[Realm] Tile save attempt ${attempt} failed:`, error);
-                    }
-
-                    if (attempt < maxAttempts) {
-                        // Exponential backoff: 1s, 2s, 4s
-                        const delay = Math.pow(2, attempt - 1) * 1000;
-                        // Removed debugging log
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        return saveTileWithRetry(attempt + 1);
-                    }
-
-                    throw error;
-                }
-            };
-
-            const res = await saveTileWithRetry();
+            const tileTypeNum = tileTypeToNumeric[tileType];
+            const res = await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: tileTypeNum })
+            });
 
             if (!res.ok) {
-                const err = await res.json();
-                toast({ title: 'Error', description: `Failed to save tile: ${err.error}`, variant: 'destructive' });
-                console.error('Tile save error:', err);
-
-                // Revert the optimistic update on failure
-                setGrid(prevGrid => {
-                    const newGrid = prevGrid.map(row => row.slice());
-                    if (newGrid[y]?.[x]) {
-                        newGrid[y][x] = clickedTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
-                    }
-                    return newGrid;
+                // Revert
+                updateTileQuantity(tileType, 1);
+                setGrid(prev => {
+                    const next = [...prev];
+                    if (next[y] && clickedTile) next[y][x] = clickedTile as Tile;
+                    return next;
                 });
-
-                // Restore inventory
-                setInventory(prev => {
-                    const newInventory = { ...prev };
-                    const invTile = newInventory[selectedTile.type];
-                    if (invTile) {
-                        invTile.owned = (invTile.owned ?? 0) + 1;
-                    }
-                    return newInventory;
-                });
-
-                // Restore selectedTile quantity if it was used
-                if (hasTileInSelected && selectedTile.quantity !== undefined) {
-                    setSelectedTile(prev => prev ? { ...prev, quantity: (prev.quantity ?? 0) + 1 } : null);
+            } else {
+                // Check for spawns
+                const updatedGrid = grid.map(row => row.slice());
+                if (updatedGrid[y] && updatedGrid[y][x]) {
+                    updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
                 }
-
-                return;
-            }
-
-            // Removed debugging log
-
-            // Check for monster spawns after successful tile placement
-            // Removed debugging log
-            // Create updated grid with the new tile for spawn check
-            const updatedGrid = grid.map(row => row.slice());
-            if (updatedGrid[y] && updatedGrid[y][x]) {
-                updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
-            }
-            const spawnResult = checkMonsterSpawn(updatedGrid, selectedTile.type);
-            // Removed debugging log
-
-            if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
-                // Removed debugging log
-                // Spawn the monster
-                const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
-                if (success) {
-                    // Update grid to show monster
-                    setGrid(prevGrid => {
-                        const newGrid = prevGrid.map(row => row.slice());
-                        const pos = spawnResult.position!;
-                        const monsterType = spawnResult.monsterType;
-                        const row = newGrid[pos.y];
-                        const tile = row?.[pos.x];
-                        if (row && tile && monsterType) {
-                            tile.hasMonster = monsterType as MonsterType;
-                            tile.monsterAchievementId = getMonsterAchievementId(monsterType as MonsterType);
-                            // Removed debugging log
-                        }
-                        return newGrid;
-                    });
-
-                    // Show notification
-                    toast({
-                        title: "Monster Appeared!",
-                        description: `A ${spawnResult.monsterType} has appeared on the map!`,
-                    });
-                }
-            }
-
-            // Check for creature discoveries
-            const iceCount = countTiles(grid, 'ice');
-            // Removed debugging log
-
-            if (iceCount >= 5 && !useCreatureStore.getState().isCreatureDiscovered('014')) {
-                // Discover Blizzey when 5 ice tiles are placed
-                useCreatureStore.getState().discoverCreature('014');
-                toast({
-                    title: "Creature Discovered!",
-                    description: "You discovered Blizzey, the powerful ice spirit!",
-                });
-            }
-
-            // Unlock achievement for special tiles
-            const tileTypeToAchievement: Record<string, string> = {
-                'ice': '013', // Example: 013 = first ice tile placed
-                'snow': '016', // Example: 016 = first snow tile placed
-                'cave': '011', // Example: 011 = first cave tile placed
-                // Add more mappings as needed
-            };
-            const achievementId = tileTypeToAchievement[selectedTile.type];
-            if (achievementId && userId) {
-                try {
-                    const token = await getToken({ template: 'supabase' });
-                    const unlockRes = await fetch('/api/achievements/unlock', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ achievementId })
-                    });
-                    if (!unlockRes.ok) {
-                        const unlockErr = await unlockRes.json();
-                        toast({ title: 'Achievement Error', description: `Failed to unlock achievement: ${unlockErr.error}`, variant: 'destructive' });
-                        console.error('Achievement unlock error:', unlockErr);
+                const spawnResult = checkMonsterSpawn(updatedGrid, tileType);
+                if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
+                    const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
+                    if (success) {
+                        toast({ title: "Monster Appeared!", description: `A ${spawnResult.monsterType} has appeared!` });
+                        // Add to grid state
+                        setGrid(prev => {
+                            const next = [...prev];
+                            const tile = next[spawnResult.position!.y]?.[spawnResult.position!.x];
+                            if (tile) {
+                                tile.hasMonster = spawnResult.monsterType as MonsterType;
+                                tile.monsterAchievementId = getMonsterAchievementId(spawnResult.monsterType as MonsterType);
+                            }
+                            return next;
+                        });
                     }
-                } catch (err) {
-                    toast({ title: 'Achievement Error', description: 'Failed to unlock achievement', variant: 'destructive' });
-                    console.error('Achievement unlock error:', err);
                 }
             }
         } catch (err) {
-            console.error('Tile save error:', err);
-
-            // Determine if it's a network error
-            const isNetworkError = err instanceof Error && (
-                err.message.includes('Failed to fetch') ||
-                err.message.includes('NetworkError') ||
-                err.message.includes('ERR_TIMED_OUT') ||
-                err.message.includes('ERR_NETWORK_CHANGED') ||
-                err.message.includes('ERR_INTERNET_DISCONNECTED')
-            );
-
-            if (isNetworkError) {
-                toast({
-                    title: 'Network Error',
-                    description: 'Tile placed locally but failed to save due to network issues. It will be saved when connection is restored.',
-                    variant: 'destructive'
-                });
-
-                // Store the tile placement for later sync when network is restored
-                const pendingTile = {
-                    x,
-                    y,
-                    tile_type: tileTypeToNumeric[selectedTile.type],
-                    timestamp: Date.now(),
-                    selectedTileType: selectedTile.type,
-                    wasUsingSelectedTile: hasTileInSelected
-                };
-                const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
-                pendingTiles.push(pendingTile);
-                localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
-
-                // Set up a retry mechanism when network is restored
-                const checkNetworkAndRetry = () => {
-                    if (navigator.onLine) {
-                        // Removed debugging log
-                        // Retry pending placements
-                        const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
-                        if (pendingTiles.length > 0) {
-                            pendingTiles.forEach(async (pendingTile: any) => {
-                                try {
-                                    const res = await fetch('/api/realm-tiles', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            x: pendingTile.x,
-                                            y: pendingTile.y,
-                                            tile_type: pendingTile.tile_type
-                                        })
-                                    });
-                                    if (res.ok) {
-                                        // Removed debugging log
-                                        // Remove from pending list
-                                        const updatedPending = pendingTiles.filter((t: any) =>
-                                            !(t.x === pendingTile.x && t.y === pendingTile.y && t.tile_type === pendingTile.tile_type)
-                                        );
-                                        localStorage.setItem('pendingTilePlacements', JSON.stringify(updatedPending));
-                                    }
-                                } catch (retryError) {
-                                    console.error('[Realm] Failed to sync pending tile placement:', retryError);
-                                }
-                            });
-                        }
-                        // Remove the event listener
-                        window.removeEventListener('online', checkNetworkAndRetry);
-                    }
-                };
-
-                window.addEventListener('online', checkNetworkAndRetry);
-            } else {
-                toast({ title: 'Error', description: 'Failed to save tile', variant: 'destructive' });
-
-                // Revert the optimistic update on non-network errors
-                setGrid(prevGrid => {
-                    const newGrid = prevGrid.map(row => row.slice());
-                    if (newGrid[y]?.[x]) {
-                        newGrid[y][x] = clickedTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
-                    }
-                    return newGrid;
-                });
-
-                // Restore inventory
-                setInventory(prev => {
-                    const newInventory = { ...prev };
-                    const invTile = newInventory[selectedTile.type];
-                    if (invTile) {
-                        invTile.owned = (invTile.owned ?? 0) + 1;
-                    }
-                    return newInventory;
-                });
-
-                // Restore selectedTile quantity if it was used
-                if (hasTileInSelected && selectedTile.quantity !== undefined) {
-                    setSelectedTile(prev => prev ? { ...prev, quantity: (prev.quantity ?? 0) + 1 } : null);
-                }
-            }
-        }
-    };
-
-    const handleTileSelection = (tile: TileInventoryItem | null) => {
-        // Removed debugging log
-
-        // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
-        const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
-        const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
-
-        if (hasMainInventory || hasTileQuantity) {
-            // Removed debugging log
-            setSelectedTile(tile);
-            setShowInventory(false);
-        } else {
-            // Removed debugging log
-            setSelectedTile(null);
+            console.error('Error placing tile:', err);
         }
     };
 
@@ -1563,347 +406,89 @@ function RealmPageContent() {
                 return;
             }
 
-            setCharacterPosition({ x, y });
+            setCharacterPosition(x, y);
+        }
+    };
+
+    const handleTileSelection = (tile: TileInventoryItem | null) => {
+        // Removed debugging log
+
+        // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
+        const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
+        const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
+
+        if (hasMainInventory || hasTileQuantity) {
+            // Removed debugging log
+            setSelectedTile(tile);
+            setShowInventory(false);
+        } else {
+            // Removed debugging log
+            setSelectedTile(null);
         }
     };
 
     const handleDestroyTile = async (x: number, y: number) => {
         const targetTile = grid[y]?.[x];
-
-        // Check if there's a tile to destroy
-        if (!targetTile || targetTile.type === 'empty') {
-            toast({
-                title: "🌫️ Empty Void",
-                description: "There's nothing here to destroy - just empty space waiting for your touch.",
-                variant: "destructive",
-            });
-            return;
-        }
+        if (!targetTile || targetTile.type === 'empty') return;
 
         // Don't allow destroying certain protected tiles
         if (['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
-            const protectionMessages = {
-                'mountain': "The ancient mountain stands defiant! Even your power cannot shake the eternal peaks.",
-                'water': "The mystical waters are protected by ancient magic! They cannot be destroyed.",
-                'lava': "The lava flows with primordial power! Your destruction attempts are futile against the earth's fury.",
-                'volcano': "The volcanic forces are beyond mortal control! The realm's fire cannot be extinguished."
-            };
-
             toast({
                 title: "⛰️ Immovable Force",
-                description: protectionMessages[targetTile.type as keyof typeof protectionMessages] || `The ${targetTile.type} resists your power!`,
+                description: `The ${targetTile.type} resists your power!`,
                 variant: "destructive",
             });
             return;
         }
 
-        // Show confirmation dialog
-        const confirmed = window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`);
-        if (!confirmed) {
-            return;
-        }
+        if (!window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`)) return;
 
-        try {
-            // Optimistically update the UI first
-            setGrid(prevGrid => {
-                const newGrid = prevGrid.map(row => row.slice());
-                if (newGrid[y]?.[x]) {
-                    newGrid[y][x] = {
-                        id: `${x}-${y}`,
-                        type: 'empty',
-                        name: 'Empty Tile',
-                        description: 'An empty tile',
-                        connections: [],
-                        rotation: 0,
-                        revealed: true,
-                        isVisited: false,
-                        x,
-                        y,
-                        ariaLabel: `Empty tile at position ${x},${y}`,
-                        image: '/images/tiles/empty-tile.png',
-                        owned: 0,
-                        hasMonster: undefined
-                    };
-                }
-                return newGrid;
-            });
+        const originalTile = { ...targetTile };
 
-            // Send destruction request to backend
-            const response = await fetch('/api/realm-tiles', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    x,
-                    y,
-                    tile_type: 0, // 0 = empty
-                    event_type: null
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to destroy tile');
-            }
-
-            // Show success message
-            const tileTypeNames = {
-                'forest': 'forest',
-                'mountain': 'mountain',
-                'water': 'water',
-                'ice': 'ice',
-                'grass': 'grass',
-                'city': 'city',
-                'town': 'town'
-            };
-            const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
-
-            toast({
-                title: "💥 Devastation Complete!",
-                description: `The ${tileName} tile crumbles to dust beneath your mighty power!`,
-            });
-
-            // Track tile destruction for achievements
-            if (userId && targetTile.type) {
-                const achievementKey = `destroyed_${targetTile.type}_tiles`;
-                const currentCount = parseInt(localStorage.getItem(achievementKey) || '0');
-                const newCount = currentCount + 1;
-                localStorage.setItem(achievementKey, newCount.toString());
-
-                // Check for destruction achievements
-                const destructionAchievements = [
-                    { type: 'forest', threshold: 1, achievementId: '001' },
-                    { type: 'forest', threshold: 5, achievementId: '002' },
-                    { type: 'forest', threshold: 10, achievementId: '003' },
-                    { type: 'mountain', threshold: 1, achievementId: '010' },
-                    { type: 'mountain', threshold: 5, achievementId: '011' },
-                    { type: 'mountain', threshold: 10, achievementId: '012' },
-                    { type: 'water', threshold: 1, achievementId: '004' },
-                    { type: 'water', threshold: 5, achievementId: '005' },
-                    { type: 'water', threshold: 10, achievementId: '006' },
-                    { type: 'ice', threshold: 1, achievementId: '013' },
-                    { type: 'ice', threshold: 5, achievementId: '014' },
-                    { type: 'ice', threshold: 10, achievementId: '015' }
-                ];
-
-                const achievement = destructionAchievements.find(a => a.type === targetTile.type);
-                if (achievement && newCount >= achievement.threshold) {
-                    // Check if achievement is already unlocked
-                    const unlockKey = `unlocked_${achievement.achievementId}`;
-                    if (!sessionStorage.getItem(unlockKey)) {
-                        sessionStorage.setItem(unlockKey, 'true');
-
-                        // Unlock achievement
-                        (async () => {
-                            try {
-                                const token = await getToken({ template: 'supabase' });
-                                const response = await fetch('/api/achievements/unlock', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({ achievementId: achievement.achievementId })
-                                });
-
-                                if (response.ok) {
-                                    // Show achievement notification with improved thematic messages
-                                    const achievementMessages = {
-                                        '001': { title: "🔥 Flamio Emerges!", description: "While clearing a path by destroying 1 forest tile, you discover the fiery creature Flamio and 25 gold for your treasure pile!" },
-                                        '002': { title: "🔥 Embera Awakens!", description: "While clearing a path by destroying 5 forest tiles, you find the fierce Embera and 50 gold for your treasure pile!" },
-                                        '003': { title: "🔥 Vulcana Rises!", description: "While clearing a path by destroying 10 forest tiles, you awaken the ultimate fire creature Vulcana and 100 gold for your treasure pile!" },
-                                        '004': { title: "💧 Dolpio Emerges!", description: "While clearing a path by destroying 1 water tile, you discover the playful water creature Dolpio and 25 gold for your treasure pile!" },
-                                        '005': { title: "💧 Divero Awakens!", description: "While clearing a path by destroying 5 water tiles, you find the experienced water dweller Divero and 50 gold for your treasure pile!" },
-                                        '006': { title: "💧 Flippur Rises!", description: "While clearing a path by destroying 10 water tiles, you awaken the supreme water creature Flippur and 100 gold for your treasure pile!" },
-                                        '010': { title: "⛰️ Rockie Emerges!", description: "While clearing a path by destroying 1 mountain tile, you discover the mountain spirit Rockie and 25 gold for your treasure pile!" },
-                                        '011': { title: "⛰️ Buldour Awakens!", description: "While clearing a path by destroying 5 mountain tiles, you find the stronger mountain spirit Buldour and 50 gold for your treasure pile!" },
-                                        '012': { title: "⛰️ Montano Rises!", description: "While clearing a path by destroying 10 mountain tiles, you awaken the ultimate mountain creature Montano and 100 gold for your treasure pile!" },
-                                        '013': { title: "❄️ Icey Emerges!", description: "While clearing a path by destroying 1 ice tile, you discover the small ice creature Icey and 25 gold for your treasure pile!" },
-                                        '014': { title: "❄️ Hailey Awakens!", description: "While clearing a path by destroying 5 ice tiles, you find the powerful ice spirit Hailey and 50 gold for your treasure pile!" },
-                                        '015': { title: "❄️ Blizzey Rises!", description: "While clearing a path by destroying 10 ice tiles, you awaken the supreme ice creature Blizzey and 100 gold for your treasure pile!" }
-                                    };
-
-                                    const message = achievementMessages[achievement.achievementId as keyof typeof achievementMessages];
-                                    if (message) {
-                                        toast({
-                                            title: message.title,
-                                            description: message.description,
-                                        });
-                                    } else {
-                                        // Fallback for unknown achievements
-                                        const tileTypeNames = {
-                                            'forest': 'Forest',
-                                            'mountain': 'Mountain',
-                                            'water': 'Water',
-                                            'ice': 'Ice'
-                                        };
-                                        const tileName = tileTypeNames[targetTile.type as keyof typeof tileTypeNames] || targetTile.type;
-
-                                        toast({
-                                            title: "🏆 Legendary Achievement!",
-                                            description: `The ancient ${tileName.toLowerCase()} trembles as you claim victory! ${tileName} Destroyer rank achieved!`,
-                                        });
-                                    }
-
-                                    // Discover creature if applicable
-                                    discoverCreature(achievement.achievementId);
-                                }
-                            } catch (error) {
-                                console.error('Error unlocking achievement:', error);
-                            }
-                        })();
-                    }
-                }
-            }
-
-        } catch (error) {
-            console.error('Error destroying tile:', error);
-
-            // Revert the UI change on error
-            setGrid(prevGrid => {
-                const newGrid = prevGrid.map(row => row.slice());
-                if (newGrid[y]?.[x]) {
-                    newGrid[y][x] = targetTile; // Restore original tile
-                }
-                return newGrid;
-            });
-
-            toast({
-                title: "❌ Destruction Failed",
-                description: "The realm's magic resists your attempt. The tile remains untouched.",
-                variant: "destructive",
-            });
-        }
-    };
-
-    // --- Kingdom Passive Rewards System ---
-    const [passiveRewards, setPassiveRewards] = useState<{ gold: number, xp: number } | null>(null);
-    const [lastCollectionTime, setLastCollectionTime] = useState<number>(Date.now());
-
-    // Calculate passive income based on owned tiles
-    useEffect(() => {
-        if (!grid.length) return;
-
-        const calculateRewards = () => {
-            const now = Date.now();
-            const timeDiffHours = (now - lastCollectionTime) / (1000 * 60 * 60);
-
-            // Cap at 24 hours of accumulation
-            const effectiveHours = Math.min(timeDiffHours, 24);
-
-            if (effectiveHours < 0.1) return; // Minimum 6 minutes to show something
-
-            let hourlyGold = 0;
-            let hourlyXp = 0;
-
-            // Calculate rates based on placed tiles
-            grid.forEach(row => {
-                row.forEach(tile => {
-                    if (tile.type !== 'empty' && tile.type !== 'grass') {
-                        // Base rate: 1% of cost per hour (approx)
-                        // This is arbitrary for the QoL feature to feel rewarding
-                        const baseValue = tile.cost || 100;
-                        hourlyGold += Math.floor(baseValue * 0.05);
-                        hourlyXp += Math.floor(baseValue * 0.02);
-                    }
-                });
-            });
-
-            // Add base kingdom generation
-            hourlyGold += 10;
-            hourlyXp += 5;
-
-            const pendingGold = Math.floor(hourlyGold * effectiveHours);
-            const pendingXp = Math.floor(hourlyXp * effectiveHours);
-
-            if (pendingGold > 0 || pendingXp > 0) {
-                setPassiveRewards({ gold: pendingGold, xp: pendingXp });
-            }
-        };
-
-        const interval = setInterval(calculateRewards, 60000); // Check every minute
-        calculateRewards(); // Initial check
-
-        return () => clearInterval(interval);
-    }, [grid, lastCollectionTime]);
-
-    const handleCollectRewards = async () => {
-        if (!passiveRewards) return;
-
-        // Play sound/animation logic here if available
-
-        // Add rewards
-        await gainGold(passiveRewards.gold, 'kingdom-passive');
-        await gainExperience(passiveRewards.xp, 'kingdom-passive');
-
-        toast({
-            title: "💰 Royal Treasury Collected!",
-            description: `You collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP from your kingdom!`,
-            className: "bg-gradient-to-r from-amber-500/20 to-yellow-600/20 border-amber-500/50 text-amber-100" // Gold theme
+        // Optimistic update
+        setGrid(prev => {
+            const next = [...prev];
+            if (next[y]) next[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+            return next;
         });
 
-        // Trigger coin burst event for visual effect
-        // Assuming a global event listener or we can add a simple local state for animation
-        window.dispatchEvent(new CustomEvent('coin-burst', {
-            detail: { amount: passiveRewards.gold, x: window.innerWidth / 2, y: window.innerHeight / 2 }
-        }));
+        try {
+            const res = await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: 0 })
+            });
 
-        // Reset
-        setPassiveRewards(null);
-        setLastCollectionTime(Date.now());
-        localStorage.setItem('kingdom_last_collection', Date.now().toString());
+            if (!res.ok) throw new Error('Failed to delete tile');
+
+            toast({ title: "💥 Devastated!", description: "The tile has been removed." });
+        } catch (err) {
+            setGrid(prev => {
+                const next = [...prev];
+                if (next[y]) next[y][x] = originalTile;
+                return next;
+            });
+            toast({ title: 'Error', description: 'Failed to delete tile', variant: 'destructive' });
+        }
     };
 
-    // --- Render Helper for Treasury ---
-    const renderTreasury = () => {
-        if (!passiveRewards || (passiveRewards.gold === 0 && passiveRewards.xp === 0)) return null;
 
-        return (
-            <div className="fixed top-24 right-4 z-40 animate-in slide-in-from-right-5 fade-in duration-500">
-                <Card className="bg-gradient-to-br from-gray-900 to-amber-950/80 border-amber-500/50 shadow-xl shadow-amber-900/20 backdrop-blur-md w-64 overflow-hidden group hover:scale-105 transition-transform duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-50 animate-pulse" />
-                    <CardContent className="p-4 relative">
-                        <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-bold text-amber-400 text-sm uppercase tracking-wider flex items-center gap-2">
-                                <Crown className="w-4 h-4" /> Treasury
-                            </h3>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center text-amber-200">
-                                <span className="text-xs text-amber-400/80">Taxes Collected</span>
-                            </div>
-
-                            <div className="flex gap-3">
-                                <div className="flex-1 bg-black/40 rounded p-2 border border-amber-500/20 flex flex-col items-center">
-                                    <span className="text-xl font-bold text-amber-400">{passiveRewards.gold}</span>
-                                    <span className="text-[10px] text-amber-500/70 uppercase">Gold</span>
-                                </div>
-                                <div className="flex-1 bg-black/40 rounded p-2 border border-blue-500/20 flex flex-col items-center">
-                                    <span className="text-xl font-bold text-blue-400">{passiveRewards.xp}</span>
-                                    <span className="text-[10px] text-blue-500/70 uppercase">XP</span>
-                                </div>
-                            </div>
-
-                            <Button
-                                className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold border-t border-white/20 shadow-lg active:scale-95 transition-all"
-                                onClick={handleCollectRewards}
-                            >
-                                Collect Taxes
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    };
+    // --- Helper Functions and Side Effects ---
+    const nextExpansionLevel = (expansions + 1) * 5;
+    const canExpand = characterStats.level >= nextExpansionLevel;
 
     // Handler to reset the map to the initial grid
     const handleResetMap = async () => {
+        if (!window.confirm("Are you sure you want to reset your entire realm? This cannot be undone!")) return;
         try {
-            const res = await fetch('/api/realm-tiles/reset', { method: 'POST' });
+            const token = await getToken({ template: 'supabase' });
+            const res = await fetch('/api/realm-tiles/reset', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (res.ok) {
-                // Reload the grid after reset
                 window.location.reload();
             } else {
                 throw new Error('Failed to reset map');
@@ -1912,6 +497,7 @@ function RealmPageContent() {
             toast({ title: 'Error', description: 'Failed to reset map', variant: 'destructive' });
         }
     };
+
 
     // Keyboard movement handlers
     useEffect(() => {
@@ -1990,13 +576,7 @@ function RealmPageContent() {
             }
 
             if (newX !== currentPos.x || newY !== currentPos.y) {
-                setCharacterPosition({ x: newX, y: newY });
-                // Save character position to Supabase
-                if (userId) {
-                    saveCharacterPosition(userId, { x: newX, y: newY }).catch(error => {
-                        console.error('Failed to save character position:', error);
-                    });
-                }
+                setCharacterPosition(newX, newY);
             }
         };
 
@@ -2072,25 +652,24 @@ function RealmPageContent() {
                     break;
             }
         }
-    }, [characterPosition, grid, toast]);
+    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile]);
 
     const handleResetPosition = () => {
-        setCharacterPosition(defaultCharacterPosition);
+        setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
         toast({
             title: "Position Reset",
-            description: `Character position reset to (${defaultCharacterPosition.x}, ${defaultCharacterPosition.y})`,
+            description: `Character position reset to center`,
         });
     };
 
     useEffect(() => {
-        if (!isLoading && grid.length && characterPosition && !hasCheckedInitialPosition) {
-            setHasCheckedInitialPosition(true);
+        if (!isLoading && grid.length && characterPosition) {
             const tile = grid[characterPosition.y]?.[characterPosition.x];
             if (!tile || ['mountain', 'water', 'lava', 'volcano'].includes(tile.type)) {
-                setCharacterPosition(defaultCharacterPosition);
+                setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
             }
         }
-    }, [isLoading, grid, characterPosition, hasCheckedInitialPosition, setCharacterPosition, defaultCharacterPosition]);
+    }, [isLoading, grid, characterPosition, setCharacterPosition]);
 
     // Focus trap for inventory panel
     useEffect(() => {
@@ -2130,598 +709,41 @@ function RealmPageContent() {
         return undefined;
     }, [showInventory]);
 
-    // When leaving build mode or switching to 'buy', clear selectedTile
-    useEffect(() => {
-        if (gameMode !== 'build' || inventoryTab === 'buy') {
-            setSelectedTile(null);
-        }
-    }, [gameMode, inventoryTab]);
 
-    // 1. When tile inventory is open, always set gameMode to 'build'.
-    useEffect(() => {
-        if (showInventory) setGameMode('build');
-    }, [showInventory]);
+    const handleDeleteTile = async (x: number, y: number) => {
+        const targetTile = grid[y]?.[x];
+        if (!targetTile || targetTile.type === 'empty') return;
 
-    // Ensure animals are placed on valid tiles if not already set
-    useEffect(() => {
-        // Place horse at start position (10,4) if not set
-        if (!horsePos) {
-            setHorsePos({ x: 10, y: 4 });
-        }
-        if (!eaglePos) {
-            const nonEmptyTiles: { x: number; y: number }[] = [];
-            grid.forEach((row, y) => row.forEach((tile, x) => {
-                if (tile.type !== 'empty') nonEmptyTiles.push({ x, y });
-            }));
-            if (nonEmptyTiles.length > 0) {
-                const next = nonEmptyTiles[0];
-                if (next) setEaglePos(next);
-            }
-        }
-    }, [grid, horsePos, eaglePos, setHorsePos, setEaglePos]);
+        if (!window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`)) return;
 
-    // Animal movement logic (adjacent only)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (horsePos) {
-                const adj = getAdjacentPositions(horsePos.x, horsePos.y, grid).filter(pos =>
-                    !!grid[pos.y]?.[pos.x] &&
-                    grid[pos.y]?.[pos.x]?.type === 'grass'
-                );
-                if (adj.length > 0) {
-                    const next = adj[Math.floor(Math.random() * adj.length)];
-                    if (next) setHorsePos(next);
-                }
-            }
-        }, 10000); // Reduced from 5000 to 10000ms
-        return () => clearInterval(interval);
-    }, [grid, horsePos, setHorsePos]);
+        const originalTile = { ...targetTile };
 
-    // Persist horse position to localStorage
-    useEffect(() => {
-        if (typeof window !== 'undefined' && horsePos) {
-            localStorage.setItem('horsePos', JSON.stringify(horsePos));
-        }
-    }, [horsePos]);
-
-    // Keyboard shortcut: 'm' for move mode
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'm' || event.key === 'M') {
-                setGameMode('move');
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
-
-
-
-    // Listen for horse-caught event
-    useEffect(() => {
-        const handler = (e: any) => {
-            if (!horseCaught) {
-                setIsHorsePresent(false);
-                setHorseCaught(true);
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('animal-horse-state', 'true');
-                }
-            }
-        };
-        window.addEventListener('horse-caught', handler);
-        return () => window.removeEventListener('horse-caught', handler);
-    }, [horseCaught]);
-
-    // Sheep movement logic (adjacent only)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (sheepPos) {
-                const adj = getAdjacentPositions(sheepPos.x, sheepPos.y, grid).filter(pos =>
-                    !!grid[pos.y]?.[pos.x] &&
-                    grid[pos.y]?.[pos.x]?.type === 'grass'
-                );
-                if (adj.length > 0) {
-                    const next = adj[Math.floor(Math.random() * adj.length)];
-                    if (next) setSheepPos(next);
-                }
-            }
-        }, 15000); // Reduced from 7000 to 15000ms
-        return () => clearInterval(interval);
-    }, [grid, sheepPos, setSheepPos]);
-
-    // Persist sheep position to localStorage
-    useEffect(() => {
-        if (typeof window !== 'undefined' && sheepPos) {
-            localStorage.setItem('sheepPos', JSON.stringify(sheepPos));
-        }
-    }, [sheepPos]);
-
-    // Delete tile: set to empty and send to backend
-    const handleDeleteTile = (x: number, y: number) => {
-        setGrid(prevGrid => {
-            const newGrid = prevGrid.map(row => row.slice());
-            if (newGrid[y]?.[x] && newGrid[y][x].type !== 'empty') {
-                const deletedTileType = newGrid[y][x].type;
-                newGrid[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
-
-                // Track tile destruction for achievements
-                if (userId && deletedTileType) {
-                    const achievementKey = `destroyed_${deletedTileType}_tiles`;
-                    const currentCount = parseInt(localStorage.getItem(achievementKey) || '0');
-                    const newCount = currentCount + 1;
-                    localStorage.setItem(achievementKey, newCount.toString());
-
-                    // Check for destruction achievements
-                    const destructionAchievements = [
-                        { type: 'forest', threshold: 3, achievementId: '201' },
-                        { type: 'mountain', threshold: 2, achievementId: '202' },
-                        { type: 'water', threshold: 1, achievementId: '203' },
-                        { type: 'desert', threshold: 2, achievementId: '204' },
-                        { type: 'ice', threshold: 1, achievementId: '205' }
-                    ];
-
-                    const achievement = destructionAchievements.find(a => a.type === deletedTileType);
-                    if (achievement && newCount >= achievement.threshold) {
-                        // Unlock achievement
-                        (async () => {
-                            const token = await getToken({ template: 'supabase' });
-                            fetch('/api/achievements/unlock', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: JSON.stringify({ achievementId: achievement.achievementId })
-                            }).then(() => {
-                                toast({
-                                    title: "Achievement Unlocked!",
-                                    description: `Destroyed ${achievement.threshold} ${deletedTileType} tiles!`,
-                                });
-                            }).catch(console.error);
-                        })();
-                    }
-                }
-            }
-            // Save only the changed tile
-            fetch('/api/realm-tiles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ x, y, tile_type: tileTypeToNumeric['empty'] })
-            }).catch(() => {
-                toast({ title: 'Error', description: 'Failed to delete tile', variant: 'destructive' });
-            });
-            return newGrid;
+        // Optimistic update
+        setGrid(prev => {
+            const next = [...prev];
+            if (next[y]) next[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
+            return next;
         });
-    };
 
-    // Handle monster battle completion
-    const handleBattleComplete = (won: boolean, goldEarned: number, xpEarned: number) => {
-        if (won) {
-            // Remove monster from the current tile
-            setGrid(prevGrid => {
-                const newGrid = prevGrid.map(row => row.slice());
-                const currentTile = newGrid[characterPosition.y]?.[characterPosition.x];
-                if (currentTile) {
-                    currentTile.hasMonster = undefined;
-                    currentTile.monsterAchievementId = undefined;
-                }
-                return newGrid;
-            });
-
-            // Save the updated tile to backend
-            fetch('/api/realm-tiles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    x: characterPosition.x,
-                    y: characterPosition.y,
-                    tile_type: tileTypeToNumeric[grid[characterPosition.y]?.[characterPosition.x]?.type || 'empty'],
-                    has_monster: null,
-                    monster_achievement_id: null
-                })
-            }).catch(() => {
-                toast({ title: 'Error', description: 'Failed to save monster defeat', variant: 'destructive' });
-            });
-
-            // Show victory message
-            toast({
-                title: "Victory!",
-                description: `You defeated the monster! Earned ${goldEarned} gold and ${xpEarned} XP!`,
-            });
-        } else {
-            // Show defeat message - monster stays on the map for retry
-            toast({
-                title: "Defeat!",
-                description: `The monster was too strong! You lost ${Math.abs(goldEarned)} gold. Try again when you're ready!`,
-                variant: "destructive",
-            });
-        }
-    };
-
-    // Add penguin state at the top of RealmPage
-    // Only declare penguinPos and isPenguinPresent once at the top of RealmPage
-    // After grid is loaded or updated, place penguin on first visible ice tile if not already present
-    useEffect(() => {
-        if (!isPenguinPresent && grid.length) {
-            for (let y = 0; y < grid.length; y++) {
-                const row = grid[y];
-                if (!row) continue;
-                for (let x = 0; x < row.length; x++) {
-                    if (row[x]?.type === 'ice') {
-                        setPenguinPos({ x, y });
-                        setIsPenguinPresent(true);
-                        return;
-                    }
-                }
-            }
-        }
-    }, [grid, isPenguinPresent]);
-    // Penguin movement logic: move every 5 seconds to adjacent ice tile
-    useEffect(() => {
-        if (!isPenguinPresent || !penguinPos) return;
-        const interval = setInterval(() => {
-            const adj = getAdjacentPositions(penguinPos.x, penguinPos.y, grid).filter(pos => {
-                const row = grid[pos.y];
-                return !!row && row[pos.x]?.type === 'ice';
-            });
-            if (adj.length > 0) {
-                const next = adj[Math.floor(Math.random() * adj.length)];
-                if (next) setPenguinPos(next);
-            }
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [grid, penguinPos, isPenguinPresent]);
-
-    // Expansion gating logic
-    const [expansions, setExpansions] = useState<number>(0);
-    const [playerLevel, setPlayerLevel] = useState<number>(1);
-
-    // Initial load of state from localStorage (client-only)
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            // Expansion status
-            const savedExpansions = localStorage.getItem('realm-expansions');
-            if (savedExpansions) setExpansions(parseInt(savedExpansions, 10));
-
-            // Auto-save setting
-            const savedAutoSave = localStorage.getItem('realm-auto-save');
-            if (savedAutoSave === 'false') setAutoSave(false);
-
-            // Animal positions
-            const savedHorse = localStorage.getItem('animal-horse-position');
-            if (savedHorse) setHorsePos(JSON.parse(savedHorse));
-
-            const savedSheep = localStorage.getItem('animal-sheep-position');
-            if (savedSheep) setSheepPos(JSON.parse(savedSheep));
-
-            // Animal states/cooldowns
-            const horseState = localStorage.getItem('animal-horse-state') === 'true';
-            setHorseCaught(horseState);
-
-            const sheepCooldown = localStorage.getItem('animal-sheep-cooldown');
-            if (sheepCooldown && Date.now() < parseInt(sheepCooldown)) {
-                setSheepCaught(true);
-                setIsSheepPresent(false);
-            }
-
-            const penguinCooldown = localStorage.getItem('animal-penguin-cooldown');
-            if (penguinCooldown && Date.now() < parseInt(penguinCooldown)) {
-                setPenguinCaught(true);
-                setIsPenguinPresent(false);
-            }
-
-            // Fresh stats
-            const stats = getCharacterStats();
-            setCharacterStats(stats);
-            setPlayerLevel(stats.level || 1);
-
-            // Last collection time
-            const savedCollectionTime = localStorage.getItem('kingdom_last_collection');
-            if (savedCollectionTime) setLastCollectionTime(parseInt(savedCollectionTime));
-        }
-    }, []);
-
-    // Fix expansion count if user is level 5 but expansion count is wrong
-    useEffect(() => {
-        if (playerLevel >= 5 && expansions > 0) {
-            // If user is level 5+ but has expansions recorded, reset to 0
-            setExpansions(0);
-            localStorage.setItem('realm-expansions', '0');
-        }
-    }, [playerLevel, expansions]);
-
-    const nextExpansionLevel = 5 + expansions * 5;
-    const canExpand = playerLevel >= nextExpansionLevel;
-
-    // Validate animal positions when grid changes
-    useEffect(() => {
-        if (!Array.isArray(grid) || grid.length === 0) return;
-
-        // Validate horse position
-        if (isHorsePresent && horsePos) {
-            const tile = grid[horsePos.y]?.[horsePos.x];
-            if (!tile || tile.type !== 'grass') {
-                // Removed debugging log
-                // Find a valid grass tile
-                for (let y = 0; y < grid.length; y++) {
-                    const row = grid[y];
-                    if (!row) continue;
-                    for (let x = 0; x < row.length; x++) {
-                        const checkTile = row[x];
-                        if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
-                            setHorsePos({ x, y });
-                            localStorage.setItem('animal-horse-position', JSON.stringify({ x, y }));
-                            // Removed debugging log
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Validate sheep position
-        if (isSheepPresent && sheepPos) {
-            const tile = grid[sheepPos.y]?.[sheepPos.x];
-            if (!tile || tile.type !== 'grass') {
-                // Find a valid grass tile
-                for (let y = 0; y < grid.length; y++) {
-                    const row = grid[y];
-                    if (!row) continue;
-                    for (let x = 0; x < row.length; x++) {
-                        const checkTile = row[x];
-                        if (checkTile && checkTile.type === 'grass' && !checkTile.hasMonster) {
-                            setSheepPos({ x, y });
-                            localStorage.setItem('animal-sheep-position', JSON.stringify({ x, y }));
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
-
-    // Network status and resilience
-    const [isOnline, setIsOnline] = useState(true); // Default to online for SSR
-    const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'unstable'>('online');
-    const [pendingSyncCount, setPendingSyncCount] = useState(0);
-
-    // Monitor network status
-    useEffect(() => {
-        const handleOnline = () => {
-            setIsOnline(true);
-            setNetworkStatus('online');
-            // Removed debugging log
-
-            // Sync any pending tile placements
-            syncPendingTilePlacements();
-        };
-
-        const handleOffline = () => {
-            setIsOnline(false);
-            setNetworkStatus('offline');
-            // Removed debugging log
-        };
-
-        const handleNetworkChange = () => {
-            if (navigator.onLine) {
-                setIsOnline(true);
-                setNetworkStatus('online');
-            } else {
-                setIsOnline(false);
-                setNetworkStatus('offline');
-            }
-        };
-
-        // Check for pending syncs on mount
-        const checkPendingSyncs = () => {
-            const pendingTiles = JSON.parse(localStorage.getItem('realm-pending-tiles') || '[]');
-            setPendingSyncCount(pendingTiles.length);
-        };
-
-        checkPendingSyncs();
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-        window.addEventListener('focus', checkPendingSyncs);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-            window.removeEventListener('focus', checkPendingSyncs);
-        };
-    }, []);
-
-    // Sync pending tile placements when network is restored
-    const syncPendingTilePlacements = async () => {
         try {
-            const pendingTiles = JSON.parse(localStorage.getItem('realm-pending-tiles') || '[]');
-            if (pendingTiles.length === 0) return;
+            const res = await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: 0 })
+            });
 
-            // Removed debugging log
-            setPendingSyncCount(pendingTiles.length);
-
-            const successfulSyncs: any[] = [];
-            const failedSyncs: any[] = [];
-
-            for (const pendingTile of pendingTiles) {
-                try {
-                    const res = await fetch('/api/realm-tiles', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            x: pendingTile.x,
-                            y: pendingTile.y,
-                            tile_type: pendingTile.tile_type
-                        })
-                    });
-
-                    if (res.ok) {
-                        successfulSyncs.push(pendingTile);
-                        // Removed debugging log
-                    } else {
-                        // Increment retry count for failed syncs
-                        const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
-
-                        // Remove tiles that have been retried too many times
-                        if (updatedTile.retryCount < 5) {
-                            failedSyncs.push(updatedTile);
-                        } else {
-                            // Removed debugging log
-                        }
-
-                        // Removed debugging log
-                    }
-                } catch (error) {
-                    // Increment retry count for network errors
-                    const updatedTile = { ...pendingTile, retryCount: (pendingTile.retryCount || 0) + 1 };
-
-                    // Remove tiles that have been retried too many times
-                    if (updatedTile.retryCount < 5) {
-                        failedSyncs.push(updatedTile);
-                    } else {
-                        // Removed debugging log
-                    }
-
-                    // Removed debugging log
-                }
+            if (!res.ok) {
+                throw new Error('Failed to delete tile');
             }
-
-            // Update pending list with only failed syncs
-            localStorage.setItem('realm-pending-tiles', JSON.stringify(failedSyncs));
-            setPendingSyncCount(failedSyncs.length);
-
-            if (successfulSyncs.length > 0) {
-                toast({
-                    title: "Sync Complete",
-                    description: `Successfully synced ${successfulSyncs.length} tile placements`,
-                });
-            }
-
-            if (failedSyncs.length > 0) {
-                toast({
-                    title: "Sync Incomplete",
-                    description: `${failedSyncs.length} tile placements failed to sync and will be retried later`,
-                    variant: "destructive",
-                });
-            }
-        } catch (error) {
-            console.error('[Realm] Error during sync:', error);
-        }
-    };
-
-    // Enhanced error handling for tile placement failures
-    const handleTilePlacementError = (error: any, x: number, y: number, tileType: TileType) => {
-        console.error('[Realm] Tile placement error:', error);
-
-        // Determine error type
-        const isNetworkError = error instanceof Error && (
-            error.message.includes('Failed to fetch') ||
-            error.message.includes('NetworkError') ||
-            error.message.includes('ERR_TIMED_OUT') ||
-            error.message.includes('ERR_NETWORK_CHANGED') ||
-            error.message.includes('ERR_INTERNET_DISCONNECTED') ||
-            error.message.includes('timeout') ||
-            error.message.includes('network')
-        );
-
-        const isAuthError = error instanceof Error && (
-            error.message.includes('Unauthorized') ||
-            error.message.includes('401') ||
-            error.message.includes('auth')
-        );
-
-        const isServerError = error instanceof Error && (
-            error.message.includes('500') ||
-            error.message.includes('Internal server error') ||
-            error.message.includes('Database')
-        );
-
-        if (isNetworkError) {
-            toast({
-                title: 'Network Error',
-                description: 'Tile placed locally but failed to save due to network issues. It will be saved when connection is restored.',
-                variant: 'destructive'
+            toast({ title: "💥 Devastated!", description: "The tile has been removed." });
+        } catch (err) {
+            // Revert
+            setGrid(prev => {
+                const next = [...prev];
+                if (next[y]) next[y][x] = originalTile;
+                return next;
             });
-
-            // Store for later sync
-            const pendingTile = {
-                x,
-                y,
-                tile_type: tileTypeToNumeric[tileType],
-                timestamp: Date.now(),
-                retryCount: 0
-            };
-
-            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
-            pendingTiles.push(pendingTile);
-            localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
-            setPendingSyncCount(pendingTiles.length);
-
-        } else if (isAuthError) {
-            toast({
-                title: 'Authentication Error',
-                description: 'Please log in again to continue placing tiles.',
-                variant: 'destructive'
-            });
-
-            // Revert the optimistic update
-            revertTilePlacement(x, y);
-
-        } else if (isServerError) {
-            toast({
-                title: 'Server Error',
-                description: 'The server is experiencing issues. Please try again later.',
-                variant: 'destructive'
-            });
-
-            // Store for later retry
-            const pendingTile = {
-                x,
-                y,
-                tile_type: tileTypeToNumeric[tileType],
-                timestamp: Date.now(),
-                retryCount: 0
-            };
-
-            const pendingTiles = JSON.parse(localStorage.getItem('pendingTilePlacements') || '[]');
-            pendingTiles.push(pendingTile);
-            localStorage.setItem('pendingTilePlacements', JSON.stringify(pendingTiles));
-            setPendingSyncCount(pendingTiles.length);
-
-        } else {
-            toast({
-                title: 'Unknown Error',
-                description: 'An unexpected error occurred. Please try again.',
-                variant: 'destructive'
-            });
-
-            // Revert the optimistic update for unknown errors
-            revertTilePlacement(x, y);
-        }
-    };
-
-    // Helper function to revert tile placement
-    const revertTilePlacement = (x: number, y: number) => {
-        setGrid(prevGrid => {
-            const newGrid = prevGrid.map(row => row.slice());
-            if (newGrid[y]?.[x]) {
-                // Find the original tile at this position
-                const originalTile = grid[y]?.[x];
-                newGrid[y][x] = originalTile || { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
-            }
-            return newGrid;
-        });
-
-        // Restore inventory
-        if (selectedTile) {
-            setInventory(prev => {
-                const newInventory = { ...prev };
-                const invTile = newInventory[selectedTile.type];
-                if (invTile) {
-                    invTile.owned = (invTile.owned ?? 0) + 1;
-                }
-                return newInventory;
-            });
+            toast({ title: 'Error', description: 'Failed to delete tile', variant: 'destructive' });
         }
     };
 
@@ -2867,26 +889,30 @@ function RealmPageContent() {
                                 </Button>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={expandMap}
-                                            disabled={!canExpand}
-                                            aria-label="Expand Map"
-                                            className="flex items-center gap-2 min-w-[44px] min-h-[44px] disabled:pointer-events-auto"
-                                        >
-                                            <PlusCircle className="w-4 h-4" />
-                                            <span className="hidden sm:inline">Expand</span>
-                                        </Button>
+                                        <div className="flex items-center">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={expandMap}
+                                                disabled={!canExpand}
+                                                aria-label="Expand Map"
+                                                className={cn(
+                                                    "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                                    !canExpand && "opacity-50 cursor-not-allowed"
+                                                )}
+                                            >
+                                                <PlusCircle className="w-4 h-4" />
+                                                <span className="hidden sm:inline">Expand</span>
+                                            </Button>
+                                        </div>
                                     </TooltipTrigger>
                                     <TooltipContent
                                         side="top"
                                         className="bg-gray-900 text-white border-amber-800/30"
                                     >
                                         {canExpand
-                                            ? 'Expand your realm map to unlock 3 more rows'
-                                            : `Become level ${nextExpansionLevel} to unlock 3 more rows`
-                                        }
+                                            ? "Expand your realm map to unlock 3 more rows"
+                                            : `Reach level ${nextExpansionLevel} to expand further (Current: ${characterStats.level})`}
                                     </TooltipContent>
                                 </Tooltip>
                                 {/* Inventory Button */}
@@ -2915,10 +941,6 @@ function RealmPageContent() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-48">
-                                        <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2">
-                                            <Trash2 className="w-4 h-4" />
-                                            Reset Map
-                                        </DropdownMenuItem>
                                         <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
                                             <RotateCcw className="w-4 h-4" />
                                             Reset Position
@@ -2930,13 +952,6 @@ function RealmPageContent() {
                                                 <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
                                             </div>
                                         </div>
-                                        {/* Manual Sync Button */}
-                                        {pendingSyncCount > 0 && (
-                                            <DropdownMenuItem onClick={syncPendingTilePlacements} className="flex items-center gap-2 text-amber-400">
-                                                <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
-                                                Sync ({pendingSyncCount})
-                                            </DropdownMenuItem>
-                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -2944,58 +959,6 @@ function RealmPageContent() {
                     </div>
                 )}
 
-                {/* Network Status Indicator */}
-                {!isOnline && (
-                    <div className="bg-red-900/80 border border-red-600 text-white px-4 py-2 text-sm text-center z-20">
-                        <div className="flex items-center justify-center gap-2">
-                            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                            <span>Offline Mode - Tile placements will be saved locally and synced when connection is restored</span>
-                            {pendingSyncCount > 0 && (
-                                <span className="bg-red-600 px-2 py-1 rounded text-xs">
-                                    {pendingSyncCount} pending
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {isOnline && pendingSyncCount > 0 && (
-                    <div className="bg-amber-900/80 border border-amber-600 text-white px-4 py-2 text-sm text-center z-20">
-                        <div className="flex items-center justify-center gap-2">
-                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
-                            <span>Syncing {pendingSyncCount} pending tile placements...</span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={syncPendingTilePlacements}
-                                className="h-6 px-2 text-xs bg-amber-700 border-amber-500 text-white hover:bg-amber-600"
-                            >
-                                Retry Now
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Debug Network Status (only show in development) */}
-                {process.env.NODE_ENV === 'development' && (
-                    <div className="bg-gray-800/80 border border-gray-600 text-gray-300 px-4 py-2 text-xs text-center z-20">
-                        <div className="flex items-center justify-center gap-4">
-                            <span>Network: {networkStatus}</span>
-                            <span>Online: {isOnline ? 'Yes' : 'No'}</span>
-                            <span>Pending: {pendingSyncCount}</span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    // Removed debugging logs
-                                }}
-                                className="h-6 px-2 text-xs bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
-                            >
-                                Debug
-                            </Button>
-                        </div>
-                    </div>
-                )}
                 {modalState && (
                     <EnterLocationModal
                         isOpen={modalState.isOpen}
@@ -3055,26 +1018,8 @@ function RealmPageContent() {
                                 tiles={inventoryAsItems}
                                 selectedTile={selectedTile}
                                 onSelectTile={setSelectedTile}
-                                onUpdateTiles={(newTiles: typeof inventoryAsItems) => {
-                                    // Update the inventoryAsItems state directly
+                                onUpdateTiles={(newTiles) => {
                                     setInventoryAsItems(newTiles);
-
-                                    // Also update the inventory state for compatibility
-                                    setInventory(prev => {
-                                        const updated = { ...prev };
-                                        newTiles.forEach((tile: typeof inventoryAsItems[number]) => {
-                                            updated[tile.type] = { ...updated[tile.type], ...tile };
-                                        });
-
-                                        // Save to Supabase with localStorage fallback
-                                        if (userId) {
-                                            saveTileInventory(userId, updated).catch(error => {
-                                                console.error('Failed to save inventory:', error);
-                                            });
-                                        }
-
-                                        return updated;
-                                    });
                                 }}
                                 activeTab={inventoryTab}
                                 setActiveTab={setInventoryTab}
@@ -3266,6 +1211,7 @@ function RealmPageContent() {
                                             onClick={() => {
                                                 setMysteryEvent({ ...mysteryEvent, choice });
                                                 handleEventOutcome(mysteryEvent.event, choice, user?.id);
+                                                setMysteryEventCompleted(true);
                                                 setTimeout(() => setMysteryEvent(null), 2000);
                                             }}
                                         >
@@ -3289,8 +1235,64 @@ function RealmPageContent() {
                     isOpen={battleOpen}
                     onClose={() => setBattleOpen(false)}
                     monsterType={currentMonster}
-                    onBattleComplete={handleBattleComplete}
+                    onBattleComplete={(won, gold, xp) => {
+                        if (won) {
+                            toast({ title: "Victory!", description: `Defeated the monster! +${gold} Gold, +${xp} XP` });
+                            // Update grid
+                            setGrid(prev => {
+                                const next = [...prev];
+                                const tile = next[characterPosition.y]?.[characterPosition.x];
+                                if (tile) {
+                                    tile.hasMonster = undefined;
+                                    tile.monsterAchievementId = undefined;
+                                }
+                                return next;
+                            });
+                        } else {
+                            toast({ title: "Defeat", description: "The monster was too strong!", variant: "destructive" });
+                        }
+                    }}
                 />
+
+                {/* Passive Rewards Treasury UI */}
+                {passiveRewards && (passiveRewards.gold > 0 || passiveRewards.xp > 0) && (
+                    <div className="fixed top-24 right-4 z-40 animate-in slide-in-from-right-5 fade-in duration-500">
+                        <Card className="bg-gradient-to-br from-gray-900 to-amber-950/80 border-amber-500/50 shadow-xl shadow-amber-900/20 backdrop-blur-md w-64 overflow-hidden group hover:scale-105 transition-transform duration-300">
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-50 animate-pulse" />
+                            <CardContent className="p-4 relative">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-bold text-amber-400 text-sm uppercase tracking-wider flex items-center gap-2">
+                                        <Crown className="w-4 h-4" /> Treasury
+                                    </h3>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center text-amber-200">
+                                        <span className="text-xs text-amber-400/80">Taxes Collected</span>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <div className="flex-1 bg-black/40 rounded p-2 border border-amber-500/20 flex flex-col items-center">
+                                            <span className="text-xl font-bold text-amber-400">{passiveRewards.gold}</span>
+                                            <span className="text-[10px] text-amber-500/70 uppercase">Gold</span>
+                                        </div>
+                                        <div className="flex-1 bg-black/40 rounded p-2 border border-blue-500/20 flex flex-col items-center">
+                                            <span className="text-xl font-bold text-blue-400">{passiveRewards.xp}</span>
+                                            <span className="text-[10px] text-blue-500/70 uppercase">XP</span>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold border-t border-white/20 shadow-lg active:scale-95 transition-all"
+                                        onClick={handleCollectRewards}
+                                    >
+                                        Collect Taxes
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
             </RealmAnimationWrapper>
         </div>
     );
