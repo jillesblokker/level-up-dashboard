@@ -61,6 +61,8 @@ const RevealOverlay = dynamic(() => import('../reveal/page'), {
     ssr: false,
     loading: () => null // No loading state needed
 });
+// Import the ErrorBoundary component
+import { ErrorBoundary } from "@/components/error-boundary-component";
 
 const MonsterBattle = dynamic(() => import('@/components/monster-battle').then(mod => ({ default: mod.MonsterBattle })), {
     ssr: false,
@@ -1019,15 +1021,17 @@ function RealmPageContent() {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="flex-1 overflow-hidden p-0 relative">
-                                <TileInventory
-                                    tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
-                                    selectedTile={selectedTile}
-                                    onSelectTile={handleTileSelection}
-                                    onUpdateTiles={setInventoryAsItems}
-                                    activeTab={inventoryTab}
-                                    setActiveTab={setInventoryTab}
-                                    onOutOfTiles={(tile) => setInventoryTab('buy')}
-                                />
+                                <ErrorBoundary componentName="TileInventory">
+                                    <TileInventory
+                                        tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
+                                        selectedTile={selectedTile}
+                                        onSelectTile={handleTileSelection}
+                                        onUpdateTiles={setInventoryAsItems}
+                                        activeTab={inventoryTab}
+                                        setActiveTab={setInventoryTab}
+                                        onOutOfTiles={(tile) => setInventoryTab('buy')}
+                                    />
+                                </ErrorBoundary>
                             </div>
                         </DialogContent>
                     </Dialog>
