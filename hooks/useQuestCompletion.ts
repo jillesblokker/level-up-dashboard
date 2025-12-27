@@ -51,6 +51,9 @@ export function useQuestCompletion() {
     }));
 
     try {
+      // Optimistic UI Update
+      onSuccess?.(newCompleted);
+
       console.log('[Quest Completion] Starting quest toggle:', {
         questId,
         currentCompleted,
@@ -101,9 +104,6 @@ export function useQuestCompletion() {
 
         // Show offline toast
         questToasts.showOfflineQuest(questData.name);
-
-        // Call success callback for optimistic update
-        onSuccess?.(newCompleted);
 
         return { success: true, data: { offline: true } };
       }
@@ -183,9 +183,6 @@ export function useQuestCompletion() {
         });
       }
 
-      // Call success callback
-      onSuccess?.(newCompleted);
-
       // Optimistically update character stats
       if (newCompleted) {
         try {
@@ -213,6 +210,9 @@ export function useQuestCompletion() {
       return { success: true, data: responseData };
 
     } catch (error) {
+      // Rollback optimistic update on error
+      onSuccess?.(currentCompleted);
+
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       console.error('[Quest Completion] Error:', errorMessage);
 
