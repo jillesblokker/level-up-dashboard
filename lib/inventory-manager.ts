@@ -21,15 +21,29 @@ export interface InventoryItem {
 // Fetch all inventory items for the given user
 export async function getInventory(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
-  
+
   try {
     const response = await fetchWithAuth('/api/inventory');
-    
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch inventory: ${response.status}`);
+      console.warn(`[Inventory Manager] Failed to fetch inventory: ${response.status}`);
+      return [];
     }
-    
-    return await response.json();
+
+    const data = await response.json();
+
+    // Handle { data: [...] } format
+    if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
+      return data.data;
+    }
+
+    // Handle direct array
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    console.warn('[Inventory Manager] Unexpected inventory response format:', data);
+    return [];
   } catch (error) {
     console.error('Error fetching inventory:', error);
     return [];
@@ -39,21 +53,21 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
 // Add or update an inventory item
 export async function addToInventory(userId: string, item: InventoryItem) {
   if (!userId) return;
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory', {
       method: 'POST',
       body: JSON.stringify({ item }),
     }, 'Add Inventory');
-    
+
     if (!response) {
       return;
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to add inventory item: ${response.status}`);
     }
-    
+
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
     console.error('Error adding to inventory:', error);
@@ -63,21 +77,21 @@ export async function addToInventory(userId: string, item: InventoryItem) {
 // Remove quantity or delete item
 export async function removeFromInventory(userId: string, itemId: string, quantity: number = 1) {
   if (!userId) return;
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory', {
       method: 'DELETE',
       body: JSON.stringify({ itemId, quantity }),
     }, 'Remove Inventory');
-    
+
     if (!response) {
       return;
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to remove inventory item: ${response.status}`);
     }
-    
+
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
     console.error('Error removing from inventory:', error);
@@ -86,21 +100,21 @@ export async function removeFromInventory(userId: string, itemId: string, quanti
 
 export async function clearInventory(userId: string) {
   if (!userId) return;
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory', {
       method: 'DELETE',
       body: JSON.stringify({ clearAll: true }),
     }, 'Clear Inventory');
-    
+
     if (!response) {
       return;
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to clear inventory: ${response.status}`);
     }
-    
+
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
     console.error('Error clearing inventory:', error);
@@ -109,18 +123,18 @@ export async function clearInventory(userId: string) {
 
 export async function getInventoryByType(userId: string, type: string): Promise<InventoryItem[]> {
   if (!userId) return [];
-  
+
   try {
     const response = await authenticatedFetch(`/api/inventory?type=${encodeURIComponent(type)}`, {}, 'Inventory By Type');
-    
+
     if (!response) {
       return [];
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch inventory by type: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching inventory by type:', error);
@@ -130,18 +144,18 @@ export async function getInventoryByType(userId: string, type: string): Promise<
 
 export async function getInventoryByCategory(userId: string, category: string): Promise<InventoryItem[]> {
   if (!userId) return [];
-  
+
   try {
     const response = await authenticatedFetch(`/api/inventory?category=${encodeURIComponent(category)}`, {}, 'Inventory By Category');
-    
+
     if (!response) {
       return [];
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch inventory by category: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching inventory by category:', error);
@@ -151,21 +165,21 @@ export async function getInventoryByCategory(userId: string, category: string): 
 
 export async function equipItem(userId: string, itemId: string): Promise<boolean> {
   if (!userId) return false;
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory', {
       method: 'PATCH',
       body: JSON.stringify({ action: 'equip', itemId }),
     }, 'Equip Item');
-    
+
     if (!response) {
       return false;
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to equip item: ${response.status}`);
     }
-    
+
     window.dispatchEvent(new Event('character-inventory-update'));
     return true;
   } catch (error) {
@@ -176,21 +190,21 @@ export async function equipItem(userId: string, itemId: string): Promise<boolean
 
 export async function unequipItem(userId: string, itemId: string): Promise<boolean> {
   if (!userId) return false;
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory', {
       method: 'PATCH',
       body: JSON.stringify({ action: 'unequip', itemId }),
     }, 'Unequip Item');
-    
+
     if (!response) {
       return false;
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to unequip item: ${response.status}`);
     }
-    
+
     window.dispatchEvent(new Event('character-inventory-update'));
     return true;
   } catch (error) {
@@ -202,18 +216,18 @@ export async function unequipItem(userId: string, itemId: string): Promise<boole
 // Check if user has specific item
 export async function hasItem(userId: string, itemId: string): Promise<boolean> {
   if (!userId) return false;
-  
+
   try {
     const response = await authenticatedFetch(`/api/inventory?itemId=${encodeURIComponent(itemId)}`, {}, 'Has Item Check');
-    
+
     if (!response) {
       return false;
     }
-    
+
     if (!response.ok) {
       return false;
     }
-    
+
     const item = await response.json();
     return !!item;
   } catch (error) {
@@ -225,30 +239,30 @@ export async function hasItem(userId: string, itemId: string): Promise<boolean> 
 // Get equipped items: filter inventory_items where equipped = true
 export async function getEquippedItems(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory?equipped=true', {}, 'Equipped Items');
-    
+
     if (!response) {
       return [];
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch equipped items: ${response.status}`);
     }
-    
+
     const data = await response.json();
-    
+
     // Handle API response format: {success: true, data: Array}
     if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
       return data.data;
     }
-    
+
     // Handle direct array response
     if (Array.isArray(data)) {
       return data;
     }
-    
+
     console.warn('[Inventory Manager] getEquippedItems: Unexpected response format:', data);
     return [];
   } catch (error) {
@@ -260,30 +274,30 @@ export async function getEquippedItems(userId: string): Promise<InventoryItem[]>
 // Get stored (non-equipped) items
 export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
-  
+
   try {
     const response = await authenticatedFetch('/api/inventory?equipped=false', {}, 'Stored Items');
-    
+
     if (!response) {
       return [];
     }
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch stored items: ${response.status}`);
     }
-    
+
     const data = await response.json();
-    
+
     // Handle API response format: {success: true, data: Array}
     if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
       return data.data;
     }
-    
+
     // Handle direct array response
     if (Array.isArray(data)) {
       return data;
     }
-    
+
     console.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
     return [];
   } catch (error) {
@@ -296,13 +310,13 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
 export async function getTotalStats(userId: string): Promise<{ movement: number; attack: number; defense: number }> {
   try {
     const equippedItems = await getEquippedItems(userId);
-    
+
     // Ensure equippedItems is an array
     if (!Array.isArray(equippedItems)) {
       console.warn('[Inventory Manager] getTotalStats: equippedItems is not an array:', equippedItems);
       return { movement: 0, attack: 0, defense: 0 };
     }
-    
+
     return equippedItems.reduce(
       (totals, item) => {
         try {
