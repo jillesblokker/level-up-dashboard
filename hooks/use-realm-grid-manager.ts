@@ -6,6 +6,7 @@ import { createBaseGrid, GRID_COLS, INITIAL_ROWS, EXPANSION_INCREMENT, defaultTi
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
 import { z } from 'zod';
 import { loadAndProcessInitialGrid } from '@/lib/grid-loader';
+import logger from '@/lib/logger';
 
 // Schema for tile validation
 const TileSchema = z.object({
@@ -56,9 +57,10 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             // Load Grid
             const gridResult = await loadGridData(userId);
             // gridResult IS the data (Tile[][]), not { data: ... }
-            console.log('[useRealmGridManager] Loaded grid data:', gridResult ? `(Array length: ${Array.isArray(gridResult) ? gridResult.length : 'N/A'}, Type: ${typeof gridResult})` : 'null/undefined');
+            const isGridArray = Array.isArray(gridResult);
+            logger.info(`[useRealmGridManager] Loaded grid data: ${gridResult ? `(Array length: ${isGridArray ? gridResult.length : 'N/A'}, Type: ${typeof gridResult})` : 'null/undefined'}`, 'RealmGrid');
 
-            if (gridResult && Array.isArray(gridResult) && gridResult.length > 0) {
+            if (gridResult && isGridArray && gridResult.length > 0) {
                 try {
                     // Basic validation
                     const validatedGrid = GridSchema.parse(gridResult);
