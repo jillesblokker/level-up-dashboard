@@ -1009,32 +1009,34 @@ function RealmPageContent() {
                 </div>
                 {/* Overlay Inventory Panel */}
                 {showInventory && (
-                    <Dialog open={showInventory} onOpenChange={setShowInventory}>
-                        <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col">
-                            <DialogHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left">
-                                <DialogTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
-                                    <span className="text-3xl">🏰</span>
-                                    Realm Inventory
-                                </DialogTitle>
-                                <DialogDescription className="text-gray-400">
-                                    Manage your tiles and expanded territory.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="flex-1 overflow-hidden p-0 relative">
-                                <ErrorBoundary componentName="TileInventory">
-                                    <TileInventory
-                                        tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
-                                        selectedTile={selectedTile}
-                                        onSelectTile={handleTileSelection}
-                                        onUpdateTiles={setInventoryAsItems}
-                                        activeTab={inventoryTab}
-                                        setActiveTab={setInventoryTab}
-                                        onOutOfTiles={(tile) => setInventoryTab('buy')}
-                                    />
-                                </ErrorBoundary>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                    <ErrorBoundary componentName="InventoryDialog">
+                        <Dialog open={showInventory} onOpenChange={setShowInventory}>
+                            <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col">
+                                <DialogHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left">
+                                    <DialogTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
+                                        <span className="text-3xl">🏰</span>
+                                        Realm Inventory
+                                    </DialogTitle>
+                                    <DialogDescription className="text-gray-400">
+                                        Manage your tiles and expanded territory.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex-1 overflow-hidden p-0 relative">
+                                    <ErrorBoundary componentName="TileInventory">
+                                        <TileInventory
+                                            tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
+                                            selectedTile={selectedTile}
+                                            onSelectTile={handleTileSelection}
+                                            onUpdateTiles={setInventoryAsItems}
+                                            activeTab={inventoryTab}
+                                            setActiveTab={setInventoryTab}
+                                            onOutOfTiles={(tile) => setInventoryTab('buy')}
+                                        />
+                                    </ErrorBoundary>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </ErrorBoundary>
                 )}
 
                 {/* Event Modals */}
