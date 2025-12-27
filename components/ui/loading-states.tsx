@@ -16,23 +16,26 @@ export function LoadingState({ message = "Loading...", size = 'md', className = 
     md: 'h-8 w-8',
     lg: 'h-12 w-12'
   }
-  
+
   return (
     <div className={`flex items-center justify-center p-8 ${className}`}>
       <div className="flex flex-col items-center gap-3">
-        <Loader2 className={`animate-spin rounded-full border-b-2 border-amber-500 ${sizeClasses[size]}`} />
-        <span className="text-gray-300 text-sm">{message}</span>
+        <Loader2 className={`animate-spin text-amber-500 ${sizeClasses[size]}`} />
+        <span className="text-amber-500/80 text-sm font-medium tracking-wide">{message}</span>
       </div>
     </div>
   )
 }
 
-export function FullPageLoading({ message = "Loading..." }: { message?: string }) {
+export function FullPageLoading({ message = "Summoning the Realm..." }: { message?: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500" />
-        <span className="text-gray-300 text-lg">{message}</span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-950">
+      <div className="flex flex-col items-center gap-6">
+        <div className="relative">
+          <div className="absolute inset-0 animate-ping rounded-full bg-amber-500/10"></div>
+          <Loader2 className="animate-spin text-amber-500 h-12 w-12" />
+        </div>
+        <span className="text-amber-400 text-xl font-medieval tracking-widest">{message}</span>
       </div>
     </div>
   )
@@ -45,20 +48,23 @@ interface DataLoadingStateProps {
   children: React.ReactNode
   loadingMessage?: string
   errorMessage?: string
+  skeleton?: React.ReactNode
 }
 
-export function DataLoadingState({ 
-  isLoading, 
-  error, 
-  onRetry, 
-  children, 
+export function DataLoadingState({
+  isLoading,
+  error,
+  onRetry,
+  children,
   loadingMessage = "Loading data...",
-  errorMessage = "Failed to load data"
+  errorMessage = "Failed to load data",
+  skeleton
 }: DataLoadingStateProps) {
   if (isLoading) {
+    if (skeleton) return <>{skeleton}</>;
     return <LoadingState message={loadingMessage} />
   }
-  
+
   if (error) {
     return (
       <Card className="bg-red-900/20 border-red-500/30">
@@ -77,7 +83,7 @@ export function DataLoadingState({
       </Card>
     )
   }
-  
+
   return <>{children}</>
 }
 
@@ -90,8 +96,8 @@ export function Skeleton({ className = "", lines = 1 }: SkeletonProps) {
   return (
     <div className={`animate-pulse ${className}`}>
       {Array.from({ length: lines }).map((_, i) => (
-        <div 
-          key={i} 
+        <div
+          key={i}
           className="h-4 bg-gray-700 rounded mb-2"
           style={{ width: `${Math.random() * 40 + 60}%` }}
         />

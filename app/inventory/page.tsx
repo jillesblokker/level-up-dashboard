@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync";
 import { getInventory, InventoryItem } from "@/lib/inventory-manager";
+import { InventorySkeleton } from "@/components/skeletons/inventory-skeleton";
 
 const ITEM_TYPES = [
   { value: "resource", label: "Resources", emoji: "🌿" },
@@ -93,14 +94,14 @@ export default function InventoryPage() {
     };
 
     window.addEventListener("character-inventory-update", handleInventoryUpdate);
-    
+
     return () => {
       window.removeEventListener("character-inventory-update", handleInventoryUpdate);
     };
   }, []);
 
-  const filteredItems = activeTab === "all" 
-    ? items 
+  const filteredItems = activeTab === "all"
+    ? items
     : items.filter(item => item.type === activeTab);
 
   const renderItemCard = (item: InventoryItem) => (
@@ -122,7 +123,7 @@ export default function InventoryPage() {
               </div>
             )}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-white truncate">{item.name}</h3>
@@ -130,25 +131,25 @@ export default function InventoryPage() {
                 {item.equipped ? "Equipped" : item.type}
               </Badge>
             </div>
-            
+
             {item.description && (
               <p className="text-gray-300 text-sm mb-2 line-clamp-2">{item.description}</p>
             )}
-            
+
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-400">
                 Quantity: <span className="text-amber-400 font-semibold">{item.quantity}</span>
               </div>
-              
-                             {item.stats && Object.keys(item.stats).length > 0 && (
-                 <div className="text-xs text-gray-500">
-                   {Object.entries(item.stats).map(([key, value]) => (
-                     <span key={key} className="mr-2">
-                       {key}: {String(value)}
-                     </span>
-                   ))}
-                 </div>
-               )}
+
+              {item.stats && Object.keys(item.stats).length > 0 && (
+                <div className="text-xs text-gray-500">
+                  {Object.entries(item.stats).map(([key, value]) => (
+                    <span key={key} className="mr-2">
+                      {key}: {String(value)}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -157,16 +158,7 @@ export default function InventoryPage() {
   );
 
   if (isLoading || supabaseLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-amber-500 mb-2">Loading Inventory...</div>
-            <div className="text-gray-400">Fetching your items from the database</div>
-          </div>
-        </div>
-      </div>
-    );
+    return <InventorySkeleton />;
   }
 
   return (
@@ -197,7 +189,7 @@ export default function InventoryPage() {
             </Button>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-6 mb-6">
@@ -208,7 +200,7 @@ export default function InventoryPage() {
                 </TabsTrigger>
               ))}
             </TabsList>
-            
+
             <TabsList className="grid w-full grid-cols-6 mb-6">
               {ITEM_TYPES.slice(5).map(type => (
                 <TabsTrigger key={type.value} value={type.value} aria-label={`${type.label} tab`}>
@@ -223,7 +215,7 @@ export default function InventoryPage() {
                   <div className="text-6xl mb-4">📦</div>
                   <h3 className="text-xl font-semibold text-gray-300 mb-2">No items found</h3>
                   <p className="text-gray-500">
-                    {activeTab === "all" 
+                    {activeTab === "all"
                       ? "Your inventory is empty. Start collecting items by completing quests and exploring the realm!"
                       : `No ${activeTab} items found. Try completing quests or exploring different areas.`
                     }
