@@ -46,6 +46,14 @@ export async function PUT(request: Request) {
         .eq('user_id', userId);
 
       if (error) throw error;
+    } else if (action === 'mark_all_read') {
+      const { error } = await supabaseServer
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', userId)
+        .eq('is_read', false); // Optimization: only update unread
+
+      if (error) throw error;
     }
 
     return NextResponse.json({ success: true });

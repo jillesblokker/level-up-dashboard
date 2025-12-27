@@ -1,8 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bell, Mail, Trophy, MessageSquare } from "lucide-react"
+import Image from "next/image"
+import { Bell, Mail, Trophy, MessageSquare, CheckCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Sheet,
   SheetTrigger,
@@ -33,6 +35,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [open, setOpen] = useState(false)
   const [serverNotifications, setServerNotifications] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchServerNotifications = async () => {
     try {
@@ -43,6 +46,8 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       }
     } catch (error) {
       console.error("Error fetching notifications:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,6 +93,24 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     } else {
       notificationService.markAsRead(id)
       setNotifications(notificationService.getNotifications())
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      // Server
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_all_read' })
+      });
+      fetchServerNotifications();
+
+      // Local
+      notificationService.markAllAsRead();
+      setNotifications(notificationService.getNotifications());
+    } catch (error) {
+      console.error("Error marking all as read:", error);
     }
   };
 
@@ -195,14 +218,13 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       {/* Main content */}
       <div className="relative z-10 text-center w-full max-w-sm mx-auto">
         {/* Original image */}
-        <div className="relative mb-8">
-          <img
+        <div className="relative mb-8 h-[200px] w-full">
+          <Image
             src="/images/Notifications/no-mail.png"
             alt="No mail"
-            className="mx-auto w-full h-auto max-h-[400px] object-contain rounded-lg"
-            width={320}
-            height={400}
-            onError={(e) => { e.currentTarget.src = '/images/placeholders/item-placeholder.svg'; e.currentTarget.alt = 'Image not found'; }}
+            fill
+            className="object-contain"
+            priority
           />
         </div>
 
@@ -261,12 +283,36 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                 {unreadCount > 99 ? '99+' : unreadCount}
               </div>
             )}
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllRead}
+                className="text-amber-500 hover:text-amber-400 hover:bg-amber-900/20"
+                title="Mark all as read"
+              >
+                <CheckCheck className="h-4 w-4 mr-2" />
+                Mark All
+              </Button>
+            )}
           </div>
         </div>
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
-          {allNotifications.length === 0 ? (
+          {isLoading ? (
+            <div className="p-4 space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex gap-4 p-2">
+                  <Skeleton className="h-10 w-10 rounded-lg bg-gray-800" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4 bg-gray-800" />
+                    <Skeleton className="h-3 w-1/2 bg-gray-800/50" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : allNotifications.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="divide-y divide-amber-800/10">

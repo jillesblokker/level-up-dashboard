@@ -1011,8 +1011,8 @@ function RealmPageContent() {
                 {showInventory && (
                     <ErrorBoundary componentName="InventoryDialog">
                         <Dialog open={showInventory} onOpenChange={setShowInventory}>
-                            <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col">
-                                <DialogHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left">
+                            <DialogContent className="w-[95vw] h-[95dvh] sm:max-w-4xl sm:h-[80vh] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col">
+                                <DialogHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left shrink-0">
                                     <DialogTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
                                         <span className="text-3xl">🏰</span>
                                         Realm Inventory
@@ -1021,7 +1021,7 @@ function RealmPageContent() {
                                         Manage your tiles and expanded territory.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="flex-1 overflow-hidden p-0 relative">
+                                <div className="flex-1 overflow-hidden p-0 relative min-h-0">
                                     <ErrorBoundary componentName="TileInventory">
                                         <TileInventory
                                             tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
