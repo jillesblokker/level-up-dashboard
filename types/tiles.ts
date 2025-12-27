@@ -3,7 +3,7 @@
 import { MinimapEntity, MinimapRotationMode } from '@/types/minimap';
 import { MysteryEvent } from '@/lib/mystery-events';
 
-export type TileType = 
+export type TileType =
   | 'empty'
   | 'mountain'
   | 'grass'
@@ -101,6 +101,7 @@ export interface InventoryItem {
   bigMysteryX?: number | undefined;
   bigMysteryY?: number | undefined;
   tileSize?: 1 | 2 | undefined;
+  unlocked?: boolean;
 }
 
 // Interface for a tile selected from inventory, ready to be placed

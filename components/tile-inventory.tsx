@@ -170,6 +170,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     if (category.id === 'rare') {
       // Handle rare tiles differently
       return RARE_TILES.map(rareTile => {
+        if (!rareTile) return null; // Safety check
         const userTile = tiles.find(t => t.type === rareTile.type);
         // Use loaded rare tiles data if available, otherwise fall back to date-based check
         const loadedRareTile = rareTilesData.find(rt => rt.id === rareTile.id);
@@ -193,7 +194,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           description: rareTile.description,
           unlocked: isUnlocked
         };
-      });
+      }).filter(Boolean) as InventoryItem[]; // Filter out nulls
     }
 
     // Get all possible tiles for this category
@@ -403,97 +404,100 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               return (
                 <ScrollArea className="h-full w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                    {categoryTiles.map((tile) => (
-                      <TooltipProvider key={tile.type}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Card
-                              className={cn(
-                                "relative overflow-hidden transition-all duration-200",
-                                selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
-                                (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
-                                userLevel >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
-                              )}
-                              onClick={() => {
-                                if (userLevel < category.minLevel) {
-                                  return; // Disabled for locked categories
-                                }
-                                if (tile.quantity === 0) {
-                                  setActiveTab('buy');
-                                  if (onOutOfTiles) onOutOfTiles(tile);
-                                  return;
-                                }
-                                onSelectTile(selectedTile?.type === tile.type ? null : tile);
-                              }}
-                              aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
-                            >
-                              <div className="aspect-square relative group">
-                                <Image
-                                  src={getTileImage(tile.type)}
-                                  alt={tile.name}
-                                  fill
-                                  className="object-cover transition-transform duration-200 group-hover:scale-110"
-                                />
-                                <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                  {tile.quantity}
-                                </div>
-                                {userLevel < category.minLevel && (
-                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                    <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
-                                      🔒 Lvl {category.minLevel}
-                                    </span>
-                                  </div>
+                    {categoryTiles.map((tile) => {
+                      if (!tile) return null;
+                      return (
+                        <TooltipProvider key={tile.type}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Card
+                                className={cn(
+                                  "relative overflow-hidden transition-all duration-200",
+                                  selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
+                                  (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                                  userLevel >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
                                 )}
-                                {category.id === 'rare' && !tile.unlocked && (
-                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                    <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                      🔒
-                                    </span>
+                                onClick={() => {
+                                  if (userLevel < category.minLevel) {
+                                    return; // Disabled for locked categories
+                                  }
+                                  if (tile.quantity === 0) {
+                                    setActiveTab('buy');
+                                    if (onOutOfTiles) onOutOfTiles(tile);
+                                    return;
+                                  }
+                                  onSelectTile(selectedTile?.type === tile.type ? null : tile);
+                                }}
+                                aria-label={`Select ${tile.name} tile (Quantity: ${tile.quantity})`}
+                              >
+                                <div className="aspect-square relative group">
+                                  <Image
+                                    src={getTileImage(tile.type)}
+                                    alt={tile.name}
+                                    fill
+                                    className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                  />
+                                  <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                    {tile.quantity}
                                   </div>
-                                )}
-                                {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
-                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                    <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
-                                      Buy More
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="p-4 bg-background/95 backdrop-blur-sm">
-                                <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
-                                <div className="text-xs text-muted-foreground text-center">
-                                  <span className="text-amber-500 font-medium">{tile.cost} gold</span>
-                                  {tile.cost > 0 && (
-                                    <div className="text-xs text-gray-500 mt-1">
-                                      {tile.cost <= 50 ? 'Budget' : tile.cost <= 150 ? 'Standard' : tile.cost <= 300 ? 'Premium' : 'Luxury'}
+                                  {userLevel < category.minLevel && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                      <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
+                                        🔒 Lvl {category.minLevel}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {category.id === 'rare' && !tile.unlocked && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                      <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
+                                        🔒
+                                      </span>
+                                    </div>
+                                  )}
+                                  {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                      <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
+                                        Buy More
+                                      </span>
                                     </div>
                                   )}
                                 </div>
-                                {tile.quantity === 0 && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setActiveTab('buy');
-                                    }}
-                                    aria-label={`Switch to buy tab for ${tile.name}`}
-                                  >
-                                    Buy More
-                                  </Button>
-                                )}
-                              </div>
-                            </Card>
-                          </TooltipTrigger>
-                          {category.id === 'rare' && !tile.unlocked && (
-                            <TooltipContent>
-                              <p>A secret... come back another day... :)</p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      </TooltipProvider>
-                    ))}
+                                <div className="p-4 bg-background/95 backdrop-blur-sm">
+                                  <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
+                                  <div className="text-xs text-muted-foreground text-center">
+                                    <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                                    {tile.cost > 0 && (
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {tile.cost <= 50 ? 'Budget' : tile.cost <= 150 ? 'Standard' : tile.cost <= 300 ? 'Premium' : 'Luxury'}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {tile.quantity === 0 && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveTab('buy');
+                                      }}
+                                      aria-label={`Switch to buy tab for ${tile.name}`}
+                                    >
+                                      Buy More
+                                    </Button>
+                                  )}
+                                </div>
+                              </Card>
+                            </TooltipTrigger>
+                            {category.id === 'rare' && !tile.unlocked && (
+                              <TooltipContent>
+                                <p>A secret... come back another day... :)</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      )
+                    })}
                   </div>
                 </ScrollArea>
               );
@@ -572,89 +576,92 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               return (
                 <ScrollArea className="h-full w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                    {categoryTiles.map((tile) => (
-                      <TooltipProvider key={tile.type}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Card
-                              className={cn(
-                                "relative overflow-hidden transition-all duration-200",
-                                (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
-                                userLevel >= category.minLevel && "hover:scale-105",
-                                tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
-                              )}
-                            >
-                              <div className="aspect-square relative group">
-                                <Image
-                                  src={getTileImage(tile.type)}
-                                  alt={tile.name}
-                                  fill
-                                  className="object-cover transition-transform duration-200 group-hover:scale-110"
-                                />
-                                <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                  {tile.quantity}
-                                </div>
-                                {userLevel < category.minLevel && (
-                                  <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
-                                    🔒 Lvl {category.minLevel}
-                                  </span>
+                    {categoryTiles.map((tile) => {
+                      if (!tile) return null;
+                      return (
+                        <TooltipProvider key={tile.type}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Card
+                                className={cn(
+                                  "relative overflow-hidden transition-all duration-200",
+                                  (tile.quantity === 0 || userLevel < category.minLevel) && "opacity-50",
+                                  userLevel >= category.minLevel && "hover:scale-105",
+                                  tile.quantity === 0 && userLevel >= category.minLevel && "border-2 border-amber-500 shadow-lg"
                                 )}
-                                {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
-                                  <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
-                                    Buyable
-                                  </span>
-                                )}
-                                {category.id === 'rare' && !tile.unlocked && (
-                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                    <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                      🔒
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="p-4 bg-background/95 backdrop-blur-sm">
-                                <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
-                                <div className="text-xs text-muted-foreground text-center mb-3">
-                                  <span className="text-amber-500 font-medium">{tile.cost} gold</span>
-                                </div>
-                                <div className="flex gap-2 items-center justify-center">
-                                  <Input
-                                    type="number"
-                                    min="1"
-                                    value={buyQuantities[tile.type] || 1}
-                                    onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                                    className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
-                                    id={`buy-quantity-${tile.type}`}
-                                    name={`buy-quantity-${tile.type}`}
-                                    disabled={userLevel < category.minLevel}
+                              >
+                                <div className="aspect-square relative group">
+                                  <Image
+                                    src={getTileImage(tile.type)}
+                                    alt={tile.name}
+                                    fill
+                                    className="object-cover transition-transform duration-200 group-hover:scale-110"
                                   />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className={cn(
-                                      "flex-1 min-h-[40px] h-10",
-                                      userLevel >= category.minLevel
-                                        ? "bg-amber-600 border-amber-500 hover:bg-amber-500 text-white font-semibold"
-                                        : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
-                                    )}
-                                    onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
-                                    disabled={userLevel < category.minLevel}
-                                    aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
-                                  >
-                                    {userLevel < category.minLevel ? 'Locked' : 'Buy'}
-                                  </Button>
+                                  <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                    {tile.quantity}
+                                  </div>
+                                  {userLevel < category.minLevel && (
+                                    <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
+                                      🔒 Lvl {category.minLevel}
+                                    </span>
+                                  )}
+                                  {tile.quantity === 0 && userLevel >= category.minLevel && category.id !== 'rare' && (
+                                    <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
+                                      Buyable
+                                    </span>
+                                  )}
+                                  {category.id === 'rare' && !tile.unlocked && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                      <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
+                                        🔒
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            </Card>
-                          </TooltipTrigger>
-                          {category.id === 'rare' && !tile.unlocked && (
-                            <TooltipContent>
-                              <p>A secret... come back another day... :)</p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      </TooltipProvider>
-                    ))}
+                                <div className="p-4 bg-background/95 backdrop-blur-sm">
+                                  <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
+                                  <div className="text-xs text-muted-foreground text-center mb-3">
+                                    <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                                  </div>
+                                  <div className="flex gap-2 items-center justify-center">
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      value={buyQuantities[tile.type] || 1}
+                                      onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
+                                      className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
+                                      id={`buy-quantity-${tile.type}`}
+                                      name={`buy-quantity-${tile.type}`}
+                                      disabled={userLevel < category.minLevel}
+                                    />
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className={cn(
+                                        "flex-1 min-h-[40px] h-10",
+                                        userLevel >= category.minLevel
+                                          ? "bg-amber-600 border-amber-500 hover:bg-amber-500 text-white font-semibold"
+                                          : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
+                                      )}
+                                      onClick={(e) => userLevel >= category.minLevel && handleBuyTile(tile, e)}
+                                      disabled={userLevel < category.minLevel}
+                                      aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
+                                    >
+                                      {userLevel < category.minLevel ? 'Locked' : 'Buy'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </Card>
+                            </TooltipTrigger>
+                            {category.id === 'rare' && !tile.unlocked && (
+                              <TooltipContent>
+                                <p>A secret... come back another day... :)</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      )
+                    })}
                   </div>
                 </ScrollArea>
               );
