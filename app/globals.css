@@ -265,3 +265,23 @@
   border-radius: 2px;
   box-shadow: 0 0 4px rgba(251, 191, 36, 0.5);
 }
+
+/* Zen Mode */
+.zen-mode nav,
+.zen-mode footer,
+.zen-mode .sidebar {
+  display: none !important;
+}
+
+.zen-mode main {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Visual FX - Low Quality */
+.fx-low *,
+.fx-low *::before,
+.fx-low *::after {
+  animation: none !important;
+  transition: none !important;
+}

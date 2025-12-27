@@ -28,6 +28,7 @@ import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperien
 import { Bell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { cn } from "@/lib/utils";
 
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 
@@ -59,6 +60,8 @@ export default function ProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [dayNightEnabled, setDayNightEnabled] = useState(true);
+  const [zenMode, setZenMode] = useState(false);
+  const [animationQuality, setAnimationQuality] = useState<'high' | 'low'>('high');
 
   useEffect(() => {
     // Load notifications count
@@ -101,6 +104,37 @@ export default function ProfilePage() {
       if (val !== null) {
         setDayNightEnabled(!!val);
         localStorage.setItem("day-night-cycle-enabled", val.toString());
+      }
+    });
+
+    // Load Zen Mode
+    const savedZen = localStorage.getItem("zen-mode");
+    if (savedZen !== null) {
+      const isZen = savedZen === "true";
+      setZenMode(isZen);
+      if (isZen) document.body.classList.add('zen-mode');
+    }
+    getUserPreference("zen-mode").then(val => {
+      if (val !== null) {
+        setZenMode(!!val);
+        localStorage.setItem("zen-mode", val.toString());
+        if (val) document.body.classList.add('zen-mode');
+        else document.body.classList.remove('zen-mode');
+      }
+    });
+
+    // Load Animation Quality
+    const savedAnim = localStorage.getItem("animation-quality");
+    if (savedAnim !== null) {
+      setAnimationQuality(savedAnim as 'high' | 'low');
+      if (savedAnim === 'low') document.body.classList.add('fx-low');
+    }
+    getUserPreference("animation-quality").then(val => {
+      if (val !== null) {
+        setAnimationQuality(val as 'high' | 'low');
+        localStorage.setItem("animation-quality", val.toString());
+        if (val === 'low') document.body.classList.add('fx-low');
+        else document.body.classList.remove('fx-low');
       }
     });
 
@@ -776,6 +810,78 @@ export default function ProfilePage() {
                     toast.success(checked ? "Day/Night Cycle Enabled" : "Day/Night Cycle Disabled");
                   }}
                 />
+              </div>
+
+              {/* Zen Mode Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-base font-medium text-white">Zen Mode</p>
+                    <p className="text-xs text-gray-400">Minimal interface for focused adventuring</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={zenMode}
+                  onCheckedChange={(checked) => {
+                    setZenMode(checked);
+                    localStorage.setItem("zen-mode", checked.toString());
+                    setUserPreference("zen-mode", checked);
+
+                    // Apply global class
+                    if (checked) {
+                      document.body.classList.add('zen-mode');
+                    } else {
+                      document.body.classList.remove('zen-mode');
+                    }
+
+                    window.dispatchEvent(new CustomEvent('settings:zenModeChanged', { detail: { enabled: checked } }));
+                    toast.success(checked ? "Zen Mode Enabled" : "Zen Mode Disabled");
+                  }}
+                />
+              </div>
+
+              {/* Animation Quality Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
+                <div className="flex items-center gap-3">
+                  <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-base font-medium text-white">Visual FX</p>
+                    <p className="text-xs text-gray-400">Toggle between high and minimal animations</p>
+                  </div>
+                </div>
+                <div className="flex bg-gray-900 p-1 rounded-md border border-amber-800/20">
+                  <button
+                    onClick={() => {
+                      setAnimationQuality('high');
+                      localStorage.setItem("animation-quality", 'high');
+                      setUserPreference("animation-quality", 'high');
+                      document.body.classList.remove('fx-low');
+                      window.dispatchEvent(new CustomEvent('settings:animationQualityChanged', { detail: { quality: 'high' } }));
+                    }}
+                    className={cn(
+                      "px-3 py-1 text-xs rounded transition-all",
+                      animationQuality === 'high' ? "bg-amber-600 text-white" : "text-gray-400 hover:text-gray-200"
+                    )}
+                  >
+                    High
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAnimationQuality('low');
+                      localStorage.setItem("animation-quality", 'low');
+                      setUserPreference("animation-quality", 'low');
+                      document.body.classList.add('fx-low');
+                      window.dispatchEvent(new CustomEvent('settings:animationQualityChanged', { detail: { quality: 'low' } }));
+                    }}
+                    className={cn(
+                      "px-3 py-1 text-xs rounded transition-all",
+                      animationQuality === 'low' ? "bg-amber-600 text-white" : "text-gray-400 hover:text-gray-200"
+                    )}
+                  >
+                    Low
+                  </button>
+                </div>
               </div>
             </CardContent>
           </Card>

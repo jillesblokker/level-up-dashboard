@@ -246,6 +246,14 @@ const creatureRequirements = [
 ];
 
 export default function RealmPage() {
+    return (
+        <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading realm...</div>}>
+            <RealmPageContent />
+        </React.Suspense>
+    );
+}
+
+function RealmPageContent() {
     const { toast } = useToast();
     const { user, isLoaded: isAuthLoaded } = useUser();
     const { getToken } = useAuth();
@@ -265,6 +273,11 @@ export default function RealmPage() {
         saveTileInventory
     } = useDataLoaders();
     const { unlockAchievement } = useAchievementUnlock();
+
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
 
     // Track visit for New Player Checklist
@@ -323,22 +336,10 @@ export default function RealmPage() {
         };
     }, [isLoading, isIntroPlaying]);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
-    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('animal-horse-position');
-            if (saved) return JSON.parse(saved);
-        }
-        return { x: 10, y: 4 };
-    });
+    const [horsePos, setHorsePos] = useState<{ x: number; y: number } | null>({ x: 10, y: 4 });
     const [eaglePos, setEaglePos] = useState<{ x: number; y: number } | null>(null);
     const [isHorsePresent, setIsHorsePresent] = useState(true);
-    const [isPenguinPresent, setIsPenguinPresent] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const cooldown = localStorage.getItem('animal-penguin-cooldown');
-            if (cooldown && Date.now() < parseInt(cooldown)) return false;
-        }
-        return false; // Default to false until we check grid for ice
-    });
+    const [isPenguinPresent, setIsPenguinPresent] = useState(false);
     const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
@@ -349,41 +350,12 @@ export default function RealmPage() {
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
     const [penguinPos, setPenguinPos] = useState<{ x: number; y: number } | null>(null);
-    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('animal-sheep-position');
-            if (saved) return JSON.parse(saved);
-        }
-        return { x: 5, y: 2 };
-    });
-    const [isSheepPresent, setIsSheepPresent] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const cooldown = localStorage.getItem('animal-sheep-cooldown');
-            if (cooldown && Date.now() < parseInt(cooldown)) return false;
-        }
-        return true;
-    });
-    const [horseCaught, setHorseCaught] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('animal-horse-state') === 'true';
-        }
-        return false;
-    });
-    const [sheepCaught, setSheepCaught] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const cooldown = localStorage.getItem('animal-sheep-cooldown');
-            return !!(cooldown && Date.now() < parseInt(cooldown));
-        }
-        return false;
-    });
-    const [penguinCaught, setPenguinCaught] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const cooldown = localStorage.getItem('animal-penguin-cooldown');
-            return !!(cooldown && Date.now() < parseInt(cooldown));
-        }
-        return false;
-    });
-    const [characterStats, setCharacterStats] = useState(() => getCharacterStats());
+    const [sheepPos, setSheepPos] = useState<{ x: number; y: number } | null>({ x: 5, y: 2 });
+    const [isSheepPresent, setIsSheepPresent] = useState(true);
+    const [horseCaught, setHorseCaught] = useState(false);
+    const [sheepCaught, setSheepCaught] = useState(false);
+    const [penguinCaught, setPenguinCaught] = useState(false);
+    const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
 
     // Load actual inventory from database and apply starting quantities if needed
     const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
@@ -1806,12 +1778,7 @@ export default function RealmPage() {
 
     // --- Kingdom Passive Rewards System ---
     const [passiveRewards, setPassiveRewards] = useState<{ gold: number, xp: number } | null>(null);
-    const [lastCollectionTime, setLastCollectionTime] = useState<number>(() => {
-        if (typeof window !== 'undefined') {
-            return parseInt(localStorage.getItem('kingdom_last_collection') || Date.now().toString());
-        }
-        return Date.now();
-    });
+    const [lastCollectionTime, setLastCollectionTime] = useState<number>(Date.now());
 
     // Calculate passive income based on owned tiles
     useEffect(() => {
@@ -2406,17 +2373,52 @@ export default function RealmPage() {
     }, [grid, penguinPos, isPenguinPresent]);
 
     // Expansion gating logic
-    const [expansions, setExpansions] = useState<number>(() => {
-        if (typeof window !== 'undefined') {
-            return parseInt(localStorage.getItem('realm-expansions') || '0', 10);
-        }
-        return 0;
-    });
+    const [expansions, setExpansions] = useState<number>(0);
     const [playerLevel, setPlayerLevel] = useState<number>(1);
+
+    // Initial load of state from localStorage (client-only)
     useEffect(() => {
-        // Get player level from character stats
-        const stats = getCharacterStats();
-        setPlayerLevel(stats.level || 1);
+        if (typeof window !== 'undefined') {
+            // Expansion status
+            const savedExpansions = localStorage.getItem('realm-expansions');
+            if (savedExpansions) setExpansions(parseInt(savedExpansions, 10));
+
+            // Auto-save setting
+            const savedAutoSave = localStorage.getItem('realm-auto-save');
+            if (savedAutoSave === 'false') setAutoSave(false);
+
+            // Animal positions
+            const savedHorse = localStorage.getItem('animal-horse-position');
+            if (savedHorse) setHorsePos(JSON.parse(savedHorse));
+
+            const savedSheep = localStorage.getItem('animal-sheep-position');
+            if (savedSheep) setSheepPos(JSON.parse(savedSheep));
+
+            // Animal states/cooldowns
+            const horseState = localStorage.getItem('animal-horse-state') === 'true';
+            setHorseCaught(horseState);
+
+            const sheepCooldown = localStorage.getItem('animal-sheep-cooldown');
+            if (sheepCooldown && Date.now() < parseInt(sheepCooldown)) {
+                setSheepCaught(true);
+                setIsSheepPresent(false);
+            }
+
+            const penguinCooldown = localStorage.getItem('animal-penguin-cooldown');
+            if (penguinCooldown && Date.now() < parseInt(penguinCooldown)) {
+                setPenguinCaught(true);
+                setIsPenguinPresent(false);
+            }
+
+            // Fresh stats
+            const stats = getCharacterStats();
+            setCharacterStats(stats);
+            setPlayerLevel(stats.level || 1);
+
+            // Last collection time
+            const savedCollectionTime = localStorage.getItem('kingdom_last_collection');
+            if (savedCollectionTime) setLastCollectionTime(parseInt(savedCollectionTime));
+        }
     }, []);
 
     // Fix expansion count if user is level 5 but expansion count is wrong
@@ -2479,7 +2481,7 @@ export default function RealmPage() {
     }, [grid, isHorsePresent, horsePos, isSheepPresent, sheepPos]);
 
     // Network status and resilience
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [isOnline, setIsOnline] = useState(true); // Default to online for SSR
     const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'unstable'>('online');
     const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
@@ -2727,6 +2729,8 @@ export default function RealmPage() {
     useEffect(() => {
         // Removed debugging log
     }, [selectedTile]);
+
+    if (!isMounted) return null;
 
     if (isLoading) {
         return (
