@@ -122,7 +122,7 @@ export function useKingdomGrid(userId: string | undefined) {
                     // No grid found, save the default one
                     const newGrid = createEmptyKingdomGrid();
                     setKingdomGrid(newGrid);
-                    await saveKingdomGrid(userId, newGrid);
+                    await saveKingdomGrid(newGrid, userId);
                 }
             } catch (error) {
                 console.error("Failed to load kingdom grid:", error);
@@ -144,7 +144,7 @@ export function useKingdomGrid(userId: string | undefined) {
         if (!userId) return;
         setKingdomGrid(newGrid);
         try {
-            await saveKingdomGrid(userId, newGrid);
+            await saveKingdomGrid(newGrid, userId);
         } catch (error) {
             console.error("Failed to save kingdom grid:", error);
             toast({
