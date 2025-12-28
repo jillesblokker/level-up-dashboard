@@ -310,6 +310,24 @@ function RealmPageContent() {
     const closeBtnRef = useRef<HTMLButtonElement>(null);
 
 
+    // State Refs for Event Listeners and Handlers to avoid stale closures
+    const gameModeRef = useRef(gameMode);
+    const characterPositionRef = useRef(characterPosition);
+    const gridRef = useRef(grid);
+    const showInventoryRef = useRef(showInventory);
+    const selectedTileRef = useRef(selectedTile);
+    const inventoryRef = useRef(inventory);
+
+    // Keep Refs synced with state
+    useEffect(() => {
+        gameModeRef.current = gameMode;
+        characterPositionRef.current = characterPosition;
+        gridRef.current = grid;
+        showInventoryRef.current = showInventory;
+        selectedTileRef.current = selectedTile;
+        inventoryRef.current = inventory;
+    }, [gameMode, characterPosition, grid, showInventory, selectedTile, inventory]);
+
     // Handler for tile size changes from MapGrid
     const handleTileSizeChange = useCallback((newTileSize: number) => {
         setTileSize(newTileSize);
@@ -321,10 +339,13 @@ function RealmPageContent() {
 
     // Place tile: update grid and send only the changed tile to backend
     const handlePlaceTile = async (x: number, y: number) => {
-        // Removed debugging log
+        const currentGrid = gridRef.current;
+        const currentGameMode = gameModeRef.current;
+        const currentSelectedTile = selectedTileRef.current;
+        const currentInventory = inventoryRef.current;
 
         // Check for monster battle first (regardless of game mode)
-        const clickedTile = grid[y]?.[x];
+        const clickedTile = currentGrid[y]?.[x];
         if (clickedTile?.hasMonster) {
             setCurrentMonster(clickedTile.hasMonster);
             setBattleOpen(true);
@@ -332,29 +353,28 @@ function RealmPageContent() {
         }
 
         // Handle movement if in move mode
-        if (gameMode === 'move') {
+        if (currentGameMode === 'move') {
             handleCharacterMove(x, y);
             return;
         }
 
         // Handle tile destruction if in destroy mode
-        if (gameMode === 'destroy') {
+        if (currentGameMode === 'destroy') {
             handleDestroyTile(x, y);
             return;
         }
 
-        if (gameMode !== 'build' || !selectedTile) {
+        if (currentGameMode !== 'build' || !currentSelectedTile) {
             // Removed debugging log
             return;
         }
 
         // Check if we have the tile in inventory (either from main inventory or selectedTile)
-        const tileToPlace = inventory[selectedTile.type];
+        const tileToPlace = currentInventory[currentSelectedTile.type];
         const hasTileInInventory = tileToPlace && (tileToPlace.owned ?? 0) > 0;
-        const hasTileInSelected = selectedTile && (selectedTile.quantity ?? 0) > 0;
+        const hasTileInSelected = currentSelectedTile && (currentSelectedTile.quantity ?? 0) > 0;
 
         if (!hasTileInInventory && !hasTileInSelected) {
-            // Removed debugging log
             toast({
                 title: "📦 Empty Inventory",
                 description: "Your tile pouch is empty! Visit the market to restock your building materials.",
@@ -364,22 +384,19 @@ function RealmPageContent() {
         }
 
         // Use the selectedTile if it has quantity, otherwise fall back to inventory
-        const tileToUse = hasTileInSelected ? selectedTile : tileToPlace;
+        const tileToUse = hasTileInSelected ? currentSelectedTile : tileToPlace;
 
-        // Removed debugging log
-
-        // Optimistically update the UI first for better user experience
+        // Optimistically update the UI first
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
                 newGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
-                // Removed debugging log
             }
             return newGrid;
         });
 
         // Update inventory and placement counts via hooks
-        const tileType = selectedTile.type;
+        const tileType = currentSelectedTile.type;
         const userPlacedKey = `${tileType}_tiles_placed`;
         updateTileQuantity(tileType, -1);
         recordTilePlacement(tileType);
@@ -387,7 +404,7 @@ function RealmPageContent() {
         console.log('[Realm] User placed tile:', tileType, 'Total:', userPlacedTilesRef.current[userPlacedKey]);
 
         // Update selectedTile quantity if it has one
-        if (hasTileInSelected && selectedTile.quantity !== undefined) {
+        if (hasTileInSelected && currentSelectedTile.quantity !== undefined) {
             setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, prev.quantity - 1) } : null);
         }
 
@@ -411,20 +428,19 @@ function RealmPageContent() {
                 toast({ title: 'Error', description: 'Failed to place tile', variant: 'destructive' });
             } else {
                 // Determine the new grid state for saving and spawning checks
-                // We recreate the grid change locally to save it
-                const updatedGrid = grid.map(row => row.map(t => ({ ...t })));
+                const updatedGrid = currentGrid.map(row => row.map(t => ({ ...t })));
                 if (updatedGrid[y]?.[x]) {
                     updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
                 }
 
-                // Immediately save the full grid state to ensure persistence
+                // Immediately save the full grid state
                 if (userId) {
                     saveGridData(userId, updatedGrid).catch(e => console.error('Failed to background save grid:', e));
                 }
 
                 const spawnResult = checkMonsterSpawn(updatedGrid, tileType);
                 if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
-                    const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
+                    const success = spawnMonsterOnTile(currentGrid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
                     if (success) {
                         playSound(SOUNDS.MONSTER_SPAWN);
                         toast({ title: "Monster Appeared!", description: `A ${spawnResult.monsterType} has appeared!` });
@@ -438,7 +454,6 @@ function RealmPageContent() {
                             }
                             return next;
                         });
-                        // We strictly should save again here, but the monster spawn is rare and can be caught by autosave
                     }
                 }
             }
@@ -448,9 +463,12 @@ function RealmPageContent() {
     };
 
     const handleCharacterMove = (x: number, y: number) => {
-        if (gameMode === 'move') {
+        const currentGameMode = gameModeRef.current; // Use ref!
+        const currentGrid = gridRef.current;
+
+        if (currentGameMode === 'move') {
             // Check if the target tile is walkable
-            const targetTile = grid[y]?.[x];
+            const targetTile = currentGrid[y]?.[x];
 
             // Check for empty tile
             if (!targetTile || targetTile.type === 'empty') {
