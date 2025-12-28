@@ -7,8 +7,14 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        const sortBy = searchParams.get('sortBy') || 'experience';
+        const sortByParam = searchParams.get('sortBy') || 'experience';
         const limit = parseInt(searchParams.get('limit') || '10');
+
+        // Map parameter to database column or category
+        let sortBy = sortByParam;
+        if (sortByParam === 'xp') sortBy = 'experience';
+        // Note: Frontend currently sends "experience", so this is just a safeguard.
+        // If sortByParam is "experience", it stays "experience".
 
         // Handle Streaks Leaderboard
         if (sortBy === 'streak') {
@@ -238,6 +244,10 @@ export async function GET(req: NextRequest) {
     } catch (error: any) {
         console.error('Leaderboard API Error:', error);
         // Ensure we always return JSON, even on crash
-        return NextResponse.json({ error: error.message || 'Internal Server Error', success: false }, { status: 500 });
+        return NextResponse.json({
+            error: error.message || 'Internal Server Error',
+            details: error,
+            success: false
+        }, { status: 500 });
     }
 }
