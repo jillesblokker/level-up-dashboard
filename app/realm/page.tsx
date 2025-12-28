@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { DungeonModal } from "@/components/dungeon-modal"
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
@@ -29,7 +30,8 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
 import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
-import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId, MonsterType } from '@/lib/monster-spawn-manager';
+import { MonsterSpawn, MonsterType } from '@/types/monsters';
+import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
 import { PageGuide } from '@/components/page-guide';
@@ -55,19 +57,21 @@ import { useRealmInventory } from '@/hooks/use-realm-inventory';
 import { useDataLoaders } from '@/hooks/use-data-loaders';
 import { useAchievementUnlock } from '@/hooks/use-achievement-unlock';
 
+import { useSound, SOUNDS } from "@/lib/sound-manager"
+
 
 // Dynamic imports for performance optimization
 const RevealOverlay = dynamic(() => import('../reveal/page'), {
     ssr: false,
     loading: () => null // No loading state needed
 });
+const MonsterBattle = dynamic(() => import('@/components/monster-battle').then(mod => ({ default: mod.MonsterBattle })), {
+    ssr: false,
+    loading: () => null
+});
 // Import the ErrorBoundary component
 import { ErrorBoundary } from "@/components/error-boundary-component";
 
-const MonsterBattle = dynamic(() => import('@/components/monster-battle').then(mod => ({ default: mod.MonsterBattle })), {
-    ssr: false,
-    loading: () => <div className="flex items-center justify-center h-screen"><div className="text-white">Loading battle...</div></div>
-});
 
 const EnterLocationModal = dynamic(() => import('@/components/enter-location-modal').then(mod => ({ default: mod.EnterLocationModal })), {
     ssr: false
@@ -122,7 +126,7 @@ export default function RealmPage() {
 
 function RealmPageContent() {
     const { toast } = useToast();
-    const { user, isLoaded: isAuthLoaded } = useUser();
+    const { user, isLoaded: isClerkLoaded } = useUser();
     const { getToken } = useAuth();
     const userId = user?.id;
     const searchParams = useSearchParams();
@@ -140,6 +144,7 @@ function RealmPageContent() {
         saveTileInventory
     } = useDataLoaders();
     const { unlockAchievement } = useAchievementUnlock();
+    const { playSound } = useSound();
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
@@ -198,11 +203,12 @@ function RealmPageContent() {
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRevealImage, setShouldRevealImage] = useState(false);
+
     const [isIntroPlaying, setIsIntroPlaying] = useState(true);
 
     // Monster battle state
     const [battleOpen, setBattleOpen] = useState(false);
-    const [currentMonster, setCurrentMonster] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon');
+    const [currentMonster, setCurrentMonster] = useState<MonsterType>('dragon');
 
     // Tile size state for animal positioning
     const [tileSize, setTileSize] = useState(80);
@@ -216,6 +222,9 @@ function RealmPageContent() {
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
     const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
+    const [monsters, setMonsters] = useState<MonsterSpawn[]>([]);
+    const [monsterEvent, setMonsterEvent] = useState<{ open: boolean; monster: MonsterSpawn | null }>({ open: false, monster: null });
+
 
     useEffect(() => {
         // Load initial stats
@@ -229,6 +238,56 @@ function RealmPageContent() {
             });
         }
     }, [userId]);
+
+    // Load monsters
+    useEffect(() => {
+        if (!isClerkLoaded || !user) return;
+
+        const fetchMonsters = async () => {
+            try {
+                const res = await fetch('/api/monster-spawns');
+                const data = await res.json();
+                if (data.success) {
+                    setMonsters(data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching monsters:', error);
+            }
+        };
+        fetchMonsters();
+
+        // Listen for spawn events
+        window.addEventListener('monster-spawned', fetchMonsters);
+        return () => window.removeEventListener('monster-spawned', fetchMonsters);
+    }, [isClerkLoaded, user]);
+
+    const handleMonsterClick = (monster: MonsterSpawn) => {
+        setMonsterEvent({ open: true, monster });
+    };
+
+    const handleBattleComplete = async (won: boolean, goldEarned: number, xpEarned: number) => {
+        if (won && monsterEvent.monster) {
+            const currentMonsterId = monsterEvent.monster.id;
+            // Mark as defeated
+            try {
+                await fetch('/api/monster-spawn', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: currentMonsterId, defeated: true })
+                });
+                // Remove from local state
+                setMonsters(prev => prev.filter(m => m.id !== currentMonsterId));
+                playSound(SOUNDS.BATTLE_WIN);
+                toast({
+                    title: "Monster Defeated!",
+                    description: "The realm is safer now.",
+                });
+            } catch (error) {
+                console.error("Error marking monster defeated:", error);
+            }
+        }
+        setMonsterEvent({ open: false, monster: null });
+    };
 
     // Mystery tile transformation effect
     useEffect(() => {
@@ -366,6 +425,7 @@ function RealmPageContent() {
                 if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
                     const success = spawnMonsterOnTile(grid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
                     if (success) {
+                        playSound(SOUNDS.MONSTER_SPAWN);
                         toast({ title: "Monster Appeared!", description: `A ${spawnResult.monsterType} has appeared!` });
                         // Add to grid state
                         setGrid(prev => {
@@ -636,10 +696,11 @@ function RealmPageContent() {
                         { fact: 'How many knights in the Order of the Garter? (24)', number: 24 },
                         { fact: 'How many years did the War of the Roses last? (32)', number: 32 },
                     ];
-                    const randomIndex = Math.floor(Math.random() * questions.length);
-                    const question = questions[randomIndex] || questions[0];
-                    if (question) {
-                        setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: question.number, questions: [question] });
+                    // Shuffle and pick 5 questions
+                    const shuffledRequestions = [...questions].sort(() => 0.5 - Math.random());
+                    const selectedQuestions = shuffledRequestions.slice(0, 5);
+                    if (selectedQuestions.length > 0 && selectedQuestions[0]) {
+                        setDungeonEvent({ open: true, questionIndex: 0, score: 0, prevNumber: selectedQuestions[0].number, questions: selectedQuestions });
                     }
                     break;
                 }
@@ -1005,6 +1066,8 @@ function RealmPageContent() {
                         horseCaught={horseCaught}
                         sheepCaught={sheepCaught}
                         penguinCaught={penguinCaught}
+                        monsters={monsters}
+                        onMonsterClick={handleMonsterClick}
                     />
                 </div>
                 {/* Overlay Inventory Panel */}
@@ -1098,62 +1161,20 @@ function RealmPageContent() {
                     </Dialog>
                 )}
                 {dungeonEvent?.open && dungeonEvent?.questions && (
-                    <Dialog open={dungeonEvent.open} onOpenChange={() => setDungeonEvent(null)}>
-                        <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
-                            <DialogHeader>
-                                <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
-                                <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br />&quot;Is the next number higher or lower?&quot;</DialogDescription>
-                            </DialogHeader>
-                            {dungeonEvent.questionIndex < dungeonEvent.questions.length ? (
-                                <div className="space-y-4">
-                                    <div className="text-lg font-semibold text-center">{dungeonEvent.questions[dungeonEvent.questionIndex]?.fact}</div>
-                                    <div className="flex gap-4 justify-center">
-                                        <Button aria-label="Higher" onClick={() => {
-                                            const nextQuestionIndex = dungeonEvent.questionIndex + 1;
-                                            if (nextQuestionIndex >= dungeonEvent.questions.length) {
-                                                setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
-                                                gainExperience(dungeonEvent.score * 5, 'dungeon-event');
-                                                return;
-                                            }
-                                            const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
-                                            if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
-                                                const correct = nextQuestion.number > dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
-                                                setDungeonEvent({
-                                                    ...dungeonEvent,
-                                                    questionIndex: nextQuestionIndex,
-                                                    score: dungeonEvent.score + (correct ? 1 : 0),
-                                                    prevNumber: nextQuestion.number,
-                                                });
-                                            }
-                                        }}>Higher</Button>
-                                        <Button aria-label="Lower" onClick={() => {
-                                            const nextQuestionIndex = dungeonEvent.questionIndex + 1;
-                                            if (nextQuestionIndex >= dungeonEvent.questions.length) {
-                                                setDungeonEvent({ ...dungeonEvent, questionIndex: nextQuestionIndex, result: `You scored ${dungeonEvent.score} out of 20! (+${dungeonEvent.score * 5} XP)` });
-                                                return;
-                                            }
-                                            const nextQuestion = dungeonEvent?.questions?.[nextQuestionIndex];
-                                            if (nextQuestion && dungeonEvent.questions && typeof dungeonEvent.questionIndex === 'number' && dungeonEvent.questions[dungeonEvent.questionIndex]) {
-                                                const correct = nextQuestion.number < dungeonEvent.questions[dungeonEvent.questionIndex]!.number;
-                                                setDungeonEvent({
-                                                    ...dungeonEvent,
-                                                    questionIndex: nextQuestionIndex,
-                                                    score: dungeonEvent.score + (correct ? 1 : 0),
-                                                    prevNumber: nextQuestion.number,
-                                                });
-                                            }
-                                        }}>Lower</Button>
-                                    </div>
-                                    <div className="text-sm text-center text-gray-400">Current Score: {dungeonEvent.score} / 20</div>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="text-lg font-semibold text-center">{dungeonEvent.result}</div>
-                                    <Button aria-label="Close" onClick={() => setDungeonEvent(null)}>Close</Button>
-                                </div>
-                            )}
-                        </DialogContent>
-                    </Dialog>
+                    <DungeonModal
+                        isOpen={dungeonEvent.open}
+                        onClose={() => setDungeonEvent(null)}
+                        questions={dungeonEvent.questions}
+                    />
+                )}
+
+                {monsterEvent.open && monsterEvent.monster && (
+                    <MonsterBattle
+                        isOpen={monsterEvent.open}
+                        onClose={() => setMonsterEvent({ open: false, monster: null })}
+                        monsterType={monsterEvent.monster.monster_type}
+                        onBattleComplete={handleBattleComplete}
+                    />
                 )}
                 {caveEvent?.open && (
                     <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>

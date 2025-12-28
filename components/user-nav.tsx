@@ -19,6 +19,8 @@ import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useAudioContext } from "@/components/audio-provider";
+import { ProfileSettings } from "@/components/profile-settings";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export function UserNav() {
   const { user, isLoaded } = useUser();
@@ -62,31 +64,35 @@ export function UserNav() {
         }
         setIsOpen(open);
       }}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] hover:bg-amber-500/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
-          >
-            <Avatar className="h-10 w-10 md:h-8 md:w-8">
-              {user?.imageUrl ? (
-                <AvatarImage
-                  src={user.imageUrl}
-                  alt={String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'User')}
-                  style={{ objectFit: 'cover', objectPosition: 'center' }}
-                />
-              ) : (
-                <AvatarFallback
-                  style={{
-                    backgroundColor: user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937",
-                    color: user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff"
-                  }}
-                >
-                  {getAvatarInitial()}
-                </AvatarFallback>
-              )}
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
+        <div className="flex items-center gap-2">
+          <NotificationsBell />
+
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] hover:bg-amber-500/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            >
+              <Avatar className="h-10 w-10 md:h-8 md:w-8">
+                {user?.imageUrl ? (
+                  <AvatarImage
+                    src={user.imageUrl}
+                    alt={String(user?.unsafeMetadata?.['user_name'] || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'User')}
+                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  />
+                ) : (
+                  <AvatarFallback
+                    style={{
+                      backgroundColor: user?.unsafeMetadata?.['avatar_bg_color'] as string || "#1f2937",
+                      color: user?.unsafeMetadata?.['avatar_text_color'] as string || "#ffffff"
+                    }}
+                  >
+                    {getAvatarInitial()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+        </div>
         <DropdownMenuContent
           className="w-screen h-screen md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:relative z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
           align="end"
@@ -119,15 +125,16 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-amber-800/20" />
           <DropdownMenuGroup className="p-2 space-y-1">
-            <Link href="/profile">
-              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
-                <User className="h-5 w-5 text-amber-400" />
-                <div className="flex-1 text-left">
-                  <span className="text-base font-medium text-white">Profile</span>
-                  <p className="text-xs text-gray-400">Manage your profile</p>
-                </div>
-              </DropdownMenuItem>
-            </Link>
+            {/* Replaced 'Link to /profile' with ProfileSettings component directly */}
+            <DropdownMenuItem asChild className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+              <div onClick={(e) => e.preventDefault()}> {/* Prevent dropdown close on click if desired, or handle inside ProfileSettings */}
+                <ProfileSettings />
+                {/* Note: ProfileSettings has its own trigger button. We might need to adjust styling or trigger logic here. 
+                         Actually, ProfileSettings renders a SheetTrigger. 
+                         Let's just import it and use it properly. 
+                     */}
+              </div>
+            </DropdownMenuItem>
             <Link href="/requirements">
               <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
                 <ClipboardCheck className="h-5 w-5 text-amber-400" />

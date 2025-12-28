@@ -25,6 +25,8 @@ export interface CharacterStats {
     max_health: number;
     build_tokens: number;
     kingdom_expansions: number;
+    display_name?: string;
+    title?: string;
     updated_at?: string;
 }
 
@@ -73,7 +75,9 @@ class CharacterStatsService {
                     health: stats.health || 100,
                     max_health: stats.max_health || 100,
                     build_tokens: stats.build_tokens || stats.buildTokens || 0,
-                    kingdom_expansions: parseInt(getUserScopedItem('kingdom-grid-expansions') || '0', 10)
+                    kingdom_expansions: parseInt(getUserScopedItem('kingdom-grid-expansions') || '0', 10),
+                    display_name: stats.display_name || 'Adventurer',
+                    title: stats.title || 'Novice'
                 };
             }
         } catch (error) {
@@ -121,6 +125,8 @@ class CharacterStatsService {
         if (updates.max_health !== undefined) newStats.max_health = updates.max_health;
         if (updates.build_tokens !== undefined) newStats.build_tokens = updates.build_tokens;
         if (updates.kingdom_expansions !== undefined) newStats.kingdom_expansions = updates.kingdom_expansions;
+        if (updates.display_name !== undefined) newStats.display_name = updates.display_name;
+        if (updates.title !== undefined) newStats.title = updates.title;
 
         // Save to local storage immediately
         this.saveToLocalStorage(newStats);
@@ -183,6 +189,8 @@ class CharacterStatsService {
                         max_health: serverStats.max_health || 100,
                         build_tokens: serverStats.build_tokens || 0,
                         kingdom_expansions: Math.max(serverStats.kingdom_expansions || 0, localStats.kingdom_expansions || 0),
+                        display_name: serverStats.display_name || localStats.display_name || 'Adventurer',
+                        title: serverStats.title || localStats.title || 'Novice',
                         updated_at: serverStats.updated_at
                     };
 
@@ -257,7 +265,9 @@ class CharacterStatsService {
                     health: currentStats.health,
                     max_health: currentStats.max_health,
                     build_tokens: currentStats.build_tokens,
-                    kingdom_expansions: currentStats.kingdom_expansions
+                    kingdom_expansions: currentStats.kingdom_expansions,
+                    display_name: currentStats.display_name,
+                    title: currentStats.title
                 }
             };
 
@@ -310,7 +320,9 @@ class CharacterStatsService {
             level: stats.level,
             health: stats.health,
             max_health: stats.max_health,
-            build_tokens: stats.build_tokens
+            build_tokens: stats.build_tokens,
+            display_name: stats.display_name,
+            title: stats.title
         };
 
         setUserScopedItem('character-stats', JSON.stringify(localStorageStats));
@@ -333,7 +345,9 @@ class CharacterStatsService {
             health: 100,
             max_health: 100,
             build_tokens: 0,
-            kingdom_expansions: 0
+            kingdom_expansions: 0,
+            display_name: 'Adventurer',
+            title: 'Novice'
         };
     }
 }

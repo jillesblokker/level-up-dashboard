@@ -104,7 +104,9 @@ export async function POST(request: Request) {
       health: stats.health || 100,
       max_health: stats.max_health || 100,
       build_tokens: stats.build_tokens || 0,
-      character_name: 'Adventurer',
+      character_name: stats.display_name || 'Adventurer', // Fallback to 'Adventurer'
+      display_name: stats.display_name || 'Adventurer', // Save to dedicated column
+      title: stats.title || 'Novice',
       updated_at: new Date().toISOString(),
       stats_data: statsJson // Save everything to the JSONB column as well
     };
@@ -167,8 +169,12 @@ export async function POST(request: Request) {
         health: ensureNumber(stats.health ?? existingData?.health, 100),
         max_health: ensureNumber(stats.max_health ?? existingData?.max_health, 100),
         build_tokens: ensureNumber(stats.build_tokens ?? existingData?.build_tokens, 0),
-        // kingdom_expansions: Removed because column does not exist. Saved in stats_data instead.
-        character_name: existingData?.character_name || 'Adventurer',
+
+        // Handling Strings: New value OR existing value OR default
+        character_name: stats.display_name || existingData?.character_name || 'Adventurer',
+        display_name: stats.display_name || existingData?.display_name || 'Adventurer',
+        title: stats.title || existingData?.title || 'Novice',
+
         updated_at: new Date().toISOString(),
         stats_data: {
           ...existingJson,

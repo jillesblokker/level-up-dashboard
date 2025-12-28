@@ -1,12 +1,10 @@
 import { Tile } from '@/types/tiles';
+import { MonsterType, SpawnCheckResult } from '@/types/monsters';
 
-export interface SpawnResult {
-  shouldSpawn: boolean;
-  position?: { x: number; y: number };
-  monsterType?: string;
-}
+// Export for backwards compatibility if needed, but prefer import from types
+export type { MonsterType } from '@/types/monsters';
 
-export type MonsterType = 'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy';
+export type SpawnResult = SpawnCheckResult;
 
 // Monster spawn conditions based on tile placement
 const monsterSpawnConditions = {
@@ -44,7 +42,7 @@ const monsterSpawnConditions = {
 
 export function checkMonsterSpawn(grid: Tile[][], placedTileType: string): SpawnResult {
   const condition = monsterSpawnConditions[placedTileType as keyof typeof monsterSpawnConditions];
-  
+
   if (!condition) {
     return { shouldSpawn: false };
   }
@@ -120,10 +118,10 @@ export function spawnMonsterOnTile(grid: Tile[][], x: number, y: number, monster
 
   // Update the tile to have a monster
   row[x].hasMonster = monsterType;
-  
+
   // Save to Supabase
   saveMonsterToSupabase(x, y, monsterType);
-  
+
   return true;
 }
 
@@ -136,7 +134,7 @@ export function getMonsterAchievementId(monsterType: MonsterType): string {
     'pegasus': '205',
     'fairy': '206'
   };
-  
+
   return monsterToAchievement[monsterType] || '';
 }
 
@@ -147,9 +145,14 @@ async function saveMonsterToSupabase(x: number, y: number, monsterType: MonsterT
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ x, y, monsterType })
     });
-    
+
     if (!response.ok) {
       console.error('Failed to save monster to Supabase');
+    } else {
+      // Dispatch event to update UI
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('monster-spawned'));
+      }
     }
   } catch (error) {
     console.error('Error saving monster to Supabase:', error);

@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
 import { GiftModal } from "@/components/gift-modal"
-import { AllianceStreakCard } from "@/components/alliance-streak-card"
+import { AllianceDashboard } from "@/components/alliance-dashboard"
 
 interface Friend {
     id: string; // Friendship ID
@@ -350,8 +350,8 @@ export default function AlliesPage() {
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
-                {/* Alliance Streak Card */}
-                {user?.id && <AllianceStreakCard userId={user.id} />}
+                {/* Alliance Dashboard */}
+                <AllianceDashboard />
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-3 mb-8">

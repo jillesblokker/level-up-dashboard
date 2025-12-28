@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, memo } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
 import { CreatureLayer } from '@/components/creature-layer';
+import { MonsterSpawn } from "@/types/monsters";
 
 interface MapGridProps {
   grid: Tile[][];
@@ -21,6 +22,8 @@ interface MapGridProps {
   horseCaught?: boolean;
   sheepCaught?: boolean;
   penguinCaught?: boolean;
+  monsters?: MonsterSpawn[];
+  onMonsterClick?: (monster: MonsterSpawn) => void;
 }
 
 const getTileImage = (tileType: string) => {
@@ -187,7 +190,9 @@ export function MapGrid({
   isSheepPresent = false,
   horseCaught = false,
   sheepCaught = false,
-  penguinCaught = false
+  penguinCaught = false,
+  monsters = [],
+  onMonsterClick
 }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(80);
@@ -376,6 +381,39 @@ export function MapGrid({
             <img src="/images/Animals/sheep.png" alt="Sheep" className="object-contain w-full h-full" />
           </div>
         )}
+
+        {/* Monster Overlays */}
+        {monsters && monsters.map(monster => (
+          <div
+            key={monster.id}
+            className="absolute z-30 cursor-pointer hover:scale-110 transition-transform"
+            style={{
+              left: `${monster.x * tileSize}px`,
+              top: `${monster.y * tileSize}px`,
+              width: `${tileSize}px`,
+              height: `${tileSize}px`,
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMonsterClick?.(monster);
+            }}
+            role="button"
+            aria-label={`Fight ${monster.monster_type}`}
+          >
+            <div className="relative w-full h-full">
+              <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md animate-pulse"></div>
+              <img
+                src={`/images/creatures/${monster.monster_type.toLowerCase()}.png`}
+                alt={monster.monster_type}
+                className="relative z-10 object-contain w-full h-full drop-shadow-md"
+                onError={(e) => e.currentTarget.src = '/images/creatures/dragon.png'}
+              />
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] px-1 rounded font-bold uppercase tracking-wider shadow-sm border border-red-800">
+                Boss
+              </div>
+            </div>
+          </div>
+        ))}
 
         {eaglePos && (
           <div

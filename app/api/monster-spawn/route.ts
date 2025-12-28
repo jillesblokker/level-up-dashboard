@@ -58,4 +58,41 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-} 
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { userId } = getAuth(request as NextRequest);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, defeated, reward_claimed } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing monster ID' }, { status: 400 });
+    }
+
+    const updates: any = {};
+    if (defeated !== undefined) updates.defeated = defeated;
+    if (reward_claimed !== undefined) updates.reward_claimed = reward_claimed;
+
+    const { data, error } = await supabaseServer
+      .from('monster_spawns')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select();
+
+    if (error) {
+      console.error('Error updating monster spawn:', error);
+      return NextResponse.json({ error: 'Failed to update monster' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error('Error in monster spawn PUT:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

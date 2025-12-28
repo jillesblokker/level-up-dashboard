@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // Sound Manager for Medieval Habit Tracker
 class SoundManager {
@@ -23,46 +23,89 @@ class SoundManager {
   private async loadSounds() {
     if (!this.audioContext) return;
 
-    // Generate procedural sounds instead of loading files
+    // Map sound names to file paths
+    const soundFiles: Record<string, string> = {
+      'questComplete': '/audio/quest-complete.wav',
+      'levelUp': '/audio/level-up.wav',
+      'buttonClick': '/audio/button-click.wav',
+      'achievement': '/audio/achievement-unlock.wav',
+      'success': '/audio/gold-earned.wav',
+      'streak': '/audio/magic-spell.wav',
+      'monsterSpawn': '/audio/door-open.wav',
+      'battleWin': '/audio/sword-clash.wav',
+      'allianceOath': '/audio/magic-spell.wav',
+      'dungeonChallenge': '/audio/chest-open.wav'
+    };
+
+    // Try to load real files first
+    const promises = Object.entries(soundFiles).map(async ([key, url]) => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await this.audioContext!.decodeAudioData(arrayBuffer);
+        this.sounds.set(key, audioBuffer);
+      } catch (e) {
+        console.warn(`Failed to lead sound ${key}, falling back to generated`, e);
+      }
+    });
+
+    await Promise.all(promises);
+
+    // Fill missing sounds with generated ones
     this.generateSounds();
   }
 
   private generateSounds() {
     if (!this.audioContext) return;
 
+    // Helper to conditionally set if not exists
+    const setIfNotExists = (key: string, generator: () => AudioBuffer) => {
+      if (!this.sounds.has(key)) {
+        this.sounds.set(key, generator());
+      }
+    };
+
     // Quest completion sound (coin drop)
-    this.sounds.set('questComplete', this.generateCoinSound());
-    
+    setIfNotExists('questComplete', () => this.generateCoinSound());
+
     // Level up sound (fanfare)
-    this.sounds.set('levelUp', this.generateFanfareSound());
-    
+    setIfNotExists('levelUp', () => this.generateFanfareSound());
+
     // Button click sound (sword clang)
-    this.sounds.set('buttonClick', this.generateSwordSound());
-    
+    setIfNotExists('buttonClick', () => this.generateSwordSound());
+
     // Achievement unlock sound (magic chime)
-    this.sounds.set('achievement', this.generateMagicSound());
-    
+    setIfNotExists('achievement', () => this.generateMagicSound());
+
     // Error sound (dull thud)
-    this.sounds.set('error', this.generateErrorSound());
-    
+    setIfNotExists('error', () => this.generateErrorSound());
+
     // Success sound (bell chime)
-    this.sounds.set('success', this.generateBellSound());
-    
+    setIfNotExists('success', () => this.generateBellSound());
+
     // Hover sound (subtle whoosh)
-    this.sounds.set('hover', this.generateWhooshSound());
-    
+    setIfNotExists('hover', () => this.generateWhooshSound());
+
     // Streak sound (fire crackle)
-    this.sounds.set('streak', this.generateFireSound());
+    setIfNotExists('streak', () => this.generateFireSound());
+
+    // New procedural fallbacks
+    setIfNotExists('monsterSpawn', () => this.generateErrorSound()); // Ominous thud
+    setIfNotExists('battleWin', () => this.generateSwordSound());
+    setIfNotExists('battleLoss', () => this.generateErrorSound());
+    setIfNotExists('allianceOath', () => this.generateMagicSound());
+    setIfNotExists('dungeonChallenge', () => this.generateWhooshSound());
   }
 
   private generateCoinSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.3;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a coin drop sound with multiple frequencies
@@ -71,18 +114,18 @@ class SoundManager {
       const envelope = Math.exp(-t * 8);
       data[i] = (Math.sin(2 * Math.PI * freq1 * t) + Math.sin(2 * Math.PI * freq2 * t)) * envelope * 0.3;
     }
-    
+
     return buffer;
   }
 
   private generateFanfareSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 1.0;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a triumphant fanfare
@@ -90,22 +133,22 @@ class SoundManager {
       const freq2 = 659.25; // E5
       const freq3 = 783.99; // G5
       const envelope = Math.exp(-t * 2) * (1 - Math.exp(-t * 10));
-      data[i] = (Math.sin(2 * Math.PI * freq1 * t) + 
-                Math.sin(2 * Math.PI * freq2 * t) + 
-                Math.sin(2 * Math.PI * freq3 * t)) * envelope * 0.2;
+      data[i] = (Math.sin(2 * Math.PI * freq1 * t) +
+        Math.sin(2 * Math.PI * freq2 * t) +
+        Math.sin(2 * Math.PI * freq3 * t)) * envelope * 0.2;
     }
-    
+
     return buffer;
   }
 
   private generateSwordSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.2;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a metallic clang
@@ -113,18 +156,18 @@ class SoundManager {
       const envelope = Math.exp(-t * 15);
       data[i] = Math.sin(2 * Math.PI * freq * t) * envelope * 0.4;
     }
-    
+
     return buffer;
   }
 
   private generateMagicSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.8;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a magical chime
@@ -132,22 +175,22 @@ class SoundManager {
       const freq2 = 1318.5; // E6
       const freq3 = 1568.0; // G6
       const envelope = Math.exp(-t * 1.5) * Math.sin(2 * Math.PI * 2 * t);
-      data[i] = (Math.sin(2 * Math.PI * freq1 * t) + 
-                Math.sin(2 * Math.PI * freq2 * t) + 
-                Math.sin(2 * Math.PI * freq3 * t)) * envelope * 0.25;
+      data[i] = (Math.sin(2 * Math.PI * freq1 * t) +
+        Math.sin(2 * Math.PI * freq2 * t) +
+        Math.sin(2 * Math.PI * freq3 * t)) * envelope * 0.25;
     }
-    
+
     return buffer;
   }
 
   private generateErrorSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.4;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a dull error sound
@@ -155,18 +198,18 @@ class SoundManager {
       const envelope = Math.exp(-t * 8);
       data[i] = Math.sin(2 * Math.PI * freq * t) * envelope * 0.3;
     }
-    
+
     return buffer;
   }
 
   private generateBellSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.6;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a bell chime
@@ -174,18 +217,18 @@ class SoundManager {
       const envelope = Math.exp(-t * 3) * (1 - Math.exp(-t * 20));
       data[i] = Math.sin(2 * Math.PI * freq * t) * envelope * 0.3;
     }
-    
+
     return buffer;
   }
 
   private generateWhooshSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.1;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a subtle whoosh
@@ -193,18 +236,18 @@ class SoundManager {
       const envelope = Math.exp(-t * 20);
       data[i] = Math.sin(2 * Math.PI * freq * t) * envelope * 0.1;
     }
-    
+
     return buffer;
   }
 
   private generateFireSound(): AudioBuffer {
     if (!this.audioContext) return null as any;
-    
+
     const sampleRate = this.audioContext.sampleRate;
     const duration = 0.5;
     const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < data.length; i++) {
       const t = i / sampleRate;
       // Generate a fire crackle
@@ -212,7 +255,7 @@ class SoundManager {
       const envelope = Math.exp(-t * 4);
       data[i] = Math.sin(2 * Math.PI * freq * t) * envelope * 0.2;
     }
-    
+
     return buffer;
   }
 
@@ -228,13 +271,13 @@ class SoundManager {
 
       const source = this.audioContext.createBufferSource();
       const gainNode = this.audioContext.createGain();
-      
+
       source.buffer = buffer;
       gainNode.gain.value = this.volume;
-      
+
       source.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
-      
+
       source.start();
     } catch (error) {
       console.warn('Failed to play sound:', error);
@@ -283,33 +326,44 @@ class SoundManager {
   }
 }
 
-// Create singleton instance
+// Create singleton instance - lazily or with checks
 export const soundManager = new SoundManager();
-
-// Initialize settings
-soundManager.loadSettings();
 
 // React hook for sound management
 export function useSound() {
-  const [isEnabled, setIsEnabled] = useState(soundManager.getEnabled());
-  const [volume, setVolume] = useState(soundManager.getVolume());
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [isClient, setIsClient] = useState(false);
 
-  const playSound = useCallback(async (soundName: string) => {
-    await soundManager.play(soundName);
+  useEffect(() => {
+    setIsClient(true);
+    // Initialize settings only on client
+    if (typeof window !== 'undefined') {
+      soundManager.loadSettings();
+      setIsEnabled(soundManager.getEnabled());
+      setVolume(soundManager.getVolume());
+    }
   }, []);
 
+  const playSound = useCallback(async (soundName: string) => {
+    if (!isClient) return;
+    await soundManager.play(soundName);
+  }, [isClient]);
+
   const toggleSounds = useCallback(() => {
+    if (!isClient) return;
     const newEnabled = !isEnabled;
     setIsEnabled(newEnabled);
     soundManager.setEnabled(newEnabled);
     soundManager.saveSettings();
-  }, [isEnabled]);
+  }, [isEnabled, isClient]);
 
   const updateVolume = useCallback((newVolume: number) => {
+    if (!isClient) return;
     setVolume(newVolume);
     soundManager.setVolume(newVolume);
     soundManager.saveSettings();
-  }, []);
+  }, [isClient]);
 
   return {
     isEnabled,
@@ -330,4 +384,9 @@ export const SOUNDS = {
   SUCCESS: 'success',
   HOVER: 'hover',
   STREAK: 'streak',
+  MONSTER_SPAWN: 'monsterSpawn',
+  BATTLE_WIN: 'battleWin',
+  BATTLE_LOSS: 'battleLoss',
+  ALLIANCE_OATH: 'allianceOath',
+  DUNGEON_CHALLENGE: 'dungeonChallenge',
 } as const;
