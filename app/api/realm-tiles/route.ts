@@ -102,7 +102,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    return await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       let tilesToUpsert = [];
 
       if (Array.isArray(body)) {
@@ -147,6 +147,12 @@ export async function POST(request: Request) {
 
       return { success: true, tiles: data };
     });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
 
   } catch (error: any) {
     console.error('[Realm Tiles POST] Error:', error);
