@@ -75,6 +75,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 import { Leaderboard } from "@/components/leaderboard"
+import { ActivityFeed } from "@/components/activity-feed"
 
 export default function AlliesPage() {
     const { user } = useUser();
@@ -352,10 +353,15 @@ export default function AlliesPage() {
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
-                {/* Top Section: Dashboard + Leaderboard */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <AllianceDashboard />
-                    <Leaderboard />
+                {/* Top Section: Dashboard + Leaderboard + Activity Feed */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-8 space-y-6">
+                        <AllianceDashboard />
+                        <Leaderboard />
+                    </div>
+                    <div className="lg:col-span-4 h-full min-h-[500px]">
+                        <ActivityFeed />
+                    </div>
                 </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
