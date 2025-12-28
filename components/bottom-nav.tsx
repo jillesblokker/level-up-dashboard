@@ -39,7 +39,7 @@ export function BottomNav() {
         { href: "/kingdom", label: "Kingdom", icon: Crown },
         { href: "/quests", label: "Tasks", icon: Compass },
         { href: "/realm", label: "Realm", icon: MapIcon },
-        { href: "/allies", label: "Allies", icon: Users },
+        { href: "/social", label: "Tavern", icon: Users },
         { href: "/profile", label: "Profile", icon: User },
     ]
 

@@ -118,7 +118,7 @@ export function MainNav() {
               aria-label="Navigate to Social"
               aria-current={pathname?.startsWith("/social") ? "page" : undefined}
             >
-              Social
+              Tavern
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>
