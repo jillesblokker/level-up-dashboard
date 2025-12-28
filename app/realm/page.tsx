@@ -567,6 +567,19 @@ function RealmPageContent() {
     };
 
 
+    // State Refs for Event Listeners to avoid stale closures and re-binding
+    const gameModeRef = useRef(gameMode);
+    const characterPositionRef = useRef(characterPosition);
+    const gridRef = useRef(grid);
+    const showInventoryRef = useRef(showInventory);
+
+    useEffect(() => {
+        gameModeRef.current = gameMode;
+        characterPositionRef.current = characterPosition;
+        gridRef.current = grid;
+        showInventoryRef.current = showInventory;
+    }, [gameMode, characterPosition, grid, showInventory]);
+
     // Keyboard movement handlers
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -574,7 +587,7 @@ function RealmPageContent() {
             if (event.key === 'i' || event.key === 'I') {
                 const active = document.activeElement;
                 if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || (active as HTMLElement).isContentEditable)) return;
-                if (!showInventory) {
+                if (!showInventoryRef.current) {
                     setShowInventory(true);
                     toast({
                         title: 'Inventory Opened',
@@ -583,9 +596,14 @@ function RealmPageContent() {
                 }
                 return;
             }
-            if (gameMode !== 'move') return;
 
-            const currentPos = characterPosition;
+            // STRICT MODE CHECK: Only allow movement in 'move' mode
+            if (gameModeRef.current !== 'move') {
+                return;
+            }
+
+            const currentPos = characterPositionRef.current;
+            const currentGrid = gridRef.current;
             let newX = currentPos.x;
             let newY = currentPos.y;
 
@@ -598,7 +616,7 @@ function RealmPageContent() {
                 case 'ArrowDown':
                 case 's':
                 case 'S':
-                    newY = Math.min(grid.length - 1, currentPos.y + 1);
+                    newY = Math.min(currentGrid.length - 1, currentPos.y + 1);
                     break;
                 case 'ArrowLeft':
                 case 'a':
@@ -608,14 +626,14 @@ function RealmPageContent() {
                 case 'ArrowRight':
                 case 'd':
                 case 'D':
-                    newX = Math.min((grid[0]?.length ?? 0) - 1, currentPos.x + 1);
+                    newX = Math.min((currentGrid[0]?.length ?? 0) - 1, currentPos.x + 1);
                     break;
                 default:
                     return;
             }
 
             // Check if the target tile is walkable
-            const targetTile = grid[newY]?.[newX];
+            const targetTile = currentGrid[newY]?.[newX];
 
             // Check for empty tile
             if (!targetTile || targetTile.type === 'empty') {
@@ -650,7 +668,7 @@ function RealmPageContent() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [gameMode, characterPosition, grid, toast, showInventory, setShowInventory]);
+    }, [toast, setCharacterPosition, setShowInventory]); // Minimal dependencies
 
     // Effect to handle landing on special tiles
     useEffect(() => {
