@@ -47,14 +47,15 @@ const getTileImage = (tileType: string) => {
 };
 
 const getMonsterImageName = (monsterType: string) => {
-  switch (monsterType) {
-    case 'dragon': return 'Dragoni';
-    case 'goblin': return 'Orci';
-    case 'troll': return 'Trollie';
-    case 'wizard': return 'Sorceror';
+  const type = monsterType.toLowerCase();
+  switch (type) {
+    case 'dragon': return 'Drakon';
+    case 'goblin': return 'Divero';
+    case 'troll': return 'Buldour';
+    case 'wizard': return 'Valerion';
     case 'pegasus': return 'Peggie';
     case 'fairy': return 'Fairiel';
-    default: return 'Dragoni';
+    default: return 'Drakon';
   }
 };
 
@@ -121,7 +122,6 @@ const MapTile = memo(({
         width={tileSize}
         height={tileSize}
         className="tile-image"
-        // Performance: Removed 'priority' to allow lazy loading of map tiles
         onError={(e) => {
           console.warn(`Failed to load tile image for ${tile.type}, using fallback`);
           e.currentTarget.src = '/images/tiles/empty-tile.png';
@@ -151,12 +151,11 @@ const MapTile = memo(({
       {tile.hasMonster && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
-            src={`/images/Monsters/${getMonsterImageName(tile.hasMonster)}.png`}
+            src={`/images/creatures/${getMonsterImageName(tile.hasMonster)}.png`}
             alt={`${tile.hasMonster} monster`}
             width={Math.floor(tileSize * 0.6)}
             height={Math.floor(tileSize * 0.6)}
             className="monster-image"
-            // Monsters can overlap, removed priority unless crucial
             onError={(e) => {
               console.warn(`Failed to load monster image for ${tile.hasMonster}`);
               e.currentTarget.style.display = 'none';
@@ -265,7 +264,7 @@ export function MapGrid({
 
   // Handle touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
+    // e.preventDefault(); // Removed to allow scrolling
   };
 
   // Safety check: ensure grid is an array
@@ -403,10 +402,13 @@ export function MapGrid({
             <div className="relative w-full h-full">
               <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md animate-pulse"></div>
               <img
-                src={`/images/creatures/${monster.monster_type.toLowerCase()}.png`}
+                src={`/images/creatures/${getMonsterImageName(monster.monster_type)}.png`}
                 alt={monster.monster_type}
                 className="relative z-10 object-contain w-full h-full drop-shadow-md"
-                onError={(e) => e.currentTarget.src = '/images/creatures/dragon.png'}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/images/creatures/Drakon.png';
+                }}
               />
               <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] px-1 rounded font-bold uppercase tracking-wider shadow-sm border border-red-800">
                 Boss
