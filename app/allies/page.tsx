@@ -74,6 +74,8 @@ const CATEGORY_COLORS: Record<string, string> = {
     physical: "text-rose-500"
 };
 
+import { Leaderboard } from "@/components/leaderboard"
+
 export default function AlliesPage() {
     const { user } = useUser();
     const router = useRouter();
@@ -317,32 +319,32 @@ export default function AlliesPage() {
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-0">
             <HeaderSection
-                title="ALLIES"
-                subtitle="Forge alliances and conquer together"
+                title="TAVERN"
+                subtitle="Gather, compete, and forge alliances"
                 imageSrc={coverImage || "/images/allies-header.jpg"}
                 canEdit={!!user?.id}
                 onImageUpload={handleImageUpload}
-                defaultBgColor="bg-blue-900"
+                defaultBgColor="bg-amber-900"
                 shouldRevealImage={true}
                 guideComponent={
                     <PageGuide
-                        title="Allies"
-                        subtitle="Join forces with fellow pioneers"
+                        title="Tavern"
+                        subtitle="The social heart of the realm"
                         sections={[
+                            {
+                                title: "Alliances",
+                                icon: Shield,
+                                content: "Form or join alliances to compete on the leaderboards and complete group quests."
+                            },
                             {
                                 title: "Sending Quests",
                                 icon: Scroll,
                                 content: "Help your friends level up! Send them custom quests and challenges to earn rewards together."
                             },
                             {
-                                title: "Gifting & Support",
-                                icon: Gift,
-                                content: "Feeling generous? Send gold or resources as gifts to help your allies prosper in their journey."
-                            },
-                            {
-                                title: "Visitation Mode",
-                                icon: UserCheck,
-                                content: "Visit your allies' kingdoms and realms to see their progress and get inspiration for your own domain!"
+                                title: "Leaderboards",
+                                icon: Trophy,
+                                content: "Check the global rankings to see who is the mightiest hero or most dominant alliance."
                             }
                         ]}
                     />
@@ -350,8 +352,11 @@ export default function AlliesPage() {
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
-                {/* Alliance Dashboard */}
-                <AllianceDashboard />
+                {/* Top Section: Dashboard + Leaderboard */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <AllianceDashboard />
+                    <Leaderboard />
+                </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-3 mb-8">
