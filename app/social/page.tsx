@@ -25,6 +25,8 @@ import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
 import { GiftModal } from "@/components/gift-modal"
 import { AllianceDashboard } from "@/components/alliance-dashboard"
+import { Leaderboard } from "@/components/leaderboard"
+import { ActivityFeed } from "@/components/activity-feed"
 
 interface Friend {
     id: string; // Friendship ID
@@ -73,9 +75,6 @@ const CATEGORY_COLORS: Record<string, string> = {
     mental: "text-indigo-500",
     physical: "text-rose-500"
 };
-
-import { Leaderboard } from "@/components/leaderboard"
-import { ActivityFeed } from "@/components/activity-feed"
 
 export default function AlliesPage() {
     const { user } = useUser();
@@ -354,45 +353,40 @@ export default function AlliesPage() {
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
                 {/* Top Section Layout */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                    {/* Left Column: Leaderboard & Dashboard */}
-                    <div className="xl:col-span-8 space-y-8">
-                        {/* Alliance Dashboard */}
-                        <AllianceDashboard />
-
-                        {/* Leaderboard Section */}
-                        <div className="pt-4">
-                            <Leaderboard />
-                        </div>
-                    </div>
-
-                    {/* Right Column: Activity Feed (Sticky on Desktop) */}
-                    <div className="xl:col-span-4 space-y-6">
-                        <div className="sticky top-4">
-                            <ActivityFeed />
-                        </div>
-                    </div>
+                {/* Top Section Layout: Stacked */}
+                <div className="flex flex-col gap-8">
+                    <AllianceDashboard />
+                    <Leaderboard />
                 </div>
 
                 <div className="h-8"></div> {/* Spacer to prevent overlap */}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 mb-8">
-                        <TabsTrigger value="allies" className="flex items-center gap-2">
+                    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto mb-8">
+                        <TabsTrigger value="allies" className="flex items-center gap-2 py-3">
                             <Users className="w-4 h-4" />
                             My Allies
                             {friends.length > 0 && <Badge variant="secondary" className="ml-1">{friends.length}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger value="add" className="flex items-center gap-2">
+                        <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3">
+                            <Scroll className="w-4 h-4" />
+                            Chronicles
+                        </TabsTrigger>
+                        <TabsTrigger value="add" className="flex items-center gap-2 py-3">
                             <UserPlus className="w-4 h-4" />
                             Add Friend
                         </TabsTrigger>
-                        <TabsTrigger value="requests" className="flex items-center gap-2">
+                        <TabsTrigger value="requests" className="flex items-center gap-2 py-3">
                             <Mail className="w-4 h-4" />
                             Requests
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}
                         </TabsTrigger>
                     </TabsList>
+
+                    {/* CHRONICLES TAB */}
+                    <TabsContent value="chronicles" className="space-y-4">
+                        <ActivityFeed />
+                    </TabsContent>
 
                     {/* MY ALLIES TAB */}
                     <TabsContent value="allies" className="space-y-4">
