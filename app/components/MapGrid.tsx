@@ -53,8 +53,8 @@ const getMonsterImageName = (monsterType: string) => {
     case 'goblin': return 'Divero';
     case 'troll': return 'Buldour';
     case 'wizard': return 'Valerion';
-    case 'pegasus': return 'Peggie';
-    case 'fairy': return 'Fairiel';
+    case 'pegasus': return 'Blizzey'; // Maps to Snow biome creature
+    case 'fairy': return 'Oaky';     // Maps to Forest biome creature
     default: return 'Drakon';
   }
 };
