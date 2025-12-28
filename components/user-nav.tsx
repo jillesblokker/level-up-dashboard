@@ -19,7 +19,7 @@ import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useAudioContext } from "@/components/audio-provider";
-import { ProfileSettings } from "@/components/profile-settings";
+
 import { NotificationsBell } from "@/components/notifications-bell";
 
 export function UserNav() {
@@ -125,16 +125,15 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-amber-800/20" />
           <DropdownMenuGroup className="p-2 space-y-1">
-            {/* Replaced 'Link to /profile' with ProfileSettings component directly */}
-            <DropdownMenuItem asChild className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
-              <div onClick={(e) => e.preventDefault()}> {/* Prevent dropdown close on click if desired, or handle inside ProfileSettings */}
-                <ProfileSettings />
-                {/* Note: ProfileSettings has its own trigger button. We might need to adjust styling or trigger logic here. 
-                         Actually, ProfileSettings renders a SheetTrigger. 
-                         Let's just import it and use it properly. 
-                     */}
-              </div>
-            </DropdownMenuItem>
+            <Link href="/profile">
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+                <User className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">Profile</span>
+                  <p className="text-xs text-gray-400">Manage your character and settings</p>
+                </div>
+              </DropdownMenuItem>
+            </Link>
             <Link href="/requirements">
               <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
                 <ClipboardCheck className="h-5 w-5 text-amber-400" />
