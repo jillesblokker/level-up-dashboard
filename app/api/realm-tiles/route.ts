@@ -97,21 +97,35 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: Upsert a single tile
+// POST: Upsert a single tile OR a batch of tiles
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { x, y, tile_type, event_type, meta } = body;
 
-    if (typeof x !== 'number' || typeof y !== 'number' || typeof tile_type !== 'number') {
-      return NextResponse.json({ error: 'Missing or invalid tile data' }, { status: 400 });
-    }
+    return await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      let tilesToUpsert = [];
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      if (Array.isArray(body)) {
+        // Batch mode
+        tilesToUpsert = body.map(tile => ({
+          user_id: userId,
+          x: tile.x,
+          y: tile.y,
+          tile_type: tile.tile_type,
+          event_type: tile.event_type || null,
+          meta: tile.meta || {},
+          updated_at: new Date().toISOString()
+        }));
 
-      const { data, error } = await supabase
-        .from('realm_tiles')
-        .upsert({
+        if (tilesToUpsert.length === 0) return { success: true };
+
+      } else {
+        // Single mode
+        const { x, y, tile_type, event_type, meta } = body;
+        if (typeof x !== 'number' || typeof y !== 'number' || typeof tile_type !== 'number') {
+          throw new Error('Missing or invalid tile data');
+        }
+        tilesToUpsert = [{
           user_id: userId,
           x,
           y,
@@ -119,24 +133,23 @@ export async function POST(request: Request) {
           event_type: event_type || null,
           meta: meta || {},
           updated_at: new Date().toISOString()
-        }, {
+        }];
+      }
+
+      const { data, error } = await supabase
+        .from('realm_tiles')
+        .upsert(tilesToUpsert, {
           onConflict: 'user_id,x,y'
         })
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
 
-      return { success: true, tile: data };
+      return { success: true, tiles: data };
     });
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
-    }
-
-    return NextResponse.json(result.data);
   } catch (error: any) {
     console.error('[Realm Tiles POST] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

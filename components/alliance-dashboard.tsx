@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, Shield, Flame, CheckCircle, Plus, UserPlus } from "lucide-react"
+import { Users, Shield, Flame, CheckCircle, Plus, UserPlus, PlusCircle } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { getUserAlliances, checkInToAlliance, createAlliance, inviteToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
@@ -136,22 +136,40 @@ export function AllianceDashboard() {
     return (
         <div className="space-y-4 h-full flex flex-col">
             {alliances.length === 0 ? (
-                <Card className="border-amber-900/40 bg-black/40 h-full flex flex-col justify-center min-h-[400px]">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-amber-500">
-                            <Users className="w-5 h-5" />
+                <Card className="border-amber-900/40 bg-black/40 h-full flex flex-col justify-center min-h-[500px] relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-black pointer-events-none" />
+                    <CardHeader className="relative z-10 pb-2">
+                        <CardTitle className="flex items-center justify-center gap-2 text-amber-500/80 font-medieval text-2xl">
+                            <Users className="w-6 h-6" />
                             Alliances
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-400 text-sm">You have not sworn an oath to any alliance yet.</p>
+                    <CardContent className="relative z-10 flex flex-col items-center justify-center text-center space-y-6 px-8">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full animate-pulse" />
+                            <Shield className="w-24 h-24 text-amber-900/40 relative z-10" />
+                            <PlusCircle className="w-8 h-8 text-amber-500 absolute bottom-0 right-0 z-20 bg-black rounded-full p-1 border border-amber-900" />
+                        </div>
+
+                        <div className="space-y-2 max-w-sm">
+                            <p className="text-amber-100/80 font-medium text-lg">You walk alone... for now.</p>
+                            <p className="text-amber-500/50 text-sm leading-relaxed">
+                                Swear an oath to an alliance to complete shared quests, earn unique rewards, and dominate the monthly leaderboards.
+                            </p>
+                        </div>
+
                         <Button
                             onClick={() => setCreateModalOpen(true)}
-                            className="mt-4 bg-amber-800 hover:bg-amber-700 text-amber-100"
+                            size="lg"
+                            className="bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-700 hover:to-amber-800 text-amber-100 border border-amber-700/50 shadow-lg shadow-amber-900/20 transition-all transform hover:scale-105"
                         >
-                            <Plus className="w-4 h-4 mr-2" />
+                            <Plus className="w-5 h-5 mr-2" />
                             Form New Alliance
                         </Button>
+
+                        <p className="text-xs text-amber-900/60 pt-4">
+                            Or wait for an invite from a friend...
+                        </p>
                     </CardContent>
                 </Card>
             ) : (

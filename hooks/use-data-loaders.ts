@@ -11,7 +11,7 @@ export function useDataLoaders() {
   const apiCall = useCallback(async (endpoint: string, options: RequestInit = {}) => {
     try {
       const token = await getToken({ template: 'supabase' });
-      
+
       const response = await fetch(`/api/data${endpoint}`, {
         ...options,
         headers: {
@@ -40,8 +40,42 @@ export function useDataLoaders() {
     return loadDataWithFallback(
       async () => {
         try {
+          // PRIMARY: Try to load from the normalized realm_tiles table
+          const token = await getToken({ template: 'supabase' });
+
+          const tilesResponse = await fetch(`/api/realm-tiles?userId=${userId}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token && { 'Authorization': `Bearer ${token}` })
+            }
+          });
+
+          if (tilesResponse.ok) {
+            const tilesData = await tilesResponse.json();
+            if (tilesData && Array.isArray(tilesData.tiles)) {
+              // We have the source of truth!
+              // BUT, the app expects a 2D array (Tile[][]). We must reconstruct it.
+              // We will return the raw tiles array here, and let the caller (useRealmGridManager) handle reconstruction?
+              // No, loadGridData contract says it returns { data: gridData } where gridData is what?
+              // Currently it returns Tile[][].
+              // So let's reconstruct it here.
+
+              // We need helper to create default grid and fill it.
+              // We can import { createBaseGrid, createTileFromNumeric } logic?
+              // Importing large logic into a hook might be heavy but necessary.
+              // OR, we return a special format and let useRealmGridManager handle it.
+              // Let's return the raw tiles and let useRealmGridManager handle it,
+              // BUT useRealmGridManager expects Tile[][].
+              // Let's return { tiles: ... } and modify useRealmGridManager to handle it.
+
+              // Actually, let's keep the contract if possible.
+              // Simpler: Return { tiles: [...] } property in the data object.
+              return { data: { tiles: tilesData.tiles }, error: null };
+            }
+          }
+
+          // SECONDARY: Fallback to the old blob store if normalized fetch failed completely (network error etc)
           const result = await apiCall(`?type=grid&userId=${userId}`);
-          // The API returns { data: { grid: gridData } }, so we need to extract the grid data
           const gridData = result.data?.grid || null;
           return { data: gridData, error: null };
         } catch (error) {
@@ -51,9 +85,12 @@ export function useDataLoaders() {
       'grid',
       null
     );
-  }, [apiCall]);
+  }, [apiCall, getToken]);
 
   const saveGridData = useCallback(async (userId: string, gridData: any) => {
+    // We still allow saving the Blob for backup/redundancy, but we rely on the per-tile save in handlePlaceTile for truth.
+    // However, if we change multiple tiles (e.g. Expand Map), we might still want this blob save until we migrate Expand to use per-tile writes.
+    // So we keep this.
     return saveDataWithRedundancy(
       async (data) => {
         try {

@@ -112,7 +112,7 @@ const MapTile = memo(({
       }}
       onClick={() => onTileClick(x, y)}
       onKeyDown={handleKeyDown}
-      role="gridcell"
+      role="button"
       tabIndex={0}
       aria-label={`${tile.type} tile at position ${x},${y}${isPlayerHere ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
     >
@@ -306,7 +306,6 @@ export function MapGrid({
             minHeight: '100%'
           }}
           aria-label="map-grid-container"
-          role="grid"
         >
           {/* Living World Creature Layer */}
           <CreatureLayer grid={grid} mapType="realm" playerPosition={playerPosition} />
@@ -314,7 +313,7 @@ export function MapGrid({
           {grid.map((row, y) => {
             if (!Array.isArray(row)) return null;
             return (
-              <div key={`row-${y}`} role="row" aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
+              <div key={`row-${y}`} aria-label={`map-row-${y}`} style={{ display: 'contents' }}>
                 {row.map((tile, x) => {
                   if (!tile) return null;
                   return (

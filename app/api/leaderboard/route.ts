@@ -151,6 +151,63 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ success: true, data: leaderboard });
         }
 
+        // Handle Tiles Placed Leaderboard (New Persistence)
+        if (sortBy === 'tiles') {
+            // We need to count tiles per user in realm_tiles
+            // Since we can't easily do a generic COUNT(*) GROUP BY via standard PostgREST-js interface without an RPC or complex view,
+            // we will fetch distinct user_ids or just fetch all tiles (might be heavy eventually, but okay for now with limit).
+            // Actually, best approach is to fetch users and then count their tiles, OR rely on a view. 
+            // For now, let's try a direct query approach if possible, or fallback to fetching stats if we had a stored counter.
+            // We previously added 'user-placed-tile-counts' to local storage, but that's local. 
+            // We don't have a backend counter table yet. 
+            // Let's CREATE a simple query.
+
+            // To scale, we really should have a `stats` table. 
+            // BUT, for now, we can query `realm_tiles` with `select('user_id', { count: 'exact', head: false })`? No, that counts total.
+            // Let's try to fetch all unique user_ids from character_stats (active players) and count their tiles.
+
+            // Optimization: We will just fetch `realm_tiles` select `user_id`. 
+            // This is heavy if 10k tiles. 
+            // Let's assume the userbase is small for this fix.
+
+            const { data: tiles, error: tilesError } = await supabaseServer
+                .from('realm_tiles')
+                .select('user_id');
+
+            if (tilesError) throw tilesError;
+
+            const counts: Record<string, number> = {};
+            (tiles || []).forEach((t: any) => {
+                counts[t.user_id] = (counts[t.user_id] || 0) + 1;
+            });
+
+            const topUserIds = Object.keys(counts).sort((a, b) => (counts[b] || 0) - (counts[a] || 0)).slice(0, limit);
+
+            if (topUserIds.length === 0) return NextResponse.json({ success: true, data: [] });
+
+            const { data: users, error: userError } = await supabaseServer
+                .from('character_stats')
+                .select('user_id, display_name, character_name, level, title')
+                .in('user_id', topUserIds);
+
+            if (userError) throw userError;
+
+            const leaderboard = topUserIds.map((uid, index) => {
+                const user = users.find(u => u.user_id === uid);
+                return {
+                    rank: index + 1,
+                    userId: uid,
+                    displayName: user?.display_name || user?.character_name || 'Anonymous Builder',
+                    title: user?.title || 'Architect',
+                    level: user?.level || 1,
+                    value: counts[uid],
+                    formattedValue: `${counts[uid]} Tiles`
+                };
+            });
+
+            return NextResponse.json({ success: true, data: leaderboard });
+        }
+
         // Handle Standard Stats (XP/Gold)
         const { data, error } = await supabaseServer
             .from('character_stats')
@@ -172,8 +229,8 @@ export async function GET(req: NextRequest) {
             displayName: entry.display_name || entry.character_name || 'Anonymous Knight',
             title: entry.title || 'Novice',
             level: entry.level || 1,
-            value: sortBy === 'gold' ? entry.gold : entry.experience,
-            formattedValue: sortBy === 'gold' ? `${entry.gold} Gold` : `${entry.experience} XP`
+            value: sortBy === 'gold' ? (entry.gold ?? 0) : (entry.experience ?? 0),
+            formattedValue: sortBy === 'gold' ? `${entry.gold ?? 0} Gold` : `${entry.experience ?? 0} XP`
         }));
 
         return NextResponse.json({ success: true, data: leaderboard });

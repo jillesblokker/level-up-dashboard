@@ -5,48 +5,38 @@ import { useDataLoaders } from './use-data-loaders';
 import { createBaseGrid, GRID_COLS, INITIAL_ROWS, EXPANSION_INCREMENT, defaultTile, getTileImage, INITIAL_POS } from '@/app/realm/realm-utils';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
 import { z } from 'zod';
-import { loadAndProcessInitialGrid } from '@/lib/grid-loader';
+import { loadAndProcessInitialGrid, createTileFromNumeric } from '@/lib/grid-loader';
 import logger from '@/lib/logger';
+import { useAuth } from '@clerk/nextjs';
 
-// Schema for tile validation
+// Schemas for validation
 const TileSchema = z.object({
-    id: z.string(),
-    type: z.string(),
     x: z.number(),
     y: z.number(),
-    revealed: z.boolean().optional(),
+    type: z.string(),
+    id: z.string().optional(),
     isVisited: z.boolean().optional(),
-    hasMonster: z.any().optional(),
+    hasMonster: z.string().optional(),
+    monsterAchievementId: z.string().optional(),
+    image: z.string().optional(),
+    owned: z.number().optional()
 });
 
 const GridSchema = z.array(z.array(TileSchema));
 
 export function useRealmGridManager(userId: string | undefined, isMounted: boolean) {
-    const { toast } = useToast();
-    const { loadGridData, saveGridData, loadCharacterPosition, saveCharacterPosition } = useDataLoaders();
-
     const [grid, setGrid] = useState<Tile[][]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [characterPosition, setCharacterPosition] = useState<{ x: number; y: number }>(INITIAL_POS);
-    const [expansions, setExpansions] = useState<number>(0);
+    const [characterPosition, setCharacterPosition] = useState<{ x: number, y: number }>(INITIAL_POS);
+    const [expansions, setExpansions] = useState(0);
     const [autoSave, setAutoSave] = useState(true);
     const [gridInitialized, setGridInitialized] = useState(false);
     const userPlacedTilesRef = useRef<Record<string, number>>({});
 
-    // Load placement counts
-    useEffect(() => {
-        if (typeof window !== 'undefined' && isMounted) {
-            const savedCounts = getUserScopedItem('user-placed-tile-counts');
-            if (savedCounts) {
-                try {
-                    userPlacedTilesRef.current = JSON.parse(savedCounts);
-                } catch (e) {
-                    console.error('Failed to parse user-placed-tile-counts', e);
-                }
-            }
-        }
-    }, [isMounted]);
+    const { loadGridData, saveGridData, loadCharacterPosition, saveCharacterPosition } = useDataLoaders();
+    const { toast } = useToast();
+    const { getToken } = useAuth();
 
     const loadAllData = useCallback(async () => {
         if (!userId || !isMounted) return;
@@ -55,24 +45,105 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             setIsLoading(true);
 
             // Load Grid
-            const gridResult = await loadGridData(userId);
-            // gridResult IS the data (Tile[][]), not { data: ... }
-            const isGridArray = Array.isArray(gridResult);
-            logger.info(`[useRealmGridManager] Loaded grid data: ${gridResult ? `(Array length: ${isGridArray ? gridResult.length : 'N/A'}, Type: ${typeof gridResult})` : 'null/undefined'}`, 'RealmGrid');
+            const gridResult: any = await loadGridData(userId);
+            logger.info(`[useRealmGridManager] Loaded grid data type: ${typeof gridResult}`, 'RealmGrid');
 
-            if (gridResult && isGridArray && gridResult.length > 0) {
+            let finalGrid: Tile[][] | null = null;
+
+            if (gridResult && gridResult.tiles && Array.isArray(gridResult.tiles)) {
+                // Normalized Grid Data
+                console.log('[useRealmGridManager] Detected normalized grid data. Reconstructing...');
+                const tiles = gridResult.tiles;
+
+                const newGrid = createBaseGrid();
+                let maxY = INITIAL_ROWS - 1;
+                tiles.forEach((t: any) => { if (t.y > maxY) maxY = t.y; });
+
+                while (newGrid.length <= maxY) {
+                    const y = newGrid.length;
+                    const row = Array.from({ length: GRID_COLS }, (_, x) => ({
+                        ...defaultTile('empty'),
+                        x,
+                        y,
+                        id: `${x}-${y}`,
+                        image: getTileImage('empty')
+                    }));
+                    newGrid.push(row);
+                }
+
+                tiles.forEach((t: any) => {
+                    if (newGrid[t.y] && newGrid[t.y][t.x]) {
+                        const reconstructedTile = createTileFromNumeric(t.tile_type, t.x, t.y);
+                        if (t.meta) {
+                            Object.assign(reconstructedTile, t.meta);
+                        }
+                        newGrid[t.y][t.x] = reconstructedTile;
+                    }
+                });
+
+                finalGrid = newGrid;
+
+                const inferredExpansions = Math.max(0, Math.ceil((newGrid.length - INITIAL_ROWS) / EXPANSION_INCREMENT));
+                if (inferredExpansions > 0) {
+                    setExpansions(inferredExpansions);
+                }
+
+            } else if (Array.isArray(gridResult) && gridResult.length > 0) {
+                // Legacy Blob Format
                 try {
-                    // Basic validation
                     const validatedGrid = GridSchema.parse(gridResult);
-                    setGrid(validatedGrid as unknown as Tile[][]);
-                    console.log('[useRealmGridManager] Grid validated and set.');
+                    finalGrid = validatedGrid as unknown as Tile[][];
+                    console.log('[useRealmGridManager] Loaded legacy blob grid. Migrating to normalized storage...');
+
+                    // Auto-migrate to new persistence (Fire and forget)
+                    (async () => {
+                        try {
+                            const { tileTypeToNumeric } = await import('@/lib/grid-loader');
+                            const tilesToMigrate: any[] = [];
+
+                            finalGrid?.forEach(row => {
+                                row.forEach(tile => {
+                                    tilesToMigrate.push({
+                                        x: tile.x,
+                                        y: tile.y,
+                                        tile_type: tileTypeToNumeric[tile.type] || 0,
+                                        meta: {
+                                            isVisited: tile.isVisited,
+                                            hasMonster: tile.hasMonster,
+                                            monsterAchievementId: tile.monsterAchievementId,
+                                            image: tile.image
+                                        }
+                                    });
+                                });
+                            });
+
+                            if (tilesToMigrate.length > 0) {
+                                const token = await getToken({ template: 'supabase' });
+                                await fetch('/api/realm-tiles', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        ...(token && { 'Authorization': `Bearer ${token}` })
+                                    },
+                                    body: JSON.stringify(tilesToMigrate)
+                                });
+                                console.log('[useRealmGridManager] Migration successful:', tilesToMigrate.length, 'tiles.');
+                            }
+                        } catch (err) {
+                            console.error('[useRealmGridManager] Migration failed:', err);
+                        }
+                    })();
+
                 } catch (e) {
                     console.warn('Grid validation failed, using raw data', e);
-                    setGrid(gridResult);
+                    finalGrid = gridResult;
                 }
+            }
+
+            if (finalGrid) {
+                setGrid(finalGrid);
             } else {
-                // Fallback to initial grid (seed)
-                console.log('[useRealmGridManager] No saved grid found or invalid format, loading initial grid from seed...');
+                console.log('[useRealmGridManager] No saved grid found, loading initial seed...');
                 const initialGrid = await loadAndProcessInitialGrid();
                 setGrid(initialGrid);
             }
@@ -90,13 +161,14 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             if (savedExpansions) setExpansions(parseInt(savedExpansions));
 
             setGridInitialized(true);
+
         } catch (error) {
             console.error('Failed to load realm data', error);
             toast({ title: 'Error', description: 'Failed to load your realm progress.', variant: 'destructive' });
         } finally {
             setIsLoading(false);
         }
-    }, [userId, isMounted, loadGridData, loadCharacterPosition, toast]);
+    }, [userId, isMounted, loadGridData, loadCharacterPosition, toast, getToken]);
 
     useEffect(() => {
         loadAllData();
@@ -119,14 +191,14 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             } catch (error) {
                 setSaveStatus('error');
             }
-        }, 5000); // 5 second debounce
+        }, 5000);
 
         return () => clearTimeout(saveTimeout);
     }, [grid, autoSave, isLoading, userId, gridInitialized, saveGridData]);
 
     const expandMap = useCallback(async () => {
         const newSize = INITIAL_ROWS + (expansions + 1) * EXPANSION_INCREMENT;
-        let updatedGrid: Tile[][] = [];
+        let diffTiles: Tile[] = [];
 
         setGrid(prevGrid => {
             const newGrid = Array.from({ length: newSize }, (_, y) =>
@@ -134,16 +206,18 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                     const existingTile = prevGrid[y]?.[x];
                     if (existingTile) return existingTile;
 
-                    return {
+                    // New Tile
+                    const newTile = {
                         ...defaultTile('empty'),
                         x,
                         y,
                         id: `${x}-${y}`,
                         image: getTileImage('empty')
                     };
+                    diffTiles.push(newTile);
+                    return newTile;
                 })
             );
-            updatedGrid = newGrid;
             return newGrid;
         });
 
@@ -151,22 +225,39 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
         setExpansions(newExpansions);
         localStorage.setItem('realm-expansions', newExpansions.toString());
 
-        // Immediately save the new grid to backend
-        if (userId) {
+        // Save expansion to Server (Batch Insert)
+        if (userId && diffTiles.length > 0) {
             setSaveStatus('saving');
             try {
-                // Wait a microtask to ensure updatedGrid is captured if needed, though closure captures it here
-                const result = await saveGridData(userId, updatedGrid);
-                if (result.success) {
-                    setSaveStatus('saved');
-                    setTimeout(() => setSaveStatus('idle'), 2000);
-                } else {
-                    setSaveStatus('error');
-                    toast({ title: 'Error', description: 'Failed to save expanded map.', variant: 'destructive' });
+                const { tileTypeToNumeric } = await import('@/lib/grid-loader');
+
+                const payload = diffTiles.map(t => ({
+                    x: t.x,
+                    y: t.y,
+                    tile_type: tileTypeToNumeric[t.type] || 0,
+                    meta: {}
+                }));
+
+                const token = await getToken({ template: 'supabase' });
+                const res = await fetch('/api/realm-tiles', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token && { 'Authorization': `Bearer ${token}` })
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to save expansion tiles');
                 }
+
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 2000);
             } catch (error) {
                 console.error('Failed to save expanded map:', error);
                 setSaveStatus('error');
+                toast({ title: 'Error', description: 'Failed to save expanded map.', variant: 'destructive' });
             }
         }
 
@@ -174,7 +265,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             title: "Realm Expanded!",
             description: `Your realm is now larger. You can now place tiles up to ${newSize} rows deep!`,
         });
-    }, [expansions, userId, saveGridData, toast]);
+    }, [expansions, userId, toast, getToken]);
 
     const updateCharacterPosition = useCallback((x: number, y: number) => {
         setCharacterPosition({ x, y });
