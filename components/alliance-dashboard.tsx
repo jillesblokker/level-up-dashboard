@@ -134,9 +134,9 @@ export function AllianceDashboard() {
     if (loading) return <div className="text-center p-4 text-amber-500/50">Summoning alliance records...</div>;
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 h-full flex flex-col">
             {alliances.length === 0 ? (
-                <Card className="border-amber-900/40 bg-black/40">
+                <Card className="border-amber-900/40 bg-black/40 h-full flex flex-col justify-center min-h-[400px]">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-amber-500">
                             <Users className="w-5 h-5" />
