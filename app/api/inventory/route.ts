@@ -88,16 +88,26 @@ export async function GET(request: Request) {
         if (id.startsWith('material-')) return `/images/items/materials/${id}.png`;
         if (id.startsWith('fish-')) return `/images/items/food/${id}.png`;
         if (id.startsWith('potion-')) return `/images/items/potion/${id}.png`;
-        if (type === 'scroll') return `/images/items/scroll/${id}.png`;
-        if (type === 'artifact') {
-          // Try to map artifacts to their specific folders if possible, or generic
-          if (id.includes('ring')) return `/images/items/artifact/ring/${id}.png`;
-          if (id.includes('crown')) return `/images/items/artifact/crown/${id}.png`;
-          return `/images/items/artifact/${id}.png`;
+        if (id.startsWith('sword-')) return `/images/items/sword/${id}.png`;
+        if (id.startsWith('armor-')) return `/images/items/armor/${id}.png`;
+        if (id.startsWith('shield-')) return `/images/items/shield/${id}.png`;
+        if (id.startsWith('scroll-')) return `/images/items/scroll/${id}.png`;
+
+        // Map types to physical folders
+        let folder = type;
+        switch (type) {
+          case 'weapon': folder = 'sword'; break; // Default weapon folder
+          case 'resource': folder = 'materials'; break;
+          case 'mount': folder = 'horse'; break;
+          case 'food': folder = 'food'; break;
+          case 'artifact':
+            if (id.includes('ring')) folder = 'artifact/ring';
+            else if (id.includes('crown')) folder = 'artifact/crown';
+            else folder = 'artifact';
+            break;
         }
 
-        // Fallback to type folder
-        return `/images/items/${type}/${id}.png`;
+        return `/images/items/${folder}/${id}.png`;
       };
 
       const mappedData = (data || []).map((row: any) => ({

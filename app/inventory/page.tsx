@@ -116,6 +116,9 @@ export default function InventoryPage() {
                 src={item.image}
                 alt={item.name}
                 className="w-16 h-16 object-cover rounded-lg"
+                onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                  (e.target as HTMLImageElement).src = "/images/items/placeholder.png";
+                }}
               />
             ) : (
               <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center">
