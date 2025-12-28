@@ -55,30 +55,35 @@ export async function POST() {
 
     if (monsterError) {
       console.error('[RESET][DELETE MONSTERS] Supabase error:', monsterError);
-      // Continue anyway
     }
 
-    // Reset tile placement trackers in user_stats or wherever they are stored if applicable
-    // (Assuming they are just local or derived, but if stored in DB, should reset too. 
-    //  Currently mainly stored in character_stats/json, but let's just clear monsters/tiles for now).
-    // Insert the initial grid
-    const now = new Date().toISOString();
-    const rows = INITIAL_GRID.map((row, y) => {
-      const rowObj: any = { user_id: userId, y };
+    // Insert the initial grid (Normalized Format)
+    const seedRows: any[] = [];
+
+    INITIAL_GRID.forEach((row, y) => {
       row.forEach((type, x) => {
-        rowObj[`tile_${x}_type`] = type;
-        rowObj[`tile_${x}_updated_at`] = now;
-        rowObj[`tile_${x}_event`] = null;
+        // Optimization: We could skip empty tiles (0), but saving the full seed/frame ensures consistency.
+        if (type !== 0) {
+          seedRows.push({
+            user_id: userId,
+            x,
+            y,
+            tile_type: type,
+            updated_at: new Date().toISOString()
+          });
+        }
       });
-      return rowObj;
     });
+
     const { error: insertError } = await supabaseServer
       .from('realm_tiles')
-      .insert(rows);
+      .insert(seedRows);
+
     if (insertError) {
       console.error('[RESET][INSERT] Supabase error:', insertError);
       return NextResponse.json({ error: insertError.message, details: insertError }, { status: 500 });
     }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[RESET][CATCH] Internal server error:', error);

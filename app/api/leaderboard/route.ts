@@ -153,47 +153,49 @@ export async function GET(req: NextRequest) {
 
         // Handle Tiles Placed Leaderboard (New Persistence)
         if (sortBy === 'tiles') {
-            // We need to count tiles per user in realm_tiles
-            // Since we can't easily do a generic COUNT(*) GROUP BY via standard PostgREST-js interface without an RPC or complex view,
-            // we will fetch distinct user_ids or just fetch all tiles (might be heavy eventually, but okay for now with limit).
-            // Actually, best approach is to fetch users and then count their tiles, OR rely on a view. 
-            // For now, let's try a direct query approach if possible, or fallback to fetching stats if we had a stored counter.
-            // We previously added 'user-placed-tile-counts' to local storage, but that's local. 
-            // We don't have a backend counter table yet. 
-            // Let's CREATE a simple query.
-
-            // To scale, we really should have a `stats` table. 
-            // BUT, for now, we can query `realm_tiles` with `select('user_id', { count: 'exact', head: false })`? No, that counts total.
-            // Let's try to fetch all unique user_ids from character_stats (active players) and count their tiles.
-
-            // Optimization: We will just fetch `realm_tiles` select `user_id`. 
-            // This is heavy if 10k tiles. 
-            // Let's assume the userbase is small for this fix.
+            // Count tiles per user directly from realm_tiles
+            // We use a raw query or fetch-and-count strategy.
+            // Since Supabase JS client doesn't support "select user_id, count(*)" with group by easily without rpc,
+            // we will fetch all tile records (only user_id col) and aggregate in memory.
+            // CAUTION: This does not scale to millions of tiles. 
+            // TODO: Create a Postgres VIEW or RPC 'get_tile_counts' for production scaling.
 
             const { data: tiles, error: tilesError } = await supabaseServer
                 .from('realm_tiles')
                 .select('user_id');
 
-            if (tilesError) throw tilesError;
+            if (tilesError) {
+                console.error('Error fetching realm_tiles:', tilesError);
+                // Return empty if table incomplete or error
+                return NextResponse.json({ success: true, data: [] });
+            }
 
             const counts: Record<string, number> = {};
             (tiles || []).forEach((t: any) => {
                 counts[t.user_id] = (counts[t.user_id] || 0) + 1;
             });
 
-            const topUserIds = Object.keys(counts).sort((a, b) => (counts[b] || 0) - (counts[a] || 0)).slice(0, limit);
+            // If no tiles found at all, return empty
+            if (Object.keys(counts).length === 0) {
+                return NextResponse.json({ success: true, data: [] });
+            }
 
-            if (topUserIds.length === 0) return NextResponse.json({ success: true, data: [] });
+            const topUserIds = Object.keys(counts)
+                .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
+                .slice(0, limit);
 
             const { data: users, error: userError } = await supabaseServer
                 .from('character_stats')
                 .select('user_id, display_name, character_name, level, title')
                 .in('user_id', topUserIds);
 
-            if (userError) throw userError;
+            if (userError) {
+                console.error('Error fetching user stats for leaderboard:', userError);
+                return NextResponse.json({ success: true, data: [] }); // Fallback
+            }
 
             const leaderboard = topUserIds.map((uid, index) => {
-                const user = users.find(u => u.user_id === uid);
+                const user = users?.find(u => u.user_id === uid);
                 return {
                     rank: index + 1,
                     userId: uid,
@@ -217,13 +219,11 @@ export async function GET(req: NextRequest) {
 
         if (error) {
             console.error('Leaderboard Fetch Error:', error);
-            if (error.code === '42703' || error.message?.includes('does not exist')) {
-                return NextResponse.json({ success: true, data: [] });
-            }
-            throw error;
+            // Return empty list on valid database errors (e.g. missing columns during migration) to prevent 500s
+            return NextResponse.json({ success: true, data: [] });
         }
 
-        const leaderboard = data.map((entry, index) => ({
+        const leaderboard = (data || []).map((entry, index) => ({
             rank: index + 1,
             userId: entry.user_id,
             displayName: entry.display_name || entry.character_name || 'Anonymous Knight',
@@ -237,6 +237,7 @@ export async function GET(req: NextRequest) {
 
     } catch (error: any) {
         console.error('Leaderboard API Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        // Ensure we always return JSON, even on crash
+        return NextResponse.json({ error: error.message || 'Internal Server Error', success: false }, { status: 500 });
     }
 }
