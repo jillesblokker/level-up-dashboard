@@ -317,6 +317,7 @@ function RealmPageContent() {
     const showInventoryRef = useRef(showInventory);
     const selectedTileRef = useRef(selectedTile);
     const inventoryRef = useRef(inventory);
+    const monstersRef = useRef(monsters);
 
     // Keep Refs synced with state
     useEffect(() => {
@@ -326,7 +327,8 @@ function RealmPageContent() {
         showInventoryRef.current = showInventory;
         selectedTileRef.current = selectedTile;
         inventoryRef.current = inventory;
-    }, [gameMode, characterPosition, grid, showInventory, selectedTile, inventory]);
+        monstersRef.current = monsters;
+    }, [gameMode, characterPosition, grid, showInventory, selectedTile, inventory, monsters]);
 
     // Handler for tile size changes from MapGrid
     const handleTileSizeChange = useCallback((newTileSize: number) => {
@@ -438,13 +440,34 @@ function RealmPageContent() {
                     saveGridData(userId, updatedGrid).catch(e => console.error('Failed to background save grid:', e));
                 }
 
-                const spawnResult = checkMonsterSpawn(updatedGrid, tileType);
+                // Immediately save the full grid state
+                if (userId) {
+                    saveGridData(userId, updatedGrid).catch(e => console.error('Failed to background save grid:', e));
+                }
+
+                const spawnResult = checkMonsterSpawn(updatedGrid, tileType, monstersRef.current);
                 if (spawnResult.shouldSpawn && spawnResult.position && spawnResult.monsterType) {
                     const success = spawnMonsterOnTile(currentGrid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
                     if (success) {
                         playSound(SOUNDS.MONSTER_SPAWN);
                         toast({ title: "Monster Appeared!", description: `A ${spawnResult.monsterType} has appeared!` });
-                        // Add to grid state
+
+                        // Add to UI state optimistically
+                        setMonsters(prev => [
+                            ...prev,
+                            {
+                                id: 'temp-' + Date.now(), // Temporary ID until refresh, but functionality holds
+                                user_id: userId || '',
+                                x: spawnResult.position!.x,
+                                y: spawnResult.position!.y,
+                                monster_type: spawnResult.monsterType!,
+                                spawned_at: new Date().toISOString(),
+                                defeated: false,
+                                reward_claimed: false
+                            }
+                        ]);
+
+                        // Add to grid state (legacy support if needed by other components)
                         setGrid(prev => {
                             const next = [...prev];
                             const tile = next[spawnResult.position!.y]?.[spawnResult.position!.x];

@@ -1,5 +1,5 @@
 import { Tile } from '@/types/tiles';
-import { MonsterType, SpawnCheckResult } from '@/types/monsters';
+import { MonsterType, SpawnCheckResult, MonsterSpawn } from '@/types/monsters';
 
 // Export for backwards compatibility if needed, but prefer import from types
 export type { MonsterType } from '@/types/monsters';
@@ -40,27 +40,18 @@ const monsterSpawnConditions = {
   }
 };
 
-export function checkMonsterSpawn(grid: Tile[][], placedTileType: string): SpawnResult {
+export function checkMonsterSpawn(grid: Tile[][], placedTileType: string, existingMonsters: MonsterSpawn[] = []): SpawnResult {
   const condition = monsterSpawnConditions[placedTileType as keyof typeof monsterSpawnConditions];
 
   if (!condition) {
     return { shouldSpawn: false };
   }
 
-  // Check if a monster of this type already exists
-  let monsterAlreadyExists = false;
-  for (let y = 0; y < grid.length; y++) {
-    const row = grid[y];
-    if (!row) continue;
-    for (let x = 0; x < row.length; x++) {
-      const tile = row[x];
-      if (tile?.hasMonster === condition.monsterType) {
-        monsterAlreadyExists = true;
-        break;
-      }
-    }
-    if (monsterAlreadyExists) break;
-  }
+  // Check if a monster of this type already exists in the ACTIVE monsters list
+  // (We check BOTH the grid logic AND the authoritative monsters list from DB)
+  const monsterAlreadyExists = existingMonsters.some(m =>
+    m.monster_type === condition.monsterType && !m.defeated
+  );
 
   // If monster already exists, don't spawn another one
   if (monsterAlreadyExists) {
@@ -81,6 +72,7 @@ export function checkMonsterSpawn(grid: Tile[][], placedTileType: string): Spawn
   }
 
   // Check if we just reached the spawn threshold
+  // NOTE: Logic assumes we only spawn ONE per threshold.
   if (tileCount === condition.count) {
     // Find a random position for the monster (preferably on grass)
     const grassPositions: { x: number; y: number }[] = [];
@@ -90,7 +82,11 @@ export function checkMonsterSpawn(grid: Tile[][], placedTileType: string): Spawn
       for (let x = 0; x < row.length; x++) {
         const tile = row[x];
         if (tile?.type === 'grass' && !tile.hasMonster) {
-          grassPositions.push({ x, y });
+          // Double check there isn't actually a monster here from the existing list
+          const hasMonsterHere = existingMonsters.some(m => m.x === x && m.y === y && !m.defeated);
+          if (!hasMonsterHere) {
+            grassPositions.push({ x, y });
+          }
         }
       }
     }
