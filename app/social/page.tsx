@@ -353,16 +353,28 @@ export default function AlliesPage() {
             />
 
             <div className="container mx-auto p-4 max-w-5xl space-y-8">
-                {/* Top Section: Dashboard + Leaderboard + Activity Feed */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div className="lg:col-span-8 space-y-6">
+                {/* Top Section Layout */}
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                    {/* Left Column: Leaderboard & Dashboard */}
+                    <div className="xl:col-span-8 space-y-8">
+                        {/* Alliance Dashboard */}
                         <AllianceDashboard />
-                        <Leaderboard />
+
+                        {/* Leaderboard Section */}
+                        <div className="pt-4">
+                            <Leaderboard />
+                        </div>
                     </div>
-                    <div className="lg:col-span-4 h-full min-h-[500px]">
-                        <ActivityFeed />
+
+                    {/* Right Column: Activity Feed (Sticky on Desktop) */}
+                    <div className="xl:col-span-4 space-y-6">
+                        <div className="sticky top-4">
+                            <ActivityFeed />
+                        </div>
                     </div>
                 </div>
+
+                <div className="h-8"></div> {/* Spacer to prevent overlap */}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-3 mb-8">
