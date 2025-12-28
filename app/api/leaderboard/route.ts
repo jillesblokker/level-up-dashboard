@@ -57,10 +57,17 @@ export async function GET(req: NextRequest) {
                 .select('user_id')
                 .gte('completed_at', startOfMonth.toISOString());
 
-            if (error) throw error;
+            if (error) {
+                console.error('Error fetching quest_completion:', error);
+                return NextResponse.json({ success: true, data: [] });
+            }
+
+            if (!data || data.length === 0) {
+                return NextResponse.json({ success: true, data: [] });
+            }
 
             const counts: Record<string, number> = {};
-            (data || []).forEach(row => {
+            data.forEach(row => {
                 counts[row.user_id] = (counts[row.user_id] || 0) + 1;
             });
 
