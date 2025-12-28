@@ -56,8 +56,8 @@ export async function GET(request: Request) {
         // If name already looks formatted (has spaces, capitals), return it
         if (name.includes(' ') && /^[A-Z]/.test(name)) return name;
 
-        // Use ID if name is generic or technical
-        const source = id || name;
+        // Use name if id is a generated kingdom-tile-id
+        const source = (id && !id.startsWith('kingdom-tile-')) ? id : name;
 
         return source
           .replace(/^(material|item|artifact|scroll|potion)-/i, '') // Remove prefixes
@@ -71,7 +71,8 @@ export async function GET(request: Request) {
 
         // Construct path based on type/category
         const type = row.type || 'item';
-        const id = row.item_id;
+        // Use name if id is generated kingdom-tile-id
+        const id = (row.item_id && !row.item_id.startsWith('kingdom-tile-')) ? row.item_id : row.name;
 
         // Specific mappings based on directory structure
         if (id.startsWith('material-')) return `/images/items/materials/${id}.png`;

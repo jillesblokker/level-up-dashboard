@@ -1066,7 +1066,8 @@ export function KingdomClient() {
   const handleKingdomTileItemFound = (item: { image: string; name: string; type: string }) => {
     // Add item to inventory
     const inventoryItem: InventoryItem = {
-      id: `kingdom-tile-${Date.now()}`,
+      // Use item.name (e.g., 'material-planks') as ID to ensure unique but stackable items
+      id: item.name,
       name: item.name,
       type: 'item', // Use 'item' as default type for kingdom tile items
       quantity: 1,
