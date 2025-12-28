@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
                 .select(`
                     current_streak,
                     user_id,
-                    character_stats:character_stats!user_id(display_name, character_name, level, title)
+                    character_stats:character_stats!user_id(display_name, character_name, level)
                 `)
                 .order('current_streak', { ascending: false })
                 .limit(limit);
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
                 // @ts-ignore
                 displayName: entry.character_stats?.display_name || entry.character_stats?.character_name || 'Anonymous Ally',
                 // @ts-ignore
-                title: entry.character_stats?.title || 'Wanderer',
+                title: 'Wanderer',
                 // @ts-ignore
                 level: entry.character_stats?.level || 1,
                 value: entry.current_streak,
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
 
             const { data: users, error: userError } = await supabaseServer
                 .from('character_stats')
-                .select('user_id, display_name, character_name, level, title')
+                .select('user_id, display_name, character_name, level')
                 .in('user_id', topUserIds);
 
             if (userError) {
@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
                     rank: index + 1,
                     userId: uid,
                     displayName: user?.display_name || user?.character_name || 'Anonymous Hero',
-                    title: user?.title || 'Adventurer',
+                    title: 'Adventurer',
                     level: user?.level || 1,
                     value: counts[uid],
                     formattedValue: `${counts[uid]} Quests`
@@ -240,7 +240,7 @@ export async function GET(req: NextRequest) {
                     rank: index + 1,
                     userId: uid,
                     displayName: user?.display_name || user?.character_name || 'Anonymous Builder',
-                    title: user?.title || 'Architect',
+                    title: 'Architect',
                     level: user?.level || 1,
                     value: counts[uid],
                     formattedValue: `${counts[uid]} Tiles`
@@ -253,7 +253,7 @@ export async function GET(req: NextRequest) {
         // Handle Standard Stats (XP/Gold)
         const { data, error } = await supabaseServer
             .from('character_stats')
-            .select('user_id, display_name, character_name, experience, gold, level, title')
+            .select('user_id, display_name, character_name, experience, gold, level')
             .order(sortBy, { ascending: false })
             .limit(limit);
 
@@ -267,7 +267,7 @@ export async function GET(req: NextRequest) {
             rank: index + 1,
             userId: entry.user_id,
             displayName: entry.display_name || entry.character_name || 'Anonymous Knight',
-            title: entry.title || 'Novice',
+            title: 'Novice',
             level: entry.level || 1,
             value: sortBy === 'gold' ? (entry.gold ?? 0) : (entry.experience ?? 0),
             formattedValue: sortBy === 'gold' ? `${entry.gold ?? 0} Gold` : `${entry.experience ?? 0} XP`
