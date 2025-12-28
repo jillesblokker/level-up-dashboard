@@ -608,18 +608,6 @@ function RealmPageContent() {
     };
 
 
-    // State Refs for Event Listeners to avoid stale closures and re-binding
-    const gameModeRef = useRef(gameMode);
-    const characterPositionRef = useRef(characterPosition);
-    const gridRef = useRef(grid);
-    const showInventoryRef = useRef(showInventory);
-
-    useEffect(() => {
-        gameModeRef.current = gameMode;
-        characterPositionRef.current = characterPosition;
-        gridRef.current = grid;
-        showInventoryRef.current = showInventory;
-    }, [gameMode, characterPosition, grid, showInventory]);
 
     // Keyboard movement handlers
     useEffect(() => {
