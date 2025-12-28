@@ -6,6 +6,7 @@ CREATE OR REPLACE FUNCTION public.set_user_context(user_id uuid) RETURNS void AS
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 2. Helper to get the current user ID (works with both Auth and our custom context)
+DROP FUNCTION IF EXISTS public.get_current_user_id();
 CREATE OR REPLACE FUNCTION public.get_current_user_id() RETURNS uuid AS $$ BEGIN RETURN COALESCE(
         auth.uid(),
         current_setting('request.user_id', true)::uuid
