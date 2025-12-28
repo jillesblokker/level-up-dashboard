@@ -56,27 +56,32 @@ export async function GET(req: NextRequest) {
 
         // Handle Monthly Individual Quests
         if (sortBy === 'quests_monthly_individual') {
-            // Optimized: Query from SQL View
-            const { data: scores, error } = await supabaseServer
-                .from('view_leaderboard_quests_monthly')
-                .select('user_id, quest_count')
-                .order('quest_count', { ascending: false })
-                .limit(limit);
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const { data, error } = await supabaseServer
+                .from('quest_completion')
+                .select('user_id')
+                .gte('completed_at', startOfMonth.toISOString());
 
             if (error) {
-                console.error('Error fetching quest leaderboard view:', error);
+                console.error('Error fetching quest_completion:', error);
                 return NextResponse.json({ success: true, data: [] });
             }
 
-            if (!scores || scores.length === 0) {
+            if (!data || data.length === 0) {
                 return NextResponse.json({ success: true, data: [] });
             }
 
-            const topUserIds = scores.map((row: any) => row.user_id);
             const counts: Record<string, number> = {};
-            scores.forEach((row: any) => {
-                counts[row.user_id] = row.quest_count;
+            data.forEach(row => {
+                counts[row.user_id] = (counts[row.user_id] || 0) + 1;
             });
+
+            const topUserIds = Object.keys(counts).sort((a, b) => (counts[b] || 0) - (counts[a] || 0)).slice(0, limit);
+
+            if (topUserIds.length === 0) return NextResponse.json({ success: true, data: [] });
 
             const { data: users, error: userError } = await supabaseServer
                 .from('character_stats')
@@ -84,7 +89,7 @@ export async function GET(req: NextRequest) {
                 .in('user_id', topUserIds);
 
             if (userError) {
-                console.error('Error fetching user stats:', userError);
+                console.error('Error fetching user stats for quests:', userError);
                 return NextResponse.json({ success: true, data: [] });
             }
 
