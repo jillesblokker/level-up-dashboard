@@ -51,41 +51,80 @@ export async function GET(request: Request) {
       if (error) {
         throw error;
       }
-      
+
+      const formatItemName = (name: string, id: string) => {
+        // If name already looks formatted (has spaces, capitals), return it
+        if (name.includes(' ') && /^[A-Z]/.test(name)) return name;
+
+        // Use ID if name is generic or technical
+        const source = id || name;
+
+        return source
+          .replace(/^(material|item|artifact|scroll|potion)-/i, '') // Remove prefixes
+          .split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      };
+
+      const resolveItemImage = (row: any) => {
+        if (row.image && row.image.startsWith('/images/')) return row.image;
+
+        // Construct path based on type/category
+        const type = row.type || 'item';
+        const id = row.item_id;
+
+        // Specific mappings based on directory structure
+        if (id.startsWith('material-')) return `/images/items/materials/${id}.png`;
+        if (id.startsWith('fish-')) return `/images/items/food/${id}.png`;
+        if (id.startsWith('potion-')) return `/images/items/potion/${id}.png`;
+        if (type === 'scroll') return `/images/items/scroll/${id}.png`;
+        if (type === 'artifact') {
+          // Try to map artifacts to their specific folders if possible, or generic
+          if (id.includes('ring')) return `/images/items/artifact/ring/${id}.png`;
+          if (id.includes('crown')) return `/images/items/artifact/crown/${id}.png`;
+          return `/images/items/artifact/${id}.png`;
+        }
+
+        // Fallback to type folder
+        return `/images/items/${type}/${id}.png`;
+      };
+
       const mappedData = (data || []).map((row: any) => ({
         ...row,
         id: row.item_id,
+        name: formatItemName(row.name, row.item_id),
+        image: resolveItemImage(row),
         equipped: row.equipped,
         stats: row.stats || {},
       }));
-      
+
       return mappedData;
     });
 
     // Race between timeout and query
     const result = await Promise.race([queryPromise, timeoutPromise]) as any;
-    
+
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    
-    return NextResponse.json({ 
-      success: true, 
-      data: result.data 
+
+    return NextResponse.json({
+      success: true,
+      data: result.data
     });
   } catch (error) {
     console.error('[Inventory API] Error:', error);
-    
+
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {
       return NextResponse.json(
-        { error: 'Request timeout - please try again' }, 
+        { error: 'Request timeout - please try again' },
         { status: 408 }
       );
     }
-    
+
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -95,7 +134,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { item } = body;
-    
+
     if (!item) {
       return NextResponse.json({ error: 'Item is required' }, { status: 400 });
     }
@@ -108,11 +147,11 @@ export async function POST(request: Request) {
         .eq('user_id', userId)
         .eq('item_id', item.id)
         .single();
-        
+
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;
       }
-      
+
       if (existing) {
         // Update quantity
         const { data, error } = await supabase
@@ -122,7 +161,7 @@ export async function POST(request: Request) {
           .eq('item_id', item.id)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       } else {
@@ -145,7 +184,7 @@ export async function POST(request: Request) {
           })
           .select()
           .single();
-          
+
         if (error) {
           console.error('[Inventory API] Insert error:', error);
           throw error;
@@ -153,16 +192,16 @@ export async function POST(request: Request) {
         return data;
       }
     });
-    
+
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    
+
     return NextResponse.json(result.data);
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -172,7 +211,7 @@ export async function PATCH(request: Request) {
   try {
     const body = await request.json();
     const { action, itemId } = body;
-    
+
     if (!action || !itemId) {
       return NextResponse.json({ error: 'Action and itemId are required' }, { status: 400 });
     }
@@ -186,7 +225,7 @@ export async function PATCH(request: Request) {
           .eq('user_id', userId)
           .eq('item_id', itemId)
           .single();
-        
+
         if (fetchError || !item) {
           throw new Error('Item not found');
         }
@@ -209,10 +248,10 @@ export async function PATCH(request: Request) {
           .eq('item_id', itemId)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
-        
+
       } else if (action === 'unequip') {
         const { data, error } = await supabase
           .from('inventory_items')
@@ -221,11 +260,11 @@ export async function PATCH(request: Request) {
           .eq('item_id', itemId)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       }
-      
+
       throw new Error('Invalid action');
     });
 
@@ -237,7 +276,7 @@ export async function PATCH(request: Request) {
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -255,11 +294,11 @@ export async function DELETE(request: Request) {
           .from('inventory_items')
           .delete()
           .eq('user_id', userId);
-          
+
         if (error) throw error;
         return { message: 'Inventory cleared' };
       }
-      
+
       if (!itemId) {
         throw new Error('itemId is required');
       }
@@ -271,7 +310,7 @@ export async function DELETE(request: Request) {
         .eq('user_id', userId)
         .eq('item_id', itemId)
         .single();
-        
+
       if (fetchError || !existing) {
         throw new Error('Item not found');
       }
@@ -287,7 +326,7 @@ export async function DELETE(request: Request) {
           .eq('item_id', itemId)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       } else {
@@ -297,7 +336,7 @@ export async function DELETE(request: Request) {
           .delete()
           .eq('user_id', userId)
           .eq('item_id', itemId);
-          
+
         if (error) throw error;
         return { message: 'Item removed' };
       }
@@ -311,7 +350,7 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
