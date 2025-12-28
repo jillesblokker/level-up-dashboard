@@ -28,7 +28,15 @@ export async function GET(req: NextRequest) {
                 .order('current_streak', { ascending: false })
                 .limit(limit);
 
-            if (error) throw error;
+            if (error) {
+                // If table doesn't exist or other error, return empty
+                console.error('[Leaderboard] Streak error:', error);
+                return NextResponse.json({ success: true, data: [] });
+            }
+
+            if (!data || data.length === 0) {
+                return NextResponse.json({ success: true, data: [] });
+            }
 
             const leaderboard = data.map((entry, index) => ({
                 rank: index + 1,
@@ -80,10 +88,23 @@ export async function GET(req: NextRequest) {
                 .select('user_id, display_name, character_name, level, title')
                 .in('user_id', topUserIds);
 
-            if (userError) throw userError;
+            if (userError) {
+                console.error('Error fetching user stats for quests:', userError);
+                // Return generic leaderboard with IDs if user fetch fails
+                const fallbackLeaderboard = topUserIds.map((uid, index) => ({
+                    rank: index + 1,
+                    userId: uid,
+                    displayName: 'Unknown Hero',
+                    title: 'Adventurer',
+                    level: 1,
+                    value: counts[uid],
+                    formattedValue: `${counts[uid]} Quests`
+                }));
+                return NextResponse.json({ success: true, data: fallbackLeaderboard });
+            }
 
             const leaderboard = topUserIds.map((uid, index) => {
-                const user = users.find(u => u.user_id === uid);
+                const user = users?.find(u => u.user_id === uid);
                 return {
                     rank: index + 1,
                     userId: uid,
@@ -109,7 +130,10 @@ export async function GET(req: NextRequest) {
                 .from('alliances')
                 .select('id, name, members');
 
-            if (allianceError) throw allianceError;
+            if (allianceError) {
+                console.error('Error fetching alliances:', allianceError);
+                return NextResponse.json({ success: true, data: [] });
+            }
 
             // 2. Fetch all quest completions for this month
             const { data: completions, error: compError } = await supabaseServer
@@ -117,7 +141,10 @@ export async function GET(req: NextRequest) {
                 .select('user_id')
                 .gte('completed_at', startOfMonth.toISOString());
 
-            if (compError) throw compError;
+            if (compError) {
+                console.error('Error fetching quest_completion for alliances:', compError);
+                return NextResponse.json({ success: true, data: [] });
+            }
 
             // 3. Map completions to alliances
             const allianceCounts: Record<string, number> = {};
