@@ -22,7 +22,12 @@ class NotificationService {
       // Load notifications from localStorage
       const storedNotifications = localStorage.getItem("notifications")
       if (storedNotifications) {
-        this.notifications = JSON.parse(storedNotifications)
+        try {
+          this.notifications = JSON.parse(storedNotifications)
+        } catch (error) {
+          console.error('[NotificationService] Failed to parse notifications from localStorage:', error)
+          this.notifications = []
+        }
       }
     }
   }
