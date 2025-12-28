@@ -67,12 +67,22 @@ export async function GET(request: Request) {
       };
 
       const resolveItemImage = (row: any) => {
-        if (row.image && row.image.startsWith('/images/')) return row.image;
+        // trust the DB image ONLY if it's not a placeholder
+        if (row.image &&
+          row.image.startsWith('/images/') &&
+          !row.image.includes('placeholder') &&
+          !row.image.includes('mystery-item')) {
+          return row.image;
+        }
 
         // Construct path based on type/category
         const type = row.type || 'item';
         // Use name if id is generated kingdom-tile-id
-        const id = (row.item_id && !row.item_id.startsWith('kingdom-tile-')) ? row.item_id : row.name;
+        const rawId = (row.item_id && !row.item_id.startsWith('kingdom-tile-')) ? row.item_id : row.name;
+
+        // Normalize ID for file path matching (lowercase, hyphens instead of spaces)
+        // This handles cases where name might be 'Fish Silver' -> 'fish-silver'
+        const id = rawId.toLowerCase().trim().replace(/\s+/g, '-');
 
         // Specific mappings based on directory structure
         if (id.startsWith('material-')) return `/images/items/materials/${id}.png`;
