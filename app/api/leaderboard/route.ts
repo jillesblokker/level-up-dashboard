@@ -56,32 +56,27 @@ export async function GET(req: NextRequest) {
 
         // Handle Monthly Individual Quests
         if (sortBy === 'quests_monthly_individual') {
-            const startOfMonth = new Date();
-            startOfMonth.setDate(1);
-            startOfMonth.setHours(0, 0, 0, 0);
-
-            const { data, error } = await supabaseServer
-                .from('quest_completion')
-                .select('user_id')
-                .gte('completed_at', startOfMonth.toISOString());
+            // Optimized: Query from SQL View
+            const { data: scores, error } = await supabaseServer
+                .from('view_leaderboard_quests_monthly')
+                .select('user_id, quest_count')
+                .order('quest_count', { ascending: false })
+                .limit(limit);
 
             if (error) {
-                console.error('Error fetching quest_completion:', error);
+                console.error('Error fetching quest leaderboard view:', error);
                 return NextResponse.json({ success: true, data: [] });
             }
 
-            if (!data || data.length === 0) {
+            if (!scores || scores.length === 0) {
                 return NextResponse.json({ success: true, data: [] });
             }
 
+            const topUserIds = scores.map((row: any) => row.user_id);
             const counts: Record<string, number> = {};
-            data.forEach(row => {
-                counts[row.user_id] = (counts[row.user_id] || 0) + 1;
+            scores.forEach((row: any) => {
+                counts[row.user_id] = row.quest_count;
             });
-
-            const topUserIds = Object.keys(counts).sort((a, b) => (counts[b] || 0) - (counts[a] || 0)).slice(0, limit);
-
-            if (topUserIds.length === 0) return NextResponse.json({ success: true, data: [] });
 
             const { data: users, error: userError } = await supabaseServer
                 .from('character_stats')
@@ -89,18 +84,8 @@ export async function GET(req: NextRequest) {
                 .in('user_id', topUserIds);
 
             if (userError) {
-                console.error('Error fetching user stats for quests:', userError);
-                // Return generic leaderboard with IDs if user fetch fails
-                const fallbackLeaderboard = topUserIds.map((uid, index) => ({
-                    rank: index + 1,
-                    userId: uid,
-                    displayName: 'Unknown Hero',
-                    title: 'Adventurer',
-                    level: 1,
-                    value: counts[uid],
-                    formattedValue: `${counts[uid]} Quests`
-                }));
-                return NextResponse.json({ success: true, data: fallbackLeaderboard });
+                console.error('Error fetching user stats:', userError);
+                return NextResponse.json({ success: true, data: [] });
             }
 
             const leaderboard = topUserIds.map((uid, index) => {
@@ -193,45 +178,38 @@ export async function GET(req: NextRequest) {
 
         // Handle Tiles Placed Leaderboard (New Persistence)
         if (sortBy === 'tiles') {
-            // Count tiles per user directly from realm_tiles
-            // We use a raw query or fetch-and-count strategy.
-            // Since Supabase JS client doesn't support "select user_id, count(*)" with group by easily without rpc,
-            // we will fetch all tile records (only user_id col) and aggregate in memory.
-            // CAUTION: This does not scale to millions of tiles. 
-            // TODO: Create a Postgres VIEW or RPC 'get_tile_counts' for production scaling.
+            // Optimized: Query from SQL View
+            // We use the view_leaderboard_tiles which pre-calculates counts
+            const { data: scores, error } = await supabaseServer
+                .from('view_leaderboard_tiles')
+                .select('user_id, tile_count')
+                .order('tile_count', { ascending: false })
+                .limit(limit);
 
-            const { data: tiles, error: tilesError } = await supabaseServer
-                .from('realm_tiles')
-                .select('user_id');
-
-            if (tilesError) {
-                console.error('Error fetching realm_tiles:', tilesError);
-                // Return empty if table incomplete or error
+            if (error) {
+                console.error('Error fetching tile leaderboard view:', error);
+                // Fallback to empty to avoid crashing
                 return NextResponse.json({ success: true, data: [] });
             }
 
+            if (!scores || scores.length === 0) {
+                return NextResponse.json({ success: true, data: [] });
+            }
+
+            const topUserIds = scores.map((row: any) => row.user_id);
             const counts: Record<string, number> = {};
-            (tiles || []).forEach((t: any) => {
-                counts[t.user_id] = (counts[t.user_id] || 0) + 1;
+            scores.forEach((row: any) => {
+                counts[row.user_id] = row.tile_count;
             });
-
-            // If no tiles found at all, return empty
-            if (Object.keys(counts).length === 0) {
-                return NextResponse.json({ success: true, data: [] });
-            }
-
-            const topUserIds = Object.keys(counts)
-                .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
-                .slice(0, limit);
 
             const { data: users, error: userError } = await supabaseServer
                 .from('character_stats')
-                .select('user_id, display_name, character_name, level, title')
+                .select('user_id, display_name, character_name, level')
                 .in('user_id', topUserIds);
 
             if (userError) {
                 console.error('Error fetching user stats for leaderboard:', userError);
-                return NextResponse.json({ success: true, data: [] }); // Fallback
+                return NextResponse.json({ success: true, data: [] });
             }
 
             const leaderboard = topUserIds.map((uid, index) => {
