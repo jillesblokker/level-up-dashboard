@@ -19,20 +19,15 @@ import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { BottomNav } from '@/components/bottom-nav'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
-import LocalStorageMigrator from '@/components/local-storage-migrator'
+import { GameSystemsProvider } from '@/components/game-systems-provider'
 import { AudioProvider } from '@/components/audio-provider'
-import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
 import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
-import { CharacterStatsSync } from '@/components/character-stats-sync'
-import { InstallPrompt } from '@/components/install-prompt'
-import { ParticleProvider } from '@/components/ui/particles'
 
+// Background systems moved to GameSystemsProvider
+// - QuickAddProvider, KeyboardShortcutsProvider, ParticleProvider
+// - LocalStorageMigrator, KingdomNotificationManager, DayNightCycle
+// - InstallPrompt, PerformanceMonitor, UserStorageInitializer
 
-import { QuickAddProvider } from '@/components/quick-add-provider'
-import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
-import { DayNightCycle } from '@/components/day-night-cycle'
-import { PerformanceMonitor } from '@/components/performance-monitor'
-import { UserStorageInitializer } from '@/components/user-storage-initializer'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -165,32 +160,18 @@ export default function RootLayout({
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <AudioProvider>
-                    <UserStorageInitializer />
                     <Providers>
                       <ClientOnboardingProvider>
                         <AuthGate>
-                          <QuickAddProvider>
-                            <KeyboardShortcutsProvider />
-                            <ParticleProvider>
-                              <div className="flex flex-col h-full">
-                                <CharacterStatsSync />
-                                <NavBar session={null} />
-                                <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                                  {children}
-                                </main>
-                                <BottomNav />
-                                <SeasonalHuntWrapper />
-                              </div>
-                            </ParticleProvider>
-                          </QuickAddProvider>
+                          <GameSystemsProvider>
+                            <NavBar session={null} />
+                            <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                              {children}
+                            </main>
+                            <BottomNav />
+                          </GameSystemsProvider>
                         </AuthGate>
                       </ClientOnboardingProvider>
-                      <LocalStorageMigrator />
-                      <KingdomNotificationManager />
-                      <DayNightCycle />
-                      <Toaster />
-                      <InstallPrompt />
-                      <PerformanceMonitor />
                     </Providers>
                   </AudioProvider>
                 </TitleEvolutionProvider>
