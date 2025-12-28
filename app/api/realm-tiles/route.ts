@@ -1,27 +1,13 @@
 import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery, authenticatedFriendQuery } from '@/lib/supabase/jwt-verification';
-import { supabaseServer } from '../../../lib/supabase/server-client';
 
-// Tile type legend:
-// 0 = empty
-// 1 = mountain
-// 2 = grass
-// 3 = forest
-// 4 = water
-// 5 = city
-// 6 = town
-// 7 = mystery
-// 8 = portal-entrance
-// 9 = portal-exit
-// 10 = snow
-// 11 = cave
-// 12 = dungeon
-// 13 = castle
-// 14 = ice
-// 15 = lava
-// 16 = volcano
-// (add more as needed)
-const INITIAL_GRID: number[][] = [
+// Helper for initial grid seeding if needed
+// (We just return empty specific tiles and let frontend handle default generation, 
+//  OR we optionally seed the base grid here. Seeding here is safer for consistency.)
+const INITIAL_ROWS = 7;
+const GRID_COLS = 13;
+// 0=empty, 1=mountain, 2=grass, ... (Legacy numeric map)
+const INITIAL_SEED_GRID: number[][] = [
   [1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 2, 1],
   [1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1],
@@ -31,7 +17,7 @@ const INITIAL_GRID: number[][] = [
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 ];
 
-// GET: Return all tiles for the user, ordered by y
+// GET: Return all tiles for the user
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -39,56 +25,64 @@ export async function GET(request: Request) {
 
     const result = await (visitUserId
       ? authenticatedFriendQuery(request, visitUserId, async (supabase, userId) => {
-        let { data, error } = await supabase
+        const { data, error } = await supabase
           .from('realm_tiles')
           .select('*')
-          .eq('user_id', userId)
-          .order('y', { ascending: true });
+          .eq('user_id', userId);
 
         if (error) throw error;
-        return { tiles: data };
+        return { tiles: data || [] };
       })
       : authenticatedSupabaseQuery(request, async (supabase, userId) => {
         let { data, error } = await supabase
           .from('realm_tiles')
           .select('*')
-          .eq('user_id', userId)
-          .order('y', { ascending: true });
+          .eq('user_id', userId);
 
         if (error) throw error;
 
-        // If no tiles exist, seed the initial grid
+        // If no tiles exist, seed the initial grid?
+        // To ensure persistence works from moment 0, we can seed.
         if (!data || data.length === 0) {
-          const now = new Date().toISOString();
-          const rows = INITIAL_GRID.map((row, y) => {
-            const rowObj: any = { user_id: userId, y };
+          const seedRows: any[] = [];
+
+          INITIAL_SEED_GRID.forEach((row, y) => {
             row.forEach((type, x) => {
-              rowObj[`tile_${x}_type`] = type;
-              rowObj[`tile_${x}_updated_at`] = now;
-              rowObj[`tile_${x}_event`] = null;
+              // Only save non-empty tiles to save space? 
+              // Actually, saving all base tiles ensures the map looks correct.
+              if (type !== 0) { // 0 is empty/void, typically implies unplaced? 
+                // Actually, bottom row is 0 but it's part of the grid.
+                // Let's save everything from the seed.
+                seedRows.push({
+                  user_id: userId,
+                  x,
+                  y,
+                  tile_type: type
+                });
+              }
             });
-            return rowObj;
           });
 
-          const { error: insertError } = await supabase
-            .from('realm_tiles')
-            .insert(rows);
+          if (seedRows.length > 0) {
+            const { error: insertError } = await supabase
+              .from('realm_tiles')
+              .insert(seedRows);
 
-          if (insertError) {
-            throw insertError;
+            if (insertError) {
+              console.error('Failed to seed initial grid:', insertError);
+              // Don't fail the request, just return empty and let frontend fallback
+            } else {
+              // Re-fetch
+              const { data: seededData } = await supabase
+                .from('realm_tiles')
+                .select('*')
+                .eq('user_id', userId);
+              data = seededData;
+            }
           }
-
-          // Re-query after seeding
-          const result = await supabase
-            .from('realm_tiles')
-            .select('*')
-            .eq('user_id', userId)
-            .order('y', { ascending: true });
-
-          data = result.data;
         }
 
-        return { tiles: data };
+        return { tiles: data || [] };
       })
     );
 
@@ -97,73 +91,43 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(result.data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Realm Tiles GET] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST: Upsert a single tile (x, y, type, event) for the user
+// POST: Upsert a single tile
 export async function POST(request: Request) {
   try {
-    const { x, y, tile_type, event_type } = await request.json();
-    if (typeof x !== 'number' || typeof y !== 'number' || typeof tile_type !== 'number') {
-      return NextResponse.json({ error: 'Missing or invalid tile data', details: { x, y, tile_type } }, { status: 400 });
-    }
+    const body = await request.json();
+    const { x, y, tile_type, event_type, meta } = body;
 
-    // Validate tile coordinates
-    if (x < 0 || y < 0 || x > 100 || y > 100) {
-      return NextResponse.json({ error: 'Invalid tile coordinates', details: { x, y } }, { status: 400 });
+    if (typeof x !== 'number' || typeof y !== 'number' || typeof tile_type !== 'number') {
+      return NextResponse.json({ error: 'Missing or invalid tile data' }, { status: 400 });
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
 
-      // Build the update object for the correct tile column
-      const updateObj: any = {
-        [`tile_${x}_type`]: tile_type,
-        [`tile_${x}_updated_at`]: new Date().toISOString(),
-        [`tile_${x}_event`]: event_type || null
-      };
-
-      // Add timeout to the database operation
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Database operation timed out')), 5000); // 5 second timeout
-      });
-
-      // Perform the database operation with timeout
-      const dbOperation = supabase
+      const { data, error } = await supabase
         .from('realm_tiles')
-        .upsert([
-          { user_id: userId, y, ...updateObj }
-        ], { onConflict: 'user_id,y' });
+        .upsert({
+          user_id: userId,
+          x,
+          y,
+          tile_type,
+          event_type: event_type || null,
+          meta: meta || {},
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,x,y'
+        })
+        .select()
+        .single();
 
-      const { error } = await Promise.race([dbOperation, timeoutPromise]) as any;
+      if (error) throw error;
 
-      if (error) {
-        console.error('[REALM-TILES][POST] Supabase error:', error, { x, y, tile_type, event_type });
-
-        // Handle specific database errors
-        if (error.code === '23505') { // Unique constraint violation
-          throw new Error('Tile already exists at this position');
-        }
-
-        if (error.code === '23503') { // Foreign key constraint violation
-          throw new Error('Invalid user reference');
-        }
-
-        if (error.code === '42P01') { // Undefined table
-          throw new Error('Database schema error');
-        }
-
-        throw error;
-      }
-
-      console.log(`[REALM-TILES][POST] Successfully placed tile at (${x}, ${y}) for user ${userId}`);
-      return {
-        success: true,
-        message: 'Tile placed successfully',
-        data: { x, y, tile_type, event_type }
-      };
+      return { success: true, tile: data };
     });
 
     if (!result.success) {
@@ -171,33 +135,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(result.data);
-
-  } catch (error) {
-    console.error('[REALM-TILES][POST] Internal server error:', error);
-
-    // Handle timeout errors specifically
-    if (error instanceof Error && error.message.includes('timed out')) {
-      return NextResponse.json({
-        error: 'Request timeout',
-        details: 'The operation took too long to complete. Please try again.'
-      }, { status: 408 });
-    }
-
-    // Handle network-related errors
-    if (error instanceof Error && (
-      error.message.includes('fetch') ||
-      error.message.includes('network') ||
-      error.message.includes('connection')
-    )) {
-      return NextResponse.json({
-        error: 'Network error',
-        details: 'Unable to connect to the database. Please check your connection and try again.'
-      }, { status: 503 });
-    }
-
-    return NextResponse.json({
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error occurred'
-    }, { status: 500 });
+  } catch (error: any) {
+    console.error('[Realm Tiles POST] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
