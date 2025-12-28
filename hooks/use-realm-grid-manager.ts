@@ -72,12 +72,12 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                 }
 
                 tiles.forEach((t: any) => {
-                    if (newGrid[t.y] && newGrid[t.y][t.x]) {
+                    if (newGrid[t.y] && newGrid[t.y]![t.x]) {
                         const reconstructedTile = createTileFromNumeric(t.tile_type, t.x, t.y);
                         if (t.meta) {
                             Object.assign(reconstructedTile, t.meta);
                         }
-                        newGrid[t.y][t.x] = reconstructedTile;
+                        newGrid[t.y]![t.x] = reconstructedTile;
                     }
                 });
 
