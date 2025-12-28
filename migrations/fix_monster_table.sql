@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS monster_spawns (
     reward_claimed BOOLEAN DEFAULT FALSE
 );
 ALTER TABLE monster_spawns ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage their own monster spawns" ON monster_spawns USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "Users can manage their own monster spawns" ON monster_spawns;
+CREATE POLICY "Users can manage their own monster spawns" ON monster_spawns USING (user_id = auth.uid()::text) WITH CHECK (user_id = auth.uid()::text);
 CREATE INDEX IF NOT EXISTS idx_monster_spawns_user_active ON monster_spawns(user_id, defeated)
 WHERE defeated = false;
