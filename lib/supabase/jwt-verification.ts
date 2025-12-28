@@ -91,10 +91,9 @@ export async function querySupabaseWithServiceKey<T>(
 
     // Set user context for RLS policies
     try {
-      // TODO: SECURITY UPGRADE
-      // Once you have run 'migrations/20250101_security_hardening.sql', uncomment the line below.
-      // This will allow Row Level Security (RLS) policies to enforce access control even when using the service key.
-      // await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+      // SECURITY UPGRADE ENABLED
+      // Row Level Security (RLS) policies now enforce access control via this context
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
 
       // console.log('[Supabase Query] Skipping set user context for debugging, userId:', userId);
     } catch (contextError) {
