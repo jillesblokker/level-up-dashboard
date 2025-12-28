@@ -22,13 +22,13 @@ import { supabaseServer } from '../../../../lib/supabase/server-client';
 // 16 = volcano
 // (add more as needed)
 const INITIAL_GRID: number[][] = [
-  [1,1,2,1,1,1,1,1,1,1,1,1,1],
-  [1,2,2,5,2,2,2,2,2,2,2,2,1],
-  [1,2,3,3,3,3,3,3,3,3,3,2,1],
-  [1,2,2,2,2,3,3,3,3,3,2,7,1],
-  [1,2,2,2,4,4,3,6,3,3,3,2,1],
-  [1,2,7,2,4,4,3,2,3,3,3,2,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1],
+  [1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 7, 1],
+  [1, 2, 2, 2, 4, 4, 3, 6, 3, 3, 3, 2, 1],
+  [1, 2, 7, 2, 4, 4, 3, 2, 3, 3, 3, 2, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 ];
 
 export async function POST() {
@@ -46,6 +46,21 @@ export async function POST() {
       console.error('[RESET][DELETE] Supabase error:', deleteError);
       return NextResponse.json({ error: deleteError.message, details: deleteError }, { status: 500 });
     }
+
+    // Delete all monster spawns for this user
+    const { error: monsterError } = await supabaseServer
+      .from('monster_spawns')
+      .delete()
+      .eq('user_id', userId);
+
+    if (monsterError) {
+      console.error('[RESET][DELETE MONSTERS] Supabase error:', monsterError);
+      // Continue anyway
+    }
+
+    // Reset tile placement trackers in user_stats or wherever they are stored if applicable
+    // (Assuming they are just local or derived, but if stored in DB, should reset too. 
+    //  Currently mainly stored in character_stats/json, but let's just clear monsters/tiles for now).
     // Insert the initial grid
     const now = new Date().toISOString();
     const rows = INITIAL_GRID.map((row, y) => {
