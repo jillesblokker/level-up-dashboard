@@ -1075,6 +1075,10 @@ function RealmPageContent() {
                                             <RotateCcw className="w-4 h-4" />
                                             Reset Position
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2 text-red-500 hover:text-red-400 focus:text-red-400 focus:bg-red-500/10">
+                                            <Trash2 className="w-4 h-4" />
+                                            Reset Realm
+                                        </DropdownMenuItem>
                                         {/* Auto Save Toggle */}
                                         <div className="px-2 py-1.5">
                                             <div className="flex items-center space-x-2">
