@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { DungeonModal } from "@/components/dungeon-modal"
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
@@ -482,18 +483,14 @@ function RealmPageContent() {
     };
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
-        // Removed debugging log
-
         // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
         const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
         const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
 
         if (hasMainInventory || hasTileQuantity) {
-            // Removed debugging log
             setSelectedTile(tile);
-            setShowInventory(false);
+            setGameMode('build');
         } else {
-            // Removed debugging log
             setSelectedTile(null);
         }
     };
@@ -987,6 +984,20 @@ function RealmPageContent() {
                                             : `Reach level ${nextExpansionLevel} to expand further (Current: ${characterStats.level})`}
                                     </TooltipContent>
                                 </Tooltip>
+
+                                {selectedTile && (
+                                    <div className="hidden sm:flex items-center gap-3 bg-gray-900 border border-amber-500/30 rounded-lg px-3 py-1 mr-1 shadow-inner shadow-black/50 animate-in fade-in zoom-in-95 duration-200">
+                                        <div className="flex flex-col items-start min-w-[60px]">
+                                            <span className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">Selected</span>
+                                            <span className="text-xs font-bold text-amber-400 truncate max-w-[100px]">{selectedTile.name}</span>
+                                        </div>
+                                        <div className="h-6 w-px bg-gray-700 mx-1"></div>
+                                        <div className="text-xs font-mono text-gray-300">
+                                            x{selectedTile.quantity ?? 0}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Inventory Button */}
                                 <Button
                                     variant="outline"
@@ -1071,36 +1082,32 @@ function RealmPageContent() {
                     />
                 </div>
                 {/* Overlay Inventory Panel */}
-                {showInventory && (
-                    <ErrorBoundary componentName="InventoryDialog">
-                        <Dialog open={showInventory} onOpenChange={setShowInventory}>
-                            <DialogContent className="w-[95vw] h-[95dvh] sm:max-w-4xl sm:h-[80vh] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col">
-                                <DialogHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left shrink-0">
-                                    <DialogTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
-                                        <span className="text-3xl">🏰</span>
-                                        Realm Inventory
-                                    </DialogTitle>
-                                    <DialogDescription className="text-gray-400">
-                                        Manage your tiles and expanded territory.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="flex-1 overflow-hidden p-0 relative min-h-0">
-                                    <ErrorBoundary componentName="TileInventory">
-                                        <TileInventory
-                                            tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
-                                            selectedTile={selectedTile}
-                                            onSelectTile={handleTileSelection}
-                                            onUpdateTiles={setInventoryAsItems}
-                                            activeTab={inventoryTab}
-                                            setActiveTab={setInventoryTab}
-                                            onOutOfTiles={(tile) => setInventoryTab('buy')}
-                                        />
-                                    </ErrorBoundary>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </ErrorBoundary>
-                )}
+                <Sheet open={showInventory} onOpenChange={setShowInventory} modal={false}>
+                    <SheetContent side="right" className="w-full sm:w-[500px] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col z-[50]">
+                        <SheetHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left shrink-0">
+                            <SheetTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
+                                <span className="text-3xl">🏰</span>
+                                Realm Inventory
+                            </SheetTitle>
+                            <SheetDescription className="text-gray-400">
+                                Manage your tiles and expanded territory.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <div className="flex-1 overflow-hidden p-0 relative min-h-0">
+                            <ErrorBoundary componentName="TileInventory">
+                                <TileInventory
+                                    tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
+                                    selectedTile={selectedTile}
+                                    onSelectTile={handleTileSelection}
+                                    onUpdateTiles={setInventoryAsItems}
+                                    activeTab={inventoryTab}
+                                    setActiveTab={setInventoryTab}
+                                    onOutOfTiles={(tile) => setInventoryTab('buy')}
+                                />
+                            </ErrorBoundary>
+                        </div>
+                    </SheetContent>
+                </Sheet>
 
                 {/* Event Modals */}
                 {castleEvent?.open && (

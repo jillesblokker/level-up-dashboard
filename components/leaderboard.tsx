@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Crown, Trophy, Coins, Flame, Medal } from "lucide-react"
+import { Crown, Trophy, Coins, Flame, Medal, Scroll } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 
@@ -47,6 +47,8 @@ export function Leaderboard() {
     switch (category) {
       case "gold": return <Coins className="h-5 w-5 text-yellow-500" />;
       case "streak": return <Flame className="h-5 w-5 text-orange-500" />;
+      case "quests_monthly_individual": return <Scroll className="h-5 w-5 text-blue-500" />;
+      case "quests_monthly_alliance": return <Trophy className="h-5 w-5 text-purple-500" />;
       default: return <Trophy className="h-5 w-5 text-amber-500" />;
     }
   };
@@ -55,6 +57,8 @@ export function Leaderboard() {
     switch (category) {
       case "gold": return "Wealthiest Lords & Ladies";
       case "streak": return "Most Consistent Allies";
+      case "quests_monthly_individual": return "Heroes of the Month";
+      case "quests_monthly_alliance": return "Dominant Alliances (Monthly)";
       default: return "Most Legendary Heroes";
     }
   };
@@ -77,10 +81,12 @@ export function Leaderboard() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="experience" className="w-full" onValueChange={setCategory}>
-          <TabsList className="grid w-full grid-cols-3 bg-black/60 border border-amber-900/30">
-            <TabsTrigger value="experience">XP</TabsTrigger>
-            <TabsTrigger value="gold">Gold</TabsTrigger>
-            <TabsTrigger value="streak">Streaks</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 bg-black/60 border border-amber-900/30">
+            <TabsTrigger value="experience" className="text-xs sm:text-sm px-1">XP</TabsTrigger>
+            <TabsTrigger value="gold" className="text-xs sm:text-sm px-1">Gold</TabsTrigger>
+            <TabsTrigger value="streak" className="text-xs sm:text-sm px-1">Streaks</TabsTrigger>
+            <TabsTrigger value="quests_monthly_individual" className="text-xs sm:text-sm px-1">Ind. Quests</TabsTrigger>
+            <TabsTrigger value="quests_monthly_alliance" className="text-xs sm:text-sm px-1">Ally Quests</TabsTrigger>
           </TabsList>
 
           <div className="mt-4 min-h-[300px]">

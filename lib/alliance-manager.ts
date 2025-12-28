@@ -43,3 +43,33 @@ export async function getUserAlliances(userId?: string): Promise<Alliance[]> {
         return [];
     }
 }
+
+export async function createAlliance(name: string, description: string): Promise<{ success: boolean; alliance?: Alliance; error?: string }> {
+    try {
+        const res = await fetch('/api/alliance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, description })
+        });
+        const data = await res.json();
+        if (res.ok) return { success: true, alliance: data.alliance };
+        return { success: false, error: data.error };
+    } catch (err: any) {
+        return { success: false, error: err.message };
+    }
+}
+
+export async function inviteToAlliance(allianceId: string, friendId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const res = await fetch('/api/alliance/invite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ allianceId, friendId })
+        });
+        const data = await res.json();
+        if (res.ok) return { success: true };
+        return { success: false, error: data.error };
+    } catch (err: any) {
+        return { success: false, error: err.message };
+    }
+}

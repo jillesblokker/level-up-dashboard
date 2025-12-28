@@ -9,17 +9,9 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const sortBy = searchParams.get('sortBy') || 'experience';
         const limit = parseInt(searchParams.get('limit') || '10');
-        const period = searchParams.get('period') || 'all_time'; // future proofing
 
-        // Validate sort
-        if (!['experience', 'gold', 'streak'].includes(sortBy)) {
-            return NextResponse.json({ error: 'Invalid sort parameter' }, { status: 400 });
-        }
-
-        // Handle Streaks Leaderboard (Different Table)
+        // Handle Streaks Leaderboard
         if (sortBy === 'streak') {
-            // We need to join with character_stats to get names, or fetch separately.
-            // Supabase JOIN syntax:
             const { data, error } = await supabaseServer
                 .from('streaks')
                 .select(`
@@ -35,7 +27,7 @@ export async function GET(req: NextRequest) {
             const leaderboard = data.map((entry, index) => ({
                 rank: index + 1,
                 userId: entry.user_id,
-                // @ts-ignore - Supabase types might imply array but !user_id implies single
+                // @ts-ignore
                 displayName: entry.character_stats?.display_name || entry.character_stats?.character_name || 'Anonymous Ally',
                 // @ts-ignore
                 title: entry.character_stats?.title || 'Wanderer',
@@ -48,8 +40,118 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ success: true, data: leaderboard });
         }
 
+        // Handle Monthly Individual Quests
+        if (sortBy === 'quests_monthly_individual') {
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const { data, error } = await supabaseServer
+                .from('quest_completion')
+                .select('user_id')
+                .gte('completed_at', startOfMonth.toISOString());
+
+            if (error) throw error;
+
+            const counts: Record<string, number> = {};
+            (data || []).forEach(row => {
+                counts[row.user_id] = (counts[row.user_id] || 0) + 1;
+            });
+
+            const topUserIds = Object.keys(counts).sort((a, b) => (counts[b] || 0) - (counts[a] || 0)).slice(0, limit);
+
+            if (topUserIds.length === 0) return NextResponse.json({ success: true, data: [] });
+
+            const { data: users, error: userError } = await supabaseServer
+                .from('character_stats')
+                .select('user_id, display_name, character_name, level, title')
+                .in('user_id', topUserIds);
+
+            if (userError) throw userError;
+
+            const leaderboard = topUserIds.map((uid, index) => {
+                const user = users.find(u => u.user_id === uid);
+                return {
+                    rank: index + 1,
+                    userId: uid,
+                    displayName: user?.display_name || user?.character_name || 'Anonymous Hero',
+                    title: user?.title || 'Adventurer',
+                    level: user?.level || 1,
+                    value: counts[uid],
+                    formattedValue: `${counts[uid]} Quests`
+                };
+            });
+
+            return NextResponse.json({ success: true, data: leaderboard });
+        }
+
+        // Handle Monthly Alliance Quests
+        if (sortBy === 'quests_monthly_alliance') {
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            // 1. Fetch all alliances
+            const { data: alliances, error: allianceError } = await supabaseServer
+                .from('alliances')
+                .select('id, name, members');
+
+            if (allianceError) throw allianceError;
+
+            // 2. Fetch all quest completions for this month
+            const { data: completions, error: compError } = await supabaseServer
+                .from('quest_completion')
+                .select('user_id')
+                .gte('completed_at', startOfMonth.toISOString());
+
+            if (compError) throw compError;
+
+            // 3. Map completions to alliances
+            const allianceCounts: Record<string, number> = {};
+            const userToAllianceMap: Record<string, string[]> = {};
+
+            (alliances || []).forEach((a: any) => {
+                const members = (a.members || []) as string[];
+                members.forEach((m: string) => {
+                    if (!userToAllianceMap[m]) userToAllianceMap[m] = [];
+                    userToAllianceMap[m].push(a.id);
+                });
+                allianceCounts[a.id] = 0; // init
+            });
+
+            // Count
+            (completions || []).forEach(c => {
+                const userAlliances = userToAllianceMap[c.user_id];
+                if (userAlliances) {
+                    userAlliances.forEach(aid => {
+                        allianceCounts[aid] = (allianceCounts[aid] || 0) + 1;
+                    });
+                }
+            });
+
+            // Sort and Top X
+            const sortedAlliances = (alliances || [])
+                .map((a: any) => ({
+                    ...a,
+                    count: allianceCounts[a.id] || 0
+                }))
+                .sort((a: any, b: any) => b.count - a.count)
+                .slice(0, limit);
+
+            const leaderboard = sortedAlliances.map((a: any, index: number) => ({
+                rank: index + 1,
+                userId: a.id,
+                displayName: a.name,
+                title: `${(a.members || []).length} Members`,
+                level: 0,
+                value: a.count,
+                formattedValue: `${a.count} Quests`
+            }));
+
+            return NextResponse.json({ success: true, data: leaderboard });
+        }
+
         // Handle Standard Stats (XP/Gold)
-        // Default to experience
         const { data, error } = await supabaseServer
             .from('character_stats')
             .select('user_id, display_name, character_name, experience, gold, level, title')
@@ -58,8 +160,7 @@ export async function GET(req: NextRequest) {
 
         if (error) {
             console.error('Leaderboard Fetch Error:', error);
-            // Fallback for missing columns if migration failed
-            if (error.code === '42703') { // Undefined column
+            if (error.code === '42703' || error.message?.includes('does not exist')) {
                 return NextResponse.json({ success: true, data: [] });
             }
             throw error;
