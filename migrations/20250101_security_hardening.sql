@@ -17,17 +17,17 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 -- 3. Restore policies dropped by CASCADE
 -- We recreate them using the new function definition to ensure security
 -- Property Timers
-CREATE POLICY "Users can manage their own property timers" ON public.property_timers FOR ALL USING (user_id = public.get_current_user_id());
+CREATE POLICY "Users can manage their own property timers" ON public.property_timers FOR ALL USING (user_id = public.get_current_user_id()::text);
 -- Gold Transactions
 CREATE POLICY "Users can view their own gold transactions" ON public.gold_transactions FOR
-SELECT USING (user_id = public.get_current_user_id());
+SELECT USING (user_id = public.get_current_user_id()::text);
 CREATE POLICY "Users can insert their own gold transactions" ON public.gold_transactions FOR
-INSERT WITH CHECK (user_id = public.get_current_user_id());
+INSERT WITH CHECK (user_id = public.get_current_user_id()::text);
 -- Experience Transactions
 CREATE POLICY "Users can view their own experience transactions" ON public.experience_transactions FOR
-SELECT USING (user_id = public.get_current_user_id());
+SELECT USING (user_id = public.get_current_user_id()::text);
 CREATE POLICY "Users can insert their own experience transactions" ON public.experience_transactions FOR
-INSERT WITH CHECK (user_id = public.get_current_user_id());
+INSERT WITH CHECK (user_id = public.get_current_user_id()::text);
 -- 3. Example Policy Update (Commented out to prevent breaking existing access)
 -- You should update your policies to use get_current_user_id() instead of auth.uid()
 -- ALTER TABLE public.inventory_items ENABLE ROW LEVEL SECURITY;
