@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Users, Shield, Flame, CheckCircle, Plus, UserPlus } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
@@ -212,14 +212,14 @@ export function AllianceDashboard() {
             )}
 
             {/* CREATE ALLIANCE MODAL */}
-            <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-                <DialogContent className="bg-black/95 border-amber-900/50 text-amber-100">
-                    <DialogHeader>
-                        <DialogTitle>Form an Alliance</DialogTitle>
-                        <DialogDescription>
+            <Sheet open={createModalOpen} onOpenChange={setCreateModalOpen}>
+                <SheetContent className="bg-black/95 border-amber-900/50 text-amber-100">
+                    <SheetHeader>
+                        <SheetTitle>Form an Alliance</SheetTitle>
+                        <SheetDescription>
                             Gather your allies under one banner.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </SheetDescription>
+                    </SheetHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>Alliance Name</Label>
@@ -240,24 +240,24 @@ export function AllianceDashboard() {
                             />
                         </div>
                     </div>
-                    <DialogFooter>
+                    <SheetFooter>
                         <Button variant="ghost" onClick={() => setCreateModalOpen(false)}>Cancel</Button>
                         <Button onClick={handleCreateAlliance} disabled={isCreating} className="bg-amber-700 hover:bg-amber-600 text-black">
                             {isCreating ? "Forging..." : "Create Alliance"}
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
 
             {/* INVITE MODAL */}
-            <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-                <DialogContent className="bg-black/95 border-amber-900/50 text-amber-100">
-                    <DialogHeader>
-                        <DialogTitle>Invite New Member</DialogTitle>
-                        <DialogDescription>
+            <Sheet open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                <SheetContent className="bg-black/95 border-amber-900/50 text-amber-100">
+                    <SheetHeader>
+                        <SheetTitle>Invite New Member</SheetTitle>
+                        <SheetDescription>
                             Select an ally to join your ranks.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </SheetDescription>
+                    </SheetHeader>
                     <div className="space-y-4 py-4">
                         {loadingFriends ? (
                             <div className="text-center text-sm text-gray-500">Loading allies...</div>
@@ -281,14 +281,14 @@ export function AllianceDashboard() {
                             </div>
                         )}
                     </div>
-                    <DialogFooter>
+                    <SheetFooter>
                         <Button variant="ghost" onClick={() => setInviteModalOpen(false)}>Cancel</Button>
                         <Button onClick={handleInvite} disabled={!selectedFriendId} className="bg-amber-700 hover:bg-amber-600 text-black">
                             Invite
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     )
 }
