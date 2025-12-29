@@ -77,6 +77,14 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                         if (t.meta) {
                             Object.assign(reconstructedTile, t.meta);
                         }
+
+                        // FIX: Force correct image path for road tiles, overriding any stale metadata
+                        if (reconstructedTile.type === 'crossroad') {
+                            reconstructedTile.image = '/images/kingdom-tiles/Crossroad.png';
+                        } else if (reconstructedTile.type === 'straightroad') {
+                            reconstructedTile.image = '/images/kingdom-tiles/Straightroad.png';
+                        }
+
                         newGrid[t.y]![t.x] = reconstructedTile;
                     }
                 });
