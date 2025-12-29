@@ -308,24 +308,26 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
   return (
     <>
-      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full h-full">
-        <TabsList className="mb-6 w-full flex bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-lg p-1">
-          <TabsTrigger
-            value="place"
-            className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
-          >
-            Place Tiles
-          </TabsTrigger>
-          <TabsTrigger
-            value="buy"
-            className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
-          >
-            Buy Tiles
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full h-full flex flex-col">
+        <div className="px-6 pt-4 pb-2 shrink-0">
+          <TabsList className="w-full flex bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-lg p-1">
+            <TabsTrigger
+              value="place"
+              className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+            >
+              Place Tiles
+            </TabsTrigger>
+            <TabsTrigger
+              value="buy"
+              className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+            >
+              Buy Tiles
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="place" className="space-y-6">
-          <div className="space-y-4">
+        <TabsContent value="place" className="flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden mt-0">
+          <div className="px-6 space-y-4 shrink-0 mb-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-gray-300">Tile Category</label>
               <span className="text-xs text-gray-500">Level {userLevelValue}</span>
@@ -337,7 +339,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevelValue >= category.minLevel;
-
                   return (
                     <SelectItem
                       key={category.id}
@@ -367,7 +368,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             </Select>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex-1 min-h-0 w-full">
             {(() => {
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
@@ -376,7 +377,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
               if (!categoryTiles.length) {
                 return (
-                  <div className="text-center py-12">
+                  <div className="text-center py-12 px-6">
                     <div className="text-xl font-bold mb-2">
                       {userLevelValue < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
                     </div>
@@ -392,7 +393,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
               return (
                 <ScrollArea className="h-full w-full">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-6 pb-24">
                     {categoryTiles.map((tile) => {
                       if (!tile) return null;
                       return (
@@ -493,9 +494,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             })()}
           </div>
         </TabsContent>
-        <TabsContent value="buy" className="space-y-6">
-
-          <div className="space-y-4">
+        <TabsContent value="buy" className="flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden mt-0">
+          <div className="px-6 space-y-4 shrink-0 mb-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-gray-300">Tile Category</label>
               <span className="text-xs text-gray-500">Level {userLevelValue}</span>
@@ -507,7 +507,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevelValue >= category.minLevel;
-
                   return (
                     <SelectItem
                       key={category.id}
@@ -537,7 +536,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             </Select>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex-1 min-h-0 w-full">
             {(() => {
               const category = tileCategories.find(cat => cat.id === selectedCategory);
               if (!category) return null;
@@ -546,7 +545,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
               if (!categoryTiles.length) {
                 return (
-                  <div className="text-center py-12">
+                  <div className="text-center py-12 px-6">
                     <div className="text-xl font-bold mb-2">
                       {userLevelValue < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
                     </div>
@@ -562,7 +561,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
               return (
                 <ScrollArea className="h-full w-full">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-6 pb-24">
                     {categoryTiles.map((tile) => {
                       if (!tile) return null;
                       return (
