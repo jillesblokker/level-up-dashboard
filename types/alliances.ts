@@ -6,6 +6,11 @@ export interface Alliance {
     members: string[]; // Array of user IDs
     created_at: string;
     updated_at: string;
+    myStreak?: {
+        current: number;
+        checkedInToday: boolean;
+        lastCheckIn: string;
+    };
 }
 
 export interface AllianceStreak {

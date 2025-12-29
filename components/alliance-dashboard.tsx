@@ -62,7 +62,21 @@ export function AllianceDashboard() {
                 description: `You have strengthened your bond with ${allianceName}. Streak: ${result.streak}`,
                 className: "bg-amber-950 border-amber-500 text-amber-100"
             });
-            refreshAlliances();
+            // Optimistic update
+            setAlliances(current => current.map(a => {
+                if (a.id === allianceId) {
+                    return {
+                        ...a,
+                        myStreak: {
+                            current: result.streak || (a.myStreak?.current || 0) + 1,
+                            checkedInToday: true,
+                            lastCheckIn: new Date().toISOString()
+                        }
+                    };
+                }
+                return a;
+            }));
+            refreshAlliances(); // Background refresh just in case
         } else {
             playSound(SOUNDS.ERROR);
             toast({
@@ -213,14 +227,27 @@ export function AllianceDashboard() {
                                         >
                                             <UserPlus className="w-4 h-4" />
                                         </Button>
-                                        <Button
-                                            size="sm"
-                                            onClick={() => handleCheckIn(alliance.id, alliance.name)}
-                                            className="bg-amber-800 hover:bg-amber-700 text-amber-100 border border-amber-600"
-                                        >
-                                            <CheckCircle className="w-3 h-3 mr-2" />
-                                            Check In
-                                        </Button>
+
+                                        {alliance.myStreak?.checkedInToday ? (
+                                            <Button
+                                                size="sm"
+                                                disabled
+                                                className="bg-green-900/40 text-green-400 border border-green-900/50 cursor-not-allowed opacity-90"
+                                            >
+                                                <CheckCircle className="w-3 h-3 mr-2" />
+                                                Oath Sworn ({alliance.myStreak.current})
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                size="sm"
+                                                onClick={() => handleCheckIn(alliance.id, alliance.name)}
+                                                className="bg-amber-800 hover:bg-amber-700 text-amber-100 border border-amber-600"
+                                            >
+                                                <CheckCircle className="w-3 h-3 mr-2" />
+                                                Check In
+                                                {alliance.myStreak && alliance.myStreak.current > 0 && ` (${alliance.myStreak.current})`}
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             </CardContent>

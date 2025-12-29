@@ -7,20 +7,41 @@ export async function GET(req: NextRequest) {
         const userId = searchParams.get('userId');
 
         const result = await authenticatedSupabaseQuery(req, async (supabase, authUserId) => {
-            // Fetch alliances the user is part of
-            // Assuming a simple 'alliances' table with 'members' JSONB or array, or a join table
-            // For Phase 3 MVP, let's assume 'alliances' table has 'members' array of user_ids
+            const currentUserId = userId || authUserId;
 
-            const { data, error } = await supabase
+            // Fetch alliances
+            const { data: alliances, error } = await supabase
                 .from('alliances')
                 .select('*')
-                .contains('members', [userId || authUserId]);
+                .contains('members', [currentUserId]);
 
-            if (error && error.code === '42P01') { // Table doesn't exist yet
-                return [];
-            }
+            if (error && error.code === '42P01') return [];
+            if (!alliances || alliances.length === 0) return [];
 
-            return data || [];
+            // Fetch streaks for these alliances
+            const { data: streaks } = await supabase
+                .from('streaks')
+                .select('*')
+                .eq('user_id', currentUserId)
+                .in('alliance_id', alliances.map(a => a.id));
+
+            // Merge streak info
+            const today = new Date().toISOString().split('T')[0];
+
+            return alliances.map(alliance => {
+                const streakData = streaks?.find(s => s.alliance_id === alliance.id);
+                const lastCheckIn = streakData?.last_check_in ? new Date(streakData.last_check_in).toISOString().split('T')[0] : null;
+                const isCheckedInToday = lastCheckIn === today;
+
+                return {
+                    ...alliance,
+                    myStreak: {
+                        current: streakData?.current_streak || 0,
+                        checkedInToday: isCheckedInToday,
+                        lastCheckIn: streakData?.last_check_in
+                    }
+                };
+            });
         });
 
         if (!result.success) {
