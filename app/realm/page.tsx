@@ -419,6 +419,7 @@ function RealmPageContent() {
         const userPlacedKey = `${tileType}_tiles_placed`;
         updateTileQuantity(tileType, -1);
         recordTilePlacement(tileType);
+        checkAchievementProgress('place', tileType);
 
         console.log('[Realm] User placed tile:', tileType, 'Total:', userPlacedTilesRef.current[userPlacedKey]);
 
@@ -553,6 +554,50 @@ function RealmPageContent() {
         }
     };
 
+
+    // Helper to track stats and unlock related creatures
+    const checkAchievementProgress = (action: 'destroy' | 'place', tileType: string) => {
+        const key = `stats_${action}_${tileType}`;
+        const current = parseInt(localStorage.getItem(key) || '0');
+        const newVal = current + 1;
+        localStorage.setItem(key, newVal.toString());
+
+        // Forest Destruction (Flamio line)
+        if (action === 'destroy' && (tileType === 'forest' || tileType === 'tree')) {
+            if (newVal >= 1) discoverCreature('001'); // Flamio
+            if (newVal >= 5) discoverCreature('002'); // Embera
+            if (newVal >= 10) discoverCreature('003'); // Vulcana
+        }
+        // Mountain Destruction (Rockie line)
+        if (action === 'destroy' && tileType === 'mountain') {
+            if (newVal >= 1) discoverCreature('010'); // Rockie
+            if (newVal >= 5) discoverCreature('011'); // Buldour
+            if (newVal >= 10) discoverCreature('012'); // Montano
+        }
+
+        // Placement Achievements
+        if (action === 'place') {
+            // Water (Dolphio line)
+            if (tileType === 'water') {
+                if (newVal >= 1) discoverCreature('004'); // Dolphio
+                if (newVal >= 5) discoverCreature('005'); // Divero
+                if (newVal >= 10) discoverCreature('006'); // Flippur
+            }
+            // Forest (Leaf line)
+            if (tileType === 'forest' || tileType === 'tree' || tileType === 'grass') {
+                if (newVal >= 1) discoverCreature('007'); // Leaf
+                if (newVal >= 5) discoverCreature('008'); // Oaky
+                if (newVal >= 10) discoverCreature('009'); // Seqoio
+            }
+            // Ice (Icey line)
+            if (tileType === 'ice' || tileType === 'snow') {
+                if (newVal >= 1) discoverCreature('013'); // Icey
+                if (newVal >= 5) discoverCreature('014'); // Blizzey
+                if (newVal >= 10) discoverCreature('015'); // Hailey
+            }
+        }
+    };
+
     const handleDestroyTile = async (x: number, y: number) => {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
@@ -588,6 +633,9 @@ function RealmPageContent() {
             if (!res.ok) throw new Error('Failed to delete tile');
 
             toast({ title: "💥 Devastated!", description: "The tile has been removed." });
+
+            // Check destruction achievements
+            checkAchievementProgress('destroy', originalTile.type);
 
             if (originalTile.type === 'mountain') {
                 unlockAchievement({
