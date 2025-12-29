@@ -15,6 +15,13 @@ ALTER TABLE streaks
 ADD COLUMN IF NOT EXISTS last_check_in TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE streaks
 ADD COLUMN IF NOT EXISTS current_streak INTEGER DEFAULT 0;
+-- Ensure category column exists and has a default (since DB seems to require it)
+ALTER TABLE streaks
+ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'general';
+ALTER TABLE streaks
+ALTER COLUMN category
+SET DEFAULT 'general';
+-- Enforce default for existing column
 -- Refresh PostgREST schema cache
 NOTIFY pgrst,
 'reload schema';
