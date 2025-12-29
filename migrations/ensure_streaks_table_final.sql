@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS streaks (
 );
 -- Ensure RLS is disabled
 ALTER TABLE streaks DISABLE ROW LEVEL SECURITY;
+-- Ensure alliance_id column exists (in case table existed from before without it)
+ALTER TABLE streaks
+ADD COLUMN IF NOT EXISTS alliance_id TEXT;
 -- Handle the unique constraint. 
 -- We drop it first to be safe, then add it back.
 DO $$ BEGIN IF EXISTS (
