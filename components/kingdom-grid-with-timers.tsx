@@ -82,14 +82,14 @@ export function KingdomGridWithTimers({
     let reason = '';
 
     if (tileType === 'farm') {
-      if (neighbors.some(n => n.type === 'water')) {
+      if (neighbors.some(n => n?.type === 'water')) {
         score = 'good';
         reason = 'Great Spot! +20% Gold (Water nearby)';
       } else {
         reason = 'Tip: Place near Water for bonus gold';
       }
     } else if (tileType === 'lumber_mill') {
-      if (neighbors.some(n => n.type === 'forest')) {
+      if (neighbors.some(n => n?.type === 'forest')) {
         score = 'good';
         reason = 'Perfect! +20% Gold (Forest nearby)';
       } else {
@@ -97,7 +97,7 @@ export function KingdomGridWithTimers({
       }
     } else if (tileType === 'market') {
       const houseCount = neighbors.filter(n =>
-        n.type === 'house' || n.type === 'mansion' || n.type === 'cottage'
+        n?.type === 'house' || n?.type === 'mansion' || n?.type === 'cottage'
       ).length;
       if (houseCount > 0) {
         score = 'good';
