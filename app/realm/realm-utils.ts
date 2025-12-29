@@ -69,6 +69,7 @@ export const initialInventory: Record<TileType, Tile> = {
     market: { ...defaultTile('market'), cost: 400, owned: 0 },
     cottage: { ...defaultTile('cottage'), cost: 100, owned: 0 },
     crossroad: { ...defaultTile('crossroad'), cost: 50, owned: 0 },
+    straightroad: { ...defaultTile('straightroad'), cost: 50, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {

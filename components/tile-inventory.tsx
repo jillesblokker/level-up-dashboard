@@ -25,6 +25,7 @@ const allPossibleTiles: InventoryItem[] = [
   // Foundation Tiles (Level 0-20)
   { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.png' },
   { id: 'crossroad', name: 'Crossroad', type: 'crossroad', quantity: 0, cost: 50, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crossroad tile', image: '/images/kingdom-tiles/Crossroad.png' },
+  { id: 'straightroad', name: 'Straight Road', type: 'straightroad', quantity: 0, cost: 50, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Straight Road tile', image: '/images/kingdom-tiles/Straightroad.png' },
   { id: 'water', name: 'Water', type: 'water', quantity: 0, cost: 50, connections: [], description: 'Water body', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Water tile', image: '/images/tiles/water-tile.png' },
   { id: 'forest', name: 'Forest', type: 'forest', quantity: 0, cost: 75, connections: [], description: 'Dense woodland', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Forest tile', image: '/images/tiles/forest-tile.png' },
   { id: 'mountain', name: 'Mountain', type: 'mountain', quantity: 0, cost: 100, connections: [], description: 'Rocky terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mountain tile', image: '/images/tiles/mountain-tile.png' },
@@ -59,7 +60,7 @@ const tileCategories = [
     minLevel: 0,
     maxLevel: 20,
     description: 'Basic terrain and natural features',
-    tiles: ['grass', 'water', 'forest', 'mountain', 'desert', 'ice', 'crossroad']
+    tiles: ['grass', 'water', 'forest', 'mountain', 'desert', 'ice', 'crossroad', 'straightroad']
   },
   {
     id: 'settlement',
@@ -316,6 +317,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         return '/images/tiles/town-tile.png'
       case 'crossroad':
         return '/images/kingdom-tiles/Crossroad.png'
+      case 'straightroad':
+        return '/images/kingdom-tiles/Straightroad.png'
       default:
         return `/images/tiles/${type}-tile.png`
     }

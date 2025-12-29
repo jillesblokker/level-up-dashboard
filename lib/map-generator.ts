@@ -194,7 +194,9 @@ export class MapGenerator {
       farm: 'Farm',
       lumber_mill: 'Lumber Mill',
       market: 'Marketplace',
-      cottage: 'Cottage'
+      cottage: 'Cottage',
+      crossroad: 'Crossroad',
+      straightroad: 'Straight Road'
     };
 
     const tileDescriptions = {
@@ -243,7 +245,9 @@ export class MapGenerator {
       farm: 'A fertile farm for growing crops',
       lumber_mill: 'A facility for processing timber',
       market: 'A bustling marketplace for trading',
-      cottage: 'A cozy cottage for residents'
+      cottage: 'A cozy cottage for residents',
+      crossroad: 'A busy crossroad connecting the kingdom',
+      straightroad: 'A straight road connecting the kingdom'
     };
 
     const tileImages = {
@@ -292,7 +296,9 @@ export class MapGenerator {
       farm: '/images/kingdom-tiles/Farm.png',
       lumber_mill: '/images/kingdom-tiles/LumberMill.png',
       market: '/images/kingdom-tiles/Market.png',
-      cottage: '/images/kingdom-tiles/Cottage.png'
+      cottage: '/images/kingdom-tiles/Cottage.png',
+      crossroad: '/images/kingdom-tiles/Crossroad.png',
+      straightroad: '/images/kingdom-tiles/Straightroad.png'
     };
 
     return {

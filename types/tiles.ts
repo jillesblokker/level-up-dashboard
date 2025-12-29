@@ -48,7 +48,8 @@ export type TileType =
   | 'lumber_mill'
   | 'market'
   | 'cottage'
-  | 'crossroad';
+  | 'crossroad'
+  | 'straightroad';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
