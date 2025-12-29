@@ -3,11 +3,11 @@ import { TileType, Tile } from '@/types/tiles'
 // Helper function to get auth token with retry logic
 async function getAuthToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
-  
+
   // Wait for Clerk to be available
   let attempts = 0;
   const maxAttempts = 10;
-  
+
   while (attempts < maxAttempts) {
     try {
       // Try to access Clerk from window
@@ -37,7 +37,7 @@ async function getAuthToken(): Promise<string | null> {
       attempts++;
     }
   }
-  
+
   console.error('[Grid Loader] Failed to get Clerk token after all attempts');
   return null;
 }
@@ -175,7 +175,29 @@ export const numericToTileType: { [key: number]: TileType } = {
   21: 'special',
   22: 'treasure',
   23: 'monster',
-  24: 'vacant'
+  24: 'vacant',
+  // Property tiles
+  25: 'archery',
+  26: 'blacksmith',
+  27: 'sawmill',
+  28: 'fisherman',
+  29: 'grocery',
+  30: 'foodcourt',
+  31: 'well',
+  32: 'windmill',
+  33: 'fountain',
+  34: 'house',
+  35: 'inn',
+  36: 'jousting',
+  37: 'mansion',
+  38: 'mayor',
+  39: 'streak-scroll',
+  40: 'farm',
+  41: 'lumber_mill',
+  42: 'market',
+  43: 'cottage',
+  44: 'crossroad',
+  45: 'straightroad'
 }
 
 // Create the reverse mapping from TileType to numeric
@@ -203,25 +225,25 @@ export async function loadInitialGrid(): Promise<GridData> {
     }
     const csvText = await response.text()
     console.log('CSV content loaded (first 100 chars):', csvText.substring(0, 100) + '...')
-    
+
     // Parse CSV into 2D array, skipping the header row and taking only EXPECTED_GRID_COLS
     const rows = csvText.trim().split('\n')
     if (rows.length > 0) {
       // Remove the first row (header)
       rows.shift();
     }
-    
+
     const grid = rows.map(row => row.split(',').map(Number).slice(0, EXPECTED_GRID_COLS));
-    
+
     console.log('Parsed grid dimensions:', grid.length, 'x', grid[0]?.length);
     console.log('Parsed grid (first row):', grid[0]);
-    
+
     // Basic validation
     if (grid.length === 0 || !grid[0] || grid[0].length === 0) {
-        console.error('Parsed grid has unexpected dimensions.', grid.length, grid[0]?.length);
-        throw new Error('Parsed grid has unexpected dimensions.');
+      console.error('Parsed grid has unexpected dimensions.', grid.length, grid[0]?.length);
+      throw new Error('Parsed grid has unexpected dimensions.');
     }
-    
+
     return {
       grid,
       rows: grid.length,

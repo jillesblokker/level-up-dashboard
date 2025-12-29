@@ -121,6 +121,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                                 const token = await getToken({ template: 'supabase' });
                                 await fetch('/api/realm-tiles', {
                                     method: 'POST',
+                                    credentials: 'include',
                                     headers: {
                                         'Content-Type': 'application/json',
                                         ...(token && { 'Authorization': `Bearer ${token}` })
@@ -241,6 +242,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                 const token = await getToken({ template: 'supabase' });
                 const res = await fetch('/api/realm-tiles', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         ...(token && { 'Authorization': `Bearer ${token}` })

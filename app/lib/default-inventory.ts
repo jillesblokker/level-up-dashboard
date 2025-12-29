@@ -45,7 +45,7 @@ const convertToInventoryItem = (item: ComprehensiveItem): InventoryItem => ({
 export const defaultInventoryItems: InventoryItem[] = [
   // Get all default items from comprehensive system
   ...getDefaultItems().map(convertToInventoryItem),
-  
+
   // Add some additional starter items
   {
     id: 'potion-health-starter',
@@ -86,7 +86,7 @@ export const defaultInventoryItems: InventoryItem[] = [
     emoji: '🪵',
     quantity: 5,
     isDefault: true,
-          image: '/images/items/materials/material-logs.png',
+    image: '/images/items/materials/material-logs.png',
     rarity: 'common',
     cost: 10,
     isEquippable: false,
@@ -106,6 +106,36 @@ export const defaultInventoryItems: InventoryItem[] = [
     cost: 25,
     isEquippable: false,
     isConsumable: true,
+  },
+  {
+    id: 'crossroad-item',
+    name: 'Crossroad',
+    description: 'A busy crossroad connecting the kingdom.',
+    type: 'material',
+    stats: {},
+    emoji: '🛣️',
+    quantity: 0,
+    isDefault: true,
+    image: '/images/kingdom-tiles/Crossroad.png',
+    rarity: 'common',
+    cost: 50,
+    isEquippable: false,
+    isConsumable: false,
+  },
+  {
+    id: 'straightroad-item',
+    name: 'Straight Road',
+    description: 'A straight road connecting the kingdom.',
+    type: 'material',
+    stats: {},
+    emoji: '🛣️',
+    quantity: 0,
+    isDefault: true,
+    image: '/images/kingdom-tiles/Straightroad.png',
+    rarity: 'common',
+    cost: 50,
+    isEquippable: false,
+    isConsumable: false,
   },
 ];
 
