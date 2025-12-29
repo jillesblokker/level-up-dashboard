@@ -15,6 +15,19 @@ export interface KingdomTile {
 export const KINGDOM_TILES: KingdomTile[] = [
   // Crafting & Resource Tiles
   {
+    id: 'crossroad',
+    name: 'Crossroad',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: "A busy crossroad connecting the kingdom.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Crossroad.png'
+  },
+  {
     id: 'well',
     name: 'Well',
     timerMinutes: 10,
@@ -57,7 +70,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     clickMessage: "The sawmill's blades whir as you collect freshly cut timber. The wood is perfect for crafting and building.",
     possibleItems: [
       '/images/items/materials/material-logs.png',
-              '/images/items/materials/material-planks.png'
+      '/images/items/materials/material-planks.png'
     ],
     itemType: 'material',
     rarity: 'common',
