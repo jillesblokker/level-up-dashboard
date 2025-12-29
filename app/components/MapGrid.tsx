@@ -46,16 +46,16 @@ const getTileImage = (tileType: string) => {
   }
 };
 
-const getMonsterImageName = (monsterType: string) => {
+const getMonsterImageUrl = (monsterType: string) => {
   const type = monsterType.toLowerCase();
   switch (type) {
-    case 'dragon': return 'Drakon';
-    case 'goblin': return 'Divero';
-    case 'troll': return 'Buldour';
-    case 'wizard': return 'Valerion';
-    case 'pegasus': return 'Blizzey'; // Maps to Snow biome creature
-    case 'fairy': return 'Oaky';     // Maps to Forest biome creature
-    default: return 'Drakon';
+    case 'dragon': return '/images/Monsters/Dragoni.png';
+    case 'goblin': return '/images/Monsters/Orci.png';
+    case 'troll': return '/images/Monsters/Trollie.png';
+    case 'wizard': return '/images/Monsters/Sorceror.png';
+    case 'pegasus': return '/images/Monsters/Peggie.png';
+    case 'fairy': return '/images/Monsters/Fairiel.png';
+    default: return '/images/Monsters/Dragoni.png';
   }
 };
 
@@ -151,7 +151,7 @@ const MapTile = memo(({
       {tile.hasMonster && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
-            src={`/images/creatures/${getMonsterImageName(tile.hasMonster)}.png`}
+            src={getMonsterImageUrl(tile.hasMonster)}
             alt={`${tile.hasMonster} monster`}
             width={Math.floor(tileSize * 0.6)}
             height={Math.floor(tileSize * 0.6)}
@@ -401,7 +401,7 @@ export function MapGrid({
             <div className="relative w-full h-full">
               <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md animate-pulse"></div>
               <img
-                src={`/images/creatures/${getMonsterImageName(monster.monster_type)}.png`}
+                src={getMonsterImageUrl(monster.monster_type)}
                 alt={monster.monster_type}
                 className="relative z-10 object-contain w-full h-full drop-shadow-md"
                 onError={(e) => {
@@ -409,9 +409,7 @@ export function MapGrid({
                   e.currentTarget.src = '/images/creatures/Drakon.png';
                 }}
               />
-              <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] px-1 rounded font-bold uppercase tracking-wider shadow-sm border border-red-800">
-                Boss
-              </div>
+
             </div>
           </div>
         ))}
