@@ -67,6 +67,48 @@ export function KingdomGridWithTimers({
   const { toast } = useToast()
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
+  const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
+
+  // Helper to calculate placement score for hints
+  const getPlacementHint = (x: number, y: number, tileType: string) => {
+    const neighbors = [
+      grid[y - 1]?.[x],
+      grid[y + 1]?.[x],
+      grid[y]?.[x - 1],
+      grid[y]?.[x + 1]
+    ].filter(Boolean);
+
+    let score = 'average';
+    let reason = '';
+
+    if (tileType === 'farm') {
+      if (neighbors.some(n => n.type === 'water')) {
+        score = 'good';
+        reason = 'Great Spot! +20% Gold (Water nearby)';
+      } else {
+        reason = 'Tip: Place near Water for bonus gold';
+      }
+    } else if (tileType === 'lumber_mill') {
+      if (neighbors.some(n => n.type === 'forest')) {
+        score = 'good';
+        reason = 'Perfect! +20% Gold (Forest nearby)';
+      } else {
+        reason = 'Tip: Place near Forest for bonus gold';
+      }
+    } else if (tileType === 'market') {
+      const houseCount = neighbors.filter(n =>
+        n.type === 'house' || n.type === 'mansion' || n.type === 'cottage'
+      ).length;
+      if (houseCount > 0) {
+        score = 'good';
+        reason = `Booming Business! +${10 * houseCount}% Gold (Near residents)`;
+      } else {
+        reason = 'Tip: Place near Houses/Mansions for bonus gold';
+      }
+    }
+
+    return { score, reason };
+  };
   const [showModal, setShowModal] = useState(false)
   const [modalData, setModalData] = useState<{
     tileName: string
@@ -1438,6 +1480,8 @@ export function KingdomGridWithTimers({
                   isKingdomTile && rarityClass,
                   placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
                 )}
+                onMouseEnter={() => setHoveredTile({ x, y })}
+                onMouseLeave={() => setHoveredTile(null)}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
                   // Removed debugging log
@@ -1499,6 +1543,35 @@ export function KingdomGridWithTimers({
                       )}
                     </div>
                   </div>
+                )}
+
+                {/* Placement Hint Overlay */}
+                {placementMode && selectedProperty && tile.type === 'vacant' && (
+                  (() => {
+                    const { score, reason } = getPlacementHint(x, y, selectedProperty.type);
+                    // Only show hints for relevant building types
+                    if (['farm', 'lumber_mill', 'market'].includes(selectedProperty.type)) {
+                      return (
+                        <div className={cn(
+                          "absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-80 transition-opacity z-10",
+                          score === 'good' ? "bg-green-500/30 ring-2 ring-green-400" : "bg-yellow-500/10"
+                        )}>
+                          {score === 'good' && <div className="text-xl animate-bounce">✨</div>}
+                          {hoveredTile?.x === x && hoveredTile?.y === y && (
+                            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-50 bg-black/95 text-white text-xs px-3 py-2 rounded-lg border border-amber-500 shadow-2xl min-w-[150px] text-center pointer-events-auto">
+                              <div className={`font-bold uppercase tracking-wider mb-1 ${score === 'good' ? 'text-green-400' : 'text-yellow-400'}`}>
+                                {score === 'good' ? 'Excellent' : 'Average'}
+                              </div>
+                              <div className="text-[10px] text-gray-300 leading-tight">
+                                {reason}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+                    return null;
+                  })()
                 )}
               </button>
             )
