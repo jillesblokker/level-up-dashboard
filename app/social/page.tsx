@@ -21,6 +21,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { MoreHorizontal } from "lucide-react"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
 import { GiftModal } from "@/components/gift-modal"
@@ -449,34 +456,20 @@ export default function AlliesPage() {
                                                 </div>
 
                                                 {/* Action Buttons */}
-                                                <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+                                                {/* Action Buttons */}
+                                                <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                                                    {/* Primary Actions - Always Visible */}
                                                     <Button
                                                         size="sm"
-                                                        variant="outline"
-                                                        onClick={() => openCompareModal(friend)}
-                                                        className="flex-1 sm:flex-none"
-                                                    >
-                                                        <Target className="w-4 h-4 mr-2" />
-                                                        Compare
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
                                                         onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
-                                                        className="flex-1 sm:flex-none border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+                                                        className="flex-1 sm:flex-none border-blue-500/50 hover:bg-blue-500/10"
+                                                        variant="outline"
                                                     >
                                                         <Crown className="w-4 h-4 mr-2" />
-                                                        Visit Kingdom
+                                                        <span className="hidden sm:inline">Kingdom</span>
+                                                        <span className="inline sm:hidden">Visit</span>
                                                     </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => router.push(`/realm?visit=${friend.friendId}`)}
-                                                        className="flex-1 sm:flex-none border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
-                                                    >
-                                                        <Shield className="w-4 h-4 mr-2" />
-                                                        Visit Realm
-                                                    </Button>
+
                                                     <Button
                                                         size="sm"
                                                         onClick={() => openQuestModal(friend)}
@@ -485,18 +478,66 @@ export default function AlliesPage() {
                                                         <Scroll className="w-4 h-4 mr-2" />
                                                         Quest
                                                     </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        onClick={() => {
-                                                            setSelectedFriend(friend);
-                                                            setGiftModalOpen(true);
-                                                        }}
-                                                        className="flex-1 sm:flex-none"
-                                                    >
-                                                        <Gift className="w-4 h-4 mr-2" />
-                                                        Gift
-                                                    </Button>
+
+                                                    {/* Secondary Actions - Desktop: Visible, Mobile: Dropdown */}
+                                                    <div className="hidden sm:flex gap-2">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => openCompareModal(friend)}
+                                                        >
+                                                            <Target className="w-4 h-4 mr-2" />
+                                                            Compare
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => router.push(`/realm?visit=${friend.friendId}`)}
+                                                            className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
+                                                        >
+                                                            <Shield className="w-4 h-4 mr-2" />
+                                                            Realm
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="secondary"
+                                                            onClick={() => {
+                                                                setSelectedFriend(friend);
+                                                                setGiftModalOpen(true);
+                                                            }}
+                                                        >
+                                                            <Gift className="w-4 h-4 mr-2" />
+                                                            Gift
+                                                        </Button>
+                                                    </div>
+
+                                                    {/* Mobile Menu for Secondary Actions */}
+                                                    <div className="sm:hidden">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="h-9 w-9">
+                                                                    <MoreHorizontal className="w-4 h-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem onClick={() => openCompareModal(friend)}>
+                                                                    <Target className="w-4 h-4 mr-2" />
+                                                                    Compare Stats
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
+                                                                    <Shield className="w-4 h-4 mr-2" />
+                                                                    Visit Realm
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => {
+                                                                    setSelectedFriend(friend);
+                                                                    setGiftModalOpen(true);
+                                                                }}>
+                                                                    <Gift className="w-4 h-4 mr-2" />
+                                                                    Send Gift
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </CardContent>
