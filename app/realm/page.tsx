@@ -333,7 +333,7 @@ function RealmPageContent() {
             setLastMysteryTile(null);
         }
     }, [mysteryEventCompleted, lastMysteryTile, setGrid]);
-    const [inventoryTab, setInventoryTab] = useState<'place' | 'buy'>('place');
+    const [inventoryTab, setInventoryTab] = useState<'place' | 'buy' | 'guide'>('place');
     const closeBtnRef = useRef<HTMLButtonElement>(null);
 
 

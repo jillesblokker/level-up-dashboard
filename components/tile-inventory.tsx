@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image"
+import { BookOpen, MapPin, ArrowUpRight, Droplets, Trees, Home, Mountain, Info } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -106,8 +107,8 @@ interface TileInventoryProps {
   selectedTile: InventoryItem | null
   onSelectTile: (tile: InventoryItem | null) => void
   onUpdateTiles: (tiles: InventoryItem[]) => void
-  activeTab: 'place' | 'buy'
-  setActiveTab: (tab: 'place' | 'buy') => void
+  activeTab: 'place' | 'buy' | 'guide'
+  setActiveTab: (tab: 'place' | 'buy' | 'guide') => void
   onOutOfTiles?: (tile: InventoryItem) => void
 }
 
@@ -319,7 +320,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
   return (
     <>
-      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy')} className="w-full h-full flex flex-col">
+      <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy' | 'guide')} className="w-full h-full flex flex-col">
         <div className="px-6 pt-4 pb-2 shrink-0">
           <TabsList className="w-full flex bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-lg p-1">
             <TabsTrigger
@@ -333,6 +334,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
             >
               Buy Tiles
+            </TabsTrigger>
+            <TabsTrigger
+              value="guide"
+              className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+              aria-label="Synergy Guide"
+            >
+              <Info className="w-4 h-4" />
             </TabsTrigger>
           </TabsList>
         </div>
@@ -664,6 +672,107 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               );
             })()}
           </div>
+        </TabsContent>
+
+        <TabsContent value="guide" className="flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden mt-0">
+          <ScrollArea className="h-full w-full">
+            <div className="px-6 py-4 space-y-6 pb-24">
+              <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+                <h3 className="text-amber-400 font-bold flex items-center gap-2 mb-2">
+                  <BookOpen className="w-5 h-5" />
+                  Building Synergies
+                </h3>
+                <p className="text-sm text-gray-300">
+                  Place buildings near specific tiles to boost their production! A &quot;✨&quot; icon will appear when you find a perfect spot.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Farm Synergy */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-amber-100 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/farm-tile.png" alt="Farm" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Farm</h4>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <ArrowUpRight className="w-4 h-4 text-green-500" />
+                        <span>Needs: <span className="text-blue-400 font-semibold">Water</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        Boosts Gold production by <span className="text-green-400 font-bold">+20%</span> when placed next to a Water tile.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lumber Mill Synergy */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-amber-800 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/lumber_mill-tile.png" alt="Lumber Mill" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Lumber Mill</h4>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <ArrowUpRight className="w-4 h-4 text-green-500" />
+                        <span>Needs: <span className="text-green-500 font-semibold">Forest</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        Boosts Gold production by <span className="text-green-400 font-bold">+20%</span> when placed next to a Forest tile.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Market Synergy */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-red-900 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/market-tile.png" alt="Market" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Market</h4>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <ArrowUpRight className="w-4 h-4 text-green-500" />
+                        <span>Needs: <span className="text-yellow-200 font-semibold">Houses</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        <span className="text-green-400 font-bold">+10% Gold</span> for EACH neighboring House, Mansion, or Cottage.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Castle Synergy */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-gray-700 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/castle-tile.png" alt="Castle" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Castle</h4>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <ArrowUpRight className="w-4 h-4 text-green-500" />
+                        <span>Needs: <span className="text-gray-300 font-semibold">Space</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        Looks majestic when surrounded by 4+ tiles (not on the edge).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-center">
+                  <p className="text-xs text-amber-600 italic">
+                    More synergies may be discovered as you level up!
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          </ScrollArea>
         </TabsContent>
       </Tabs>
     </>
