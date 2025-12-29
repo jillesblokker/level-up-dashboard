@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -253,11 +254,25 @@ export function AllianceDashboard() {
                                         )}
                                     </div>
                                 </div>
+
+                                {alliance.stats && (
+                                    <div className="mt-4 pt-4 border-t border-amber-900/30">
+                                        <div className="flex justify-between items-center text-xs text-amber-500 mb-1">
+                                            <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Alliance Might (Total Levels)</span>
+                                            <span>{alliance.stats.totalLevel} / {Math.max(50, alliance.stats.memberCount * 20)}</span>
+                                        </div>
+                                        <Progress value={Math.min(100, (alliance.stats.totalLevel / Math.max(50, alliance.stats.memberCount * 20)) * 100)} className="h-2 bg-amber-950/50" indicatorClassName="bg-amber-500" />
+                                        <p className="text-[10px] text-gray-500 mt-1 text-center">
+                                            Level up together to unlock the Alliance Chest!
+                                        </p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     ))}
                 </>
-            )}
+            )
+            }
 
             {/* CREATE ALLIANCE MODAL */}
             <Sheet open={createModalOpen} onOpenChange={setCreateModalOpen}>
@@ -337,6 +352,6 @@ export function AllianceDashboard() {
                     </SheetFooter>
                 </SheetContent>
             </Sheet>
-        </div>
+        </div >
     )
 }

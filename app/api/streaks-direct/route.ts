@@ -13,19 +13,19 @@ async function checkRecoveryColumnsExist(): Promise<boolean> {
 // Get column list based on what's available
 function getColumnList(hasRecoveryColumns: boolean): string {
   // Only use columns that definitely exist based on diagnostic results
-  const baseColumns = 'streak_days, week_streaks';
-  
+  const baseColumns = 'streak_days, week_streaks, last_check_in';
+
   if (hasRecoveryColumns) {
     return `${baseColumns}, resilience_points, safety_net_used, missed_days_this_week, last_missed_date, consecutive_weeks_completed, streak_broken_date, max_streak_achieved`;
   }
-  
+
   return baseColumns;
 }
 
 // Add default values for missing recovery fields
 function addDefaultRecoveryValues(data: any) {
   if (!data) return data;
-  
+
   return {
     ...data,
     // Add missing basic column with default
@@ -62,7 +62,7 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
         const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
         // Token payload decoded
-        
+
         // The user ID is in the 'sub' field for Clerk tokens
         if (payload.sub) {
           // UserId from token
@@ -94,12 +94,12 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
 export async function GET(req: NextRequest) {
   try {
     // Start GET request
-    
+
     const userId = await extractUserIdFromToken(req);
     // User ID present? (internal)
-    
+
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { 
+      return NextResponse.json({ error: 'Unauthorized' }, {
         status: 401,
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export async function GET(req: NextRequest) {
     // Query with appropriate columns
     const columnList = getColumnList(hasRecoveryColumns);
     // Selected column list
-    
+
     // Executing database query
     const { data, error } = await supabaseServer
       .from('streaks')
@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('[Streaks Direct GET] Database error:', error);
-      return NextResponse.json({ error: error.message }, { 
+      return NextResponse.json({ error: error.message }, {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
@@ -147,6 +147,7 @@ export async function GET(req: NextRequest) {
       const defaultData = {
         streak_days: 0,
         week_streaks: 0,
+        last_check_in: null,
         last_activity_date: null,
         resilience_points: 0,
         safety_net_used: false,
@@ -156,7 +157,7 @@ export async function GET(req: NextRequest) {
         streak_broken_date: null,
         max_streak_achieved: 0
       };
-      
+
       return NextResponse.json(defaultData, {
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ export async function GET(req: NextRequest) {
     console.error('[Streaks Direct GET] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
-    }, { 
+    }, {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
@@ -193,7 +194,7 @@ export async function POST(req: NextRequest) {
   try {
     const userId = await extractUserIdFromToken(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { 
+      return NextResponse.json({ error: 'Unauthorized' }, {
         status: 401,
         headers: {
           'Content-Type': 'application/json',
@@ -218,7 +219,7 @@ export async function POST(req: NextRequest) {
     if (!category) {
       return NextResponse.json({
         error: 'Missing required fields: category'
-      }, { 
+      }, {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +237,8 @@ export async function POST(req: NextRequest) {
     // Build update data based on available columns
     const updateData: any = {
       user_id: userId,
-      category: category
+      category: category,
+      last_check_in: new Date().toISOString()
       // Note: last_activity_date column doesn't exist in current database
     };
 
@@ -273,7 +275,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('[Streaks Direct POST] Database error:', error);
-      return NextResponse.json({ error: error.message }, { 
+      return NextResponse.json({ error: error.message }, {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
@@ -297,7 +299,7 @@ export async function POST(req: NextRequest) {
     console.error('[Streaks Direct POST] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
-    }, { 
+    }, {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
@@ -310,7 +312,7 @@ export async function PUT(req: NextRequest) {
   try {
     const userId = await extractUserIdFromToken(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { 
+      return NextResponse.json({ error: 'Unauthorized' }, {
         status: 401,
         headers: {
           'Content-Type': 'application/json',
@@ -320,11 +322,11 @@ export async function PUT(req: NextRequest) {
 
     // Check if recovery columns exist first
     const hasRecoveryColumns = await checkRecoveryColumnsExist();
-    
+
     if (!hasRecoveryColumns) {
       return NextResponse.json({
         error: 'Recovery features not available. Please run the database migration first.'
-      }, { 
+      }, {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
@@ -338,7 +340,7 @@ export async function PUT(req: NextRequest) {
     if (!category || !action) {
       return NextResponse.json({
         error: 'Missing required fields: category, action'
-      }, { 
+      }, {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
@@ -355,7 +357,7 @@ export async function PUT(req: NextRequest) {
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      return NextResponse.json({ error: fetchError.message }, { 
+      return NextResponse.json({ error: fetchError.message }, {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
@@ -368,7 +370,7 @@ export async function PUT(req: NextRequest) {
       error: 'Recovery features are temporarily disabled. Basic streak functionality is available, but recovery actions require database migration.',
       availableAfterMigration: ['use_safety_net', 'reconstruct_streak', 'reset_weekly_safety_net'],
       action: action
-    }, { 
+    }, {
       status: 400,
       headers: {
         'Content-Type': 'application/json',
@@ -379,7 +381,7 @@ export async function PUT(req: NextRequest) {
     console.error('[Streaks Direct PUT] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
-    }, { 
+    }, {
       status: 500,
       headers: {
         'Content-Type': 'application/json',

@@ -16,6 +16,7 @@ import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-s
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
 import { CreatureLayer } from '@/components/creature-layer'
+import { useWeather } from '@/hooks/use-weather'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
@@ -64,6 +65,7 @@ export function KingdomGridWithTimers({
   readOnly = false
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
+  const { weather, getWeatherName, getWeatherDescription } = useWeather()
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [showModal, setShowModal] = useState(false)
   const [modalData, setModalData] = useState<{
@@ -1509,6 +1511,19 @@ export function KingdomGridWithTimers({
   return (
     <>
       <div className="relative w-full flex items-center justify-center">
+        {/* Weather Indicator */}
+        {!placementMode && (
+          <div className="absolute top-4 left-4 z-20 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-100 px-3 py-2 rounded-lg shadow-xl shadow-black/50 flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="text-3xl filter drop-shadow-md">
+              {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-widest font-medieval">{getWeatherName(weather)}</span>
+              <span className="text-[10px] text-gray-300 italic">{getWeatherDescription(weather)}</span>
+            </div>
+          </div>
+        )}
+
         {/* Placement mode indicator */}
         {placementMode && selectedProperty && (
           <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">

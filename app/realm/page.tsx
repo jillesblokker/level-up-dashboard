@@ -55,8 +55,10 @@ import { useRealmGridManager } from '@/hooks/use-realm-grid-manager';
 import { useRealmInventory } from '@/hooks/use-realm-inventory';
 
 // Import new data loaders hook
+
 import { useDataLoaders } from '@/hooks/use-data-loaders';
 import { useAchievementUnlock } from '@/hooks/use-achievement-unlock';
+import { useWeather } from '@/hooks/use-weather';
 
 import { useSound, SOUNDS } from "@/lib/sound-manager"
 
@@ -146,6 +148,14 @@ function RealmPageContent() {
     } = useDataLoaders();
     const { unlockAchievement } = useAchievementUnlock();
     const { playSound } = useSound();
+    const { weather } = useWeather();
+    const weatherRef = useRef(weather);
+    const lastMoveTimeRef = useRef(0);
+
+    // Sync weather ref
+    useEffect(() => {
+        weatherRef.current = weather;
+    }, [weather]);
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
@@ -647,6 +657,14 @@ function RealmPageContent() {
             // Check destruction achievements
             checkAchievementProgress('destroy', originalTile.type);
 
+            // Weather: Snowy Drop Chance
+            if (weather === 'snowy' && (originalTile.type === 'forest' || originalTile.type === 'grass')) {
+                if (Math.random() < 0.4) { // 40% chance
+                    gainExperience(100, 'winter-forage');
+                    toast({ title: "❄️ Winter Forage!", description: "You found frozen berries under the snow. (+100 XP)", className: "bg-blue-900 border-blue-500 text-blue-100" });
+                }
+            }
+
             if (originalTile.type === 'mountain') {
                 unlockAchievement({
                     achievementId: '201',
@@ -713,6 +731,12 @@ function RealmPageContent() {
             if (gameModeRef.current !== 'move') {
                 return;
             }
+
+            // Movement throttling based on weather
+            const now = Date.now();
+            const minDelay = weatherRef.current === 'snowy' ? 300 : 150;
+            if (now - lastMoveTimeRef.current < minDelay) return;
+            lastMoveTimeRef.current = now;
 
             const currentPos = characterPositionRef.current;
             const currentGrid = gridRef.current;

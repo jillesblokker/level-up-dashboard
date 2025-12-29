@@ -29,6 +29,7 @@ import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from
 
 import { QuestOrganization } from '@/components/quest-organization'
 import { GameplayLoopIndicator } from '@/components/gameplay-loop-indicator'
+import { removeTileFromInventory } from '@/lib/tile-inventory-manager'
 
 import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
@@ -679,7 +680,57 @@ export default function QuestsPage() {
           throw new Error('Failed to fetch streak');
         }
         const data = await res.json();
-        if (!cancelled) setStreakData(data);
+        if (!cancelled) {
+          setStreakData(data);
+
+          // Check for missed days and apply Streak Freeze if available
+          if (data.last_check_in && data.streak_days > 0) {
+            const lastCheckIn = new Date(data.last_check_in);
+            const today = new Date();
+            // Reset hours to compare dates only
+            lastCheckIn.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            const diffTime = Math.abs(today.getTime() - lastCheckIn.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // If missed more than 1 day (meaning yesterday was missed)
+            if (diffDays > 1) {
+              const scrollCount = getStreakScrollCount();
+
+              if (scrollCount > 0) {
+                // RESCUE!
+                await removeTileFromInventory(userId, 'streak-scroll', 1);
+
+                // Update streak (don't reset, just update check-in time)
+                // We call updateStreak with CURRENT streak to refresh the timestamp
+                await updateStreak(data.streak_days, 0); // 0 added for quest count, keeps streak same
+
+                toast({
+                  title: "❄️ Streak Frozen!",
+                  description: "You missed a day, but your Streak Freeze scroll saved you!",
+                  className: "bg-blue-900 border-blue-500 text-blue-100"
+                });
+
+                // Update local state to reflect consumption
+                const currentInv = JSON.parse(localStorage.getItem('tileInventory') || '{}');
+                if (currentInv['streak-scroll']) {
+                  currentInv['streak-scroll'].quantity = Math.max(0, currentInv['streak-scroll'].quantity - 1);
+                  localStorage.setItem('tileInventory', JSON.stringify(currentInv));
+                }
+
+              } else {
+                // RESET :(
+                await updateStreak(0, 0);
+                toast({
+                  title: "Streak Lost",
+                  description: "You missed a day and had no Freeze Scrolls. Streak reset to 0.",
+                  variant: "destructive"
+                });
+              }
+            }
+          }
+        }
       } catch (error) {
         console.error('[Streaks] Error fetching streak:', error);
         if (!cancelled) setStreakData({ streak_days: 0, week_streaks: 0 });

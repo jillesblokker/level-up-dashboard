@@ -42,7 +42,12 @@ export type TileType =
   | 'inn'
   | 'jousting'
   | 'mansion'
-  | 'mayor';
+  | 'mayor'
+  | 'streak-scroll'
+  | 'farm'
+  | 'lumber_mill'
+  | 'market'
+  | 'cottage';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

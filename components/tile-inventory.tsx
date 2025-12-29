@@ -43,7 +43,10 @@ const allPossibleTiles: InventoryItem[] = [
   { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.png' },
   { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.png' },
   { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.png' },
-  { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.png' }
+  { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.png' },
+
+  // Consumables
+  { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.png', unlocked: true }
 ];
 
 // Tile categories with logical organization
@@ -87,6 +90,14 @@ const tileCategories = [
     maxLevel: 100,
     description: 'Special tiles available on specific dates',
     tiles: (Array.isArray(RARE_TILES) ? RARE_TILES : []).map(tile => tile && tile.type ? tile.type : '').filter(Boolean)
+  },
+  {
+    id: 'consumables',
+    name: 'Consumables',
+    minLevel: 0,
+    maxLevel: 100,
+    description: 'Special items to help your journey',
+    tiles: ['streak-scroll']
   }
 ];
 

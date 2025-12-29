@@ -28,10 +28,22 @@ export async function GET(req: NextRequest) {
             // Merge streak info
             const today = new Date().toISOString().split('T')[0];
 
+            // Fetch member stats for "Alliance Weekly Goals"
+            const allMemberIds = Array.from(new Set(alliances.flatMap(a => a.members)));
+            const { data: memberStats } = await supabase
+                .from('character_stats')
+                .select('user_id, level, experience')
+                .in('user_id', allMemberIds);
+
             return alliances.map(alliance => {
                 const streakData = streaks?.find(s => s.alliance_id === alliance.id);
                 const lastCheckIn = streakData?.last_check_in ? new Date(streakData.last_check_in).toISOString().split('T')[0] : null;
                 const isCheckedInToday = lastCheckIn === today;
+
+                // Calculate Alliance Aggregates
+                const allianceMembers = memberStats?.filter(s => alliance.members.includes(s.user_id)) || [];
+                const totalLevel = allianceMembers.reduce((sum, m) => sum + (m.level || 1), 0);
+                const totalXp = allianceMembers.reduce((sum, m) => sum + (m.experience || 0), 0);
 
                 return {
                     ...alliance,
@@ -39,6 +51,11 @@ export async function GET(req: NextRequest) {
                         current: streakData?.current_streak || 0,
                         checkedInToday: isCheckedInToday,
                         lastCheckIn: streakData?.last_check_in
+                    },
+                    stats: {
+                        totalLevel,
+                        totalXp,
+                        memberCount: alliance.members.length
                     }
                 };
             });

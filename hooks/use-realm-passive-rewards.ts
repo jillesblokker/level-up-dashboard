@@ -4,8 +4,11 @@ import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { Tile } from '@/types/tiles';
 
+import { useWeather } from '@/hooks/use-weather';
+
 export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
     const { toast } = useToast();
+    const { weather } = useWeather();
     const [passiveRewards, setPassiveRewards] = useState<{ gold: number, xp: number } | null>(null);
     const [lastCollectionTime, setLastCollectionTime] = useState<number>(Date.now());
 
@@ -30,12 +33,60 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
             let hourlyGold = 0;
             let hourlyXp = 0;
 
-            grid.forEach(row => {
-                row.forEach(tile => {
+            grid.forEach((row, y) => {
+                row.forEach((tile, x) => {
                     if (tile.type !== 'empty' && tile.type !== 'grass') {
-                        const baseValue = tile.cost || 100;
-                        hourlyGold += Math.floor(baseValue * 0.05);
-                        hourlyXp += Math.floor(baseValue * 0.02);
+                        let baseValue = tile.cost || 100;
+                        let multiplier = 1;
+
+                        // Adjacency Bonuses
+                        // Get neighbors
+                        const neighbors = [
+                            grid[y - 1]?.[x],
+                            grid[y + 1]?.[x],
+                            grid[y]?.[x - 1],
+                            grid[y]?.[x + 1]
+                        ].filter(Boolean);
+
+                        // 1. Farm + Water
+                        if (tile.type === 'farm') {
+                            if (neighbors.some(n => n?.type === 'water')) {
+                                multiplier += 0.2;
+                            }
+                        }
+
+                        // 2. Lumber Mill + Forest
+                        if (tile.type === 'lumber_mill') {
+                            if (neighbors.some(n => n?.type === 'forest')) {
+                                multiplier += 0.2;
+                            }
+                        }
+
+                        // 3. Market + Housing
+                        if (tile.type === 'market') {
+                            const houseCount = neighbors.filter(n =>
+                                n?.type === 'house' || n?.type === 'mansion' || n?.type === 'cottage'
+                            ).length;
+                            if (houseCount > 0) {
+                                multiplier += (0.1 * houseCount);
+                            }
+                        }
+
+                        // Weather Bonuses
+                        if (weather === 'sunny' && tile.type === 'farm') {
+                            multiplier += 0.1;
+                        }
+
+
+                        const adjustedValue = baseValue * multiplier;
+                        hourlyGold += Math.floor(adjustedValue * 0.05);
+
+                        // Rainy Weather XP Bonus for nature
+                        let xpMultiplier = 1;
+                        if (weather === 'rainy' && ['forest', 'grass', 'water', 'farm'].includes(tile.type)) {
+                            xpMultiplier = 1.2;
+                        }
+                        hourlyXp += Math.floor(baseValue * 0.02 * xpMultiplier);
                     }
                 });
             });
@@ -55,7 +106,7 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
         calculateRewards();
 
         return () => clearInterval(interval);
-    }, [grid, lastCollectionTime, isMounted]);
+    }, [grid, lastCollectionTime, isMounted, weather]);
 
     const handleCollectRewards = useCallback(async () => {
         if (!passiveRewards) return;

@@ -11,6 +11,11 @@ export interface Alliance {
         checkedInToday: boolean;
         lastCheckIn: string;
     };
+    stats?: {
+        totalLevel: number;
+        totalXp: number;
+        memberCount: number;
+    };
 }
 
 export interface AllianceStreak {
