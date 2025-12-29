@@ -55,20 +55,6 @@ export async function POST(request: NextRequest) {
             })
         }
 
-        // Mark quest as complete
-        const { error: completionError } = await supabase
-            .from('quest_completion')
-            .insert({
-                quest_id: questId,
-                user_id: userId,
-                completed_at: new Date().toISOString()
-            })
-
-        if (completionError) {
-            console.error('Error marking quest complete:', completionError)
-            return NextResponse.json({ error: 'Failed to complete quest' }, { status: 500 })
-        }
-
         // Determine rewards based on difficulty
         const difficultyRewards: Record<string, { xp: number; gold: number }> = {
             easy: { xp: 25, gold: 25 },
@@ -77,6 +63,25 @@ export async function POST(request: NextRequest) {
         }
 
         const rewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 }
+
+        // Mark quest as complete
+        const { error: completionError } = await supabase
+            .from('quest_completion')
+            .insert({
+                quest_id: questId,
+                user_id: userId,
+                completed: true,
+                completed_at: new Date().toISOString(),
+                xp_earned: rewards.xp,
+                gold_earned: rewards.gold
+            })
+
+        if (completionError) {
+            console.error('Error marking quest complete:', completionError)
+            return NextResponse.json({ error: 'Failed to complete quest' }, { status: 500 })
+        }
+
+
 
         // Update character stats
         const { data: currentStats, error: statsError } = await supabase
