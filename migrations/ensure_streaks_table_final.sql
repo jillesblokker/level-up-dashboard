@@ -8,9 +8,16 @@ CREATE TABLE IF NOT EXISTS streaks (
 );
 -- Ensure RLS is disabled
 ALTER TABLE streaks DISABLE ROW LEVEL SECURITY;
--- Ensure alliance_id column exists (in case table existed from before without it)
+-- Ensure columns exist (in case table existed with different schema)
 ALTER TABLE streaks
 ADD COLUMN IF NOT EXISTS alliance_id TEXT;
+ALTER TABLE streaks
+ADD COLUMN IF NOT EXISTS last_check_in TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE streaks
+ADD COLUMN IF NOT EXISTS current_streak INTEGER DEFAULT 0;
+-- Refresh PostgREST schema cache
+NOTIFY pgrst,
+'reload schema';
 -- Handle the unique constraint. 
 -- We drop it first to be safe, then add it back.
 DO $$ BEGIN IF EXISTS (
