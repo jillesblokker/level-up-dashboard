@@ -47,6 +47,8 @@ export function getTileName(type: TileType): string {
     lumber_mill: 'Lumber Mill',
     market: 'Market',
     cottage: 'Cottage',
+    crossroad: 'Crossroad',
+    straightroad: 'Straight Road',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -98,6 +100,8 @@ export function getDefaultConnections(type: TileType): string[] {
     lumber_mill: ['forest', 'grass'],
     market: ['grass', 'city', 'town'],
     cottage: ['grass'],
+    crossroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
+    straightroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
   };
   return defaultConnections[type] || [];
 } 
