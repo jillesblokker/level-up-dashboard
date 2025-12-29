@@ -293,13 +293,16 @@ function createEmptyKingdomGrid(): Tile[][] {
 // Helper to get the kingdom tile inventory with build tokens
 function getKingdomTileInventoryWithBuildTokens(): Tile[] {
   const KINGDOM_TILE_IMAGES = [
-    'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
+    'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png', 'Crossroad.png', 'Straightroad.png'
   ];
   return KINGDOM_TILE_IMAGES.map((filename, idx) => {
     const tileName = filename.replace('.png', '');
     const isCastle = filename === 'Castle.png';
     // Find the corresponding kingdom tile configuration
-    const kingdomTileConfig = KINGDOM_TILES.find(kt => kt.name.toLowerCase() === tileName.toLowerCase());
+    const kingdomTileConfig = KINGDOM_TILES.find(kt =>
+      kt.name.toLowerCase() === tileName.toLowerCase() ||
+      kt.name.toLowerCase().replace(' ', '') === tileName.toLowerCase()
+    );
 
     return {
       id: `kingdom-tile-${idx}`,

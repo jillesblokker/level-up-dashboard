@@ -77,6 +77,8 @@ function safeCheck(obj: any, key: any) {
 }
 
 export const getTileImage = (type: TileType): string => {
+    if (type === 'crossroad') return '/images/kingdom-tiles/Crossroad.png';
+    if (type === 'straightroad') return '/images/kingdom-tiles/Straightroad.png';
     return `/images/tiles/${type}-tile.png`;
 };
 
