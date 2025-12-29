@@ -269,6 +269,9 @@ function RealmPageContent() {
     const handleBattleComplete = async (won: boolean, goldEarned: number, xpEarned: number) => {
         if (won && monsterEvent.monster) {
             const currentMonsterId = monsterEvent.monster.id;
+            const monsterX = monsterEvent.monster.x;
+            const monsterY = monsterEvent.monster.y;
+
             // Mark as defeated
             try {
                 await fetch('/api/monster-spawn', {
@@ -276,8 +279,22 @@ function RealmPageContent() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: currentMonsterId, defeated: true })
                 });
-                // Remove from local state
+                // Remove from local state (Overlay)
                 setMonsters(prev => prev.filter(m => m.id !== currentMonsterId));
+
+                // Sync with Grid State (Legacy/Fallback)
+                setGrid(prev => {
+                    const next = prev.map(row => [...row]);
+                    if (next[monsterY]?.[monsterX]) {
+                        const tile = next[monsterY][monsterX];
+                        if (tile) {
+                            tile.hasMonster = undefined;
+                            tile.monsterAchievementId = undefined;
+                        }
+                    }
+                    return next;
+                });
+
                 playSound(SOUNDS.BATTLE_WIN);
                 toast({
                     title: "Monster Defeated!",
@@ -540,8 +557,8 @@ function RealmPageContent() {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
 
-        // Don't allow destroying certain protected tiles
-        if (['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
+        // Don't allow destroying certain protected tiles (Mountains are now destructible)
+        if (['water', 'lava', 'volcano'].includes(targetTile.type)) {
             toast({
                 title: "⛰️ Immovable Force",
                 description: `The ${targetTile.type} resists your power!`,
