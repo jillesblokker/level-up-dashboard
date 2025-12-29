@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Sparkles } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { useToast } from '@/components/ui/use-toast'
@@ -1604,23 +1605,86 @@ export function KingdomGridWithTimers({
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 min-h-0 pb-24">
-            {propertyTab === 'place' ? (
-              // Place tab - show properties you own
-              <div className="grid grid-cols-2 gap-6">
-                {getAvailableProperties().map(tile => {
-                  const canPlace = canPlaceProperty(tile)
+          <ScrollArea className="flex-1 min-h-0 w-full">
+            <div className="p-4 pb-8 space-y-4">
+              {propertyTab === 'place' ? (
+                // Place tab - show properties you own
+                <div className="grid grid-cols-2 gap-6">
+                  {getAvailableProperties().map(tile => {
+                    const canPlace = canPlaceProperty(tile)
 
-                  return (
+                    return (
+                      <button
+                        key={tile.id}
+                        className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${canPlace
+                          ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer'
+                          : 'opacity-50 cursor-not-allowed'
+                          }`}
+                        onClick={() => canPlace && handlePropertySelect(tile)}
+                        disabled={!canPlace}
+                        aria-label={`Select ${tile.name} for placement`}
+                      >
+                        <div className="relative w-full aspect-square mb-3">
+                          <Image
+                            src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
+                            alt={tile.name}
+                            fill
+                            className="object-contain rounded-xl"
+                            draggable={false}
+                            unoptimized
+                          />
+                          {/* Level requirement badge */}
+                          {tile.levelRequired > 1 && (
+                            <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                              Lv.{tile.levelRequired}
+                            </div>
+                          )}
+                          {/* Quantity badge */}
+                          <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                            {tile.quantity || 0}
+                          </div>
+                        </div>
+                        <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="truncate">{tile.name}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="text-center">
+                                <div className="font-bold">{tile.name}</div>
+                                <div className="text-sm text-gray-300">
+                                  Owned: {tile.quantity || 0}
+                                </div>
+                                {tile.levelRequired > 1 && (
+                                  <div className="text-sm text-blue-300">
+                                    Requires Level {tile.levelRequired}
+                                  </div>
+                                )}
+                                {!canPlace && (
+                                  <div className="text-sm text-red-300 mt-1">
+                                    {tile.quantity <= 0 ? 'Buy this property first!' : `Need Level ${tile.levelRequired}`}
+                                  </div>
+                                )}
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <div className="text-sm text-amber-400 text-center">
+                          Click to place
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                // Buy tab - show properties for purchase
+                <div className="grid grid-cols-2 gap-6">
+                  {getAvailableProperties().map(tile => (
                     <button
                       key={tile.id}
-                      className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${canPlace
-                        ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer'
-                        : 'opacity-50 cursor-not-allowed'
-                        }`}
-                      onClick={() => canPlace && handlePropertySelect(tile)}
-                      disabled={!canPlace}
-                      aria-label={`Select ${tile.name} for placement`}
+                      className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer"
+                      onClick={() => handleBuyProperty(tile)}
+                      aria-label={`Buy ${tile.name}`}
                     >
                       <div className="relative w-full aspect-square mb-3">
                         <Image
@@ -1637,9 +1701,13 @@ export function KingdomGridWithTimers({
                             Lv.{tile.levelRequired}
                           </div>
                         )}
+                        {/* Cost badge */}
+                        <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
+                          {tile.cost}g
+                        </div>
                         {/* Quantity badge */}
-                        <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
-                          {tile.quantity || 0}
+                        <div className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                          Owned: {tile.quantity || 0}
                         </div>
                       </div>
                       <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
@@ -1651,6 +1719,9 @@ export function KingdomGridWithTimers({
                             <div className="text-center">
                               <div className="font-bold">{tile.name}</div>
                               <div className="text-sm text-gray-300">
+                                Cost: {tile.cost} gold
+                              </div>
+                              <div className="text-sm text-green-300">
                                 Owned: {tile.quantity || 0}
                               </div>
                               {tile.levelRequired > 1 && (
@@ -1658,92 +1729,24 @@ export function KingdomGridWithTimers({
                                   Requires Level {tile.levelRequired}
                                 </div>
                               )}
-                              {!canPlace && (
-                                <div className="text-sm text-red-300 mt-1">
-                                  {tile.quantity <= 0 ? 'Buy this property first!' : `Need Level ${tile.levelRequired}`}
-                                </div>
-                              )}
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </div>
                       <div className="text-sm text-amber-400 text-center">
-                        Click to place
+                        Click to buy
                       </div>
-                    </button>
-                  )
-                })}
-              </div>
-            ) : (
-              // Buy tab - show properties for purchase
-              <div className="grid grid-cols-2 gap-6">
-                {getAvailableProperties().map(tile => (
-                  <button
-                    key={tile.id}
-                    className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer"
-                    onClick={() => handleBuyProperty(tile)}
-                    aria-label={`Buy ${tile.name}`}
-                  >
-                    <div className="relative w-full aspect-square mb-3">
-                      <Image
-                        src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                        alt={tile.name}
-                        fill
-                        className="object-contain rounded-xl"
-                        draggable={false}
-                        unoptimized
-                      />
-                      {/* Level requirement badge */}
-                      {tile.levelRequired > 1 && (
-                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                          Lv.{tile.levelRequired}
+                      {tile.isSeasonal && (
+                        <div className="text-xs text-blue-400 text-center mt-1">
+                          Seasonal Tile
                         </div>
                       )}
-                      {/* Cost badge */}
-                      <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
-                        {tile.cost}g
-                      </div>
-                      {/* Quantity badge */}
-                      <div className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
-                        Owned: {tile.quantity || 0}
-                      </div>
-                    </div>
-                    <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="truncate">{tile.name}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="text-center">
-                            <div className="font-bold">{tile.name}</div>
-                            <div className="text-sm text-gray-300">
-                              Cost: {tile.cost} gold
-                            </div>
-                            <div className="text-sm text-green-300">
-                              Owned: {tile.quantity || 0}
-                            </div>
-                            {tile.levelRequired > 1 && (
-                              <div className="text-sm text-blue-300">
-                                Requires Level {tile.levelRequired}
-                              </div>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <div className="text-sm text-amber-400 text-center">
-                      Click to buy
-                    </div>
-                    {tile.isSeasonal && (
-                      <div className="text-xs text-blue-400 text-center mt-1">
-                        Seasonal Tile
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
         </div>
       )}
 
