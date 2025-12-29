@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
         if (!result.success) {
             const isAuthError = result.error?.includes('Authentication') || result.error?.includes('JWT');
             const status = isAuthError ? 401 : 500;
-            return NextResponse.json({ error: result.error || 'Operation failed' }, { status });
+            const errorMsg = typeof result.error === 'object' ? JSON.stringify(result.error) : result.error;
+            return NextResponse.json({ error: errorMsg || 'Operation failed', details: result.error }, { status });
         }
 
         return NextResponse.json({ success: true, alliance: result.data });
