@@ -1472,8 +1472,10 @@ export function KingdomGridWithTimers({
 
   const handleMoveTile = (x: number, y: number, tile: Tile) => {
     // Find the full property definition to select it for placement
-    const propertyDef = getAvailableProperties().find(p => p.name === tile.name) ||
-      KINGDOM_TILES.find(kt => kt.name === tile.name);
+    // Find the full property definition to select it for placement
+    // Try by ID first (more reliable), then by name
+    const propertyDef = getAvailableProperties().find(p => p.id === tile.type || p.name === tile.name) ||
+      KINGDOM_TILES.find(kt => kt.id === tile.type || kt.name === tile.name);
 
     if (propertyDef) {
       // "Pick up" the tile:
