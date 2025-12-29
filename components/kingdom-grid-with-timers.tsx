@@ -5,8 +5,7 @@ import Image from "next/image"
 import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Clock, Sparkles } from 'lucide-react'
+import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCcw, Sparkles, Trophy, Trash2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
@@ -1422,6 +1421,58 @@ export function KingdomGridWithTimers({
     }
   }
 
+  const handleMoveTile = (x: number, y: number, tile: Tile) => {
+    // Find the full property definition to select it for placement
+    const propertyDef = getAvailableProperties().find(p => p.name === tile.name) ||
+      KINGDOM_TILES.find(kt => kt.name === tile.name);
+
+    if (propertyDef) {
+      // "Pick up" the tile:
+      // 1. Select it as if we're placing it (entering placement mode)
+      // 2. Remove it from the current spot (set to vacant)
+      // 3. Update inventory temporarily or just relying on "swap" logic? 
+      // Simpler: Just delete it first (add to inv), then select it.
+
+      // Update grid to remove it
+      const newGrid = [...grid];
+      newGrid[y] = [...newGrid[y]];
+      newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
+      if (onGridUpdate) onGridUpdate(newGrid);
+
+      // Update inventory (add 1)
+      updateTileQuantity(propertyDef.id, 1);
+
+      // Select it for immediate placement
+      handlePropertySelect(propertyDef);
+
+      toast({
+        title: "Moving Building",
+        description: `Select a new location for ${tile.name}`,
+      });
+    }
+  };
+
+  const handleDeleteTile = async (x: number, y: number, tile: Tile) => {
+    if (!window.confirm(`Are you sure you want to remove ${tile.name}? It will return to your inventory.`)) return;
+
+    // Remove from grid
+    const newGrid = [...grid];
+    newGrid[y] = [...newGrid[y]];
+    newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
+    if (onGridUpdate) onGridUpdate(newGrid);
+
+    // Return to inventory
+    const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name);
+    if (propertyDef) {
+      updateTileQuantity(propertyDef.id, 1);
+    }
+
+    toast({
+      title: "Building Stored",
+      description: `${tile.name} returned to inventory.`,
+    });
+  };
+
   const formatTimeRemaining = (endTime: number) => {
     const now = Date.now()
     const timeLeft = endTime - now
@@ -1525,6 +1576,34 @@ export function KingdomGridWithTimers({
                   <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
                     <div className="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
                       Place {selectedProperty?.name}
+                    </div>
+                  </div>
+                )}
+
+                {/* Move/Delete Controls on Hover */}
+                {isKingdomTile && !placementMode && !readOnly && (
+                  <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div
+                      role="button"
+                      title="Move"
+                      className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMoveTile(x, y, tile);
+                      }}
+                    >
+                      <ArrowRightLeft className="w-3 h-3" />
+                    </div>
+                    <div
+                      role="button"
+                      title="Store in Inventory"
+                      className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteTile(x, y, tile);
+                      }}
+                    >
+                      <Trash2 className="w-3 h-3" />
                     </div>
                   </div>
                 )}
