@@ -1548,9 +1548,11 @@ export function KingdomGridWithTimers({
                 {/* Placement Hint Overlay */}
                 {placementMode && selectedProperty && tile.type === 'vacant' && (
                   (() => {
-                    const { score, reason } = getPlacementHint(x, y, selectedProperty.type);
+                    // Safe access to type property
+                    const propType = (selectedProperty as any).type || (selectedProperty as any).id;
+                    const { score, reason } = getPlacementHint(x, y, propType);
                     // Only show hints for relevant building types
-                    if (['farm', 'lumber_mill', 'market'].includes(selectedProperty.type)) {
+                    if (['farm', 'lumber_mill', 'market'].includes(propType)) {
                       return (
                         <div className={cn(
                           "absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-80 transition-opacity z-10",
