@@ -105,6 +105,17 @@ export function KingdomGridWithTimers({
       } else {
         reason = 'Tip: Place near Houses/Mansions for bonus gold';
       }
+    } else if (tileType === 'castle') {
+      const hasSpace = neighbors.length >= 4;
+      if (hasSpace) {
+        score = 'good';
+        reason = 'A majestic location for a Castle!';
+      } else {
+        reason = 'A Castle looks best with open space.';
+      }
+    } else {
+      // Default for other buildings
+      reason = `Place ${tileType.replace('_', ' ')} here.`;
     }
 
     return { score, reason };
@@ -1546,13 +1557,14 @@ export function KingdomGridWithTimers({
                 )}
 
                 {/* Placement Hint Overlay */}
-                {placementMode && selectedProperty && tile.type === 'vacant' && (
+                {placementMode && selectedProperty && (tile.type === 'vacant' || tile.type === 'grass') && (
                   (() => {
                     // Safe access to type property
                     const propType = (selectedProperty as any).type || (selectedProperty as any).id;
                     const { score, reason } = getPlacementHint(x, y, propType);
-                    // Only show hints for relevant building types
-                    if (['farm', 'lumber_mill', 'market'].includes(propType)) {
+
+                    // Show hints for ALL building types now
+                    if (true) {
                       return (
                         <div className={cn(
                           "absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-80 transition-opacity z-10",
