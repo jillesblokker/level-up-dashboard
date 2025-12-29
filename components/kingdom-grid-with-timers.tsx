@@ -1435,9 +1435,11 @@ export function KingdomGridWithTimers({
 
       // Update grid to remove it
       const newGrid = [...grid];
-      newGrid[y] = [...newGrid[y]];
-      newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
-      if (onGridUpdate) onGridUpdate(newGrid);
+      if (newGrid[y]) {
+        newGrid[y] = [...newGrid[y]];
+        newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
+        if (onGridUpdate) onGridUpdate(newGrid);
+      }
 
       // Update inventory (add 1)
       updateTileQuantity(propertyDef.id, 1);
@@ -1457,9 +1459,11 @@ export function KingdomGridWithTimers({
 
     // Remove from grid
     const newGrid = [...grid];
-    newGrid[y] = [...newGrid[y]];
-    newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
-    if (onGridUpdate) onGridUpdate(newGrid);
+    if (newGrid[y]) {
+      newGrid[y] = [...newGrid[y]];
+      newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
+      if (onGridUpdate) onGridUpdate(newGrid);
+    }
 
     // Return to inventory
     const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name);
