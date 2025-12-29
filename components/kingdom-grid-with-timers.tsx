@@ -42,6 +42,7 @@ interface KingdomGridWithTimersProps {
   onGoldEarned?: (amount: number) => void
   onItemFound?: (item: { image: string; name: string; type: string }) => void
   readOnly?: boolean
+  onTileRemove?: (tileId: string) => void
 }
 
 interface TileTimer {
@@ -61,7 +62,8 @@ export function KingdomGridWithTimers({
   onGridUpdate,
   onGoldEarned,
   onItemFound,
-  readOnly = false
+  readOnly = false,
+  onTileRemove,
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
@@ -1437,15 +1439,30 @@ export function KingdomGridWithTimers({
       const newGrid = [...grid];
       if (newGrid[y]) {
         newGrid[y] = [...newGrid[y]];
-        newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png', id: newGrid[y][x].id };
+        newGrid[y][x] = {
+          ...newGrid[y][x],
+          type: 'vacant',
+          name: 'Vacant Plot',
+          image: 'Vacant.png',
+          id: newGrid[y][x].id || `vacant-${x}-${y}`,
+          description: 'A vacant plot ready for building.',
+          connections: [], // Vacant has no connections
+          rotation: 0
+        } as Tile;
         if (onGridUpdate) onGridUpdate(newGrid);
       }
 
       // Update inventory (add 1)
-      updateTileQuantity(propertyDef.id, 1);
+      if (onTileRemove) {
+        onTileRemove(propertyDef.id);
+      } else {
+        // Fallback if prop not provided (try to update local state or warn)
+        console.warn('onTileRemove prop not provided, inventory not updated in UI');
+        // We can try to manually update if we have access to the store, but safer to rely on prop
+      }
 
       // Select it for immediate placement
-      handlePropertySelect(propertyDef);
+      handlePropertySelect(propertyDef as any);
 
       toast({
         title: "Moving Building",
@@ -1461,14 +1478,25 @@ export function KingdomGridWithTimers({
     const newGrid = [...grid];
     if (newGrid[y]) {
       newGrid[y] = [...newGrid[y]];
-      newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png', id: newGrid[y][x].id };
+      newGrid[y][x] = {
+        ...newGrid[y][x],
+        type: 'vacant',
+        name: 'Vacant Plot',
+        image: 'Vacant.png',
+        id: newGrid[y][x].id || `vacant-${x}-${y}`,
+        description: 'A vacant plot ready for building.',
+        connections: [],
+        rotation: 0
+      } as Tile;
       if (onGridUpdate) onGridUpdate(newGrid);
     }
 
     // Return to inventory
     const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name);
-    if (propertyDef) {
-      updateTileQuantity(propertyDef.id, 1);
+    if (propertyDef && onTileRemove) {
+      onTileRemove(propertyDef.id);
+    } else if (propertyDef) {
+      console.warn('onTileRemove prop not provided');
     }
 
     toast({
