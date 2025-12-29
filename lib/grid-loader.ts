@@ -302,6 +302,10 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
       cityName = `Town ${x}-${y}`;
     }
   }
+  let image = `/images/tiles/${type}-tile.png`;
+  if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.png';
+  if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
+
   return {
     id: `tile-${x}-${y}`,
     type,
@@ -314,7 +318,7 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
     x,
     y,
     ariaLabel: `${type} tile at position ${x},${y}`,
-    image: `/images/tiles/${type}-tile.png`,
+    image,
     isMainTile: false,
     isTown: false,
     cityName,
