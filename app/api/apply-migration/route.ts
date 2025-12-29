@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
     const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
-    
+
     if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json({ error: 'Missing Supabase configuration' }, { status: 500 });
     }
@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     // Read the migration file
     const fs = require('fs');
     const path = require('path');
-    const migrationPath = path.join(process.cwd(), 'supabase', 'migrations', '20250805000000_create_missing_tables.sql');
-    
+    const migrationPath = path.join(process.cwd(), 'supabase', 'migrations', '20251229_ensure_alliance_table.sql');
+
     if (!fs.existsSync(migrationPath)) {
       return NextResponse.json({ error: 'Migration file not found' }, { status: 500 });
     }

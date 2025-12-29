@@ -172,7 +172,9 @@ export async function GET(request: Request) {
     const result = await Promise.race([queryPromise, timeoutPromise]) as any;
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      const isAuthError = result.error?.includes('Authentication') || result.error?.includes('JWT');
+      const status = isAuthError ? 401 : 500;
+      return NextResponse.json({ error: result.error }, { status });
     }
 
     // Log debug info to server console instead of breaking the response structure
@@ -276,7 +278,9 @@ export async function PUT(request: Request) {
     });
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      const isAuthError = result.error?.includes('Authentication') || result.error?.includes('JWT');
+      const status = isAuthError ? 401 : 500;
+      return NextResponse.json({ error: result.error }, { status });
     }
 
     return NextResponse.json(result.data, {
