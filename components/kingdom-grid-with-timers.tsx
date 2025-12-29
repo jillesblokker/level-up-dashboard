@@ -1437,7 +1437,7 @@ export function KingdomGridWithTimers({
       const newGrid = [...grid];
       if (newGrid[y]) {
         newGrid[y] = [...newGrid[y]];
-        newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
+        newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png', id: newGrid[y][x].id };
         if (onGridUpdate) onGridUpdate(newGrid);
       }
 
@@ -1461,7 +1461,7 @@ export function KingdomGridWithTimers({
     const newGrid = [...grid];
     if (newGrid[y]) {
       newGrid[y] = [...newGrid[y]];
-      newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png' };
+      newGrid[y][x] = { ...newGrid[y][x], type: 'vacant', name: 'Vacant Plot', image: 'Vacant.png', id: newGrid[y][x].id };
       if (onGridUpdate) onGridUpdate(newGrid);
     }
 
