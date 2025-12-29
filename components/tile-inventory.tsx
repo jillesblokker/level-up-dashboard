@@ -56,7 +56,7 @@ const allPossibleTiles: InventoryItem[] = [
 const tileCategories = [
   {
     id: 'foundation',
-    name: 'Foundation Tiles',
+    name: 'Foundation & Roads',
     minLevel: 0,
     maxLevel: 20,
     description: 'Basic terrain and natural features',
