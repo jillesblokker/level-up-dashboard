@@ -588,6 +588,14 @@ function RealmPageContent() {
             if (!res.ok) throw new Error('Failed to delete tile');
 
             toast({ title: "💥 Devastated!", description: "The tile has been removed." });
+
+            if (originalTile.type === 'mountain') {
+                unlockAchievement({
+                    achievementId: '201',
+                    achievementName: 'Mountain Destroyer',
+                    description: 'Prove your power by destroying a mountain tile'
+                });
+            }
         } catch (err) {
             setGrid(prev => {
                 const next = [...prev];
