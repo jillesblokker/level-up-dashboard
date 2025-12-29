@@ -562,38 +562,48 @@ function RealmPageContent() {
         const newVal = current + 1;
         localStorage.setItem(key, newVal.toString());
 
+        // Helper to unlock both locally and on server
+        const unlock = (creatureId: string, name: string, description: string) => {
+            discoverCreature(creatureId);
+            unlockAchievement({
+                achievementId: creatureId,
+                achievementName: name,
+                description: description
+            });
+        };
+
         // Forest Destruction (Flamio line)
         if (action === 'destroy' && (tileType === 'forest' || tileType === 'tree')) {
-            if (newVal >= 1) discoverCreature('001'); // Flamio
-            if (newVal >= 5) discoverCreature('002'); // Embera
-            if (newVal >= 10) discoverCreature('003'); // Vulcana
+            if (newVal === 1) unlock('001', 'Flamio', 'A fiery creature awakened by any forest destruction.');
+            if (newVal === 5) unlock('002', 'Embera', 'A more powerful fire entity born from continued forest destruction.');
+            if (newVal === 10) unlock('003', 'Vulcana', 'The ultimate fire creature, master of forest destruction.');
         }
         // Mountain Destruction (Rockie line)
         if (action === 'destroy' && tileType === 'mountain') {
-            if (newVal >= 1) discoverCreature('010'); // Rockie
-            if (newVal >= 5) discoverCreature('011'); // Buldour
-            if (newVal >= 10) discoverCreature('012'); // Montano
+            if (newVal === 1) unlock('010', 'Rockie', 'A small rock creature that emerges from destroyed mountains.');
+            if (newVal === 5) unlock('011', 'Buldour', 'A stronger mountain spirit, born from continued destruction.');
+            if (newVal === 10) unlock('012', 'Montano', 'The ultimate mountain creature, master of destroyed peaks.');
         }
 
         // Placement Achievements
         if (action === 'place') {
             // Water (Dolphio line)
             if (tileType === 'water') {
-                if (newVal >= 1) discoverCreature('004'); // Dolphio
-                if (newVal >= 5) discoverCreature('005'); // Divero
-                if (newVal >= 10) discoverCreature('006'); // Flippur
+                if (newVal === 1) unlock('004', 'Dolphio', 'A playful water creature that appears when expanding water territories.');
+                if (newVal === 5) unlock('005', 'Divero', 'A more experienced water dweller, guardian of expanding waters.');
+                if (newVal === 10) unlock('006', 'Flippur', 'The supreme water creature, master of vast water territories.');
             }
             // Forest (Leaf line)
             if (tileType === 'forest' || tileType === 'tree' || tileType === 'grass') {
-                if (newVal >= 1) discoverCreature('007'); // Leaf
-                if (newVal >= 5) discoverCreature('008'); // Oaky
-                if (newVal >= 10) discoverCreature('009'); // Seqoio
+                if (newVal === 1) unlock('007', 'Leaf', 'A small grass creature that appears when planting new forests.');
+                if (newVal === 5) unlock('008', 'Oaky', 'A stronger forest guardian, protector of growing woodlands.');
+                if (newVal === 10) unlock('009', 'Seqoio', 'The mighty forest spirit, overseer of vast woodlands.');
             }
             // Ice (Icey line)
             if (tileType === 'ice' || tileType === 'snow') {
-                if (newVal >= 1) discoverCreature('013'); // Icey
-                if (newVal >= 5) discoverCreature('014'); // Blizzey
-                if (newVal >= 10) discoverCreature('015'); // Hailey
+                if (newVal === 1) unlock('013', 'Icey', 'A small ice creature that appears in frozen territories.');
+                if (newVal === 5) unlock('014', 'Blizzey', 'A powerful ice spirit, master of frozen landscapes.');
+                if (newVal === 10) unlock('015', 'Hailey', 'The supreme ice creature, ruler of vast frozen realms.');
             }
         }
     };
