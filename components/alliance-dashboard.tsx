@@ -214,9 +214,12 @@ export function AllianceDashboard() {
                             </CardHeader>
                             <CardContent>
                                 <div className="flex justify-between items-center mt-2">
-                                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                                        <Flame className="w-4 h-4 text-orange-500" />
-                                        <span>Daily Oath</span>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                                            <Flame className="w-4 h-4 text-orange-500" />
+                                            <span>Daily Oath</span>
+                                        </div>
+                                        <span className="text-[10px] text-amber-500/70 ml-6">+50 XP • +10 Gold</span>
                                     </div>
                                     <div className="flex gap-2">
                                         <Button

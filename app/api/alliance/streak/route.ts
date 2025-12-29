@@ -61,7 +61,30 @@ export async function POST(req: NextRequest) {
 
             if (error) throw error;
 
-            return data;
+            // 3. Grant Rewards (50 XP, 10 Gold per check-in)
+            const REWARD_XP = 50;
+            const REWARD_GOLD = 10;
+
+            const { error: statsError } = await supabase.rpc('increment_stats', {
+                p_user_id: userId,
+                p_xp: REWARD_XP,
+                p_gold: REWARD_GOLD
+            });
+
+            // Fallback if RPC doesn't exist, try direct update (less safe strictly speaking but works for now)
+            if (statsError) {
+                // Fetch current first
+                const { data: stats } = await supabase.from('character_stats').select('experience, gold').eq('user_id', userId).single();
+                if (stats) {
+                    await supabase.from('character_stats').update({
+                        experience: (stats.experience || 0) + REWARD_XP,
+                        gold: (stats.gold || 0) + REWARD_GOLD,
+                        updated_at: new Date().toISOString()
+                    }).eq('user_id', userId);
+                }
+            }
+
+            return { ...data, reward: { xp: REWARD_XP, gold: REWARD_GOLD } };
         });
 
         if (!result.success) {
