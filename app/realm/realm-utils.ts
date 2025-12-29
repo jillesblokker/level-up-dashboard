@@ -6,22 +6,28 @@ export const EXPANSION_INCREMENT = 3;
 export const AUTOSAVE_INTERVAL = 30000;
 export const INITIAL_POS = { x: 6, y: 3 };
 
-export const defaultTile = (type: TileType): Tile => ({
-    id: type,
-    name: type.charAt(0).toUpperCase() + type.slice(1),
-    description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
-    type,
-    connections: [],
-    rotation: 0,
-    revealed: true,
-    isVisited: false,
-    x: 0,
-    y: 0,
-    ariaLabel: `${type} tile`,
-    image: `/images/tiles/${type}-tile.png`,
-    cost: 0,
-    quantity: 0
-});
+export const defaultTile = (type: TileType): Tile => {
+    let image = `/images/tiles/${type}-tile.png`;
+    if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.png';
+    if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
+
+    return {
+        id: type,
+        name: type.charAt(0).toUpperCase() + type.slice(1),
+        description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
+        type,
+        connections: [],
+        rotation: 0,
+        revealed: true,
+        isVisited: false,
+        x: 0,
+        y: 0,
+        ariaLabel: `${type} tile`,
+        image,
+        cost: 0,
+        quantity: 0
+    };
+};
 
 export const initialInventory: Record<TileType, Tile> = {
     grass: { ...defaultTile('grass'), cost: 25, owned: 10 },

@@ -303,6 +303,9 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       kt.name.toLowerCase() === tileName.toLowerCase() ||
       kt.name.toLowerCase().replace(' ', '') === tileName.toLowerCase()
     );
+    if (!kingdomTileConfig && (tileName === 'Crossroad' || tileName === 'Straightroad')) {
+      console.warn(`[KingdomClient] Could not find config for ${tileName}. KINGDOM_TILES has:`, KINGDOM_TILES.map(t => t.name));
+    }
 
     return {
       id: `kingdom-tile-${idx}`,
