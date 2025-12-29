@@ -1444,7 +1444,7 @@ export function KingdomGridWithTimers({
           type: 'vacant',
           name: 'Vacant Plot',
           image: 'Vacant.png',
-          id: newGrid[y][x].id || `vacant-${x}-${y}`,
+          id: newGrid[y][x]?.id || `vacant-${x}-${y}`,
           description: 'A vacant plot ready for building.',
           connections: [], // Vacant has no connections
           rotation: 0
@@ -1483,7 +1483,7 @@ export function KingdomGridWithTimers({
         type: 'vacant',
         name: 'Vacant Plot',
         image: 'Vacant.png',
-        id: newGrid[y][x].id || `vacant-${x}-${y}`,
+        id: newGrid[y][x]?.id || `vacant-${x}-${y}`,
         description: 'A vacant plot ready for building.',
         connections: [],
         rotation: 0
