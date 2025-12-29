@@ -20,7 +20,7 @@ import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useAudioContext } from "@/components/audio-provider";
 
-import { NotificationsBell } from "@/components/notifications-bell";
+
 
 export function UserNav() {
   const { user, isLoaded } = useUser();
@@ -65,7 +65,7 @@ export function UserNav() {
         setIsOpen(open);
       }}>
         <div className="flex items-center gap-2">
-          <NotificationsBell />
+
 
           <DropdownMenuTrigger asChild>
             <Button

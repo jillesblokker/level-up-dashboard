@@ -82,9 +82,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     if (isServer) {
       try {
         await fetch('/api/notifications', {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, action: 'mark_read' })
+          body: JSON.stringify({ notificationIds: [id] })
         });
         fetchServerNotifications();
       } catch (error) {
@@ -100,9 +100,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     try {
       // Server
       await fetch('/api/notifications', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'mark_all_read' })
+        body: JSON.stringify({ notificationIds: 'all' })
       });
       fetchServerNotifications();
 
