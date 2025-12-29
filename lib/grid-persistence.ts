@@ -45,6 +45,11 @@ const tileTypeToNumeric: Record<TileType, number> = {
   jousting: 36,
   mansion: 37,
   mayor: 38,
+  'streak-scroll': 39,
+  farm: 40,
+  lumber_mill: 41,
+  market: 42,
+  cottage: 43,
 };
 
 // Convert numeric value back to tile type
@@ -129,7 +134,7 @@ export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | n
       return null;
     }
 
-          // Removed debugging log
+    // Removed debugging log
     return data.grid.map((row: number[], y: number) =>
       row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
     );
@@ -173,7 +178,7 @@ export async function saveGridToSupabase(userId: string, grid: Tile[][]): Promis
       throw new Error('Failed to save grid to API');
     }
 
-          // Removed debugging log
+    // Removed debugging log
   } catch (error) {
     console.error('[Grid Persistence] Error saving grid:', error);
     throw error;
