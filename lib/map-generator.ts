@@ -104,7 +104,7 @@ export class MapGenerator {
   private determineTerrainType(x: number, y: number, adjacentTiles: Tile[][]): TileType {
     // Get adjacent tiles
     const adjacent = this.getAdjacentTiles(x, y, adjacentTiles);
-    
+
     // Count adjacent tile types
     const typeCounts = adjacent.reduce((counts, tile) => {
       if (tile && tile.type !== "empty") {
@@ -116,7 +116,7 @@ export class MapGenerator {
     // Determine most common adjacent type
     let mostCommonType: TileType = "grass";
     let maxCount = 0;
-    
+
     for (const [type, count] of Object.entries(typeCounts)) {
       if (count > maxCount) {
         maxCount = count;
@@ -189,7 +189,12 @@ export class MapGenerator {
       inn: 'Inn',
       jousting: 'Jousting Arena',
       mansion: 'Mansion',
-      mayor: 'Mayor\'s Office'
+      mayor: 'Mayor\'s Office',
+      'streak-scroll': 'Streak Freeze Scroll',
+      farm: 'Farm',
+      lumber_mill: 'Lumber Mill',
+      market: 'Marketplace',
+      cottage: 'Cottage'
     };
 
     const tileDescriptions = {
@@ -233,7 +238,12 @@ export class MapGenerator {
       inn: 'A place for travelers to rest and eat',
       jousting: 'An arena for knightly tournaments',
       mansion: 'A luxurious residence for the wealthy',
-      mayor: 'The administrative center of the town'
+      mayor: 'The administrative center of the town',
+      'streak-scroll': 'A magical scroll that freezes your streak',
+      farm: 'A fertile farm for growing crops',
+      lumber_mill: 'A facility for processing timber',
+      market: 'A bustling marketplace for trading',
+      cottage: 'A cozy cottage for residents'
     };
 
     const tileImages = {
@@ -277,7 +287,12 @@ export class MapGenerator {
       inn: '/images/kingdom-tiles/Inn.png',
       jousting: '/images/kingdom-tiles/Jousting.png',
       mansion: '/images/kingdom-tiles/Mansion.png',
-      mayor: '/images/kingdom-tiles/Mayor.png'
+      mayor: '/images/kingdom-tiles/Mayor.png',
+      'streak-scroll': '/images/tiles/streak-scroll-tile.png',
+      farm: '/images/kingdom-tiles/Farm.png',
+      lumber_mill: '/images/kingdom-tiles/LumberMill.png',
+      market: '/images/kingdom-tiles/Market.png',
+      cottage: '/images/kingdom-tiles/Cottage.png'
     };
 
     return {
