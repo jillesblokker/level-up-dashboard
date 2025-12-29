@@ -1006,13 +1006,15 @@ export function KingdomGridWithTimers({
 
     // If we are moving, clear the OLD spot first (unless it's the same spot)
     if (movingTileSource && !isMovingToSource) {
-      if (updatedGrid[movingTileSource.y]) {
-        updatedGrid[movingTileSource.y][movingTileSource.x] = {
-          ...updatedGrid[movingTileSource.y][movingTileSource.x],
+      const srcY = movingTileSource.y;
+      const srcX = movingTileSource.x;
+      if (updatedGrid[srcY] && updatedGrid[srcY][srcX]) {
+        updatedGrid[srcY][srcX] = {
+          ...updatedGrid[srcY][srcX],
           type: 'vacant',
           name: 'Vacant Plot',
           image: 'Vacant.png',
-          id: updatedGrid[movingTileSource.y][movingTileSource.x]?.id || `vacant-${movingTileSource.x}-${movingTileSource.y}`,
+          id: updatedGrid[srcY][srcX]?.id || `vacant-${srcX}-${srcY}`,
           description: 'A vacant plot ready for building.',
           connections: [],
           rotation: 0
