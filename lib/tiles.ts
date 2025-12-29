@@ -42,6 +42,11 @@ export function getTileName(type: TileType): string {
     jousting: 'Jousting',
     mansion: 'Mansion',
     mayor: 'Mayor',
+    'streak-scroll': 'Streak Scroll',
+    farm: 'Farm',
+    lumber_mill: 'Lumber Mill',
+    market: 'Market',
+    cottage: 'Cottage',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -88,6 +93,11 @@ export function getDefaultConnections(type: TileType): string[] {
     jousting: ['grass'],
     mansion: ['grass'],
     mayor: ['grass'],
+    'streak-scroll': [],
+    farm: ['grass'],
+    lumber_mill: ['forest', 'grass'],
+    market: ['grass', 'city', 'town'],
+    cottage: ['grass'],
   };
   return defaultConnections[type] || [];
 } 
