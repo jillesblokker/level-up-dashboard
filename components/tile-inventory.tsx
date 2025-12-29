@@ -338,9 +338,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             <TabsTrigger
               value="guide"
               className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
-              aria-label="Synergy Guide"
             >
-              <Info className="w-4 h-4" />
+              Synergy Guide
             </TabsTrigger>
           </TabsList>
         </div>

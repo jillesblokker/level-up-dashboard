@@ -1484,6 +1484,17 @@ function RealmPageContent() {
                                     >
                                         Collect Taxes
                                     </Button>
+                                    <div className="text-center">
+                                        <button
+                                            onClick={() => {
+                                                setInventoryTab('guide');
+                                                setShowInventory(true);
+                                            }}
+                                            className="text-[10px] text-amber-500/70 hover:text-amber-400 underline decoration-dotted transition-colors"
+                                        >
+                                            How to earn more? (Synergies)
+                                        </button>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
