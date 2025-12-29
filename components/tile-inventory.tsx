@@ -341,12 +341,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             >
               Buy Tiles
             </TabsTrigger>
-            <TabsTrigger
-              value="guide"
-              className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
-            >
-              Synergy Guide
-            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -888,7 +882,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             </div>
           </ScrollArea>
         </TabsContent>
-      </Tabs >
+
+        <TabsContent value="guide" className="hidden">
+          {/* Legacy: Guide moved to Kingdom Rewards page */}
+        </TabsContent>
+      </Tabs>
     </>
   )
 }
