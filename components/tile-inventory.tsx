@@ -606,9 +606,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     {tile.quantity}
                                   </div>
                                   {userLevelValue < category.minLevel && (
-                                    <span className="absolute top-2 left-2 bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Locked tile badge">
-                                      🔒 Lvl {category.minLevel}
-                                    </span>
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-10">
+                                      <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full shadow-lg">
+                                        🔒 Lvl {category.minLevel}
+                                      </span>
+                                    </div>
                                   )}
                                   {tile.quantity === 0 && userLevelValue >= category.minLevel && category.id !== 'rare' && (
                                     <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
@@ -764,6 +766,113 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   </div>
                 </div>
 
+                {/* Water Users (Well, Fountain, Fisherman) */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-blue-900 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/fountain-tile.png" alt="Fountain" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Water Buildings</h4>
+                      <div className="text-xs text-gray-400 mb-1">
+                        Includes: <span className="text-gray-300">Fountain, Well, Fisherman</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <Droplets className="w-4 h-4 text-blue-400" />
+                        <span>Needs: <span className="text-blue-400 font-semibold">Water</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        <span className="text-green-400 font-bold">+20% Gold</span> when placed next to any Water tile.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Blacksmith Synergy */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-orange-900 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/blacksmith-tile.png" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Blacksmith</h4>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <Mountain className="w-4 h-4 text-gray-400" />
+                        <span>Needs: <span className="text-red-500 font-semibold">Mountain / Lava</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        <span className="text-green-400 font-bold">+25% Gold</span> when placed near Mountains or Lava for forge heat.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Commercial Synergy (Inn, Bakery, Grocery, Foodcourt) */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-amber-700 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/inn-tile.png" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Shops & Inns</h4>
+                      <div className="text-xs text-gray-400 mb-1">
+                        Includes: <span className="text-gray-300">Inn, Bakery, Grocery, Foodcourt</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <Home className="w-4 h-4 text-yellow-500" />
+                        <span>Needs: <span className="text-yellow-200 font-semibold">Residents</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        <span className="text-green-400 font-bold">+10% Gold</span> for EACH neighboring House, Mansion, or City.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Magic & Study (Library, Wizard) */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-purple-900 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/wizard-tile.png" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Magic & Study</h4>
+                      <div className="text-xs text-gray-400 mb-1">
+                        Includes: <span className="text-gray-300">Library, Wizard Tower</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <MapPin className="w-4 h-4 text-blue-300" />
+                        <span>Needs: <span className="text-blue-300 font-semibold">Quiet (Ice / Mountain)</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        <span className="text-green-400 font-bold">+30% Gold</span> when placed in secluded areas like Ice or Mountains.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Farming (Vegetables, Pumpkin Patch) */}
+                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-green-800 p-2 rounded-lg shrink-0">
+                      <Image src="/images/tiles/vegetables-tile.png" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-200">Crops</h4>
+                      <div className="text-xs text-gray-400 mb-1">
+                        Includes: <span className="text-gray-300">Vegetables, Pumpkin Patch</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                        <Trees className="w-4 h-4 text-green-500" />
+                        <span>Needs: <span className="text-green-600 font-semibold">Grass / Water</span></span>
+                      </div>
+                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                        <span className="text-green-400 font-bold">+15% Gold</span> on fertile Grass or near Water.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="mt-8 text-center">
                   <p className="text-xs text-amber-600 italic">
                     More synergies may be discovered as you level up!
@@ -774,7 +883,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             </div>
           </ScrollArea>
         </TabsContent>
-      </Tabs>
+      </Tabs >
     </>
   )
 }

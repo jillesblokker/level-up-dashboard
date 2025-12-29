@@ -115,6 +115,51 @@ export function KingdomGridWithTimers({
       } else {
         reason = 'A Castle looks best with open space.';
       }
+    } else if (tileType === 'well' || tileType === 'fountain' || tileType === 'fisherman') {
+      if (neighbors.some(n => n?.type === 'water')) {
+        score = 'good';
+        reason = 'Flowing Gold! +20% Gold (Water nearby)';
+      } else {
+        reason = 'Tip: Place near Water for bonus gold';
+      }
+    } else if (tileType === 'blacksmith') {
+      if (neighbors.some(n => n?.type === 'mountain' || n?.type === 'lava')) {
+        score = 'good';
+        reason = 'Forged in Fire! +25% Gold (Mountain/Lava nearby)';
+      } else {
+        reason = 'Tip: Place near Mountain or Lava for better forge heat';
+      }
+    } else if (tileType === 'sawmill') {
+      if (neighbors.some(n => n?.type === 'forest')) {
+        score = 'good';
+        reason = 'Efficient Cutting! +20% Gold (Forest nearby)';
+      } else {
+        reason = 'Tip: Place near Forest for bonus gold';
+      }
+    } else if (tileType === 'library' || tileType === 'wizard') {
+      if (neighbors.some(n => n?.type === 'ice' || n?.type === 'mountain')) {
+        score = 'good';
+        reason = 'Quiet Study! +30% Gold (Ice/Mountain nearby)';
+      } else {
+        reason = 'Tip: Place in quiet areas (Ice/Mountain) for focus';
+      }
+    } else if (['inn', 'bakery', 'grocery', 'foodcourt'].includes(tileType)) {
+      const residentCount = neighbors.filter(n =>
+        n?.type === 'house' || n?.type === 'mansion' || n?.type === 'cottage' || n?.type === 'town' || n?.type === 'city'
+      ).length;
+      if (residentCount > 0) {
+        score = 'good';
+        reason = `Bustling! +${10 * residentCount}% Gold (Near residents)`;
+      } else {
+        reason = 'Tip: Place near Residents for bonus gold';
+      }
+    } else if (['vegetables', 'pumpkin_patch'].includes(tileType)) {
+      if (neighbors.some(n => n?.type === 'water' || n?.type === 'grass')) {
+        score = 'good';
+        reason = 'Fertile Soil! +15% Gold (Water/Grass nearby)';
+      } else {
+        reason = 'Tip: Needs Water or Grass for better crops';
+      }
     } else {
       // Default for other buildings
       reason = `Place ${tileType.replace('_', ' ')} here.`;
