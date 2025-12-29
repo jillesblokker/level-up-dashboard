@@ -69,6 +69,7 @@ export function KingdomGridWithTimers({
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
+  const [movingTileSource, setMovingTileSource] = useState<{ x: number, y: number } | null>(null)
 
   // Helper to calculate placement score for hints
   const getPlacementHint = (x: number, y: number, tileType: string) => {
@@ -969,7 +970,10 @@ export function KingdomGridWithTimers({
     const targetTile = grid[y]?.[x]
     // Removed debugging log
 
-    if (!targetTile || (targetTile.type !== 'vacant' && targetTile.type !== 'empty')) {
+    // Allow placement on vacant tiles OR if we are moving to the same spot (effectively resetting)
+    const isMovingToSource = movingTileSource && movingTileSource.x === x && movingTileSource.y === y;
+
+    if (!targetTile || ((targetTile.type !== 'vacant' && targetTile.type !== 'empty') && !isMovingToSource)) {
       toast({
         title: 'Invalid Placement',
         description: 'You can only place properties on vacant tiles.',
@@ -980,7 +984,7 @@ export function KingdomGridWithTimers({
 
     // Create the new kingdom tile
     const newTile: Tile = {
-      id: `${selectedProperty.id}-${x}-${y}`,
+      id: isMovingToSource && targetTile.id ? targetTile.id : `${selectedProperty.id}-${x}-${y}`,
       name: selectedProperty.name,
       description: `A ${selectedProperty.name.toLowerCase()} building`,
       type: selectedProperty.id as TileType,
@@ -999,6 +1003,23 @@ export function KingdomGridWithTimers({
     // IMPORTANT: Update the local grid state directly instead of using onTilePlace
     // This prevents the property from being treated as an inventory item
     const updatedGrid = grid.map(row => row.slice())
+
+    // If we are moving, clear the OLD spot first (unless it's the same spot)
+    if (movingTileSource && !isMovingToSource) {
+      if (updatedGrid[movingTileSource.y]) {
+        updatedGrid[movingTileSource.y][movingTileSource.x] = {
+          ...updatedGrid[movingTileSource.y][movingTileSource.x],
+          type: 'vacant',
+          name: 'Vacant Plot',
+          image: 'Vacant.png',
+          id: updatedGrid[movingTileSource.y][movingTileSource.x]?.id || `vacant-${movingTileSource.x}-${movingTileSource.y}`,
+          description: 'A vacant plot ready for building.',
+          connections: [],
+          rotation: 0
+        } as Tile;
+      }
+    }
+
     if (updatedGrid[y]) {
       updatedGrid[y][x] = newTile
       // Removed debugging log
@@ -1012,8 +1033,8 @@ export function KingdomGridWithTimers({
       // Removed debugging log
     }
 
-    // Decrease property quantity for build-token-based properties
-    if (selectedProperty.costType === 'build-token') {
+    // Decrease property quantity ONLY if NOT moving
+    if (!movingTileSource && selectedProperty.costType === 'build-token') {
       const updatedInventory = propertyInventory.map(p =>
         p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
       )
@@ -1029,9 +1050,12 @@ export function KingdomGridWithTimers({
         })()
     }
 
-    // Start timer for the new property based on reward value
+    // Start timer for the new property based on reward value (only if new place, or maybe preserve timer if moved?)
+    // For now, restarting timer is acceptable for "Moving" as penalty/reset, unless we want to preserve it.
+    // Preserving timer would require reading old timer state. 
+    // Let's restart for simplicity as per original implementation, unless requested otherwise.
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === selectedProperty.id.toLowerCase())
-    const timerDuration = kingdomTile ? kingdomTile.timerMinutes * 60 * 1000 : 5 * 60 * 1000 // Use property-specific timer or default to 5 minutes
+    const timerDuration = kingdomTile ? kingdomTile.timerMinutes * 60 * 1000 : 5 * 60 * 1000
 
     const newTimer: TileTimer = {
       x,
@@ -1041,11 +1065,30 @@ export function KingdomGridWithTimers({
       isReady: false
     }
 
-    setTileTimers(prev => [...prev, newTimer])
+    // If we are moving, we should remove the OLD timer
+    let finalTimers = [...tileTimers];
+    if (movingTileSource) {
+      finalTimers = finalTimers.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y)
+    }
+
+    // Add new timer
+    finalTimers = [...finalTimers, newTimer];
+
+    setTileTimers(finalTimers)
       // Persist timer to API
       ; (async () => {
         try {
           const endIso = new Date(newTimer.endTime).toISOString()
+          // If moved, we might want to delete old timer record too? 
+          // The API might handle it by x/y overwrite if we just write the new one.
+          // But the OLD x/y still has a timer record? Ideally we should delete it.
+          if (movingTileSource && !isMovingToSource) {
+            // We don't have a direct delete-timer API endpoint exposed easily here, 
+            // but we can overwrite it with "vacant" or just let it rot? 
+            // Or better, since the tile type at old X,Y is now Vacant, the timer won't be used.
+            // We can rely on that.
+          }
+
           await fetchAuthRetry('/api/property-timers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1059,6 +1102,7 @@ export function KingdomGridWithTimers({
     // Reset placement mode
     setSelectedProperty(null)
     setPlacementMode(false)
+    setMovingTileSource(null) // Clear moving state
 
     toast({
       title: 'Property Placed!',
@@ -1072,6 +1116,7 @@ export function KingdomGridWithTimers({
       if (event.key === 'Escape' && placementMode) {
         setSelectedProperty(null)
         setPlacementMode(false)
+        setMovingTileSource(null) // Clear moving state if present
         toast({
           title: 'Placement Cancelled',
           description: 'Property placement has been cancelled.',
@@ -1435,38 +1480,18 @@ export function KingdomGridWithTimers({
       // 3. Update inventory temporarily or just relying on "swap" logic? 
       // Simpler: Just delete it first (add to inv), then select it.
 
-      // Update grid to remove it
-      const newGrid = [...grid];
-      if (newGrid[y]) {
-        newGrid[y] = [...newGrid[y]];
-        newGrid[y][x] = {
-          ...newGrid[y][x],
-          type: 'vacant',
-          name: 'Vacant Plot',
-          image: 'Vacant.png',
-          id: newGrid[y][x]?.id || `vacant-${x}-${y}`,
-          description: 'A vacant plot ready for building.',
-          connections: [], // Vacant has no connections
-          rotation: 0
-        } as Tile;
-        if (onGridUpdate) onGridUpdate(newGrid);
-      }
 
-      // Update inventory (add 1)
-      if (onTileRemove) {
-        onTileRemove(propertyDef.id);
-      } else {
-        // Fallback if prop not provided (try to update local state or warn)
-        console.warn('onTileRemove prop not provided, inventory not updated in UI');
-        // We can try to manually update if we have access to the store, but safer to rely on prop
-      }
+      // Store the source position and start placement mode WITHOUT removing old tile yet
+      setMovingTileSource({ x, y });
 
-      // Select it for immediate placement
-      handlePropertySelect(propertyDef as any);
+      // Select it for placement directly, bypassing quantity checks
+      setSelectedProperty(propertyDef as any);
+      setPlacementMode(true);
+      setPropertiesOpen(false);
 
       toast({
         title: "Moving Building",
-        description: `Select a new location for ${tile.name}`,
+        description: `Select a new location for ${tile.name}. Press ESC to cancel.`,
       });
     }
   };
