@@ -10,6 +10,7 @@ import { gainGold } from '@/lib/gold-manager'
 import { addToCharacterStat } from '@/lib/character-stats-service'
 import { toast } from '@/components/ui/use-toast'
 import Image from 'next/image'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -199,8 +200,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     gainGold(-lostGold, 'monster-battle-loss')
 
     toast({
-      title: "Round Failed!",
-      description: `You lost ${lostGold} gold! Try to remember the sequence better.`,
+      title: TEXT_CONTENT.monsterBattle.roundFailed.title,
+      description: TEXT_CONTENT.monsterBattle.roundFailed.description.replace('{lostGold}', lostGold.toString()),
       variant: "destructive",
     })
 
@@ -258,26 +259,21 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     }
 
     // Show improved thematic victory message based on monster type
-    const monsterVictoryMessages = {
-      '201': { title: "🐉 Dragon Slayer!", description: `After an epic Simon Says battle, you have vanquished the Ancient Dragon Dragoni and earned ${earnedGold} gold and ${earnedXP} XP for your legendary victory!` },
-      '202': { title: "👹 Goblin Hunter!", description: `After a quick Simon Says battle, you have defeated the Crafty Goblin Orci and earned ${earnedGold} gold and ${earnedXP} XP for your swift victory!` },
-      '203': { title: "🧌 Troll Crusher!", description: `After a challenging Simon Says battle, you have crushed the Mountain Troll Trollie and earned ${earnedGold} gold and ${earnedXP} XP for your mighty victory!` },
-      '204': { title: "🧙 Dark Wizard Vanquished!", description: `After an intense Simon Says battle, you have vanquished the Dark Wizard Sorceror and earned ${earnedGold} gold and ${earnedXP} XP for your magical victory!` },
-      '205': { title: "🦄 Pegasus Tamed!", description: `After a mystical Simon Says battle, you have tamed the Mystical Pegasus Peggie and earned ${earnedGold} gold and ${earnedXP} XP for your enchanting victory!` },
-      '206': { title: "🧚 Fairy Friend!", description: `After a delightful Simon Says battle, you have befriended the Enchanted Fairy Fairiel and earned ${earnedGold} gold and ${earnedXP} XP for your charming victory!` }
-    };
+    const message = TEXT_CONTENT.monsterBattle.victories[monster.achievementId as keyof typeof TEXT_CONTENT.monsterBattle.victories];
 
-    const message = monsterVictoryMessages[monster.achievementId as keyof typeof monsterVictoryMessages];
     if (message) {
       toast({
         title: message.title,
-        description: message.description,
+        description: message.description.replace('{earnedGold}', earnedGold.toString()).replace('{earnedXP}', earnedXP.toString()),
       });
     } else {
       // Fallback for unknown monsters
       toast({
-        title: "Victory!",
-        description: `You defeated the ${monster.name}! Earned ${earnedGold} gold and ${earnedXP} XP! Achievement unlocked!`,
+        title: TEXT_CONTENT.monsterBattle.genericVictory.title,
+        description: TEXT_CONTENT.monsterBattle.genericVictory.description
+          .replace('{monsterName}', monster.name)
+          .replace('{earnedGold}', earnedGold.toString())
+          .replace('{earnedXP}', earnedXP.toString()),
       });
     }
 
@@ -291,8 +287,10 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     setGameState('lost')
 
     toast({
-      title: "Defeat!",
-      description: `The ${monster.name} was too strong! You lost ${goldLost} gold total.`,
+      title: TEXT_CONTENT.monsterBattle.defeat.title,
+      description: TEXT_CONTENT.monsterBattle.defeat.description
+        .replace('{monsterName}', monster.name)
+        .replace('{goldLost}', goldLost.toString()),
       variant: "destructive",
     })
 
@@ -309,10 +307,12 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       <Card className="monster-battle-container w-full max-w-2xl bg-gray-900 border-amber-800/30 text-white transition-all duration-300">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-400">
-            Battle Against {monster.name}
+            {TEXT_CONTENT.monsterBattle.ui.battleAgainst.replace('{monsterName}', monster.name)}
           </CardTitle>
           <div className="text-sm text-gray-400">
-            Round {currentRound}/5 • Difficulty: {monster.difficulty}
+            {TEXT_CONTENT.monsterBattle.ui.roundDifficulty
+              .replace('{round}', currentRound.toString())
+              .replace('{difficulty}', monster.difficulty)}
           </div>
         </CardHeader>
 
@@ -344,7 +344,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Progress</span>
+              <span>{TEXT_CONTENT.monsterBattle.ui.progress}</span>
               <span>{currentRound}/5</span>
             </div>
             <Progress value={(currentRound / 5) * 100} className="h-2" />
@@ -354,22 +354,22 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           <div className="text-center">
             {isShowingSequence && (
               <div className="text-amber-400 font-bold text-lg animate-pulse">
-                👀 Watch the sequence carefully... ({currentSequenceIndex}/{sequence.length})
+                {TEXT_CONTENT.monsterBattle.ui.watchSequence} ({currentSequenceIndex}/{sequence.length})
               </div>
             )}
             {isPlayerTurn && !isShowingSequence && (
               <div className="text-amber-400 font-bold">
-                Your turn! Repeat the sequence ({playerSequence.length}/{sequence.length})
+                {TEXT_CONTENT.monsterBattle.ui.yourTurn} ({playerSequence.length}/{sequence.length})
               </div>
             )}
             {gameState === 'won' && (
               <div className="text-amber-400 font-bold text-xl">
-                🎉 Victory! You defeated the monster!
+                {TEXT_CONTENT.monsterBattle.ui.victory}
               </div>
             )}
             {gameState === 'lost' && (
               <div className="text-red-400 font-bold text-xl">
-                💀 Defeat! The monster was too strong!
+                {TEXT_CONTENT.monsterBattle.ui.defeat}
               </div>
             )}
           </div>
@@ -399,7 +399,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           {isPlayerTurn && (
             <div className="text-center">
               <div className="text-sm text-gray-400 mb-2">
-                Your sequence: {playerSequence.length}/{sequence.length}
+                {TEXT_CONTENT.monsterBattle.ui.yourSequence
+                  .replace('{current}', playerSequence.length.toString())
+                  .replace('{total}', sequence.length.toString())}
               </div>
               <div className="flex justify-center gap-2">
                 {playerSequence.map((item, index) => (
@@ -427,7 +429,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               variant="outline"
               className="border-amber-800 text-amber-400 hover:bg-amber-800"
             >
-              Close Battle
+              {TEXT_CONTENT.monsterBattle.ui.closeBattle}
             </Button>
           </div>
         </CardContent>
