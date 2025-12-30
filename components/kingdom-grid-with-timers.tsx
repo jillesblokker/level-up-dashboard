@@ -1801,7 +1801,7 @@ export function KingdomGridWithTimers({
                 )}
 
                 {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
-                {isKingdomTile && timer && (
+                {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
                   <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
                     <div className={cn(
                       "text-xs px-2 py-1 rounded text-center font-mono",
