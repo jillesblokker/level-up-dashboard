@@ -24,20 +24,23 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
   // Extract placed tiles from kingdom grid and get their timers
   useEffect(() => {
     if (kingdomGrid && kingdomGrid.length > 0) {
-      // Find all non-empty tiles in the kingdom grid
+      // Find all non-empty tiles in the kingdom grid that generate rewards
       const placed = KINGDOM_TILES.filter(tile => {
+        // Exclude tiles that don't generate rewards (timerMinutes === 0)
+        if (tile.timerMinutes === 0) return false;
+
         // Check if this tile type exists anywhere in the kingdom grid
-        return kingdomGrid.some(row => 
-          row.some(cell => 
+        return kingdomGrid.some(row =>
+          row.some(cell =>
             cell && cell.type && cell.type !== 'empty' && cell.type.toLowerCase() === tile.id
           )
         )
       });
-      
+
       // If no tiles are found in the grid, show default tiles
       if (placed.length === 0) {
         // Show default kingdom tiles that should always be available
-        const defaultTiles = KINGDOM_TILES.filter(tile => 
+        const defaultTiles = KINGDOM_TILES.filter(tile =>
           ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower'].includes(tile.id)
         );
         setPlacedTiles(defaultTiles);
@@ -46,7 +49,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
       }
     } else {
       // If no kingdom grid is provided, show default tiles
-      const defaultTiles = KINGDOM_TILES.filter(tile => 
+      const defaultTiles = KINGDOM_TILES.filter(tile =>
         ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower'].includes(tile.id)
       );
       setPlacedTiles(defaultTiles);
@@ -59,7 +62,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
     if (savedTimers) {
       const timers = JSON.parse(savedTimers)
       // Update tile states based on actual timers
-      setPlacedTiles(prev => 
+      setPlacedTiles(prev =>
         prev.map(tile => {
           const timer = timers.find((t: any) => t.tileId === tile.id)
           return {
@@ -142,7 +145,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
               <Badge variant="outline">{placedTiles.length}</Badge>
             </div>
           </div>
-          
+
           {/* Desktop Layout - Horizontal */}
           <div className="hidden sm:flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -176,7 +179,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
             const savedTimers = localStorage.getItem('kingdom-tile-timers')
             const timers = savedTimers ? JSON.parse(savedTimers) : []
             const timer = timers.find((t: any) => t.tileId === tile.id)
-            
+
             return (
               <div key={tile.id} className="relative">
                 <KingdomTileComponent
@@ -185,7 +188,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                   timer={timer}
                 />
                 {/* Rarity Badge */}
-                <Badge 
+                <Badge
                   className={`absolute top-2 right-2 text-xs ${getRarityColor(tile.rarity)}`}
                 >
                   {tile.rarity}
@@ -212,8 +215,8 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                       src={item.image}
                       alt={item.name}
                       className="object-contain w-full h-full"
-                      onError={(e) => { 
-                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg' 
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg'
                       }}
                     />
                   </div>
@@ -224,7 +227,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                 </div>
               ))}
             </div>
-            
+
             {/* Desktop Layout - Horizontal Grid */}
             <div className="hidden sm:flex flex-wrap gap-2">
               {itemsFound.slice(-6).map((item, index) => (
@@ -234,8 +237,8 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                       src={item.image}
                       alt={item.name}
                       className="object-contain w-full h-full"
-                      onError={(e) => { 
-                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg' 
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/placeholders/item-placeholder.svg'
                       }}
                     />
                   </div>
