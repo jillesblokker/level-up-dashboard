@@ -16,6 +16,7 @@ import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
@@ -86,16 +87,16 @@ export function KingdomGridWithTimers({
     if (tileType === 'farm') {
       if (neighbors.some(n => n?.type === 'water')) {
         score = 'good';
-        reason = 'Great Spot! +20% Gold (Water nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.farm.good;
       } else {
-        reason = 'Tip: Place near Water for bonus gold';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.farm.bad;
       }
     } else if (tileType === 'lumber_mill') {
       if (neighbors.some(n => n?.type === 'forest')) {
         score = 'good';
-        reason = 'Perfect! +20% Gold (Forest nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.lumber_mill.good;
       } else {
-        reason = 'Tip: Place near Forest for bonus gold';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.lumber_mill.bad;
       }
     } else if (tileType === 'market') {
       const houseCount = neighbors.filter(n =>
@@ -103,45 +104,45 @@ export function KingdomGridWithTimers({
       ).length;
       if (houseCount > 0) {
         score = 'good';
-        reason = `Booming Business! +${10 * houseCount}% Gold (Near residents)`;
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.market.good.replace('{percent}', (10 * houseCount).toString());
       } else {
-        reason = 'Tip: Place near Houses/Mansions for bonus gold';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.market.bad;
       }
     } else if (tileType === 'castle') {
       const hasSpace = neighbors.length >= 4;
       if (hasSpace) {
         score = 'good';
-        reason = 'A majestic location for a Castle!';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.castle.good;
       } else {
-        reason = 'A Castle looks best with open space.';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.castle.bad;
       }
     } else if (tileType === 'well' || tileType === 'fountain' || tileType === 'fisherman') {
       if (neighbors.some(n => n?.type === 'water')) {
         score = 'good';
-        reason = 'Flowing Gold! +20% Gold (Water nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.waterBuildings.good;
       } else {
-        reason = 'Tip: Place near Water for bonus gold';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.waterBuildings.bad;
       }
     } else if (tileType === 'blacksmith') {
       if (neighbors.some(n => n?.type === 'mountain' || n?.type === 'lava')) {
         score = 'good';
-        reason = 'Forged in Fire! +25% Gold (Mountain/Lava nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.blacksmith.good;
       } else {
-        reason = 'Tip: Place near Mountain or Lava for better forge heat';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.blacksmith.bad;
       }
     } else if (tileType === 'sawmill') {
       if (neighbors.some(n => n?.type === 'forest')) {
         score = 'good';
-        reason = 'Efficient Cutting! +20% Gold (Forest nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.sawmill.good;
       } else {
-        reason = 'Tip: Place near Forest for bonus gold';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.sawmill.bad;
       }
     } else if (tileType === 'library' || tileType === 'wizard') {
       if (neighbors.some(n => n?.type === 'ice' || n?.type === 'mountain')) {
         score = 'good';
-        reason = 'Quiet Study! +30% Gold (Ice/Mountain nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.magic.good;
       } else {
-        reason = 'Tip: Place in quiet areas (Ice/Mountain) for focus';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.magic.bad;
       }
     } else if (['inn', 'bakery', 'grocery', 'foodcourt'].includes(tileType)) {
       const residentCount = neighbors.filter(n =>
@@ -149,20 +150,20 @@ export function KingdomGridWithTimers({
       ).length;
       if (residentCount > 0) {
         score = 'good';
-        reason = `Bustling! +${10 * residentCount}% Gold (Near residents)`;
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.commercial.good.replace('{percent}', (10 * residentCount).toString());
       } else {
-        reason = 'Tip: Place near Residents for bonus gold';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.commercial.bad;
       }
     } else if (['vegetables', 'pumpkin_patch'].includes(tileType)) {
       if (neighbors.some(n => n?.type === 'water' || n?.type === 'grass')) {
         score = 'good';
-        reason = 'Fertile Soil! +15% Gold (Water/Grass nearby)';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.crops.good;
       } else {
-        reason = 'Tip: Needs Water or Grass for better crops';
+        reason = TEXT_CONTENT.kingdomGrid.placementHints.crops.bad;
       }
     } else {
       // Default for other buildings
-      reason = `Place ${tileType.replace('_', ' ')} here.`;
+      reason = TEXT_CONTENT.kingdomGrid.placementHints.default.replace('{tile}', tileType.replace('_', ' '));
     }
 
     return { score, reason };
@@ -354,8 +355,10 @@ export function KingdomGridWithTimers({
 
     if (!canExpand) {
       toast({
-        title: 'Expansion Locked',
-        description: `Reach level ${nextExpansionLevel} to expand your kingdom! (Current level: ${playerLevel})`,
+        title: TEXT_CONTENT.kingdomGrid.expansion.locked.title,
+        description: TEXT_CONTENT.kingdomGrid.expansion.locked.description
+          .replace('{level}', nextExpansionLevel.toString())
+          .replace('{current}', playerLevel.toString()),
         variant: 'destructive',
       });
       return;
@@ -382,8 +385,8 @@ export function KingdomGridWithTimers({
       for (let x = 0; x < currentCols; x++) {
         newGrid[y]![x] = {
           id: `vacant-${x}-${y}`,
-          name: 'Vacant',
-          description: 'A vacant plot of land',
+          name: TEXT_CONTENT.kingdomGrid.expansion.vacantTile.name,
+          description: TEXT_CONTENT.kingdomGrid.expansion.vacantTile.description,
           type: 'vacant',
           image: '/images/kingdom-tiles/Vacant.png',
           cost: 0,
@@ -414,8 +417,8 @@ export function KingdomGridWithTimers({
     }
 
     toast({
-      title: "Kingdom Expanded",
-      description: "Your kingdom has been expanded with 3 new rows of vacant land!",
+      title: TEXT_CONTENT.kingdomGrid.expansion.success.title,
+      description: TEXT_CONTENT.kingdomGrid.expansion.success.description,
     });
   };
 

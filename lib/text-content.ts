@@ -1,4 +1,100 @@
 export const TEXT_CONTENT = {
+    kingdomGrid: {
+        expansion: {
+            locked: {
+                title: "Expansion Locked",
+                description: "Reach level {level} to expand your kingdom! (Current level: {current})"
+            },
+            success: {
+                title: "Kingdom Expanded",
+                description: "Your kingdom has been expanded with 3 new rows of vacant land!"
+            },
+            vacantTile: {
+                name: "Vacant",
+                description: "A vacant plot of land"
+            }
+        },
+        placementHints: {
+            farm: {
+                good: "Great Spot! +20% Gold (Water nearby)",
+                bad: "Tip: Place near Water for bonus gold"
+            },
+            lumber_mill: {
+                good: "Perfect! +20% Gold (Forest nearby)",
+                bad: "Tip: Place near Forest for bonus gold"
+            },
+            market: {
+                good: "Booming Business! +{percent}% Gold (Near residents)",
+                bad: "Tip: Place near Houses/Mansions for bonus gold"
+            },
+            castle: {
+                good: "A majestic location for a Castle!",
+                bad: "A Castle looks best with open space."
+            },
+            waterBuildings: {
+                good: "Flowing Gold! +20% Gold (Water nearby)",
+                bad: "Tip: Place near Water for bonus gold"
+            },
+            blacksmith: {
+                good: "Forged in Fire! +25% Gold (Mountain/Lava nearby)",
+                bad: "Tip: Place near Mountain or Lava for better forge heat"
+            },
+            sawmill: {
+                good: "Efficient Cutting! +20% Gold (Forest nearby)",
+                bad: "Tip: Place near Forest for bonus gold"
+            },
+            magic: {
+                good: "Quiet Study! +30% Gold (Ice/Mountain nearby)",
+                bad: "Tip: Place in quiet areas (Ice/Mountain) for focus"
+            },
+            commercial: {
+                good: "Bustling! +{percent}% Gold (Near residents)",
+                bad: "Tip: Place near Residents for bonus gold"
+            },
+            crops: {
+                good: "Fertile Soil! +15% Gold (Water/Grass nearby)",
+                bad: "Tip: Needs Water or Grass for better crops"
+            },
+            default: "Place {tile} here."
+        }
+    },
+    quests: {
+        form: {
+            titleLabel: "Quest Title",
+            titlePlaceholder: "What is your objective?",
+            descriptionLabel: "Description (Optional)",
+            descriptionPlaceholder: "Describe the trials ahead...",
+            categoryLabel: "Category",
+            difficultyLabel: "Difficulty",
+            expectedReward: "Expected Reward",
+            quote: "\"Valor awaits...\"",
+            abandon: "Abandon",
+            submit: "Embark on Quest",
+            submitting: "Forging..."
+        },
+        toast: {
+            successTitle: "Quest Embarked!",
+            successDesc: "{name} has been added to your ledger.",
+            errorGeneric: "Something went wrong",
+            errorAdd: "Failed to add quest"
+        },
+        categories: {
+            might: "Might",
+            knowledge: "Knowledge",
+            honor: "Honor",
+            castle: "Castle",
+            craft: "Craft",
+            vitality: "Vitality",
+            wellness: "Wellness",
+            exploration: "Exploration"
+        },
+        difficulties: {
+            easy: "Novice",
+            medium: "Adventurer",
+            hard: "Heroic",
+            epic: "Legendary"
+        }
+    },
     kingdomTiles: {
         crossroad: {
             name: "Crossroad",

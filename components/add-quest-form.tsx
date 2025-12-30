@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Star, Zap, Flame, Trophy } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from '@/components/ui/use-toast'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 const categoryIcons = {
     might: Sword,
@@ -19,14 +20,14 @@ const categoryIcons = {
 };
 
 const categoryLabels = {
-    might: 'Might',
-    knowledge: 'Knowledge',
-    honor: 'Honor',
-    castle: 'Castle',
-    craft: 'Craft',
-    vitality: 'Vitality',
-    wellness: 'Wellness',
-    exploration: 'Exploration',
+    might: TEXT_CONTENT.quests.categories.might,
+    knowledge: TEXT_CONTENT.quests.categories.knowledge,
+    honor: TEXT_CONTENT.quests.categories.honor,
+    castle: TEXT_CONTENT.quests.categories.castle,
+    craft: TEXT_CONTENT.quests.categories.craft,
+    vitality: TEXT_CONTENT.quests.categories.vitality,
+    wellness: TEXT_CONTENT.quests.categories.wellness,
+    exploration: TEXT_CONTENT.quests.categories.exploration,
 };
 
 const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
@@ -61,10 +62,10 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
     }, [initialData])
 
     const difficultySettings = {
-        easy: { label: 'Novice', color: 'text-green-400', gold: 10, xp: 20, icon: <Star className="w-4 h-4" /> },
-        medium: { label: 'Adventurer', color: 'text-blue-400', gold: 25, xp: 50, icon: <Zap className="w-4 h-4" /> },
-        hard: { label: 'Heroic', color: 'text-orange-400', gold: 60, xp: 120, icon: <Flame className="w-4 h-4" /> },
-        epic: { label: 'Legendary', color: 'text-purple-400', gold: 150, xp: 300, icon: <Trophy className="w-4 h-4" /> },
+        easy: { label: TEXT_CONTENT.quests.difficulties.easy, color: 'text-green-400', gold: 10, xp: 20, icon: <Star className="w-4 h-4" /> },
+        medium: { label: TEXT_CONTENT.quests.difficulties.medium, color: 'text-blue-400', gold: 25, xp: 50, icon: <Zap className="w-4 h-4" /> },
+        hard: { label: TEXT_CONTENT.quests.difficulties.hard, color: 'text-orange-400', gold: 60, xp: 120, icon: <Flame className="w-4 h-4" /> },
+        epic: { label: TEXT_CONTENT.quests.difficulties.epic, color: 'text-purple-400', gold: 150, xp: 300, icon: <Trophy className="w-4 h-4" /> },
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -90,12 +91,12 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}))
-                throw new Error(errorData.error || 'Failed to add quest')
+                throw new Error(errorData.error || TEXT_CONTENT.quests.toast.errorAdd)
             }
 
             toast({
-                title: "Quest Embarked!",
-                description: `${newQuest.name} has been added to your ledger.`,
+                title: TEXT_CONTENT.quests.toast.successTitle,
+                description: TEXT_CONTENT.quests.toast.successDesc.replace('{name}', newQuest.name),
                 duration: 3000,
             })
 
@@ -104,7 +105,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
 
             onSuccess()
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Something went wrong')
+            setError(err instanceof Error ? err.message : TEXT_CONTENT.quests.toast.errorGeneric)
         } finally {
             setLoading(false)
         }
@@ -144,13 +145,13 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             )}
 
             <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Quest Title</label>
+                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.titleLabel}</label>
                 <div className="group relative">
                     <input
                         className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/30 rounded-xl focus:border-amber-500/50 focus:bg-gray-900/80 outline-none transition-all duration-300 text-lg placeholder:text-gray-600 shadow-inner"
                         value={newQuest.name}
                         onChange={handleQuestNameChange}
-                        placeholder="What is your objective?"
+                        placeholder={TEXT_CONTENT.quests.form.titlePlaceholder}
                         required
                         autoFocus
                     />
@@ -159,18 +160,18 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Description (Optional)</label>
+                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.descriptionLabel}</label>
                 <textarea
                     className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-gray-900/80 outline-none transition-all duration-300 min-h-[120px] resize-none text-gray-200 placeholder:text-gray-700"
                     value={newQuest.description}
                     onChange={e => setNewQuest({ ...newQuest, description: e.target.value })}
-                    placeholder="Describe the trials ahead..."
+                    placeholder={TEXT_CONTENT.quests.form.descriptionPlaceholder}
                 />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Category</label>
+                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.categoryLabel}</label>
                     <Select
                         value={newQuest.category}
                         onValueChange={(val) => setNewQuest({ ...newQuest, category: val })}
@@ -194,7 +195,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Difficulty</label>
+                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.difficultyLabel}</label>
                     <Select
                         value={newQuest.difficulty}
                         onValueChange={(val) => setNewQuest({ ...newQuest, difficulty: val })}
@@ -231,7 +232,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         {difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].icon}
                     </div>
                     <div>
-                        <div className="text-xs font-bold text-amber-500/60 uppercase tracking-widest">Expected Reward</div>
+                        <div className="text-xs font-bold text-amber-500/60 uppercase tracking-widest">{TEXT_CONTENT.quests.form.expectedReward}</div>
                         <div className="flex items-center gap-3 mt-1">
                             <div className="flex items-center gap-1">
                                 <Sword className="w-4 h-4 text-amber-400" />
@@ -247,7 +248,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 </div>
                 {newQuest.name && (
                     <div className="hidden sm:block text-right opacity-40 italic text-sm pr-2">
-                        &quot;Valor awaits...&quot;
+                        {TEXT_CONTENT.quests.form.quote}
                     </div>
                 )}
             </div>
@@ -260,7 +261,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                     disabled={loading}
                     className="h-12 px-8 text-gray-400 hover:text-white hover:bg-white/5"
                 >
-                    Abandon
+                    {TEXT_CONTENT.quests.form.abandon}
                 </Button>
                 <Button
                     type="submit"
@@ -270,10 +271,10 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                     {loading ? (
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                            Forging...
+                            {TEXT_CONTENT.quests.form.submitting}
                         </div>
                     ) : (
-                        'Embark on Quest'
+                        TEXT_CONTENT.quests.form.submit
                     )}
                 </Button>
             </div>
