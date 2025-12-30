@@ -196,7 +196,8 @@ export class MapGenerator {
       market: 'Marketplace',
       cottage: 'Cottage',
       crossroad: 'Crossroad',
-      straightroad: 'Straight Road'
+      straightroad: 'Straight Road',
+      cornerroad: 'Corner Road'
     };
 
     const tileDescriptions = {
@@ -247,7 +248,8 @@ export class MapGenerator {
       market: 'A bustling marketplace for trading',
       cottage: 'A cozy cottage for residents',
       crossroad: 'A busy crossroad connecting the kingdom',
-      straightroad: 'A straight road connecting the kingdom'
+      straightroad: 'A straight road connecting the kingdom',
+      cornerroad: 'A curved road connecting the kingdom'
     };
 
     const tileImages = {
@@ -298,7 +300,8 @@ export class MapGenerator {
       market: '/images/kingdom-tiles/Market.png',
       cottage: '/images/kingdom-tiles/Cottage.png',
       crossroad: '/images/kingdom-tiles/Crossroad.png',
-      straightroad: '/images/kingdom-tiles/Straightroad.png'
+      straightroad: '/images/kingdom-tiles/Straightroad.png',
+      cornerroad: '/images/kingdom-tiles/Cornerroad.png'
     };
 
     return {
