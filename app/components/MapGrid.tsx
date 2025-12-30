@@ -42,6 +42,8 @@ const getTileImage = (tileType: string) => {
     case 'cave': return '/images/tiles/cave-tile.png';
     case 'dungeon': return '/images/tiles/dungeon-tile.png';
     case 'castle': return '/images/tiles/castle-tile.png';
+    case 'crossroad': return '/images/kingdom-tiles/Crossroad.png';
+    case 'straightroad': return '/images/kingdom-tiles/Straightroad.png';
     default: return '/images/tiles/empty-tile.png';
   }
 };
@@ -117,7 +119,7 @@ const MapTile = memo(({
       aria-label={`${tile.type} tile at position ${x},${y}${isPlayerHere ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
     >
       <Image
-        src={getTileImage(tile.type)}
+        src={tile.image || getTileImage(tile.type)}
         alt={tile.name || tile.type}
         width={tileSize}
         height={tileSize}
