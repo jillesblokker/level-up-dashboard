@@ -12,16 +12,18 @@ export interface KingdomTile {
   image: string
 }
 
+import { TEXT_CONTENT } from './text-content'
+
 export const KINGDOM_TILES: KingdomTile[] = [
   // Crafting & Resource Tiles
   {
     id: 'crossroad',
-    name: 'Crossroad',
+    name: TEXT_CONTENT.kingdomTiles.crossroad.name,
     timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
-    clickMessage: "A busy crossroad connecting the kingdom.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.crossroad.clickMessage,
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
@@ -29,12 +31,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'straightroad',
-    name: 'Straight Road',
+    name: TEXT_CONTENT.kingdomTiles.straightroad.name,
     timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
-    clickMessage: "A straight road connecting the kingdom.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.straightroad.clickMessage,
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
@@ -42,12 +44,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'cornerroad',
-    name: 'Corner Road',
+    name: TEXT_CONTENT.kingdomTiles.cornerroad.name,
     timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
-    clickMessage: "A curved road connecting the kingdom.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.cornerroad.clickMessage,
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
@@ -55,12 +57,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'tsplitroad',
-    name: 'T-Split Road',
+    name: TEXT_CONTENT.kingdomTiles.tsplitroad.name,
     timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
-    clickMessage: "A T-shaped road split connecting three paths.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.tsplitroad.clickMessage,
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
@@ -68,12 +70,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'well',
-    name: 'Well',
+    name: TEXT_CONTENT.kingdomTiles.well.name,
     timerMinutes: 10,
     normalGoldRange: [5, 15],
     luckyGoldAmount: 50,
     luckyChance: 0.15,
-    clickMessage: "With a big throw your bucket lands with a splash in the water. You start pulling it up and there are gold coins shining on the bottom of the bucket!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.well.clickMessage,
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
@@ -81,12 +83,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'blacksmith',
-    name: 'Blacksmith',
+    name: TEXT_CONTENT.kingdomTiles.blacksmith.name,
     timerMinutes: 30,
     normalGoldRange: [10, 25],
     luckyGoldAmount: 75,
     luckyChance: 0.10,
-    clickMessage: "The blacksmith's forge glows with heat as you approach. He hands you a freshly crafted iron sword and a pouch of gold for your patronage.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.blacksmith.clickMessage,
     possibleItems: [
       '/images/items/sword/sword-twig.png',
       '/images/items/sword/sword-sunblade.png',
@@ -101,12 +103,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'sawmill',
-    name: 'Sawmill',
+    name: TEXT_CONTENT.kingdomTiles.sawmill.name,
     timerMinutes: 240,
     normalGoldRange: [0, 0], // No gold from sawmill
     luckyGoldAmount: 0,
     luckyChance: 0.12,
-    clickMessage: "The sawmill's blades whir as you collect freshly cut timber. The wood is perfect for crafting and building.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.sawmill.clickMessage,
     possibleItems: [
       '/images/items/materials/material-logs.png',
       '/images/items/materials/material-planks.png'
@@ -117,12 +119,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'fisherman',
-    name: 'Fisherman',
+    name: TEXT_CONTENT.kingdomTiles.fisherman.name,
     timerMinutes: 15,
     normalGoldRange: [5, 20],
     luckyGoldAmount: 60,
     luckyChance: 0.18,
-    clickMessage: "You cast your line into the water and feel a tug. Reeling it in, you catch a fish with gold coins in its mouth!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.fisherman.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -136,12 +138,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'grocery',
-    name: 'Grocery',
+    name: TEXT_CONTENT.kingdomTiles.grocery.name,
     timerMinutes: 5,
     normalGoldRange: [3, 15],
     luckyGoldAmount: 45,
     luckyChance: 0.20,
-    clickMessage: "The grocer greets you warmly and shows you today's fresh produce. Hidden among the vegetables, you discover some gold coins!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.grocery.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -153,12 +155,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'foodcourt',
-    name: 'Foodcourt',
+    name: TEXT_CONTENT.kingdomTiles.foodcourt.name,
     timerMinutes: 90,
     normalGoldRange: [8, 25],
     luckyGoldAmount: 70,
     luckyChance: 0.16,
-    clickMessage: "The aroma of freshly cooked meals fills the air. As you enjoy your meal, you find gold coins hidden under your plate!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.foodcourt.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -170,12 +172,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'vegetables',
-    name: 'Vegetables',
+    name: TEXT_CONTENT.kingdomTiles.vegetables.name,
     timerMinutes: 120,
     normalGoldRange: [5, 20],
     luckyGoldAmount: 55,
     luckyChance: 0.14,
-    clickMessage: "You tend to the vegetable garden, pulling up carrots and potatoes. Among the roots, you discover gold coins buried in the soil!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.vegetables.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -189,12 +191,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   // Knowledge & Magic Tiles
   {
     id: 'wizard',
-    name: 'Wizard',
+    name: TEXT_CONTENT.kingdomTiles.wizard.name,
     timerMinutes: 360,
     normalGoldRange: [15, 40],
     luckyGoldAmount: 120,
     luckyChance: 0.08,
-    clickMessage: "The wizard's tower hums with magical energy. He shares ancient knowledge and hands you a scroll, along with gold for your wisdom.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.wizard.clickMessage,
     possibleItems: [
       '/images/items/scroll/scroll-scrolly.png',
       '/images/items/scroll/scroll-perkamento.png',
@@ -206,12 +208,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'temple',
-    name: 'Temple',
+    name: TEXT_CONTENT.kingdomTiles.temple.name,
     timerMinutes: 240,
     normalGoldRange: [10, 30],
     luckyGoldAmount: 100,
     luckyChance: 0.12,
-    clickMessage: "The temple's peaceful atmosphere surrounds you. The priest blesses you with a health potion and offers gold for your devotion.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.temple.clickMessage,
     possibleItems: [
       '/images/items/potion/potion-health.png',
       '/images/items/potion/potion-gold.png',
@@ -223,12 +225,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'castle',
-    name: 'Castle',
+    name: TEXT_CONTENT.kingdomTiles.castle.name,
     timerMinutes: 720,
     normalGoldRange: [30, 60],
     luckyGoldAmount: 300,
     luckyChance: 0.05,
-    clickMessage: "The castle's grandeur impresses you. The royal treasurer rewards your loyalty with gold and a valuable item from the royal vault.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.castle.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
       '/images/items/artifact/ring/artifact-ringo.png',
@@ -240,12 +242,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'mansion',
-    name: 'Mansion',
+    name: TEXT_CONTENT.kingdomTiles.mansion.name,
     timerMinutes: 480,
     normalGoldRange: [20, 50],
     luckyGoldAmount: 200,
     luckyChance: 0.10,
-    clickMessage: "The mansion's elegant halls welcome you. The noble owner appreciates your visit and rewards you with gold and a fine item.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.mansion.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
       '/images/items/artifact/ring/artifact-ringo.png',
@@ -257,12 +259,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'fountain',
-    name: 'Fountain',
+    name: TEXT_CONTENT.kingdomTiles.fountain.name,
     timerMinutes: 180,
     normalGoldRange: [8, 25],
     luckyGoldAmount: 80,
     luckyChance: 0.15,
-    clickMessage: "The fountain's waters sparkle with magical energy. As you drink from it, you find gold coins at the bottom!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.fountain.clickMessage,
     possibleItems: [
       '/images/items/potion/potion-health.png',
       '/images/items/potion/potion-gold.png',
@@ -274,12 +276,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'mayor',
-    name: 'Mayor',
+    name: TEXT_CONTENT.kingdomTiles.mayor.name,
     timerMinutes: 360,
     normalGoldRange: [15, 40],
     luckyGoldAmount: 150,
     luckyChance: 0.08,
-    clickMessage: "The mayor greets you warmly in his office. He appreciates your service to the town and rewards you with gold and influence.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.mayor.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
       '/images/items/artifact/ring/artifact-ringo.png',
@@ -291,12 +293,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'inn',
-    name: 'Inn',
+    name: TEXT_CONTENT.kingdomTiles.inn.name,
     timerMinutes: 120,
     normalGoldRange: [5, 20],
     luckyGoldAmount: 60,
     luckyChance: 0.18,
-    clickMessage: "The inn's warm atmosphere welcomes you. The innkeeper shares local gossip and rewards you with gold and useful items.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.inn.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
       '/images/items/artifact/ring/artifact-ringo.png',
@@ -310,12 +312,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   // Entertainment & Social Tiles
   {
     id: 'jousting',
-    name: 'Jousting',
+    name: TEXT_CONTENT.kingdomTiles.jousting.name,
     timerMinutes: 480,
     normalGoldRange: [15, 35],
     luckyGoldAmount: 150,
     luckyChance: 0.10,
-    clickMessage: "The jousting arena echoes with the clash of lances. You participate in a tournament and win gold along with combat equipment.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.jousting.clickMessage,
     possibleItems: [
       '/images/items/sword/sword-twig.png',
       '/images/items/sword/sword-sunblade.png',
@@ -330,12 +332,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'archery',
-    name: 'Archery',
+    name: TEXT_CONTENT.kingdomTiles.archery.name,
     timerMinutes: 180,
     normalGoldRange: [8, 25],
     luckyGoldAmount: 80,
     luckyChance: 0.15,
-    clickMessage: "The archery range tests your skill. You hit the target and find gold coins hidden behind the bullseye!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.archery.clickMessage,
     possibleItems: [
       '/images/items/sword/sword-twig.png',
       '/images/items/sword/sword-sunblade.png',
@@ -347,12 +349,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'watchtower',
-    name: 'Watchtower',
+    name: TEXT_CONTENT.kingdomTiles.watchtower.name,
     timerMinutes: 360,
     normalGoldRange: [10, 30],
     luckyGoldAmount: 120,
     luckyChance: 0.12,
-    clickMessage: "From the watchtower's height, you spot something glinting in the distance. Investigating, you find gold and valuable information.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.watchtower.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
       '/images/items/artifact/ring/artifact-ringo.png',
@@ -364,12 +366,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'pond',
-    name: 'Pond',
+    name: TEXT_CONTENT.kingdomTiles.pond.name,
     timerMinutes: 60,
     normalGoldRange: [3, 15],
     luckyGoldAmount: 50,
     luckyChance: 0.20,
-    clickMessage: "The pond's surface ripples as you approach. You spot gold coins glinting at the bottom and fish them out!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.pond.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -381,12 +383,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'windmill',
-    name: 'Windmill',
+    name: TEXT_CONTENT.kingdomTiles.windmill.name,
     timerMinutes: 240,
     normalGoldRange: [8, 25],
     luckyGoldAmount: 80,
     luckyChance: 0.14,
-    clickMessage: "The windmill's sails turn steadily. You collect freshly ground flour and discover gold coins mixed in with the grain!",
+    clickMessage: TEXT_CONTENT.kingdomTiles.windmill.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -400,12 +402,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   // --- Seasonal & Utility Tiles (new) ---
   {
     id: 'winter-fountain',
-    name: 'Winter Fountain',
+    name: TEXT_CONTENT.kingdomTiles['winter-fountain'].name,
     timerMinutes: 180,
     normalGoldRange: [10, 30],
     luckyGoldAmount: 120,
     luckyChance: 0.18,
-    clickMessage: "Icicles glisten as the fountain flows with enchanted winter water. You scoop out a handful of coins sparkling like snow.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['winter-fountain'].clickMessage,
     possibleItems: [
       '/images/items/potion/potion-health.png',
       '/images/items/potion/potion-gold.png',
@@ -417,12 +419,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'snowy-inn',
-    name: 'Snowy Inn',
+    name: TEXT_CONTENT.kingdomTiles['snowy-inn'].name,
     timerMinutes: 120,
     normalGoldRange: [6, 22],
     luckyGoldAmount: 70,
     luckyChance: 0.18,
-    clickMessage: "Warm lights and cinnamon scents spill from the inn. The keeper slips you a festive pouch jingling with coins.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['snowy-inn'].clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
@@ -434,12 +436,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'ice-sculpture',
-    name: 'Ice Sculpture',
+    name: TEXT_CONTENT.kingdomTiles['ice-sculpture'].name,
     timerMinutes: 90,
     normalGoldRange: [5, 15],
     luckyGoldAmount: 60,
     luckyChance: 0.16,
-    clickMessage: "An intricately carved sculpture hides a frosty cache—glimmering coins trapped within the ice.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['ice-sculpture'].clickMessage,
     possibleItems: [
       '/images/items/potion/potion-health.png',
       '/images/items/potion/potion-gold.png',
@@ -451,12 +453,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'fireworks-stand',
-    name: 'Fireworks Stand',
+    name: TEXT_CONTENT.kingdomTiles['fireworks-stand'].name,
     timerMinutes: 60,
     normalGoldRange: [8, 20],
     luckyGoldAmount: 100,
     luckyChance: 0.20,
-    clickMessage: "Crackling fuses and bright sparks—after the show, you find a tidy stack of celebration coins.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['fireworks-stand'].clickMessage,
     possibleItems: [
       '/images/items/scroll/scroll-scrolly.png',
       '/images/items/scroll/scroll-perkamento.png',
@@ -468,12 +470,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'pumpkin-patch',
-    name: 'Pumpkin Patch',
+    name: TEXT_CONTENT.kingdomTiles['pumpkin-patch'].name,
     timerMinutes: 120,
     normalGoldRange: [6, 18],
     luckyGoldAmount: 65,
     luckyChance: 0.15,
-    clickMessage: "You lift a plump pumpkin and discover coins tucked beneath the vines.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['pumpkin-patch'].clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png'
@@ -484,12 +486,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'harvest-barn',
-    name: 'Harvest Barn',
+    name: TEXT_CONTENT.kingdomTiles['harvest-barn'].name,
     timerMinutes: 240,
     normalGoldRange: [10, 25],
     luckyGoldAmount: 90,
     luckyChance: 0.14,
-    clickMessage: "Bales of hay and bustling workers—your share of the harvest includes a modest pouch of gold.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['harvest-barn'].clickMessage,
     possibleItems: [
       '/images/items/materials/material-logs.png',
       '/images/items/materials/material-planks.png'
@@ -500,12 +502,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'bakery',
-    name: 'Bakery',
+    name: TEXT_CONTENT.kingdomTiles.bakery.name,
     timerMinutes: 90,
     normalGoldRange: [8, 20],
     luckyGoldAmount: 70,
     luckyChance: 0.16,
-    clickMessage: "Fresh bread and warm pastries—tips and change accumulate into a tidy little treasure.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.bakery.clickMessage,
     possibleItems: [
       '/images/items/food/fish-silver.png',
       '/images/items/food/fish-red.png'
@@ -516,12 +518,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'brewery',
-    name: 'Brewery',
+    name: TEXT_CONTENT.kingdomTiles.brewery.name,
     timerMinutes: 150,
     normalGoldRange: [10, 22],
     luckyGoldAmount: 85,
     luckyChance: 0.15,
-    clickMessage: "Foamy mugs and clinking tankards—profits from the evening's patrons fill your purse.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.brewery.clickMessage,
     possibleItems: [
       '/images/items/potion/potion-gold.png',
       '/images/items/potion/potion-exp.png'
@@ -532,12 +534,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'market-stalls',
-    name: 'Market Stalls',
+    name: TEXT_CONTENT.kingdomTiles['market-stalls'].name,
     timerMinutes: 45,
     normalGoldRange: [5, 15],
     luckyGoldAmount: 60,
     luckyChance: 0.20,
-    clickMessage: "Merchants haggle and shoppers browse—your cut of the stall fees comes in shiny coins.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['market-stalls'].clickMessage,
     possibleItems: [
       '/images/items/materials/material-logs.png',
       '/images/items/materials/material-planks.png'
@@ -548,12 +550,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'library',
-    name: 'Library',
+    name: TEXT_CONTENT.kingdomTiles.library.name,
     timerMinutes: 240,
     normalGoldRange: [12, 30],
     luckyGoldAmount: 110,
     luckyChance: 0.12,
-    clickMessage: "Quiet stacks, rare tomes—an appreciative patron donates handsomely to your efforts.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.library.clickMessage,
     possibleItems: [
       '/images/items/scroll/scroll-scrolly.png',
       '/images/items/scroll/scroll-perkamento.png',
@@ -565,12 +567,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'training-grounds',
-    name: 'Training Grounds',
+    name: TEXT_CONTENT.kingdomTiles['training-grounds'].name,
     timerMinutes: 180,
     normalGoldRange: [10, 25],
     luckyGoldAmount: 90,
     luckyChance: 0.14,
-    clickMessage: "Sparring warriors and clashing steel—your prowess earns coin and respect.",
+    clickMessage: TEXT_CONTENT.kingdomTiles['training-grounds'].clickMessage,
     possibleItems: [
       '/images/items/sword/sword-twig.png',
       '/images/items/sword/sword-sunblade.png',
@@ -582,12 +584,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'stable',
-    name: 'Stable',
+    name: TEXT_CONTENT.kingdomTiles.stable.name,
     timerMinutes: 120,
     normalGoldRange: [6, 18],
     luckyGoldAmount: 70,
     luckyChance: 0.16,
-    clickMessage: "Fresh hay and polished tack—your stable services bring in steady coin.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.stable.clickMessage,
     possibleItems: [
       '/images/items/materials/material-logs.png'
     ],
@@ -597,12 +599,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'house',
-    name: 'House',
+    name: TEXT_CONTENT.kingdomTiles.house.name,
     timerMinutes: 60,
     normalGoldRange: [8, 20],
     luckyGoldAmount: 80,
     luckyChance: 0.15,
-    clickMessage: "The cozy house welcomes you with warmth. The residents appreciate your visit and reward you with gold for your hospitality.",
+    clickMessage: TEXT_CONTENT.kingdomTiles.house.clickMessage,
     possibleItems: [
       '/images/items/food/fish-red.png',
       '/images/items/food/fish-blue.png',
