@@ -1146,49 +1146,58 @@ export function KingdomGridWithTimers({
     // Preserving timer would require reading old timer state. 
     // Let's restart for simplicity as per original implementation, unless requested otherwise.
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === selectedProperty.id.toLowerCase())
-    const timerDuration = kingdomTile ? kingdomTile.timerMinutes * 60 * 1000 : 5 * 60 * 1000
 
-    const newTimer: TileTimer = {
-      x,
-      y,
-      tileId: newTile.id,
-      endTime: Date.now() + timerDuration,
-      isReady: false
-    }
+    // Only create timer if the tile has a timer duration > 0 (i.e. it produces passive rewards)
+    if (kingdomTile && kingdomTile.timerMinutes > 0) {
+      const timerDuration = kingdomTile.timerMinutes * 60 * 1000
 
-    // If we are moving, we should remove the OLD timer
-    let finalTimers = [...tileTimers];
-    if (movingTileSource) {
-      finalTimers = finalTimers.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y)
-    }
+      const newTimer: TileTimer = {
+        x,
+        y,
+        tileId: newTile.id,
+        endTime: Date.now() + timerDuration,
+        isReady: false
+      }
 
-    // Add new timer
-    finalTimers = [...finalTimers, newTimer];
+      // If we are moving, we should remove the OLD timer
+      let finalTimers = [...tileTimers];
+      if (movingTileSource) {
+        finalTimers = finalTimers.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y)
+      }
 
-    setTileTimers(finalTimers)
-      // Persist timer to API
-      ; (async () => {
-        try {
-          const endIso = new Date(newTimer.endTime).toISOString()
-          // If moved, we might want to delete old timer record too? 
-          // The API might handle it by x/y overwrite if we just write the new one.
-          // But the OLD x/y still has a timer record? Ideally we should delete it.
-          if (movingTileSource && !isMovingToSource) {
-            // We don't have a direct delete-timer API endpoint exposed easily here, 
-            // but we can overwrite it with "vacant" or just let it rot? 
-            // Or better, since the tile type at old X,Y is now Vacant, the timer won't be used.
-            // We can rely on that.
+      // Add new timer
+      finalTimers = [...finalTimers, newTimer];
+
+      setTileTimers(finalTimers)
+        // Persist timer to API
+        ; (async () => {
+          try {
+            const endIso = new Date(newTimer.endTime).toISOString()
+            // If moved, we might want to delete old timer record too? 
+            // The API might handle it by x/y overwrite if we just write the new one.
+            // But the OLD x/y still has a timer record? Ideally we should delete it.
+            if (movingTileSource && !isMovingToSource) {
+              // We don't have a direct delete-timer API endpoint exposed easily here, 
+              // but we can overwrite it with "vacant" or just let it rot? 
+              // Or better, since the tile type at old X,Y is now Vacant, the timer won't be used.
+              // We can rely on that.
+            }
+
+            await fetchAuthRetry('/api/property-timers', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
+            })
+          } catch (e) {
+            console.warn('[Kingdom] Failed to persist timer', e)
           }
-
-          await fetchAuthRetry('/api/property-timers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
-          })
-        } catch (e) {
-          console.warn('[Kingdom] Failed to persist timer', e)
-        }
-      })()
+        })()
+    } else if (movingTileSource) {
+      // If we moved a non-timer tile (like a road), we still need to remove any stray timer at the old location/new location
+      // though roads shouldn't have timers usually.
+      // But just to be safe and clean up if we are moving:
+      setTileTimers(prev => prev.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y))
+    }
 
     // Reset placement mode
     setSelectedProperty(null)
@@ -1280,7 +1289,7 @@ export function KingdomGridWithTimers({
         row.forEach((tile, x) => {
           if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
             const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-            if (kingdomTile) {
+            if (kingdomTile && kingdomTile.timerMinutes > 0) {
               // Create timer for existing tile
               const endTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
               newTimers.push({
@@ -1470,7 +1479,7 @@ export function KingdomGridWithTimers({
 
     // Handle other tile types (if any)
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-    if (!kingdomTile) return
+    if (!kingdomTile || kingdomTile.timerMinutes === 0) return
 
     // Check if tile is ready
     const timer = tileTimers.find(t => t.x === x && t.y === y)
