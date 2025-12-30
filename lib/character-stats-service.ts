@@ -187,7 +187,7 @@ class CharacterStatsService {
                         level: Math.max(serverStats.level || 1, localStats.level || 1),
                         health: serverStats.health || 100,
                         max_health: serverStats.max_health || 100,
-                        build_tokens: serverStats.build_tokens || 0,
+                        build_tokens: Math.max(serverStats.build_tokens || 0, localStats.build_tokens || 0),
                         kingdom_expansions: Math.max(serverStats.kingdom_expansions || 0, localStats.kingdom_expansions || 0),
                         display_name: serverStats.display_name || localStats.display_name || 'Adventurer',
                         title: serverStats.title || localStats.title || 'Novice',
