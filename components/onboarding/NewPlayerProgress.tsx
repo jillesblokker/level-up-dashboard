@@ -16,10 +16,16 @@ interface ProgressItem {
 
 export function NewPlayerProgress() {
     const [items, setItems] = useState<ProgressItem[]>([
-        { id: 'welcome', label: 'Complete Onboarding', completed: false },
-        { id: 'market', label: 'Visit the Market', completed: false, href: '/market' },
-        { id: 'realm', label: 'Explore the Realm', completed: false, href: '/realm' },
-        { id: 'quest', label: 'Complete First Quest', completed: false, href: '/quests' },
+        { id: 'create_quest', label: 'Create your first quest', completed: false, href: '/quests' },
+        { id: 'complete_quest', label: 'Complete your first quest', completed: false, href: '/quests' },
+        { id: 'visit_realm', label: 'Visit the realm', completed: false, href: '/realm' },
+        { id: 'visit_town', label: 'Visit your first town', completed: false, href: '/town/greenhaven' },
+        { id: 'build_property', label: 'Build your first property on the kingdom map', completed: false, href: '/kingdom' },
+        { id: 'add_ally', label: 'Add an ally', completed: false, href: '/social' },
+        { id: 'create_challenge', label: 'Create your first challenge', completed: false, href: '/challenges' },
+        { id: 'finish_challenge', label: 'Finish your first challenge', completed: false, href: '/challenges' },
+        { id: 'create_milestone', label: 'Create your first milestone', completed: false, href: '/challenges' },
+        { id: 'finish_milestone', label: 'Finish your first milestone', completed: false, href: '/challenges' },
     ])
     const [isVisible, setIsVisible] = useState(false)
     const [isLoaded, setIsLoaded] = useState(false)
@@ -30,27 +36,77 @@ export function NewPlayerProgress() {
 
     const loadProgress = async () => {
         try {
-            // 1. Check onboarding state
-            const onboardingState = JSON.parse(localStorage.getItem('onboarding-state') || '{}')
-            const welcomeDone = onboardingState.hasCompletedOnboarding || false
-
-            // 2. Check market & realm visits from preferences
-            const marketPref = await getUserPreference('onboarding_market_visited')
+            // 1. Check preferences
             const realmPref = await getUserPreference('onboarding_realm_visited')
+            const townPref = await getUserPreference('onboarding_town_visited')
 
-            // 3. Check quest completion
-            const response = await fetch('/api/quests')
-            let questDone = false
-            if (response.ok) {
-                const quests = await response.json()
-                questDone = quests.some((q: any) => q.completed)
+            // 2. Check Quests
+            const questsRes = await fetch('/api/quests')
+            let questCreated = false
+            let questCompleted = false
+            if (questsRes.ok) {
+                const quests = await questsRes.json()
+                questCreated = quests.length > 0
+                questCompleted = quests.some((q: any) => q.completed)
+            }
+
+            // 3. Kingdom Properties
+            const kingdomRes = await fetch('/api/kingdom-grid')
+            let propertyBuilt = false
+            if (kingdomRes.ok) {
+                const data = await kingdomRes.json()
+                // Handle both grid array directly or { grid: ... } response format
+                const grid = Array.isArray(data) ? data : (data.grid || [])
+                if (Array.isArray(grid)) {
+                    propertyBuilt = grid.some((row: any[]) => row.some(cell => cell && cell.type && cell.type !== 'empty'))
+                }
+            }
+
+            // 4. Allies
+            const friendsRes = await fetch('/api/friends')
+            let allyAdded = false
+            if (friendsRes.ok) {
+                const friends = await friendsRes.json()
+                allyAdded = friends.length > 0
+            }
+
+            // 5. Challenges
+            const challengesRes = await fetch('/api/challenges')
+            let challengeCreated = false
+            let challengeFinished = false
+            if (challengesRes.ok) {
+                const challenges = await challengesRes.json()
+                challengeCreated = challenges.length > 0
+                challengeFinished = challenges.some((c: any) => c.completed)
+            }
+
+            // 6. Milestones
+            // Assuming milestones are fetched via separate endpoint or filtered from challenges/quests
+            // If /api/milestones exists:
+            let milestoneCreated = false
+            let milestoneFinished = false
+            try {
+                const milestonesRes = await fetch('/api/milestones')
+                if (milestonesRes.ok) {
+                    const milestones = await milestonesRes.json()
+                    milestoneCreated = milestones.length > 0
+                    milestoneFinished = milestones.some((m: any) => m.completed)
+                }
+            } catch (e) {
+                console.warn('Milestones API check failed', e)
             }
 
             const updatedItems = [
-                { id: 'welcome', label: 'Complete Onboarding', completed: welcomeDone },
-                { id: 'market', label: 'Visit the Market', completed: !!marketPref, href: '/market' },
-                { id: 'realm', label: 'Explore the Realm', completed: !!realmPref, href: '/realm' },
-                { id: 'quest', label: 'Complete First Quest', completed: questDone, href: '/quests' },
+                { id: 'create_quest', label: 'Create your first quest', completed: questCreated, href: '/quests' },
+                { id: 'complete_quest', label: 'Complete your first quest', completed: questCompleted, href: '/quests' },
+                { id: 'visit_realm', label: 'Visit the realm', completed: !!realmPref, href: '/realm' },
+                { id: 'visit_town', label: 'Visit your first town', completed: !!townPref, href: '/town/greenhaven' },
+                { id: 'build_property', label: 'Build your first property on the kingdom map', completed: propertyBuilt, href: '/kingdom' },
+                { id: 'add_ally', label: 'Add an ally', completed: allyAdded, href: '/social' },
+                { id: 'create_challenge', label: 'Create your first challenge', completed: challengeCreated, href: '/challenges' },
+                { id: 'finish_challenge', label: 'Finish your first challenge', completed: challengeFinished, href: '/challenges' },
+                { id: 'create_milestone', label: 'Create your first milestone', completed: milestoneCreated, href: '/challenges' },
+                { id: 'finish_milestone', label: 'Finish your first milestone', completed: milestoneFinished, href: '/challenges' },
             ]
 
             setItems(updatedItems)

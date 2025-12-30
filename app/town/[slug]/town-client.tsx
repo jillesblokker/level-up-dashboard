@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Building, ShoppingBag, Swords, Home } from "lucide-react"
 import Link from "next/link"
+import { setUserPreference } from '@/lib/user-preferences-manager'
 
 interface TownData {
   name: string
@@ -61,6 +62,9 @@ export default function TownClient({ slug }: Props) {
   useEffect(() => {
     setTownData(defaultTownData);
     setIsLoading(false);
+
+    // Track that the user has visited a town for the "New Hero Journey"
+    setUserPreference('onboarding_town_visited', 'true');
   }, [slug]);
 
   const handleVisitLocation = (locationId: string) => {
@@ -96,7 +100,7 @@ export default function TownClient({ slug }: Props) {
     <div className="flex min-h-screen flex-col bg-black text-white">
       {/* Cover image banner */}
       <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(/images/locations/town.png)` }}
           aria-label="town-cover-image"
@@ -110,7 +114,7 @@ export default function TownClient({ slug }: Props) {
       </div>
 
       <div className="flex justify-end mb-6">
-        <Button 
+        <Button
           onClick={() => window.location.href = '/realm'}
           variant="outline"
           className="border-amber-800/20 text-amber-500"
