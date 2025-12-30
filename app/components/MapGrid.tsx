@@ -111,7 +111,6 @@ const MapTile = memo(({
     <div
       className={`relative tile ${tile.type} ${tile.isVisited ? 'visited' : ''} ${tile.isMainTile ? 'main-tile' : ''}`}
       style={{
-        transform: `rotate(${tile.rotation}deg)`,
         cursor: 'pointer',
         width: `${tileSize}px`,
         height: `${tileSize}px`,
