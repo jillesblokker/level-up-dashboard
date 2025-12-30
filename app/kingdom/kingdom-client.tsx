@@ -299,12 +299,18 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
     const tileName = filename.replace('.png', '');
     const isCastle = filename === 'Castle.png';
     // Find the corresponding kingdom tile configuration
-    const kingdomTileConfig = KINGDOM_TILES.find(kt =>
+    let kingdomTileConfig = KINGDOM_TILES.find(kt =>
       kt.name.toLowerCase() === tileName.toLowerCase() ||
       kt.name.toLowerCase().replace(' ', '') === tileName.toLowerCase()
     );
-    if (!kingdomTileConfig && (tileName === 'Crossroad' || tileName === 'Straightroad')) {
-      console.warn(`[KingdomClient] Could not find config for ${tileName}. KINGDOM_TILES has:`, KINGDOM_TILES.map(t => t.name));
+
+    // Fallback logic to ensure visibility
+    if (!kingdomTileConfig) {
+      if (tileName === 'Crossroad') {
+        kingdomTileConfig = { id: 'crossroad', name: 'Crossroad', clickMessage: 'A Crossroad tile', image: '/images/kingdom-tiles/Crossroad.png' } as any;
+      } else if (tileName === 'Straightroad') {
+        kingdomTileConfig = { id: 'straightroad', name: 'Straight Road', clickMessage: 'A Straight Road tile', image: '/images/kingdom-tiles/Straightroad.png' } as any;
+      }
     }
 
     return {
