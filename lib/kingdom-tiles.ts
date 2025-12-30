@@ -41,6 +41,19 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/Straightroad.png'
   },
   {
+    id: 'cornerroad',
+    name: 'Corner Road',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: "A curved road connecting the kingdom.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Cornerroad.png'
+  },
+  {
     id: 'well',
     name: 'Well',
     timerMinutes: 10,

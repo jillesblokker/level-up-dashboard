@@ -10,6 +10,7 @@ export const defaultTile = (type: TileType): Tile => {
     let image = `/images/tiles/${type}-tile.png`;
     if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.png';
     if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
+    if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
 
     return {
         id: type,
@@ -76,6 +77,7 @@ export const initialInventory: Record<TileType, Tile> = {
     cottage: { ...defaultTile('cottage'), cost: 100, owned: 0 },
     crossroad: { ...defaultTile('crossroad'), cost: 50, owned: 0 },
     straightroad: { ...defaultTile('straightroad'), cost: 50, owned: 0 },
+    cornerroad: { ...defaultTile('cornerroad'), cost: 50, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -85,6 +87,7 @@ function safeCheck(obj: any, key: any) {
 export const getTileImage = (type: TileType): string => {
     if (type === 'crossroad') return '/images/kingdom-tiles/Crossroad.png';
     if (type === 'straightroad') return '/images/kingdom-tiles/Straightroad.png';
+    if (type === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.png';
     return `/images/tiles/${type}-tile.png`;
 };
 

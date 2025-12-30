@@ -647,6 +647,17 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'infrastructure'
     },
+    {
+      id: 'cornerroad',
+      name: 'Corner Road',
+      image: '/images/kingdom-tiles/Cornerroad.png',
+      cost: 1,
+      levelRequired: 1,
+      costType: 'build-token',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
 
     // Combat & Training (Level 2) - Military and skill development
     {

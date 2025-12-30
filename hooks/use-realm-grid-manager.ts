@@ -83,6 +83,8 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             reconstructedTile.image = '/images/kingdom-tiles/Crossroad.png';
                         } else if (reconstructedTile.type === 'straightroad') {
                             reconstructedTile.image = '/images/kingdom-tiles/Straightroad.png';
+                        } else if (reconstructedTile.type === 'cornerroad') {
+                            reconstructedTile.image = '/images/kingdom-tiles/Cornerroad.png';
                         }
 
                         newGrid[t.y]![t.x] = reconstructedTile;

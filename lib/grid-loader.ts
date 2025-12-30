@@ -197,7 +197,8 @@ export const numericToTileType: { [key: number]: TileType } = {
   42: 'market',
   43: 'cottage',
   44: 'crossroad',
-  45: 'straightroad'
+  45: 'straightroad',
+  46: 'cornerroad'
 }
 
 // Create the reverse mapping from TileType to numeric
@@ -305,6 +306,7 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
   let image = `/images/tiles/${type}-tile.png`;
   if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.png';
   if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
+  if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
 
   return {
     id: `tile-${x}-${y}`,

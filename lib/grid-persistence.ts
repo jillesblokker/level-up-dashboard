@@ -52,6 +52,7 @@ const tileTypeToNumeric: Record<TileType, number> = {
   cottage: 43,
   crossroad: 44,
   straightroad: 45,
+  cornerroad: 46,
 };
 
 // Convert numeric value back to tile type

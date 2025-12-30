@@ -44,6 +44,7 @@ const getTileImage = (tileType: string) => {
     case 'castle': return '/images/tiles/castle-tile.png';
     case 'crossroad': return '/images/kingdom-tiles/Crossroad.png';
     case 'straightroad': return '/images/kingdom-tiles/Straightroad.png';
+    case 'cornerroad': return '/images/kingdom-tiles/Cornerroad.png';
     default: return '/images/tiles/empty-tile.png';
   }
 };

@@ -49,7 +49,8 @@ export type TileType =
   | 'market'
   | 'cottage'
   | 'crossroad'
-  | 'straightroad';
+  | 'straightroad'
+  | 'cornerroad';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
