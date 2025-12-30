@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCcw, Sparkles, Trophy, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
@@ -1612,6 +1612,27 @@ export function KingdomGridWithTimers({
     });
   };
 
+  const handleRotateTile = (x: number, y: number, tile: Tile) => {
+    const newGrid = [...grid];
+    if (newGrid[y]) {
+      newGrid[y] = [...newGrid[y]];
+      const currentRotation = newGrid[y][x]?.rotation || 0;
+      const newRotation = (currentRotation + 90) % 360 as 0 | 90 | 180 | 270;
+
+      newGrid[y][x] = {
+        ...newGrid[y][x]!,
+        rotation: newRotation // Update the existing tile object with new rotation
+      };
+
+      if (onGridUpdate) onGridUpdate(newGrid);
+
+      toast({
+        title: "Rotated",
+        description: `Rotated ${tile.name} to ${newRotation}°.`,
+      });
+    }
+  };
+
   const formatTimeRemaining = (endTime: number) => {
     const now = Date.now()
     const timeLeft = endTime - now
@@ -1708,6 +1729,7 @@ export function KingdomGridWithTimers({
                   draggable={false}
                   unoptimized
                   onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
+                  style={{ transform: `rotate(${tile.rotation || 0}deg)`, transition: 'transform 0.3s ease' }}
                 />
 
                 {/* Placement mode indicator for vacant tiles */}
@@ -1743,6 +1765,17 @@ export function KingdomGridWithTimers({
                       }}
                     >
                       <Trash2 className="w-3 h-3" />
+                    </div>
+                    <div
+                      role="button"
+                      title="Rotate 90°"
+                      className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRotateTile(x, y, tile);
+                      }}
+                    >
+                      <RotateCw className="w-3 h-3" />
                     </div>
                   </div>
                 )}
