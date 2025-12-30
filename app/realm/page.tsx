@@ -970,6 +970,56 @@ function RealmPageContent() {
         }
     };
 
+    const handleRotateTile = async (x: number, y: number) => {
+        const currentGrid = gridRef.current;
+        const tile = currentGrid[y]?.[x];
+
+        if (!tile || tile.type === 'empty') return;
+
+        // Optimistic update
+        const currentRotation = tile.rotation || 0;
+        const newRotation = (currentRotation + 90) % 360 as 0 | 90 | 180 | 270;
+
+        setGrid(prev => {
+            const next = prev.map(row => [...row]);
+            if (next[y]?.[x]) {
+                next[y][x] = { ...next[y][x]!, rotation: newRotation };
+            }
+            return next;
+        });
+
+        // Persist
+        try {
+            const tileTypeNum = tileTypeToNumeric[tile.type] || 0;
+            // Assuming the API handles merging meta or we just set rotation. 
+            // If the API overwrites meta, we might lose other meta data if any exists.
+            // Currently meta seems unused for other things, so safe to overwrite or merge if API supports it.
+            // The API code I saw earlier upserts, so it replaces the row's meta if provided.
+            // But we should probably preserve existing meta if we can?
+            // Since we don't have existing meta in local state usually (except maybe 'revealed'?), 
+            // let's just send rotation.
+
+            await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    x,
+                    y,
+                    tile_type: tileTypeNum,
+                    meta: { rotation: newRotation }
+                })
+            });
+
+            toast({
+                title: "Rotated",
+                description: `Rotated ${tile.name} to ${newRotation}°.`,
+            });
+        } catch (e) {
+            console.error('Failed to rotate tile:', e);
+            toast({ title: 'Error', description: 'Failed to save rotation', variant: 'destructive' });
+        }
+    };
+
     // Debug selectedTile changes
     useEffect(() => {
         // Removed debugging log
@@ -1237,6 +1287,7 @@ function RealmPageContent() {
                         penguinCaught={penguinCaught}
                         monsters={monsters}
                         onMonsterClick={handleMonsterClick}
+                        onTileRotate={handleRotateTile}
                     />
                 </div>
                 {/* Overlay Inventory Panel */}

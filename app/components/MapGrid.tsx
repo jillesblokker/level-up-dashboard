@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, memo } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
+import { RotateCw } from "lucide-react";
 import { CreatureLayer } from '@/components/creature-layer';
 import { MonsterSpawn } from "@/types/monsters";
 
@@ -11,6 +12,7 @@ interface MapGridProps {
   className?: string;
   playerLevel?: number;
   onTileSizeChange?: (tileSize: number) => void;
+  onTileRotate?: (x: number, y: number) => void;
   // Animal props
   penguinPos?: { x: number; y: number } | null;
   horsePos?: { x: number; y: number } | null;
@@ -84,7 +86,8 @@ const MapTile = memo(({
   tileSize,
   isPlayerHere,
   playerLevel,
-  onTileClick
+  onTileClick,
+  onTileRotate
 }: {
   tile: Tile,
   x: number,
@@ -92,8 +95,11 @@ const MapTile = memo(({
   tileSize: number,
   isPlayerHere: boolean,
   playerLevel: number,
-  onTileClick: (x: number, y: number) => void
+  onTileClick: (x: number, y: number) => void,
+  onTileRotate?: ((x: number, y: number) => void) | undefined
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -115,6 +121,8 @@ const MapTile = memo(({
       }}
       onClick={() => onTileClick(x, y)}
       onKeyDown={handleKeyDown}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       role="button"
       tabIndex={0}
       aria-label={`${tile.type} tile at position ${x},${y}${isPlayerHere ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
@@ -132,9 +140,26 @@ const MapTile = memo(({
         style={{
           objectFit: 'cover',
           userSelect: 'none',
-          WebkitUserSelect: 'none'
+          WebkitUserSelect: 'none',
+          transform: `rotate(${tile.rotation || 0}deg)`,
+          transition: 'transform 0.3s ease'
         }}
       />
+      {isHovered && onTileRotate && !isPlayerHere && !tile.hasMonster && tile.type !== 'empty' && (
+        <div className="absolute top-1 right-1 z-20">
+          <div
+            role="button"
+            title="Rotate 90°"
+            className="bg-amber-600 text-white p-1 rounded-full hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTileRotate(x, y);
+            }}
+          >
+            <RotateCw className="w-3 h-3" />
+          </div>
+        </div>
+      )}
       {isPlayerHere && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
@@ -194,7 +219,8 @@ export function MapGrid({
   sheepCaught = false,
   penguinCaught = false,
   monsters = [],
-  onMonsterClick
+  onMonsterClick,
+  onTileRotate
 }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(80);
@@ -329,6 +355,7 @@ export function MapGrid({
                       isPlayerHere={playerPosition.x === x && playerPosition.y === y}
                       playerLevel={playerLevel}
                       onTileClick={onTileClick}
+                      onTileRotate={onTileRotate}
                     />
                   );
                 })}
