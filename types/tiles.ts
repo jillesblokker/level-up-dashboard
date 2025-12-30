@@ -50,7 +50,8 @@ export type TileType =
   | 'cottage'
   | 'crossroad'
   | 'straightroad'
-  | 'cornerroad';
+  | 'cornerroad'
+  | 'tsplitroad';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

@@ -54,6 +54,19 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/Cornerroad.png'
   },
   {
+    id: 'tsplitroad',
+    name: 'T-Split Road',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: "A T-shaped road split connecting three paths.",
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/Tsplitroad.png'
+  },
+  {
     id: 'well',
     name: 'Well',
     timerMinutes: 10,
