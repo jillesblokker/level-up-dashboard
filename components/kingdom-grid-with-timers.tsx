@@ -625,6 +625,28 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'entertainment'
     },
+    {
+      id: 'crossroad',
+      name: 'Crossroad',
+      image: '/images/kingdom-tiles/Crossroad.png',
+      cost: 1,
+      levelRequired: 1,
+      costType: 'build-token',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
+    {
+      id: 'straightroad',
+      name: 'Straight Road',
+      image: '/images/kingdom-tiles/Straightroad.png',
+      cost: 1,
+      levelRequired: 1,
+      costType: 'build-token',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
 
     // Combat & Training (Level 2) - Military and skill development
     {
