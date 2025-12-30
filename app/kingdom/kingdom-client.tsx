@@ -1365,7 +1365,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-amber-100 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/farm-tile.png" alt="Farm" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Vegetables.png" alt="Farm" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Farm</h4>
@@ -1384,7 +1384,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-amber-800 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/lumber_mill-tile.png" alt="Lumber Mill" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Sawmill.png" alt="Lumber Mill" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Lumber Mill</h4>
@@ -1403,7 +1403,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-red-900 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/market-tile.png" alt="Market" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/MarketStalls.png" alt="Market" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Market</h4>
@@ -1422,7 +1422,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-gray-700 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/castle-tile.png" alt="Castle" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Castle.png" alt="Castle" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Castle</h4>
@@ -1441,7 +1441,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-blue-900 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/fountain-tile.png" alt="Fountain" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Fountain.png" alt="Fountain" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Water Buildings</h4>
@@ -1463,7 +1463,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-orange-900 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/blacksmith-tile.png" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Blacksmith.png" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Blacksmith</h4>
@@ -1482,7 +1482,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-amber-700 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/inn-tile.png" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Inn.png" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Shops & Inns</h4>
@@ -1504,7 +1504,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-purple-900 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/wizard-tile.png" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Wizard.png" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Magic & Study</h4>
@@ -1526,7 +1526,7 @@ export function KingdomClient() {
                     <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="bg-green-800 p-2 rounded-lg shrink-0">
-                          <Image src="/images/tiles/vegetables-tile.png" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
+                          <Image src="/images/kingdom-tiles/Vegetables.png" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200">Crops</h4>
