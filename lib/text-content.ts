@@ -144,5 +144,25 @@ export const TEXT_CONTENT = {
             name: "House",
             clickMessage: "The cozy house welcomes you with warmth. The residents appreciate your visit and reward you with gold for your hospitality."
         }
+    },
+    riddleChallenge: {
+        success: {
+            title: "Correct!",
+            description: "You've earned {xpAmount} XP for your wisdom!"
+        },
+        failure: {
+            title: "Incorrect!",
+            description: "You've lost {goldAmount} gold coins. Try again!"
+        },
+        insufficientGold: {
+            title: "Not enough gold!",
+            description: "You need at least 50 gold to attempt this riddle."
+        },
+        ui: {
+            title: "Riddle Challenge",
+            description: "Answer correctly to earn 50 XP. Wrong answers cost 50 gold.",
+            correctOverlay: "Well done, wise one! Your answer is correct.",
+            incorrectOverlay: "The correct answer is: {answer}"
+        }
     }
 }

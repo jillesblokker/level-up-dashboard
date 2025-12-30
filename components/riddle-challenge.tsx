@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 import { Sparkles, Award, Coins, Brain } from "lucide-react"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 // Medieval-themed riddles with answers
 const riddles = [
@@ -289,8 +290,8 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       setTimeout(() => setIsAnimating(false), 1000)
 
       toast({
-        title: "Correct!",
-        description: `You've earned ${xpAmount} XP for your wisdom!`,
+        title: TEXT_CONTENT.riddleChallenge.success.title,
+        description: TEXT_CONTENT.riddleChallenge.success.description.replace('{xpAmount}', xpAmount.toString()),
         variant: "default",
       })
     } else {
@@ -307,14 +308,14 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
         if (onSpendGold) onSpendGold(goldAmount)
 
         toast({
-          title: "Incorrect!",
-          description: `You've lost ${goldAmount} gold coins. Try again!`,
+          title: TEXT_CONTENT.riddleChallenge.failure.title,
+          description: TEXT_CONTENT.riddleChallenge.failure.description.replace('{goldAmount}', goldAmount.toString()),
           variant: "destructive",
         })
       } else {
         toast({
-          title: "Not enough gold!",
-          description: "You need at least 50 gold to attempt this riddle.",
+          title: TEXT_CONTENT.riddleChallenge.insufficientGold.title,
+          description: TEXT_CONTENT.riddleChallenge.insufficientGold.description,
           variant: "destructive",
         })
       }
@@ -339,7 +340,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       <CardHeader className="bg-amber-800/10 border-b border-amber-800/20">
         <div className="flex justify-between items-center">
           <CardTitle className="text-xl font-medieval flex items-center">
-            <Brain className="mr-2 h-5 w-5" /> Riddle Challenge
+            <Brain className="mr-2 h-5 w-5" /> {TEXT_CONTENT.riddleChallenge.ui.title}
           </CardTitle>
           <div className="flex space-x-2">
             <Badge className="text-amber-300 border-amber-800/20">
@@ -350,7 +351,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
             </Badge>
           </div>
         </div>
-        <CardDescription>Answer correctly to earn 50 XP. Wrong answers cost 50 gold.</CardDescription>
+        <CardDescription>{TEXT_CONTENT.riddleChallenge.ui.description}</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 pb-2">
         <div className="scroll-decoration p-4 mb-4">
@@ -398,16 +399,15 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
 
           {showAnswer && (
             <div
-              className={`mt-4 p-3 rounded-md ${
-                isCorrect
-                  ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                  : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-              }`}
+              className={`mt-4 p-3 rounded-md ${isCorrect
+                ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                }`}
             >
               <p className="font-medieval">
                 {isCorrect
-                  ? "Well done, wise one! Your answer is correct."
-                  : `The correct answer is: ${currentRiddleData ? currentRiddleData.answer : ""}`}
+                  ? TEXT_CONTENT.riddleChallenge.ui.correctOverlay
+                  : TEXT_CONTENT.riddleChallenge.ui.incorrectOverlay.replace('{answer}', currentRiddleData ? currentRiddleData.answer : "")}
               </p>
             </div>
           )}
