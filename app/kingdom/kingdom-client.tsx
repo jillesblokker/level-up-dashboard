@@ -293,7 +293,7 @@ function createEmptyKingdomGrid(): Tile[][] {
 // Helper to get the kingdom tile inventory with build tokens
 function getKingdomTileInventoryWithBuildTokens(): Tile[] {
   const KINGDOM_TILE_IMAGES = [
-    'Crossroad.png', 'Straightroad.png', 'Cornerroad.png', 'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
+    'Crossroad.png', 'Straightroad.png', 'Cornerroad.png', 'Tsplitroad.png', 'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
   ];
   return KINGDOM_TILE_IMAGES.map((filename, idx) => {
     const tileName = filename.replace('.png', '');
@@ -312,6 +312,8 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
         kingdomTileConfig = { id: 'straightroad', name: 'Straight Road', clickMessage: 'A Straight Road tile', image: '/images/kingdom-tiles/Straightroad.png' } as any;
       } else if (tileName === 'Cornerroad') {
         kingdomTileConfig = { id: 'cornerroad', name: 'Corner Road', clickMessage: 'A Corner Road tile', image: '/images/kingdom-tiles/Cornerroad.png' } as any;
+      } else if (tileName === 'Tsplitroad') {
+        kingdomTileConfig = { id: 'tsplitroad', name: 'T-Split Road', clickMessage: 'A T-Split Road tile', image: '/images/kingdom-tiles/Tsplitroad.png' } as any;
       }
     }
 

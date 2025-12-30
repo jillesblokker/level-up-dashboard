@@ -658,6 +658,17 @@ export function KingdomGridWithTimers({
       isSeasonal: false,
       category: 'infrastructure'
     },
+    {
+      id: 'tsplitroad',
+      name: 'T-Split Road',
+      image: '/images/kingdom-tiles/Tsplitroad.png',
+      cost: 1,
+      levelRequired: 1,
+      costType: 'build-token',
+      quantity: 0,
+      isSeasonal: false,
+      category: 'infrastructure'
+    },
 
     // Combat & Training (Level 2) - Military and skill development
     {

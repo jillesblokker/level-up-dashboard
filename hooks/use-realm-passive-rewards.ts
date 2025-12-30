@@ -122,7 +122,7 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
         toast({
             title: "💰 Royal Treasury Collected!",
             description: `You collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP from your kingdom!`,
-            className: "bg-gradient-to-r from-amber-900 to-yellow-900 border-amber-500 border-2 text-amber-50 shadow-xl"
+            className: "bg-black bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-900 border-amber-500 border-2 text-white shadow-2xl opacity-100"
         });
 
         window.dispatchEvent(new CustomEvent('coin-burst', {

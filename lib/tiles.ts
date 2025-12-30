@@ -50,6 +50,7 @@ export function getTileName(type: TileType): string {
     crossroad: 'Crossroad',
     straightroad: 'Straight Road',
     cornerroad: 'Corner Road',
+    tsplitroad: 'T-Split Road',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -104,6 +105,7 @@ export function getDefaultConnections(type: TileType): string[] {
     crossroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
     straightroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
     cornerroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
+    tsplitroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
   };
   return defaultConnections[type] || [];
 } 

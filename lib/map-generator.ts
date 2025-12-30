@@ -197,7 +197,8 @@ export class MapGenerator {
       cottage: 'Cottage',
       crossroad: 'Crossroad',
       straightroad: 'Straight Road',
-      cornerroad: 'Corner Road'
+      cornerroad: 'Corner Road',
+      tsplitroad: 'T-Split Road'
     };
 
     const tileDescriptions = {
@@ -249,7 +250,8 @@ export class MapGenerator {
       cottage: 'A cozy cottage for residents',
       crossroad: 'A busy crossroad connecting the kingdom',
       straightroad: 'A straight road connecting the kingdom',
-      cornerroad: 'A curved road connecting the kingdom'
+      cornerroad: 'A curved road connecting the kingdom',
+      tsplitroad: 'A T-shaped road split connecting three paths'
     };
 
     const tileImages = {
@@ -301,7 +303,8 @@ export class MapGenerator {
       cottage: '/images/kingdom-tiles/Cottage.png',
       crossroad: '/images/kingdom-tiles/Crossroad.png',
       straightroad: '/images/kingdom-tiles/Straightroad.png',
-      cornerroad: '/images/kingdom-tiles/Cornerroad.png'
+      cornerroad: '/images/kingdom-tiles/Cornerroad.png',
+      tsplitroad: '/images/kingdom-tiles/Tsplitroad.png'
     };
 
     return {
