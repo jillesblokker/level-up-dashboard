@@ -5,6 +5,10 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import logger from '@/lib/logger';
 import { calculateRewards } from '@/lib/game-logic';
 
+// Force dynamic route to prevent caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Amsterdam',
   year: 'numeric',

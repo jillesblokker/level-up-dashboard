@@ -1521,6 +1521,11 @@ export default function QuestsPage() {
           setChallenges(challengesData || []);
         } else {
           console.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
+          toast({
+            title: 'Error loading challenges',
+            description: `Failed to load challenges: ${challengesRes.status} ${challengesRes.statusText}`,
+            variant: 'destructive'
+          });
         }
 
         // Fetch milestones
