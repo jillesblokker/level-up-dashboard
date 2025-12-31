@@ -1,9 +1,10 @@
+import { getAuth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
-import { verifyClerkJWT, authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
 import { calculateRewards } from '@/lib/game-logic';
-import { supabaseServer } from '@/lib/supabase/server-client';
+
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 // Force dynamic route to prevent caching
 export const dynamic = 'force-dynamic';
@@ -38,12 +39,14 @@ function formatNetherlandsDate(input?: string | Date | null) {
 
 export async function GET(request: Request) {
   try {
-    // 1. Verify Auth
-    const authResult = await verifyClerkJWT(request);
-    if (!authResult.success || !authResult.userId) {
-      return NextResponse.json({ error: authResult.error || 'Unauthorized' }, { status: 401 });
+    // 1. Verify Auth using standard Clerk helper
+    // Cast to NextRequest to satisfy Clerk type requirements if needed
+    const { userId } = getAuth(request as NextRequest);
+
+    if (!userId) {
+      console.warn('[Challenges API] No userId found via getAuth');
+      return NextResponse.json({ error: 'Unauthorized - invalid session' }, { status: 401 });
     }
-    const userId = authResult.userId;
 
     // 2. Create fresh client (Service Role)
     const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
