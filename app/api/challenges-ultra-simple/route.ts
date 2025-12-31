@@ -44,11 +44,21 @@ export async function GET(request: Request) {
     });
 
     // Use authenticated Supabase query with proper Clerk JWT verification
-    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      // Fetch all challenges
-      const { data: allChallenges, error: challengesError } = await supabase
+    // Use authenticated Supabase query for Auth check only, then use clean client for global data
+    const queryPromise = authenticatedSupabaseQuery(request, async (supabaseContextClient, userId) => {
+      // Create a fresh service client to bypass any RLS/Context issues for global data
+      const { createClient } = require('@supabase/supabase-js');
+      const serviceClient = createClient(
+        process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+        process.env['SUPABASE_SERVICE_ROLE_KEY']!,
+        { auth: { persistSession: false } }
+      );
+
+      // Fetch all challenges using the fresh service client
+      const { data: allChallenges, error: challengesError } = await serviceClient
         .from('challenges')
         .select('*');
+
       if (challengesError) {
         throw challengesError;
       }
@@ -58,12 +68,12 @@ export async function GET(request: Request) {
 
       logger.info(`Querying for today: ${today}, userId: ${userId}`, 'Challenges API');
 
-      // Fetch all challenge completions for the user, then filter by date in code
-      // This avoids type casting issues between DATE column and string comparison
-      const { data: allCompletions, error: completionError } = await supabase
+      // Fetch completions (User specific data - we can use the context client or service client filtered by ID)
+      const { data: allCompletions, error: completionError } = await serviceClient
         .from('challenge_completion')
         .select('*')
         .eq('user_id', userId);
+
       if (completionError) {
         throw completionError;
       }
