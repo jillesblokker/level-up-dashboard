@@ -24,6 +24,7 @@ import { TownView } from "@/components/town-view"
 import { TileType } from '@/types/tiles'
 import { typography as designTokens, spacing, colors as designColors, animation, shadows, borderRadius, createTypographyClass } from '@/lib/design-tokens'
 import styles from './styles.module.css'
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 type ColorItem = {
   name: string
@@ -80,17 +81,17 @@ export default function DesignSystemPage() {
   ])
 
   const [gradients, setGradients] = useState<GradientItem[]>([
-    { 
-      name: "Card Gradient", 
-      class: "bg-gradient-to-b", 
+    {
+      name: "Card Gradient",
+      class: "bg-gradient-to-b",
       description: "Used for card backgrounds",
       startColor: startColor,
       endColor: endColor,
       direction: "to-b"
     },
-    { 
-      name: "Header Gradient", 
-      class: "bg-gradient-to-r from-amber-900/20 to-transparent", 
+    {
+      name: "Header Gradient",
+      class: "bg-gradient-to-r from-amber-900/20 to-transparent",
       description: "Used for section headers",
       startColor: "#78350f33",
       endColor: "transparent",
@@ -99,33 +100,33 @@ export default function DesignSystemPage() {
   ])
 
   const [typography, setTypography] = useState<TypographyItem[]>([
-    { 
-      name: "Heading 1", 
-      class: "text-4xl font-serif", 
+    {
+      name: "Heading 1",
+      class: "text-4xl font-serif",
       example: "Kingdom Overview",
       fontSize: "text-4xl",
       fontWeight: "font-normal",
       fontFamily: "font-serif"
     },
-    { 
-      name: "Heading 2", 
-      class: "text-2xl font-serif", 
+    {
+      name: "Heading 2",
+      class: "text-2xl font-serif",
       example: "Section Title",
       fontSize: "text-2xl",
       fontWeight: "font-normal",
       fontFamily: "font-serif"
     },
-    { 
-      name: "Body", 
-      class: "text-base", 
+    {
+      name: "Body",
+      class: "text-base",
       example: "Regular text content",
       fontSize: "text-base",
       fontWeight: "font-normal",
       fontFamily: "font-sans"
     },
-    { 
-      name: "Small", 
-      class: "text-sm", 
+    {
+      name: "Small",
+      class: "text-sm",
       example: "Secondary information",
       fontSize: "text-sm",
       fontWeight: "font-normal",
@@ -184,92 +185,84 @@ export default function DesignSystemPage() {
         <div className="container max-w-7xl py-12">
           <div className="text-center space-y-4">
             <h1 className="font-serif text-5xl font-bold text-amber-400 tracking-wide">
-              Thrivehaven Design System
+              {TEXT_CONTENT.designSystem.title}
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              A comprehensive design system for the medieval kingdom management game. 
-              Built with consistency, accessibility, and user experience in mind.
+              {TEXT_CONTENT.designSystem.desc}
             </p>
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
-              <span>🎨 Design Tokens</span>
-              <span>📱 Mobile First</span>
-              <span>♿ Accessibility</span>
-              <span>⚡ Performance</span>
+              {TEXT_CONTENT.designSystem.features.map((feature, index) => (
+                <span key={index}>{feature}</span>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-              <div className="container max-w-7xl py-8">
+      <div className="container max-w-7xl py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
               <Card className="bg-gray-900/50 border-amber-800/20">
                 <CardHeader>
-                  <CardTitle className="text-lg text-amber-400">Navigation</CardTitle>
+                  <CardTitle className="text-lg text-amber-400">{TEXT_CONTENT.designSystem.navigation.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <button
                     onClick={() => setActiveTab("overview")}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      activeTab === "overview" 
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                        : "text-gray-300 hover:bg-gray-800/50"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "overview"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "text-gray-300 hover:bg-gray-800/50"
+                      }`}
                   >
-                    Overview
+                    {TEXT_CONTENT.designSystem.navigation.items[0]}
                   </button>
                   <button
                     onClick={() => setActiveTab("colors")}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      activeTab === "colors" 
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                        : "text-gray-300 hover:bg-gray-800/50"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "colors"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "text-gray-300 hover:bg-gray-800/50"
+                      }`}
                   >
-                    Colors
+                    {TEXT_CONTENT.designSystem.navigation.items[1]}
                   </button>
                   <button
                     onClick={() => setActiveTab("typography")}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      activeTab === "typography" 
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                        : "text-gray-300 hover:bg-gray-800/50"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "typography"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "text-gray-300 hover:bg-gray-800/50"
+                      }`}
                   >
-                    Typography
+                    {TEXT_CONTENT.designSystem.navigation.items[2]}
                   </button>
                   <button
                     onClick={() => setActiveTab("spacing")}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      activeTab === "spacing" 
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                        : "text-gray-300 hover:bg-gray-800/50"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "spacing"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "text-gray-300 hover:bg-gray-800/50"
+                      }`}
                   >
-                    Spacing
+                    {TEXT_CONTENT.designSystem.navigation.items[3]}
                   </button>
                   <button
                     onClick={() => setActiveTab("tokens")}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      activeTab === "tokens" 
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                        : "text-gray-300 hover:bg-gray-800/50"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "tokens"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "text-gray-300 hover:bg-gray-800/50"
+                      }`}
                   >
-                    Design Tokens
+                    {TEXT_CONTENT.designSystem.navigation.items[4]}
                   </button>
                   <button
                     onClick={() => setActiveTab("components")}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      activeTab === "components" 
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                        : "text-gray-300 hover:bg-gray-800/50"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "components"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "text-gray-300 hover:bg-gray-800/50"
+                      }`}
                   >
-                    Components
+                    {TEXT_CONTENT.designSystem.navigation.items[5]}
                   </button>
                 </CardContent>
               </Card>
@@ -284,49 +277,45 @@ export default function DesignSystemPage() {
                 {activeTab === "overview" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Design System Overview</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.overview.title}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Card className="bg-gray-900/50 border-amber-800/20">
                           <CardHeader>
-                            <CardTitle className="text-amber-400">🎨 Design Philosophy</CardTitle>
+                            <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.philosophy.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <p className="text-gray-300 leading-relaxed">
-                              Our design system emphasizes medieval aesthetics while maintaining modern usability. 
-                              We prioritize accessibility, performance, and consistent user experience across all platforms.
+                              {TEXT_CONTENT.designSystem.overview.philosophy.desc}
                             </p>
                           </CardContent>
                         </Card>
                         <Card className="bg-gray-900/50 border-amber-800/20">
                           <CardHeader>
-                            <CardTitle className="text-amber-400">📱 Mobile First</CardTitle>
+                            <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.mobile.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <p className="text-gray-300 leading-relaxed">
-                              Built with mobile devices in mind, ensuring touch-friendly interactions and 
-                              responsive layouts that work seamlessly across all screen sizes.
+                              {TEXT_CONTENT.designSystem.overview.mobile.desc}
                             </p>
                           </CardContent>
                         </Card>
                         <Card className="bg-gray-900/50 border-amber-800/20">
                           <CardHeader>
-                            <CardTitle className="text-amber-400">♿ Accessibility</CardTitle>
+                            <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.accessibility.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <p className="text-gray-300 leading-relaxed">
-                              WCAG 2.1 AA compliant with proper keyboard navigation, screen reader support, 
-                              and high contrast ratios for inclusive user experience.
+                              {TEXT_CONTENT.designSystem.overview.accessibility.desc}
                             </p>
                           </CardContent>
                         </Card>
                         <Card className="bg-gray-900/50 border-amber-800/20">
                           <CardHeader>
-                            <CardTitle className="text-amber-400">⚡ Performance</CardTitle>
+                            <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.performance.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <p className="text-gray-300 leading-relaxed">
-                              Optimized for speed with efficient animations, lazy loading, and minimal 
-                              bundle sizes to ensure smooth gameplay experience.
+                              {TEXT_CONTENT.designSystem.overview.performance.desc}
                             </p>
                           </CardContent>
                         </Card>
@@ -338,12 +327,11 @@ export default function DesignSystemPage() {
                 {activeTab === "colors" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Complete Color System</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.colors.title}</h2>
                       <p className="text-gray-300 mb-8 leading-relaxed">
-                        Our comprehensive color system includes 50+ unique colors across the entire app, 
-                        with carefully chosen semantic colors for different states and interactions.
+                        {TEXT_CONTENT.designSystem.colors.desc}
                       </p>
-                      
+
                       {/* Brand Colors */}
                       <div className="mb-8">
                         <h3 className="text-xl font-semibold text-white mb-4">Primary Brand Colors</h3>
@@ -371,7 +359,7 @@ export default function DesignSystemPage() {
                         <p className="text-gray-300 mb-6 leading-relaxed">
                           Below is a comprehensive overview of all colors used in the app, including usage statistics and consolidation recommendations.
                         </p>
-                        
+
                         {/* Amber/Gold Colors */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">🔴 Amber/Gold Colors (Frequently Used)</h4>
@@ -445,7 +433,7 @@ export default function DesignSystemPage() {
                                   </div>
                                 </div>
                                 <p className="text-sm text-gray-300">Tile backgrounds</p>
-                                                                    <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #0D7200</p>
+                                <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #0D7200</p>
                               </CardContent>
                             </Card>
                             <Card className="bg-gray-900/50 border-amber-800/20">
@@ -862,26 +850,25 @@ export default function DesignSystemPage() {
                 {activeTab === "typography" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Typography</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.typography.title}</h2>
                       <p className="text-gray-300 mb-8 leading-relaxed">
-                        Our typography system uses a combination of serif and sans-serif fonts to create 
-                        a medieval aesthetic while maintaining excellent readability.
+                        {TEXT_CONTENT.designSystem.typography.desc}
                       </p>
-                      
+
                       {/* Font Scale */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Font Scale</h3>
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.typography.scale.title}</h3>
                         <div className="space-y-4">
                           {[
-                            { key: '5xl', value: `text-5xl`, label: 'Hero Headings', example: 'Thrivehaven Kingdom' },
-                            { key: '4xl', value: `text-4xl`, label: 'Page Headings', example: 'Welcome to Your Realm' },
-                            { key: '3xl', value: `text-3xl`, label: 'Section Headings', example: 'Character Stats' },
-                            { key: '2xl', value: `text-2xl`, label: 'Subsection Headings', example: 'Achievements' },
-                            { key: 'xl', value: `text-xl`, label: 'Card Titles', example: 'Quest Complete' },
-                            { key: 'lg', value: `text-lg`, label: 'Body Large', example: 'Important game text' },
-                            { key: 'base', value: `text-base`, label: 'Body Text', example: 'Regular content and descriptions' },
-                            { key: 'sm', value: `text-sm`, label: 'Small Text', example: 'Captions and metadata' },
-                            { key: 'xs', value: `text-xs`, label: 'Micro Text', example: 'Tiny labels and notes' },
+                            { key: '5xl', value: `text-5xl`, label: TEXT_CONTENT.designSystem.typography.scale.items["5xl"].label, example: TEXT_CONTENT.designSystem.typography.scale.items["5xl"].example },
+                            { key: '4xl', value: `text-4xl`, label: TEXT_CONTENT.designSystem.typography.scale.items["4xl"].label, example: TEXT_CONTENT.designSystem.typography.scale.items["4xl"].example },
+                            { key: '3xl', value: `text-3xl`, label: TEXT_CONTENT.designSystem.typography.scale.items["3xl"].label, example: TEXT_CONTENT.designSystem.typography.scale.items["3xl"].example },
+                            { key: '2xl', value: `text-2xl`, label: TEXT_CONTENT.designSystem.typography.scale.items["2xl"].label, example: TEXT_CONTENT.designSystem.typography.scale.items["2xl"].example },
+                            { key: 'xl', value: `text-xl`, label: TEXT_CONTENT.designSystem.typography.scale.items["xl"].label, example: TEXT_CONTENT.designSystem.typography.scale.items["xl"].example },
+                            { key: 'lg', value: `text-lg`, label: TEXT_CONTENT.designSystem.typography.scale.items.lg.label, example: TEXT_CONTENT.designSystem.typography.scale.items.lg.example },
+                            { key: 'base', value: `text-base`, label: TEXT_CONTENT.designSystem.typography.scale.items.base.label, example: TEXT_CONTENT.designSystem.typography.scale.items.base.example },
+                            { key: 'sm', value: `text-sm`, label: TEXT_CONTENT.designSystem.typography.scale.items.sm.label, example: TEXT_CONTENT.designSystem.typography.scale.items.sm.example },
+                            { key: 'xs', value: `text-xs`, label: TEXT_CONTENT.designSystem.typography.scale.items.xs.label, example: TEXT_CONTENT.designSystem.typography.scale.items.xs.example },
                           ].map(({ key, value, label, example }) => (
                             <Card key={key} className="bg-gray-900/50 border-amber-800/20">
                               <CardContent className="p-4">
@@ -900,24 +887,24 @@ export default function DesignSystemPage() {
 
                       {/* Font Families */}
                       <div>
-                        <h3 className="text-xl font-semibold text-white mb-4">Font Families</h3>
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.typography.families.title}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4 text-center">
-                              <h4 className="font-serif text-2xl text-amber-400 mb-2">Serif</h4>
-                              <p className="text-sm text-gray-400">Headings and titles</p>
+                              <h4 className="font-serif text-2xl text-amber-400 mb-2">{TEXT_CONTENT.designSystem.typography.families.serif.title}</h4>
+                              <p className="text-sm text-gray-400">{TEXT_CONTENT.designSystem.typography.families.serif.desc}</p>
                             </CardContent>
                           </Card>
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4 text-center">
-                              <h4 className="font-sans text-2xl text-amber-400 mb-2">Sans-Serif</h4>
-                              <p className="text-sm text-gray-400">Body text and UI</p>
+                              <h4 className="font-sans text-2xl text-amber-400 mb-2">{TEXT_CONTENT.designSystem.typography.families.sans.title}</h4>
+                              <p className="text-sm text-gray-400">{TEXT_CONTENT.designSystem.typography.families.sans.desc}</p>
                             </CardContent>
                           </Card>
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4 text-center">
-                              <h4 className="font-mono text-2xl text-amber-400 mb-2">Monospace</h4>
-                              <p className="text-sm text-gray-400">Code and data</p>
+                              <h4 className="font-mono text-2xl text-amber-400 mb-2">{TEXT_CONTENT.designSystem.typography.families.mono.title}</h4>
+                              <p className="text-sm text-gray-400">{TEXT_CONTENT.designSystem.typography.families.mono.desc}</p>
                             </CardContent>
                           </Card>
                         </div>
@@ -929,19 +916,18 @@ export default function DesignSystemPage() {
                 {activeTab === "spacing" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Spacing System</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.spacing.title}</h2>
                       <p className="text-gray-300 mb-8 leading-relaxed">
-                        Our spacing system uses a 4px base unit to create consistent layouts and 
-                        maintain visual harmony throughout the application.
+                        {TEXT_CONTENT.designSystem.spacing.desc}
                       </p>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {Object.entries(spacing).slice(0, 12).map(([key, value]) => (
                           <Card key={key} className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4 text-center">
-                              <div 
+                              <div
                                 className="bg-amber-500 rounded mx-auto mb-2"
-                                style={{ 
+                                style={{
                                   width: value === '0' ? '4px' : value,
                                   height: '16px'
                                 }}
@@ -959,31 +945,30 @@ export default function DesignSystemPage() {
                 {activeTab === "tokens" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Design Token System</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.tokens.title}</h2>
                       <p className="text-gray-300 mb-8 leading-relaxed">
-                        Our design tokens provide a systematic approach to design decisions, 
-                        ensuring consistency across all components and platforms.
+                        {TEXT_CONTENT.designSystem.tokens.desc}
                       </p>
-                      
+
                       {/* Animation Tokens - Temporarily disabled */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Animation Timing</h3>
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.tokens.animation.title}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4">
-                              <h4 className="font-medium text-white mb-1">Fast</h4>
+                              <h4 className="font-medium text-white mb-1">{TEXT_CONTENT.designSystem.tokens.animation.fast}</h4>
                               <p className="text-sm text-gray-400">150ms</p>
                             </CardContent>
                           </Card>
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4">
-                              <h4 className="font-medium text-white mb-1">Normal</h4>
+                              <h4 className="font-medium text-white mb-1">{TEXT_CONTENT.designSystem.tokens.animation.normal}</h4>
                               <p className="text-sm text-gray-400">300ms</p>
                             </CardContent>
                           </Card>
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4">
-                              <h4 className="font-medium text-white mb-1">Slow</h4>
+                              <h4 className="font-medium text-white mb-1">{TEXT_CONTENT.designSystem.tokens.animation.slow}</h4>
                               <p className="text-sm text-gray-400">500ms</p>
                             </CardContent>
                           </Card>
@@ -992,11 +977,11 @@ export default function DesignSystemPage() {
 
                       {/* Example Usage */}
                       <div>
-                        <h3 className="text-xl font-semibold text-white mb-4">Example Usage</h3>
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.tokens.example.title}</h3>
                         <div className="space-y-4">
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4">
-                              <h4 className="font-medium text-white mb-2">Typography Combination</h4>
+                              <h4 className="font-medium text-white mb-2">{TEXT_CONTENT.designSystem.tokens.example.typography}</h4>
                               <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
                                 text-2xl font-bold
                               </code>
@@ -1004,7 +989,7 @@ export default function DesignSystemPage() {
                           </Card>
                           <Card className="bg-gray-900/50 border-amber-800/20">
                             <CardContent className="p-4">
-                              <h4 className="font-medium text-white mb-2">Color & Spacing</h4>
+                              <h4 className="font-medium text-white mb-2">{TEXT_CONTENT.designSystem.tokens.example.colorSpacing}</h4>
                               <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
                                 text-green-500 p-4
                               </code>
@@ -1019,19 +1004,18 @@ export default function DesignSystemPage() {
                 {activeTab === "components" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-amber-400 mb-6">Component Library</h2>
+                      <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.components.title}</h2>
                       <p className="text-gray-300 mb-8 leading-relaxed">
-                        Our component library showcases the building blocks used throughout the application, 
-                        demonstrating consistent design patterns and interactions.
+                        {TEXT_CONTENT.designSystem.components.desc}
                       </p>
-                      
+
                       {/* Basic UI Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Basic UI Components</h3>
-                        
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.components.basic.title}</h3>
+
                         {/* Buttons */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Buttons</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.buttons.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex flex-wrap gap-3">
@@ -1047,39 +1031,37 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Button</strong> component with multiple variants (default, secondary, outline, ghost, destructive) 
-                            and sizes (default, sm, lg, icon). Includes proper accessibility attributes and hover states.
+                            {TEXT_CONTENT.designSystem.components.basic.buttons.desc}
                           </p>
                         </div>
 
                         {/* Inputs */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Inputs & Forms</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.inputs.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4 space-y-4">
                               <div>
-                                <Label htmlFor="example-input">Input Field</Label>
-                                <Input id="example-input" placeholder="Enter text..." />
+                                <Label htmlFor="example-input">{TEXT_CONTENT.designSystem.components.basic.inputs.inputLabel}</Label>
+                                <Input id="example-input" placeholder={TEXT_CONTENT.designSystem.components.basic.inputs.inputPlaceholder} />
                               </div>
                               <div>
-                                <Label htmlFor="example-textarea">Textarea</Label>
-                                <textarea 
-                                  id="example-textarea" 
-                                  placeholder="Enter longer text..."
+                                <Label htmlFor="example-textarea">{TEXT_CONTENT.designSystem.components.basic.inputs.textareaLabel}</Label>
+                                <textarea
+                                  id="example-textarea"
+                                  placeholder={TEXT_CONTENT.designSystem.components.basic.inputs.textareaPlaceholder}
                                   className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                               </div>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Input</strong> and <strong>Textarea</strong> components with consistent styling, 
-                            focus states, and proper accessibility labels.
+                            {TEXT_CONTENT.designSystem.components.basic.inputs.desc}
                           </p>
                         </div>
 
                         {/* Cards */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Cards</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.cards.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1101,14 +1083,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Card</strong> components with header, content, and footer sections. 
-                            Used for displaying content in organized containers throughout the app.
+                            {TEXT_CONTENT.designSystem.components.basic.cards.desc}
                           </p>
                         </div>
 
                         {/* Badges */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Badges</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.badges.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex flex-wrap gap-2">
@@ -1120,14 +1101,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Badge</strong> components for displaying status, categories, and labels. 
-                            Available in default, secondary, destructive, and outline variants.
+                            {TEXT_CONTENT.designSystem.components.basic.badges.desc}
                           </p>
                         </div>
 
                         {/* Progress */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Progress Indicators</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.progress.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4 space-y-4">
                               <div>
@@ -1149,14 +1129,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Progress</strong> bars and loading states for showing completion status 
-                            and loading indicators throughout the application.
+                            {TEXT_CONTENT.designSystem.components.basic.progress.desc}
                           </p>
                         </div>
 
                         {/* Checkboxes */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Checkboxes</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.checkboxes.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex items-center space-x-4">
@@ -1176,19 +1155,18 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Checkbox</strong> components for boolean inputs with proper accessibility 
-                            and visual states for checked, unchecked, and disabled states.
+                            {TEXT_CONTENT.designSystem.components.basic.checkboxes.desc}
                           </p>
                         </div>
                       </div>
 
                       {/* Navigation Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Navigation Components</h3>
-                        
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.components.navigation.title}</h3>
+
                         {/* Tabs */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Tabs</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.navigation.tabs.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <Tabs defaultValue="overview" className="w-full">
@@ -1210,14 +1188,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Tabs</strong> component for organizing content into sections. 
-                            Includes proper keyboard navigation and accessibility features.
+                            {TEXT_CONTENT.designSystem.components.navigation.tabs.desc}
                           </p>
                         </div>
 
                         {/* Tooltips */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Tooltips</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.navigation.tooltips.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <TooltipProvider>
@@ -1243,14 +1220,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Tooltip</strong> components for displaying additional information 
-                            when hovering over elements. Includes proper positioning and animations.
+                            {TEXT_CONTENT.designSystem.components.navigation.tooltips.desc}
                           </p>
                         </div>
 
                         {/* Scroll Area */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Scroll Area</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.navigation.scrollArea.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="relative overflow-hidden h-32 w-full rounded-[inherit]">
@@ -1270,19 +1246,18 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>ScrollArea</strong> component for custom scrollable content areas 
-                            with styled scrollbars and proper overflow handling.
+                            {TEXT_CONTENT.designSystem.components.navigation.scrollArea.desc}
                           </p>
                         </div>
                       </div>
 
                       {/* Game-Specific Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Game-Specific Components</h3>
-                        
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.components.game.title}</h3>
+
                         {/* HeaderSection Component */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">HeaderSection</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.header.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <HeaderSection
@@ -1294,15 +1269,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>HeaderSection</strong> is used as the main header/banner for most major pages. 
-                            It supports a title, optional subtitle, and an optional image. If <code>canEdit</code> is true, 
-                            an edit button appears for uploading a new banner image.
+                            {TEXT_CONTENT.designSystem.components.game.header.desc}
                           </p>
                         </div>
 
                         {/* TileVisual Component */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">TileVisual</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.tile.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex space-x-4">
@@ -1324,9 +1297,9 @@ export default function DesignSystemPage() {
                                   isSelected={false}
                                   isHovered={false}
                                   isCharacterPresent={false}
-                                  onClick={() => {}}
-                                  onHover={() => {}}
-                                  onHoverEnd={() => {}}
+                                  onClick={() => { }}
+                                  onHover={() => { }}
+                                  onHoverEnd={() => { }}
                                 />
                                 <TileVisual
                                   tile={{
@@ -1346,23 +1319,21 @@ export default function DesignSystemPage() {
                                   isSelected={true}
                                   isHovered={false}
                                   isCharacterPresent={false}
-                                  onClick={() => {}}
-                                  onHover={() => {}}
-                                  onHoverEnd={() => {}}
+                                  onClick={() => { }}
+                                  onHover={() => { }}
+                                  onHoverEnd={() => { }}
                                 />
                               </div>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>TileVisual</strong> displays tile visuals with proper accessibility attributes. 
-                            Used for rendering tiles in the realm and map views, with support for selection, 
-                            hover states, and character presence.
+                            {TEXT_CONTENT.designSystem.components.game.tile.desc}
                           </p>
                         </div>
 
                         {/* CreatureCard Component */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">CreatureCard</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.creature.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className={styles['creatureCardBox']}>
@@ -1386,14 +1357,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>CreatureCard</strong> displays information about a creature, including its name, 
-                            description, image, rarity, and discovery status. Used in the collection and discovery pages.
+                            {TEXT_CONTENT.designSystem.components.game.creature.desc}
                           </p>
                         </div>
 
                         {/* Quest Card */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Quest Card</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.quest.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <QuestCard
@@ -1423,52 +1393,49 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>QuestCard</strong> displays quest information with progress tracking, 
-                            completion status, and rewards. Includes interactive elements for toggling completion.
+                            {TEXT_CONTENT.designSystem.components.game.quest.desc}
                           </p>
                         </div>
                       </div>
 
                       {/* Feedback Components */}
                       <div className="mb-8">
-                        <h3 className="text-xl font-semibold text-white mb-4">Feedback Components</h3>
-                        
+                        <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.components.feedback.title}</h3>
+
                         {/* Toast Notifications */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Toast Notifications</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.toast.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
-                              <Button onClick={showToastExample} aria-label="Show toast notification example">Show Toast Example</Button>
+                              <Button onClick={showToastExample} aria-label="Show toast notification example">{TEXT_CONTENT.designSystem.components.feedback.toast.button}</Button>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Toast Notifications</strong> provide user feedback for actions and events. 
-                            Used throughout the app for notifications and alerts with consistent styling and behavior.
+                            {TEXT_CONTENT.designSystem.components.feedback.toast.desc}
                           </p>
                         </div>
 
                         {/* Alerts */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Alerts</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.alerts.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4 space-y-4">
                               <div className="relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground bg-background text-foreground">
-                                <div className="text-sm [&_p]:leading-relaxed">This is a default alert message.</div>
+                                <div className="text-sm [&_p]:leading-relaxed">{TEXT_CONTENT.designSystem.components.feedback.alerts.default}</div>
                               </div>
                               <div className="relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive">
-                                <div className="text-sm [&_p]:leading-relaxed">This is a destructive alert message.</div>
+                                <div className="text-sm [&_p]:leading-relaxed">{TEXT_CONTENT.designSystem.components.feedback.alerts.destructive}</div>
                               </div>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Alert</strong> components for displaying important messages and warnings. 
-                            Available in default and destructive variants with proper iconography.
+                            {TEXT_CONTENT.designSystem.components.feedback.alerts.desc}
                           </p>
                         </div>
 
                         {/* Skeleton Loading */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Skeleton Loading</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.skeleton.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="space-y-3">
@@ -1479,21 +1446,20 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Skeleton</strong> loading components for showing loading states 
-                            while content is being fetched or processed.
+                            {TEXT_CONTENT.designSystem.components.feedback.skeleton.desc}
                           </p>
                         </div>
 
                         {/* Dialog/Modal */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Dialog/Modal</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.dialog.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="space-y-4">
                                 <div className="rounded-lg border bg-background p-6 shadow-lg">
                                   <div className="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
-                                    <h3 className="text-lg font-semibold leading-none tracking-tight">Dialog Title</h3>
-                                    <p className="text-sm text-muted-foreground">Dialog description and content</p>
+                                    <h3 className="text-lg font-semibold leading-none tracking-tight">{TEXT_CONTENT.designSystem.components.feedback.dialog.dialogTitle}</h3>
+                                    <p className="text-sm text-muted-foreground">{TEXT_CONTENT.designSystem.components.feedback.dialog.dialogDesc}</p>
                                   </div>
                                   <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
                                     <Button variant="outline" size="sm">Cancel</Button>
@@ -1504,18 +1470,17 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Dialog</strong> components for modal dialogs and overlays. 
-                            Includes proper focus management, backdrop, and accessibility features.
+                            {TEXT_CONTENT.designSystem.components.feedback.dialog.desc}
                           </p>
                         </div>
 
                         {/* Select Dropdown */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Select Dropdown</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.formExtend.select.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 pr-8 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                                <span>Select an option</span>
+                                <span>{TEXT_CONTENT.designSystem.components.formExtend.select.placeholder}</span>
                                 <svg className="h-4 w-4 opacity-50 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
@@ -1523,23 +1488,22 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Select</strong> dropdown components for choosing from predefined options. 
-                            Includes keyboard navigation and proper accessibility support.
+                            {TEXT_CONTENT.designSystem.components.formExtend.select.desc}
                           </p>
                         </div>
 
                         {/* Hover Card */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Hover Card</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.overlays.hoverCard.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex items-center space-x-2">
-                                <span className="text-sm font-medium">Hover over me</span>
+                                <span className="text-sm font-medium">{TEXT_CONTENT.designSystem.components.overlays.hoverCard.trigger}</span>
                                 <div className="relative">
                                   <div className="z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none">
                                     <div className="space-y-2">
-                                      <h4 className="text-sm font-medium">Hover Card Title</h4>
-                                      <p className="text-sm text-muted-foreground">Additional information appears on hover</p>
+                                      <h4 className="text-sm font-medium">{TEXT_CONTENT.designSystem.components.overlays.hoverCard.cardTitle}</h4>
+                                      <p className="text-sm text-muted-foreground">{TEXT_CONTENT.designSystem.components.overlays.hoverCard.cardDesc}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -1547,19 +1511,18 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>HoverCard</strong> components for displaying additional information 
-                            when hovering over elements. Includes proper positioning and animations.
+                            {TEXT_CONTENT.designSystem.components.overlays.hoverCard.desc}
                           </p>
                         </div>
 
                         {/* Sheet/Sidebar */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Sheet/Sidebar</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.overlays.sheet.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="border border-amber-800/20 rounded-lg p-4 bg-gray-800/50">
                                 <div className="flex items-center justify-between mb-4">
-                                  <h3 className="text-lg font-semibold">Sidebar Content</h3>
+                                  <h3 className="text-lg font-semibold">{TEXT_CONTENT.designSystem.components.overlays.sheet.contentTitle}</h3>
                                   <button className="text-gray-400 hover:text-white">×</button>
                                 </div>
                                 <div className="space-y-2">
@@ -1571,14 +1534,13 @@ export default function DesignSystemPage() {
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Sheet</strong> components for slide-out panels and sidebars. 
-                            Available in different positions (top, right, bottom, left) with smooth animations.
+                            {TEXT_CONTENT.designSystem.components.overlays.sheet.desc}
                           </p>
                         </div>
 
                         {/* Command Palette */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Command Palette</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.overlays.command.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="rounded-md bg-popover text-popover-foreground p-2">
@@ -1586,91 +1548,88 @@ export default function DesignSystemPage() {
                                   <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                   </svg>
-                                  <input 
-                                    placeholder="Search commands..." 
+                                  <input
+                                    placeholder={TEXT_CONTENT.designSystem.components.overlays.command.placeholder}
                                     className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                                 <div className="py-2">
-                                  <div className="px-2 py-1.5 text-sm text-muted-foreground">Recent</div>
-                                  <div className="px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer">Open Kingdom</div>
-                                  <div className="px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer">View Quests</div>
+                                  <div className="px-2 py-1.5 text-sm text-muted-foreground">{TEXT_CONTENT.designSystem.components.overlays.command.recent}</div>
+                                  <div className="px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer">{TEXT_CONTENT.designSystem.components.overlays.command.openKingdom}</div>
+                                  <div className="px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer">{TEXT_CONTENT.designSystem.components.overlays.command.viewQuests}</div>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Command</strong> palette for quick actions and navigation. 
-                            Includes search functionality and keyboard shortcuts.
+                            {TEXT_CONTENT.designSystem.components.overlays.command.desc}
                           </p>
                         </div>
 
                         {/* Kingdom Properties System */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Kingdom Properties System</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-300">Placeable Properties:</span>
+                                  <span className="text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.placeable}</span>
                                   <span className="text-green-400">1</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-300">Functional Tiles:</span>
+                                  <span className="text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.functional}</span>
                                   <span className="text-blue-400">20+</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-300">Material System:</span>
+                                  <span className="text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.material}</span>
                                   <span className="text-amber-400">5 Materials</span>
                                 </div>
                                 <div className="text-xs text-gray-400 mt-2">
-                                  <strong>Current Properties:</strong> House (5 logs + 3 planks)
+                                  <strong>{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.current}</strong> House (5 logs + 3 planks)
                                 </div>
                                 <div className="text-xs text-gray-400">
-                                  <strong>Materials:</strong> Logs → Planks → Steel → Silver → Gold
+                                  <strong>{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.materials}</strong> Logs → Planks → Steel → Silver → Gold
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Kingdom Properties System</strong> allows players to place buildings using materials. 
-                            Separated from functional kingdom tiles that generate rewards. Properties stay on the map 
-                            as functional buildings, not as inventory items.
+                            {TEXT_CONTENT.designSystem.components.kingdomExtend.properties.desc}
                           </p>
                         </div>
 
                         {/* Design System Rules */}
                         <div className="mb-8">
-                          <h3 className="text-xl font-semibold text-white mb-4">Design System Rules</h3>
-                          
+                          <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.components.rules.title}</h3>
+
                           {/* Card Background Guidelines */}
                           <div className="mb-6">
-                            <h4 className="text-lg font-medium text-amber-300 mb-3">Card Background Guidelines</h4>
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.rules.backgrounds.title}</h4>
                             <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                               <CardContent className="p-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div className="space-y-3">
                                     <div className="p-3 bg-black border border-amber-800/20 rounded-lg">
-                                      <h5 className="font-semibold text-white">Black Background</h5>
-                                      <p className="text-sm text-gray-300">Primary content cards, main UI elements</p>
+                                      <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.black.title}</h5>
+                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.black.desc}</p>
                                     </div>
                                     <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Red Background</h5>
-                                      <p className="text-sm text-gray-300">Warning cards, error states, destructive actions</p>
+                                      <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.red.title}</h5>
+                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.red.desc}</p>
                                     </div>
                                     <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Blue Background</h5>
-                                      <p className="text-sm text-gray-300">Information cards, help content, neutral information</p>
+                                      <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.blue.title}</h5>
+                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.blue.desc}</p>
                                     </div>
                                   </div>
                                   <div className="space-y-3">
                                     <div className="p-3 bg-gray-900/50 border border-gray-700/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Gray Background</h5>
-                                      <p className="text-sm text-gray-300">Secondary content, sidebar elements</p>
+                                      <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.gray.title}</h5>
+                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.gray.desc}</p>
                                     </div>
                                     <div className="p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg">
-                                      <h5 className="font-semibold text-white">Amber/Gold Background</h5>
-                                      <p className="text-sm text-gray-300">Achievement cards, reward displays</p>
+                                      <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.amber.title}</h5>
+                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.amber.desc}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -1680,12 +1639,12 @@ export default function DesignSystemPage() {
 
                           {/* Component Usage Rules */}
                           <div className="mb-6">
-                            <h4 className="text-lg font-medium text-amber-300 mb-3">Component Usage Rules</h4>
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.rules.usage.title}</h4>
                             <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                               <CardContent className="p-4">
                                 <div className="space-y-4">
                                   <div>
-                                    <h5 className="font-semibold text-white mb-2">Buttons</h5>
+                                    <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.buttons.title}</h5>
                                     <div className="flex flex-wrap gap-2">
                                       <Button className="bg-amber-600 hover:bg-amber-700">Primary</Button>
                                       <Button className="bg-gray-700 hover:bg-gray-600">Secondary</Button>
@@ -1694,22 +1653,22 @@ export default function DesignSystemPage() {
                                     </div>
                                   </div>
                                   <div>
-                                    <h5 className="font-semibold text-white mb-2">Text Colors</h5>
+                                    <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.title}</h5>
                                     <div className="space-y-1 text-sm">
-                                      <p className="text-white">Primary text (text-white)</p>
-                                      <p className="text-gray-300">Secondary text (text-gray-300)</p>
-                                      <p className="text-gray-400">Muted text (text-gray-400)</p>
-                                      <p className="text-amber-400">Accent text (text-amber-400)</p>
-                                      <p className="text-green-400">Success text (text-green-400)</p>
-                                      <p className="text-red-400">Error text (text-red-400)</p>
+                                      <p className="text-white">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.primary}</p>
+                                      <p className="text-gray-300">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.secondary}</p>
+                                      <p className="text-gray-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.muted}</p>
+                                      <p className="text-amber-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.accent}</p>
+                                      <p className="text-green-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.success}</p>
+                                      <p className="text-red-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.error}</p>
                                     </div>
                                   </div>
                                   <div>
-                                    <h5 className="font-semibold text-white mb-2">Spacing</h5>
+                                    <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.spacing.title}</h5>
                                     <ul className="text-sm text-gray-300 space-y-1">
-                                      <li><strong>Cards:</strong> p-4 (standard), p-6 (larger)</li>
-                                      <li><strong>Sections:</strong> mb-6 (standard), mb-4 (components)</li>
-                                      <li><strong>Grid:</strong> gap-4 (standard), gap-6 (larger)</li>
+                                      <li><strong>{TEXT_CONTENT.designSystem.components.rules.usage.spacing.cards}</strong> {TEXT_CONTENT.designSystem.components.rules.usage.spacing.cardsVal}</li>
+                                      <li><strong>{TEXT_CONTENT.designSystem.components.rules.usage.spacing.sections}</strong> {TEXT_CONTENT.designSystem.components.rules.usage.spacing.sectionsVal}</li>
+                                      <li><strong>{TEXT_CONTENT.designSystem.components.rules.usage.spacing.grid}</strong> {TEXT_CONTENT.designSystem.components.rules.usage.spacing.gridVal}</li>
                                     </ul>
                                   </div>
                                 </div>
@@ -1719,16 +1678,13 @@ export default function DesignSystemPage() {
 
                           {/* Accessibility Guidelines */}
                           <div className="mb-6">
-                            <h4 className="text-lg font-medium text-amber-300 mb-3">Accessibility Guidelines</h4>
+                            <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.rules.accessibility.title}</h4>
                             <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                               <CardContent className="p-4">
                                 <ul className="text-sm text-gray-300 space-y-2">
-                                  <li>✓ Always include focus-visible rings for interactive elements</li>
-                                  <li>✓ Use aria-label for all interactive elements</li>
-                                  <li>✓ Ensure sufficient contrast ratios for all text combinations</li>
-                                  <li>✓ All interactive elements must be keyboard accessible</li>
-                                  <li>✓ Use semantic HTML elements (section, main, nav, etc.)</li>
-                                  <li>✓ Provide alternative text for images and icons</li>
+                                  {TEXT_CONTENT.designSystem.components.rules.accessibility.items.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                  ))}
                                 </ul>
                               </CardContent>
                             </Card>
@@ -1737,24 +1693,23 @@ export default function DesignSystemPage() {
 
                         {/* Kingdom Stats Graph Component */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-amber-300 mb-3">Kingdom Stats Graph Component</h4>
+                          <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.title}</h4>
                           <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex space-x-4">
                                 <div className="text-center">
                                   <div className="text-2xl font-bold text-amber-400">📊</div>
-                                  <div className="text-sm text-gray-300">Stats Graph</div>
+                                  <div className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.statsGraph}</div>
                                 </div>
                                 <div className="text-center">
                                   <div className="text-2xl font-bold text-amber-400">📈</div>
-                                  <div className="text-sm text-gray-300">Gains Graph</div>
+                                  <div className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.gainsGraph}</div>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
                           <p className="text-sm text-gray-400 mb-4">
-                            <strong>Kingdom Stats Graph</strong> displays kingdom statistics and gains over time. 
-                            Fixed authentication and data display with proper API integration.
+                            {TEXT_CONTENT.designSystem.components.kingdomExtend.stats.desc}
                           </p>
                         </div>
                       </div>
