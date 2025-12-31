@@ -1526,6 +1526,18 @@ export default function QuestsPage() {
             description: `Failed to load challenges: ${challengesRes.status} ${challengesRes.statusText}`,
             variant: 'destructive'
           });
+
+          try {
+            const errorJson = await challengesRes.json();
+            const errorDetails = errorJson.details || errorJson.error;
+            if (errorDetails) {
+              toast({
+                title: 'Server Error Details',
+                description: errorDetails,
+                variant: 'destructive'
+              });
+            }
+          } catch (e) { console.error('Error parsing error response', e); }
         }
 
         // Fetch milestones
