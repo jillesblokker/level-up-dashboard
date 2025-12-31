@@ -1,6 +1,40 @@
 import { createClient } from '@supabase/supabase-js';
+import { verifyClerkJWT, authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { NextResponse } from 'next/server';
+import logger from '@/lib/logger';
+import { calculateRewards } from '@/lib/game-logic';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
-// ... existing code ...
+// Force dynamic route to prevent caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Amsterdam',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit'
+});
+
+function formatNetherlandsDate(input?: string | Date | null) {
+  if (!input) return null;
+
+  if (typeof input === 'string') {
+    const normalized = input.includes('T') ? (input.split('T')[0] ?? input) : input;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+      return normalized;
+    }
+
+    const parsed = new Date(input);
+    if (!Number.isNaN(parsed.getTime())) {
+      return netherlandsFormatter.format(parsed);
+    }
+
+    return normalized;
+  }
+
+  return netherlandsFormatter.format(input);
+}
 
 export async function GET(request: Request) {
   try {
