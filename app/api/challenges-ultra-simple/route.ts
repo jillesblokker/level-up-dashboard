@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import logger from '@/lib/logger';
@@ -39,12 +39,11 @@ function formatNetherlandsDate(input?: string | Date | null) {
 
 export async function GET(request: Request) {
   try {
-    // 1. Verify Auth using standard Clerk helper
-    // Cast to NextRequest to satisfy Clerk type requirements if needed
-    const { userId } = getAuth(request as NextRequest);
+    // 1. Verify Auth using modern Clerk async helper
+    const { userId } = await auth();
 
     if (!userId) {
-      console.warn('[Challenges API] No userId found via getAuth');
+      console.warn('[Challenges API] No userId found via auth()');
       return NextResponse.json({ error: 'Unauthorized - invalid session' }, { status: 401 });
     }
 
