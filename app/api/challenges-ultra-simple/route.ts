@@ -169,7 +169,7 @@ export async function GET(request: Request) {
         };
       });
 
-      logger.info(`Final challenges with completion: ${JSON.stringify(challengesWithCompletion.slice(0, 3).map(c => ({
+      logger.info(`Final challenges with completion: ${JSON.stringify(challengesWithCompletion.slice(0, 3).map((c: any) => ({
         id: c.id,
         name: c.name,
         completed: c.completed,
