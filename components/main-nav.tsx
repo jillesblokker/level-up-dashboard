@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { TEXT_CONTENT } from '@/lib/text-content'
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -38,7 +39,7 @@ export function MainNav() {
               aria-label="Navigate to Kingdom"
               aria-current={pathname === "/kingdom" ? "page" : undefined}
             >
-              Kingdom
+              {TEXT_CONTENT.navigation.kingdom}
               {readyCount > 0 && (
                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
                   {readyCount}
@@ -58,7 +59,7 @@ export function MainNav() {
               aria-label="Navigate to Tasks"
               aria-current={pathname?.startsWith("/quests") ? "page" : undefined}
             >
-              Tasks
+              {TEXT_CONTENT.navigation.tasks}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -73,7 +74,7 @@ export function MainNav() {
               aria-label="Navigate to Realm"
               aria-current={pathname?.startsWith("/realm") ? "page" : undefined}
             >
-              Realm
+              {TEXT_CONTENT.navigation.realm}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -88,7 +89,7 @@ export function MainNav() {
               aria-label="Navigate to Achievements"
               aria-current={(pathname?.startsWith("/game-center") || pathname?.startsWith("/achievements")) ? "page" : undefined}
             >
-              Achievements
+              {TEXT_CONTENT.navigation.achievements}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -103,7 +104,7 @@ export function MainNav() {
               aria-label="Navigate to Character"
               aria-current={pathname?.startsWith("/character") ? "page" : undefined}
             >
-              Character
+              {TEXT_CONTENT.navigation.character}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -118,7 +119,7 @@ export function MainNav() {
               aria-label="Navigate to Social"
               aria-current={pathname?.startsWith("/social") ? "page" : undefined}
             >
-              Tavern
+              {TEXT_CONTENT.navigation.social}
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>

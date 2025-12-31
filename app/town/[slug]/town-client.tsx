@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Building, ShoppingBag, Swords, Home } from "lucide-react"
 import Link from "next/link"
 import { setUserPreference } from '@/lib/user-preferences-manager'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 interface TownData {
   name: string
@@ -22,28 +23,28 @@ interface TownData {
 }
 
 const defaultTownData: TownData = {
-  name: "Riverside Haven",
+  name: TEXT_CONTENT.town.name,
   type: 'town',
-  description: "A peaceful town nestled by the river. Known for its friendly inhabitants and local crafts.",
+  description: TEXT_CONTENT.town.description,
   locations: [
     {
       id: 'kingdom-marketplace',
-      name: 'Marketplace',
-      description: 'Buy and sell goods at the local market.',
+      name: TEXT_CONTENT.town.locations.marketplace.name,
+      description: TEXT_CONTENT.town.locations.marketplace.description,
       icon: 'ShoppingBag',
       image: '/images/locations/kingdom-marketplace.png'
     },
     {
       id: 'the-dragons-rest',
-      name: "The Dragon's Rest",
-      description: 'Rest and recover while listening to local gossip.',
+      name: TEXT_CONTENT.town.locations.dragonsRest.name,
+      description: TEXT_CONTENT.town.locations.dragonsRest.description,
       icon: 'Home',
       image: '/images/locations/the-dragons-rest-tavern.png'
     },
     {
       id: 'royal-stables',
-      name: "Royal Stables",
-      description: 'Purchase horses and mounts for your journey.',
+      name: TEXT_CONTENT.town.locations.stables.name,
+      description: TEXT_CONTENT.town.locations.stables.description,
       icon: 'Swords',
       image: '/images/locations/royal-stables.png'
     }
@@ -121,7 +122,7 @@ export default function TownClient({ slug }: Props) {
           aria-label="Back to Realm"
         >
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Back to Realm
+          {TEXT_CONTENT.town.backToRealm}
         </Button>
       </div>
 

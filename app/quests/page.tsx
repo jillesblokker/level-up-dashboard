@@ -47,6 +47,7 @@ import { TarotCardDisplay } from '@/components/tarot-card'
 import { StreakIndicator } from "@/components/streak-indicator"
 import { ResponsiveModal } from "@/components/ui/responsive-modal"
 import { useQuickAdd } from "@/components/quick-add-provider"
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 
 interface Quest {
@@ -76,16 +77,7 @@ const categoryIcons = {
   exploration: PersonStanding,
 };
 
-const categoryLabels = {
-  might: 'Might',
-  knowledge: 'Knowledge',
-  honor: 'Honor',
-  castle: 'Castle',
-  craft: 'Craft',
-  vitality: 'Vitality',
-  wellness: 'Wellness',
-  exploration: 'Exploration',
-};
+const categoryLabels = TEXT_CONTENT.quests.categories;
 
 const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
 
@@ -101,63 +93,7 @@ const categoryColorMap: Record<string, string> = {
 };
 
 // --- 4-Day Workout Plan Data ---
-const workoutPlan = [
-  {
-    category: 'Push/Legs/Core',
-    exercises: [
-      { name: 'Squat (Barbell/Dumbbell)', instructions: 'Feet shoulder-width, chest up, lower hips back and down.', setsReps: '3x10', tips: 'Keep knees in line with toes.', weight: '2x10kg' },
-      { name: 'Push-up', instructions: 'Hands shoulder-width, body in straight line, lower chest to floor.', setsReps: '3x12', tips: 'Engage core, don\'t sag hips.', weight: '0' },
-      { name: 'Lunge (Walking/Static)', instructions: 'Step forward, lower back knee, keep torso upright.', setsReps: '3x10 per leg', tips: '90-degree angle at knees.', weight: '2x8kg' },
-      { name: 'Dumbbell Shoulder Press', instructions: 'Seated or standing, press weights overhead.', setsReps: '3x10', tips: 'Don\'t arch back excessively.', weight: '2x8kg' },
-      { name: 'Plank', instructions: 'Forearms on ground, body straight, hold.', setsReps: '3x45 sec', tips: 'Squeeze glutes and core.', weight: '0' },
-      { name: 'Leg Raise', instructions: 'Lying on back, lift legs to 90 degrees, lower slowly.', setsReps: '3x12', tips: 'Keep lower back pressed to floor.', weight: '0' }
-    ]
-  },
-  {
-    category: 'Pull/Shoulder/Core',
-    exercises: [
-      { name: 'Deadlift (Dumbbell/Kettlebell)', instructions: 'Hinge at hips, keep back flat, lift weight.', setsReps: '3x10', tips: 'Drive through heels.', weight: '2x12kg' },
-      { name: 'Dumbbell Row', instructions: 'Hand on bench, pull weight to hip.', setsReps: '3x10 per arm', tips: 'Squeeze shoulder blade.', weight: '12kg' },
-      { name: 'Lateral Raise', instructions: 'Lift weights to side until shoulder height.', setsReps: '3x12', tips: 'Lead with elbows.', weight: '2x4kg' },
-      { name: 'Bicep Curl', instructions: 'Curl weights up, keep elbows pinned.', setsReps: '3x12', tips: 'Control the descent.', weight: '2x8kg' },
-      { name: 'Russian Twist', instructions: 'Seated, lean back, twist torso side to side.', setsReps: '3x20 total', tips: 'Follow hands with eyes.', weight: '5kg' },
-      { name: 'Superman', instructions: 'Lying on stomach, lift arms and legs.', setsReps: '3x12', tips: 'Squeeze lower back and glutes.', weight: '0' }
-    ]
-  },
-  {
-    category: 'Legs/Arms/Core',
-    exercises: [
-      { name: 'Goblet Squat', instructions: 'Hold weight at chest, squat down.', setsReps: '3x12', tips: 'Keep chest up.', weight: '12kg' },
-      { name: 'Glute Bridge', instructions: 'Lying on back, lift hips up.', setsReps: '3x15', tips: 'Squeeze glutes at top.', weight: '0' },
-      { name: 'Tricep Dip (Chair/Bench)', instructions: 'Lower body using arms, push back up.', setsReps: '3x12', tips: 'Keep elbows close to body.', weight: '0' },
-      { name: 'Hammer Curl', instructions: 'Curl weights with palms facing each other.', setsReps: '3x12', tips: 'Focus on forearms/biceps.', weight: '2x8kg' },
-      { name: 'Bicycle Crunch', instructions: 'Opposite elbow to opposite knee.', setsReps: '3x20 total', tips: 'Slow and controlled.', weight: '0' },
-      { name: 'Calf Raise', instructions: 'Lift heels off ground, pause at top.', setsReps: '3x20', tips: 'Full range of motion.', weight: '0' }
-    ]
-  },
-  {
-    category: 'Core & Flexibility',
-    exercises: [
-      { name: 'Sun Salutation A', instructions: 'Flow through yoga poses.', setsReps: '5 rounds', tips: 'Match breath to movement.', weight: '0' },
-      { name: 'Cat-Cow Stretch', instructions: 'Arch and round spine on all fours.', setsReps: '10 reps', tips: 'Move with breath.', weight: '0' },
-      { name: 'Bird-Dog', instructions: 'Extend opposite arm and leg, hold.', setsReps: '3x10 per side', tips: 'Keep hips level.', weight: '0' },
-      { name: 'Child\'s Pose', instructions: 'Kneel, sit back on heels, stretch arms forward.', setsReps: 'Hold 1 min', tips: 'Relax into the stretch.', weight: '0' },
-      { name: 'Hip Flexor Stretch', instructions: 'Lunge position, push hips forward.', setsReps: '30 sec per side', tips: 'Tuck tailbone.', weight: '0' },
-      { name: 'Seated Forward Fold', instructions: 'Legs straight, reach for toes.', setsReps: 'Hold 1 min', tips: 'Hinge from hips.', weight: '0' }
-    ]
-  },
-  {
-    category: 'HIIT & Full Body',
-    exercises: [
-      { name: 'Burpee', instructions: 'Squat, jump to plank, jump in, explode up – repeat.', setsReps: '3x15', tips: 'Jump high, move smoothly.', weight: '0' },
-      { name: 'Mountain Climber', instructions: 'Start in high plank, run knees to chest quickly.', setsReps: '3x30 sec', tips: 'Maintain core tension, move fast.', weight: '0' },
-      { name: 'Jump Squat', instructions: 'Squat down then jump explosively, land softly.', setsReps: '3x20', tips: 'Depth first, then power.', weight: '0' },
-      { name: 'Dumbbell Row (repeat)', instructions: 'Same as bent-over row – hinge and pull dumbbells to sides.', setsReps: '3x12', tips: 'Same tips apply as before.', weight: '2x8kg' },
-      { name: 'Lunge (with dumbbells)', instructions: 'Step forward, keep torso upright, push back up.', setsReps: '3x10 per leg', tips: 'Control each step.', weight: '2x8kg' },
-      { name: 'Push-up (your choice of board color)', instructions: 'Choose board color to target chest/triceps/shoulders.', setsReps: '3x12', tips: 'Focus on form for chosen variation.', weight: '0' }
-    ]
-  }
-];
+const workoutPlan = TEXT_CONTENT.workouts;
 
 const CHALLENGE_STREAKS_KEY = 'challenge-streaks-v1';
 const CHALLENGE_LAST_COMPLETED_KEY = 'challenge-last-completed-v1';
@@ -342,7 +278,7 @@ export default function QuestsPage() {
     categoryCounts: Object.entries(questsByCategorySafe).map(([cat, quests]) => ({ category: cat, count: quests.length }))
   });
   // 7-day history (Mon-Sun, most recent last)
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekDays = TEXT_CONTENT.questBoard.weekDays;
   const paddedHistory = Array(7).fill(null).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -707,8 +643,8 @@ export default function QuestsPage() {
                 await updateStreak(data.streak_days, 0); // 0 added for quest count, keeps streak same
 
                 toast({
-                  title: "❄️ Streak Frozen!",
-                  description: "You missed a day, but your Streak Freeze scroll saved you!",
+                  title: TEXT_CONTENT.questBoard.toasts.streak.frozen.title,
+                  description: TEXT_CONTENT.questBoard.toasts.streak.frozen.desc.replace('{category}', questCategory ? getCategoryLabel(questCategory) : 'activity'),
                   className: "bg-blue-900 border-blue-500 text-blue-100"
                 });
 
@@ -723,8 +659,8 @@ export default function QuestsPage() {
                 // RESET :(
                 await updateStreak(0, 0);
                 toast({
-                  title: "Streak Lost",
-                  description: "You missed a day and had no Freeze Scrolls. Streak reset to 0.",
+                  title: TEXT_CONTENT.questBoard.toasts.streak.lost.title,
+                  description: TEXT_CONTENT.questBoard.toasts.streak.lost.desc.replace('{category}', questCategory ? getCategoryLabel(questCategory) : 'activity'),
                   variant: "destructive"
                 });
               }
@@ -865,8 +801,11 @@ export default function QuestsPage() {
       window.dispatchEvent(new Event('character-stats-update'));
 
       toast({
-        title: 'Quest Streak',
-        description: `You completed all quests for ${questCategory}! Streak increased to ${newStreak} days. Earned ${buildTokensEarned} build token(s)!`,
+        title: TEXT_CONTENT.questBoard.toasts.streak.quest.title,
+        description: TEXT_CONTENT.questBoard.toasts.streak.quest.desc
+          .replace('{category}', questCategory)
+          .replace('{streak}', String(newStreak))
+          .replace('{tokens}', String(buildTokensEarned)),
       });
     }
   }, [todaysCompleted, todaysTotal, userId, questCategory, streakData]);
@@ -939,8 +878,11 @@ export default function QuestsPage() {
       localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify({ ...challengeLastCompleted, ...newLastCompletedData }));
 
       toast({
-        title: 'Challenge Streak',
-        description: `You completed all challenges for ${challengeCategory}! Streak increased to ${newStreak + 1} days. Earned ${buildTokensEarned} build token(s)!`,
+        title: TEXT_CONTENT.questBoard.toasts.streak.challenge.title,
+        description: TEXT_CONTENT.questBoard.toasts.streak.challenge.desc
+          .replace('{category}', challengeCategory)
+          .replace('{streak}', String(newStreak + 1))
+          .replace('{tokens}', String(buildTokensEarned)),
       });
     }
   }, [challenges.length, challengeCategory, challengeStreakData]);
@@ -982,8 +924,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error updating streak:', error);
       toast({
-        title: "Error",
-        description: "Failed to update streak. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.streak.error.title,
+        description: TEXT_CONTENT.questBoard.toasts.streak.error.desc,
         duration: 3000,
       });
     }
@@ -1023,15 +965,18 @@ export default function QuestsPage() {
 
       // Show success toast with rewards
       toast({
-        title: "⚔️ Quest Complete!",
-        description: `${questObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.quest.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.quest.desc
+          .replace('{name}', questObj.name)
+          .replace('{gold}', String(goldReward))
+          .replace('{xp}', String(xpReward)),
         duration: 4000,
       });
     } else {
       // Quest uncompleted - just show toast
       toast({
-        title: "Quest Uncompleted",
-        description: `${questObj.name} marked as incomplete.`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.desc.replace('{name}', questObj.name),
         duration: 2000,
       });
     }
@@ -1085,15 +1030,15 @@ export default function QuestsPage() {
       // For now, we'll just use local state
 
       toast({
-        title: "Favorite Updated",
-        description: "Quest favorite status updated.",
+        title: TEXT_CONTENT.questBoard.toasts.favorites.updated.title,
+        description: TEXT_CONTENT.questBoard.toasts.favorites.updated.desc,
         duration: 2000,
       });
     } catch (error) {
       console.error('Error updating favorite:', error);
       toast({
-        title: "Error",
-        description: "Failed to update favorite status.",
+        title: TEXT_CONTENT.questBoard.toasts.favorites.error.title,
+        description: TEXT_CONTENT.questBoard.toasts.favorites.error.desc,
         duration: 3000,
       });
     }
@@ -1128,15 +1073,15 @@ export default function QuestsPage() {
       }
 
       toast({
-        title: "Quest Deleted",
-        description: "Quest has been successfully deleted.",
+        title: TEXT_CONTENT.questBoard.toasts.deletion.quest.title,
+        description: TEXT_CONTENT.questBoard.toasts.deletion.quest.desc,
         duration: 2000,
       });
     } catch (error) {
       console.error('Error deleting quest:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete quest. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.deletion.questError.title,
+        description: TEXT_CONTENT.questBoard.toasts.deletion.questError.desc,
         duration: 3000,
       });
     }
@@ -1176,15 +1121,18 @@ export default function QuestsPage() {
 
       // Show success toast with rewards
       toast({
-        title: "⚔️ Challenge Complete!",
-        description: `${challengeObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.challenge.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.challenge.desc
+          .replace('{name}', challengeObj.name)
+          .replace('{gold}', String(goldReward))
+          .replace('{xp}', String(xpReward)),
         duration: 4000,
       });
     } else {
       // Challenge uncompleted - just show toast
       toast({
-        title: "Challenge Uncompleted",
-        description: `${challengeObj.name} marked as incomplete.`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.challengeUncompleted.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.challengeUncompleted.desc.replace('{name}', challengeObj.name),
         duration: 2000,
       });
     }
@@ -1246,15 +1194,15 @@ export default function QuestsPage() {
       }
 
       toast({
-        title: "Challenge Deleted",
-        description: "Challenge has been successfully deleted.",
+        title: TEXT_CONTENT.questBoard.toasts.deletion.challenge.title,
+        description: TEXT_CONTENT.questBoard.toasts.deletion.challenge.desc,
         duration: 2000,
       });
     } catch (error) {
       console.error('Error deleting challenge:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete challenge. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.deletion.challengeError.title,
+        description: TEXT_CONTENT.questBoard.toasts.deletion.challengeError.desc,
         duration: 3000,
       });
     }
@@ -1342,15 +1290,17 @@ export default function QuestsPage() {
       }
 
       toast({
-        title: "Bulk Complete Successful!",
-        description: `Completed ${favoritedQuestsInCategory.length} favorited quests in ${getCategoryLabel(questCategory || '')} category.`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.bulkFavorites.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.bulkFavorites.desc
+          .replace('{count}', String(favoritedQuestsInCategory.length))
+          .replace('{category}', getCategoryLabel(questCategory || '')),
         duration: 3000,
       });
     } catch (error) {
       console.error('Error bulk completing favorites:', error);
       toast({
-        title: "Error",
-        description: "Failed to complete favorited quests. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.completion.bulkError.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.bulkError.desc,
         duration: 3000,
       });
     }
@@ -1443,15 +1393,15 @@ export default function QuestsPage() {
       }, 1000);
 
       toast({
-        title: "Bulk Complete Successful!",
-        description: `Completed ${allFavoritedQuests.length} favorited quests across all categories.`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.desc.replace('{count}', String(allFavoritedQuests.length)),
         duration: 3000,
       });
     } catch (error) {
       console.error('Error bulk completing all favorites:', error);
       toast({
-        title: "Error",
-        description: "Failed to complete favorited quests. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.completion.bulkError.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.bulkError.desc,
         duration: 3000,
       });
     }
@@ -1474,8 +1424,8 @@ export default function QuestsPage() {
         const err = await res.text();
         console.error('[Manual Reset] API error:', res.status, err);
         toast({
-          title: 'Manual Reset Error',
-          description: `Failed to reset quests: ${err || res.statusText}`,
+          title: TEXT_CONTENT.questBoard.toasts.manualReset.error.title,
+          description: TEXT_CONTENT.questBoard.toasts.manualReset.error.desc.replace('{error}', err || res.statusText),
           variant: 'destructive',
         });
         return;
@@ -1502,8 +1452,8 @@ export default function QuestsPage() {
       dailyResetInitiated.current = false; // Allow future resets
 
       toast({
-        title: 'Manual Reset Complete',
-        description: 'All quests have been reset successfully!',
+        title: TEXT_CONTENT.questBoard.toasts.manualReset.complete.title,
+        description: TEXT_CONTENT.questBoard.toasts.manualReset.complete.desc,
       });
 
     } catch (err) {
@@ -1637,15 +1587,18 @@ export default function QuestsPage() {
 
       // Show success toast with rewards
       toast({
-        title: "🏆 Milestone Complete!",
-        description: `${milestoneObj.name}\n+${goldReward} Gold  •  +${xpReward} XP`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.milestone.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.milestone.desc
+          .replace('{name}', milestoneObj.name)
+          .replace('{gold}', String(goldReward))
+          .replace('{xp}', String(xpReward)),
         duration: 4000,
       });
     } else {
       // Milestone uncompleted - just show toast
       toast({
-        title: "Milestone Uncompleted",
-        description: `${milestoneObj.name} marked as incomplete.`,
+        title: TEXT_CONTENT.questBoard.toasts.completion.milestoneUncompleted.title,
+        description: TEXT_CONTENT.questBoard.toasts.completion.milestoneUncompleted.desc.replace('{name}', milestoneObj.name),
         duration: 2000,
       });
     }
@@ -1710,8 +1663,8 @@ export default function QuestsPage() {
       }
 
       toast({
-        title: "Milestone Deleted",
-        description: `"${milestoneToDelete.name}" has been successfully deleted.`,
+        title: TEXT_CONTENT.questBoard.toasts.deletion.milestone.title,
+        description: TEXT_CONTENT.questBoard.toasts.deletion.milestone.desc.replace('{name}', milestoneToDelete.name),
       });
 
       setDeleteMilestoneConfirmOpen(false);
@@ -1719,8 +1672,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error deleting milestone:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete milestone. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.deletion.milestoneError.title,
+        description: TEXT_CONTENT.questBoard.toasts.deletion.milestoneError.desc,
         variant: "destructive"
       });
     }
@@ -1757,8 +1710,8 @@ export default function QuestsPage() {
       setMilestones(prev => [...prev, { ...savedMilestone, completed: false }]);
 
       toast({
-        title: "Milestone Added",
-        description: `"${newMilestone.name}" has been added to your milestones.`,
+        title: TEXT_CONTENT.questBoard.toasts.addition.milestone.title,
+        description: TEXT_CONTENT.questBoard.toasts.addition.milestone.desc.replace('{name}', newMilestone.name),
       });
 
       setAddMilestoneModalOpen(false);
@@ -1767,8 +1720,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error adding milestone:', error);
       toast({
-        title: "Error",
-        description: "Failed to add milestone. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.addition.milestoneError.title,
+        description: TEXT_CONTENT.questBoard.toasts.addition.milestoneError.desc,
         variant: "destructive"
       });
     }
@@ -1810,8 +1763,8 @@ export default function QuestsPage() {
 
       // Force reload or just notify
       toast({
-        title: "Challenge Added",
-        description: `"${newChallenge.name}" has been added to your challenges.`,
+        title: TEXT_CONTENT.questBoard.toasts.addition.challenge.title,
+        description: TEXT_CONTENT.questBoard.toasts.addition.challenge.desc.replace('{name}', newChallenge.name),
       });
 
       setAddChallengeModalOpen(false);
@@ -1823,8 +1776,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error adding challenge:', error);
       toast({
-        title: "Error",
-        description: "Failed to add challenge. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.addition.challengeError.title,
+        description: TEXT_CONTENT.questBoard.toasts.addition.challengeError.desc,
         variant: "destructive"
       });
     }
@@ -1874,8 +1827,8 @@ export default function QuestsPage() {
       console.log('[Quest Edit] Update successful:', result);
 
       toast({
-        title: "Quest Updated",
-        description: "Quest has been successfully updated.",
+        title: TEXT_CONTENT.questBoard.toasts.updates.quest.title,
+        description: TEXT_CONTENT.questBoard.toasts.updates.quest.desc,
         duration: 2000,
       });
 
@@ -1894,8 +1847,8 @@ export default function QuestsPage() {
       );
 
       toast({
-        title: "Error",
-        description: `Failed to update quest: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: TEXT_CONTENT.questBoard.toasts.updates.questError.title,
+        description: TEXT_CONTENT.questBoard.toasts.updates.questError.desc.replace('{error}', error instanceof Error ? error.message : 'Unknown error'),
         duration: 3000,
       });
     }
@@ -1937,8 +1890,8 @@ export default function QuestsPage() {
       );
 
       toast({
-        title: "Challenge Updated",
-        description: `${updatedChallenge.name} has been updated successfully!`,
+        title: TEXT_CONTENT.questBoard.toasts.updates.challenge.title,
+        description: TEXT_CONTENT.questBoard.toasts.updates.challenge.desc.replace('{name}', updatedChallenge.name),
         duration: 3000,
       });
 
@@ -1947,8 +1900,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error updating challenge:', error);
       toast({
-        title: "Update Failed",
-        description: "Failed to update challenge. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.updates.challengeError.title,
+        description: TEXT_CONTENT.questBoard.toasts.updates.challengeError.desc,
         variant: "destructive",
         duration: 3000,
       });
@@ -1991,8 +1944,8 @@ export default function QuestsPage() {
       );
 
       toast({
-        title: "Milestone Updated",
-        description: `${updatedMilestone.name} has been updated successfully!`,
+        title: TEXT_CONTENT.questBoard.toasts.updates.milestone.title,
+        description: TEXT_CONTENT.questBoard.toasts.updates.milestone.desc.replace('{name}', updatedMilestone.name),
         duration: 3000,
       });
 
@@ -2001,8 +1954,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error updating milestone:', error);
       toast({
-        title: "Update Failed",
-        description: "Failed to update milestone. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.updateFailed.title,
+        description: TEXT_CONTENT.questBoard.toasts.updateFailed.desc,
         variant: "destructive",
         duration: 3000,
       });
@@ -2032,8 +1985,8 @@ export default function QuestsPage() {
       }
 
       toast({
-        title: "Quest Added",
-        description: "New quest has been successfully added.",
+        title: TEXT_CONTENT.questBoard.toasts.questAdded.title,
+        description: TEXT_CONTENT.questBoard.toasts.questAdded.desc,
         duration: 2000,
       });
 
@@ -2041,8 +1994,8 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error adding quest:', error);
       toast({
-        title: "Error",
-        description: "Failed to add quest. Please try again.",
+        title: TEXT_CONTENT.questBoard.toasts.error.title,
+        description: TEXT_CONTENT.questBoard.toasts.error.desc,
         duration: 3000,
       });
     }
@@ -2066,15 +2019,15 @@ export default function QuestsPage() {
 
   if (!isClerkLoaded || !isUserLoaded) {
     console.log('[Challenges Frontend] Early return - Waiting for auth and Clerk client...', { isClerkLoaded, isUserLoaded, user: !!user });
-    return <FullPageLoading message="Loading authentication..." />;
+    return <FullPageLoading message={TEXT_CONTENT.questBoard.loading} />;
   }
 
   if (!userId) {
     console.log('[Challenges Frontend] Early return - No userId found', { userId, user: !!user });
     return (
       <main className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Quests</h1>
-        <div className="text-red-500 bg-red-900 p-4 rounded-md mb-4">No userId found. Please sign in to view your quests.</div>
+        <h1 className="text-2xl font-bold mb-4">{TEXT_CONTENT.questBoard.header.guide.title}</h1>
+        <div className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{TEXT_CONTENT.questBoard.noUser}</div>
       </main>
     );
   }
@@ -2094,30 +2047,30 @@ export default function QuestsPage() {
 
 
         <HeaderSection
-          title="Message Board"
-          subtitle="Complete daily quests to earn gold and experience. Build your legend!"
+          title={TEXT_CONTENT.questBoard.header.title}
+          subtitle={TEXT_CONTENT.questBoard.header.subtitle}
           imageSrc="/images/quests-header.jpg"
           defaultBgColor="bg-amber-900"
           shouldRevealImage={true}
           guideComponent={
             <PageGuide
-              title="Quests"
-              subtitle="The foundation of your progression"
+              title={TEXT_CONTENT.questBoard.header.guide.title}
+              subtitle={TEXT_CONTENT.questBoard.header.guide.subtitle}
               sections={[
                 {
-                  title: "Daily Tasks",
+                  title: TEXT_CONTENT.questBoard.header.guide.sections.daily.title,
                   icon: CheckCircle2,
-                  content: "Short, repeatable tasks that maintain your discipline. Complete these to earn consistent gold and keep your 'Thrivehaven' buildings active."
+                  content: TEXT_CONTENT.questBoard.header.guide.sections.daily.content
                 },
                 {
-                  title: "Epic Challenges",
+                  title: TEXT_CONTENT.questBoard.header.guide.sections.epic.title,
                   icon: Zap,
-                  content: "Difficult feats with major rewards. These require focus and often grant rare items or large chunks of experience for your character."
+                  content: TEXT_CONTENT.questBoard.header.guide.sections.epic.content
                 },
                 {
-                  title: "Life Milestones",
+                  title: TEXT_CONTENT.questBoard.header.guide.sections.milestones.title,
                   icon: Trophy,
-                  content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile."
+                  content: TEXT_CONTENT.questBoard.header.guide.sections.milestones.content
                 }
               ]}
             />
@@ -2129,10 +2082,10 @@ export default function QuestsPage() {
 
             <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
               <TabsList className="mb-6 w-full grid grid-cols-4">
-                <TabsTrigger value="quests">Tasks</TabsTrigger>
-                <TabsTrigger value="challenges">Challenges</TabsTrigger>
-                <TabsTrigger value="milestones">Milestones</TabsTrigger>
-                <TabsTrigger value="recovery">Recovery</TabsTrigger>
+                <TabsTrigger value="quests">{TEXT_CONTENT.questBoard.tabs.tasks}</TabsTrigger>
+                <TabsTrigger value="challenges">{TEXT_CONTENT.questBoard.tabs.challenges}</TabsTrigger>
+                <TabsTrigger value="milestones">{TEXT_CONTENT.questBoard.tabs.milestones}</TabsTrigger>
+                <TabsTrigger value="recovery">{TEXT_CONTENT.questBoard.tabs.recovery}</TabsTrigger>
               </TabsList>
 
               {/* Quests Tab */}
@@ -2140,8 +2093,8 @@ export default function QuestsPage() {
                 {/* Nested Tabs for Errands and Progression */}
                 <Tabs defaultValue="errands" className="space-y-6">
                   <TabsList className="mb-6 w-full grid grid-cols-2">
-                    <TabsTrigger value="errands">Errands</TabsTrigger>
-                    <TabsTrigger value="progression">Progression</TabsTrigger>
+                    <TabsTrigger value="errands">{TEXT_CONTENT.questBoard.tabs.sub.errands}</TabsTrigger>
+                    <TabsTrigger value="progression">{TEXT_CONTENT.questBoard.tabs.sub.progression}</TabsTrigger>
                   </TabsList>
 
                   {/* Errands Tab - Quest Filters and Cards */}
@@ -2156,7 +2109,7 @@ export default function QuestsPage() {
                           aria-label="Complete all favorited quests in this category"
                         >
                           <Star className="w-4 h-4 mr-2" />
-                          Complete {quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length} Favorites
+                          {TEXT_CONTENT.questBoard.buttons.completeFavorites.replace('{count}', String(quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
                         </Button>
                         <Button
                           onClick={handleBulkCompleteAllFavorites}
@@ -2165,7 +2118,7 @@ export default function QuestsPage() {
                           aria-label="Complete all favorited quests across all categories"
                         >
                           <Star className="w-4 h-4 mr-2" />
-                          Complete {quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length} Total Favorites
+                          {TEXT_CONTENT.questBoard.buttons.completeAllFavorites.replace('{count}', String(quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
                         </Button>
                         <Button
                           onClick={handleManualReset}
@@ -2176,11 +2129,11 @@ export default function QuestsPage() {
                           {manualResetLoading ? (
                             <>
                               <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              Resetting...
+                              {TEXT_CONTENT.questBoard.buttons.resetting}
                             </>
                           ) : (
                             <>
-                              🔄 Reset Today&apos;s Quests
+                              🔄 {TEXT_CONTENT.questBoard.buttons.reset}
                             </>
                           )}
                         </Button>
@@ -2224,7 +2177,7 @@ export default function QuestsPage() {
                     {/* Gameplay Loop Indicator */}
                     <div>
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-amber-500 font-medieval">Your Journey</h2>
+                        <h2 className="text-xl font-bold text-amber-500 font-medieval">{TEXT_CONTENT.questBoard.journey.title}</h2>
                         <StreakIndicator
                           currentStreak={questStreak}
                           isCompletedToday={quests.some(q => q.completed)}
@@ -2283,7 +2236,7 @@ export default function QuestsPage() {
                               </TooltipTrigger>
                               <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
                             </Tooltip>
-                            <div className="text-lg text-gray-300 text-center">Day streak</div>
+                            <div className="text-lg text-gray-300 text-center">{TEXT_CONTENT.questBoard.journey.stats.streak}</div>
                           </div>
 
                           {/* Middle: Quest Progress Section */}
@@ -2297,9 +2250,9 @@ export default function QuestsPage() {
                               </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="text-lg text-gray-300 truncate">/ {todaysTotal} quests</span>
+                                  <span className="text-lg text-gray-300 truncate">{TEXT_CONTENT.questBoard.journey.stats.quests.replace('{completed}', '').replace('{total}', String(todaysTotal))}</span>
                                 </TooltipTrigger>
-                                <TooltipContent>/ {todaysTotal} quests</TooltipContent>
+                                <TooltipContent>{TEXT_CONTENT.questBoard.journey.stats.quests.replace('{completed}', '').replace('{total}', String(todaysTotal))}</TooltipContent>
                               </Tooltip>
                             </div>
                             <div className="w-full h-5 bg-black rounded-full overflow-hidden relative">
@@ -2307,53 +2260,31 @@ export default function QuestsPage() {
                             </div>
                             {/* Days of the week with styled circles */}
                             <div className="flex justify-between text-sm text-gray-300 mt-3">
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Mon</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Tue</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Wed</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Thu</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Fri</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Sat</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Sun</span>
-                              </div>
+                              {weekDays.map((day) => (
+                                <div key={day} className="flex flex-col items-center">
+                                  <div className="w-7 h-7 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                  <span>{day}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
 
                           {/* Right: Bonus and Scrolls */}
                           <div className="flex gap-4 flex-shrink-0">
                             <div className="text-center p-4 bg-black/20 rounded-xl">
-                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.journey.streakBonus.title}</div>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                                  <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">{TEXT_CONTENT.questBoard.journey.streakBonus.value.replace('{amount}', String(getStreakBonus(streakData?.streak_days ?? 0)))}</div>
                                 </TooltipTrigger>
-                                <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                                <TooltipContent>{TEXT_CONTENT.questBoard.journey.streakBonus.value.replace('{amount}', String(getStreakBonus(streakData?.streak_days ?? 0)))}</TooltipContent>
                               </Tooltip>
-                              <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.journey.streakBonus.max}</div>
                             </div>
                             <div className="text-center p-4 bg-black/20 rounded-xl">
-                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.journey.streakScrolls.title}</div>
                               <div className="text-xl font-bold text-[#F0F0F0] mb-1">{getStreakScrollCount()}</div>
-                              <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.journey.streakScrolls.desc}</div>
                             </div>
                           </div>
                         </div>
@@ -2371,7 +2302,7 @@ export default function QuestsPage() {
                               </TooltipTrigger>
                               <TooltipContent>{streakData?.streak_days ?? 0} days</TooltipContent>
                             </Tooltip>
-                            <div className="text-sm text-gray-300 text-center">Day streak</div>
+                            <div className="text-sm text-gray-300 text-center">{TEXT_CONTENT.questBoard.journey.stats.streak}</div>
                           </div>
 
                           {/* Quest Progress Section - Mobile */}
@@ -2395,58 +2326,36 @@ export default function QuestsPage() {
                             </div>
                             {/* Days of the week with smaller circles */}
                             <div className="flex justify-between text-xs text-gray-300 mt-3">
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Mon</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Tue</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Wed</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Thu</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Fri</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Sat</span>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
-                                <span>Sun</span>
-                              </div>
+                              {weekDays.map((day) => (
+                                <div key={day} className="flex flex-col items-center">
+                                  <div className="w-5 h-5 bg-black border-2 border-gray-300 rounded-full mb-1"></div>
+                                  <span>{day}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
 
                           {/* Bonus and Scrolls - Mobile Stacked */}
                           <div className="flex flex-col gap-3">
                             <div className="text-center p-3 bg-black/20 rounded-lg">
-                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.journey.streakBonus.title}</div>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</div>
+                                  <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">{TEXT_CONTENT.questBoard.journey.streakBonus.value.replace('{amount}', String(getStreakBonus(streakData?.streak_days ?? 0)))}</div>
                                 </TooltipTrigger>
-                                <TooltipContent>+{getStreakBonus(streakData?.streak_days ?? 0)} gold/day</TooltipContent>
+                                <TooltipContent>{TEXT_CONTENT.questBoard.journey.streakBonus.value.replace('{amount}', String(getStreakBonus(streakData?.streak_days ?? 0)))}</TooltipContent>
                               </Tooltip>
-                              <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.journey.streakBonus.max}</div>
                             </div>
                             <div className="text-center p-3 bg-black/20 rounded-lg">
-                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.journey.streakScrolls.title}</div>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
                                 </TooltipTrigger>
                                 <TooltipContent>{getStreakScrollCount()}</TooltipContent>
                               </Tooltip>
-                              <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.journey.streakScrolls.desc}</div>
                             </div>
                           </div>
                         </div>
@@ -2461,8 +2370,8 @@ export default function QuestsPage() {
                 {/* Nested Tabs for Errands and Progression */}
                 <Tabs defaultValue="errands" className="space-y-6">
                   <TabsList className="mb-6 w-full grid grid-cols-2">
-                    <TabsTrigger value="errands">Errands</TabsTrigger>
-                    <TabsTrigger value="progression">Progression</TabsTrigger>
+                    <TabsTrigger value="errands">{TEXT_CONTENT.questBoard.tabs.sub.errands}</TabsTrigger>
+                    <TabsTrigger value="progression">{TEXT_CONTENT.questBoard.tabs.sub.progression}</TabsTrigger>
                   </TabsList>
 
                   {/* Errands Tab - Challenge List */}
@@ -2499,7 +2408,7 @@ export default function QuestsPage() {
                               </TooltipTrigger>
                               <TooltipContent>{challengeStreakData?.streak_days ?? 0} days</TooltipContent>
                             </Tooltip>
-                            <div className="text-lg text-gray-300 text-center">Day streak</div>
+                            <div className="text-lg text-gray-300 text-center">{TEXT_CONTENT.questBoard.ui.labels.streak}</div>
                           </div>
 
                           {/* Middle: Challenge Progress Section */}
@@ -2557,24 +2466,24 @@ export default function QuestsPage() {
                           {/* Bonus and Scrolls - Desktop Layout */}
                           <div className="flex flex-col gap-3">
                             <div className="text-center p-3 bg-black/20 rounded-lg">
-                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.ui.labels.bonus}</div>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="text-lg sm:text-xl font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
+                                  <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} {TEXT_CONTENT.questBoard.ui.labels.goldPerDay}</div>
                                 </TooltipTrigger>
                                 <TooltipContent>+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</TooltipContent>
                               </Tooltip>
-                              <div className="text-xs text-[#F0F0F0]">(Max 50 gold/day)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.ui.labels.maxBonus}</div>
                             </div>
                             <div className="text-center p-3 bg-black/20 rounded-lg">
-                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                              <div className="text-sm font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.ui.labels.scrolls}</div>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="text-lg font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
                                 </TooltipTrigger>
                                 <TooltipContent>{getStreakScrollCount()}</TooltipContent>
                               </Tooltip>
-                              <div className="text-xs text-[#F0F0F0]">(Use to save a missed streak)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.ui.labels.saveStreak}</div>
                             </div>
                           </div>
                         </div>
@@ -2585,7 +2494,7 @@ export default function QuestsPage() {
                           <div className="flex flex-col items-center justify-center bg-black rounded-xl p-4">
                             <Flame className="w-10 h-10 text-[#0D7200] mb-2" aria-hidden="true" />
                             <div className="text-2xl font-extrabold text-white text-center truncate" aria-label="challenge-streak-value-mobile">{challengeStreakData?.streak_days ?? 0} days</div>
-                            <div className="text-sm text-gray-300 text-center">Day streak</div>
+                            <div className="text-sm text-gray-300 text-center">{TEXT_CONTENT.questBoard.ui.labels.streak}</div>
                           </div>
 
                           {/* Challenge Progress Section - Mobile */}
@@ -2635,12 +2544,12 @@ export default function QuestsPage() {
                             <div className="text-center p-3 bg-black/20 rounded-lg">
                               <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Bonus:</div>
                               <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">+{getStreakBonus(challengeStreakData?.streak_days ?? 0)} gold/day</div>
-                              <div className="text-xs text-[#F0F0F0]">(Max 50)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.ui.labels.maxBonusShort}</div>
                             </div>
                             <div className="text-center p-3 bg-black/20 rounded-lg">
-                              <div className="text-xs font-bold text-[#F0F0F0] mb-1">Streak Scrolls:</div>
+                              <div className="text-xs font-bold text-[#F0F0F0] mb-1">{TEXT_CONTENT.questBoard.ui.labels.scrolls}</div>
                               <div className="text-sm font-bold text-[#F0F0F0] mb-1 truncate">{getStreakScrollCount()}</div>
-                              <div className="text-xs text-[#F0F0F0]">(Save streak)</div>
+                              <div className="text-xs text-[#F0F0F0]">{TEXT_CONTENT.questBoard.ui.labels.saveStreakShort}</div>
                             </div>
                           </div>
                         </div>
@@ -2669,8 +2578,8 @@ export default function QuestsPage() {
                 {/* Nested Tabs for Errands and Progression */}
                 <Tabs defaultValue="errands" className="space-y-6">
                   <TabsList className="mb-6 w-full grid grid-cols-2">
-                    <TabsTrigger value="errands">Errands</TabsTrigger>
-                    <TabsTrigger value="progression">Progression</TabsTrigger>
+                    <TabsTrigger value="errands">{TEXT_CONTENT.questBoard.tabs.sub.errands}</TabsTrigger>
+                    <TabsTrigger value="progression">{TEXT_CONTENT.questBoard.tabs.sub.progression}</TabsTrigger>
                   </TabsList>
 
                   {/* Errands Tab - Milestone List */}
@@ -2771,7 +2680,7 @@ export default function QuestsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Edit Quest</h2>
+              <h2 className="text-lg font-semibold mb-4">{TEXT_CONTENT.questBoard.modals.editQuest.title}</h2>
               <form
                 onSubmit={e => {
                   e.preventDefault();
@@ -2820,8 +2729,8 @@ export default function QuestsPage() {
                 />
 
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>Cancel</Button>
-                  <Button type="submit" variant="default">Save</Button>
+                  <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>{TEXT_CONTENT.questBoard.modals.editQuest.cancel}</Button>
+                  <Button type="submit" variant="default">{TEXT_CONTENT.questBoard.modals.editQuest.save}</Button>
                 </div>
               </form>
             </div>
@@ -2833,7 +2742,7 @@ export default function QuestsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }} />
             <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">Edit Challenge</h2>
+              <h2 className="text-lg font-semibold mb-4">{TEXT_CONTENT.questBoard.modals.editChallenge.title}</h2>
               <form
                 onSubmit={e => {
                   e.preventDefault();
@@ -2882,8 +2791,8 @@ export default function QuestsPage() {
                 </select>
 
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>Cancel</Button>
-                  <Button type="submit" variant="default">Save</Button>
+                  <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>{TEXT_CONTENT.questBoard.modals.editChallenge.cancel}</Button>
+                  <Button type="submit" variant="default">{TEXT_CONTENT.questBoard.modals.editChallenge.save}</Button>
                 </div>
               </form>
             </div>
@@ -2894,7 +2803,7 @@ export default function QuestsPage() {
         <ResponsiveModal
           isOpen={editMilestoneModalOpen && !!editingMilestone}
           onClose={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
-          title="Edit Milestone"
+          title={TEXT_CONTENT.questBoard.modals.editMilestone.title}
           footer={
             <>
               <Button
@@ -2902,14 +2811,14 @@ export default function QuestsPage() {
                 variant="secondary"
                 onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
               >
-                Cancel
+                {TEXT_CONTENT.questBoard.modals.editMilestone.cancel}
               </Button>
               <Button
                 type="button"
                 variant="default"
                 onClick={() => handleEditMilestoneSubmit(editingMilestone)}
               >
-                Save Changes
+                {TEXT_CONTENT.questBoard.modals.editMilestone.save}
               </Button>
             </>
           }
@@ -3001,28 +2910,28 @@ export default function QuestsPage() {
                 variant="secondary"
                 onClick={() => { setDeleteMilestoneConfirmOpen(false); setMilestoneToDelete(null); }}
               >
-                Cancel
+                {TEXT_CONTENT.questBoard.buttons.cancel}
               </Button>
               <Button
                 type="button"
                 variant="destructive"
                 onClick={confirmDeleteMilestone}
               >
-                Delete
+                {TEXT_CONTENT.questBoard.buttons.delete}
               </Button>
             </>
           }
         >
-          <p>Are you sure you want to delete the milestone &quot;{milestoneToDelete?.name}&quot;?</p>
+          <p>{TEXT_CONTENT.questBoard.modals.delete.confirmMilestone.replace('{name}', milestoneToDelete?.name)}</p>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            This action cannot be undone.
+            {TEXT_CONTENT.questBoard.modals.delete.warning}
           </p>
         </ResponsiveModal>
         {/* Add Milestone Modal */}
         <ResponsiveModal
           isOpen={addMilestoneModalOpen}
           onClose={() => setAddMilestoneModalOpen(false)}
-          title="Add Custom Milestone"
+          title={TEXT_CONTENT.questBoard.modals.addMilestone.title}
           footer={
             <>
               <Button
@@ -3030,44 +2939,44 @@ export default function QuestsPage() {
                 variant="secondary"
                 onClick={() => setAddMilestoneModalOpen(false)}
               >
-                Cancel
+                {TEXT_CONTENT.questBoard.buttons.cancel}
               </Button>
               <Button
                 type="button"
                 variant="default"
                 onClick={handleAddMilestoneSubmit}
               >
-                Add
+                {TEXT_CONTENT.questBoard.buttons.add}
               </Button>
             </>
           }
         >
-          <label className="block mb-2 text-sm font-medium">Name</label>
+          <label className="block mb-2 text-sm font-medium">{TEXT_CONTENT.questBoard.modals.addMilestone.labels.name}</label>
           <input
             className="w-full mb-4 p-2 border rounded"
             value={newMilestone.name}
             onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
-            placeholder="Milestone name"
-            title="Milestone name"
-            aria-label="Milestone name"
+            placeholder={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.name}
+            title={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.name}
+            aria-label={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.name}
             required
           />
-          <label className="block mb-2 text-sm font-medium">Description</label>
+          <label className="block mb-2 text-sm font-medium">{TEXT_CONTENT.questBoard.modals.addMilestone.labels.description}</label>
           <textarea
             className="w-full mb-4 p-2 border rounded"
             value={newMilestone.description}
             onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
-            placeholder="Description"
-            title="Description"
-            aria-label="Description"
+            placeholder={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.description}
+            title={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.description}
+            aria-label={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.description}
           />
-          <label className="block mb-2 text-sm font-medium">Category</label>
+          <label className="block mb-2 text-sm font-medium">{TEXT_CONTENT.questBoard.modals.addMilestone.labels.category}</label>
           <Select
             value={newMilestone.category || ''}
             onValueChange={(value) => setNewMilestone({ ...newMilestone, category: value })}
           >
             <SelectTrigger className="w-full mb-4">
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.selectCategory} />
             </SelectTrigger>
             <SelectContent>
               {questCategories.map((category: string) => (
@@ -3257,28 +3166,28 @@ export default function QuestsPage() {
         <ResponsiveModal
           isOpen={deleteConfirmOpen && !!questToDelete}
           onClose={cancelDeleteQuest}
-          title="Delete Quest"
+          title={TEXT_CONTENT.questBoard.modals.delete.questTitle}
           footer={
             <>
               <Button type="button" variant="secondary" onClick={cancelDeleteQuest}>
-                Cancel
+                {TEXT_CONTENT.questBoard.buttons.cancel}
               </Button>
               <Button type="button" variant="destructive" onClick={confirmDeleteQuest}>
-                Delete
+                {TEXT_CONTENT.questBoard.buttons.delete}
               </Button>
             </>
           }
         >
-          <p>Are you sure you want to delete the quest &quot;{questToDelete?.name}&quot;?</p>
+          <p>{TEXT_CONTENT.questBoard.modals.delete.confirm.replace('{name}', questToDelete?.name || '')}</p>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            This action cannot be undone.
+            {TEXT_CONTENT.questBoard.modals.delete.warning}
           </p>
         </ResponsiveModal>
         {/* Add Challenge Type Modal */}
         <ResponsiveModal
           isOpen={showAddChallengeTypeModal}
           onClose={() => setShowAddChallengeTypeModal(false)}
-          title="Add Challenge Type"
+          title={TEXT_CONTENT.questBoard.modals.addType.title}
           footer={
             <>
               <Button
@@ -3286,7 +3195,7 @@ export default function QuestsPage() {
                 variant="secondary"
                 onClick={() => setShowAddChallengeTypeModal(false)}
               >
-                Cancel
+                {TEXT_CONTENT.questBoard.buttons.cancel}
               </Button>
               <Button
                 type="button"
@@ -3296,7 +3205,7 @@ export default function QuestsPage() {
                   setShowAddChallengeTypeModal(false);
                 }}
               >
-                Add
+                {TEXT_CONTENT.questBoard.buttons.add}
               </Button>
             </>
           }

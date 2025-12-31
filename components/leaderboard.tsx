@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Crown, Trophy, Coins, Flame, Medal, Scroll, Hammer } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 interface LeaderboardEntry {
   rank: number;
@@ -56,12 +57,12 @@ export function Leaderboard() {
 
   const getDescription = () => {
     switch (category) {
-      case "gold": return "Wealthiest Lords & Ladies";
-      case "streak": return "Most Consistent Allies";
-      case "tiles": return "Greatest Realm Builders";
-      case "quests_monthly_individual": return "Heroes of the Month";
-      case "quests_monthly_alliance": return "Dominant Alliances (Monthly)";
-      default: return "Most Legendary Heroes";
+      case "gold": return TEXT_CONTENT.leaderboard.descriptions.gold;
+      case "streak": return TEXT_CONTENT.leaderboard.descriptions.streak;
+      case "tiles": return TEXT_CONTENT.leaderboard.descriptions.tiles;
+      case "quests_monthly_individual": return TEXT_CONTENT.leaderboard.descriptions.quests;
+      case "quests_monthly_alliance": return TEXT_CONTENT.leaderboard.descriptions.allies;
+      default: return TEXT_CONTENT.leaderboard.descriptions.xp;
     }
   };
 
@@ -72,7 +73,7 @@ export function Leaderboard() {
           <div>
             <CardTitle className="text-xl flex items-center gap-2 font-medieval">
               <Crown className="h-6 w-6 text-yellow-500" />
-              Realm Leaderboard
+              {TEXT_CONTENT.leaderboard.title}
             </CardTitle>
             <CardDescription className="text-amber-400/60">
               {getDescription()}
@@ -84,26 +85,26 @@ export function Leaderboard() {
       <CardContent className="flex-grow flex flex-col">
         <Tabs defaultValue="experience" className="w-full flex-grow flex flex-col" onValueChange={setCategory}>
           <TabsList className="grid w-full grid-cols-6 bg-black/60 border border-amber-900/30">
-            <TabsTrigger value="experience" className="text-[10px] sm:text-xs px-1">XP</TabsTrigger>
-            <TabsTrigger value="gold" className="text-[10px] sm:text-xs px-1">Gold</TabsTrigger>
-            <TabsTrigger value="tiles" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">Tiles</TabsTrigger>
-            <TabsTrigger value="streak" className="text-[10px] sm:text-xs px-1">Streak</TabsTrigger>
-            <TabsTrigger value="quests_monthly_individual" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">Quests</TabsTrigger>
-            <TabsTrigger value="quests_monthly_alliance" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">Allies</TabsTrigger>
+            <TabsTrigger value="experience" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.xp}</TabsTrigger>
+            <TabsTrigger value="gold" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.gold}</TabsTrigger>
+            <TabsTrigger value="tiles" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.tiles}</TabsTrigger>
+            <TabsTrigger value="streak" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.streak}</TabsTrigger>
+            <TabsTrigger value="quests_monthly_individual" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.quests}</TabsTrigger>
+            <TabsTrigger value="quests_monthly_alliance" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.allies}</TabsTrigger>
           </TabsList>
 
           <div className="mt-4 flex-grow relative min-h-[300px]">
             {loading ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-amber-500/50 space-y-3">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
-                <p className="text-sm animate-pulse">Consulting the Royal Archives...</p>
+                <p className="text-sm animate-pulse">{TEXT_CONTENT.leaderboard.loading}</p>
               </div>
             ) : entries.length === 0 ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-amber-500/40 space-y-4">
                 <Trophy className="h-16 w-16 opacity-20" />
                 <div className="text-center">
-                  <p className="font-semibold text-lg">No Legends Found</p>
-                  <p className="text-sm max-w-[200px] mx-auto opacity-70">Be the first to etch your name in history!</p>
+                  <p className="font-semibold text-lg">{TEXT_CONTENT.leaderboard.empty.title}</p>
+                  <p className="text-sm max-w-[200px] mx-auto opacity-70">{TEXT_CONTENT.leaderboard.empty.subtitle}</p>
                 </div>
               </div>
             ) : (
@@ -133,11 +134,11 @@ export function Leaderboard() {
                           <div className="font-semibold text-sm flex items-center gap-2 text-amber-100/90">
                             {entry.displayName}
                             {entry.userId === user?.id && (
-                              <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-wider font-bold">You</span>
+                              <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-wider font-bold">{TEXT_CONTENT.leaderboard.card.you}</span>
                             )}
                           </div>
                           <div className="text-xs text-amber-400/50 flex items-center gap-1.5">
-                            <span>Lvl {entry.level}</span>
+                            <span>{TEXT_CONTENT.leaderboard.card.level.replace('{level}', entry.level.toString())}</span>
                             <span className="w-1 h-1 rounded-full bg-amber-900"></span>
                             <span>{entry.title}</span>
                           </div>

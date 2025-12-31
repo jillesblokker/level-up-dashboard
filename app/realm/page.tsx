@@ -61,6 +61,7 @@ import { useAchievementUnlock } from '@/hooks/use-achievement-unlock';
 import { useWeather } from '@/hooks/use-weather';
 
 import { useSound, SOUNDS } from "@/lib/sound-manager"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 
 // Dynamic imports for performance optimization
@@ -121,7 +122,7 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
 
 export default function RealmPage() {
     return (
-        <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading realm...</div>}>
+        <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-gray-900 text-white">{TEXT_CONTENT.realm.loading}</div>}>
             <RealmPageContent />
         </React.Suspense>
     );
@@ -307,8 +308,8 @@ function RealmPageContent() {
 
                 playSound(SOUNDS.BATTLE_WIN);
                 toast({
-                    title: "Monster Defeated!",
-                    description: "The realm is safer now.",
+                    title: TEXT_CONTENT.realm.toasts.monsterDefeated.title,
+                    description: TEXT_CONTENT.realm.toasts.monsterDefeated.desc,
                 });
             } catch (error) {
                 console.error("Error marking monster defeated:", error);
@@ -405,8 +406,8 @@ function RealmPageContent() {
 
         if (!hasTileInInventory && !hasTileInSelected) {
             toast({
-                title: "📦 Empty Inventory",
-                description: "Your tile pouch is empty! Visit the market to restock your building materials.",
+                title: TEXT_CONTENT.realm.toasts.inventoryEmpty.title,
+                description: TEXT_CONTENT.realm.toasts.inventoryEmpty.desc,
                 variant: "destructive",
             });
             return;
@@ -478,7 +479,7 @@ function RealmPageContent() {
                     const success = spawnMonsterOnTile(currentGrid, spawnResult.position.x, spawnResult.position.y, spawnResult.monsterType as any);
                     if (success) {
                         playSound(SOUNDS.MONSTER_SPAWN);
-                        toast({ title: "Monster Appeared!", description: `A ${spawnResult.monsterType} has appeared!` });
+                        toast({ title: TEXT_CONTENT.realm.toasts.monsterAppeared.title, description: TEXT_CONTENT.realm.toasts.monsterAppeared.desc.replace("{type}", spawnResult.monsterType!) });
 
                         // Add to UI state optimistically
                         setMonsters(prev => [
@@ -533,8 +534,8 @@ function RealmPageContent() {
 
             if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
                 toast({
-                    title: "Cannot Move",
-                    description: `You cannot move to a ${targetTile.type} tile.`,
+                    title: TEXT_CONTENT.realm.toasts.cannotMove.title,
+                    description: TEXT_CONTENT.realm.toasts.cannotMove.desc.replace("{type}", targetTile.type),
                     variant: "destructive",
                 });
                 return;
@@ -625,8 +626,8 @@ function RealmPageContent() {
         // Don't allow destroying certain protected tiles (Mountains are now destructible)
         if (['water', 'lava', 'volcano'].includes(targetTile.type)) {
             toast({
-                title: "⛰️ Immovable Force",
-                description: `The ${targetTile.type} resists your power!`,
+                title: TEXT_CONTENT.realm.toasts.immovable.title,
+                description: TEXT_CONTENT.realm.toasts.immovable.desc.replace("{type}", targetTile.type),
                 variant: "destructive",
             });
             return;
@@ -661,7 +662,7 @@ function RealmPageContent() {
             if (weather === 'snowy' && (originalTile.type === 'forest' || originalTile.type === 'grass')) {
                 if (Math.random() < 0.4) { // 40% chance
                     gainExperience(100, 'winter-forage');
-                    toast({ title: "❄️ Winter Forage!", description: "You found frozen berries under the snow. (+100 XP)", className: "bg-blue-900 border-blue-500 text-blue-100" });
+                    toast({ title: TEXT_CONTENT.realm.toasts.winterForage.title, description: TEXT_CONTENT.realm.toasts.winterForage.desc, className: "bg-blue-900 border-blue-500 text-blue-100" });
                 }
             }
 
@@ -720,8 +721,8 @@ function RealmPageContent() {
                 if (!showInventoryRef.current) {
                     setShowInventory(true);
                     toast({
-                        title: 'Inventory Opened',
-                        description: 'Tile inventory opened (press "i" to open)',
+                        title: TEXT_CONTENT.realm.toasts.inventoryOpened.title,
+                        description: TEXT_CONTENT.realm.toasts.inventoryOpened.desc,
                     });
                 }
                 return;
@@ -783,8 +784,8 @@ function RealmPageContent() {
 
             if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
                 toast({
-                    title: "Cannot Move",
-                    description: `You cannot move to a ${targetTile.type} tile.`,
+                    title: TEXT_CONTENT.realm.toasts.cannotMove.title,
+                    description: TEXT_CONTENT.realm.toasts.cannotMove.desc.replace("{type}", targetTile.type),
                     variant: "destructive",
                 });
                 return;
@@ -880,8 +881,8 @@ function RealmPageContent() {
     const handleResetPosition = () => {
         setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
         toast({
-            title: "Position Reset",
-            description: `Character position reset to center`,
+            title: TEXT_CONTENT.realm.toasts.positionReset.title,
+            description: TEXT_CONTENT.realm.toasts.positionReset.desc,
         });
     };
 
@@ -1011,8 +1012,9 @@ function RealmPageContent() {
             });
 
             toast({
-                title: "Rotated",
-                description: `Rotated ${tile.name} to ${newRotation}°.`,
+                title: TEXT_CONTENT.realm.toasts.immovable.title,
+                description: TEXT_CONTENT.realm.toasts.immovable.desc.replace("{type}", tile.type),
+                variant: "destructive",
             });
         } catch (e) {
             console.error('Failed to rotate tile:', e);
@@ -1031,13 +1033,13 @@ function RealmPageContent() {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
                 <div className="bg-black/70 border border-amber-800 rounded-lg p-6 max-w-lg text-center text-amber-100 text-lg shadow-lg">
-                    <h2 className="text-2xl font-bold text-white mb-4">Exploring the lands of Valoreth</h2>
+                    <h2 className="text-2xl font-bold text-white mb-4">{TEXT_CONTENT.realm.loadingStory.title}</h2>
                     <p>
-                        In the mystical realm of Valoreth, King Necrion sought treasures of growth.<br />
-                        Through ancient forests and crystal caves he wandered,<br />
-                        Each terrain revealing new mysteries and hidden wisdom.<br />
-                        Will you follow his path and claim your destiny?<br />
-                        The realm awaits those brave enough to grow stronger.
+                        {TEXT_CONTENT.realm.loadingStory.p1}<br />
+                        {TEXT_CONTENT.realm.loadingStory.p2}<br />
+                        {TEXT_CONTENT.realm.loadingStory.p3}<br />
+                        {TEXT_CONTENT.realm.loadingStory.p4}<br />
+                        {TEXT_CONTENT.realm.loadingStory.p5}
                     </p>
                 </div>
             </div>
@@ -1054,8 +1056,8 @@ function RealmPageContent() {
                         <Users className="w-6 h-6 text-amber-500" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold tracking-wider text-sm text-amber-400 italic">ENVOY MODE</span>
-                        <span className="text-xs text-amber-200/60 font-medium">Exploring Ally&apos;s Realm</span>
+                        <span className="font-bold tracking-wider text-sm text-amber-400 italic">{TEXT_CONTENT.realm.header.envoyMode}</span>
+                        <span className="text-xs text-amber-200/60 font-medium">{TEXT_CONTENT.realm.header.envoyDesc}</span>
                     </div>
                     <Button
                         size="sm"
@@ -1063,14 +1065,14 @@ function RealmPageContent() {
                         className="h-9 px-4 rounded-xl bg-amber-600 text-black hover:bg-amber-500 border-none ml-2 font-bold"
                         onClick={() => router.push('/allies')}
                     >
-                        Return Home
+                        {TEXT_CONTENT.realm.header.returnHome}
                     </Button>
                 </div>
             )}
             <RevealOverlay />
             <HeaderSection
-                title={isVisiting ? "Ally Realm" : "Realm"}
-                subtitle={isVisiting ? "Observing a fellow pioneer's journey" : "Explore and build your mystical realm"}
+                title={isVisiting ? TEXT_CONTENT.realm.header.envoyTitle : TEXT_CONTENT.realm.header.title}
+                subtitle={isVisiting ? TEXT_CONTENT.realm.header.envoySubtitle : TEXT_CONTENT.realm.header.subtitle}
                 imageSrc="/images/realm-header.jpg"
                 defaultBgColor="bg-blue-900"
                 onAnimationStart={() => setIsAnimating(true)}
@@ -1082,23 +1084,23 @@ function RealmPageContent() {
                 shouldRevealImage={true}
                 guideComponent={
                     <PageGuide
-                        title="Realm"
-                        subtitle="Pioneer a mystical world beyond your borders"
+                        title={TEXT_CONTENT.realm.guide.title}
+                        subtitle={TEXT_CONTENT.realm.guide.subtitle}
                         sections={[
                             {
-                                title: "Exploration Mode",
+                                title: TEXT_CONTENT.realm.guide.exploration.title,
                                 icon: Compass,
-                                content: "Switch to 'Move' mode to navigate the realm. Discover hidden secrets, rare resources, and mystical events as you uncover the fog."
+                                content: TEXT_CONTENT.realm.guide.exploration.content
                             },
                             {
-                                title: "Mystical Building",
+                                title: TEXT_CONTENT.realm.guide.building.title,
                                 icon: Tent,
-                                content: "Use 'Build' mode to place mystical tiles. Different tiles require specific ingredients and can grant unique bonuses to your kingdom."
+                                content: TEXT_CONTENT.realm.guide.building.content
                             },
                             {
-                                title: "Survival & Combat",
+                                title: TEXT_CONTENT.realm.guide.combat.title,
                                 icon: ShieldCheck,
-                                content: "The realm is dangerous! Monsters may spawn as you explore. Ensure your character is equipped with strong gear from your inventory to survive battles."
+                                content: TEXT_CONTENT.realm.guide.combat.content
                             }
                         ]}
                     />
@@ -1128,7 +1130,7 @@ function RealmPageContent() {
                                     aria-label="movement-mode-button"
                                 >
                                     <Move className="w-4 h-4" />
-                                    <span className="hidden md:inline">Move</span>
+                                    <span className="hidden md:inline">{TEXT_CONTENT.realm.modes.move}</span>
                                 </Button>
                                 <Button
                                     variant={gameMode === 'build' ? 'default' : 'outline'}
@@ -1143,7 +1145,7 @@ function RealmPageContent() {
                                     aria-label="build-mode-button"
                                 >
                                     <Hammer className="w-4 h-4" />
-                                    <span className="hidden md:inline">Build</span>
+                                    <span className="hidden md:inline">{TEXT_CONTENT.realm.modes.build}</span>
                                 </Button>
                                 <Button
                                     variant={gameMode === 'destroy' ? 'default' : 'outline'}
@@ -1158,7 +1160,7 @@ function RealmPageContent() {
                                     aria-label="destroy-mode-button"
                                 >
                                     <Trash2 className="w-4 h-4" />
-                                    <span className="hidden md:inline">Destroy</span>
+                                    <span className="hidden md:inline">{TEXT_CONTENT.realm.modes.destroy}</span>
                                 </Button>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1175,7 +1177,7 @@ function RealmPageContent() {
                                                 )}
                                             >
                                                 <PlusCircle className="w-4 h-4" />
-                                                <span className="hidden sm:inline">Expand</span>
+                                                <span className="hidden sm:inline">{TEXT_CONTENT.realm.modes.expand}</span>
                                             </Button>
                                         </div>
                                     </TooltipTrigger>
@@ -1184,15 +1186,15 @@ function RealmPageContent() {
                                         className="bg-gray-900 text-white border-amber-800/30"
                                     >
                                         {canExpand
-                                            ? "Expand your realm map to unlock 3 more rows"
-                                            : `Reach level ${nextExpansionLevel} to expand further (Current: ${characterStats.level})`}
+                                            ? TEXT_CONTENT.realm.modes.expandTooltip
+                                            : TEXT_CONTENT.realm.modes.expandLocked.replace("{level}", String(nextExpansionLevel)).replace("{current}", String(characterStats.level))}
                                     </TooltipContent>
                                 </Tooltip>
 
                                 {selectedTile && (
                                     <div className="hidden sm:flex items-center gap-3 bg-gray-900 border border-amber-500/30 rounded-lg px-3 py-1 mr-1 shadow-inner shadow-black/50 animate-in fade-in zoom-in-95 duration-200">
                                         <div className="flex flex-col items-start min-w-[60px]">
-                                            <span className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">Selected</span>
+                                            <span className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">{TEXT_CONTENT.realm.modes.selected}</span>
                                             <span className="text-xs font-bold text-amber-400 truncate max-w-[100px]">{selectedTile.name}</span>
                                         </div>
                                         <div className="h-6 w-px bg-gray-700 mx-1"></div>
@@ -1211,7 +1213,7 @@ function RealmPageContent() {
                                     aria-label="toggle-inventory-button"
                                 >
                                     <Package className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Inventory</span>
+                                    <span className="hidden sm:inline">{TEXT_CONTENT.realm.modes.inventory}</span>
                                 </Button>
 
                                 {/* Kebab Menu for Secondary Actions */}
@@ -1224,23 +1226,23 @@ function RealmPageContent() {
                                             aria-label="more-actions-menu"
                                         >
                                             <MoreVertical className="w-4 h-4" />
-                                            <span className="hidden sm:inline">More</span>
+                                            <span className="hidden sm:inline">{TEXT_CONTENT.realm.modes.more}</span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-48">
                                         <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
                                             <RotateCcw className="w-4 h-4" />
-                                            Reset Position
+                                            {TEXT_CONTENT.realm.menu.resetPosition}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2 text-red-500 hover:text-red-400 focus:text-red-400 focus:bg-red-500/10">
                                             <Trash2 className="w-4 h-4" />
-                                            Reset Realm
+                                            {TEXT_CONTENT.realm.menu.resetRealm}
                                         </DropdownMenuItem>
                                         {/* Auto Save Toggle */}
                                         <div className="px-2 py-1.5">
                                             <div className="flex items-center space-x-2">
                                                 <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
-                                                <label htmlFor="auto-save-switch-menu" className="text-sm">Auto Save</label>
+                                                <label htmlFor="auto-save-switch-menu" className="text-sm">{TEXT_CONTENT.realm.menu.autoSave}</label>
                                             </div>
                                         </div>
                                     </DropdownMenuContent>
@@ -1296,10 +1298,10 @@ function RealmPageContent() {
                         <SheetHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left shrink-0">
                             <SheetTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
                                 <span className="text-3xl">🏰</span>
-                                Realm Inventory
+                                {TEXT_CONTENT.realm.inventory.title}
                             </SheetTitle>
                             <SheetDescription className="text-gray-400">
-                                Manage your tiles and expanded territory.
+                                {TEXT_CONTENT.realm.inventory.desc}
                             </SheetDescription>
                         </SheetHeader>
                         <div className="flex-1 overflow-hidden p-0 relative min-h-0">
@@ -1323,8 +1325,8 @@ function RealmPageContent() {
                     <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
                         <DialogContent aria-label="Castle Event Royal Audience" role="dialog" aria-modal="true">
                             <DialogHeader>
-                                <DialogTitle>Royal Audience with the King</DialogTitle>
-                                <DialogDescription>You enter the grand hall of the castle and are summoned before the King. He sits on a golden throne, surrounded by advisors and guards. He peers down at you with curiosity.</DialogDescription>
+                                <DialogTitle>{TEXT_CONTENT.realm.events.castle.title}</DialogTitle>
+                                <DialogDescription>{TEXT_CONTENT.realm.events.castle.desc}</DialogDescription>
                             </DialogHeader>
                             {!castleEvent.result ? (
                                 <div className="flex flex-col items-center space-y-4">
@@ -1350,17 +1352,17 @@ function RealmPageContent() {
                                         let result = '';
                                         let reward = '';
                                         if (roll <= 2) {
-                                            result = `The King rewards your humble service with 20 gold for your travels. (Rolled ${roll})`;
+                                            result = TEXT_CONTENT.realm.events.castle.result1.replace("{roll}", String(roll));
                                             reward = '+20 gold';
                                             gainGold(20, 'castle-event');
                                         } else if (roll <= 4) {
-                                            result = `The King is impressed by your tales and grants you 40 EXP to continue your noble path. (Rolled ${roll})`;
+                                            result = TEXT_CONTENT.realm.events.castle.result2.replace("{roll}", String(roll));
                                             reward = '+40 XP';
                                             gainExperience(40, 'castle-event');
                                         } else {
                                             const attributes = ['Loyalty', 'Defense', 'Wisdom', 'Courage', 'Honor'];
-                                            const attr = attributes[Math.floor(Math.random() * attributes.length)];
-                                            result = `The King knights you an Honorary Guardian and gifts +1 ${attr} to your Kingdom Inventory. (Rolled ${roll})`;
+                                            const attr = attributes[Math.floor(Math.random() * attributes.length)] || 'Honor';
+                                            result = TEXT_CONTENT.realm.events.castle.result3.replace("{attr}", attr).replace("{roll}", String(roll));
                                             reward = `+1 ${attr}`;
                                             // Add attribute to inventory or show toast (implement as needed)
                                         }
@@ -1370,7 +1372,7 @@ function RealmPageContent() {
                             ) : (
                                 <div className="space-y-4">
                                     <div className="text-lg font-semibold text-center">{castleEvent.result}</div>
-                                    <Button aria-label="Close" onClick={() => setCastleEvent(null)}>Close</Button>
+                                    <Button aria-label="Close" onClick={() => setCastleEvent(null)}>{TEXT_CONTENT.realm.events.castle.close}</Button>
                                 </div>
                             )}
                         </DialogContent>
@@ -1396,44 +1398,44 @@ function RealmPageContent() {
                     <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>
                         <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
                             <DialogHeader>
-                                <DialogTitle>Cave: Choose a Path</DialogTitle>
-                                <DialogDescription>You find yourself at a fork deep in the heart of a shadowy cave. Three paths lie before you, each whispering fate in a different tone.<br />&quot;Which path do you choose, brave adventurer?&quot;</DialogDescription>
+                                <DialogTitle>{TEXT_CONTENT.realm.events.cave.title}</DialogTitle>
+                                <DialogDescription>{TEXT_CONTENT.realm.events.cave.desc}</DialogDescription>
                             </DialogHeader>
                             {!caveEvent.result ? (
                                 <div className="space-y-4 flex flex-col">
                                     <Button className="w-full" aria-label="Gem Path" onClick={() => {
                                         const roll = Math.random();
                                         if (roll < 0.2) {
-                                            setCaveEvent({ open: true, result: 'You find a radiant Gem worth 80 gold!' });
+                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res1a });
                                             gainGold(80, 'cave-event');
                                         } else {
-                                            setCaveEvent({ open: true, result: "It's just dust and shadows… you find nothing." });
+                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res1b });
                                         }
-                                    }}>Path 1: Gem Path</Button>
+                                    }}>{TEXT_CONTENT.realm.events.cave.path1}</Button>
                                     <Button className="w-full" aria-label="Dark Path" onClick={() => {
                                         const roll = Math.random();
                                         if (roll < 0.1) {
-                                            setCaveEvent({ open: true, result: 'A friendly Wizard appears and grants you 120 EXP!' });
+                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res2a });
                                             gainExperience(120, 'cave-event');
                                         } else {
-                                            setCaveEvent({ open: true, result: 'You stumble through the dark with no gain.' });
+                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res2b });
                                         }
-                                    }}>Path 2: Dark Path</Button>
+                                    }}>{TEXT_CONTENT.realm.events.cave.path2}</Button>
                                     <Button className="w-full" aria-label="Light at the End" onClick={() => {
                                         const roll = Math.random();
                                         if (roll < 0.9) {
-                                            setCaveEvent({ open: true, result: 'You emerge safely and gain 10 gold.' });
+                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res3a });
                                             gainGold(10, 'cave-event');
                                         } else {
-                                            setCaveEvent({ open: true, result: 'It leads to a working volcano—you lose 10 gold in the chaos.' });
+                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res3b });
                                             gainGold(-10, 'cave-event');
                                         }
-                                    }}>Path 3: Light at the End</Button>
+                                    }}>{TEXT_CONTENT.realm.events.cave.path3}</Button>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
                                     <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
-                                    <Button aria-label="Close" onClick={() => setCaveEvent(null)}>Close</Button>
+                                    <Button aria-label="Close" onClick={() => setCaveEvent(null)}>{TEXT_CONTENT.realm.events.cave.close}</Button>
                                 </div>
                             )}
                         </DialogContent>
@@ -1469,7 +1471,7 @@ function RealmPageContent() {
                             ) : (
                                 <div className="space-y-4">
                                     <div className="text-lg font-semibold text-center">
-                                        Processing your choice...
+                                        {TEXT_CONTENT.realm.events.mystery.processing}
                                     </div>
                                 </div>
                             )}
@@ -1484,7 +1486,7 @@ function RealmPageContent() {
                     monsterType={currentMonster}
                     onBattleComplete={(won, gold, xp) => {
                         if (won) {
-                            toast({ title: "Victory!", description: `Defeated the monster! +${gold} Gold, +${xp} XP` });
+                            toast({ title: TEXT_CONTENT.realm.toasts.victory.title, description: TEXT_CONTENT.realm.toasts.victory.desc.replace("{gold}", String(gold)).replace("{xp}", String(xp)) });
                             // Update grid
                             setGrid(prev => {
                                 const next = [...prev];
@@ -1496,7 +1498,7 @@ function RealmPageContent() {
                                 return next;
                             });
                         } else {
-                            toast({ title: "Defeat", description: "The monster was too strong!", variant: "destructive" });
+                            toast({ title: TEXT_CONTENT.realm.toasts.defeat.title, description: TEXT_CONTENT.realm.toasts.defeat.desc, variant: "destructive" });
                         }
                     }}
                 />
@@ -1509,23 +1511,23 @@ function RealmPageContent() {
                             <CardContent className="p-4 relative">
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="font-bold text-amber-400 text-sm uppercase tracking-wider flex items-center gap-2">
-                                        <Crown className="w-4 h-4" /> Treasury
+                                        <Crown className="w-4 h-4" /> {TEXT_CONTENT.realm.treasury.title}
                                     </h3>
                                 </div>
 
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-amber-200">
-                                        <span className="text-xs text-amber-400/80">Taxes Collected</span>
+                                        <span className="text-xs text-amber-400/80">{TEXT_CONTENT.realm.treasury.taxes}</span>
                                     </div>
 
                                     <div className="flex gap-3">
                                         <div className="flex-1 bg-black/40 rounded p-2 border border-amber-500/20 flex flex-col items-center">
                                             <span className="text-xl font-bold text-amber-400">{passiveRewards.gold}</span>
-                                            <span className="text-[10px] text-amber-500/70 uppercase">Gold</span>
+                                            <span className="text-[10px] text-amber-500/70 uppercase">{TEXT_CONTENT.realm.treasury.gold}</span>
                                         </div>
                                         <div className="flex-1 bg-black/40 rounded p-2 border border-blue-500/20 flex flex-col items-center">
                                             <span className="text-xl font-bold text-blue-400">{passiveRewards.xp}</span>
-                                            <span className="text-[10px] text-blue-500/70 uppercase">XP</span>
+                                            <span className="text-[10px] text-blue-500/70 uppercase">{TEXT_CONTENT.realm.treasury.xp}</span>
                                         </div>
                                     </div>
 
@@ -1533,7 +1535,7 @@ function RealmPageContent() {
                                         className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold border-t border-white/20 shadow-lg active:scale-95 transition-all"
                                         onClick={handleCollectRewards}
                                     >
-                                        Collect Taxes
+                                        {TEXT_CONTENT.realm.treasury.collect}
                                     </Button>
                                     <div className="text-center">
                                         <button
@@ -1543,7 +1545,7 @@ function RealmPageContent() {
                                             }}
                                             className="text-[10px] text-amber-500/70 hover:text-amber-400 underline decoration-dotted transition-colors"
                                         >
-                                            How to earn more? (Synergies)
+                                            {TEXT_CONTENT.realm.treasury.earnMore}
                                         </button>
                                     </div>
                                 </div>

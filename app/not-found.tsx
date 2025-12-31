@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Sword } from "lucide-react";
+import { TEXT_CONTENT } from "@/lib/text-content";
 
 export default function NotFound() {
   return (
@@ -13,31 +14,31 @@ export default function NotFound() {
             <Sword className="h-24 w-24 text-amber-500 -rotate-45 absolute top-0 left-0" />
           </div>
         </div>
-        
-        <h1 className="text-4xl font-medievalsharp text-amber-500 mb-4">Quest Failed</h1>
-        
+
+        <h1 className="text-4xl font-medievalsharp text-amber-500 mb-4">{TEXT_CONTENT.errorPage.notFound.title}</h1>
+
         <div className="bg-amber-900/20 border border-amber-800/20 rounded-lg p-4 mb-6">
           <p className="text-amber-300 font-medievalsharp text-lg">
-            The path you seek lies shrouded in mist. The ancient scroll speaks of error 404 - a location beyond the known realm.
+            {TEXT_CONTENT.errorPage.notFound.description}
           </p>
         </div>
-        
+
         <p className="text-gray-400 mb-8">
-          The page you are looking for may have been moved, deleted, or perhaps never existed in this kingdom.
+          {TEXT_CONTENT.errorPage.notFound.subtext}
         </p>
-        
+
         <div className="space-y-3">
-          <Button 
+          <Button
             className="w-full bg-amber-700 hover:bg-amber-600"
           >
-            Return to Kingdom
+            {TEXT_CONTENT.errorPage.notFound.return}
           </Button>
-          
-          <Button 
+
+          <Button
             variant="outline"
             className="w-full border-amber-800/20 text-amber-500 hover:bg-amber-900/30"
           >
-            Retrace Your Steps
+            {TEXT_CONTENT.errorPage.notFound.retrace}
           </Button>
         </div>
       </div>

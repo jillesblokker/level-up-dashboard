@@ -29,6 +29,7 @@ import { Bell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { cn } from "@/lib/utils";
+import { TEXT_CONTENT } from '@/lib/text-content';
 
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 
@@ -276,7 +277,7 @@ export default function ProfilePage() {
         <Card className="p-6" aria-label="profile-loading-card">
           <div className="flex items-center justify-center space-x-2">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
-            <p className="text-center">Loading your profile...</p>
+            <p className="text-center">{TEXT_CONTENT.profile.loading}</p>
           </div>
         </Card>
       </div>
@@ -301,15 +302,15 @@ export default function ProfilePage() {
             <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mb-6 border-2 border-amber-500/30">
               <User className="w-10 h-10 text-amber-400" />
             </div>
-            <h2 className="text-3xl font-bold text-amber-400 mb-4 drop-shadow-lg">Join the Kingdom</h2>
-            <p className="text-gray-300 mb-6 text-lg leading-relaxed">Access your realm, customize your avatar, and track your progress by signing in.</p>
+            <h2 className="text-3xl font-bold text-amber-400 mb-4 drop-shadow-lg">{TEXT_CONTENT.profile.signIn.title}</h2>
+            <p className="text-gray-300 mb-6 text-lg leading-relaxed">{TEXT_CONTENT.profile.signIn.description}</p>
             <Button
               className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 text-lg hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
               aria-label="Sign in to profile"
               onClick={() => window.location.href = '/auth/signin'}
             >
               <Crown className="w-5 h-5 mr-2" />
-              Sign In to Your Realm
+              {TEXT_CONTENT.profile.signIn.button}
             </Button>
           </div>
         </div>
@@ -361,12 +362,12 @@ export default function ProfilePage() {
             </h1>
             <p className="text-amber-400 mb-3 flex items-center">
               <Shield className="w-4 h-4 mr-2" />
-              Realm Explorer
+              {TEXT_CONTENT.profile.hero.role}
             </p>
             <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
               <Badge variant="secondary" className="bg-amber-500/20 text-amber-400 border-amber-500/30 w-fit">
                 <Sword className="w-3 h-3 mr-1" />
-                Active
+                {TEXT_CONTENT.profile.hero.active}
               </Badge>
               <Badge variant="outline" className="border-amber-500/30 text-amber-400 w-fit truncate max-w-[calc(100vw-8rem)] sm:max-w-full">
                 {user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ''}
@@ -389,11 +390,11 @@ export default function ProfilePage() {
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
                 )}
               </div>
-              <div className="text-sm font-bold text-white">Inbox</div>
+              <div className="text-sm font-bold text-white">{TEXT_CONTENT.profile.quickAccess.inbox.title}</div>
               {unreadCount > 0 ? (
                 <Badge className="mt-2 bg-red-500 hover:bg-red-600 border-none">{unreadCount} New</Badge>
               ) : (
-                <span className="text-xs text-gray-500 mt-1">No new messages</span>
+                <span className="text-xs text-gray-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
               )}
             </CardContent>
           </Card>
@@ -403,8 +404,8 @@ export default function ProfilePage() {
           <Card className="bg-gray-900/50 border-amber-800/30 hover:bg-gray-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
             <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
               <User className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
-              <div className="text-sm font-bold text-white">Character</div>
-              <div className="text-xs text-amber-400/80 mt-1 font-mono">Lvl {characterStats.level}</div>
+              <div className="text-sm font-bold text-white">{TEXT_CONTENT.profile.quickAccess.character.title}</div>
+              <div className="text-xs text-amber-400/80 mt-1 font-mono">{TEXT_CONTENT.profile.quickAccess.character.level.replace('{level}', characterStats.level.toString())}</div>
             </CardContent>
           </Card>
         </Link>
@@ -414,19 +415,19 @@ export default function ProfilePage() {
         <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-amber-800/20">
           <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Camera className="w-4 h-4 mr-2" />
-            Avatar
+            {TEXT_CONTENT.profile.tabs.avatar}
           </TabsTrigger>
           <TabsTrigger value="profile" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <User className="w-4 h-4 mr-2" />
-            Profile
+            {TEXT_CONTENT.profile.tabs.profile}
           </TabsTrigger>
           <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Palette className="w-4 h-4 mr-2" />
-            Colors
+            {TEXT_CONTENT.profile.tabs.colors}
           </TabsTrigger>
           <TabsTrigger value="settings" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
             <Settings className="w-4 h-4 mr-2" />
-            Settings
+            {TEXT_CONTENT.profile.tabs.settings}
           </TabsTrigger>
         </TabsList>
 
@@ -435,7 +436,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Camera className="w-5 h-5 mr-2" />
-                Avatar Customization
+                {TEXT_CONTENT.profile.avatar.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -503,7 +504,7 @@ export default function ProfilePage() {
                       )}
                     </div>
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
-                      Custom
+                      {TEXT_CONTENT.profile.avatar.types.custom}
                     </div>
                   </button>
                 </div>
@@ -512,7 +513,7 @@ export default function ProfilePage() {
               {/* Upload Section for Custom Avatar */}
               {avatarType === 'uploaded' && (
                 <div className="space-y-3">
-                  <Label htmlFor="avatar" className="text-sm font-medium text-gray-300">Upload New Image</Label>
+                  <Label htmlFor="avatar" className="text-sm font-medium text-gray-300">{TEXT_CONTENT.profile.avatar.upload.label}</Label>
                   <div className="flex items-center space-x-3">
                     <Input
                       id="avatar"
@@ -531,11 +532,11 @@ export default function ProfilePage() {
                       disabled={isUploading}
                       className="border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
                     >
-                      {isUploading ? "Uploading..." : "Upload"}
+                      {isUploading ? TEXT_CONTENT.profile.avatar.upload.uploading : TEXT_CONTENT.profile.avatar.upload.button}
                     </Button>
                   </div>
                   <p className="text-sm text-gray-400">
-                    Recommended: Square image, max 5MB. Your image will be cropped to fit.
+                    {TEXT_CONTENT.profile.avatar.upload.note}
                   </p>
                 </div>
               )}
@@ -548,7 +549,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <User className="w-5 h-5 mr-2" />
-                Profile Information
+                {TEXT_CONTENT.profile.info.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -582,7 +583,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Palette className="w-5 h-5 mr-2" />
-                Avatar Appearance
+                {TEXT_CONTENT.profile.appearance.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -663,8 +664,8 @@ export default function ProfilePage() {
               ) : (
                 <div className="text-center py-8">
                   <Palette className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                  <p className="text-gray-400">Appearance customization is only available for initial avatars.</p>
-                  <p className="text-sm text-gray-500 mt-2">Switch to &quot;Initial&quot; avatar type to customize colors.</p>
+                  <p className="text-gray-400">{TEXT_CONTENT.profile.appearance.unavailable.title}</p>
+                  <p className="text-sm text-gray-500 mt-2">{TEXT_CONTENT.profile.appearance.unavailable.subtitle}</p>
                 </div>
               )}
             </CardContent>
@@ -807,7 +808,7 @@ export default function ProfilePage() {
                     // Dispatch event for components to react
                     window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }));
 
-                    toast.success(checked ? "Day/Night Cycle Enabled" : "Day/Night Cycle Disabled");
+                    toast.success(checked ? TEXT_CONTENT.profile.settings.app.dayNight.enabledToast : TEXT_CONTENT.profile.settings.app.dayNight.disabledToast);
                   }}
                 />
               </div>
@@ -836,7 +837,7 @@ export default function ProfilePage() {
                     }
 
                     window.dispatchEvent(new CustomEvent('settings:zenModeChanged', { detail: { enabled: checked } }));
-                    toast.success(checked ? "Zen Mode Enabled" : "Zen Mode Disabled");
+                    toast.success(checked ? TEXT_CONTENT.profile.settings.app.zenMode.enabledToast : TEXT_CONTENT.profile.settings.app.zenMode.disabledToast);
                   }}
                 />
               </div>
@@ -956,8 +957,8 @@ export default function ProfilePage() {
       {/* Avatar Cropper Modal */}
       <Dialog open={showCropper} onOpenChange={setShowCropper}>
         <DialogContent role="dialog" aria-label="profile-modal" className="sm:max-w-4xl">
-          <DialogDescription id="profile-modal-desc">Crop your profile image to the perfect size</DialogDescription>
-          <DialogTitle className="text-xl text-amber-400 mb-4">Crop Avatar</DialogTitle>
+          <DialogDescription id="profile-modal-desc">{TEXT_CONTENT.profile.avatar.cropper.description}</DialogDescription>
+          <DialogTitle className="text-xl text-amber-400 mb-4">{TEXT_CONTENT.profile.avatar.cropper.title}</DialogTitle>
           {selectedImage && (
             <div style={{ position: 'relative', width: '100%', height: 400 }} className="rounded-lg overflow-hidden border border-amber-800/20">
               <Cropper
@@ -991,7 +992,7 @@ export default function ProfilePage() {
               disabled={isUploading}
               className="bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800"
             >
-              {isUploading ? "Saving..." : "Save Avatar"}
+              {isUploading ? TEXT_CONTENT.profile.avatar.cropper.saving : TEXT_CONTENT.profile.avatar.cropper.save}
             </Button>
           </div>
         </DialogContent>
@@ -1003,22 +1004,20 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle className="text-2xl text-red-500 flex items-center gap-2">
               <AlertTriangle className="w-6 h-6" />
-              Delete Account
+              {TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.title}
             </DialogTitle>
             <DialogDescription className="text-gray-300 pt-4">
-              This action is <span className="text-red-500 font-bold">permanent and cannot be undone</span>.
+              {TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.desc}<span className="text-red-500 font-bold">{TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.descHighlight}</span>.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="bg-red-950/30 border border-red-800/30 rounded-lg p-4">
-              <p className="text-sm text-gray-300 mb-2">The following data will be permanently deleted:</p>
+              <p className="text-sm text-gray-300 mb-2">{TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.warningTitle}</p>
               <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
-                <li>Your character stats (level, XP, gold)</li>
-                <li>All quests, challenges, and milestones</li>
-                <li>Your kingdom and inventory</li>
-                <li>All progress and achievements</li>
-                <li>Your account and email address</li>
+                {TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.warningItems.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
               </ul>
             </div>
 
@@ -1055,7 +1054,7 @@ export default function ProfilePage() {
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              {isDeleting ? "Deleting..." : "Delete Forever"}
+              {isDeleting ? TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.deleting : TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.confirm}
             </Button>
           </div>
         </DialogContent>

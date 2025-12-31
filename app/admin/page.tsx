@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 export default function AdminPage() {
   const [selectedTab, setSelectedTab] = useState('realm')
@@ -25,25 +26,27 @@ export default function AdminPage() {
           'Authorization': `Bearer ${token}`,
         },
       })
-      
+
+      const data = await response.json()
       if (response.ok) {
-        const data = await response.json()
-        toast({
-          title: 'Success!',
-          description: data.message || 'Challenges seeded successfully',
-        })
+        if (data.message) {
+          toast({
+            title: TEXT_CONTENT.admin.toasts.seedingSuccess.title,
+            description: data.message || TEXT_CONTENT.admin.toasts.seedingSuccess.description,
+          })
+        }
       } else {
         const error = await response.json()
         toast({
-          title: 'Error',
-          description: error.error || 'Failed to seed challenges',
+          title: TEXT_CONTENT.admin.toasts.seedingError.title,
+          description: error.error || TEXT_CONTENT.admin.toasts.seedingError.description,
           variant: 'destructive',
         })
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Network error occurred',
+        title: TEXT_CONTENT.admin.toasts.networkError.title,
+        description: TEXT_CONTENT.admin.toasts.networkError.description,
         variant: 'destructive',
       })
     } finally {
@@ -55,8 +58,8 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold mb-8">Game Admin Dashboard</h1>
-      
+      <h1 className="text-4xl font-bold mb-8">{TEXT_CONTENT.admin.title}</h1>
+
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
         {/* Mobile tab selector */}
         <div className="mb-4 md:hidden">
@@ -75,22 +78,22 @@ export default function AdminPage() {
           </select>
         </div>
         <TabsList className="grid w-full grid-cols-4 hidden md:grid">
-          <TabsTrigger value="realm">Realm Map</TabsTrigger>
-          <TabsTrigger value="quests">Daily Quests</TabsTrigger>
-          <TabsTrigger value="stats">Player Stats</TabsTrigger>
-          <TabsTrigger value="export">Export/Import</TabsTrigger>
+          <TabsTrigger value="realm">{TEXT_CONTENT.admin.tabs.realm}</TabsTrigger>
+          <TabsTrigger value="quests">{TEXT_CONTENT.admin.tabs.quests}</TabsTrigger>
+          <TabsTrigger value="stats">{TEXT_CONTENT.admin.tabs.stats}</TabsTrigger>
+          <TabsTrigger value="export">{TEXT_CONTENT.admin.tabs.export}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="realm" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Realm Map Editor</CardTitle>
-              <CardDescription>Edit your realm layout and buildings</CardDescription>
+              <CardTitle>{TEXT_CONTENT.admin.sections.realm.title}</CardTitle>
+              <CardDescription>{TEXT_CONTENT.admin.sections.realm.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Map Grid</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.realm.gridLabel}</Label>
                   <ScrollArea className="h-[500px] w-full border rounded-md p-4">
                     {/* Grid editor will go here */}
                     <div className="grid grid-cols-10 gap-1">
@@ -102,14 +105,14 @@ export default function AdminPage() {
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <Label>Selected Tile</Label>
+                    <Label>{TEXT_CONTENT.admin.sections.realm.selectedTile}</Label>
                     <div className="p-4 border rounded-md">
                       <p>Position: X: 0, Y: 0</p>
                       <p>Type: Grass</p>
                       <p>Building: None</p>
                     </div>
                   </div>
-                  <Button>Save Changes</Button>
+                  <Button>{TEXT_CONTENT.admin.sections.realm.save}</Button>
                 </div>
               </div>
             </CardContent>
@@ -119,14 +122,14 @@ export default function AdminPage() {
         <TabsContent value="quests" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Daily Quests Manager</CardTitle>
-              <CardDescription>Manage and track daily quests</CardDescription>
+              <CardTitle>{TEXT_CONTENT.admin.sections.quests.title}</CardTitle>
+              <CardDescription>{TEXT_CONTENT.admin.sections.quests.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <Input type="date" />
-                  <Button>Load Quests</Button>
+                  <Button>{TEXT_CONTENT.admin.sections.quests.load}</Button>
                 </div>
                 <ScrollArea className="h-[400px] w-full border rounded-md p-4">
                   {/* Quest list will go here */}
@@ -148,29 +151,29 @@ export default function AdminPage() {
         <TabsContent value="stats" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Player Statistics</CardTitle>
-              <CardDescription>View and edit player stats</CardDescription>
+              <CardTitle>{TEXT_CONTENT.admin.sections.stats.title}</CardTitle>
+              <CardDescription>{TEXT_CONTENT.admin.sections.stats.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Gold</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.stats.labels.gold}</Label>
                   <Input type="number" placeholder="1000" />
                 </div>
                 <div>
-                  <Label>Experience</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.stats.labels.experience}</Label>
                   <Input type="number" placeholder="500" />
                 </div>
                 <div>
-                  <Label>Level</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.stats.labels.level}</Label>
                   <Input type="number" placeholder="5" />
                 </div>
                 <div>
-                  <Label>Population</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.stats.labels.population}</Label>
                   <Input type="number" placeholder="100" />
                 </div>
                 <div className="col-span-2">
-                  <Button className="w-full">Update Stats</Button>
+                  <Button className="w-full">{TEXT_CONTENT.admin.sections.stats.update}</Button>
                 </div>
               </div>
             </CardContent>
@@ -180,22 +183,22 @@ export default function AdminPage() {
         <TabsContent value="export" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Export/Import Data</CardTitle>
-              <CardDescription>Backup or restore your game data</CardDescription>
+              <CardTitle>{TEXT_CONTENT.admin.sections.export.title}</CardTitle>
+              <CardDescription>{TEXT_CONTENT.admin.sections.export.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label>Export Data</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.export.exportLabel}</Label>
                   <div className="flex gap-2">
-                    <Button className="w-full">Export as CSV</Button>
-                    <Button className="w-full">Export as JSON</Button>
+                    <Button className="w-full">{TEXT_CONTENT.admin.sections.export.exportCsv}</Button>
+                    <Button className="w-full">{TEXT_CONTENT.admin.sections.export.exportJson}</Button>
                   </div>
                 </div>
                 <div>
-                  <Label>Import Data</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.export.importLabel}</Label>
                   <Input type="file" className="w-full" />
-                  <Button className="w-full mt-2">Import Data</Button>
+                  <Button className="w-full mt-2">{TEXT_CONTENT.admin.sections.export.importButton}</Button>
                 </div>
               </div>
             </CardContent>
@@ -203,22 +206,22 @@ export default function AdminPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Database Seeding</CardTitle>
-              <CardDescription>Initialize database with default data</CardDescription>
+              <CardTitle>{TEXT_CONTENT.admin.sections.seeding.title}</CardTitle>
+              <CardDescription>{TEXT_CONTENT.admin.sections.seeding.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label>Seed Challenges</Label>
+                  <Label>{TEXT_CONTENT.admin.sections.seeding.challenges.label}</Label>
                   <p className="text-sm text-gray-400 mb-2">
-                    Populate the challenges table with 24 workout challenges across 5 categories
+                    {TEXT_CONTENT.admin.sections.seeding.challenges.description}
                   </p>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     onClick={seedChallenges}
                     disabled={seedingChallenges}
                   >
-                    {seedingChallenges ? 'Seeding...' : 'Seed Workout Challenges'}
+                    {seedingChallenges ? TEXT_CONTENT.admin.sections.seeding.challenges.seeding : TEXT_CONTENT.admin.sections.seeding.challenges.button}
                   </Button>
                 </div>
               </div>

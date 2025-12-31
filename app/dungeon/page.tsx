@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { NavBar } from "@/components/nav-bar"
 import { RiddleChallenge } from "@/components/riddle-challenge"
 import { toast } from "@/components/ui/use-toast"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 export default function DungeonPage() {
   const [goldBalance, setGoldBalance] = useState(1000)
@@ -41,8 +42,8 @@ export default function DungeonPage() {
       localStorage.setItem("gold-balance", String(newGoldBalance))
 
       toast({
-        title: "Dungeon Completed!",
-        description: `You successfully explored the dungeon and found ${goldReward} gold!`,
+        title: TEXT_CONTENT.dungeon.toasts.complete.title,
+        description: TEXT_CONTENT.dungeon.toasts.complete.desc.replace("{amount}", String(goldReward)),
       })
     } else {
       // Lose gold for failing
@@ -52,8 +53,8 @@ export default function DungeonPage() {
       localStorage.setItem("gold-balance", String(newGoldBalance))
 
       toast({
-        title: "Dungeon Failed",
-        description: `You were forced to retreat from the dungeon and lost ${goldLost} gold.`,
+        title: TEXT_CONTENT.dungeon.toasts.failed.title,
+        description: TEXT_CONTENT.dungeon.toasts.failed.desc.replace("{amount}", String(goldLost)),
         variant: "destructive",
       })
     }
@@ -64,7 +65,7 @@ export default function DungeonPage() {
   }
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading dungeon...</div>
+    return <div className="flex min-h-screen items-center justify-center">{TEXT_CONTENT.dungeon.loading}</div>
   }
 
   return (
@@ -75,20 +76,20 @@ export default function DungeonPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight font-serif">
               {currentDungeon
-                ? "Ancient Dungeon"
-                : "Adventure"}
+                ? TEXT_CONTENT.dungeon.header.title
+                : TEXT_CONTENT.dungeon.header.titleDefault}
             </h1>
             <p className="text-muted-foreground">
               {currentDungeon
-                ? "Explore the depths and find treasure"
-                : "Face your challenges"}
+                ? TEXT_CONTENT.dungeon.header.subtitle
+                : TEXT_CONTENT.dungeon.header.subtitleDefault}
             </p>
           </div>
           {completed && (
             <Link href="/map">
               <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Return to Map
+                {TEXT_CONTENT.dungeon.header.return}
               </Button>
             </Link>
           )}
@@ -99,13 +100,13 @@ export default function DungeonPage() {
             <CardHeader>
               <CardTitle className="font-serif">
                 {currentDungeon
-                  ? `Level ${currentDungeon.level} Dungeon Challenge`
-                  : "Challenge"}
+                  ? TEXT_CONTENT.dungeon.challenge.title.replace("{level}", String(currentDungeon.level))
+                  : TEXT_CONTENT.dungeon.challenge.titleDefault}
               </CardTitle>
               <CardDescription>
                 {currentDungeon
-                  ? "Solve the puzzle to navigate the dungeon safely"
-                  : "Test your skills"}
+                  ? TEXT_CONTENT.dungeon.challenge.subtitle
+                  : TEXT_CONTENT.dungeon.challenge.subtitleDefault}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -114,22 +115,22 @@ export default function DungeonPage() {
               )}
               {completed && (
                 <div className="text-center py-8">
-                  <p className="text-xl font-bold mb-4">Challenge Complete</p>
-                  <p className="mb-6">You can now return to the map and continue your adventure.</p>
+                  <p className="text-xl font-bold mb-4">{TEXT_CONTENT.dungeon.complete.title}</p>
+                  <p className="mb-6">{TEXT_CONTENT.dungeon.complete.desc}</p>
                   <Link href="/map">
                     <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900">
-                      Return to Map
+                      {TEXT_CONTENT.dungeon.complete.button}
                     </Button>
                   </Link>
                 </div>
               )}
               {!currentDungeon && (
                 <div className="text-center py-8">
-                  <p className="text-xl font-bold mb-4">No Active Challenge</p>
-                  <p className="mb-6">Return to the map and find a dungeon to challenge.</p>
+                  <p className="text-xl font-bold mb-4">{TEXT_CONTENT.dungeon.noActive.title}</p>
+                  <p className="mb-6">{TEXT_CONTENT.dungeon.noActive.desc}</p>
                   <Link href="/map">
                     <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900">
-                      Return to Map
+                      {TEXT_CONTENT.dungeon.noActive.button}
                     </Button>
                   </Link>
                 </div>

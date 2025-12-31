@@ -63,6 +63,7 @@ const RevealOverlay = dynamic(() => import('../reveal/page'), {
 });
 import { Users, Crown, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TEXT_CONTENT } from "@/lib/text-content";
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number>,
@@ -77,24 +78,24 @@ interface WindowWithHeaderImages extends Window {
 // Perk mapping for potions
 const potionPerkMap: Record<string, { name: string; perks: { name: string; effect: string }[] }> = {
   "elixir of strength": {
-    name: "Elixir of Strength",
+    name: TEXT_CONTENT.kingdom.potions.strength.name,
     perks: [
-      { name: "Might Mastery", effect: "+10% XP & gold from Might activities per level" },
-      { name: "Vitality Sage", effect: "+10% XP & gold from Vitality activities per level" },
+      { name: TEXT_CONTENT.kingdom.potions.strength.perks.might.name, effect: TEXT_CONTENT.kingdom.potions.strength.perks.might.effect },
+      { name: TEXT_CONTENT.kingdom.potions.strength.perks.vitality.name, effect: TEXT_CONTENT.kingdom.potions.strength.perks.vitality.effect },
     ],
   },
   "elixir of wisdom": {
-    name: "Elixir of Wisdom",
+    name: TEXT_CONTENT.kingdom.potions.wisdom.name,
     perks: [
-      { name: "Knowledge Seeker", effect: "+10% XP & gold from Knowledge activities per level" },
-      { name: "Honor Guard", effect: "+10% XP & gold from Honor activities per level" },
+      { name: TEXT_CONTENT.kingdom.potions.wisdom.perks.knowledge.name, effect: TEXT_CONTENT.kingdom.potions.wisdom.perks.knowledge.effect },
+      { name: TEXT_CONTENT.kingdom.potions.wisdom.perks.honor.name, effect: TEXT_CONTENT.kingdom.potions.wisdom.perks.honor.effect },
     ],
   },
   "elixir of fortitude": {
-    name: "Elixir of Fortitude",
+    name: TEXT_CONTENT.kingdom.potions.fortitude.name,
     perks: [
-      { name: "Castle Steward", effect: "+10% XP & gold from Castle activities per level" },
-      { name: "Craft Artisan", effect: "+10% XP & gold from Craft activities per level" },
+      { name: TEXT_CONTENT.kingdom.potions.fortitude.perks.castle.name, effect: TEXT_CONTENT.kingdom.potions.fortitude.perks.castle.effect },
+      { name: TEXT_CONTENT.kingdom.potions.fortitude.perks.craft.name, effect: TEXT_CONTENT.kingdom.potions.fortitude.perks.craft.effect },
     ],
   },
 }
@@ -126,14 +127,14 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
     const gold = getRandomFromArray([60, 80, 100])
     // Use the unified gold system
     gainGold(gold, 'artifact-consumption')
-    return `You used an artifact and gained ${gold} gold!`
+    return TEXT_CONTENT.kingdom.consumables.artifact.replace('{gold}', gold.toString())
   }
   // Scrolls: 10, 25, or 50 gold
   if (item.type === 'scroll') {
     const gold = getRandomFromArray([10, 25, 50])
     // Use the unified gold system
     gainGold(gold, 'scroll-consumption')
-    return `You used a scroll and gained ${gold} gold!`
+    return TEXT_CONTENT.kingdom.consumables.scroll.replace('{gold}', gold.toString())
   }
   // Potions: handle each potion type explicitly
   if (item.type === 'item' && item.name) {
@@ -143,17 +144,17 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
       const stats = getCharacterStats();
       const newHealth = Math.min((stats.health || 0) + 50, stats.max_health || 100);
       updateCharacterStats({ health: newHealth }, 'item-use:health-potion');
-      return `You used a Health Potion and restored 50 health!`;
+      return TEXT_CONTENT.kingdom.consumables.healthPotion;
     }
     if (key === 'gold potion') {
       // Use the dedicated gold manager
       gainGold(50, 'item-use:gold-potion');
-      return `You used a Gold Potion and gained 50 gold!`;
+      return TEXT_CONTENT.kingdom.consumables.goldPotion;
     }
     if (key === 'experience potion' || key === 'exp potion') {
       // Use the dedicated experience manager
       gainExperience(50, 'item-use:experience-potion', 'general');
-      return `You used an Experience Potion and gained 50 XP!`;
+      return TEXT_CONTENT.kingdom.consumables.xpPotion;
     }
     // Other potions: use perk logic
     if (potionPerkMap[key]) {
@@ -163,25 +164,34 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
       const activePerks = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
       activePerks[perk.name] = { effect: perk.effect, expiresAt: expiresAt.toISOString() }
       localStorage.setItem('active-potion-perks', JSON.stringify(activePerks))
-      return `You used a ${item.name}! The perk "${perk.name}" is now active for 24 hours: ${perk.effect}`
+      return TEXT_CONTENT.kingdom.consumables.perkActive
+        .replace('{item}', getItemDisplayName(item))
+        .replace('{perkName}', perk.name)
+        .replace('{perkEffect}', perk.effect)
     }
   }
-  return `You used ${item.name}!`
+  return TEXT_CONTENT.kingdom.consumables.generic.replace('{item}', getItemDisplayName(item) || 'item')
 }
 
 // Helper to get display name (remove category prefix like "fish-", "horse-", etc.)
 function getItemDisplayName(item: KingdomInventoryItem): string {
-  if (!item.name) return 'Unknown Item';
+  if (!item.name) return TEXT_CONTENT.kingdom.ui.inventory.unknownItem;
 
-  // Split by hyphen and take the part after the first hyphen
+  // 1. Check direct mapping in TEXT_CONTENT
+  // @ts-ignore - Dynamic key access
+  if (TEXT_CONTENT.kingdom.items[item.name]) {
+    // @ts-ignore
+    return TEXT_CONTENT.kingdom.items[item.name];
+  }
+
+  // 2. Fallback: Split by hyphen and formatted
   const parts = item.name.split('-');
   if (parts.length > 1) {
-    // Capitalize the first letter of the remaining part
     const displayName = parts.slice(1).join('-');
     return displayName.charAt(0).toUpperCase() + displayName.slice(1);
   }
 
-  // If no hyphen, return the original name
+  // 3. Last resort: Original name
   return item.name;
 }
 
@@ -217,7 +227,7 @@ function createEmptyKingdomGrid(): Tile[][] {
       id: `vacant-${x}-${y}`,
       type: 'vacant' as TileType,
       name: 'Vacant',
-      description: 'An empty plot of land.',
+      description: TEXT_CONTENT.kingdomGrid.expansion.vacantTile.description,
       connections: [] as ConnectionDirection[],
       rotation: 0 as 0 | 90 | 180 | 270,
       revealed: true,
@@ -264,8 +274,8 @@ function createEmptyKingdomGrid(): Tile[][] {
         grid[y][x] = {
           id: `${type}-${x}-${y}`,
           type: type,
-          name: kingdomTile.name || 'Unknown Tile',
-          description: kingdomTile.clickMessage || 'A mysterious tile in your kingdom.',
+          name: kingdomTile.name || TEXT_CONTENT.kingdomTiles.unknown.name,
+          description: kingdomTile.clickMessage || TEXT_CONTENT.kingdomTiles.unknown.description,
           connections: [],
           rotation: 0 as 0 | 90 | 180 | 270,
           revealed: true,
@@ -321,7 +331,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       id: `kingdom-tile-${idx}`,
       type: kingdomTileConfig ? (kingdomTileConfig.id as TileType) : 'special',
       name: tileName,
-      description: kingdomTileConfig ? kingdomTileConfig.clickMessage : `A special kingdom tile: ${tileName}`,
+      description: kingdomTileConfig ? kingdomTileConfig.clickMessage : `${TEXT_CONTENT.kingdomTiles.specialPrefix}${tileName}`,
       connections: [] as ConnectionDirection[],
       rotation: 0,
       revealed: true,
@@ -684,8 +694,8 @@ export function KingdomClient() {
     if (!user?.id) {
       // Removed debugging log
       toast({
-        title: "Error",
-        description: "You must be logged in to sell items",
+        title: TEXT_CONTENT.kingdom.ui.inventory.sellError.title,
+        description: TEXT_CONTENT.kingdom.ui.inventory.sellError.description,
         variant: "destructive",
       });
       return;
@@ -725,8 +735,8 @@ export function KingdomClient() {
     } catch (error) {
       console.error('Failed to sell item:', error);
       toast({
-        title: "Error",
-        description: `Failed to sell item: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: TEXT_CONTENT.kingdom.ui.inventory.sellError.title,
+        description: TEXT_CONTENT.kingdom.ui.inventory.sellError.failed.replace('{error}', error instanceof Error ? error.message : 'Unknown error'),
         variant: "destructive",
       });
     }
@@ -766,7 +776,7 @@ export function KingdomClient() {
         <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
           <img
             src={imagePath}
-            alt={`${item.name} ${item.type}`}
+            alt={`${getItemDisplayName(item)} ${item.type}`}
             className="object-cover w-full h-full"
             aria-label={`${item.name}-image`}
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -779,7 +789,7 @@ export function KingdomClient() {
           {isEquipped && (
             <div className="absolute top-2 right-2">
               <div className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                Equipped
+                {TEXT_CONTENT.kingdom.ui.inventory.status.equipped}
               </div>
             </div>
           )}
@@ -829,7 +839,7 @@ export function KingdomClient() {
               )}
               {item.quantity && item.quantity > 1 && (
                 <span className="text-gray-400 text-sm">
-                  Qty: {item.quantity}
+                  {TEXT_CONTENT.kingdom.ui.inventory.status.qty.replace('{quantity}', item.quantity.toString())}
                 </span>
               )}
             </div>
@@ -859,11 +869,11 @@ export function KingdomClient() {
                   }
                 >
                   {isEquipped
-                    ? "Unequip"
+                    ? TEXT_CONTENT.kingdom.ui.buttons.unequip
                     : isConsumable(item)
-                      ? "Use"
+                      ? TEXT_CONTENT.kingdom.ui.buttons.use
                       : isEquippable(item)
-                        ? "Equip"
+                        ? TEXT_CONTENT.kingdom.ui.buttons.equip
                         : null}
                 </Button>
               )}
@@ -880,7 +890,7 @@ export function KingdomClient() {
                   className="bg-orange-600 hover:bg-orange-700 text-white border-orange-500"
                   aria-label={`Sell ${item.name} for ${getItemSellPrice(item)} gold`}
                 >
-                  Sell {getItemSellPrice(item)}g
+                  {TEXT_CONTENT.kingdom.ui.buttons.sell.replace('{price}', getItemSellPrice(item).toString())}
                 </Button>
               )}
             </div>
@@ -1170,8 +1180,8 @@ export function KingdomClient() {
             <Users className="w-6 h-6 text-amber-500" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold tracking-wider text-sm text-amber-400 italic">ENVOY MODE</span>
-            <span className="text-xs text-amber-200/60 font-medium">Exploring Ally&apos;s Kingdom</span>
+            <span className="font-bold tracking-wider text-sm text-amber-400 italic">{TEXT_CONTENT.kingdom.ui.envoyMode.badge}</span>
+            <span className="text-xs text-amber-200/60 font-medium">{TEXT_CONTENT.kingdom.ui.envoyMode.subtitle}</span>
           </div>
           <Button
             size="sm"
@@ -1179,7 +1189,7 @@ export function KingdomClient() {
             className="h-9 px-4 rounded-xl bg-amber-600 text-black hover:bg-amber-500 border-none ml-2 font-bold"
             onClick={() => router.push('/allies')}
           >
-            Return Home
+            {TEXT_CONTENT.kingdom.ui.envoyMode.returnHome}
           </Button>
         </div>
       )}
@@ -1187,8 +1197,8 @@ export function KingdomClient() {
       <RevealOverlay />
 
       <HeaderSection
-        title={isVisiting ? "Ally Kingdom" : "KINGDOM"}
-        subtitle={isVisiting ? "Observing the prosperity of your ally" : "Manage your kingdom and grow your prosperity"}
+        title={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdom : TEXT_CONTENT.kingdom.ui.header.myKingdom}
+        subtitle={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdomSubtitle : TEXT_CONTENT.kingdom.ui.header.myKingdomSubtitle}
         imageSrc={coverImage || "/images/Kingdom.png"}
         canEdit={!!user?.id && !isVisiting}
         onImageUpload={async (file) => {
@@ -1210,10 +1220,10 @@ export function KingdomClient() {
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Item Used</AlertDialogTitle>
+            <AlertDialogTitle>{TEXT_CONTENT.kingdom.ui.itemUsedModal.title}</AlertDialogTitle>
             <AlertDialogDescription>{modalText}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogAction onClick={() => setModalOpen(false)} aria-label="Close modal">Close</AlertDialogAction>
+          <AlertDialogAction onClick={() => setModalOpen(false)} aria-label="Close modal">{TEXT_CONTENT.kingdom.ui.itemUsedModal.close}</AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
 
@@ -1221,15 +1231,15 @@ export function KingdomClient() {
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <TabsList className="mb-6 w-full grid grid-cols-4">
-            <TabsTrigger value="thrivehaven">Thrivehaven</TabsTrigger>
-            <TabsTrigger value="journey">Journey</TabsTrigger>
-            {!isVisiting && <TabsTrigger value="inventory">Bag</TabsTrigger>}
-            {!isVisiting && <TabsTrigger value="rewards">Rewards</TabsTrigger>}
+            <TabsTrigger value="thrivehaven">{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</TabsTrigger>
+            <TabsTrigger value="journey">{TEXT_CONTENT.kingdom.ui.tabs.journey}</TabsTrigger>
+            {!isVisiting && <TabsTrigger value="inventory">{TEXT_CONTENT.kingdom.ui.tabs.inventory}</TabsTrigger>}
+            {!isVisiting && <TabsTrigger value="rewards">{TEXT_CONTENT.kingdom.ui.tabs.rewards}</TabsTrigger>}
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
               {gridLoading ? (
-                <div className="text-center text-gray-400 py-8">Loading kingdom grid...</div>
+                <div className="text-center text-gray-400 py-8">{TEXT_CONTENT.kingdom.ui.loadingGrid}</div>
               ) : (
                 <div className="flex items-center justify-center w-full">
                   <KingdomGridWithTimers
@@ -1277,8 +1287,8 @@ export function KingdomClient() {
           <TabsContent value="inventory">
             <Card className="bg-black border-amber-800/50" aria-label="kingdom-bag-card">
               <CardHeader>
-                <CardTitle className="text-amber-500">Kingdom Bag</CardTitle>
-                <CardDescription className="text-gray-400">Your equipment and resources</CardDescription>
+                <CardTitle className="text-amber-500">{TEXT_CONTENT.kingdom.ui.bag.title}</CardTitle>
+                <CardDescription className="text-gray-400">{TEXT_CONTENT.kingdom.ui.bag.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -1291,22 +1301,22 @@ export function KingdomClient() {
                       value={activeTab}
                       onChange={e => setActiveTab(e.target.value)}
                     >
-                      <option value="equipped">Equipped</option>
-                      <option value="stored">Stored</option>
+                      <option value="equipped">{TEXT_CONTENT.kingdom.ui.bag.tabs.equipped}</option>
+                      <option value="stored">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</option>
                     </select>
                   </div>
                   <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30 hidden md:grid">
-                    <TabsTrigger value="equipped" aria-label="equipped-tab">Equipped</TabsTrigger>
-                    <TabsTrigger value="stored" aria-label="stored-tab">Stored</TabsTrigger>
+                    <TabsTrigger value="equipped" aria-label="equipped-tab">{TEXT_CONTENT.kingdom.ui.bag.tabs.equipped}</TabsTrigger>
+                    <TabsTrigger value="stored" aria-label="stored-tab">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</TabsTrigger>
                   </TabsList>
                   {inventoryLoading ? (
-                    <div className="text-center text-gray-400 py-8">Loading inventory...</div>
+                    <div className="text-center text-gray-400 py-8">{TEXT_CONTENT.kingdom.ui.emptyBag.loading}</div>
                   ) : (
                     <>
                       <TabsContent value="equipped" className="mt-4">
                         {equippedItems.length === 0 ? (
                           <div className="text-center text-gray-400 py-8">
-                            No items equipped
+                            {TEXT_CONTENT.kingdom.ui.emptyBag.noEquipped}
                           </div>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="equipped-items-grid">
@@ -1321,9 +1331,9 @@ export function KingdomClient() {
                               <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
                                 <span className="text-2xl">🎒</span>
                               </div>
-                              <h3 className="text-amber-500 font-semibold text-lg mb-2">Your bag is empty, adventurer!</h3>
+                              <h3 className="text-amber-500 font-semibold text-lg mb-2">{TEXT_CONTENT.kingdom.ui.emptyBag.title}</h3>
                               <p className="text-gray-400 text-sm leading-relaxed">
-                                Complete quests and explore your kingdom to find treasures and equipment.
+                                {TEXT_CONTENT.kingdom.ui.emptyBag.description}
                               </p>
                             </CardContent>
                           </Card>
@@ -1343,10 +1353,10 @@ export function KingdomClient() {
             <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-blue-700">
               <CardHeader>
                 <CardTitle className="text-xl font-bold text-blue-100">
-                  Kingdom Rewards
+                  {TEXT_CONTENT.kingdom.ui.rewards.title}
                 </CardTitle>
                 <CardDescription className="text-blue-200">
-                  Visit your kingdom tiles to earn gold and find items
+                  {TEXT_CONTENT.kingdom.ui.rewards.description}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1358,7 +1368,7 @@ export function KingdomClient() {
 
                 <div className="mt-8 border-t border-blue-700/50 pt-6">
                   <h3 className="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2">
-                    <span className="text-2xl">✨</span> Synergy Guide
+                    <span className="text-2xl">✨</span> {TEXT_CONTENT.kingdom.ui.rewards.guide.title}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Farm Synergy */}
@@ -1547,7 +1557,7 @@ export function KingdomClient() {
 
                   <div className="mt-8 text-center pb-4">
                     <p className="text-xs text-amber-600 italic">
-                      More synergies may be discovered as you level up!
+                      {TEXT_CONTENT.kingdom.ui.rewards.guide.footer}
                     </p>
                   </div>
                 </div>
@@ -1565,10 +1575,10 @@ export function KingdomClient() {
           <DialogDescription id="selling-confirmation-modal-desc">Item sold confirmation</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-2xl font-cardo text-amber-500">
-              Item Sold Successfully!
+              {TEXT_CONTENT.kingdom.ui.sellSuccess.title}
             </DialogTitle>
             <DialogDescription className="text-gray-300">
-              You have successfully sold an item and gained gold.
+              {TEXT_CONTENT.kingdom.ui.sellSuccess.description}
             </DialogDescription>
           </DialogHeader>
 
@@ -1585,7 +1595,7 @@ export function KingdomClient() {
               onClick={() => setSellingModalOpen(false)}
               className="bg-amber-600 hover:bg-amber-700"
             >
-              Continue
+              {TEXT_CONTENT.kingdom.ui.sellSuccess.continue}
             </Button>
           </DialogFooter>
         </DialogContent>

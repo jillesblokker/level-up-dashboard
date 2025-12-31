@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NavBar } from "@/components/nav-bar"
+import { TEXT_CONTENT } from "@/lib/text-content"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
@@ -104,14 +105,14 @@ export default function SettingsPage() {
       localStorage.setItem("user-email", email)
 
       toast({
-        title: "Profile Updated",
-        description: "Your profile information has been saved.",
+        title: TEXT_CONTENT.settings.toasts.profileUpdated.title,
+        description: TEXT_CONTENT.settings.toasts.profileUpdated.desc,
       })
     } catch (error) {
       console.error("Error saving profile:", error)
       toast({
-        title: "Error",
-        description: "Failed to save profile information.",
+        title: TEXT_CONTENT.settings.toasts.saveError.title,
+        description: TEXT_CONTENT.settings.toasts.saveError.desc,
         variant: "destructive",
       })
     }
@@ -120,8 +121,8 @@ export default function SettingsPage() {
   const handleResetOnboarding = () => {
     console.log('Onboarding reset temporarily disabled');
     toast({
-      title: "Onboarding Reset",
-      description: "The tutorial will be shown again on your next visit.",
+      title: TEXT_CONTENT.settings.toasts.onboardingReset.title,
+      description: TEXT_CONTENT.settings.toasts.onboardingReset.desc,
     })
   }
 
@@ -144,13 +145,13 @@ export default function SettingsPage() {
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif text-white">Settings</h1>
-            <p className="text-gray-400">Manage your account and preferences</p>
+            <h1 className="text-2xl font-bold tracking-tight font-serif text-white">{TEXT_CONTENT.settings.header.title}</h1>
+            <p className="text-gray-400">{TEXT_CONTENT.settings.header.subtitle}</p>
           </div>
           <Link href="/kingdom">
             <Button variant="outline" className="text-white border-amber-800/20 hover:bg-amber-900/20">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Kingdom
+              {TEXT_CONTENT.settings.header.back}
             </Button>
           </Link>
         </div>
@@ -166,55 +167,55 @@ export default function SettingsPage() {
               value={activeTab}
               onChange={e => setActiveTab(e.target.value)}
             >
-              <option value="profile">Profile</option>
-              <option value="appearance">Appearance</option>
-              <option value="account">Account</option>
+              <option value="profile">{TEXT_CONTENT.settings.tabs.profile}</option>
+              <option value="appearance">{TEXT_CONTENT.settings.tabs.appearance}</option>
+              <option value="account">{TEXT_CONTENT.settings.tabs.account}</option>
             </select>
           </div>
           <TabsList className="bg-gray-900 border-amber-800/20 hidden md:flex">
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-amber-900/20">
               <User className="mr-2 h-4 w-4" />
-              Profile
+              {TEXT_CONTENT.settings.tabs.profile}
             </TabsTrigger>
             <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-amber-900/20">
               <Palette className="mr-2 h-4 w-4" />
-              Appearance
+              {TEXT_CONTENT.settings.tabs.appearance}
             </TabsTrigger>
             <TabsTrigger value="account" className="text-white data-[state=active]:bg-amber-900/20">
               <Shield className="mr-2 h-4 w-4" />
-              Account
+              {TEXT_CONTENT.settings.tabs.account}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
             <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
               <CardHeader>
-                <CardTitle className="font-serif text-white">Character Profile</CardTitle>
-                <CardDescription className="text-gray-400">Update your character information</CardDescription>
+                <CardTitle className="font-serif text-white">{TEXT_CONTENT.settings.profile.title}</CardTitle>
+                <CardDescription className="text-gray-400">{TEXT_CONTENT.settings.profile.subtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-white">Character Name</Label>
+                  <Label htmlFor="name" className="text-white">{TEXT_CONTENT.settings.profile.nameLabel}</Label>
                   <Input
                     id="name"
-                    placeholder="Enter your character name"
+                    placeholder={TEXT_CONTENT.settings.profile.namePlaceholder}
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     className="bg-gray-900 border-amber-800/20 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white">Email Address</Label>
+                  <Label htmlFor="email" className="text-white">{TEXT_CONTENT.settings.profile.emailLabel}</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email address"
+                    placeholder={TEXT_CONTENT.settings.profile.emailPlaceholder}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-gray-900 border-amber-800/20 text-white"
                   />
                   <p className="text-xs text-gray-400">
-                    Your email is used for notifications and account recovery
+                    {TEXT_CONTENT.settings.profile.emailNote}
                   </p>
                 </div>
               </CardContent>
@@ -224,7 +225,7 @@ export default function SettingsPage() {
                   onClick={handleSaveProfile}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  Save Changes
+                  {TEXT_CONTENT.settings.profile.save}
                 </Button>
               </CardFooter>
             </Card>
@@ -233,18 +234,18 @@ export default function SettingsPage() {
           <TabsContent value="appearance" className="space-y-6">
             <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 text-white">
               <CardHeader>
-                <CardTitle className="font-serif text-white">Visual Preferences</CardTitle>
-                <CardDescription className="text-gray-400">Customize your kingdom&apos;s atmosphere</CardDescription>
+                <CardTitle className="font-serif text-white">{TEXT_CONTENT.settings.appearance.title}</CardTitle>
+                <CardDescription className="text-gray-400">{TEXT_CONTENT.settings.appearance.subtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
                       <Palette className="w-4 h-4 mr-2 text-amber-500" />
-                      Day/Night Cycle
+                      {TEXT_CONTENT.settings.appearance.dayNight.label}
                     </Label>
                     <p className="text-sm text-gray-400 max-w-md">
-                      Automatically adjust lighting and atmosphere based on your local time (Night: 8 PM - 6 AM).
+                      {TEXT_CONTENT.settings.appearance.dayNight.description}
                     </p>
                   </div>
                   <Switch
@@ -258,8 +259,8 @@ export default function SettingsPage() {
                       window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }))
 
                       toast({
-                        title: checked ? "Day/Night Cycle Enabled" : "Day/Night Cycle Disabled",
-                        description: checked ? "Atmosphere will now change based on time." : "Atmosphere will remain static.",
+                        title: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.title : TEXT_CONTENT.settings.toasts.dayNightDisabled.title,
+                        description: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.desc : TEXT_CONTENT.settings.toasts.dayNightDisabled.desc,
                       })
                     }}
                   />
@@ -271,30 +272,30 @@ export default function SettingsPage() {
           <TabsContent value="account" className="space-y-6">
             <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
               <CardHeader>
-                <CardTitle className="font-serif text-white">Tutorial & Onboarding</CardTitle>
-                <CardDescription className="text-gray-400">Manage tutorial and onboarding settings</CardDescription>
+                <CardTitle className="font-serif text-white">{TEXT_CONTENT.settings.account.title}</CardTitle>
+                <CardDescription className="text-gray-400">{TEXT_CONTENT.settings.account.subtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <p className="text-sm text-white">Show the tutorial again to refresh your knowledge of the game.</p>
+                    <p className="text-sm text-white">{TEXT_CONTENT.settings.account.showTutorial.desc}</p>
                     <Button
                       variant="outline"
                       className="text-white border-amber-800/20 hover:bg-amber-900/20"
                       onClick={handleShowTutorial}
                     >
                       <Play className="mr-2 h-4 w-4" />
-                      Show Tutorial
+                      {TEXT_CONTENT.settings.account.showTutorial.button}
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-white">Reset the tutorial to show it automatically on your next visit.</p>
+                    <p className="text-sm text-white">{TEXT_CONTENT.settings.account.resetTutorial.desc}</p>
                     <Button
                       variant="outline"
                       className="text-white border-amber-800/20 hover:bg-amber-900/20"
                       onClick={handleResetOnboarding}
                     >
-                      Reset Tutorial
+                      {TEXT_CONTENT.settings.account.resetTutorial.button}
                     </Button>
                   </div>
                 </div>
@@ -306,11 +307,11 @@ export default function SettingsPage() {
         <Card className="p-6 mt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-semibold">GitHub Connection</h2>
+              <h2 className="text-2xl font-semibold">{TEXT_CONTENT.settings.account.github.title}</h2>
               <p className="text-gray-500">
                 {isGithubConnected
-                  ? "Your account is connected to GitHub"
-                  : "Connect your account to GitHub to sync your data"}
+                  ? TEXT_CONTENT.settings.account.github.connected
+                  : TEXT_CONTENT.settings.account.github.disconnected}
               </p>
             </div>
 
@@ -323,7 +324,7 @@ export default function SettingsPage() {
 
           {isGithubConnected && (
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <p className="font-medium">Connected as: GitHub User</p>
+              <p className="font-medium">{TEXT_CONTENT.settings.account.github.userInfo}</p>
               <p className="text-sm text-gray-600">user@example.com</p>
             </div>
           )}

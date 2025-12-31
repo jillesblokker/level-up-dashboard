@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { TEXT_CONTENT } from '@/lib/text-content'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -33,16 +34,19 @@ export default function RestoreStatsPage() {
 
             if (response.ok) {
                 toast({
-                    title: "Stats Restored",
-                    description: `Level ${level}, XP ${experience}, Gold ${gold}`,
+                    title: TEXT_CONTENT.admin.restore.toasts.success.title,
+                    description: TEXT_CONTENT.admin.restore.toasts.success.description
+                        .replace('{level}', level)
+                        .replace('{experience}', experience)
+                        .replace('{gold}', gold),
                 })
 
                 // Reload to fetch fresh stats
                 setTimeout(() => window.location.reload(), 1000)
             } else {
                 toast({
-                    title: "Error",
-                    description: "Failed to restore stats",
+                    title: TEXT_CONTENT.admin.restore.toasts.error.title,
+                    description: TEXT_CONTENT.admin.restore.toasts.error.description,
                     variant: "destructive"
                 })
             }
@@ -59,43 +63,43 @@ export default function RestoreStatsPage() {
         <div className="container mx-auto p-8">
             <Card>
                 <CardHeader>
-                    <CardTitle>Restore Character Stats</CardTitle>
+                    <CardTitle>{TEXT_CONTENT.admin.restore.title}</CardTitle>
                     <CardDescription>
-                        Manually restore your character stats if they were lost
+                        {TEXT_CONTENT.admin.restore.description}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <Label htmlFor="level">Level</Label>
+                        <Label htmlFor="level">{TEXT_CONTENT.admin.restore.labels.level}</Label>
                         <Input
                             id="level"
                             type="number"
                             value={level}
                             onChange={(e) => setLevel(e.target.value)}
-                            placeholder="17"
+                            placeholder={TEXT_CONTENT.admin.restore.placeholders.level}
                         />
                     </div>
                     <div>
-                        <Label htmlFor="experience">Experience</Label>
+                        <Label htmlFor="experience">{TEXT_CONTENT.admin.restore.labels.experience}</Label>
                         <Input
                             id="experience"
                             type="number"
                             value={experience}
                             onChange={(e) => setExperience(e.target.value)}
-                            placeholder="Enter your XP"
+                            placeholder={TEXT_CONTENT.admin.restore.placeholders.experience}
                         />
                     </div>
                     <div>
-                        <Label htmlFor="gold">Gold</Label>
+                        <Label htmlFor="gold">{TEXT_CONTENT.admin.restore.labels.gold}</Label>
                         <Input
                             id="gold"
                             type="number"
                             value={gold}
                             onChange={(e) => setGold(e.target.value)}
-                            placeholder="Enter your gold"
+                            placeholder={TEXT_CONTENT.admin.restore.placeholders.gold}
                         />
                     </div>
-                    <Button onClick={handleRestore}>Restore Stats</Button>
+                    <Button onClick={handleRestore}>{TEXT_CONTENT.admin.restore.button}</Button>
                 </CardContent>
             </Card>
         </div>

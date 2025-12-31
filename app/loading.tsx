@@ -2,17 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Sword, Shield, Crown, Scroll } from "lucide-react"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
-const LOADING_TIPS = [
-  "Every quest begins with a single step.",
-  "Rest is as important as the battle.",
-  "Check your inventory before venturing out.",
-  "Allies can help you conquer the toughest challenges.",
-  "Completing daily habits strengthens your character.",
-  "Build your kingdom to unlock new possibilities.",
-  "Consistency is the key to mastery.",
-  "A sharp mind is better than a sharp sword.",
-]
+const LOADING_TIPS = TEXT_CONTENT.loading.tips
 
 export default function Loading() {
   const [tipIndex, setTipIndex] = useState(0)
@@ -54,7 +46,7 @@ export default function Loading() {
 
         {/* Loading Text */}
         <h2 className="text-2xl md:text-3xl font-bold text-amber-500 font-medieval mb-2 tracking-wide">
-          Loading Your Adventure{dots}
+          {TEXT_CONTENT.loading.title}{dots}
         </h2>
 
         {/* Divider */}

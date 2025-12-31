@@ -10,6 +10,7 @@ import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { Trophy, Users, Sword, Crosshair } from 'lucide-react'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 import LoadingAchievements from './loading'
 
@@ -408,11 +409,11 @@ export default function Page() {
 
           setUnlockedAchievements(achievementMap);
         } else {
-          setError(`Failed to fetch achievements (status: ${response.status})`);
+          setError(TEXT_CONTENT.achievements.ui.error.replace('{status}', String(response.status)));
           setUnlockedAchievements(new Map());
         }
       } catch (error) {
-        setError('An error occurred while fetching achievements.');
+        setError(TEXT_CONTENT.achievements.ui.genericError);
         setUnlockedAchievements(new Map());
       } finally {
         setIsLoading(false);
@@ -439,7 +440,7 @@ export default function Page() {
   if (!isClerkLoaded || !isAuthLoaded) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <p>Loading Clerk...</p>
+        <p>{TEXT_CONTENT.achievements.ui.loading}</p>
       </div>
     );
   }
@@ -456,7 +457,7 @@ export default function Page() {
   if (!creatures || creatures.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <p>No creatures defined.</p>
+        <p>{TEXT_CONTENT.achievements.ui.noCreatures}</p>
       </div>
     );
   }
@@ -465,29 +466,29 @@ export default function Page() {
     <>
       <SignedIn>
         <HeaderSection
-          title="Creature Collection"
+          title={TEXT_CONTENT.achievements.header.title}
           imageSrc="/images/achievements-header.jpg"
           canEdit={true}
           shouldRevealImage={true}
           guideComponent={
             <PageGuide
-              title="Achievements"
-              subtitle="Your legacy in Thrivehaven"
+              title={TEXT_CONTENT.achievements.header.guide.title}
+              subtitle={TEXT_CONTENT.achievements.header.guide.subtitle}
               sections={[
                 {
-                  title: "Creature Collection",
+                  title: TEXT_CONTENT.achievements.header.guide.sections.collection.title,
                   icon: Crosshair,
-                  content: "Discover and unlock rare mythical creatures by exploring the realm and meeting unique requirements."
+                  content: TEXT_CONTENT.achievements.header.guide.sections.collection.content
                 },
                 {
-                  title: "Battle Glories",
+                  title: TEXT_CONTENT.achievements.header.guide.sections.battles.title,
                   icon: Sword,
-                  content: "Defeat monsters in legendary battles to earn prestigious trophies for your collection."
+                  content: TEXT_CONTENT.achievements.header.guide.sections.battles.content
                 },
                 {
-                  title: "Social Deeds",
+                  title: TEXT_CONTENT.achievements.header.guide.sections.social.title,
                   icon: Users,
-                  content: "Forge alliances and support your fellow pioneers to unlock unique social achievements."
+                  content: TEXT_CONTENT.achievements.header.guide.sections.social.content
                 }
               ]}
             />
@@ -495,20 +496,20 @@ export default function Page() {
         />
         <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (
-            <div className="text-center text-gray-400 mb-8">No achievements unlocked yet. Start exploring to discover creatures!</div>
+            <div className="text-center text-gray-400 mb-8">{TEXT_CONTENT.achievements.ui.empty}</div>
           )}
 
           {/* Original Creatures Section */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-amber-400">Creatures</h2>
+              <h2 className="text-xl font-semibold text-amber-400">{TEXT_CONTENT.achievements.sections.creatures}</h2>
               <button
                 type="button"
                 className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
-                aria-label={showAllUnlocked ? "Hide unlocked achievements" : "Show unlocked achievements"}
+                aria-label={showAllUnlocked ? TEXT_CONTENT.achievements.ui.hideUnlocked : TEXT_CONTENT.achievements.ui.showUnlocked}
                 onClick={() => setShowAllUnlocked((prev) => !prev)}
               >
-                {showAllUnlocked ? "Hide unlocked" : "Show unlocked"}
+                {showAllUnlocked ? TEXT_CONTENT.achievements.ui.hideUnlocked : TEXT_CONTENT.achievements.ui.showUnlocked}
               </button>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="creature-cards-grid">
@@ -541,28 +542,28 @@ export default function Page() {
                                 <h3 className="text-xl font-bold text-amber-500 mb-4">{creature.name}</h3>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                   <div>
-                                    <p className="text-gray-300 mb-1">HP</p>
+                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.hp}</p>
                                     <p className="text-white font-medium">{creature.stats.hp}</p>
                                   </div>
                                   <div>
-                                    <p className="text-gray-300 mb-1">Attack</p>
+                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.attack}</p>
                                     <p className="text-white font-medium">{creature.stats.attack}</p>
                                   </div>
                                   <div>
-                                    <p className="text-gray-300 mb-1">Defense</p>
+                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.defense}</p>
                                     <p className="text-white font-medium">{creature.stats.defense}</p>
                                   </div>
                                   <div>
-                                    <p className="text-gray-300 mb-1">Speed</p>
+                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.speed}</p>
                                     <p className="text-white font-medium">{creature.stats.speed}</p>
                                   </div>
                                   <div className="col-span-2">
-                                    <p className="text-gray-300 mb-1">Type</p>
+                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.type}</p>
                                     <p className="text-white font-medium">{creature.stats.type}</p>
                                   </div>
                                 </div>
                                 <div className="mt-4">
-                                  <p className="text-gray-300 mb-1">Description</p>
+                                  <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.description}</p>
                                   <p className="text-white text-sm leading-relaxed">{creature.description}</p>
                                 </div>
                               </div>
@@ -571,7 +572,7 @@ export default function Page() {
                         ) : (
                           <Image
                             src={'/images/undiscovered.png'}
-                            alt="Undiscovered Achievement"
+                            alt={TEXT_CONTENT.achievements.card.undiscovered}
                             fill
                             className="object-cover opacity-50"
                           />
@@ -616,7 +617,7 @@ export default function Page() {
                           ) : (
                             <Image
                               src={'/images/undiscovered.png'}
-                              alt="Undiscovered Achievement"
+                              alt={TEXT_CONTENT.achievements.card.undiscovered}
                               fill
                               className="object-cover opacity-50"
                             />
@@ -632,7 +633,7 @@ export default function Page() {
           {/* New Monster Achievements Section */}
           {achievementDefinitions.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">Monster Battles</h2>
+              <h2 className="text-xl font-semibold text-amber-400 mb-4">{TEXT_CONTENT.achievements.sections.monsterBattles}</h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
@@ -675,7 +676,7 @@ export default function Page() {
                           ) : (
                             <Image
                               src={'/images/undiscovered.png'}
-                              alt="Undiscovered Achievement"
+                              alt={TEXT_CONTENT.achievements.card.undiscovered}
                               fill
                               className="object-cover opacity-50"
                             />

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { NavBar } from "@/components/nav-bar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 
 interface Notification {
@@ -112,13 +113,13 @@ export default function NotificationsPage() {
   // Filter notifications based on search and type
   const filteredNotifications = notifications.filter((notification) => {
     const matchesSearch = notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         notification.message.toLowerCase().includes(searchQuery.toLowerCase())
+      notification.message.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesType = selectedType === null || notification.type === selectedType
     return matchesSearch && matchesType
   })
 
   const markAsRead = (id: string) => {
-    setNotifications(notifications.map(n => 
+    setNotifications(notifications.map(n =>
       n.id === id ? { ...n, read: true } : n
     ))
   }
@@ -126,24 +127,24 @@ export default function NotificationsPage() {
   const markAllAsRead = () => {
     setNotifications(notifications.map(n => ({ ...n, read: true })))
     toast({
-      title: "All notifications marked as read",
-      description: "You've caught up on all your kingdom's news!",
+      title: TEXT_CONTENT.notifications.toasts.markedRead.title,
+      description: TEXT_CONTENT.notifications.toasts.markedRead.desc,
     })
   }
 
   const deleteNotification = (id: string) => {
     setNotifications(notifications.filter(n => n.id !== id))
     toast({
-      title: "Notification deleted",
-      description: "The message has been removed from your inbox.",
+      title: TEXT_CONTENT.notifications.toasts.deleted.title,
+      description: TEXT_CONTENT.notifications.toasts.deleted.desc,
     })
   }
 
   const clearAllNotifications = () => {
     setNotifications([])
     toast({
-      title: "All notifications cleared",
-      description: "Your inbox is now empty and ready for new messages.",
+      title: TEXT_CONTENT.notifications.toasts.cleared.title,
+      description: TEXT_CONTENT.notifications.toasts.cleared.desc,
     })
   }
 
@@ -156,13 +157,19 @@ export default function NotificationsPage() {
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
     if (diffMinutes < 1) {
-      return "Just now"
+      return TEXT_CONTENT.notifications.time.justNow
     } else if (diffMinutes < 60) {
-      return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`
+      return TEXT_CONTENT.notifications.time.minutesAgo
+        .replace("{count}", String(diffMinutes))
+        .replace("{s}", diffMinutes !== 1 ? "s" : "")
     } else if (diffHours < 24) {
-      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`
+      return TEXT_CONTENT.notifications.time.hoursAgo
+        .replace("{count}", String(diffHours))
+        .replace("{s}", diffHours !== 1 ? "s" : "")
     } else if (diffDays < 7) {
-      return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`
+      return TEXT_CONTENT.notifications.time.daysAgo
+        .replace("{count}", String(diffDays))
+        .replace("{s}", diffDays !== 1 ? "s" : "")
     } else {
       return date.toLocaleDateString()
     }
@@ -195,17 +202,17 @@ export default function NotificationsPage() {
       {/* Background with medieval theme */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 via-transparent to-amber-900/5" />
       <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-5" />
-      
+
       {/* Decorative border elements */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-      
+
       {/* Animated background elements */}
       <div className="absolute top-8 left-8 w-3 h-3 bg-amber-500/20 rounded-full animate-bounce"></div>
       <div className="absolute top-16 right-12 w-2 h-2 bg-amber-400/30 rounded-full animate-ping"></div>
       <div className="absolute bottom-12 left-12 w-2.5 h-2.5 bg-amber-300/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
       <div className="absolute bottom-8 right-8 w-1.5 h-1.5 bg-amber-400/25 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-      
+
       {/* Main content */}
       <div className="relative z-10 text-center px-8 max-w-2xl mx-auto">
         {/* Medieval illustration */}
@@ -225,7 +232,7 @@ export default function NotificationsPage() {
                 <div className="absolute top-0 left-22 w-6 h-9 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
                 <div className="absolute top-0 left-32 w-6 h-7 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
               </div>
-              
+
               {/* Mailbox */}
               <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 w-28 h-32">
                 {/* Mailbox base */}
@@ -240,7 +247,7 @@ export default function NotificationsPage() {
                 <div className="absolute top-2 right-2 w-8 h-1 bg-amber-500 rounded-full"></div>
                 <div className="absolute top-1 right-2 w-1 h-8 bg-amber-500 rounded-full"></div>
               </div>
-              
+
               {/* Floating particles */}
               <div className="absolute top-0 left-0 w-full h-full">
                 <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
@@ -262,7 +269,7 @@ export default function NotificationsPage() {
               {/* Scroll handles */}
               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-2 border-amber-700"></div>
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-2 border-amber-700"></div>
-              
+
               {/* Floating particles */}
               <div className="absolute top-0 left-0 w-full h-full">
                 <div className="absolute top-4 left-6 w-1 h-1 bg-amber-300/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
@@ -272,7 +279,7 @@ export default function NotificationsPage() {
             </div>
           )}
         </div>
-        
+
         {/* Text content */}
         <div className="space-y-8">
           <div className="space-y-3">
@@ -281,7 +288,7 @@ export default function NotificationsPage() {
             </h3>
             <div className="w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto"></div>
           </div>
-          
+
           <div className="max-w-lg mx-auto space-y-4">
             <p className="text-gray-200 leading-relaxed font-medium text-xl">
               {message}
@@ -290,13 +297,13 @@ export default function NotificationsPage() {
               {description}
             </p>
           </div>
-          
+
           {/* Call to action */}
           <div className="pt-8">
             <Link href="/quests">
               <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-10 py-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-500/25 text-lg">
                 <Trophy className="mr-3 h-5 w-5" />
-                {showMailbox ? "Embark on Your Quest" : "Continue Your Journey"}
+                {showMailbox ? TEXT_CONTENT.notifications.empty.all.button : TEXT_CONTENT.notifications.empty.unread.button}
               </Button>
             </Link>
           </div>
@@ -319,15 +326,15 @@ export default function NotificationsPage() {
                 <Mail className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight font-serif text-amber-400">Notifications</h1>
-                <p className="text-gray-400 font-medium">Kingdom Messages & Updates</p>
+                <h1 className="text-3xl font-bold tracking-tight font-serif text-amber-400">{TEXT_CONTENT.notifications.header.title}</h1>
+                <p className="text-gray-400 font-medium">{TEXT_CONTENT.notifications.header.subtitle}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <Link href="/">
                 <Button variant="outline" className="border-amber-800/30 hover:bg-amber-900/20 text-amber-400">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Kingdom
+                  {TEXT_CONTENT.notifications.header.back}
                 </Button>
               </Link>
             </div>
@@ -341,16 +348,16 @@ export default function NotificationsPage() {
               <CardHeader>
                 <CardTitle className="font-serif text-amber-400 flex items-center">
                   <Search className="w-5 h-5 mr-2" />
-                  Filters
+                  {TEXT_CONTENT.notifications.filters.label}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-300">Search Messages</label>
+                  <label className="text-sm font-medium text-gray-300">{TEXT_CONTENT.notifications.filters.searchLabel}</label>
                   <div className="relative">
                     <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                     <Input
-                      placeholder="Search notifications..."
+                      placeholder={TEXT_CONTENT.notifications.filters.searchPlaceholder}
                       className="pl-10 bg-gray-900/50 border-amber-800/30 focus:border-amber-500/50"
                       value={searchQuery}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
@@ -359,66 +366,61 @@ export default function NotificationsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-300">Message Type</label>
+                  <label className="text-sm font-medium text-gray-300">{TEXT_CONTENT.notifications.filters.typeLabel}</label>
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       variant={selectedType === null ? "default" : "outline"}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        selectedType === null 
-                          ? "bg-amber-500 text-white hover:bg-amber-600" 
+                      className={`cursor-pointer transition-all duration-200 ${selectedType === null
+                          ? "bg-amber-500 text-white hover:bg-amber-600"
                           : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
-                      }`}
+                        }`}
                       onClick={() => setSelectedType(null)}
                     >
-                      All
+                      {TEXT_CONTENT.notifications.filters.types.all}
                     </Badge>
                     <Badge
                       variant={selectedType === "achievement" ? "default" : "outline"}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        selectedType === "achievement" 
-                          ? "bg-amber-500 text-white hover:bg-amber-600" 
-                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
-                      }`}
+                      className={`cursor-pointer transition-all duration-200 ${selectedType === "achievement"
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                        }`}
                       onClick={() => setSelectedType("achievement")}
                     >
                       <Trophy className="w-3 h-3 mr-1" />
-                      Achievements
+                      {TEXT_CONTENT.notifications.filters.types.achievement}
                     </Badge>
                     <Badge
                       variant={selectedType === "quest" ? "default" : "outline"}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        selectedType === "quest" 
-                          ? "bg-amber-500 text-white hover:bg-amber-600" 
-                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
-                      }`}
+                      className={`cursor-pointer transition-all duration-200 ${selectedType === "quest"
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                        }`}
                       onClick={() => setSelectedType("quest")}
                     >
                       <Coins className="w-3 h-3 mr-1" />
-                      Quests
+                      {TEXT_CONTENT.notifications.filters.types.quest}
                     </Badge>
                     <Badge
                       variant={selectedType === "friend" ? "default" : "outline"}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        selectedType === "friend" 
-                          ? "bg-amber-500 text-white hover:bg-amber-600" 
-                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
-                      }`}
+                      className={`cursor-pointer transition-all duration-200 ${selectedType === "friend"
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                        }`}
                       onClick={() => setSelectedType("friend")}
                     >
                       <Bell className="w-3 h-3 mr-1" />
-                      Friends
+                      {TEXT_CONTENT.notifications.filters.types.friend}
                     </Badge>
                     <Badge
                       variant={selectedType === "system" ? "default" : "outline"}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        selectedType === "system" 
-                          ? "bg-amber-500 text-white hover:bg-amber-600" 
-                          : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
-                      }`}
+                      className={`cursor-pointer transition-all duration-200 ${selectedType === "system"
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
+                        }`}
                       onClick={() => setSelectedType("system")}
                     >
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      System
+                      {TEXT_CONTENT.notifications.filters.types.system}
                     </Badge>
                   </div>
                 </div>
@@ -429,7 +431,7 @@ export default function NotificationsPage() {
               <CardHeader>
                 <CardTitle className="font-serif text-amber-400 flex items-center">
                   <Scroll className="w-5 h-5 mr-2" />
-                  Actions
+                  {TEXT_CONTENT.notifications.actions.label}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -440,7 +442,7 @@ export default function NotificationsPage() {
                   disabled={notifications.every((n) => n.read)}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Mark All as Read
+                  {TEXT_CONTENT.notifications.actions.markAllRead}
                 </Button>
 
                 <Button
@@ -450,7 +452,7 @@ export default function NotificationsPage() {
                   disabled={notifications.length === 0}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Clear All Messages
+                  {TEXT_CONTENT.notifications.actions.clearAll}
                 </Button>
               </CardContent>
             </Card>
@@ -469,17 +471,17 @@ export default function NotificationsPage() {
                   value={activeTab}
                   onChange={e => setActiveTab(e.target.value)}
                 >
-                  <option value="all">All Messages</option>
-                  <option value="unread">Unread Messages</option>
+                  <option value="all">{TEXT_CONTENT.notifications.tabs.all}</option>
+                  <option value="unread">{TEXT_CONTENT.notifications.tabs.unread}</option>
                 </select>
               </div>
-              
+
               <TabsList className="w-full hidden md:flex bg-gray-900/50 border-amber-800/30">
                 <TabsTrigger value="all" className="flex-1 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
-                  All Messages
+                  {TEXT_CONTENT.notifications.tabs.all}
                 </TabsTrigger>
                 <TabsTrigger value="unread" className="flex-1 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
-                  Unread Messages
+                  {TEXT_CONTENT.notifications.tabs.unread}
                   {notifications.filter((n) => !n.read).length > 0 && (
                     <Badge className="ml-2 bg-red-500 text-white">
                       {notifications.filter((n) => !n.read).length > 99 ? '99+' : notifications.filter((n) => !n.read).length}
@@ -494,9 +496,8 @@ export default function NotificationsPage() {
                     {filteredNotifications.map((notification) => (
                       <Card
                         key={notification.id}
-                        className={`bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${
-                          !notification.read ? "border-l-4 border-l-amber-500" : ""
-                        }`}
+                        className={`bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${!notification.read ? "border-l-4 border-l-amber-500" : ""
+                          }`}
                         onClick={() => markAsRead(notification.id)}
                       >
                         <CardContent className="p-6 h-full flex flex-col justify-center">
@@ -549,9 +550,9 @@ export default function NotificationsPage() {
                   </div>
                 ) : (
                   <EmptyState
-                    title="No Messages Await"
-                    message="The courier has not yet arrived with news from your kingdom."
-                    description="Complete quests and explore your realm to receive notifications from your loyal subjects."
+                    title={TEXT_CONTENT.notifications.empty.all.title}
+                    message={TEXT_CONTENT.notifications.empty.all.message}
+                    description={TEXT_CONTENT.notifications.empty.all.description}
                     showMailbox={true}
                   />
                 )}
@@ -618,9 +619,9 @@ export default function NotificationsPage() {
                   </div>
                 ) : (
                   <EmptyState
-                    title="All Messages Read"
-                    message="You've caught up on all your kingdom's news and updates."
-                    description="Continue your adventures to receive new notifications from your realm."
+                    title={TEXT_CONTENT.notifications.empty.unread.title}
+                    message={TEXT_CONTENT.notifications.empty.unread.message}
+                    description={TEXT_CONTENT.notifications.empty.unread.description}
                     showMailbox={false}
                   />
                 )}

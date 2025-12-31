@@ -19,6 +19,7 @@ import { AnimatedCounter } from '@/components/ui/animated-counter'
 
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 // Character progression types
 interface Title {
@@ -63,78 +64,13 @@ export default function CharacterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [titles, setTitles] = useState<Title[]>([
-    {
-      id: "t1",
-      name: "Novice Adventurer",
-      description: "A beginner on the path to greatness.",
-      category: "General",
-      requirement: "Reach level 5",
-      unlocked: true,
-      equipped: true,
-      rarity: "common",
-    },
-    {
-      id: "t2",
-      name: "Iron-Willed",
-      description: "One who has shown exceptional determination.",
-      category: "Resilience",
-      requirement: "Complete a 30-day streak",
-      unlocked: true,
-      equipped: false,
-      rarity: "rare",
-    },
-    {
-      id: "t3",
-      name: "Strength Seeker",
-      description: "A dedicated practitioner of physical power.",
-      category: "Might",
-      requirement: "Reach level 10 in Might",
-      unlocked: true,
-      equipped: false,
-      rarity: "uncommon",
-    },
-    {
-      id: "t4",
-      name: "Knowledge Keeper",
-      description: "A scholar who values wisdom above all.",
-      category: "Wisdom",
-      requirement: "Read 10 books",
-      unlocked: true,
-      equipped: false,
-      rarity: "uncommon",
-    },
-    {
-      id: "t5",
-      name: "Winter Warrior",
-      description: "One who thrives in the coldest season.",
-      category: "Seasonal",
-      requirement: "Complete the Winter Challenge",
-      unlocked: true,
-      equipped: false,
-      rarity: "epic",
-    },
-    {
-      id: "t6",
-      name: "Legendary Hero",
-      description: "A true legend whose deeds will be remembered.",
-      category: "General",
-      requirement: "Reach level 50",
-      unlocked: false,
-      equipped: false,
-      rarity: "legendary",
-    },
-  ])
+
 
   const [strengths, setStrengths] = useState<Strength[]>(getStrengths())
 
-  const [perks, setPerks] = useState<Perk[]>([
-    {
-      id: "perk-might",
-      name: "Might Mastery",
-      description: "Increase XP and gold from Might quests and milestones.",
-      category: "might",
-      effect: "+10% XP & gold from Might activities per level",
+  const [perks, setPerks] = useState<Perk[]>(
+    TEXT_CONTENT.character.data.perks.map(p => ({
+      ...p,
       level: 0,
       maxLevel: 5,
       unlocked: false,
@@ -142,84 +78,8 @@ export default function CharacterPage() {
       active: false,
       upgradeCost: 100,
       activationCost: 50,
-      requiredLevel: 20,
-    },
-    {
-      id: "perk-knowledge",
-      name: "Knowledge Seeker",
-      description: "Increase XP and gold from Knowledge quests and milestones.",
-      category: "knowledge",
-      effect: "+10% XP & gold from Knowledge activities per level",
-      level: 0,
-      maxLevel: 5,
-      unlocked: false,
-      equipped: false,
-      active: false,
-      upgradeCost: 100,
-      activationCost: 50,
-      requiredLevel: 25,
-    },
-    {
-      id: "perk-honor",
-      name: "Honor Guard",
-      description: "Increase XP and gold from Honor quests and milestones.",
-      category: "honor",
-      effect: "+10% XP & gold from Honor activities per level",
-      level: 0,
-      maxLevel: 5,
-      unlocked: false,
-      equipped: false,
-      active: false,
-      upgradeCost: 100,
-      activationCost: 50,
-      requiredLevel: 30,
-    },
-    {
-      id: "perk-castle",
-      name: "Castle Steward",
-      description: "Increase XP and gold from Castle quests and milestones.",
-      category: "castle",
-      effect: "+10% XP & gold from Castle activities per level",
-      level: 0,
-      maxLevel: 5,
-      unlocked: false,
-      equipped: false,
-      active: false,
-      upgradeCost: 100,
-      activationCost: 50,
-      requiredLevel: 35,
-    },
-    {
-      id: "perk-craft",
-      name: "Craft Artisan",
-      description: "Increase XP and gold from Craft quests and milestones.",
-      category: "craft",
-      effect: "+10% XP & gold from Craft activities per level",
-      level: 0,
-      maxLevel: 5,
-      unlocked: false,
-      equipped: false,
-      active: false,
-      upgradeCost: 100,
-      activationCost: 50,
-      requiredLevel: 40,
-    },
-    {
-      id: "perk-vitality",
-      name: "Vitality Sage",
-      description: "Increase XP and gold from Vitality quests and milestones.",
-      category: "vitality",
-      effect: "+10% XP & gold from Vitality activities per level",
-      level: 0,
-      maxLevel: 5,
-      unlocked: false,
-      equipped: false,
-      active: false,
-      upgradeCost: 100,
-      activationCost: 50,
-      requiredLevel: 45,
-    },
-  ])
+    } as Perk))
+  )
 
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
@@ -322,16 +182,12 @@ export default function CharacterPage() {
       try {
         const strengths = getStrengths();
         // Ensure all 8 categories are present (including wellness and exploration)
-        const defaultStrengths = [
-          { id: "might", name: "Might", category: "might", level: 1, experience: 0, experienceToNextLevel: 100, description: "Physical strength and combat prowess", icon: "⚔️", color: "text-red-500" },
-          { id: "knowledge", name: "Knowledge", category: "knowledge", level: 1, experience: 0, experienceToNextLevel: 100, description: "Intellectual wisdom and learning", icon: "📚", color: "text-blue-500" },
-          { id: "honor", name: "Honor", category: "honor", level: 1, experience: 0, experienceToNextLevel: 100, description: "Noble character and integrity", icon: "👑", color: "text-yellow-500" },
-          { id: "castle", name: "Castle", category: "castle", level: 1, experience: 0, experienceToNextLevel: 100, description: "Leadership and governance", icon: "🏰", color: "text-purple-500" },
-          { id: "craft", name: "Craft", category: "craft", level: 1, experience: 0, experienceToNextLevel: 100, description: "Artisan skills and craftsmanship", icon: "🔨", color: "text-amber-500" },
-          { id: "vitality", name: "Vitality", category: "vitality", level: 1, experience: 0, experienceToNextLevel: 100, description: "Health, endurance, and life force", icon: "❤️", color: "text-green-500" },
-          { id: "wellness", name: "Wellness", category: "wellness", level: 1, experience: 0, experienceToNextLevel: 100, description: "Mental and physical well-being", icon: "☀️", color: "text-amber-400" },
-          { id: "exploration", name: "Exploration", category: "exploration", level: 1, experience: 0, experienceToNextLevel: 100, description: "Discovery and adventure", icon: "🧭", color: "text-blue-400" }
-        ];
+        const defaultStrengths = TEXT_CONTENT.character.data.strengths.map(s => ({
+          ...s,
+          level: 1,
+          experience: 0,
+          experienceToNextLevel: 100
+        }));
 
         // Merge saved strengths with defaults to ensure all categories are present
         const mergedStrengths = defaultStrengths.map(defaultStrength => {
@@ -445,7 +301,7 @@ export default function CharacterPage() {
     const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
     const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
 
-    return `${hours}h ${minutes}m remaining`;
+    return `${hours}h ${minutes}${TEXT_CONTENT.character.perks.remaining}`;
   };
 
   // Activate perk
@@ -455,8 +311,8 @@ export default function CharacterPage() {
 
     if (!perk.unlocked) {
       toast({
-        title: "Perk Locked",
-        description: `This perk requires level ${perk.requiredLevel} to unlock.`,
+        title: TEXT_CONTENT.character.toasts.perkLocked.title,
+        description: TEXT_CONTENT.character.toasts.perkLocked.desc.replace("{level}", String(perk.requiredLevel)),
         variant: "destructive"
       });
       return;
@@ -464,8 +320,8 @@ export default function CharacterPage() {
 
     if (!canActivatePerk(perk)) {
       toast({
-        title: "Cannot Activate",
-        description: "This perk can only be activated once per week.",
+        title: TEXT_CONTENT.character.toasts.activateLimit.title,
+        description: TEXT_CONTENT.character.toasts.activateLimit.desc,
         variant: "destructive"
       });
       return;
@@ -473,8 +329,8 @@ export default function CharacterPage() {
 
     if (characterStats.gold < perk.activationCost) {
       toast({
-        title: "Insufficient Gold",
-        description: `You need ${perk.activationCost} gold to activate this perk.`,
+        title: TEXT_CONTENT.character.toasts.insufficientGold.title,
+        description: TEXT_CONTENT.character.toasts.insufficientGold.desc.replace("{amount}", String(perk.activationCost)),
         variant: "destructive"
       });
       return;
@@ -512,8 +368,8 @@ export default function CharacterPage() {
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks))
 
     toast({
-      title: "Perk Activated",
-      description: `${perk.name} is now active for 24 hours!`,
+      title: TEXT_CONTENT.character.toasts.perkActivated.title,
+      description: TEXT_CONTENT.character.toasts.perkActivated.desc.replace("{name}", perk.name),
     });
   };
 
@@ -536,8 +392,8 @@ export default function CharacterPage() {
     const perk = perks.find(p => p.id === perkId);
     if (perk) {
       toast({
-        title: "Perk Deactivated",
-        description: `${perk.name} has been deactivated.`,
+        title: TEXT_CONTENT.character.toasts.perkDeactivated.title,
+        description: TEXT_CONTENT.character.toasts.perkDeactivated.desc.replace("{name}", perk.name),
       });
     }
   };
@@ -549,8 +405,8 @@ export default function CharacterPage() {
 
     if (!perk.unlocked) {
       toast({
-        title: "Perk Locked",
-        description: `This perk requires level ${perk.requiredLevel} to unlock.`,
+        title: TEXT_CONTENT.character.toasts.perkLocked.title,
+        description: TEXT_CONTENT.character.toasts.perkLocked.desc.replace("{level}", String(perk.requiredLevel)),
         variant: "destructive"
       });
       return;
@@ -558,8 +414,8 @@ export default function CharacterPage() {
 
     if (perk.level >= perk.maxLevel) {
       toast({
-        title: "Max Level Reached",
-        description: "This perk is already at maximum level.",
+        title: TEXT_CONTENT.character.toasts.maxLevel.title,
+        description: TEXT_CONTENT.character.toasts.maxLevel.desc,
         variant: "destructive"
       });
       return;
@@ -567,8 +423,8 @@ export default function CharacterPage() {
 
     if (characterStats.gold < perk.upgradeCost) {
       toast({
-        title: "Insufficient Gold",
-        description: `You need ${perk.upgradeCost} gold to upgrade this perk.`,
+        title: TEXT_CONTENT.character.toasts.insufficientGoldUpgrade.title,
+        description: TEXT_CONTENT.character.toasts.insufficientGoldUpgrade.desc.replace("{amount}", String(perk.upgradeCost)),
         variant: "destructive"
       });
       return;
@@ -598,8 +454,8 @@ export default function CharacterPage() {
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
 
     toast({
-      title: "Perk Upgraded",
-      description: `${perk.name} is now level ${perk.level + 1}!`,
+      title: TEXT_CONTENT.character.toasts.perkUpgraded.title,
+      description: TEXT_CONTENT.character.toasts.perkUpgraded.desc.replace("{name}", perk.name).replace("{level}", String(perk.level + 1)),
     });
   };
 
@@ -663,7 +519,7 @@ export default function CharacterPage() {
   return (
     <div className="min-h-screen bg-black">
       <HeaderSection
-        title="Character"
+        title={TEXT_CONTENT.character.header.title}
         imageSrc={coverImage}
         canEdit={true}
         onImageUpload={handleImageUpload}
@@ -671,23 +527,23 @@ export default function CharacterPage() {
         shouldRevealImage={true}
         guideComponent={
           <PageGuide
-            title="Character"
-            subtitle="Master your attributes"
+            title={TEXT_CONTENT.character.header.guide.title}
+            subtitle={TEXT_CONTENT.character.header.guide.subtitle}
             sections={[
               {
-                title: "Titles",
+                title: TEXT_CONTENT.character.header.guide.sections.titles.title,
                 icon: Crown,
-                content: "Earn and equip prestigious titles that reflect your level and accomplishments in the realm."
+                content: TEXT_CONTENT.character.header.guide.sections.titles.content
               },
               {
-                title: "Perks",
+                title: TEXT_CONTENT.character.header.guide.sections.perks.title,
                 icon: Heart,
-                content: "Activate mystical blessings and permanent perks to boost your experience and gold gains."
+                content: TEXT_CONTENT.character.header.guide.sections.perks.content
               },
               {
-                title: "Strengths",
+                title: TEXT_CONTENT.character.header.guide.sections.strengths.title,
                 icon: Sword,
-                content: "Track your progress across various disciplines like Might, Knowledge, and Honor."
+                content: TEXT_CONTENT.character.header.guide.sections.strengths.content
               }
             ]}
           />
@@ -702,7 +558,7 @@ export default function CharacterPage() {
               <div className="flex items-center gap-2 text-red-400">
                 <AlertCircle className="h-5 w-5" />
                 <div>
-                  <h3 className="font-semibold">Character Page Error</h3>
+                  <h3 className="font-semibold">{TEXT_CONTENT.character.ui.error}</h3>
                   <p className="text-sm">{error}</p>
                   <Button
                     onClick={() => window.location.reload()}
@@ -710,7 +566,7 @@ export default function CharacterPage() {
                     size="sm"
                     className="mt-2"
                   >
-                    Reload Page
+                    {TEXT_CONTENT.character.ui.reload}
                   </Button>
                 </div>
               </div>
@@ -726,7 +582,7 @@ export default function CharacterPage() {
             <CardContent className="pt-6">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Loading character data...</span>
+                <span>{TEXT_CONTENT.character.ui.loading}</span>
               </div>
             </CardContent>
           </Card>
@@ -739,22 +595,22 @@ export default function CharacterPage() {
           {/* Combined Character Overview & Active Bonuses */}
           <Card className="medieval-card">
             <CardHeader>
-              <CardTitle className="font-serif">Character Overview</CardTitle>
-              <CardDescription>Your current progress, title, and active bonuses</CardDescription>
+              <CardTitle className="font-serif">{TEXT_CONTENT.character.ui.overview.title}</CardTitle>
+              <CardDescription>{TEXT_CONTENT.character.ui.overview.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Left: Level, XP, Title */}
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium">Level {characterStats.level}</h3>
+                    <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}</h3>
                     <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
                     <p className="text-sm text-muted-foreground">
-                      <AnimatedCounter value={Math.floor(characterStats.experience)} duration={800} /> / {characterStats.experienceToNextLevel} XP to Level {characterStats.level + 1}
+                      <AnimatedCounter value={Math.floor(characterStats.experience)} duration={800} /> / {TEXT_CONTENT.character.ui.overview.xpProgress.replace("{current}", "").replace("{next}", String(characterStats.experienceToNextLevel)).replace("{nextLevel}", String(characterStats.level + 1))}
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium">Title</h3>
+                    <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.titleHeader}</h3>
                     {(() => {
                       const titleInfo = getTitleProgress(characterStats.level);
                       return (
@@ -781,7 +637,7 @@ export default function CharacterPage() {
                               <p className="text-sm text-muted-foreground">{titleInfo.current.description}</p>
                               {titleInfo.next && (
                                 <div className="mt-2">
-                                  <p className="text-xs text-muted-foreground">Next: {titleInfo.next.name} (Level {titleInfo.next.level})</p>
+                                  <p className="text-xs text-muted-foreground">{TEXT_CONTENT.character.ui.overview.nextTitle.replace("{name}", titleInfo.next.name).replace("{level}", String(titleInfo.next.level))}</p>
                                   <Progress value={titleInfo.progress} className="h-1 mt-1" />
                                 </div>
                               )}
@@ -794,7 +650,7 @@ export default function CharacterPage() {
                 </div>
                 {/* Right: Active Bonuses */}
                 <div>
-                  <h3 className="text-lg font-medium mb-2">Active Bonuses</h3>
+                  <h3 className="text-lg font-medium mb-2">{TEXT_CONTENT.character.ui.overview.activeBonuses}</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {perks.filter((p) => p.active && p.unlocked).length === 0 && (
                       <Card className="bg-black border-amber-800 h-full min-h-[200px] flex items-center justify-center">
@@ -804,12 +660,12 @@ export default function CharacterPage() {
                             <div className="relative w-32 h-32 flex-shrink-0">
                               <Image
                                 src="/images/blessing.png"
-                                alt="No active bonuses"
+                                alt={TEXT_CONTENT.character.ui.overview.noBonuses}
                                 fill
                                 className="object-contain opacity-50 rounded"
                               />
                             </div>
-                            <p className="text-muted-foreground font-serif">No enchanted blessings active. Seek the mystic arts to unlock your true potential.</p>
+                            <p className="text-muted-foreground font-serif">{TEXT_CONTENT.character.ui.overview.noBonuses}</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -840,7 +696,7 @@ export default function CharacterPage() {
                                 size="sm"
                                 onClick={() => deactivatePerk(perk.id)}
                                 className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
-                                aria-label={`Deactivate ${perk.name}`}
+                                aria-label={TEXT_CONTENT.character.perks.deactivate + ` ${perk.name}`}
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -863,7 +719,7 @@ export default function CharacterPage() {
                       <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
                         <CardHeader className="pb-2">
                           <div className="flex items-center gap-2">
-                            <CardTitle className="text-base font-medium">{perk.name} (Potion Perk)</CardTitle>
+                            <CardTitle className="text-base font-medium">{TEXT_CONTENT.character.activePerkCard.potionPerkObs.replace("{name}", perk.name)}</CardTitle>
                           </div>
                         </CardHeader>
                         <CardContent>
@@ -903,15 +759,15 @@ export default function CharacterPage() {
                   value={activeTab}
                   onChange={e => setActiveTab(e.target.value)}
                 >
-                  <option value="titles">Titles</option>
-                  <option value="perks">Perks</option>
-                  <option value="strengths">Strengths</option>
+                  <option value="titles">{TEXT_CONTENT.character.ui.tabs.titles}</option>
+                  <option value="perks">{TEXT_CONTENT.character.ui.tabs.perks}</option>
+                  <option value="strengths">{TEXT_CONTENT.character.ui.tabs.strengths}</option>
                 </select>
               </div>
               <TabsList className="grid w-auto grid-cols-3 hidden md:grid">
-                <TabsTrigger value="titles">Titles</TabsTrigger>
-                <TabsTrigger value="perks">Perks</TabsTrigger>
-                <TabsTrigger value="strengths">Strengths</TabsTrigger>
+                <TabsTrigger value="titles">{TEXT_CONTENT.character.ui.tabs.titles}</TabsTrigger>
+                <TabsTrigger value="perks">{TEXT_CONTENT.character.ui.tabs.perks}</TabsTrigger>
+                <TabsTrigger value="strengths">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
               </TabsList>
               <TabsContent value="titles" className="mt-6">
                 <div className="max-w-6xl mx-auto w-full">
@@ -977,9 +833,9 @@ export default function CharacterPage() {
                           <CardContent className="pb-2">
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Badge variant="outline" className="mr-2">
-                                Level {title.level}
+                                {TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(title.level))}
                               </Badge>
-                              <span>{isUnlocked ? "Unlocked" : `Requires Level ${title.level}`}</span>
+                              <span>{isUnlocked ? TEXT_CONTENT.character.titles.unlocked : TEXT_CONTENT.character.titles.requires.replace("{level}", String(title.level))}</span>
                             </div>
                           </CardContent>
                           <CardFooter>
@@ -991,11 +847,11 @@ export default function CharacterPage() {
                                   }`}
                                 disabled={isCurrent}
                               >
-                                {isCurrent ? "Current Title" : "Achieved"}
+                                {isCurrent ? TEXT_CONTENT.character.titles.current : TEXT_CONTENT.character.titles.achieved}
                               </Button>
                             ) : (
                               <Button className="w-full" variant="outline" disabled>
-                                Locked
+                                {TEXT_CONTENT.character.titles.locked}
                               </Button>
                             )}
                           </CardFooter>
@@ -1035,7 +891,7 @@ export default function CharacterPage() {
                               variant={perk.unlocked ? "default" : "secondary"}
                               className={perk.unlocked ? "" : "bg-gray-500"}
                             >
-                              {perk.unlocked ? `Lvl ${perk.level}/${perk.maxLevel}` : `Lvl ${perk.requiredLevel}+`}
+                              {perk.unlocked ? TEXT_CONTENT.character.perks.levelMax.replace("{level}", String(perk.level)).replace("{max}", String(perk.maxLevel)) : TEXT_CONTENT.character.perks.levelReq.replace("{level}", String(perk.requiredLevel))}
                             </Badge>
                           </div>
                           <CardDescription className="text-sm">
@@ -1043,7 +899,7 @@ export default function CharacterPage() {
                           </CardDescription>
                           {!perk.unlocked && (
                             <div className="mt-2 text-amber-500 font-medium">
-                              Requires Lvl {perk.requiredLevel}
+                              {TEXT_CONTENT.character.perks.requires.replace("{level}", String(perk.requiredLevel))}
                             </div>
                           )}
                         </CardHeader>
@@ -1051,8 +907,8 @@ export default function CharacterPage() {
                           <div className="space-y-2">
                             <p className="text-sm font-medium">{perk.effect}</p>
                             <div className="flex justify-between text-xs text-muted-foreground">
-                              <span>Category: {perk.category}</span>
-                              <span>Cost: {perk.activationCost} gold</span>
+                              <span>{TEXT_CONTENT.character.perks.category.replace("{category}", perk.category)}</span>
+                              <span>{TEXT_CONTENT.character.perks.cost.replace("{cost}", String(perk.activationCost))}</span>
                             </div>
                           </div>
 
@@ -1060,7 +916,7 @@ export default function CharacterPage() {
                             <div className="space-y-2">
                               {perk.active ? (
                                 <div className="space-y-2">
-                                  <Badge className="bg-green-500 hover:bg-green-600">Active</Badge>
+                                  <Badge className="bg-green-500 hover:bg-green-600">{TEXT_CONTENT.character.perks.active}</Badge>
                                   <p className="text-xs text-amber-400">
                                     {getTimeUntilExpiry(perk)}
                                   </p>
@@ -1070,7 +926,7 @@ export default function CharacterPage() {
                                     onClick={() => deactivatePerk(perk.id)}
                                     className="w-full"
                                   >
-                                    Deactivate
+                                    {TEXT_CONTENT.character.perks.deactivate}
                                   </Button>
                                 </div>
                               ) : (
@@ -1080,7 +936,7 @@ export default function CharacterPage() {
                                     disabled={!canActivatePerk(perk) || characterStats.gold < perk.activationCost}
                                     className="w-full"
                                   >
-                                    Activate ({perk.activationCost} gold)
+                                    {TEXT_CONTENT.character.perks.activate.replace("{cost}", String(perk.activationCost))}
                                   </Button>
                                   {perk.level < perk.maxLevel && (
                                     <Button
@@ -1090,7 +946,7 @@ export default function CharacterPage() {
                                       disabled={characterStats.gold < perk.upgradeCost}
                                       className="w-full"
                                     >
-                                      Upgrade ({perk.upgradeCost} gold)
+                                      {TEXT_CONTENT.character.perks.upgrade.replace("{cost}", String(perk.upgradeCost))}
                                     </Button>
                                   )}
                                 </div>
@@ -1100,7 +956,7 @@ export default function CharacterPage() {
                             <div className="text-center py-4">
                               <Lock className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                               <p className="text-sm text-gray-500">
-                                Reach Lvl {perk.requiredLevel} to unlock
+                                {TEXT_CONTENT.character.perks.locked.replace("{level}", String(perk.requiredLevel))}
                               </p>
                             </div>
                           )}
@@ -1135,19 +991,19 @@ export default function CharacterPage() {
                         <CardContent className="space-y-3">
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span>Experience</span>
+                              <span>{TEXT_CONTENT.character.strengths.experience}</span>
                               <span>{strength.experience} / {strength.experienceToNextLevel}</span>
                             </div>
                             <Progress value={calculateStrengthProgress(strength)} className="h-2" />
                             <p className="text-xs text-muted-foreground">
-                              {strength.experienceToNextLevel - strength.experience} XP to Lvl {strength.level + 1}
+                              {TEXT_CONTENT.character.strengths.xpToNext.replace("{amount}", String(strength.experienceToNextLevel - strength.experience)).replace("{level}", String(strength.level + 1))}
                             </p>
                           </div>
                         </CardContent>
                         <CardFooter className="pt-2">
                           <div className="w-full text-center">
                             <Badge variant="outline" className="w-full justify-center">
-                              {strength.category.charAt(0).toUpperCase() + strength.category.slice(1)} Mastery
+                              {TEXT_CONTENT.character.strengths.mastery.replace("{category}", strength.category.charAt(0).toUpperCase() + strength.category.slice(1))}
                             </Badge>
                           </div>
                         </CardFooter>

@@ -7,6 +7,7 @@ import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from 
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
 import { setUserPreference } from "@/lib/user-preferences-manager"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,88 +41,10 @@ export default function MarketPage() {
   const [showOnboarding, setShowOnboarding] = useState(false)
 
   // Available tiles
-  const availableTiles: Tile[] = [
-    {
-      id: "grass-1",
-      type: "grass",
-      name: "Grassland",
-      description: "A simple grassy plain.",
-      cost: 10,
-      rarity: "common",
-      category: "terrain",
-      connections: [],
-    },
-    {
-      id: "forest-1",
-      type: "forest",
-      name: "Forest",
-      description: "A dense forest with tall trees.",
-      cost: 20,
-      rarity: "common",
-      category: "terrain",
-      connections: [],
-    },
-    {
-      id: "water-1",
-      type: "water",
-      name: "Lake",
-      description: "A serene body of water with gentle waves.",
-      cost: 30,
-      rarity: "uncommon",
-      category: "terrain",
-      connections: [],
-    },
-    {
-      id: "mountain-1",
-      type: "mountain",
-      name: "Mountain",
-      description: "A tall, rocky mountain peak.",
-      cost: 40,
-      rarity: "uncommon",
-      category: "terrain",
-      connections: [],
-    },
-    {
-      id: "desert-1",
-      type: "desert",
-      name: "Desert",
-      description: "A hot, sandy desert landscape.",
-      cost: 25,
-      rarity: "uncommon",
-      category: "terrain",
-      connections: [],
-    },
-    {
-      id: "special-1",
-      type: "special",
-      name: "Ancient Temple",
-      description: "A mysterious temple from a forgotten era.",
-      cost: 100,
-      rarity: "rare",
-      category: "special",
-      connections: [],
-    },
-    {
-      id: "special-2",
-      type: "special",
-      name: "Desert Oasis",
-      description: "A lush oasis in the middle of the desert.",
-      cost: 120,
-      rarity: "rare",
-      category: "special",
-      connections: [],
-    },
-    {
-      id: "special-3",
-      type: "special",
-      name: "Coastal Village",
-      description: "A small fishing village by the sea.",
-      cost: 150,
-      rarity: "epic",
-      category: "special",
-      connections: [],
-    },
-  ]
+  const availableTiles: Tile[] = TEXT_CONTENT.market.data.tiles.map(tile => ({
+    ...tile,
+    // Ensure type compatibility if needed, though structure matches
+  })) as Tile[];
 
   // Check if onboarding has been shown before
   useEffect(() => {
@@ -183,8 +106,8 @@ export default function MarketPage() {
   const addToCart = (tile: Tile) => {
     setCart([...cart, tile])
     toast({
-      title: "Added to cart",
-      description: `${tile.name} has been added to your cart.`,
+      title: TEXT_CONTENT.market.toasts.added.title,
+      description: TEXT_CONTENT.market.toasts.added.desc.replace("{name}", tile.name),
     })
   }
 
@@ -197,8 +120,8 @@ export default function MarketPage() {
       setCart(newCart)
 
       toast({
-        title: "Removed from cart",
-        description: "Item has been removed from your cart.",
+        title: TEXT_CONTENT.market.toasts.removed.title,
+        description: TEXT_CONTENT.market.toasts.removed.desc,
       })
     }
   }
@@ -210,8 +133,8 @@ export default function MarketPage() {
   const purchaseTiles = () => {
     if (cart.length === 0) {
       toast({
-        title: "Cart is empty",
-        description: "Add some tiles to your cart before checking out.",
+        title: TEXT_CONTENT.market.toasts.empty.title,
+        description: TEXT_CONTENT.market.toasts.empty.desc,
         variant: "destructive",
       })
       return
@@ -219,8 +142,8 @@ export default function MarketPage() {
 
     if (goldBalance < totalCost) {
       toast({
-        title: "Not enough gold",
-        description: `You need ${totalCost} gold to purchase these tiles.`,
+        title: TEXT_CONTENT.market.toasts.insufficient.title,
+        description: TEXT_CONTENT.market.toasts.insufficient.desc.replace("{amount}", String(totalCost)),
         variant: "destructive",
       })
       return
@@ -249,8 +172,8 @@ export default function MarketPage() {
     setCart([])
 
     toast({
-      title: "Purchase successful",
-      description: `You've purchased ${cart.length} tiles for ${totalCost} gold. Tiles have been added to your inventory.`,
+      title: TEXT_CONTENT.market.toasts.success.title,
+      description: TEXT_CONTENT.market.toasts.success.desc.replace("{count}", String(cart.length)).replace("{amount}", String(totalCost)),
     })
   }
 
@@ -259,14 +182,14 @@ export default function MarketPage() {
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">Market</h1>
-            <p className="text-muted-foreground">Purchase tiles to expand your kingdom</p>
+            <h1 className="text-2xl font-bold tracking-tight font-serif">{TEXT_CONTENT.market.header.title}</h1>
+            <p className="text-muted-foreground">{TEXT_CONTENT.market.header.subtitle}</p>
           </div>
           <div className="flex gap-2">
             <Link href="/">
               <Button variant="outline" className="border-amber-800/20 hover:bg-amber-900/20">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Kingdom
+                {TEXT_CONTENT.market.header.back}
               </Button>
             </Link>
             <Button
@@ -274,7 +197,7 @@ export default function MarketPage() {
               onClick={purchaseTiles}
             >
               <ShoppingCart className="mr-2 h-4 w-4" />
-              Checkout ({cart.length})
+              {TEXT_CONTENT.market.header.checkout.replace("{count}", String(cart.length))}
             </Button>
           </div>
         </div>
@@ -283,15 +206,15 @@ export default function MarketPage() {
           <div className="space-y-4">
             <Card className="medieval-card">
               <CardHeader>
-                <CardTitle className="font-serif">Filters</CardTitle>
+                <CardTitle className="font-serif">{TEXT_CONTENT.market.filters.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Search</label>
+                  <label className="text-sm font-medium">{TEXT_CONTENT.market.filters.search}</label>
                   <div className="relative">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search tiles..."
+                      placeholder={TEXT_CONTENT.market.filters.searchPlaceholder}
                       className="pl-8 bg-gray-900 border-amber-800/20"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -300,69 +223,69 @@ export default function MarketPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Category</label>
+                  <label className="text-sm font-medium">{TEXT_CONTENT.market.filters.category}</label>
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       variant={selectedCategory === null ? "default" : "outline"}
                       className="cursor-pointer"
                       onClick={() => setSelectedCategory(null)}
                     >
-                      All
+                      {TEXT_CONTENT.market.filters.categories.all}
                     </Badge>
                     <Badge
                       variant={selectedCategory === "terrain" ? "default" : "outline"}
                       className="cursor-pointer"
                       onClick={() => setSelectedCategory("terrain")}
                     >
-                      Terrain
+                      {TEXT_CONTENT.market.filters.categories.terrain}
                     </Badge>
                     <Badge
                       variant={selectedCategory === "special" ? "default" : "outline"}
                       className="cursor-pointer"
                       onClick={() => setSelectedCategory("special")}
                     >
-                      Special
+                      {TEXT_CONTENT.market.filters.categories.special}
                     </Badge>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Rarity</label>
+                  <label className="text-sm font-medium">{TEXT_CONTENT.market.filters.rarity}</label>
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       variant={selectedRarity === null ? "default" : "outline"}
                       className="cursor-pointer"
                       onClick={() => setSelectedRarity(null)}
                     >
-                      All
+                      {TEXT_CONTENT.market.filters.rarities.all}
                     </Badge>
                     <Badge
                       variant={selectedRarity === "common" ? "default" : "outline"}
                       className="cursor-pointer bg-gray-500/50"
                       onClick={() => setSelectedRarity("common")}
                     >
-                      Common
+                      {TEXT_CONTENT.market.filters.rarities.common}
                     </Badge>
                     <Badge
                       variant={selectedRarity === "uncommon" ? "default" : "outline"}
                       className="cursor-pointer bg-green-500/50"
                       onClick={() => setSelectedRarity("uncommon")}
                     >
-                      Uncommon
+                      {TEXT_CONTENT.market.filters.rarities.uncommon}
                     </Badge>
                     <Badge
                       variant={selectedRarity === "rare" ? "default" : "outline"}
                       className="cursor-pointer bg-blue-500/50"
                       onClick={() => setSelectedRarity("rare")}
                     >
-                      Rare
+                      {TEXT_CONTENT.market.filters.rarities.rare}
                     </Badge>
                     <Badge
                       variant={selectedRarity === "epic" ? "default" : "outline"}
                       className="cursor-pointer bg-purple-500/50"
                       onClick={() => setSelectedRarity("epic")}
                     >
-                      Epic
+                      {TEXT_CONTENT.market.filters.rarities.epic}
                     </Badge>
                   </div>
                 </div>
@@ -371,12 +294,12 @@ export default function MarketPage() {
 
             <Card className="medieval-card">
               <CardHeader>
-                <CardTitle className="font-serif">Cart</CardTitle>
-                <CardDescription>{cart.length} items</CardDescription>
+                <CardTitle className="font-serif">{TEXT_CONTENT.market.cart.title}</CardTitle>
+                <CardDescription>{TEXT_CONTENT.market.cart.items.replace("{count}", String(cart.length))}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {cart.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">Your cart is empty</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">{TEXT_CONTENT.market.cart.empty}</p>
                 ) : (
                   <div className="space-y-2">
                     {cart.map((item) => (
@@ -420,15 +343,15 @@ export default function MarketPage() {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <div>
-                  <p className="text-sm font-medium">Total</p>
-                  <p className="text-lg font-bold text-amber-500">{totalCost} Gold</p>
+                  <p className="text-sm font-medium">{TEXT_CONTENT.market.cart.total}</p>
+                  <p className="text-lg font-bold text-amber-500">{TEXT_CONTENT.market.cart.gold.replace("{amount}", String(totalCost))}</p>
                 </div>
                 <Button
                   className="bg-amber-500 hover:bg-amber-600 text-black"
                   onClick={purchaseTiles}
                   disabled={cart.length === 0}
                 >
-                  Purchase
+                  {TEXT_CONTENT.market.cart.purchase}
                 </Button>
               </CardFooter>
             </Card>
@@ -436,10 +359,10 @@ export default function MarketPage() {
 
           <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-medium">Available Tiles</h2>
+              <h2 className="text-xl font-medium">{TEXT_CONTENT.market.list.title}</h2>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">{filteredTiles.length} tiles</span>
+                <span className="text-sm text-muted-foreground">{TEXT_CONTENT.market.list.count.replace("{count}", String(filteredTiles.length))}</span>
               </div>
             </div>
 
@@ -487,7 +410,7 @@ export default function MarketPage() {
                         className="border-amber-800/20 hover:bg-amber-900/20"
                         onClick={() => addToCart(tile)}
                       >
-                        Add to Cart
+                        {TEXT_CONTENT.market.list.addToCart}
                       </Button>
                     </div>
                   </CardContent>

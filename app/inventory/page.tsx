@@ -12,19 +12,20 @@ import { useSupabase } from "@/lib/hooks/useSupabase";
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync";
 import { getInventory, InventoryItem } from "@/lib/inventory-manager";
 import { InventorySkeleton } from "@/components/skeletons/inventory-skeleton";
+import { TEXT_CONTENT } from "@/lib/text-content";
 
 const ITEM_TYPES = [
-  { value: "resource", label: "Resources", emoji: "🌿" },
-  { value: "item", label: "Items", emoji: "📦" },
-  { value: "creature", label: "Creatures", emoji: "🐉" },
-  { value: "scroll", label: "Scrolls", emoji: "📜" },
-  { value: "equipment", label: "Equipment", emoji: "⚔️" },
-  { value: "artifact", label: "Artifacts", emoji: "🏺" },
-  { value: "book", label: "Books", emoji: "📚" },
-  { value: "mount", label: "Mounts", emoji: "🐎" },
-  { value: "weapon", label: "Weapons", emoji: "🗡️" },
-  { value: "shield", label: "Shields", emoji: "🛡️" },
-  { value: "armor", label: "Armor", emoji: "🦺" },
+  { value: "resource", label: TEXT_CONTENT.inventory.itemTypes.resource, emoji: "🌿" },
+  { value: "item", label: TEXT_CONTENT.inventory.itemTypes.item, emoji: "📦" },
+  { value: "creature", label: TEXT_CONTENT.inventory.itemTypes.creature, emoji: "🐉" },
+  { value: "scroll", label: TEXT_CONTENT.inventory.itemTypes.scroll, emoji: "📜" },
+  { value: "equipment", label: TEXT_CONTENT.inventory.itemTypes.equipment, emoji: "⚔️" },
+  { value: "artifact", label: TEXT_CONTENT.inventory.itemTypes.artifact, emoji: "🏺" },
+  { value: "book", label: TEXT_CONTENT.inventory.itemTypes.book, emoji: "📚" },
+  { value: "mount", label: TEXT_CONTENT.inventory.itemTypes.mount, emoji: "🐎" },
+  { value: "weapon", label: TEXT_CONTENT.inventory.itemTypes.weapon, emoji: "🗡️" },
+  { value: "shield", label: TEXT_CONTENT.inventory.itemTypes.shield, emoji: "🛡️" },
+  { value: "armor", label: TEXT_CONTENT.inventory.itemTypes.armor, emoji: "🦺" },
 ];
 
 export default function InventoryPage() {
@@ -37,7 +38,7 @@ export default function InventoryPage() {
 
   // Tabs configuration for navigation
   const tabOptions = [
-    { value: "all", label: "All Items" },
+    { value: "all", label: TEXT_CONTENT.inventory.itemTypes.all },
     ...ITEM_TYPES.map(type => ({ value: type.value, label: type.label }))
   ];
 
@@ -52,8 +53,8 @@ export default function InventoryPage() {
     } catch (error) {
       console.error("Error loading inventory items:", error);
       toast({
-        title: "Error",
-        description: "Failed to load inventory items",
+        title: TEXT_CONTENT.inventory.ui.loadingError,
+        description: TEXT_CONTENT.inventory.ui.loadingErrorDesc,
         variant: "destructive",
       });
     } finally {
@@ -131,7 +132,7 @@ export default function InventoryPage() {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-white truncate">{item.name}</h3>
               <Badge variant={item.equipped ? "default" : "secondary"}>
-                {item.equipped ? "Equipped" : item.type}
+                {item.equipped ? TEXT_CONTENT.inventory.ui.equipped : item.type}
               </Badge>
             </div>
 
@@ -141,7 +142,7 @@ export default function InventoryPage() {
 
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-400">
-                Quantity: <span className="text-amber-400 font-semibold">{item.quantity}</span>
+                {TEXT_CONTENT.inventory.ui.quantity} <span className="text-amber-400 font-semibold">{item.quantity}</span>
               </div>
 
               {item.stats && Object.keys(item.stats).length > 0 && (
@@ -167,9 +168,9 @@ export default function InventoryPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-amber-500 mb-2">Inventory</h1>
+        <h1 className="text-3xl font-bold text-amber-500 mb-2">{TEXT_CONTENT.inventory.header.title}</h1>
         <p className="text-gray-400">
-          Manage your collected items, equipment, and resources
+          {TEXT_CONTENT.inventory.header.subtitle}
         </p>
       </div>
 
@@ -177,9 +178,9 @@ export default function InventoryPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-amber-500 text-2xl font-bold">Your Items</CardTitle>
+              <CardTitle className="text-amber-500 text-2xl font-bold">{TEXT_CONTENT.inventory.ui.yourItems}</CardTitle>
               <CardDescription className="text-gray-300">
-                {filteredItems.length} items found
+                {TEXT_CONTENT.inventory.ui.itemsFound.replace("{count}", String(filteredItems.length))}
               </CardDescription>
             </div>
             <Button
@@ -188,7 +189,7 @@ export default function InventoryPage() {
               className="border-amber-800 text-amber-500 hover:bg-amber-800 hover:text-white"
               aria-label="Refresh inventory"
             >
-              🔄 Refresh
+              🔄 {TEXT_CONTENT.inventory.ui.refresh}
             </Button>
           </div>
         </CardHeader>
@@ -216,11 +217,11 @@ export default function InventoryPage() {
               {filteredItems.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">📦</div>
-                  <h3 className="text-xl font-semibold text-gray-300 mb-2">No items found</h3>
+                  <h3 className="text-xl font-semibold text-gray-300 mb-2">{TEXT_CONTENT.inventory.ui.emptyTitle}</h3>
                   <p className="text-gray-500">
                     {activeTab === "all"
-                      ? "Your inventory is empty. Start collecting items by completing quests and exploring the realm!"
-                      : `No ${activeTab} items found. Try completing quests or exploring different areas.`
+                      ? TEXT_CONTENT.inventory.ui.emptyAll
+                      : TEXT_CONTENT.inventory.ui.emptyFilter.replace("{type}", activeTab)
                     }
                   </p>
                 </div>

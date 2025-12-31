@@ -34,6 +34,7 @@ import { GiftModal } from "@/components/gift-modal"
 import { AllianceDashboard } from "@/components/alliance-dashboard"
 import { Leaderboard } from "@/components/leaderboard"
 import { ActivityFeed } from "@/components/activity-feed"
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 interface Friend {
     id: string; // Friendship ID
@@ -214,7 +215,7 @@ export default function AlliesPage() {
             });
 
             if (res.ok) {
-                toast({ title: "Request Sent", description: "Friend request sent successfully!" });
+                toast({ title: TEXT_CONTENT.social.toasts.requestSent, description: TEXT_CONTENT.social.toasts.requestSentDesc });
                 // Remove from search results to prevent duplicate sending
                 setSearchResults(prev => prev.filter(u => u.id !== targetUserId));
             } else {
@@ -227,11 +228,11 @@ export default function AlliesPage() {
                         duration: 10000
                     });
                 } else {
-                    toast({ title: "Error", description: error.error || "Failed to send request", variant: "destructive" });
+                    toast({ title: TEXT_CONTENT.social.toasts.error, description: error.error || "Failed to send request", variant: "destructive" });
                 }
             }
         } catch (error) {
-            toast({ title: "Error", description: "Failed to send request. Check console for details.", variant: "destructive" });
+            toast({ title: TEXT_CONTENT.social.toasts.error, description: "Failed to send request. Check console for details.", variant: "destructive" });
         }
     };
 
@@ -245,8 +246,8 @@ export default function AlliesPage() {
 
             if (res.ok) {
                 toast({
-                    title: action === 'accept' ? "Friend Added" : "Request Declined",
-                    description: action === 'accept' ? "You are now allies!" : "Friend request declined."
+                    title: action === 'accept' ? TEXT_CONTENT.social.toasts.friendAdded : TEXT_CONTENT.social.toasts.requestDeclined,
+                    description: action === 'accept' ? TEXT_CONTENT.social.toasts.friendAddedDesc : TEXT_CONTENT.social.toasts.requestDeclinedDesc
                 });
                 fetchFriends(); // Refresh lists
             }
@@ -256,13 +257,13 @@ export default function AlliesPage() {
     };
 
     const removeFriend = async (friendshipId: string) => {
-        if (!confirm("Are you sure you want to remove this ally?")) return;
+        if (!confirm(TEXT_CONTENT.social.friendCard.actions.remove.confirm)) return;
         try {
             const res = await fetch(`/api/friends/${friendshipId}`, {
                 method: 'DELETE'
             });
             if (res.ok) {
-                toast({ title: "Friend Removed", description: "Ally removed from your list." });
+                toast({ title: TEXT_CONTENT.social.friendCard.actions.remove.title, description: TEXT_CONTENT.social.friendCard.actions.remove.success });
                 setFriends(prev => prev.filter(f => f.id !== friendshipId));
             }
         } catch (error) {
@@ -289,7 +290,7 @@ export default function AlliesPage() {
             });
 
             if (res.ok) {
-                toast({ title: "Quest Sent", description: `Quest sent to ${selectedFriend.username}!` });
+                toast({ title: "Quest Sent", description: TEXT_CONTENT.social.modals.quest.toast.success.replace('{username}', selectedFriend.username) });
                 setQuestModalOpen(false);
                 setQuestForm({
                     title: "",
@@ -300,10 +301,10 @@ export default function AlliesPage() {
                     gold: 10
                 });
             } else {
-                toast({ title: "Error", description: "Failed to send quest", variant: "destructive" });
+                toast({ title: TEXT_CONTENT.social.toasts.error, description: TEXT_CONTENT.social.modals.quest.toast.error, variant: "destructive" });
             }
         } catch (error) {
-            toast({ title: "Error", description: "Failed to send quest", variant: "destructive" });
+            toast({ title: TEXT_CONTENT.social.toasts.error, description: TEXT_CONTENT.social.modals.quest.toast.error, variant: "destructive" });
         }
     };
 
@@ -326,8 +327,8 @@ export default function AlliesPage() {
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-0">
             <HeaderSection
-                title="TAVERN"
-                subtitle="Gather, compete, and forge alliances"
+                title={TEXT_CONTENT.social.header.title}
+                subtitle={TEXT_CONTENT.social.header.subtitle}
                 imageSrc={coverImage || "/images/allies-header.jpg"}
                 canEdit={!!user?.id}
                 onImageUpload={handleImageUpload}
@@ -335,23 +336,23 @@ export default function AlliesPage() {
                 shouldRevealImage={true}
                 guideComponent={
                     <PageGuide
-                        title="Tavern"
-                        subtitle="The social heart of the realm"
+                        title={TEXT_CONTENT.social.header.guide.title}
+                        subtitle={TEXT_CONTENT.social.header.guide.subtitle}
                         sections={[
                             {
                                 title: "Alliances",
                                 icon: Shield,
-                                content: "Form or join alliances to compete on the leaderboards and complete group quests."
+                                content: TEXT_CONTENT.social.header.guide.sections.alliances
                             },
                             {
                                 title: "Sending Quests",
                                 icon: Scroll,
-                                content: "Help your friends level up! Send them custom quests and challenges to earn rewards together."
+                                content: TEXT_CONTENT.social.header.guide.sections.sendingQuests
                             },
                             {
                                 title: "Leaderboards",
                                 icon: Trophy,
-                                content: "Check the global rankings to see who is the mightiest hero or most dominant alliance."
+                                content: TEXT_CONTENT.social.header.guide.sections.leaderboards
                             }
                         ]}
                     />
@@ -372,20 +373,20 @@ export default function AlliesPage() {
                     <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto mb-8">
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-3">
                             <Users className="w-4 h-4" />
-                            My Allies
+                            {TEXT_CONTENT.social.tabs.allies}
                             {friends.length > 0 && <Badge variant="secondary" className="ml-1">{friends.length}</Badge>}
                         </TabsTrigger>
                         <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3">
                             <Scroll className="w-4 h-4" />
-                            Chronicles
+                            {TEXT_CONTENT.social.tabs.chronicles}
                         </TabsTrigger>
                         <TabsTrigger value="add" className="flex items-center gap-2 py-3">
                             <UserPlus className="w-4 h-4" />
-                            Add Friend
+                            {TEXT_CONTENT.social.tabs.addFriend}
                         </TabsTrigger>
                         <TabsTrigger value="requests" className="flex items-center gap-2 py-3">
                             <Mail className="w-4 h-4" />
-                            Requests
+                            {TEXT_CONTENT.social.tabs.requests}
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}
                         </TabsTrigger>
                     </TabsList>
@@ -408,9 +409,9 @@ export default function AlliesPage() {
                                             className="object-contain"
                                         />
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">No Allies Yet</h3>
-                                    <p className="text-muted-foreground mb-4">Add friends to compare stats and send quests!</p>
-                                    <Button onClick={() => setActiveTab("add")}>Find Friends</Button>
+                                    <h3 className="text-lg font-semibold mb-2">{TEXT_CONTENT.social.emptyStates.allies.title}</h3>
+                                    <p className="text-muted-foreground mb-4">{TEXT_CONTENT.social.emptyStates.allies.description}</p>
+                                    <Button onClick={() => setActiveTab("add")}>{TEXT_CONTENT.social.emptyStates.allies.action}</Button>
                                 </CardContent>
                             </Card>
                         ) : (
@@ -432,14 +433,14 @@ export default function AlliesPage() {
                                                             !friend.lastSeen ? "bg-gray-400" :
                                                                 (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-green-500 animate-pulse" :
                                                                     (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-yellow-500" : "bg-gray-400"
-                                                        )} title={friend.lastSeen ? `Last seen: ${new Date(friend.lastSeen).toLocaleString()}` : "Offline"} />
+                                                        )} title={friend.lastSeen ? TEXT_CONTENT.social.friendCard.status.lastSeen.replace('{date}', new Date(friend.lastSeen).toLocaleString()) : TEXT_CONTENT.social.friendCard.status.offline} />
                                                     </div>
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center gap-2 flex-wrap">
                                                             <h4 className="font-semibold text-lg truncate">{friend.username}</h4>
                                                             {friend.stats?.level && (
                                                                 <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/30">
-                                                                    Lvl {friend.stats.level}
+                                                                    {TEXT_CONTENT.social.friendCard.status.level.replace('{level}', friend.stats.level.toString())}
                                                                 </Badge>
                                                             )}
                                                             {friend.title && (
@@ -450,7 +451,7 @@ export default function AlliesPage() {
                                                         </div>
                                                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                                                             <Users className="w-3 h-3" />
-                                                            Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString()}
+                                                            {TEXT_CONTENT.social.friendCard.status.since.replace('{date}', new Date(friend.createdAt || Date.now()).toLocaleDateString())}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -466,8 +467,8 @@ export default function AlliesPage() {
                                                         variant="outline"
                                                     >
                                                         <Crown className="w-4 h-4 mr-2" />
-                                                        <span className="hidden sm:inline">Kingdom</span>
-                                                        <span className="inline sm:hidden">Visit</span>
+                                                        <span className="hidden sm:inline">{TEXT_CONTENT.social.friendCard.actions.visitKingdom}</span>
+                                                        <span className="inline sm:hidden">{TEXT_CONTENT.social.friendCard.actions.visitKingdomMobile}</span>
                                                     </Button>
 
                                                     <Button
@@ -476,7 +477,7 @@ export default function AlliesPage() {
                                                         className="flex-1 sm:flex-none"
                                                     >
                                                         <Scroll className="w-4 h-4 mr-2" />
-                                                        Quest
+                                                        {TEXT_CONTENT.social.friendCard.actions.quest}
                                                     </Button>
 
                                                     {/* Secondary Actions - Desktop: Visible, Mobile: Dropdown */}
@@ -487,7 +488,7 @@ export default function AlliesPage() {
                                                             onClick={() => openCompareModal(friend)}
                                                         >
                                                             <Target className="w-4 h-4 mr-2" />
-                                                            Compare
+                                                            {TEXT_CONTENT.social.friendCard.actions.compare}
                                                         </Button>
                                                         <Button
                                                             size="sm"
@@ -496,7 +497,7 @@ export default function AlliesPage() {
                                                             className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
                                                         >
                                                             <Shield className="w-4 h-4 mr-2" />
-                                                            Realm
+                                                            {TEXT_CONTENT.social.friendCard.actions.realm}
                                                         </Button>
                                                         <Button
                                                             size="sm"
@@ -507,7 +508,7 @@ export default function AlliesPage() {
                                                             }}
                                                         >
                                                             <Gift className="w-4 h-4 mr-2" />
-                                                            Gift
+                                                            {TEXT_CONTENT.social.friendCard.actions.gift}
                                                         </Button>
                                                     </div>
 
@@ -522,18 +523,18 @@ export default function AlliesPage() {
                                                             <DropdownMenuContent align="end">
                                                                 <DropdownMenuItem onClick={() => openCompareModal(friend)}>
                                                                     <Target className="w-4 h-4 mr-2" />
-                                                                    Compare Stats
+                                                                    {TEXT_CONTENT.social.friendCard.actions.compareStats}
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
                                                                     <Shield className="w-4 h-4 mr-2" />
-                                                                    Visit Realm
+                                                                    {TEXT_CONTENT.social.friendCard.actions.visitRealm}
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => {
                                                                     setSelectedFriend(friend);
                                                                     setGiftModalOpen(true);
                                                                 }}>
                                                                     <Gift className="w-4 h-4 mr-2" />
-                                                                    Send Gift
+                                                                    {TEXT_CONTENT.social.friendCard.actions.sendGift}
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -563,7 +564,7 @@ export default function AlliesPage() {
                                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                     />
                                     <Button onClick={handleSearch} disabled={isSearching}>
-                                        {isSearching ? "Searching..." : "Search"}
+                                        {isSearching ? TEXT_CONTENT.social.emptyStates.search.searching : TEXT_CONTENT.social.emptyStates.search.button}
                                     </Button>
                                 </div>
 
@@ -578,7 +579,7 @@ export default function AlliesPage() {
                                                 <span className="font-medium">{user.username}</span>
                                             </div>
                                             <Button size="sm" onClick={() => sendFriendRequest(user.id)}>
-                                                <UserPlus className="w-4 h-4 mr-2" /> Add Friend
+                                                <UserPlus className="w-4 h-4 mr-2" /> {TEXT_CONTENT.social.friendCard.actions.addFriend}
                                             </Button>
                                         </div>
                                     ))}
@@ -592,11 +593,11 @@ export default function AlliesPage() {
                                                     className="object-contain"
                                                 />
                                             </div>
-                                            <p className="text-muted-foreground">Search for your friends by username to add them to your allies.</p>
+                                            <p className="text-muted-foreground">{TEXT_CONTENT.social.emptyStates.search.initial}</p>
                                         </div>
                                     )}
                                     {searchResults.length === 0 && searchQuery && !isSearching && (
-                                        <p className="text-center text-muted-foreground py-4">No users found matching &quot;{searchQuery}&quot;</p>
+                                        <p className="text-center text-muted-foreground py-4">{TEXT_CONTENT.social.emptyStates.search.noResults.replace('{query}', searchQuery)}</p>
                                     )}
                                 </div>
                             </CardContent>
@@ -615,7 +616,7 @@ export default function AlliesPage() {
                                         className="object-contain"
                                     />
                                 </div>
-                                <p>No pending friend requests.</p>
+                                <p>{TEXT_CONTENT.social.emptyStates.requests.noRequests}</p>
                             </div>
                         ) : (
                             <div className="grid gap-4">
@@ -630,22 +631,22 @@ export default function AlliesPage() {
                                                 <div>
                                                     <h4 className="font-semibold">{req.username}</h4>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {req.isSender ? "Outgoing Request" : "Incoming Request"}
+                                                        {req.isSender ? TEXT_CONTENT.social.friendCard.status.outgoingInfo : TEXT_CONTENT.social.friendCard.status.incomingInfo}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
                                                 {req.isSender ? (
                                                     <Button size="sm" variant="outline" onClick={() => removeFriend(req.id)}>
-                                                        Cancel
+                                                        {TEXT_CONTENT.social.friendCard.actions.cancel}
                                                     </Button>
                                                 ) : (
                                                     <>
                                                         <Button size="sm" variant="default" onClick={() => respondToRequest(req.id, 'accept')}>
-                                                            Accept
+                                                            {TEXT_CONTENT.social.friendCard.actions.accept}
                                                         </Button>
                                                         <Button size="sm" variant="ghost" onClick={() => respondToRequest(req.id, 'reject')}>
-                                                            Decline
+                                                            {TEXT_CONTENT.social.friendCard.actions.decline}
                                                         </Button>
                                                     </>
                                                 )}
@@ -663,29 +664,29 @@ export default function AlliesPage() {
             <Dialog open={questModalOpen} onOpenChange={setQuestModalOpen}>
                 <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Send Quest to {selectedFriend?.username}</DialogTitle>
-                        <DialogDescription>Create a custom quest for your ally. They will receive a notification.</DialogDescription>
+                        <DialogTitle>{TEXT_CONTENT.social.modals.quest.title.replace('{username}', selectedFriend?.username || '')}</DialogTitle>
+                        <DialogDescription>{TEXT_CONTENT.social.modals.quest.description}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Quest Title</Label>
+                            <Label>{TEXT_CONTENT.social.modals.quest.form.title}</Label>
                             <Input
-                                placeholder="e.g., Run 5km this week"
+                                placeholder={TEXT_CONTENT.social.modals.quest.form.titlePlaceholder}
                                 value={questForm.title}
                                 onChange={(e) => setQuestForm({ ...questForm, title: e.target.value })}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Description</Label>
+                            <Label>{TEXT_CONTENT.social.modals.quest.form.description}</Label>
                             <Textarea
-                                placeholder="Describe what they need to do..."
+                                placeholder={TEXT_CONTENT.social.modals.quest.form.descriptionPlaceholder}
                                 value={questForm.description}
                                 onChange={(e) => setQuestForm({ ...questForm, description: e.target.value })}
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Difficulty</Label>
+                                <Label>{TEXT_CONTENT.social.modals.quest.form.difficulty}</Label>
                                 <Select
                                     value={questForm.difficulty}
                                     onValueChange={(val) => setQuestForm({ ...questForm, difficulty: val })}
@@ -701,7 +702,7 @@ export default function AlliesPage() {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label>Category</Label>
+                                <Label>{TEXT_CONTENT.social.modals.quest.form.category}</Label>
                                 <Select
                                     value={questForm.category}
                                     onValueChange={(val) => setQuestForm({ ...questForm, category: val })}
@@ -728,7 +729,7 @@ export default function AlliesPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label className="flex items-center gap-2">
-                                    <Star className="w-4 h-4 text-blue-500" /> XP Reward
+                                    <Star className="w-4 h-4 text-blue-500" /> {TEXT_CONTENT.social.modals.quest.form.xpReward}
                                 </Label>
                                 <Input
                                     type="number"
@@ -739,7 +740,7 @@ export default function AlliesPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label className="flex items-center gap-2">
-                                    <Coins className="w-4 h-4 text-yellow-500" /> Gold Reward
+                                    <Coins className="w-4 h-4 text-yellow-500" /> {TEXT_CONTENT.social.modals.quest.form.goldReward}
                                 </Label>
                                 <Input
                                     type="number"
@@ -751,8 +752,8 @@ export default function AlliesPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setQuestModalOpen(false)}>Cancel</Button>
-                        <Button onClick={sendQuest}>Send Quest</Button>
+                        <Button variant="outline" onClick={() => setQuestModalOpen(false)}>{TEXT_CONTENT.social.modals.quest.form.cancel}</Button>
+                        <Button onClick={sendQuest}>{TEXT_CONTENT.social.modals.quest.form.submit}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -761,9 +762,9 @@ export default function AlliesPage() {
             <Dialog open={compareModalOpen} onOpenChange={setCompareModalOpen}>
                 <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-medieval text-center text-amber-500">Ally Comparison</DialogTitle>
+                        <DialogTitle className="text-2xl font-medieval text-center text-amber-500">{TEXT_CONTENT.social.modals.compare.title}</DialogTitle>
                         <DialogDescription className="text-center">
-                            Comparing your stats with <span className="font-bold text-primary">{selectedFriend?.username}</span>
+                            {TEXT_CONTENT.social.modals.compare.description}<span className="font-bold text-primary">{selectedFriend?.username}</span>
                         </DialogDescription>
                     </DialogHeader>
 
@@ -777,7 +778,7 @@ export default function AlliesPage() {
                                         <AvatarImage src={user?.imageUrl} />
                                         <AvatarFallback>ME</AvatarFallback>
                                     </Avatar>
-                                    <h4 className="font-bold text-lg">You</h4>
+                                    <h4 className="font-bold text-lg">{TEXT_CONTENT.social.modals.compare.you}</h4>
                                     <Badge variant="outline" className="text-xs">Level {myStats.level}</Badge>
                                 </div>
 

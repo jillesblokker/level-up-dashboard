@@ -1,6 +1,8 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
+import { TEXT_CONTENT } from '@/lib/text-content';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -23,16 +25,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PerformanceDashboard from '@/components/performance-dashboard';
 import { errorHandler } from '@/lib/error-handler';
 import { performanceMonitor } from '@/lib/performance-monitor';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  Clock, 
-  Database, 
-  Server, 
-  Globe, 
-  Shield, 
-  Zap, 
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Clock,
+  Database,
+  Server,
+  Globe,
+  Shield,
+  Zap,
   TrendingUp,
   Activity,
   Settings,
@@ -126,12 +128,12 @@ export default function AdminPage() {
 
   // Audio context
   const { playSFX, playMusic, settings } = useAudioContext();
-  
+
   // New state for data comparison
   const [dataComparison, setDataComparison] = useState<DataComparison[]>([]);
   const [isComparingData, setIsComparingData] = useState(false);
   const [showTestingDropdown, setShowTestingDropdown] = useState(false);
-  
+
   // New state for performance monitoring and error tracking
   const [errorLogs, setErrorLogs] = useState<ErrorLog[]>([]);
   const [performanceStats, setPerformanceStats] = useState<any>(null);
@@ -155,10 +157,10 @@ export default function AdminPage() {
       }
 
       await unlockRareTile(supabase, user.id, tileId);
-      
+
       // Dispatch custom event to update UI
       window.dispatchEvent(new CustomEvent('rare-tile-unlocked', { detail: { tileId } }));
-      
+
       toast.success(`Unlocked ${tileId}`, {
         style: {
           backgroundColor: '#059669',
@@ -186,10 +188,10 @@ export default function AdminPage() {
       }
 
       await clearRareTileUnlock(supabase, user.id, tileId);
-      
+
       // Dispatch custom event to update UI
       window.dispatchEvent(new CustomEvent('rare-tile-cleared', { detail: { tileId } }));
-      
+
       toast.success(`Cleared ${tileId}`, {
         style: {
           backgroundColor: '#059669',
@@ -213,37 +215,37 @@ export default function AdminPage() {
   const syncDataToLocalStorage = async () => {
     try {
       setIsLoading(true);
-      
+
       // 1. Sync Quest Completions
       const questResponse = await fetch('/api/quests/simple');
       if (questResponse.ok) {
         const questData = await questResponse.json();
         const completedQuests = questData.completedQuests || [];
-        
+
         // Store in localStorage
         localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
         console.log('[Admin] Synced', completedQuests.length, 'quest completions to localStorage');
       }
-      
+
       // 2. Sync Gold Transactions
       const goldResponse = await fetch('/api/gold-transactions');
       if (goldResponse.ok) {
         const goldData = await goldResponse.json();
         const goldTransactions = goldData.data || [];
-        
+
         // Store in localStorage
         localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
         console.log('[Admin] Synced', goldTransactions.length, 'gold transactions to localStorage');
       } else {
         console.error('[Admin] Gold API failed:', goldResponse.status);
       }
-      
+
       // 3. Sync Experience Transactions
       const expResponse = await fetch('/api/experience-transactions');
       if (expResponse.ok) {
         const expData = await expResponse.json();
         const expTransactions = expData.data || [];
-        
+
         // Store in localStorage
         const expDataToStore = expTransactions.map((tx: any) => ({
           id: tx.id,
@@ -252,42 +254,42 @@ export default function AdminPage() {
           timestamp: tx.timestamp,
           source: tx.source
         }));
-        
+
         localStorage.setItem('experienceTransactions', JSON.stringify(expDataToStore));
         console.log('[Admin] Synced', expTransactions.length, 'experience transactions to localStorage');
       } else {
         console.error('[Admin] Experience API failed:', expResponse.status);
       }
-      
+
       // 4. Sync Inventory Items
       const inventoryResponse = await fetch('/api/inventory');
       if (inventoryResponse.ok) {
         const inventoryData = await inventoryResponse.json();
         const inventoryItems = inventoryData || [];
-        
+
         // Store in localStorage
         localStorage.setItem('inventory', JSON.stringify(inventoryItems));
         console.log('[Admin] Synced', inventoryItems.length, 'inventory items to localStorage');
       } else {
         console.error('[Admin] Inventory API failed:', inventoryResponse.status);
       }
-      
-      toast.success('Data synced to localStorage successfully!', {
+
+      toast.success(TEXT_CONTENT.admin.storedData.toasts.synced, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
           border: '1px solid #047857'
         }
       });
-      
+
       // Force refresh the data comparison immediately
       await compareDataSources();
-      
+
       // Also refresh the page data
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-      
+
     } catch (error) {
       console.error('[Admin] Error syncing data:', error);
       toast.error('Failed to sync data to localStorage', {
@@ -301,12 +303,12 @@ export default function AdminPage() {
       setIsLoading(false);
     }
   };
-  
+
   // 🎯 NEW: Auto-sync missing data to localStorage
   const autoSyncMissingData = async () => {
     try {
       console.log('[Admin] Auto-syncing missing data...');
-      
+
       // Auto-sync quest completions if missing
       let localStorageQuests = [];
       try {
@@ -317,14 +319,14 @@ export default function AdminPage() {
       } catch (error) {
         console.log('[Admin] localStorage quest data corrupted, will re-sync');
       }
-      
+
       if (!localStorageQuests || localStorageQuests.length === 0) {
         console.log('[Admin] Auto-syncing quest completions...');
         const questResponse = await fetch('/api/quests/simple');
         if (questResponse.ok) {
           const questData = await questResponse.json();
           console.log('[Admin] Quest API response:', questData);
-          
+
           // 🎯 FIX: The API returns completedQuests as a count, not an array
           // We need to create an array with the count for comparison
           const completedQuests = Array.from({ length: questData.completedQuests || 0 }, (_, i) => ({
@@ -332,7 +334,7 @@ export default function AdminPage() {
             completed: true,
             count: questData.completedQuests
           }));
-          
+
           console.log('[Admin] Extracted completedQuests:', completedQuests);
           localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
           console.log('[Admin] Auto-synced', completedQuests.length, 'quest completions');
@@ -340,7 +342,7 @@ export default function AdminPage() {
           console.error('[Admin] Quest API failed:', questResponse.status);
         }
       }
-      
+
       // Auto-sync inventory if missing
       let localStorageInventory = [];
       try {
@@ -351,7 +353,7 @@ export default function AdminPage() {
       } catch (error) {
         console.log('[Admin] localStorage inventory data corrupted, will re-sync');
       }
-      
+
       if (!localStorageInventory || localStorageInventory.length === 0) {
         console.log('[Admin] Auto-syncing inventory...');
         const inventoryResponse = await fetch('/api/inventory');
@@ -367,7 +369,7 @@ export default function AdminPage() {
           console.error('[Admin] Inventory API failed:', inventoryResponse.status);
         }
       }
-      
+
       // Auto-sync gold transactions if missing or has 0 items
       let localStorageGold = [];
       try {
@@ -378,7 +380,7 @@ export default function AdminPage() {
       } catch (error) {
         console.log('[Admin] localStorage gold data corrupted, will re-sync');
       }
-      
+
       if (!localStorageGold || localStorageGold.length === 0) {
         console.log('[Admin] Auto-syncing gold transactions...');
         const goldResponse = await fetch('/api/gold-transactions');
@@ -391,7 +393,7 @@ export default function AdminPage() {
           console.error('[Admin] Gold API failed:', goldResponse.status);
         }
       }
-      
+
       // Auto-sync experience transactions if missing or has 0 items
       let localStorageExp = [];
       try {
@@ -402,7 +404,7 @@ export default function AdminPage() {
       } catch (error) {
         console.log('[Admin] localStorage experience data corrupted, will re-sync');
       }
-      
+
       if (!localStorageExp || localStorageExp.length === 0) {
         console.log('[Admin] Auto-syncing experience transactions...');
         const expResponse = await fetch('/api/experience-transactions');
@@ -415,9 +417,9 @@ export default function AdminPage() {
           console.error('[Admin] Experience API failed:', expResponse.status);
         }
       }
-      
+
       console.log('[Admin] Auto-sync complete');
-      
+
       // Force refresh the data comparison to show updated status
       setTimeout(async () => {
         console.log('[Admin] Refreshing data comparison after auto-sync...');
@@ -427,31 +429,31 @@ export default function AdminPage() {
       console.error('[Admin] Auto-sync error:', error);
     }
   };
-  
+
   // 🧪 Testing Functions
   const forceSyncAllData = async () => {
     try {
       setIsLoading(true);
       console.log('[Admin] Force syncing all data...');
-      
-              // Force sync quest completions
-        const questResponse = await fetch('/api/quests/simple');
-        if (questResponse.ok) {
-          const questData = await questResponse.json();
-          console.log('[Admin] Quest API response for force sync:', questData);
-          
-          // 🎯 FIX: The API returns completedQuests as a count, not an array
-          // We need to create an array with the count for comparison
-          const completedQuests = Array.from({ length: questData.completedQuests || 0 }, (_, i) => ({
-            id: `quest-${i + 1}`,
-            completed: true,
-            count: questData.completedQuests
-          }));
-          
-          localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
-          console.log('[Admin] Force synced', completedQuests.length, 'quest completions');
-        }
-      
+
+      // Force sync quest completions
+      const questResponse = await fetch('/api/quests/simple');
+      if (questResponse.ok) {
+        const questData = await questResponse.json();
+        console.log('[Admin] Quest API response for force sync:', questData);
+
+        // 🎯 FIX: The API returns completedQuests as a count, not an array
+        // We need to create an array with the count for comparison
+        const completedQuests = Array.from({ length: questData.completedQuests || 0 }, (_, i) => ({
+          id: `quest-${i + 1}`,
+          completed: true,
+          count: questData.completedQuests
+        }));
+
+        localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
+        console.log('[Admin] Force synced', completedQuests.length, 'quest completions');
+      }
+
       // Force sync inventory
       const inventoryResponse = await fetch('/api/inventory');
       if (inventoryResponse.ok) {
@@ -461,7 +463,7 @@ export default function AdminPage() {
         localStorage.setItem('inventory', JSON.stringify(inventoryItems));
         console.log('[Admin] Force synced', inventoryItems.length, 'inventory items');
       }
-      
+
       // Force sync gold transactions
       const goldResponse = await fetch('/api/gold-transactions');
       if (goldResponse.ok) {
@@ -470,7 +472,7 @@ export default function AdminPage() {
         localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
         console.log('[Admin] Force synced', goldTransactions.length, 'gold transactions');
       }
-      
+
       // Force sync experience transactions
       const expResponse = await fetch('/api/experience-transactions');
       if (expResponse.ok) {
@@ -479,20 +481,20 @@ export default function AdminPage() {
         localStorage.setItem('experienceTransactions', JSON.stringify(expTransactions));
         console.log('[Admin] Force synced', expTransactions.length, 'experience transactions');
       }
-      
-      toast.success('All data force synced successfully!', {
+
+      toast.success(TEXT_CONTENT.admin.storedData.toasts.forceSynced, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
           border: '1px solid #047857'
         }
       });
-      
+
       // Refresh data comparison
       setTimeout(async () => {
         await compareDataSources();
       }, 1000);
-      
+
     } catch (error) {
       console.error('[Admin] Force sync error:', error);
       toast.error('Force sync failed', {
@@ -506,27 +508,27 @@ export default function AdminPage() {
       setIsLoading(false);
     }
   };
-  
+
   const clearAllLocalStorage = () => {
     try {
       localStorage.removeItem('questCompletions');
       localStorage.removeItem('inventory');
       localStorage.removeItem('goldTransactions');
       localStorage.removeItem('experienceTransactions');
-      
-      toast.success('All localStorage data cleared!', {
+
+      toast.success(TEXT_CONTENT.admin.storedData.toasts.clearedLocal, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
           border: '1px solid #047857'
         }
       });
-      
+
       // Refresh data comparison
       setTimeout(async () => {
         await compareDataSources();
       }, 1000);
-      
+
     } catch (error) {
       console.error('[Admin] Clear localStorage error:', error);
       toast.error('Failed to clear localStorage', {
@@ -538,7 +540,7 @@ export default function AdminPage() {
       });
     }
   };
-  
+
   const debugLocalStorage = () => {
     try {
       console.log('=== localStorage DEBUG ===');
@@ -546,7 +548,7 @@ export default function AdminPage() {
       console.log('inventory:', localStorage.getItem('inventory'));
       console.log('goldTransactions:', localStorage.getItem('goldTransactions'));
       console.log('experienceTransactions:', localStorage.getItem('experienceTransactions'));
-      
+
       // Try to parse each item
       try {
         const quests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
@@ -554,22 +556,22 @@ export default function AdminPage() {
       } catch (e) {
         console.log('Failed to parse quests:', e);
       }
-      
+
       try {
         const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
         console.log('Parsed inventory:', inventory, 'Type:', typeof inventory, 'IsArray:', Array.isArray(inventory));
       } catch (e) {
         console.log('Failed to parse inventory:', e);
       }
-      
-      toast.success('localStorage debug info logged to console', {
+
+      toast.success(TEXT_CONTENT.admin.storedData.toasts.debugLogged, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
           border: '1px solid #047857'
         }
       });
-      
+
     } catch (error) {
       console.error('[Admin] Debug localStorage error:', error);
       toast.error('Debug failed', {
@@ -581,11 +583,11 @@ export default function AdminPage() {
       });
     }
   };
-  
+
   const testIndividualAPIs = async () => {
     try {
       console.log('=== TESTING INDIVIDUAL APIs ===');
-      
+
       // Test Quest API
       const questResponse = await fetch('/api/quests/simple');
       console.log('Quest API Status:', questResponse.status);
@@ -593,7 +595,7 @@ export default function AdminPage() {
         const questData = await questResponse.json();
         console.log('Quest API Data:', questData);
       }
-      
+
       // Test Inventory API
       const inventoryResponse = await fetch('/api/inventory');
       console.log('Inventory API Status:', inventoryResponse.status);
@@ -601,7 +603,7 @@ export default function AdminPage() {
         const inventoryData = await inventoryResponse.json();
         console.log('Inventory API Data:', inventoryData);
       }
-      
+
       // Test Gold API
       const goldResponse = await fetch('/api/gold-transactions');
       console.log('Gold API Status:', goldResponse.status);
@@ -609,7 +611,7 @@ export default function AdminPage() {
         const goldData = await goldResponse.json();
         console.log('Gold API Data:', goldData);
       }
-      
+
       // Test Experience API
       const expResponse = await fetch('/api/experience-transactions');
       console.log('Experience API Status:', expResponse.status);
@@ -617,15 +619,15 @@ export default function AdminPage() {
         const expData = await expResponse.json();
         console.log('Experience API Data:', expData);
       }
-      
-      toast.success('All APIs tested - check console for results', {
+
+      toast.success(TEXT_CONTENT.admin.storedData.toasts.apisTested, {
         style: {
           backgroundColor: '#059669',
           color: '#ffffff',
           border: '1px solid #047857'
         }
       });
-      
+
     } catch (error) {
       console.error('[Admin] Test APIs error:', error);
       toast.error('API testing failed', {
@@ -641,7 +643,7 @@ export default function AdminPage() {
   useEffect(() => {
     async function loadSupabaseData() {
       if (!user?.id || !supabase) return;
-      
+
       setIsLoading(true);
       try {
         // Load character stats
@@ -693,7 +695,7 @@ export default function AdminPage() {
 
         // Run data comparison automatically
         await compareDataSources();
-        
+
         // 🎯 NEW: Auto-sync missing data to localStorage
         await autoSyncMissingData();
 
@@ -710,10 +712,10 @@ export default function AdminPage() {
     }
 
     loadSupabaseData();
-    
+
     // 🎯 NEW: Set up periodic auto-sync every 5 minutes
     const autoSyncInterval = setInterval(autoSyncMissingData, 5 * 60 * 1000);
-    
+
     return () => {
       clearInterval(autoSyncInterval);
     };
@@ -796,7 +798,7 @@ export default function AdminPage() {
       timestamp: new Date(),
       stack: error instanceof Error ? error.stack : undefined
     };
-    
+
     setErrorLogs(prev => [errorLog, ...prev].slice(0, 100)); // Keep only last 100 errors
   };
 
@@ -810,10 +812,10 @@ export default function AdminPage() {
   // Export error logs
   const exportErrorLogs = () => {
     const dataStr = JSON.stringify(errorLogs, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
     const exportFileDefaultName = `error-logs-${new Date().toISOString().split('T')[0]}.json`;
-    
+
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
@@ -928,7 +930,7 @@ export default function AdminPage() {
     for (const api of allApis) {
       try {
         const method = api.endpoint.includes('discover') || api.endpoint.includes('increment') ? 'POST' : 'GET';
-        
+
         // Prepare the correct body for each endpoint
         let body = null;
         if (method === 'POST') {
@@ -940,9 +942,9 @@ export default function AdminPage() {
             body = JSON.stringify({ test: true });
           }
         }
-        
+
         const headers: Record<string, string> = method === 'POST' ? { 'Content-Type': 'application/json' } : {};
-        
+
         // Add authorization header if user is authenticated
         if (user?.id) {
           try {
@@ -992,7 +994,7 @@ export default function AdminPage() {
   // New function to compare data between localStorage and Supabase
   const compareDataSources = async () => {
     if (!user?.id) return;
-    
+
     setIsComparingData(true);
     const now = new Date().toISOString();
     const comparisons: DataComparison[] = [];
@@ -1002,36 +1004,36 @@ export default function AdminPage() {
       try {
         const localStorageQuests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
         const localStorageQuestCount = localStorageQuests.length; // Direct count since we store completed quests
-        
+
         // BYPASS: Use the working simple quest API directly instead of the broken main Quest API
         console.log('[Admin] Bypassing broken Quest API, using simple API directly...');
-        
+
         const simpleResponse = await fetch('/api/quests/simple', {
           credentials: 'include'
         });
-        
+
         if (simpleResponse.ok) {
           const simpleData = await simpleResponse.json();
           console.log('[Admin] Simple quest API data:', simpleData);
-          
+
           // Use the accurate counts from the working simple API
           const supabaseQuestCount = simpleData.completedQuests || 0;
           const actualCompletedCount = simpleData.completedQuests || 0;
           const actualIncompleteCount = simpleData.incompleteQuests || 0;
-          
-          console.log('[Admin] Quest counts from working simple API:', { 
-            completed: actualCompletedCount, 
+
+          console.log('[Admin] Quest counts from working simple API:', {
+            completed: actualCompletedCount,
             incomplete: actualIncompleteCount,
             total: simpleData.challengesCount || 0
           });
-          
+
           const questComparison: DataComparison = {
             table: 'Quest Completions',
             localStorageCount: localStorageQuestCount,
             supabaseCount: supabaseQuestCount,
             difference: supabaseQuestCount - localStorageQuestCount,
             status: supabaseQuestCount === localStorageQuestCount ? 'synced' :
-                    supabaseQuestCount > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
+              supabaseQuestCount > localStorageQuestCount ? 'supabase-ahead' : 'local-ahead',
             lastChecked: now
           };
           comparisons.push(questComparison);
@@ -1062,29 +1064,29 @@ export default function AdminPage() {
       try {
         const localStorageGold = JSON.parse(localStorage.getItem('goldTransactions') || '[]');
         const localStorageGoldCount = localStorageGold.length;
-        
+
         // FIXED: Use correct gold API endpoint
         const goldResponse = await fetch('/api/gold-transactions', {
           credentials: 'include'
         });
-        
+
         if (goldResponse.ok) {
           const goldData = await goldResponse.json();
           console.log('[Admin] Gold API Response:', goldData);
-          
+
           // Handle both array and object responses
           const goldTransactions = Array.isArray(goldData) ? goldData : (goldData.data || []);
           const supabaseGoldCount = goldTransactions.length;
-          
+
           console.log('[Admin] Gold Transactions Count:', supabaseGoldCount);
-          
+
           const goldComparison: DataComparison = {
             table: 'Gold Transactions',
             localStorageCount: localStorageGoldCount,
             supabaseCount: supabaseGoldCount,
             difference: supabaseGoldCount - localStorageGoldCount,
             status: supabaseGoldCount === localStorageGoldCount ? 'synced' :
-                    supabaseGoldCount > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
+              supabaseGoldCount > localStorageGoldCount ? 'supabase-ahead' : 'local-ahead',
             lastChecked: now
           };
           comparisons.push(goldComparison);
@@ -1115,29 +1117,29 @@ export default function AdminPage() {
       try {
         const localStorageExp = JSON.parse(localStorage.getItem('experienceTransactions') || '[]');
         const localStorageExpCount = localStorageExp.length;
-        
+
         // FIXED: Use correct experience API endpoint
         const expResponse = await fetch('/api/experience-transactions', {
           credentials: 'include'
         });
-        
+
         if (expResponse.ok) {
           const expData = await expResponse.json();
           console.log('[Admin] Experience API Response:', expData);
-          
+
           // Handle both array and object responses
           const expTransactions = Array.isArray(expData) ? expData : (expData.data || []);
           const supabaseExpCount = expTransactions.length;
-          
+
           console.log('[Admin] Experience Transactions Count:', supabaseExpCount);
-          
+
           const expComparison: DataComparison = {
             table: 'Experience Transactions',
             localStorageCount: localStorageExpCount,
             supabaseCount: supabaseExpCount,
             difference: supabaseExpCount - localStorageExpCount,
             status: supabaseExpCount === localStorageExpCount ? 'synced' :
-                    supabaseExpCount > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
+              supabaseExpCount > localStorageExpCount ? 'supabase-ahead' : 'local-ahead',
             lastChecked: now
           };
           comparisons.push(expComparison);
@@ -1168,29 +1170,29 @@ export default function AdminPage() {
       try {
         const localStorageInventory = JSON.parse(localStorage.getItem('inventory') || '[]');
         const localStorageInventoryCount = localStorageInventory.length;
-        
+
         // FIXED: Use correct inventory API endpoint
         const inventoryResponse = await fetch('/api/inventory', {
           credentials: 'include'
         });
-        
+
         if (inventoryResponse.ok) {
           const inventoryData = await inventoryResponse.json();
           console.log('[Admin] Inventory API Response:', inventoryData);
-          
+
           // Handle both array and object responses
           const inventoryItems = Array.isArray(inventoryData) ? inventoryData : (inventoryData.data || []);
           const supabaseInventoryCount = inventoryItems.length;
-          
+
           console.log('[Admin] Inventory Items Count:', supabaseInventoryCount);
-          
+
           const inventoryComparison: DataComparison = {
             table: 'Inventory Items',
             localStorageCount: localStorageInventoryCount,
             supabaseCount: supabaseInventoryCount,
             difference: supabaseInventoryCount - localStorageInventoryCount,
             status: supabaseInventoryCount === localStorageInventoryCount ? 'synced' :
-                    supabaseInventoryCount > localStorageInventoryCount ? 'supabase-ahead' : 'local-ahead',
+              supabaseInventoryCount > localStorageInventoryCount ? 'supabase-ahead' : 'local-ahead',
             lastChecked: now
           };
           comparisons.push(inventoryComparison);
@@ -1221,7 +1223,7 @@ export default function AdminPage() {
       try {
         const localStorageChallenges = JSON.parse(localStorage.getItem('challenges') || '[]');
         const localStorageChallengeCount = localStorageChallenges.filter((c: any) => c.completed).length;
-        
+
         // Use API endpoint instead of direct Supabase call
         const challengeResponse = await fetch('/api/challenges', {
           credentials: 'include'
@@ -1229,14 +1231,14 @@ export default function AdminPage() {
         const challengeData = challengeResponse.ok ? await challengeResponse.json() : [];
         // Count challenges that are marked as completed
         const supabaseChallengeCount = challengeData.filter((c: any) => c.completed).length;
-        
+
         const challengeComparison: DataComparison = {
           table: 'Challenge Completions',
           localStorageCount: localStorageChallengeCount,
           supabaseCount: supabaseChallengeCount,
           difference: supabaseChallengeCount - localStorageChallengeCount,
           status: supabaseChallengeCount === localStorageChallengeCount ? 'synced' :
-                  supabaseChallengeCount > localStorageChallengeCount ? 'supabase-ahead' : 'local-ahead',
+            supabaseChallengeCount > localStorageChallengeCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(challengeComparison);
@@ -1255,7 +1257,7 @@ export default function AdminPage() {
       try {
         const localStorageMilestones = JSON.parse(localStorage.getItem('milestones') || '[]');
         const localStorageMilestoneCount = localStorageMilestones.filter((m: any) => m.completed).length;
-        
+
         // Use API endpoint instead of direct Supabase call
         const milestoneResponse = await fetch('/api/milestones', {
           credentials: 'include'
@@ -1263,14 +1265,14 @@ export default function AdminPage() {
         const milestoneData = milestoneResponse.ok ? await milestoneResponse.json() : [];
         // Count milestones that are marked as completed
         const supabaseMilestoneCount = milestoneData.filter((m: any) => m.completed).length;
-        
+
         const milestoneComparison: DataComparison = {
           table: 'Milestone Completions',
           localStorageCount: localStorageMilestoneCount,
           supabaseCount: supabaseMilestoneCount,
           difference: supabaseMilestoneCount - localStorageMilestoneCount,
           status: supabaseMilestoneCount === localStorageMilestoneCount ? 'synced' :
-                  supabaseMilestoneCount > localStorageMilestoneCount ? 'supabase-ahead' : 'local-ahead',
+            supabaseMilestoneCount > localStorageMilestoneCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(milestoneComparison);
@@ -1289,7 +1291,7 @@ export default function AdminPage() {
       try {
         const localStorageKingdomEvents = JSON.parse(localStorage.getItem('kingdom-events') || '[]');
         const localStorageKingdomEventCount = localStorageKingdomEvents.length;
-        
+
         // Try to fetch kingdom events from API
         let supabaseKingdomEventCount = 0;
         try {
@@ -1303,14 +1305,14 @@ export default function AdminPage() {
         } catch (kingdomEventError) {
           console.log('Kingdom Events API not available, skipping count');
         }
-        
+
         const kingdomEventComparison: DataComparison = {
           table: 'Kingdom Events',
           localStorageCount: localStorageKingdomEventCount,
           supabaseCount: supabaseKingdomEventCount,
           difference: supabaseKingdomEventCount - localStorageKingdomEventCount,
           status: supabaseKingdomEventCount === localStorageKingdomEventCount ? 'synced' :
-                  supabaseKingdomEventCount > localStorageKingdomEventCount ? 'supabase-ahead' : 'local-ahead',
+            supabaseKingdomEventCount > localStorageKingdomEventCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(kingdomEventComparison);
@@ -1329,7 +1331,7 @@ export default function AdminPage() {
       try {
         const localStorageCharacterStats = JSON.parse(localStorage.getItem('character-stats') || '[]');
         const localStorageCharacterStatCount = Array.isArray(localStorageCharacterStats) ? localStorageCharacterStats.length : 0;
-        
+
         // Try to fetch character stats from API
         let supabaseCharacterStatCount = 0;
         try {
@@ -1343,19 +1345,19 @@ export default function AdminPage() {
         } catch (characterStatError) {
           console.log('Character Stats API not available, skipping count');
         }
-        
+
         // Ensure we have valid numbers for comparison
         const localCount = Number.isNaN(localStorageCharacterStatCount) ? 0 : localStorageCharacterStatCount;
         const supabaseCount = Number.isNaN(supabaseCharacterStatCount) ? 0 : supabaseCharacterStatCount;
         const difference = supabaseCount - localCount;
-        
+
         const characterStatComparison: DataComparison = {
           table: 'Character Stats',
           localStorageCount: localCount,
           supabaseCount: supabaseCount,
           difference: difference,
           status: supabaseCount === localCount ? 'synced' :
-                  supabaseCount > localCount ? 'supabase-ahead' : 'local-ahead',
+            supabaseCount > localCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(characterStatComparison);
@@ -1375,7 +1377,7 @@ export default function AdminPage() {
       try {
         const localStorageAchievements = JSON.parse(localStorage.getItem('achievements') || '[]');
         const localStorageAchievementCount = localStorageAchievements.filter((a: any) => a.unlocked).length;
-        
+
         // Try to fetch achievements from API
         let supabaseAchievementCount = 0;
         try {
@@ -1389,14 +1391,14 @@ export default function AdminPage() {
         } catch (achievementError) {
           console.log('Achievements API not available, skipping count');
         }
-        
+
         const achievementComparison: DataComparison = {
           table: 'Achievements',
           localStorageCount: localStorageAchievementCount,
           supabaseCount: supabaseAchievementCount,
           difference: supabaseAchievementCount - localStorageAchievementCount,
           status: supabaseAchievementCount === localStorageAchievementCount ? 'synced' :
-                  supabaseAchievementCount > localStorageAchievementCount ? 'supabase-ahead' : 'local-ahead',
+            supabaseAchievementCount > localStorageAchievementCount ? 'supabase-ahead' : 'local-ahead',
           lastChecked: now
         };
         comparisons.push(achievementComparison);
@@ -1424,21 +1426,21 @@ export default function AdminPage() {
   // Debug function to check quest completions directly
   const handleDebugQuestCompletions = async () => {
     if (!user?.id) return;
-    
+
     try {
       const response = await fetch('/api/quests?debug=1', {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const debugData = await response.json();
         console.log('Quest Debug Data:', debugData);
-        
+
         // Show the results in a toast
         if (debugData.debug) {
           const message = `Quest Debug: ${debugData.count} completions found. User ID: ${debugData.userId}`;
           toast.info(message);
-          
+
           // Also log the completions if any exist
           if (debugData.completions && debugData.completions.length > 0) {
             console.log('Quest Completions Found:', debugData.completions);
@@ -1459,22 +1461,22 @@ export default function AdminPage() {
   // Test function to check quest matching logic
   const handleTestQuestMatching = async () => {
     if (!user?.id) return;
-    
+
     try {
       const response = await fetch('/api/quests/test', {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const testData = await response.json();
         console.log('Quest Matching Test:', testData);
-        
+
         // Show results in toast
         const completedCount = testData.analysis?.filter((a: any) => a.is_completed).length || 0;
         const totalCount = testData.completions_count || 0;
-        
+
         toast.info(`Quest Test: ${completedCount}/${totalCount} completions are actually completed`);
-        
+
         // Log detailed analysis
         if (testData.analysis) {
           console.log('Quest Matching Analysis:', testData.analysis);
@@ -1490,11 +1492,11 @@ export default function AdminPage() {
 
   const handleMigration = async () => {
     if (!user?.id) return;
-    
+
     setIsMigrating(true);
     try {
       const result = await migrateLocalStorageToSupabase(user.id);
-      
+
       if (result.success) {
         toast.success(`Migration Successful: ${result.migrated.join(', ')}`);
         // Reload data
@@ -1511,11 +1513,11 @@ export default function AdminPage() {
 
   const handleTestMigration = async () => {
     if (!user?.id) return;
-    
+
     setIsMigrating(true);
     try {
       const result = await migrateLocalStorageToSupabase(user.id);
-      
+
       toast.info(`Test Migration Complete: Success: ${result.success}, Migrated: ${result.migrated.join(', ')}, Errors: ${result.errors.join(', ')}`);
     } catch (error) {
       toast.error('An error occurred during test migration.');
@@ -1627,7 +1629,7 @@ TECHNICAL DETAILS:
         }
       }
     } catch (error) {
-              console.error('[Admin] Error initializing default flags:', error);
+      console.error('[Admin] Error initializing default flags:', error);
     }
   };
 
@@ -1636,31 +1638,31 @@ TECHNICAL DETAILS:
     try {
       // First initialize default values if they don't exist
       await initializeDefaultFlags();
-      
+
       // Small delay to ensure database is ready
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
       // Load winter festival status
       const winterResponse = await fetchWithAuth('/api/game-settings?key=winter_festival_active');
-              if (winterResponse.ok) {
-          const winterData = await winterResponse.json();
-          const winterValue = winterData?.data?.data?.[0]?.setting_value;
-          // Handle both undefined and actual values
-          const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
-          setWinterFestivalActive(winterActive);
-        }
+      if (winterResponse.ok) {
+        const winterData = await winterResponse.json();
+        const winterValue = winterData?.data?.data?.[0]?.setting_value;
+        // Handle both undefined and actual values
+        const winterActive = winterValue !== undefined ? String(winterValue).toLowerCase() === 'true' : false;
+        setWinterFestivalActive(winterActive);
+      }
 
       // Load harvest festival status (for future use)
       const harvestResponse = await fetchWithAuth('/api/game-settings?key=harvest_festival_active');
-              if (harvestResponse.ok) {
-          const harvestData = await harvestResponse.json();
-          const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
-          // Handle both undefined and actual values
-          const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
-          setHarvestFestivalActive(harvestActive);
-        }
+      if (harvestResponse.ok) {
+        const harvestData = await harvestResponse.json();
+        const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
+        // Handle both undefined and actual values
+        const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
+        setHarvestFestivalActive(harvestActive);
+      }
     } catch (error) {
-              console.error('[Admin] Error loading event flags:', error);
+      console.error('[Admin] Error loading event flags:', error);
     }
   };
 
@@ -1691,16 +1693,16 @@ TECHNICAL DETAILS:
         console.log(`[Admin] Refreshed harvest festival active: ${harvestActive}`);
       }
     } catch (error) {
-              console.error('[Admin] Error refreshing event flags:', error);
+      console.error('[Admin] Error refreshing event flags:', error);
     }
   };
 
   // Toggle event status
   const toggleEvent = async (key: string, currentValue: boolean) => {
     const newValue = !currentValue;
-    
-            console.log(`[Admin] Toggling ${key} from ${currentValue} to ${newValue}`);
-    
+
+    console.log(`[Admin] Toggling ${key} from ${currentValue} to ${newValue}`);
+
     try {
       const response = await fetchWithAuth('/api/game-settings', {
         method: 'POST',
@@ -1713,10 +1715,10 @@ TECHNICAL DETAILS:
       if (response.ok) {
         // Small delay to ensure database is updated
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Refresh the event flags to get the latest values
         await refreshEventFlags();
-        
+
         if (key === 'winter_festival_active') {
           // Dispatch event to notify kingdom grid component
           window.dispatchEvent(new CustomEvent('winter-festival-toggled', { detail: { active: newValue } }));
@@ -1724,7 +1726,7 @@ TECHNICAL DETAILS:
           // Dispatch event to notify kingdom grid component
           window.dispatchEvent(new CustomEvent('harvest-festival-toggled', { detail: { active: newValue } }));
         }
-        
+
         toast.success(`${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} is now ${newValue ? 'ACTIVE' : 'INACTIVE'}`);
       } else {
         const errorText = await response.text();
@@ -1732,7 +1734,7 @@ TECHNICAL DETAILS:
         toast.error('Failed to update event status');
       }
     } catch (error) {
-              console.error('[Admin] Error updating event:', error);
+      console.error('[Admin] Error updating event:', error);
       toast.error('An error occurred while updating the event');
     }
   };
@@ -1742,11 +1744,11 @@ TECHNICAL DETAILS:
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Build Status Dashboard</h1>
-                          <p className="text-muted-foreground">Monitor your application health and progress</p>
+          <h1 className="text-3xl font-bold">{TEXT_CONTENT.admin.storedData.title}</h1>
+          <p className="text-muted-foreground">{TEXT_CONTENT.admin.storedData.subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge 
+          <Badge
             variant={buildStatus.overall === 'healthy' ? 'default' : buildStatus.overall === 'warning' ? 'secondary' : 'destructive'}
             className="text-sm"
           >
@@ -1754,13 +1756,13 @@ TECHNICAL DETAILS:
           </Badge>
           <Button onClick={refreshAllData} variant="outline" size="sm">
             <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh All
+            {TEXT_CONTENT.admin.storedData.sections.status.refresh}
           </Button>
           <Button onClick={checkAllConnections} variant="outline" size="sm">
-            Refresh Status
+            {TEXT_CONTENT.admin.storedData.sections.status.refreshStatus}
           </Button>
           <Button onClick={generateSummary} variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
-            Summary
+            {TEXT_CONTENT.admin.storedData.sections.status.summary}
           </Button>
         </div>
       </div>
@@ -1770,15 +1772,15 @@ TECHNICAL DETAILS:
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
-            Dashboard
+            {TEXT_CONTENT.admin.storedData.tabs.dashboard}
           </TabsTrigger>
           <TabsTrigger value="performance" className="flex items-center gap-2">
             <Zap className="w-4 h-4" />
-            Performance
+            {TEXT_CONTENT.admin.storedData.tabs.performance}
           </TabsTrigger>
           <TabsTrigger value="errors" className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
-            Error Logs
+            {TEXT_CONTENT.admin.storedData.tabs.errors}
             {errorLogs.length > 0 && (
               <Badge variant="destructive" className="ml-1 text-xs">
                 {errorLogs.length}
@@ -1787,11 +1789,11 @@ TECHNICAL DETAILS:
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
-            Analytics
+            {TEXT_CONTENT.admin.storedData.tabs.analytics}
           </TabsTrigger>
           <TabsTrigger value="audio" className="flex items-center gap-2">
             <Volume2 className="w-4 h-4" />
-            Audio Testing
+            {TEXT_CONTENT.admin.storedData.tabs.audio}
           </TabsTrigger>
         </TabsList>
 
@@ -1799,676 +1801,675 @@ TECHNICAL DETAILS:
         <TabsContent value="dashboard" className="space-y-6">
           {/* Event Toggles */}
           <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Star className="w-5 h-5" />
-            Seasonal Events
-          </CardTitle>
-          <CardDescription>Toggle seasonal events on/off. When off, seasonal tiles only appear naturally.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                <div>
-                  <div className="font-medium">Winter Festival</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Activates +20% gold and +10% EXP bonuses on winter tiles (Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand)
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                                  <Badge variant={winterFestivalActive ? 'default' : 'secondary'}>
-                    {winterFestivalActive ? 'ACTIVE' : 'INACTIVE'}
-                  </Badge>
-                <Button 
-                  onClick={() => toggleEvent('winter_festival_active', winterFestivalActive)}
-                  disabled={isUpdatingEvents}
-                  variant={winterFestivalActive ? 'destructive' : 'default'}
-                  size='sm'
-                >
-                  {winterFestivalActive ? 'Deactivate' : 'Activate'}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                <div>
-                  <div className="font-medium">Harvest Festival</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Future event for harvest-themed tiles (Harvest Barn, Pumpkin Patch, Bakery, Brewery)
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={harvestFestivalActive ? 'default' : 'secondary'}>
-                  {harvestFestivalActive ? 'ACTIVE' : 'INACTIVE'}
-                </Badge>
-                <Button 
-                  onClick={() => toggleEvent('harvest_festival_active', harvestFestivalActive)}
-                  disabled={isUpdatingEvents}
-                  variant={harvestFestivalActive ? 'destructive' : 'default'}
-                  size='sm'
-                >
-                  {harvestFestivalActive ? 'Deactivate' : 'Activate'}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="mt-4 p-3 bg-gray-800 border border-gray-600 rounded-lg">
-              <div className="text-sm text-white">
-                <strong className="text-amber-400">How it works:</strong>
-                <ul className="mt-2 ml-4 space-y-1 text-gray-200">
-                  <li>• <strong className="text-amber-300">When ACTIVE:</strong> Seasonal tiles are fully available for purchase and placement, with bonus rewards</li>
-                  <li>• <strong className="text-amber-300">When INACTIVE:</strong> Seasonal tiles only appear naturally through rare drops or special events</li>
-                  <li>• <strong className="text-amber-300">Winter tiles:</strong> Winter Fountain, Snowy Inn, Ice Sculpture, Fireworks Stand</li>
-                  <li>• <strong className="text-amber-300">Harvest tiles:</strong> Harvest Barn, Pumpkin Patch, Bakery, Brewery</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Data Comparison Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="w-5 h-5" />
-            Data Source Comparison
-          </CardTitle>
-          <CardDescription>
-            Compare data counts between localStorage and Supabase to identify synchronization issues
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                This helps identify why kingdom stats might be missing data points
-              </p>
-              <div className="flex gap-2">
-                {/* 🧪 Testing Dropdown - All functions consolidated here */}
-                <div className="relative">
-                  <Button
-                    onClick={() => setShowTestingDropdown(!showTestingDropdown)}
-                    disabled={isLoading}
-                    variant="outline"
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    🧪 Testing Options ▼
-                  </Button>
-                  
-                  {showTestingDropdown && (
-                    <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[250px]">
-                      <div className="p-2">
-                        <div className="text-sm text-gray-300 mb-2 font-semibold">Testing & Debug Options</div>
-                        
-                        <Button
-                          onClick={compareDataSources}
-                          disabled={isComparingData}
-                          className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-sm"
-                        >
-                          {isComparingData ? "Comparing..." : "📊 Compare Data Sources"}
-                        </Button>
-                        
-                        <Button
-                          onClick={syncDataToLocalStorage}
-                          disabled={isLoading}
-                          className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-sm"
-                        >
-                          {isLoading ? "Syncing..." : "🔄 Sync to localStorage"}
-                        </Button>
-                        
-                        <Button
-                          onClick={forceSyncAllData}
-                          disabled={isLoading}
-                          className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
-                        >
-                          🚀 Force Sync All Data
-                        </Button>
-                        
-                        <Button
-                          onClick={clearAllLocalStorage}
-                          disabled={isLoading}
-                          className="w-full mb-2 bg-red-600 hover:bg-red-700 text-sm"
-                        >
-                          🗑️ Clear All localStorage
-                        </Button>
-                        
-                        <Button
-                          onClick={debugLocalStorage}
-                          disabled={isLoading}
-                          className="w-full mb-2 bg-yellow-600 hover:bg-yellow-700 text-sm"
-                        >
-                          🔍 Debug localStorage
-                        </Button>
-                        
-                        <Button
-                          onClick={testIndividualAPIs}
-                          disabled={isLoading}
-                          className="w-full mb-2 bg-indigo-600 hover:bg-indigo-700 text-sm"
-                        >
-                          📡 Test Individual APIs
-                        </Button>
-                        
-                        <Button
-                          onClick={handleDebugQuestCompletions}
-                          variant="outline"
-                          size="sm"
-                          className="w-full mb-2 bg-orange-600 hover:bg-orange-700 text-sm"
-                        >
-                          🎯 Debug Quests
-                        </Button>
-                        
-                        <Button
-                          onClick={handleTestQuestMatching}
-                          variant="outline"
-                          size="sm"
-                          className="w-full mb-2 bg-orange-600 hover:bg-orange-700 text-sm"
-                        >
-                          🎯 Test Matching
-                        </Button>
-                        
-                        <Button 
-                          onClick={async () => {
-                            try {
-                              console.log('=== TESTING WORKING SIMPLE QUEST API ===');
-                              const response = await fetch('/api/quests/simple', {
-                                credentials: 'include'
-                              });
-                              if (response.ok) {
-                                const data = await response.json();
-                                console.log('✅ Simple Quest API Response:', data);
-                                console.log('✅ Completed Quests:', data.completedQuests);
-                                console.log('✅ Incomplete Quests:', data.incompleteQuests);
-                                console.log('✅ Total Completions:', data.completionsCount);
-                                console.log('✅ Total Challenges:', data.challengesCount);
-                              } else {
-                                console.error('❌ Simple Quest API failed:', response.status, response.statusText);
-                              }
-                            } catch (error) {
-                              console.error('❌ Simple Quest API error:', error);
-                            }
-                          }}
-                          variant="outline"
-                          size="sm"
-                          className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
-                        >
-                          🧪 Test Simple Quest API
-                        </Button>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5" />
+                {TEXT_CONTENT.admin.storedData.sections.events.title}
+              </CardTitle>
+              <CardDescription>{TEXT_CONTENT.admin.storedData.sections.events.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div>
+                      <div className="font-medium">{TEXT_CONTENT.admin.storedData.sections.events.winter.name}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {TEXT_CONTENT.admin.storedData.sections.events.winter.desc}
                       </div>
                     </div>
-                  )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={winterFestivalActive ? 'default' : 'secondary'}>
+                      {winterFestivalActive ? TEXT_CONTENT.admin.storedData.sections.events.active : TEXT_CONTENT.admin.storedData.sections.events.inactive}
+                    </Badge>
+                    <Button
+                      onClick={() => toggleEvent('winter_festival_active', winterFestivalActive)}
+                      disabled={isUpdatingEvents}
+                      variant={winterFestivalActive ? 'destructive' : 'default'}
+                      size='sm'
+                    >
+                      {winterFestivalActive ? TEXT_CONTENT.admin.storedData.sections.events.deactivate : TEXT_CONTENT.admin.storedData.sections.events.activate}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <div>
+                      <div className="font-medium">{TEXT_CONTENT.admin.storedData.sections.events.harvest.name}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {TEXT_CONTENT.admin.storedData.sections.events.harvest.desc}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={harvestFestivalActive ? 'default' : 'secondary'}>
+                      {harvestFestivalActive ? TEXT_CONTENT.admin.storedData.sections.events.active : TEXT_CONTENT.admin.storedData.sections.events.inactive}
+                    </Badge>
+                    <Button
+                      onClick={() => toggleEvent('harvest_festival_active', harvestFestivalActive)}
+                      disabled={isUpdatingEvents}
+                      variant={harvestFestivalActive ? 'destructive' : 'default'}
+                      size='sm'
+                    >
+                      {harvestFestivalActive ? TEXT_CONTENT.admin.storedData.sections.events.deactivate : TEXT_CONTENT.admin.storedData.sections.events.activate}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 bg-gray-800 border border-gray-600 rounded-lg">
+                  <div className="text-sm text-white">
+                    <strong className="text-amber-400">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.label}</strong>
+                    <ul className="mt-2 ml-4 space-y-1 text-gray-200">
+                      <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.whenActive}</strong></li>
+                      <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.whenInactive}</strong></li>
+                      <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.winterTiles}</strong></li>
+                      <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.harvestTiles}</strong></li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {dataComparison.length > 0 && (
-              <div className="space-y-3">
-                {dataComparison.map((comparison, index) => (
-                  <div key={index} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{comparison.table}</h4>
-                      <Badge 
-                        variant={
-                          comparison.status === 'synced' ? 'default' :
-                          comparison.status === 'local-ahead' ? 'secondary' :
-                          comparison.status === 'supabase-ahead' ? 'destructive' :
-                          'outline'
-                        }
-                        className={
-                          comparison.status === 'synced' ? 'bg-green-100 text-green-800 border-green-200' :
-                          comparison.status === 'local-ahead' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                          comparison.status === 'supabase-ahead' ? 'bg-red-100 text-red-800 border-red-200' :
-                          'bg-gray-100 text-gray-800 border-gray-200'
-                        }
+            </CardContent>
+          </Card>
+
+          {/* Data Comparison Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                {TEXT_CONTENT.admin.storedData.sections.comparison.title}
+              </CardTitle>
+              <CardDescription>
+                {TEXT_CONTENT.admin.storedData.sections.comparison.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    This helps identify why kingdom stats might be missing data points
+                  </p>
+                  <div className="flex gap-2">
+                    {/* 🧪 Testing Dropdown - All functions consolidated here */}
+                    <div className="relative">
+                      <Button
+                        onClick={() => setShowTestingDropdown(!showTestingDropdown)}
+                        disabled={isLoading}
+                        variant="outline"
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
-                        {comparison.status === 'synced' ? '✅ Synced' :
-                         comparison.status === 'local-ahead' ? '⚠️ Local Ahead' :
-                         comparison.status === 'supabase-ahead' ? '❌ Supabase Ahead' :
-                         '❓ Error'}
-                      </Badge>
+                        🧪 {TEXT_CONTENT.admin.storedData.sections.testing.label} ▼
+                      </Button>
+
+                      {showTestingDropdown && (
+                        <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[250px]">
+                          <div className="p-2">
+                            <div className="text-sm text-gray-300 mb-2 font-semibold">{TEXT_CONTENT.admin.storedData.sections.testing.menuTitle}</div>
+
+                            <Button
+                              onClick={compareDataSources}
+                              disabled={isComparingData}
+                              className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-sm"
+                            >
+                              {isComparingData ? TEXT_CONTENT.admin.storedData.sections.comparison.comparing : `📊 ${TEXT_CONTENT.admin.storedData.sections.testing.buttons.compare}`}
+                            </Button>
+
+                            <Button
+                              onClick={syncDataToLocalStorage}
+                              disabled={isLoading}
+                              className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-sm"
+                            >
+                              {isLoading ? "Syncing..." : `🔄 ${TEXT_CONTENT.admin.storedData.sections.testing.buttons.sync}`}
+                            </Button>
+
+                            <Button
+                              onClick={forceSyncAllData}
+                              disabled={isLoading}
+                              className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
+                            >
+                              🚀 {TEXT_CONTENT.admin.storedData.sections.testing.buttons.forceSync}
+                            </Button>
+
+                            <Button
+                              onClick={clearAllLocalStorage}
+                              disabled={isLoading}
+                              className="w-full mb-2 bg-red-600 hover:bg-red-700 text-sm"
+                            >
+                              🗑️ {TEXT_CONTENT.admin.storedData.sections.testing.buttons.clear}
+                            </Button>
+
+                            <Button
+                              onClick={debugLocalStorage}
+                              disabled={isLoading}
+                              className="w-full mb-2 bg-yellow-600 hover:bg-yellow-700 text-sm"
+                            >
+                              🔍 {TEXT_CONTENT.admin.storedData.sections.testing.buttons.debug}
+                            </Button>
+
+                            <Button
+                              onClick={testIndividualAPIs}
+                              disabled={isLoading}
+                              className="w-full mb-2 bg-indigo-600 hover:bg-indigo-700 text-sm"
+                            >
+                              📡 {TEXT_CONTENT.admin.storedData.sections.testing.buttons.testApis}
+                            </Button>
+
+                            <Button
+                              onClick={handleDebugQuestCompletions}
+                              variant="outline"
+                              size="sm"
+                              className="w-full mb-2 bg-orange-600 hover:bg-orange-700 text-sm"
+                            >
+                              🎯 {TEXT_CONTENT.admin.storedData.sections.testing.buttons.debugQuests}
+                            </Button>
+
+                            <Button
+                              onClick={handleTestQuestMatching}
+                              variant="outline"
+                              size="sm"
+                              className="w-full mb-2 bg-orange-600 hover:bg-orange-700 text-sm"
+                            >
+                              🎯 {TEXT_CONTENT.admin.storedData.sections.testing.buttons.testMatching}
+                            </Button>
+
+                            <Button
+                              onClick={async () => {
+                                try {
+                                  console.log('=== TESTING WORKING SIMPLE QUEST API ===');
+                                  const response = await fetch('/api/quests/simple', {
+                                    credentials: 'include'
+                                  });
+                                  if (response.ok) {
+                                    const data = await response.json();
+                                    console.log('✅ Simple Quest API Response:', data);
+                                    console.log('✅ Completed Quests:', data.completedQuests);
+                                    console.log('✅ Incomplete Quests:', data.incompleteQuests);
+                                    console.log('✅ Total Completions:', data.completionsCount);
+                                    console.log('✅ Total Challenges:', data.challengesCount);
+                                  } else {
+                                    console.error('❌ Simple Quest API failed:', response.status, response.statusText);
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Simple Quest API error:', error);
+                                }
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="w-full mb-2 bg-green-600 hover:bg-green-700 text-sm"
+                            >
+                              🧪 {TEXT_CONTENT.admin.storedData.sections.testing.buttons.testSimple}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <div className="text-gray-600 dark:text-gray-400">localStorage</div>
-                        <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.localStorageCount}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-600 dark:text-gray-400">Supabase</div>
-                        <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.supabaseCount}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-600 dark:text-gray-400">Difference</div>
-                        <div className={`font-semibold text-lg ${
-                          comparison.difference === 0 ? 'text-green-600' :
-                          comparison.difference > 0 ? 'text-red-600' :
-                          'text-yellow-600'
-                        }`}>
-                          {comparison.difference > 0 ? '+' : ''}{comparison.difference}
+                  </div>
+                </div>
+
+                {dataComparison.length > 0 && (
+                  <div className="space-y-3">
+                    {dataComparison.map((comparison, index) => (
+                      <div key={index} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-100">{comparison.table}</h4>
+                          <Badge
+                            variant={
+                              comparison.status === 'synced' ? 'default' :
+                                comparison.status === 'local-ahead' ? 'secondary' :
+                                  comparison.status === 'supabase-ahead' ? 'destructive' :
+                                    'outline'
+                            }
+                            className={
+                              comparison.status === 'synced' ? 'bg-green-100 text-green-800 border-green-200' :
+                                comparison.status === 'local-ahead' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                  comparison.status === 'supabase-ahead' ? 'bg-red-100 text-red-800 border-red-200' :
+                                    'bg-gray-100 text-gray-800 border-gray-200'
+                            }
+                          >
+                            {comparison.status === 'synced' ? '✅ Synced' :
+                              comparison.status === 'local-ahead' ? '⚠️ Local Ahead' :
+                                comparison.status === 'supabase-ahead' ? '❌ Supabase Ahead' :
+                                  '❓ Error'}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-600 dark:text-gray-400">localStorage</div>
+                            <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.localStorageCount}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600 dark:text-gray-400">Supabase</div>
+                            <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.supabaseCount}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600 dark:text-gray-400">Difference</div>
+                            <div className={`font-semibold text-lg ${comparison.difference === 0 ? 'text-green-600' :
+                              comparison.difference > 0 ? 'text-red-600' :
+                                'text-yellow-600'
+                              }`}>
+                              {comparison.difference > 0 ? '+' : ''}{comparison.difference}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                          Last checked: {new Date(comparison.lastChecked).toLocaleString()}
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      Last checked: {new Date(comparison.lastChecked).toLocaleString()}
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {dataComparison.length === 0 && !isComparingData && (
+                  <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                    <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Click Compare Data Sources to analyze data synchronization</p>
+                  </div>
+                )}
+
+                {isComparingData && (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                    <p className="text-gray-600 dark:text-gray-400">Comparing data sources...</p>
+                  </div>
+                )}
               </div>
-            )}
-            
-            {dataComparison.length === 0 && !isComparingData && (
-              <div className="text-center py-8 text-gray-600 dark:text-gray-400">
-                <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Click Compare Data Sources to analyze data synchronization</p>
-              </div>
-            )}
-            
-            {isComparingData && (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                <p className="text-gray-600 dark:text-gray-400">Comparing data sources...</p>
-              </div>
-            )}
+            </CardContent>
+          </Card>
+
+          {/* Overall Status */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Database className="w-4 h-4" />
+                  {TEXT_CONTENT.admin.storedData.sections.status.categories.core}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{buildStatus.coreSystems}</div>
+                <Progress value={(buildStatus.coreSystems / 3) * 100} className="mt-2" />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total systems</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Gamepad2 className="w-4 h-4" />
+                  {TEXT_CONTENT.admin.storedData.sections.status.categories.gameplay}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{buildStatus.gameplayFeatures}</div>
+                <Progress value={(buildStatus.gameplayFeatures / 8) * 100} className="mt-2" />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">8 total features</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4" />
+                  {TEXT_CONTENT.admin.storedData.sections.status.categories.social}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{buildStatus.socialFeatures}</div>
+                <Progress value={(buildStatus.socialFeatures / 3) * 100} className="mt-2" />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total features</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Settings className="w-4 h-4" />
+                  {TEXT_CONTENT.admin.storedData.sections.status.categories.admin}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{buildStatus.adminFeatures}</div>
+                <Progress value={(buildStatus.adminFeatures / 15) * 100} className="mt-2" />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">15 total features</p>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Overall Status */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Database className="w-4 h-4" />
-              Core Systems
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{buildStatus.coreSystems}</div>
-            <Progress value={(buildStatus.coreSystems / 3) * 100} className="mt-2" />
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total systems</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Gamepad2 className="w-4 h-4" />
-              Gameplay Features
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{buildStatus.gameplayFeatures}</div>
-            <Progress value={(buildStatus.gameplayFeatures / 8) * 100} className="mt-2" />
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">8 total features</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Users className="w-4 h-4" />
-              Social Features
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{buildStatus.socialFeatures}</div>
-            <Progress value={(buildStatus.socialFeatures / 3) * 100} className="mt-2" />
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total features</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Settings className="w-4 h-4" />
-              Admin Features
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{buildStatus.adminFeatures}</div>
-            <Progress value={(buildStatus.adminFeatures / 15) * 100} className="mt-2" />
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">15 total features</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Overall Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Overall Build Progress
-          </CardTitle>
-          <CardDescription>
-            {buildStatus.workingSystems} of {buildStatus.totalSystems} systems working ({buildStatus.progress.toFixed(1)}%)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">System Health</span>
-              <div className="flex items-center gap-2">
-                <Badge variant="default" className="text-xs">
-                  {buildStatus.workingSystems} Working
-                </Badge>
-                <Badge variant="destructive" className="text-xs">
-                  {buildStatus.brokenSystems} Broken
-                </Badge>
-              </div>
-            </div>
-            <Progress value={buildStatus.progress} className="h-3" />
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-              <span>0%</span>
-              <span>100%</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Critical Issues Alert */}
-      {connectionStatuses.filter(c => c.priority === 'critical' && c.status === 'error').length > 0 && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Critical Issues Detected!</strong> {connectionStatuses.filter(c => c.priority === 'critical' && c.status === 'error').length} critical systems are down. 
-            This may affect core functionality.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Summary Action Card */}
-      <Card className="border-gray-600 bg-gray-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-400">
-            📋 Generate Summary Report
-          </CardTitle>
-          <CardDescription className="text-gray-300">
-            Create a comprehensive report of all issues for easy sharing and debugging
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-sm text-gray-300">
-              Click the button below to generate a detailed summary that includes:
-            </p>
-            <ul className="text-sm text-gray-300 space-y-1 ml-4">
-              <li>• Critical, high, medium, and low priority issues</li>
-              <li>• Working systems and progress percentages</li>
-              <li>• Specific error messages and endpoints</li>
-              <li>• Actionable next steps</li>
-              <li>• Technical details for debugging</li>
-            </ul>
-            <Button 
-              onClick={generateSummary} 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              📋 Generate & Copy Summary Report
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* System Status by Category */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Core Systems */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              Core Systems
-            </CardTitle>
-            <CardDescription>Essential systems for application functionality</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {connectionStatuses
-                .filter(c => c.category === 'core')
-                .sort((a, b) => a.priority.localeCompare(b.priority))
-                .map((connection, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(connection.status)}
-                      <div>
-                        <div className="font-medium">{connection.name}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className={getPriorityColor(connection.priority)}>
-                      {connection.priority}
+          {/* Overall Progress */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                {TEXT_CONTENT.admin.storedData.sections.status.categories.overall}
+              </CardTitle>
+              <CardDescription>
+                {buildStatus.workingSystems} of {buildStatus.totalSystems} systems working ({buildStatus.progress.toFixed(1)}%)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">System Health</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="default" className="text-xs">
+                      {buildStatus.workingSystems} Working
+                    </Badge>
+                    <Badge variant="destructive" className="text-xs">
+                      {buildStatus.brokenSystems} Broken
                     </Badge>
                   </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+                <Progress value={buildStatus.progress} className="h-3" />
+                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                  <span>0%</span>
+                  <span>100%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Gameplay Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gamepad2 className="w-5 h-5" />
-              Gameplay Features
-            </CardTitle>
-            <CardDescription>Core game mechanics and player interactions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {connectionStatuses
-                .filter(c => c.category === 'gameplay')
-                .sort((a, b) => a.priority.localeCompare(b.priority))
-                .map((connection, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(connection.status)}
-                      <div>
-                        <div className="font-medium">{connection.name}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className={getPriorityColor(connection.priority)}>
-                      {connection.priority}
-                    </Badge>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Critical Issues Alert */}
+          {connectionStatuses.filter(c => c.priority === 'critical' && c.status === 'error').length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Critical Issues Detected!</strong> {connectionStatuses.filter(c => c.priority === 'critical' && c.status === 'error').length} critical systems are down.
+                This may affect core functionality.
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Social Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Social Features
-            </CardTitle>
-            <CardDescription>User interaction and community features</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {connectionStatuses
-                .filter(c => c.category === 'social')
-                .sort((a, b) => a.priority.localeCompare(b.priority))
-                .map((connection, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(connection.status)}
-                      <div>
-                        <div className="font-medium">{connection.name}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className={getPriorityColor(connection.priority)}>
-                      {connection.priority}
-                    </Badge>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Summary Action Card */}
+          <Card className="border-gray-600 bg-gray-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-400">
+                📋 {TEXT_CONTENT.admin.storedData.sections.summary.title}
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                {TEXT_CONTENT.admin.storedData.sections.summary.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-300">
+                  Click the button below to generate a detailed summary that includes:
+                </p>
+                <ul className="text-sm text-gray-300 space-y-1 ml-4">
+                  <li>• Critical, high, medium, and low priority issues</li>
+                  <li>• Working systems and progress percentages</li>
+                  <li>• Specific error messages and endpoints</li>
+                  <li>• Actionable next steps</li>
+                  <li>• Technical details for debugging</li>
+                </ul>
+                <Button
+                  onClick={generateSummary}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  size="lg"
+                >
+                  📋 {TEXT_CONTENT.admin.storedData.sections.summary.button}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Admin Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Admin Features
-            </CardTitle>
-            <CardDescription>Administrative and utility features</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[300px]">
-              <div className="space-y-3">
-                {connectionStatuses
-                  .filter(c => c.category === 'admin')
-                  .sort((a, b) => a.priority.localeCompare(b.priority))
-                  .map((connection, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(connection.status)}
-                        <div>
-                          <div className="font-medium">{connection.name}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+          {/* System Status by Category */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Core Systems */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="w-5 h-5" />
+                  Core Systems
+                </CardTitle>
+                <CardDescription>Essential systems for application functionality</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {connectionStatuses
+                    .filter(c => c.category === 'core')
+                    .sort((a, b) => a.priority.localeCompare(b.priority))
+                    .map((connection, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {getStatusIcon(connection.status)}
+                          <div>
+                            <div className="font-medium">{connection.name}</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                          </div>
                         </div>
-                      </div>
-                      <Badge variant="outline" className={getPriorityColor(connection.priority)}>
-                        {connection.priority}
-                      </Badge>
-                    </div>
-                  ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detailed Error Log */}
-      {connectionStatuses.filter(c => c.status === 'error').length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
-              Error Details
-            </CardTitle>
-            <CardDescription>Detailed information about system failures</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px]">
-              <div className="space-y-3">
-                {connectionStatuses
-                  .filter(c => c.status === 'error')
-                  .map((connection, index) => (
-                    <div key={index} className="p-3 border border-red-200 rounded-lg bg-red-50">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium text-red-800">{connection.name}</div>
-                        <Badge variant="destructive" className="text-xs">
+                        <Badge variant="outline" className={getPriorityColor(connection.priority)}>
                           {connection.priority}
                         </Badge>
                       </div>
-                      <div className="text-sm text-red-700 mb-1">{connection.description}</div>
-                      <div className="text-xs text-red-600">
-                        <div>Endpoint: {connection.endpoint}</div>
-                        <div>Error: {connection.error}</div>
-                        <div>Last Checked: {connection.lastChecked ? new Date(connection.lastChecked).toLocaleString() : 'Never'}</div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Gameplay Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gamepad2 className="w-5 h-5" />
+                  Gameplay Features
+                </CardTitle>
+                <CardDescription>Core game mechanics and player interactions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {connectionStatuses
+                    .filter(c => c.category === 'gameplay')
+                    .sort((a, b) => a.priority.localeCompare(b.priority))
+                    .map((connection, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {getStatusIcon(connection.status)}
+                          <div>
+                            <div className="font-medium">{connection.name}</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                          {connection.priority}
+                        </Badge>
                       </div>
-                    </div>
-                  ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      )}
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Legacy Components */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <MigrationStatus />
-        <HealthCheck />
-      </div>
+            {/* Social Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Social Features
+                </CardTitle>
+                <CardDescription>User interaction and community features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {connectionStatuses
+                    .filter(c => c.category === 'social')
+                    .sort((a, b) => a.priority.localeCompare(b.priority))
+                    .map((connection, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {getStatusIcon(connection.status)}
+                          <div>
+                            <div className="font-medium">{connection.name}</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                          {connection.priority}
+                        </Badge>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Test Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Test Controls</CardTitle>
-          <CardDescription>Development and testing utilities</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium mb-2">Title Evolution Tests</h4>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                <Button onClick={triggerTestModal} variant="outline" size="sm" className="text-xs">
-                  Squire → Knight
-                </Button>
-                <Button onClick={triggerTestModal2} variant="outline" size="sm" className="text-xs">
-                  Knight → Baron
-                </Button>
-                <Button onClick={triggerTestModal3} variant="outline" size="sm" className="text-xs">
-                  Baron → Viscount
-                </Button>
-                <Button onClick={triggerTestModal4} variant="outline" size="sm" className="text-xs">
-                  Viscount → Count
-                </Button>
-                <Button onClick={triggerTestModal5} variant="outline" size="sm" className="text-xs">
-                  Count → Marquis
-                </Button>
-              </div>
-            </div>
-            
-            <Separator />
-            
-            <div className="flex gap-2">
-              <Button onClick={handleMigration} disabled={isMigrating} variant="outline">
-                {isMigrating ? "Migrating..." : "Migrate Data"}
-              </Button>
-              <Button onClick={handleTestMigration} disabled={isMigrating} variant="outline">
-                Test Migration
-              </Button>
-              <Button onClick={clearAllData} variant="destructive">
-                Clear All Data
-              </Button>
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <h4 className="font-medium mb-2">Rare Tiles Tests</h4>
-              <div className="flex flex-wrap gap-2">
-                {RARE_TILES.map((tile) => (
-                  <div key={tile.id} className="flex gap-2">
-                    <Button 
-                      onClick={() => handleUnlockRareTile(tile.id)} 
-                      variant="outline" 
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Unlock {tile.name}
+            {/* Admin Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Admin Features
+                </CardTitle>
+                <CardDescription>Administrative and utility features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3">
+                    {connectionStatuses
+                      .filter(c => c.category === 'admin')
+                      .sort((a, b) => a.priority.localeCompare(b.priority))
+                      .map((connection, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            {getStatusIcon(connection.status)}
+                            <div>
+                              <div className="font-medium">{connection.name}</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className={getPriorityColor(connection.priority)}>
+                            {connection.priority}
+                          </Badge>
+                        </div>
+                      ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Detailed Error Log */}
+          {connectionStatuses.filter(c => c.status === 'error').length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                  Error Details
+                </CardTitle>
+                <CardDescription>Detailed information about system failures</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[200px]">
+                  <div className="space-y-3">
+                    {connectionStatuses
+                      .filter(c => c.status === 'error')
+                      .map((connection, index) => (
+                        <div key={index} className="p-3 border border-red-200 rounded-lg bg-red-50">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="font-medium text-red-800">{connection.name}</div>
+                            <Badge variant="destructive" className="text-xs">
+                              {connection.priority}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-red-700 mb-1">{connection.description}</div>
+                          <div className="text-xs text-red-600">
+                            <div>Endpoint: {connection.endpoint}</div>
+                            <div>Error: {connection.error}</div>
+                            <div>Last Checked: {connection.lastChecked ? new Date(connection.lastChecked).toLocaleString() : 'Never'}</div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Legacy Components */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <MigrationStatus />
+            <HealthCheck />
+          </div>
+
+          {/* Test Controls */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Test Controls</CardTitle>
+              <CardDescription>Development and testing utilities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">Title Evolution Tests</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <Button onClick={triggerTestModal} variant="outline" size="sm" className="text-xs">
+                      Squire → Knight
                     </Button>
-                    <Button 
-                      onClick={() => handleClearRareTile(tile.id)} 
-                      variant="outline" 
-                      size="sm"
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Clear {tile.name}
+                    <Button onClick={triggerTestModal2} variant="outline" size="sm" className="text-xs">
+                      Knight → Baron
+                    </Button>
+                    <Button onClick={triggerTestModal3} variant="outline" size="sm" className="text-xs">
+                      Baron → Viscount
+                    </Button>
+                    <Button onClick={triggerTestModal4} variant="outline" size="sm" className="text-xs">
+                      Viscount → Count
+                    </Button>
+                    <Button onClick={triggerTestModal5} variant="outline" size="sm" className="text-xs">
+                      Count → Marquis
                     </Button>
                   </div>
-                ))}
+                </div>
+
+                <Separator />
+
+                <div className="flex gap-2">
+                  <Button onClick={handleMigration} disabled={isMigrating} variant="outline">
+                    {isMigrating ? "Migrating..." : "Migrate Data"}
+                  </Button>
+                  <Button onClick={handleTestMigration} disabled={isMigrating} variant="outline">
+                    Test Migration
+                  </Button>
+                  <Button onClick={clearAllData} variant="destructive">
+                    Clear All Data
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-medium mb-2">Rare Tiles Tests</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {RARE_TILES.map((tile) => (
+                      <div key={tile.id} className="flex gap-2">
+                        <Button
+                          onClick={() => handleUnlockRareTile(tile.id)}
+                          variant="outline"
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          Unlock {tile.name}
+                        </Button>
+                        <Button
+                          onClick={() => handleClearRareTile(tile.id)}
+                          variant="outline"
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          Clear {tile.name}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Test buttons for rare tile unlock functionality
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Test buttons for rare tile unlock functionality
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Performance Tab */}
@@ -2491,16 +2492,16 @@ TECHNICAL DETAILS:
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={exportErrorLogs}
                     disabled={errorLogs.length === 0}
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Export Logs
                   </Button>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     onClick={clearErrorLogs}
                     disabled={errorLogs.length === 0}
                   >
@@ -2591,7 +2592,7 @@ TECHNICAL DETAILS:
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <h4 className="font-medium">Endpoint Performance</h4>
                     <div className="space-y-3">
@@ -2640,7 +2641,7 @@ TECHNICAL DETAILS:
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {[
                       'medieval-ambient',
-                      'medieval-battle', 
+                      'medieval-battle',
                       'medieval-village',
                       'medieval-castle',
                       'medieval-forest',

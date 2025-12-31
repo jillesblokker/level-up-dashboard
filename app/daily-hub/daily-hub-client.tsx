@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { TEXT_CONTENT } from '@/lib/text-content'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ChroniclesCard } from '@/components/chronicles-card'
@@ -108,7 +109,7 @@ export function DailyHubClient() {
 
     const loadFavoritedQuests = async () => {
         try {
-            console.log('[Daily Hub] Loading favorited quests...')
+            console.log(`[Daily Hub] ${TEXT_CONTENT.dailyHub.log.loading}`)
 
             // First, get favorited quest IDs
             const favoritesResponse = await fetch('/api/quests/favorites')
@@ -204,7 +205,7 @@ export function DailyHubClient() {
             <div className="min-h-screen flex items-center justify-center bg-black">
                 <div className="text-center space-y-4">
                     <Loader2 className="w-12 h-12 text-amber-500 animate-spin mx-auto" />
-                    <p className="text-amber-200/70 text-lg animate-pulse">Summoning your daily adventure...</p>
+                    <p className="text-amber-200/70 text-lg animate-pulse">{TEXT_CONTENT.dailyHub.loading.spinner}</p>
                 </div>
             </div>
         )
@@ -214,8 +215,8 @@ export function DailyHubClient() {
         <div className="min-h-screen bg-black pb-20">
             {/* Header Section with CTA */}
             <HeaderSection
-                title={`Welcome, ${user?.firstName || 'Hero'}!`}
-                subtitle="Your daily adventure awaits. Complete quests, maintain your streak, and grow your kingdom."
+                title={TEXT_CONTENT.dailyHub.header.title.replace('{name}', user?.firstName || TEXT_CONTENT.dailyHub.header.defaultName)}
+                subtitle={TEXT_CONTENT.dailyHub.header.subtitle}
                 imageSrc="/images/daily-hub-hero.jpg"
                 defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
                 className="h-[300px] md:h-[400px]"
@@ -227,7 +228,7 @@ export function DailyHubClient() {
                             className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-6 text-lg shadow-2xl hover:shadow-amber-500/50 transition-all hover:scale-105"
                         >
                             <span className="text-2xl mr-2">👑</span>
-                            Enter Your Kingdom
+                            {TEXT_CONTENT.dailyHub.header.cta}
                         </Button>
                     </Link>
                 }
@@ -250,10 +251,10 @@ export function DailyHubClient() {
                         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                         <CardContent className="p-5 md:p-6 flex items-center justify-between relative z-10">
                             <div>
-                                <p className="text-sm text-amber-200/70 font-medium uppercase tracking-wider">Current Streak</p>
+                                <p className="text-sm text-amber-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.streak.title}</p>
                                 <div className="flex items-baseline gap-2 mt-1">
                                     <span className="text-4xl font-bold text-white">{stats.streakDays}</span>
-                                    <span className="text-sm text-amber-500">days</span>
+                                    <span className="text-sm text-amber-500">{TEXT_CONTENT.dailyHub.stats.streak.unit}</span>
                                 </div>
                             </div>
                             <div className="h-16 w-16 flex items-center justify-center bg-orange-950/30 rounded-full border border-orange-900/50">
@@ -268,10 +269,10 @@ export function DailyHubClient() {
                         <CardContent className="p-5 md:p-6 relative z-10">
                             <div className="flex items-center justify-between mb-2">
                                 <div>
-                                    <p className="text-sm text-blue-200/70 font-medium uppercase tracking-wider">Level {stats.level}</p>
+                                    <p className="text-sm text-blue-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.level.label.replace('{level}', String(stats.level))}</p>
                                     <div className="flex items-baseline gap-2 mt-1">
                                         <span className="text-2xl font-bold text-white">{stats.experience}</span>
-                                        <span className="text-sm text-blue-400">/ {stats.experienceToNextLevel} XP</span>
+                                        <span className="text-sm text-blue-400">{TEXT_CONTENT.dailyHub.stats.level.xp.replace('{max}', String(stats.experienceToNextLevel))}</span>
                                     </div>
                                 </div>
                                 <div className="h-12 w-12 flex items-center justify-center bg-blue-950/30 rounded-full border border-blue-900/50 text-2xl">
@@ -293,10 +294,10 @@ export function DailyHubClient() {
                         <CardContent className="p-5 md:p-6 relative z-10">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex-1">
-                                    <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">Treasury</p>
+                                    <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.treasury.title}</p>
                                     <div className="flex items-baseline gap-2 mt-1">
                                         <span className="text-3xl font-bold text-white">{stats.gold}</span>
-                                        <span className="text-sm text-yellow-500">Gold</span>
+                                        <span className="text-sm text-yellow-500">{TEXT_CONTENT.dailyHub.stats.treasury.unit}</span>
                                     </div>
                                 </div>
                                 <div className="h-12 w-12 flex items-center justify-center bg-yellow-950/30 rounded-full border border-yellow-900/50 text-2xl">
@@ -306,7 +307,7 @@ export function DailyHubClient() {
                             <div className="mt-3 pt-3 border-t border-yellow-900/30 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4 text-green-400" />
                                 <span className="text-xs text-green-400 font-medium">
-                                    +{weeklyGoldEarned} earned this week
+                                    {TEXT_CONTENT.dailyHub.stats.treasury.weekly.replace('{amount}', String(weeklyGoldEarned))}
                                 </span>
                             </div>
                         </CardContent>
@@ -335,25 +336,25 @@ export function DailyHubClient() {
                     <Link href="/quests" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <ScrollText className="w-6 h-6 text-amber-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-amber-200 group-hover:text-white">Quest Board</span>
+                            <span className="text-amber-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.questBoard}</span>
                         </Button>
                     </Link>
                     <Link href="/kingdom" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <span className="text-2xl group-hover:scale-110 transition-transform">👑</span>
-                            <span className="text-green-200 group-hover:text-white">Kingdom</span>
+                            <span className="text-green-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.kingdom}</span>
                         </Button>
                     </Link>
                     <Link href="/realm" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Map className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-blue-200 group-hover:text-white">Realm</span>
+                            <span className="text-blue-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.realm}</span>
                         </Button>
                     </Link>
                     <Link href="/quests?new=true" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Plus className="w-6 h-6 text-purple-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-purple-200 group-hover:text-white">New Quest</span>
+                            <span className="text-purple-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.newQuest}</span>
                         </Button>
                     </Link>
                 </motion.div>
@@ -365,10 +366,10 @@ export function DailyHubClient() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
                     <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide">Your Favorite Quests</h2>
+                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide">{TEXT_CONTENT.dailyHub.favorites.title}</h2>
                         <Link href="/quests">
                             <Button variant="ghost" className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1 md:gap-2 text-sm md:text-base">
-                                View All <ArrowRight className="w-4 h-4" />
+                                {TEXT_CONTENT.dailyHub.favorites.viewAll} <ArrowRight className="w-4 h-4" />
                             </Button>
                         </Link>
                     </div>
@@ -379,13 +380,13 @@ export function DailyHubClient() {
                                 <div className="w-16 h-16 bg-amber-950/30 rounded-full flex items-center justify-center mb-4">
                                     <ScrollText className="w-8 h-8 text-amber-700" />
                                 </div>
-                                <h3 className="text-xl font-bold text-amber-500 mb-2">No Favorite Quests Yet</h3>
+                                <h3 className="text-xl font-bold text-amber-500 mb-2">{TEXT_CONTENT.dailyHub.favorites.empty.title}</h3>
                                 <p className="text-gray-400 max-w-md mb-6">
-                                    Star your favorite quests from the Quest Board to see them here for quick access.
+                                    {TEXT_CONTENT.dailyHub.favorites.empty.description}
                                 </p>
                                 <Link href="/quests">
                                     <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                                        Browse Quest Board
+                                        {TEXT_CONTENT.dailyHub.favorites.empty.button}
                                     </Button>
                                 </Link>
                             </CardContent>

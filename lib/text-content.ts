@@ -540,6 +540,30 @@ export const TEXT_CONTENT = {
         }
     },
     kingdom: {
+        items: {
+            "material-planks": "Planks",
+            "material-logs": "Logs",
+            "sword-twig": "Twig",
+            "sword-sunblade": "Sunblade",
+            "sword-irony": "Irony",
+            "armor-normalo": "Normalo",
+            "armor-darko": "Darko",
+            "armor-blanko": "Blanko",
+            "fish-red": "Red Fish",
+            "fish-blue": "Blue Fish",
+            "fish-silver": "Silver Trout",
+            "fish-golden": "Golden Carp",
+            "fish-rainbow": "Rainbow Bass",
+            "scroll-scrolly": "Scrolly",
+            "scroll-perkamento": "Perkamento",
+            "scroll-memento": "Memento",
+            "potion-health": "Health Potion",
+            "potion-gold": "Gold Potion",
+            "potion-exp": "XP Potion",
+            "artifact-crowny": "Crowny",
+            "artifact-ringo": "Ringo",
+            "artifact-staffy": "Staffy"
+        },
         loading: "Loading your kingdom...",
         consumables: {
             artifact: "You used an artifact and gained {gold} gold!",
@@ -619,7 +643,8 @@ export const TEXT_CONTENT = {
                 status: {
                     equipped: "Equipped",
                     qty: "Qty: {quantity}"
-                }
+                },
+                unknownItem: "Unknown Item"
             },
             rewards: {
                 title: "Kingdom Rewards",
@@ -798,6 +823,11 @@ export const TEXT_CONTENT = {
             name: "Wizard",
             clickMessage: "The wizard's tower hums with magical energy. He shares ancient knowledge and hands you a scroll, along with gold for your wisdom."
         },
+        unknown: {
+            name: "Unknown Tile",
+            description: "A mysterious tile in your kingdom."
+        },
+        specialPrefix: "A special kingdom tile: ",
         temple: {
             name: "Temple",
             clickMessage: "The temple's peaceful atmosphere surrounds you. The priest blesses you with a health potion and offers gold for your devotion."
@@ -1119,6 +1149,21 @@ export const TEXT_CONTENT = {
             addType: {
                 title: "Add Challenge Type",
                 placeholder: "Challenge type name"
+            },
+            editQuest: {
+                title: "Edit Quest",
+                save: "Save",
+                cancel: "Cancel"
+            },
+            editChallenge: {
+                title: "Edit Challenge",
+                save: "Save",
+                cancel: "Cancel"
+            },
+            editMilestone: {
+                title: "Edit Milestone",
+                save: "Save Changes",
+                cancel: "Cancel"
             }
         },
         loading: "Loading authentication...",
@@ -1128,7 +1173,73 @@ export const TEXT_CONTENT = {
             updateFailed: { title: "Update Failed", desc: "Failed to update milestone. Please try again." },
             questAdded: { title: "Quest Added", desc: "New quest has been successfully added." },
             error: { title: "Error", desc: "Failed to add quest. Please try again." },
-            updateSuccess: { title: "Update Success", desc: "Milestone updated successfully." }
+            updateSuccess: { title: "Update Success", desc: "Milestone updated successfully." },
+            streak: {
+                quest: { title: "Quest Streak", desc: "You completed all quests for {category}! Streak increased to {streak} days. Earned {tokens} build token(s)!" },
+                challenge: { title: "Challenge Streak", desc: "You completed all challenges for {category}! Streak increased to {streak} days. Earned {tokens} build token(s)!" },
+                updated: { title: "Streak Updated", desc: "Your streak is now {streak} days!" },
+                error: { title: "Error", desc: "Failed to update streak. Please try again." },
+                frozen: { title: "❄️ Streak Frozen!", desc: "You used a Streak Scroll to save your {category} streak!" },
+                lost: { title: "Streak Lost", desc: "You missed a day! Your {category} streak has been reset to 0." }
+            },
+            completion: {
+                quest: { title: "⚔️ Quest Complete!", desc: "{name}\n+{gold} Gold  •  +{xp} XP" },
+                questUncompleted: { title: "Quest Uncompleted", desc: "{name} marked as incomplete." },
+                challenge: { title: "⚔️ Challenge Complete!", desc: "{name}\n+{gold} Gold  •  +{xp} XP" },
+                challengeUncompleted: { title: "Challenge Uncompleted", desc: "{name} marked as incomplete." },
+                milestone: { title: "🏆 Milestone Complete!", desc: "{name}\n+{gold} Gold  •  +{xp} XP" },
+                milestoneUncompleted: { title: "Milestone Uncompleted", desc: "{name} marked as incomplete." },
+                bulkFavorites: { title: "Bulk Complete Successful!", desc: "Completed {count} favorited quests in {category} category." },
+                bulkAllFavorites: { title: "Bulk Complete Successful!", desc: "Completed {count} favorited quests across all categories." },
+                bulkError: { title: "Error", desc: "Failed to complete favorited quests. Please try again." }
+            },
+            favorites: {
+                updated: { title: "Favorite Updated", desc: "Quest favorite status updated." },
+                error: { title: "Error", desc: "Failed to update favorite status." }
+            },
+            deletion: {
+                quest: { title: "Quest Deleted", desc: "Quest has been successfully deleted." },
+                questError: { title: "Error", desc: "Failed to delete quest. Please try again." },
+                challenge: { title: "Challenge Deleted", desc: "Challenge has been successfully deleted." },
+                challengeError: { title: "Error", desc: "Failed to delete challenge. Please try again." },
+                milestone: { title: "Milestone Deleted", desc: "\"{name}\" has been successfully deleted." },
+                milestoneError: { title: "Error", desc: "Failed to delete milestone. Please try again." }
+            },
+            addition: {
+                milestone: { title: "Milestone Added", desc: "\"{name}\" has been added to your milestones." },
+                milestoneError: { title: "Error", desc: "Failed to add milestone. Please try again." },
+                challenge: { title: "Challenge Added", desc: "\"{name}\" has been added to your challenges." },
+                challengeError: { title: "Error", desc: "Failed to add challenge. Please try again." }
+            },
+            updates: {
+                quest: { title: "Quest Updated", desc: "Quest has been successfully updated." },
+                questError: { title: "Error", desc: "Failed to update quest: {error}" },
+                challenge: { title: "Challenge Updated", desc: "{name} has been updated successfully!" },
+                challengeError: { title: "Update Failed", desc: "Failed to update challenge. Please try again." },
+                milestone: { title: "Milestone Updated", desc: "{name} has been updated successfully!" }
+            },
+            manualReset: {
+                complete: { title: "Manual Reset Complete", desc: "All quests have been reset successfully!" },
+                error: { title: "Manual Reset Error", desc: "Failed to reset quests: {error}" }
+            }
+        },
+        ui: {
+            labels: {
+                streak: "Day streak",
+                challenges: "challenges",
+                bonus: "Streak Bonus:",
+                goldPerDay: "gold/day",
+                maxBonus: "(Max 50 gold/day)",
+                maxBonusShort: "(Max 50)",
+                scrolls: "Streak Scrolls:",
+                saveStreak: "(Use to save a missed streak)",
+                saveStreakShort: "(Save streak)",
+                difficulty: {
+                    easy: "Easy",
+                    medium: "Medium",
+                    hard: "Hard"
+                }
+            }
         }
     },
     achievements: {

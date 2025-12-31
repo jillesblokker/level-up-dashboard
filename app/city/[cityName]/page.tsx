@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getCityData, type CityLocation } from "@/lib/city-data"
+import { TEXT_CONTENT } from "@/lib/text-content"
 
 export default function CityPage() {
   const params = useParams()
@@ -16,9 +17,9 @@ export default function CityPage() {
       <div className="container py-10" role="main" aria-label="city-error-section">
         <Card aria-label="city-error-card">
           <CardHeader>
-            <CardTitle>Error</CardTitle>
+            <CardTitle>{TEXT_CONTENT.city.error.title}</CardTitle>
             <CardDescription>
-              Unable to load city information.
+              {TEXT_CONTENT.city.error.desc}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -34,21 +35,21 @@ export default function CityPage() {
       <div className="container py-10" role="main" aria-label="city-not-found-section">
         <div className="mb-6">
           <Link href="/realm">
-            <Button variant="outline" size="sm" aria-label="Back to Realm">
+            <Button variant="outline" size="sm" aria-label={TEXT_CONTENT.city.back}>
               <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-              Back to Realm
+              {TEXT_CONTENT.city.back}
             </Button>
           </Link>
         </div>
         <Card aria-label="city-not-found-card">
           <CardHeader>
-            <CardTitle>City Not Found</CardTitle>
+            <CardTitle>{TEXT_CONTENT.city.notFound.title}</CardTitle>
             <CardDescription>
-              We couldn&apos;t find the city you&apos;re looking for.
+              {TEXT_CONTENT.city.notFound.desc}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>The city &quot;{cityName}&quot; does not exist or has been removed.</p>
+            <p>{TEXT_CONTENT.city.notFound.message.replace("{city}", cityName)}</p>
           </CardContent>
         </Card>
       </div>
@@ -58,7 +59,7 @@ export default function CityPage() {
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
       <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${cityData.coverImage})` }}
           aria-label="city-cover-image"
@@ -76,13 +77,13 @@ export default function CityPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <Link href="/realm">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="border-amber-800/20 text-amber-500"
-                aria-label="Back to Realm"
+                aria-label={TEXT_CONTENT.city.back}
               >
                 <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-                Back to Realm
+                {TEXT_CONTENT.city.back}
               </Button>
             </Link>
           </div>
@@ -92,8 +93,8 @@ export default function CityPage() {
           {cityData.locations.map((location: CityLocation) => (
             <Link key={location.id} href={`/city/${params['cityName']}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer" aria-label={`${location.name}-card`}>
-                <div 
-                  className="h-48 bg-cover bg-center" 
+                <div
+                  className="h-48 bg-cover bg-center"
                   style={{ backgroundImage: `url(${location.image})` }}
                   aria-label={`${location.name}-image`}
                   role="img"
