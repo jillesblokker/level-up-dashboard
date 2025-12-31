@@ -1,226 +1,117 @@
-import { supabaseServer } from '@/lib/supabase/server-client';
-import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import logger from '@/lib/logger';
-import { calculateRewards } from '@/lib/game-logic';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 
-// Force dynamic route to prevent caching
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'Europe/Amsterdam',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit'
-});
-
-function formatNetherlandsDate(input?: string | Date | null) {
-  if (!input) return null;
-
-  if (typeof input === 'string') {
-    const normalized = input.includes('T') ? (input.split('T')[0] ?? input) : input;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
-      return normalized;
-    }
-
-    const parsed = new Date(input);
-    if (!Number.isNaN(parsed.getTime())) {
-      return netherlandsFormatter.format(parsed);
-    }
-
-    return normalized;
-  }
-
-  return netherlandsFormatter.format(input);
-}
+// ... (imports)
 
 export async function GET(request: Request) {
   try {
-    // Add timeout handling
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 15000); // 15 second timeout
+    // 1. Verify Auth
+    const authResult = await verifyClerkJWT(request);
+    if (!authResult.success || !authResult.userId) {
+      return NextResponse.json({ error: authResult.error || 'Unauthorized' }, { status: 401 });
+    }
+    const userId = authResult.userId;
+
+    // 2. Create fresh client (Service Role)
+    const { createClient } = require('@supabase/supabase-js');
+    const serviceClient = createClient(
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['SUPABASE_SERVICE_ROLE_KEY']!,
+      { auth: { persistSession: false } }
+    );
+
+    // 3. Fetch Challenges (Global)
+    const { data: allChallenges, error: challengesError } = await serviceClient
+      .from('challenges')
+      .select('*');
+
+    if (challengesError) throw challengesError;
+
+    // 4. Fetch Completions (User)
+    const { data: allCompletions, error: completionError } = await serviceClient
+      .from('challenge_completion')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (completionError) throw completionError;
+
+    // 5. Process Data
+    const today = formatNetherlandsDate(new Date()) || new Date().toISOString().slice(0, 10);
+    logger.info(`Querying for today: ${today}, userId: ${userId}`, 'Challenges API');
+
+    // ... (rest of processing logic stays roughly the same, but needs to be adapted to not use return { data: ... })
+
+    // Filter to only today's completions
+    const todaysCompletions = (allCompletions || []).filter((completion: any) => {
+      if (!completion.date) return false;
+      const dbDate = String(completion.date).split('T')[0];
+      const todayDate = today.split('T')[0];
+      return dbDate === todayDate;
     });
 
-    // Use authenticated Supabase query with proper Clerk JWT verification
-    // Use authenticated Supabase query for Auth check only, then use clean client for global data
-    const queryPromise = authenticatedSupabaseQuery(request, async (supabaseContextClient, userId) => {
-      // Create a fresh service client to bypass any RLS/Context issues for global data
-      const { createClient } = require('@supabase/supabase-js');
-      const serviceClient = createClient(
-        process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-        process.env['SUPABASE_SERVICE_ROLE_KEY']!,
-        { auth: { persistSession: false } }
-      );
-
-      // Fetch all challenges using the fresh service client
-      const { data: allChallenges, error: challengesError } = await serviceClient
-        .from('challenges')
-        .select('*');
-
-      if (challengesError) {
-        throw challengesError;
-      }
-
-      // Use Netherlands timezone (Europe/Amsterdam) for challenge display
-      const today = formatNetherlandsDate(new Date()) || new Date().toISOString().slice(0, 10);
-
-      logger.info(`Querying for today: ${today}, userId: ${userId}`, 'Challenges API');
-
-      // Fetch completions (User specific data - we can use the context client or service client filtered by ID)
-      const { data: allCompletions, error: completionError } = await serviceClient
-        .from('challenge_completion')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (completionError) {
-        throw completionError;
-      }
-
-      logger.info(`All completions fetched: ${allCompletions?.length || 0}`, 'Challenges API');
-      if (allCompletions?.length) {
-        logger.info('Sample completions:', 'Challenges API', JSON.stringify(allCompletions.slice(0, 3).map((c: any) => ({
-          challenge_id: c.challenge_id,
-          completed: c.completed,
-          date: c.date,
-          date_type: typeof c.date,
-          date_string: String(c.date)
-        }))));
-      }
-
-      // Filter to only today's completions, normalizing dates for comparison
-      const todaysCompletions = (allCompletions || []).filter((completion: any) => {
-        if (!completion.date) return false;
-
-        // Normalize both dates to YYYY-MM-DD for comparison
-        // The database date might be a full ISO string or just a date string
-        const dbDate = String(completion.date).split('T')[0];
-        const todayDate = today.split('T')[0];
-
-        const matches = dbDate === todayDate;
-
-        if (matches) {
-          logger.info(`✅ Found today match: challenge_id=${completion.challenge_id}, dbDate=${dbDate}, todayDate=${todayDate}, completed=${completion.completed}`, 'Challenges API');
+    const completedChallenges = new Map();
+    if (todaysCompletions.length > 0) {
+      todaysCompletions.forEach((completion: any) => {
+        if (completion.completed === true) {
+          completedChallenges.set(completion.challenge_id, {
+            completed: true,
+            date: String(completion.date).split('T')[0],
+            completionId: completion.id
+          });
         }
-
-        return matches;
       });
+    }
 
-      logger.info(`Today's completions after filtering: ${todaysCompletions.length}`, 'Challenges API');
-
-      const completedChallenges = new Map();
-
-      if (todaysCompletions.length > 0) {
-        todaysCompletions.forEach((completion: any) => {
-          if (completion.completed === true) {
-            completedChallenges.set(completion.challenge_id, {
-              completed: true,
-              date: String(completion.date).split('T')[0],
-              completionId: completion.id
-            });
-          }
-        });
-      } else {
-        logger.warn(`⚠️ No completions found for today: ${today}`, 'Challenges API');
-        logger.info(`Available dates in completions: ${JSON.stringify([...new Set((allCompletions || []).map((c: any) => String(c.date).split('T')[0]))])}`, 'Challenges API');
-      }
-
-      logger.info(`Completed challenges map: ${JSON.stringify(Array.from(completedChallenges.entries()))}`, 'Challenges API');
-      logger.info(`Today date: ${today}`, 'Challenges API');
-      logger.info(`All completions (today only): ${JSON.stringify(todaysCompletions?.map((c: any) => ({
-        challenge_id: c.challenge_id,
-        completed: c.completed,
-        date: c.date,
-        is_today: true
-      })))}`, 'Challenges API');
-      logger.info(`Total completions found: ${todaysCompletions?.length || 0}`, 'Challenges API');
-      logger.info(`Completed challenges count: ${completedChallenges.size}`, 'Challenges API');
-
-      // Merge completion state using daily habit tracking
-      const challengesWithCompletion = (allChallenges || []).map((c: any) => {
-        // Find completion by challenge ID
-        const completion = completedChallenges.get(c.id);
-        const isCompleted = completion ? completion.completed : false;
-        const completionDate = completion ? completion.date : null;
-
-        logger.info(`Mapping challenge: ${JSON.stringify({
-          challengeId: c.id,
-          challengeName: c.name,
-          challengeCategory: c.category,
-          hasCompletion: !!completion,
-          isCompleted,
-          completionDate,
-          completionData: completion
-        })}`, 'Challenges API');
-
-        return {
-          ...c,
-          completed: isCompleted,
-          completionId: completion?.completionId,
-          date: completionDate,
-          completion_debug: {
-            isCompleted,
-            completionDate,
-            today,
-            matches: completionDate === today,
-            raw_completion: completion
-          }
-        };
-      });
-
-      logger.info(`Final challenges with completion: ${JSON.stringify(challengesWithCompletion.slice(0, 3).map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        completed: c.completed,
-        date: c.date
-      })))}`, 'Challenges API');
-
+    // Merge completion state
+    const challengesWithCompletion = (allChallenges || []).map((c: any) => {
+      const completion = completedChallenges.get(c.id);
       return {
-        data: challengesWithCompletion,
-        debug_all_completions: allCompletions
+        ...c,
+        completed: completion ? completion.completed : false,
+        completionId: completion?.completionId,
+        date: completion ? completion.date : null,
+        completion_debug: {
+          isCompleted: !!completion,
+          completionDate: completion?.date,
+          today
+        }
       };
     });
 
-    // Race between timeout and query
-    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
-
-    if (!result.success) {
-      const isAuthError = result.error?.includes('Authentication') || result.error?.includes('JWT');
-      const status = isAuthError ? 401 : 500;
-      return NextResponse.json({ error: result.error }, { status });
-    }
-
-    // Log debug info to server console instead of breaking the response structure
-    // result.data contains { data: challenges, debug_all_completions: completions }
-    const { data: challenges, debug_all_completions } = result.data;
-
-    logger.info(`DEBUG ALL COMPLETIONS: ${JSON.stringify(debug_all_completions)}`, 'Challenges API');
-
-    return NextResponse.json(challenges, {
+    return NextResponse.json(challengesWithCompletion, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
       }
     });
+
   } catch (error) {
-    console.error('[Challenges Error]', error);
-
-    // Handle timeout specifically
-    if (error instanceof Error && error.message === 'Request timeout') {
-      return NextResponse.json(
-        { error: 'Request timeout - please try again' },
-        { status: 408 }
-      );
-    }
-
+    // ... catch block handles response
+    console.error('[Challenges API Error]', error);
     return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 });
   }
+}
+  } catch (error) {
+  console.error('[Challenges Error]', error);
+
+  // Handle timeout specifically
+  if (error instanceof Error && error.message === 'Request timeout') {
+    return NextResponse.json(
+      { error: 'Request timeout - please try again' },
+      { status: 408 }
+    );
+  }
+
+  return NextResponse.json({
+    error: 'Internal server error',
+    details: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined
+  }, { status: 500 });
+}
 }
 
 export async function PUT(request: Request) {
