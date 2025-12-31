@@ -1,39 +1,6 @@
-import { verifyClerkJWT, authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import { NextResponse } from 'next/server';
-import logger from '@/lib/logger';
-import { calculateRewards } from '@/lib/game-logic';
-import { supabaseServer } from '@/lib/supabase/server-client';
+import { createClient } from '@supabase/supabase-js';
 
-// Force dynamic route to prevent caching
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-const netherlandsFormatter = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'Europe/Amsterdam',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit'
-});
-
-function formatNetherlandsDate(input?: string | Date | null) {
-  if (!input) return null;
-
-  if (typeof input === 'string') {
-    const normalized = input.includes('T') ? (input.split('T')[0] ?? input) : input;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
-      return normalized;
-    }
-
-    const parsed = new Date(input);
-    if (!Number.isNaN(parsed.getTime())) {
-      return netherlandsFormatter.format(parsed);
-    }
-
-    return normalized;
-  }
-
-  return netherlandsFormatter.format(input);
-}
+// ... existing code ...
 
 export async function GET(request: Request) {
   try {
@@ -45,10 +12,17 @@ export async function GET(request: Request) {
     const userId = authResult.userId;
 
     // 2. Create fresh client (Service Role)
-    const { createClient } = require('@supabase/supabase-js');
+    const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+    const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('[Challenges API] Missing env vars:', { url: !!supabaseUrl, key: !!supabaseServiceKey });
+      return NextResponse.json({ error: 'Server configuration error: Missing Supabase credentials' }, { status: 500 });
+    }
+
     const serviceClient = createClient(
-      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env['SUPABASE_SERVICE_ROLE_KEY']!,
+      supabaseUrl,
+      supabaseServiceKey,
       { auth: { persistSession: false } }
     );
 
