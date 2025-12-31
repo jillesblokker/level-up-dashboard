@@ -217,7 +217,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       error: 'Internal server error',
-      details: error instanceof Error ? error.message : String(error)
+      details: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 });
   }
 }
