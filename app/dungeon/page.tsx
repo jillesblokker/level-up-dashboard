@@ -1,145 +1,297 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Swords, Skull, Shield, Zap, Treasure, Heart } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
-import { RiddleChallenge } from "@/components/riddle-challenge"
 import { toast } from "@/components/ui/use-toast"
-import { TEXT_CONTENT } from "@/lib/text-content"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { fetchFreshCharacterStats } from "@/lib/character-stats-service"
+
+interface DungeonState {
+  id: string;
+  current_hp: number;
+  max_hp: number;
+  current_room: number;
+  max_rooms: number;
+  status: 'in_progress' | 'completed' | 'defeated' | 'abandoned';
+  current_encounter: {
+    type: 'monster' | 'treasure';
+    name: string;
+    hp?: number;
+    maxHp?: number;
+  };
+  loot_collected: any[];
+}
 
 export default function DungeonPage() {
-  const [goldBalance, setGoldBalance] = useState(1000)
-  const [currentDungeon, setCurrentDungeon] = useState<any>(null)
-  const [completed, setCompleted] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [activeRun, setActiveRun] = useState<DungeonState | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [log, setLog] = useState<string[]>([]);
+  const [actionResult, setActionResult] = useState<any>(null); // { damageTaken: 5, lootFound: ... }
+  const [goldBalance, setGoldBalance] = useState(0);
 
   useEffect(() => {
-    // Load gold balance
-    const savedGold = localStorage.getItem("gold-balance")
-    if (savedGold) {
-      setGoldBalance(Number.parseInt(savedGold))
+    fetchFreshCharacterStats().then(s => s && setGoldBalance(s.gold));
+  }, []);
+
+  const startRun = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/dungeon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start' })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setActiveRun(data);
+        setLog(["You entered the dungeon...", `Encountered: ${data.current_encounter.name}`]);
+        // Update gold
+        setGoldBalance(prev => prev - 50);
+      } else {
+        toast({ title: "Failed to enter", description: data.error, variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-
-    // Check if we have a current dungeon
-    const dungeonData = localStorage.getItem("current-dungeon")
-
-    if (dungeonData) {
-      setCurrentDungeon(JSON.parse(dungeonData))
-    }
-
-    setIsLoading(false)
-  }, [])
-
-  const handleDungeonComplete = (success: boolean) => {
-    if (success) {
-      // Award gold for completing the dungeon
-      const goldReward = Math.floor(Math.random() * 100) + 50 * (currentDungeon?.level || 1)
-      const newGoldBalance = goldBalance + goldReward
-      setGoldBalance(newGoldBalance)
-      localStorage.setItem("gold-balance", String(newGoldBalance))
-
-      toast({
-        title: TEXT_CONTENT.dungeon.toasts.complete.title,
-        description: TEXT_CONTENT.dungeon.toasts.complete.desc.replace("{amount}", String(goldReward)),
-      })
-    } else {
-      // Lose gold for failing
-      const goldLost = Math.floor(Math.random() * 30) + 10
-      const newGoldBalance = Math.max(0, goldBalance - goldLost)
-      setGoldBalance(newGoldBalance)
-      localStorage.setItem("gold-balance", String(newGoldBalance))
-
-      toast({
-        title: TEXT_CONTENT.dungeon.toasts.failed.title,
-        description: TEXT_CONTENT.dungeon.toasts.failed.desc.replace("{amount}", String(goldLost)),
-        variant: "destructive",
-      })
-    }
-
-    // Clear the current dungeon
-    localStorage.removeItem("current-dungeon")
-    setCompleted(true)
   }
 
-  if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">{TEXT_CONTENT.dungeon.loading}</div>
+  const handleAction = async (choice: 'fight' | 'flee' | 'open') => {
+    if (!activeRun) return;
+    setLoading(true);
+    setActionResult(null);
+
+    try {
+      const res = await fetch('/api/dungeon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'play', runId: activeRun.id, choice })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setActiveRun(data);
+        if (data.message) {
+          setLog(prev => [data.message, ...prev].slice(0, 5));
+        }
+        if (data.actionResult) {
+          setActionResult(data.actionResult);
+        }
+
+        // If completed or died, refresh stats (gold might have changed)
+        if (data.status !== 'in_progress') {
+          fetchFreshCharacterStats().then(s => s && setGoldBalance(s.gold));
+        }
+
+      } else {
+        toast({ title: "Action Failed", description: data.error, variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
       <NavBar />
-      <main className="flex-1 p-4 md:p-6 space-y-6">
+      <main className="flex-1 p-4 md:p-6 space-y-6 max-w-4xl mx-auto w-full">
+
+        {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-serif">
-              {currentDungeon
-                ? TEXT_CONTENT.dungeon.header.title
-                : TEXT_CONTENT.dungeon.header.titleDefault}
-            </h1>
-            <p className="text-muted-foreground">
-              {currentDungeon
-                ? TEXT_CONTENT.dungeon.header.subtitle
-                : TEXT_CONTENT.dungeon.header.subtitleDefault}
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight font-medieval text-red-600">The Dungeon</h1>
+            <p className="text-gray-400">Brave the depths for gold and glory.</p>
           </div>
-          {completed && (
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="text-yellow-500 border-yellow-500/50 px-3 py-1">
+              {goldBalance} Gold
+            </Badge>
             <Link href="/map">
-              <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {TEXT_CONTENT.dungeon.header.return}
+              <Button variant="outline" className="border-gray-800 hover:bg-gray-900">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Exit
               </Button>
             </Link>
-          )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-            <CardHeader>
-              <CardTitle className="font-serif">
-                {currentDungeon
-                  ? TEXT_CONTENT.dungeon.challenge.title.replace("{level}", String(currentDungeon.level))
-                  : TEXT_CONTENT.dungeon.challenge.titleDefault}
-              </CardTitle>
-              <CardDescription>
-                {currentDungeon
-                  ? TEXT_CONTENT.dungeon.challenge.subtitle
-                  : TEXT_CONTENT.dungeon.challenge.subtitleDefault}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {currentDungeon && !completed && (
-                <RiddleChallenge />
-              )}
-              {completed && (
-                <div className="text-center py-8">
-                  <p className="text-xl font-bold mb-4">{TEXT_CONTENT.dungeon.complete.title}</p>
-                  <p className="mb-6">{TEXT_CONTENT.dungeon.complete.desc}</p>
-                  <Link href="/map">
-                    <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900">
-                      {TEXT_CONTENT.dungeon.complete.button}
-                    </Button>
-                  </Link>
-                </div>
-              )}
-              {!currentDungeon && (
-                <div className="text-center py-8">
-                  <p className="text-xl font-bold mb-4">{TEXT_CONTENT.dungeon.noActive.title}</p>
-                  <p className="mb-6">{TEXT_CONTENT.dungeon.noActive.desc}</p>
-                  <Link href="/map">
-                    <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900">
-                      {TEXT_CONTENT.dungeon.noActive.button}
-                    </Button>
-                  </Link>
-                </div>
-              )}
+        {/* START SCREEN */}
+        {!activeRun && (
+          <Card className="bg-gray-900 border-red-900/30 text-center py-12">
+            <CardContent className="space-y-6">
+              <div className="w-24 h-24 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-red-900/50">
+                <Skull className="w-12 h-12 text-red-500" />
+              </div>
+              <h2 className="text-2xl font-bold">Enter if you dare</h2>
+              <p className="text-gray-400 max-w-md mx-auto">
+                Monsters lurk in the shadows. Defeat them to claim the treasure.
+                <br />Entry Cost: <span className="text-yellow-500 font-bold">50 Gold</span>
+              </p>
+              <Button
+                size="lg"
+                className="bg-red-700 hover:bg-red-800 text-white font-medieval text-lg px-8"
+                onClick={startRun}
+                disabled={loading || goldBalance < 50}
+              >
+                {loading ? "Preparing..." : "Enter Dungeon"}
+              </Button>
+              {goldBalance < 50 && <p className="text-red-500 text-sm">Not enough gold.</p>}
             </CardContent>
           </Card>
-        </div>
+        )}
+
+        {/* GAMEPLAY SCREEN */}
+        {activeRun && activeRun.status === 'in_progress' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            {/* MAIN ENCOUNTER */}
+            <Card className="md:col-span-2 bg-gray-900 border-red-900/30 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+
+              <CardHeader className="relative z-10 flex flex-row items-center justify-between">
+                <div>
+                  <Badge className="bg-red-900/50 text-red-200 mb-2">Room {activeRun.current_room} / {activeRun.max_rooms}</Badge>
+                  <CardTitle className="text-2xl text-red-500">{activeRun.current_encounter.name}</CardTitle>
+                </div>
+              </CardHeader>
+
+              <CardContent className="relative z-10 space-y-8 min-h-[300px] flex flex-col justify-end">
+
+                {/* VISUALS */}
+                <div className="flex justify-center py-8">
+                  <div className={`w-32 h-32 rounded-lg flex items-center justify-center text-6xl shadow-[0_0_50px_rgba(255,0,0,0.2)] animate-pulse
+                          ${activeRun.current_encounter.type === 'monster' ? 'bg-red-950/50 text-red-500' : 'bg-yellow-950/50 text-yellow-500'}
+                       `}>
+                    {activeRun.current_encounter.type === 'monster' ? '👹' : '💎'}
+                  </div>
+                </div>
+
+                {/* ENCOUNTER HP (If monster) */}
+                {activeRun.current_encounter.type === 'monster' && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Enemy Health</span>
+                      <span>{activeRun.current_encounter.hp} / {activeRun.current_encounter.maxHp}</span>
+                    </div>
+                    <Progress value={(activeRun.current_encounter.hp! / activeRun.current_encounter.maxHp!) * 100} className="h-2 bg-red-950" indicatorClassName="bg-red-600" />
+                  </div>
+                )}
+
+                {/* LOG */}
+                <div className="bg-black/50 p-4 rounded-lg font-mono text-sm h-32 overflow-y-auto border border-gray-800">
+                  {log.map((line, i) => (
+                    <p key={i} className={i === 0 ? "text-white font-bold" : "text-gray-500"}>&gt; {line}</p>
+                  ))}
+                </div>
+
+              </CardContent>
+
+              <CardFooter className="relative z-10 gap-4 bg-gray-950/50 p-4 border-t border-gray-800">
+                {activeRun.current_encounter.type === 'monster' ? (
+                  <>
+                    <Button className="flex-1 bg-red-600 hover:bg-red-700 h-12 text-lg" onClick={() => handleAction('fight')} disabled={loading}>
+                      <Swords className="mr-2" /> Attack
+                    </Button>
+                    <Button className="flex-1 bg-gray-700 hover:bg-gray-600 h-12" variant="outline" onClick={() => handleAction('flee')} disabled={loading}>
+                      <Zap className="mr-2" /> Flee
+                    </Button>
+                  </>
+                ) : (
+                  <Button className="w-full bg-yellow-600 hover:bg-yellow-700 h-12 text-lg text-black font-bold" onClick={() => handleAction('open')} disabled={loading}>
+                    <Treasure className="mr-2" /> Open Chest
+                  </Button>
+                )}
+              </CardFooter>
+
+              {/* DAMAGE NUMBER POPUP */}
+              {actionResult && actionResult.damageTaken > 0 && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-4xl font-bold text-red-500 animate-bounce">
+                  -{actionResult.damageTaken} HP
+                </div>
+              )}
+            </Card>
+
+            {/* PLAYER STATS SIDEBAR */}
+            <div className="space-y-6">
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <CardTitle>Your Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="flex items-center gap-2"><Heart className="w-4 h-4 text-red-500" /> Health</span>
+                      <span>{activeRun.current_hp} / {activeRun.max_hp}</span>
+                    </div>
+                    <Progress value={(activeRun.current_hp / activeRun.max_hp) * 100} className="h-3 bg-gray-800" indicatorClassName="bg-green-600" />
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-800">
+                    <h4 className="text-sm font-bold text-gray-400 mb-2">Loot Found</h4>
+                    {activeRun.loot_collected.length === 0 ? (
+                      <p className="text-xs text-gray-600">Nothing yet...</p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {activeRun.loot_collected.map((item, i) => (
+                          <li key={i} className="text-xs flex justify-between text-yellow-500">
+                            <span>{item.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* END SCREEN */}
+        {activeRun && activeRun.status !== 'in_progress' && (
+          <Card className="bg-gray-900 border-gray-800 text-center py-12">
+            <CardContent className="space-y-6">
+              <div className="text-6xl mb-4">
+                {activeRun.status === 'completed' ? '🏆' : '💀'}
+              </div>
+              <h2 className={`text-4xl font-medieval ${activeRun.status === 'completed' ? 'text-yellow-500' : 'text-red-600'}`}>
+                {activeRun.status === 'completed' ? 'VICTORY' : 'DEFEATED'}
+              </h2>
+
+              <div className="bg-black/30 p-6 rounded-lg max-w-sm mx-auto border border-gray-700">
+                <h3 className="font-bold text-gray-300 mb-4">Rewards Collected</h3>
+                {activeRun.loot_collected.length === 0 ? (
+                  <p className="text-gray-500 italic">No loot recovered.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {activeRun.loot_collected.map((item, i) => (
+                      <li key={i} className="text-yellow-400 font-bold flex justify-between">
+                        <span>{item.name}</span>
+                      </li>
+                    ))}
+                    <div className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-bold text-white">
+                      <span>Total Value</span>
+                      <span>{activeRun.loot_collected.reduce((acc, i) => acc + (i.amount || 0), 0)} G</span>
+                    </div>
+                  </ul>
+                )}
+              </div>
+
+              <Button size="lg" onClick={() => setActiveRun(null)} className="w-[200px]">
+                Return to Entrance
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
       </main>
     </div>
   )
 }
-
