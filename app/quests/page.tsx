@@ -1148,19 +1148,17 @@ export default function QuestsPage() {
       });
     }
 
-    // Persist challenge completion to backend using the standardized smart-completion API
+    // Persist challenge completion to backend using the standardized challenges API
     try {
-      const response = await fetch('/api/quests/smart-completion', {
-        method: 'POST',
+      const response = await fetch('/api/challenges', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          questId: challengeId,
-          completed: newCompleted,
-          xpReward: challengeObj.xp || 50,
-          goldReward: challengeObj.gold || 25
+          challengeId: challengeId,
+          completed: newCompleted
         })
       });
 
