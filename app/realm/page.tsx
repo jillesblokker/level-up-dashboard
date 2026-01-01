@@ -623,15 +623,7 @@ function RealmPageContent() {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
 
-        // Don't allow destroying certain protected tiles (Mountains are now destructible)
-        if (['water', 'lava', 'volcano'].includes(targetTile.type)) {
-            toast({
-                title: TEXT_CONTENT.realm.toasts.immovable.title,
-                description: TEXT_CONTENT.realm.toasts.immovable.desc.replace("{type}", targetTile.type),
-                variant: "destructive",
-            });
-            return;
-        }
+
 
         if (!window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`)) return;
 
