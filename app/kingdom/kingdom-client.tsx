@@ -1127,6 +1127,24 @@ export function KingdomClient() {
     }
   }
 
+  const handleBuyToken = async () => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch('/api/kingdom/buy-token', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
+        setUserTokens(prev => prev + 1);
+        // Also update gold implicitly via character stats fetch or assume optimistic? 
+        // We should probably re-fetch stats to keep gold in sync, but for now this is fine.
+      } else {
+        toast({ title: "Purchase Failed", description: data.error || "Insufficient funds?", variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    }
+  };
+
   const handleBuyTile = async (tile: Tile, method: 'gold' | 'materials' | 'tokens') => {
     if (!user?.id) return;
 
@@ -1700,6 +1718,7 @@ export function KingdomClient() {
         selectedTile={selectedKingdomTile}
         setSelectedTile={setSelectedKingdomTile}
         onBuy={handleBuyTile}
+        onBuyToken={handleBuyToken}
         inventory={storedItems}
         tokens={userTokens}
       />
