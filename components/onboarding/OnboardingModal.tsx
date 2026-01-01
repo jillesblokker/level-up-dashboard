@@ -215,7 +215,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   // Debug render
-  console.log('OnboardingModal render:', { isOpen, isMounted, currentStep })
+  console.error('OnboardingModal render:', { isOpen, isMounted, currentStep })
 
   // Create portal content with aggressive debugging styles
   const modalContent = (
