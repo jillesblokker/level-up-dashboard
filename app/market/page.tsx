@@ -146,6 +146,35 @@ export default function MarketPage() {
     }
   }
 
+  const handleBuyListing = async (listingId: string, price: number) => {
+    if (goldBalance < price) {
+      toast({ title: "Insufficient Gold", description: "You cannot afford this item.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/market/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Purchase Successful!", description: "Item added to your inventory." });
+        fetchPlayerListings(); // Refresh list to remove sold item
+
+        // Fetch fresh stats to update gold balance UI securely
+        fetchFreshCharacterStats().then(s => {
+          if (s) setGoldBalance(s.gold);
+        });
+      } else {
+        toast({ title: "Purchase Failed", description: data.error, variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    }
+  }
+
   const handleCloseOnboarding = (dontShowAgain: boolean) => {
     setShowOnboarding(false)
     if (dontShowAgain) localStorage.setItem("market-onboarding-shown", "true")
@@ -350,7 +379,7 @@ export default function MarketPage() {
                             {user && listing.seller_id === user.id ? (
                               <Badge variant="secondary" className="mt-1">Yours</Badge>
                             ) : (
-                              <Button size="sm" className="mt-1 h-7">Buy Now</Button>
+                              <Button size="sm" className="mt-1 h-7" onClick={() => handleBuyListing(listing.id, listing.price)}>Buy Now</Button>
                             )}
                           </div>
                         </CardContent>
