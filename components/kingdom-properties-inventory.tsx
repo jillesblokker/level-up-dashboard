@@ -60,8 +60,8 @@ export function KingdomPropertiesInventory({
   const buyableTiles = tiles;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
-      <div className="bg-[#0f1115] rounded-xl w-full max-w-4xl h-[85vh] flex flex-col border border-amber-900/30 shadow-2xl overflow-hidden relative">
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="bg-[#0f1115] w-full max-w-xl h-full border-l border-amber-900/30 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
