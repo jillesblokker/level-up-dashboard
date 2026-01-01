@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { action, runId, choice } = body;
 
-        return await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+        const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
 
             // --- ACTION: START NEW RUN ---
             if (action === 'start') {
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
                     .single();
 
                 if (!stats || stats.gold < 50) {
-                    return NextResponse.json({ error: 'Insufficient Gold (50G required)' }, { status: 400 });
+                    throw new Error('Insufficient Gold (50G required)');
                 }
 
                 // 2. Deduct Gold
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
             // --- ACTION: PLAY TURN (FIGHT/FLEE/OPEN) ---
             if (action === 'play') {
-                if (!runId) return { error: 'Missing runId' };
+                if (!runId) throw new Error('Missing runId');
 
                 // 1. Fetch Run
                 const { data: run } = await supabase
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
                     .single();
 
                 if (!run || run.status !== 'in_progress') {
-                    return { error: 'Run not active' };
+                    throw new Error('Run not active');
                 }
 
                 // 2. Resolve Action
@@ -80,9 +80,7 @@ export async function POST(req: NextRequest) {
 
                 if (encounter.type === 'monster') {
                     if (choice === 'fight') {
-                        // Simple combat logic: User hits, Monster hits back
-                        // User damage = 10-20
-                        // Monster damage = 5-15
+                        // Simple combat logic in API for now
                         const userDmg = Math.floor(Math.random() * 10) + 10;
                         const monsterDmg = Math.floor(Math.random() * 10) + 5;
 
@@ -97,9 +95,8 @@ export async function POST(req: NextRequest) {
                             lootFound = generateLoot(run.current_room);
                         }
                     } else if (choice === 'flee') {
-                        // 50% chance to flee
                         if (Math.random() > 0.5) {
-                            isRoomCleared = true; // Skipped room
+                            isRoomCleared = true;
                             resultMessage = 'You fled successfully!';
                         } else {
                             damageTaken = 10;
@@ -130,7 +127,6 @@ export async function POST(req: NextRequest) {
                     if (newRoom >= (run.max_rooms || 5)) {
                         newStatus = 'completed';
                         resultMessage += ' DUNGEON CLEARED!';
-                        // Grant big reward?
                         newLoot.push({ type: 'gold', amount: 500, name: 'Completion Bonus' });
                     } else {
                         newRoom++;
@@ -139,14 +135,13 @@ export async function POST(req: NextRequest) {
                     }
                 }
 
-                // Update DB
                 const { data: updatedRun, error } = await supabase
                     .from('dungeon_runs')
                     .update({
                         current_hp: newHp,
                         current_room: newRoom,
                         status: newStatus,
-                        current_encounter: isRoomCleared && newStatus === 'in_progress' ? newEncounter : run.current_encounter, // Only change encounter if room cleared
+                        current_encounter: isRoomCleared && newStatus === 'in_progress' ? newEncounter : run.current_encounter,
                         loot_collected: newLoot
                     })
                     .eq('id', runId)
@@ -155,7 +150,6 @@ export async function POST(req: NextRequest) {
 
                 if (error) throw error;
 
-                // If completed/died, finalize rewards
                 if (newStatus !== 'in_progress') {
                     await processEndRun(supabase, userId, newLoot);
                 }
@@ -163,8 +157,15 @@ export async function POST(req: NextRequest) {
                 return { ...updatedRun, message: resultMessage, actionResult: { damageTaken, lootFound } };
             }
 
-            return { error: 'Invalid action' };
+            throw new Error('Invalid action');
         });
+
+        if (!result.success) {
+            // If the error was thrown manually (e.g. Insufficient Gold), return 400
+            return NextResponse.json({ error: result.error }, { status: 400 });
+        }
+
+        return NextResponse.json(result.data);
 
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 400 });
@@ -191,10 +192,8 @@ function generateLoot(roomLevel: number) {
 }
 
 async function processEndRun(supabase: any, userId: string, loot: any[]) {
-    // Calculate total gold
     const totalGold = loot.reduce((acc, item) => acc + (item.type === 'gold' ? item.amount : 0), 0);
     if (totalGold > 0) {
         await supabase.rpc('add_gold', { p_user_id: userId, p_amount: totalGold });
     }
-    // Add items to inventory would go here
 }
