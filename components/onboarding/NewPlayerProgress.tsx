@@ -76,9 +76,10 @@ export function NewPlayerProgress() {
             let challengeCreated = false
             let challengeFinished = false
             if (challengesRes.ok) {
-                const challenges = await challengesRes.json()
-                challengeCreated = challenges.length > 0
-                challengeFinished = challenges.some((c: any) => c.completed)
+                const data = await challengesRes.json()
+                const list = Array.isArray(data) ? data : (data.data || data.challenges || [])
+                challengeCreated = list.length > 0
+                challengeFinished = list.some((c: any) => c.completed)
             }
 
             // 6. Milestones
