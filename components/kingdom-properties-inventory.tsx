@@ -19,6 +19,7 @@ interface KingdomPropertiesInventoryProps {
   onBuyToken?: () => void;
   inventory?: any[];
   tokens?: number;
+  playerLevel?: number;
 }
 
 export function KingdomPropertiesInventory({
@@ -30,7 +31,8 @@ export function KingdomPropertiesInventory({
   onBuy,
   onBuyToken,
   inventory = [],
-  tokens = 0
+  tokens = 0,
+  playerLevel = 1
 }: KingdomPropertiesInventoryProps) {
   const [activeTab, setActiveTab] = useState<'place' | 'buy'>('place');
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react"
 import Image from "next/image"
 import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
+import { KingdomPropertiesInventory } from './kingdom-properties-inventory'
 import { Button } from '@/components/ui/button'
 import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -183,6 +184,7 @@ export function KingdomGridWithTimers({
 
   // Add missing state for expand functionality
   const [propertiesOpen, setPropertiesOpen] = useState(false)
+  const [selectedInventoryTile, setSelectedInventoryTile] = useState<typeof propertyInventory[0] | null>(null)
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place')
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
@@ -1927,204 +1929,45 @@ export function KingdomGridWithTimers({
         {renderGridWithBorder()}
       </div>
 
-      {/* Side panel for properties */}
-      {propertiesOpen && (
-        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-900 z-50 shadow-lg border-l border-amber-800/40 flex flex-col" role="dialog" aria-modal="true" aria-label="Properties side panel">
-          <div className="flex justify-between items-center p-4 border-b border-amber-800/20">
-            <h3 className="text-2xl font-bold text-amber-400">Properties</h3>
-            <button onClick={() => setPropertiesOpen(false)} className="text-amber-400 hover:text-amber-200 text-2xl bg-black/40 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close properties panel">×</button>
-          </div>
-          <div className="px-4 pt-2 pb-0">
-            <div className="text-lg font-bold text-amber-300 mb-2 flex items-center justify-between">
-              <span><a href="/quests" className="text-blue-800 hover:text-blue-700 underline cursor-pointer">Build</a> tokens: <span className="text-amber-400">{buildTokens}</span></span>
-              <Button
-                onClick={async () => {
-                  try {
-                    const success = await spendGold(1000, 'build-token-purchase');
-                    if (success) {
-                      setBuildTokens(prev => {
-                        const newVal = (prev || 0) + 1;
-                        import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-                          updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
-                        });
-                        return newVal;
-                      });
-                    }
-                  } catch (error) {
-                    console.error('Error purchasing build token:', error);
-                  }
-                }}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-sm"
-                disabled={(() => {
-                  const stats = getCharacterStats();
-                  return (stats.gold || 0) < 1000;
-                })()}
-              >
-                Buy (1000g)
-              </Button>
-            </div>
-            {/* Tabs for Place and Buy */}
-            <div className="flex gap-2 mb-4">
-              <button
-                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'place' ? 'bg-amber-800 text-white' : ''}`}
-                aria-label="Place properties tab"
-                onClick={() => setPropertyTab('place')}
-              >
-                Place
-              </button>
-              <button
-                className={`flex-1 py-2 rounded-t bg-gray-800 text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 ${propertyTab === 'buy' ? 'bg-amber-800 text-white' : ''}`}
-                aria-label="Buy properties tab"
-                onClick={() => setPropertyTab('buy')}
-              >
-                Buy
-              </button>
-            </div>
-          </div>
-          <ScrollArea className="flex-1 min-h-0 w-full">
-            <div className="p-4 pb-8 space-y-4">
-              {propertyTab === 'place' ? (
-                // Place tab - show properties you own
-                <div className="grid grid-cols-2 gap-6">
-                  {getAvailableProperties().map(tile => {
-                    const canPlace = canPlaceProperty(tile)
-
-                    return (
-                      <button
-                        key={tile.id}
-                        className={`relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 ${canPlace
-                          ? 'hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer'
-                          : 'opacity-50 cursor-not-allowed'
-                          }`}
-                        onClick={() => canPlace && handlePropertySelect(tile)}
-                        disabled={!canPlace}
-                        aria-label={`Select ${tile.name} for placement`}
-                      >
-                        <div className="relative w-full aspect-square mb-3">
-                          <Image
-                            src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                            alt={tile.name}
-                            fill
-                            className="object-contain rounded-xl"
-                            draggable={false}
-                            unoptimized
-                          />
-                          {/* Level requirement badge */}
-                          {tile.levelRequired > 1 && (
-                            <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                              Lv.{tile.levelRequired}
-                            </div>
-                          )}
-                          {/* Quantity badge */}
-                          <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
-                            {tile.quantity || 0}
-                          </div>
-                        </div>
-                        <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="truncate">{tile.name}</span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <div className="text-center">
-                                <div className="font-bold">{tile.name}</div>
-                                <div className="text-sm text-gray-300">
-                                  Owned: {tile.quantity || 0}
-                                </div>
-                                {tile.levelRequired > 1 && (
-                                  <div className="text-sm text-blue-300">
-                                    Requires Level {tile.levelRequired}
-                                  </div>
-                                )}
-                                {!canPlace && (
-                                  <div className="text-sm text-red-300 mt-1">
-                                    {tile.quantity <= 0 ? 'Buy this property first!' : `Need Level ${tile.levelRequired}`}
-                                  </div>
-                                )}
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <div className="text-sm text-amber-400 text-center">
-                          Click to place
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              ) : (
-                // Buy tab - show properties for purchase
-                <div className="grid grid-cols-2 gap-6">
-                  {getAvailableProperties().map(tile => (
-                    <button
-                      key={tile.id}
-                      className="relative flex flex-col items-center border border-amber-800/30 bg-black/60 rounded-xl p-3 shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 hover:border-amber-500/50 hover:shadow-amber-500/20 cursor-pointer"
-                      onClick={() => handleBuyProperty(tile)}
-                      aria-label={`Buy ${tile.name}`}
-                    >
-                      <div className="relative w-full aspect-square mb-3">
-                        <Image
-                          src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-                          alt={tile.name}
-                          fill
-                          className="object-contain rounded-xl"
-                          draggable={false}
-                          unoptimized
-                        />
-                        {/* Level requirement badge */}
-                        {tile.levelRequired > 1 && (
-                          <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                            Lv.{tile.levelRequired}
-                          </div>
-                        )}
-                        {/* Cost badge */}
-                        <div className="absolute top-2 left-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
-                          {tile.cost}g
-                        </div>
-                        {/* Quantity badge */}
-                        <div className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
-                          Owned: {tile.quantity || 0}
-                        </div>
-                      </div>
-                      <div className="text-base font-bold text-amber-300 text-center truncate w-full mb-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="truncate">{tile.name}</span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <div className="text-center">
-                              <div className="font-bold">{tile.name}</div>
-                              <div className="text-sm text-gray-300">
-                                Cost: {tile.cost} gold
-                              </div>
-                              <div className="text-sm text-green-300">
-                                Owned: {tile.quantity || 0}
-                              </div>
-                              {tile.levelRequired > 1 && (
-                                <div className="text-sm text-blue-300">
-                                  Requires Level {tile.levelRequired}
-                                </div>
-                              )}
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                      <div className="text-sm text-amber-400 text-center">
-                        Click to buy
-                      </div>
-                      {tile.isSeasonal && (
-                        <div className="text-xs text-blue-400 text-center mt-1">
-                          Seasonal Tile
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </div>
-      )}
+      {/* Properties Inventory Panel (Replaced inline code with component) */}
+      <KingdomPropertiesInventory
+        open={propertiesOpen}
+        onClose={() => setPropertiesOpen(false)}
+        tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
+        selectedTile={selectedInventoryTile}
+        setSelectedTile={(tile: typeof propertyInventory[0] | null) => {
+          setSelectedInventoryTile(tile);
+          if (tile) {
+            handlePropertySelect(tile); // This sets placement mode and closes panel
+          }
+        }}
+        onBuy={(tile) => {
+          handleBuyProperty(tile);
+        }}
+        onBuyToken={async () => {
+          try {
+            const success = await spendGold(1000, 'build-token-purchase');
+            if (success) {
+              setBuildTokens(prev => {
+                const newVal = (prev || 0) + 1;
+                import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
+                  updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
+                });
+                return newVal;
+              });
+              toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
+            } else {
+              toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
+            }
+          } catch (e) {
+            console.error('Error purchasing build token:', e);
+            toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
+          }
+        }}
+        tokens={buildTokens}
+        playerLevel={playerLevel}
+        inventory={propertyInventory}
+      />
 
       {showModal && modalData && (
         <KingdomTileModal
