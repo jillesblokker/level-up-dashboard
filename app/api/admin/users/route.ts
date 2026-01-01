@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,11 +10,9 @@ async function isAdmin() {
     if (!user) return false;
 
     // Replace with your actual admin logic
-    // For now, we check a specific email or metadata
-    const adminEmail = process.env.ADMIN_EMAIL || 'jillesblokker@gmail.com'; // Fallback to assumed email or ensure ENV is set
+    const adminEmail = process.env.ADMIN_EMAIL || 'jillesblokker@gmail.com';
     const userEmail = user.emailAddresses[0]?.emailAddress;
 
-    // Check strict equality
     return userEmail === adminEmail;
 }
 
@@ -31,13 +29,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ users: [] });
     }
 
-    return await authenticatedSupabaseQuery(req, async (supabase) => {
-        // Search by username or email (via user_preferences or just character_stats user_id joining?)
-        // Since we store profile data in 'user_preferences' (display_name), let's search that.
-
-        // Note: Searching auth.users is hard with RLS. We usually search our public 'users' or 'user_preferences' table.
-        // 'user_preferences' has 'display_name'.
-
+    const result = await authenticatedSupabaseQuery(req, async (supabase) => {
         const { data, error } = await supabase
             .from('user_preferences')
             .select('user_id, display_name')
@@ -59,6 +51,12 @@ export async function GET(req: NextRequest) {
 
         return { users: usersWithStats };
     });
+
+    if (!result.success) {
+        return NextResponse.json({ error: result.error }, { status: 500 });
+    }
+
+    return NextResponse.json(result.data);
 }
 
 // Update User Stats
@@ -68,9 +66,9 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, updates } = body; // updates = { gold: 100, xp: 500 }
+    const { userId, updates } = body;
 
-    return await authenticatedSupabaseQuery(req, async (supabase) => {
+    const result = await authenticatedSupabaseQuery(req, async (supabase) => {
         const { data, error } = await supabase
             .from('character_stats')
             .update(updates)
@@ -81,4 +79,10 @@ export async function PUT(req: NextRequest) {
         if (error) throw error;
         return { success: true, stats: data };
     });
+
+    if (!result.success) {
+        return NextResponse.json({ error: result.error }, { status: 500 });
+    }
+
+    return NextResponse.json(result.data);
 }

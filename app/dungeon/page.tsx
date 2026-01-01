@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Swords, Skull, Shield, Zap, Treasure, Heart } from "lucide-react"
+import { ArrowLeft, Swords, Skull, Shield, Zap, Gem, Heart } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -206,7 +206,7 @@ export default function DungeonPage() {
                   </>
                 ) : (
                   <Button className="w-full bg-yellow-600 hover:bg-yellow-700 h-12 text-lg text-black font-bold" onClick={() => handleAction('open')} disabled={loading}>
-                    <Treasure className="mr-2" /> Open Chest
+                    <Gem className="mr-2" /> Open Chest
                   </Button>
                 )}
               </CardFooter>
@@ -276,10 +276,10 @@ export default function DungeonPage() {
                         <span>{item.name}</span>
                       </li>
                     ))}
-                    <div className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-bold text-white">
+                    <li className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-bold text-white">
                       <span>Total Value</span>
                       <span>{activeRun.loot_collected.reduce((acc, i) => acc + (i.amount || 0), 0)} G</span>
-                    </div>
+                    </li>
                   </ul>
                 )}
               </div>
