@@ -241,7 +241,7 @@ export const TEXT_CONTENT = {
                     desc: "Open the interactive tutorial"
                 },
                 guide: {
-                    title: "Adventurer's Guide",
+                    title: "System Requirements",
                     desc: "View system requirements"
                 },
                 designSystem: {
@@ -1669,15 +1669,15 @@ export const TEXT_CONTENT = {
             subtitle: "Pioneer a mystical world beyond your borders",
             exploration: {
                 title: "Exploration Mode",
-                content: "Switch to 'Move' mode to navigate the realm. Discover hidden secrets, rare resources, and mystical events as you uncover the fog."
+                content: "Navigate the unknown. Discover hidden secrets, rare resources, and mystical events as you uncover the fog of war."
             },
             building: {
                 title: "Mystical Building",
-                content: "Use 'Build' mode to place mystical tiles. Different tiles require specific ingredients and can grant unique bonuses to your kingdom."
+                content: "Shape your domain. Placing mystical tiles requires specific ingredients, but rewards your kingdom with unique bonuses."
             },
             combat: {
                 title: "Survival & Combat",
-                content: "The realm is dangerous! Monsters may spawn as you explore. Ensure your character is equipped with strong gear from your inventory to survive battles."
+                content: "The realm is dangerous! Monsters may spawn as you explore. Equip strong gear from your inventory to triumph in battles."
             }
         },
         modes: {
