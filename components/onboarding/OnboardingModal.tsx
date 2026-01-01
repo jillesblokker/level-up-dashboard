@@ -214,12 +214,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     return null
   }
 
+  // Debug render
+  console.log('OnboardingModal render:', { isOpen, isMounted, currentStep })
+
   // Create portal content with aggressive debugging styles
   const modalContent = (
     <div
       data-modal-container="onboarding-standalone"
       className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center",
+        "fixed inset-0 z-[9999] flex items-center justify-center",
         "bg-black/80 backdrop-blur-sm",
         "transition-all duration-300 ease-in-out",
         isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"

@@ -130,7 +130,9 @@ export default function SettingsPage() {
   }
 
   const handleShowTutorial = () => {
-    openOnboarding(true)
+    console.log("SettingsPage: Launching tutorial manually")
+    resetOnboarding() // Reset first to ensure clean start
+    setTimeout(() => openOnboarding(true), 100) // Small delay to let reset propagate
   }
 
   const handleGithubToggle = async (checked: boolean) => {
