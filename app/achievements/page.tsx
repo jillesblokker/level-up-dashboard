@@ -69,7 +69,7 @@ export default function Page() {
               {
                 id: '107',
                 name: 'First Alliance',
-                description: 'Add your first ally to your fellowship',
+                description: 'A lone wolf survives, but a pack thrives. Extend a hand to another.',
                 category: 'social',
                 difficulty: 'easy',
                 xp_reward: 50,
@@ -81,7 +81,7 @@ export default function Page() {
               {
                 id: '108',
                 name: 'Guild Founder',
-                description: 'Gather 5 allies to your cause',
+                description: 'A small party can accomplish great things. Expand your circle of trust to a hand\'s count.',
                 category: 'social',
                 difficulty: 'medium',
                 xp_reward: 100,
@@ -93,7 +93,7 @@ export default function Page() {
               {
                 id: '109',
                 name: 'Fellowship Leader',
-                description: 'Unite 10 allies under your banner',
+                description: 'Your banner attracts many. Lead a party of ten brave souls.',
                 category: 'social',
                 difficulty: 'hard',
                 xp_reward: 200,
@@ -105,7 +105,7 @@ export default function Page() {
               {
                 id: '110',
                 name: 'Quest Giver',
-                description: 'Send your first quest to an ally',
+                description: 'It is better to give than to receive. Challenge an ally to grow.',
                 category: 'social',
                 difficulty: 'easy',
                 xp_reward: 50,
@@ -117,7 +117,7 @@ export default function Page() {
               {
                 id: '111',
                 name: 'Master Strategist',
-                description: 'Send 5 quests to challenge your allies',
+                description: 'A true leader pushes their allies to greatness. Issue five challenges.',
                 category: 'social',
                 difficulty: 'hard',
                 xp_reward: 150,
@@ -129,7 +129,7 @@ export default function Page() {
               {
                 id: '112',
                 name: 'Grand Questmaster',
-                description: 'Send 10 quests to friends and earn the title of Questmaster',
+                description: 'Your command over challenges is legendary. Ten allies have been tested by your hand.',
                 category: 'social',
                 difficulty: 'hard',
                 xp_reward: 500,
@@ -159,7 +159,7 @@ export default function Page() {
             {
               id: '201',
               name: 'Ancient Dragon Slayer',
-              description: 'Defeat Dragoni in a Simon Says battle',
+              description: 'Face the ancient winged beast. Watch its movements closely and strike true.',
               category: 'combat',
               difficulty: 'hard',
               xp_reward: 100,
@@ -171,7 +171,7 @@ export default function Page() {
             {
               id: '202',
               name: 'Goblin Hunter',
-              description: 'Defeat Orci in a Simon Says battle',
+              description: 'The crafty looting menace hides in the shadows. Match its cunning moves.',
               category: 'combat',
               difficulty: 'easy',
               xp_reward: 100,
@@ -183,7 +183,7 @@ export default function Page() {
             {
               id: '203',
               name: 'Troll Crusher',
-              description: 'Defeat Trollie in a Simon Says battle',
+              description: 'A mountain of muscle blocks your path. Mimic its brute force to bring it down.',
               category: 'combat',
               difficulty: 'medium',
               xp_reward: 100,
@@ -195,7 +195,7 @@ export default function Page() {
             {
               id: '204',
               name: 'Dark Wizard Vanquisher',
-              description: 'Defeat Sorcero in a Simon Says battle',
+              description: 'Magic swirls in complex patterns. Memorize the arcane sequence to dispel the darkness.',
               category: 'combat',
               difficulty: 'hard',
               xp_reward: 100,
@@ -207,7 +207,7 @@ export default function Page() {
             {
               id: '205',
               name: 'Pegasus Tamer',
-              description: 'Defeat Peggie in a Simon Says battle',
+              description: 'A majestic creature of the clouds. Follow its graceful flight to earn its trust.',
               category: 'combat',
               difficulty: 'medium',
               xp_reward: 100,
@@ -219,7 +219,7 @@ export default function Page() {
             {
               id: '206',
               name: 'Fairy Friend',
-              description: 'Defeat Fairiel in a Simon Says battle',
+              description: 'Small and swift, dancing in the light. Keep up with the fae\'s rhythm.',
               category: 'combat',
               difficulty: 'easy',
               xp_reward: 100,
@@ -232,7 +232,7 @@ export default function Page() {
             {
               id: '107',
               name: 'First Alliance',
-              description: 'Add your first ally to your fellowship',
+              description: 'A lone wolf survives, but a pack thrives. Extend a hand to another.',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
@@ -244,7 +244,7 @@ export default function Page() {
             {
               id: '108',
               name: 'Guild Founder',
-              description: 'Gather 5 allies to your cause',
+              description: 'A small party can accomplish great things. Expand your circle of trust to a hand\'s count.',
               category: 'social',
               difficulty: 'medium',
               xp_reward: 100,
@@ -256,7 +256,7 @@ export default function Page() {
             {
               id: '109',
               name: 'Fellowship Leader',
-              description: 'Unite 10 allies under your banner',
+              description: 'Your banner attracts many. Lead a party of ten brave souls.',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 200,
@@ -268,7 +268,7 @@ export default function Page() {
             {
               id: '110',
               name: 'Quest Giver',
-              description: 'Send your first quest to an ally',
+              description: 'It is better to give than to receive. Challenge an ally to grow.',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
@@ -280,7 +280,7 @@ export default function Page() {
             {
               id: '111',
               name: 'Master Strategist',
-              description: 'Send 5 quests to challenge your allies',
+              description: 'A true leader pushes their allies to greatness. Issue five challenges.',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 150,
@@ -292,7 +292,7 @@ export default function Page() {
             {
               id: '112',
               name: 'Grand Questmaster',
-              description: 'Send 10 quests to friends and earn the title of Questmaster',
+              description: 'Your command over challenges is legendary. Ten allies have been tested by your hand.',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 500,

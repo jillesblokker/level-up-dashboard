@@ -1246,12 +1246,12 @@ export const TEXT_CONTENT = {
         header: {
             title: "Creature Collection",
             guide: {
-                title: "Achievements",
-                subtitle: "Your legacy in Thrivehaven",
+                title: "Adventurer's Guide",
+                subtitle: "Build your legacy in Thrivehaven",
                 sections: {
-                    collection: { title: "Creature Collection", content: "Discover and unlock rare mythical creatures by exploring the realm and meeting unique requirements." },
-                    battles: { title: "Battle Glories", content: "Defeat monsters in legendary battles to earn prestigious trophies for your collection." },
-                    social: { title: "Social Deeds", content: "Forge alliances and support your fellow pioneers to unlock unique social achievements." }
+                    collection: { title: "Creature Collection", content: "Roam the wild lands. Some creatures appear only to those who explore diligently and meet their unique criteria." },
+                    battles: { title: "Battle Glories", content: "Test your memory and reflexes against legendary beasts. Victory rewards you with trophies." },
+                    social: { title: "Social Deeds", content: "Strength lies in numbers. Build a network of allies and challenge each other to grow." }
                 }
             }
         },
@@ -1278,18 +1278,18 @@ export const TEXT_CONTENT = {
             undiscovered: "Undiscovered Achievement"
         },
         definitions: {
-            '107': { name: 'First Alliance', description: 'Add your first ally to your fellowship', condition: 'Add your first friend' },
-            '108': { name: 'Guild Founder', description: 'Gather 5 allies to your cause', condition: 'Add 5 friends' },
-            '109': { name: 'Fellowship Leader', description: 'Unite 10 allies under your banner', condition: 'Add 10 friends' },
-            '110': { name: 'Quest Giver', description: 'Send your first quest to an ally', condition: 'Send your first quest to a friend' },
-            '111': { name: 'Master Strategist', description: 'Send 5 quests to challenge your allies', condition: 'Send 5 quests to friends' },
-            '112': { name: 'Grand Questmaster', description: 'Send 10 quests to friends and earn the title of Questmaster', condition: 'Send 10 quests to friends' },
-            '201': { name: 'Ancient Dragon Slayer', description: 'Defeat Dragoni in a Simon Says battle', condition: 'Complete Simon Says battle against Dragon' },
-            '202': { name: 'Goblin Hunter', description: 'Defeat Orci in a Simon Says battle', condition: 'Complete Simon Says battle against Goblin' },
-            '203': { name: 'Troll Crusher', description: 'Defeat Trollie in a Simon Says battle', condition: 'Complete Simon Says battle against Troll' },
-            '204': { name: 'Dark Wizard Vanquisher', description: 'Defeat Sorcero in a Simon Says battle', condition: 'Complete Simon Says battle against Wizard' },
-            '205': { name: 'Pegasus Tamer', description: 'Defeat Peggie in a Simon Says battle', condition: 'Complete Simon Says battle against Pegasus' },
-            '206': { name: 'Fairy Friend', description: 'Defeat Fairiel in a Simon Says battle', condition: 'Complete Simon Says battle against Fairy' }
+            '107': { name: 'First Alliance', description: 'A lone wolf survives, but a pack thrives. Extend a hand to another.', condition: 'Add your first friend' },
+            '108': { name: 'Guild Founder', description: 'A small party can accomplish great things. Expand your circle of trust to a hand\'s count.', condition: 'Add 5 friends' },
+            '109': { name: 'Fellowship Leader', description: 'Your banner attracts many. Lead a party of ten brave souls.', condition: 'Add 10 friends' },
+            '110': { name: 'Quest Giver', description: 'It is better to give than to receive. Challenge an ally to grow.', condition: 'Send your first quest to a friend' },
+            '111': { name: 'Master Strategist', description: 'A true leader pushes their allies to greatness. Issue five challenges.', condition: 'Send 5 quests to friends' },
+            '112': { name: 'Grand Questmaster', description: 'Your command over challenges is legendary. Ten allies have been tested by your hand.', condition: 'Send 10 quests to friends' },
+            '201': { name: 'Ancient Dragon Slayer', description: 'Face the ancient winged beast. Watch its movements closely and strike true.', condition: 'Complete Simon Says battle against Dragon' },
+            '202': { name: 'Goblin Hunter', description: 'The crafty looting menace hides in the shadows. Match its cunning moves.', condition: 'Complete Simon Says battle against Goblin' },
+            '203': { name: 'Troll Crusher', description: 'A mountain of muscle blocks your path. Mimic its brute force to bring it down.', condition: 'Complete Simon Says battle against Troll' },
+            '204': { name: 'Dark Wizard Vanquisher', description: 'Magic swirls in complex patterns. Memorize the arcane sequence to dispel the darkness.', condition: 'Complete Simon Says battle against Wizard' },
+            '205': { name: 'Pegasus Tamer', description: 'A majestic creature of the clouds. Follow its graceful flight to earn its trust.', condition: 'Complete Simon Says battle against Pegasus' },
+            '206': { name: 'Fairy Friend', description: 'Small and swift, dancing in the light. Keep up with the fae\'s rhythm.', condition: 'Complete Simon Says battle against Fairy' }
         }
     },
     character: {
