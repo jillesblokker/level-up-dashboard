@@ -131,7 +131,7 @@ export default function QuestsPage() {
 
   // Sync tab with URL query param
   useEffect(() => {
-    const tab = searchParams.get('tab');
+    const tab = searchParams?.get('tab');
     if (tab && ['quests', 'challenges', 'milestones', 'recovery'].includes(tab)) {
       setMainTab(tab as any);
     }
