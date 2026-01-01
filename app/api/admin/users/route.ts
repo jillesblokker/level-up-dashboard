@@ -10,7 +10,7 @@ async function isAdmin() {
     if (!user) return false;
 
     // Replace with your actual admin logic
-    const adminEmail = process.env.ADMIN_EMAIL || 'jillesblokker@gmail.com';
+    const adminEmail = process.env['ADMIN_EMAIL'] || 'jillesblokker@gmail.com';
     const userEmail = user.emailAddresses[0]?.emailAddress;
 
     return userEmail === adminEmail;
