@@ -83,6 +83,8 @@ export interface Tile {
   owned?: number | undefined;
   hasMonster?: 'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy' | undefined;
   monsterAchievementId?: string | undefined;
+  materialCost?: { itemId: string; quantity: number }[];
+  tokenCost?: number;
 }
 
 // Interface for an item in the player's inventory
@@ -111,6 +113,8 @@ export interface InventoryItem {
   bigMysteryY?: number | undefined;
   tileSize?: 1 | 2 | undefined;
   unlocked?: boolean;
+  materialCost?: { itemId: string; quantity: number }[];
+  tokenCost?: number;
 }
 
 // Interface for a tile selected from inventory, ready to be placed

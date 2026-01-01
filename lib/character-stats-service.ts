@@ -24,6 +24,7 @@ export interface CharacterStats {
     health: number;
     max_health: number;
     build_tokens: number;
+    streak_tokens: number;
     kingdom_expansions: number;
     display_name?: string;
     title?: string;
@@ -75,6 +76,7 @@ class CharacterStatsService {
                     health: stats.health || 100,
                     max_health: stats.max_health || 100,
                     build_tokens: stats.build_tokens || stats.buildTokens || 0,
+                    streak_tokens: stats.streak_tokens || stats.streakTokens || 0,
                     kingdom_expansions: parseInt(getUserScopedItem('kingdom-grid-expansions') || '0', 10),
                     display_name: stats.display_name || 'Adventurer',
                     title: stats.title || 'Novice'
@@ -124,6 +126,7 @@ class CharacterStatsService {
         if (updates.health !== undefined) newStats.health = updates.health;
         if (updates.max_health !== undefined) newStats.max_health = updates.max_health;
         if (updates.build_tokens !== undefined) newStats.build_tokens = updates.build_tokens;
+        if (updates.streak_tokens !== undefined) newStats.streak_tokens = updates.streak_tokens;
         if (updates.kingdom_expansions !== undefined) newStats.kingdom_expansions = updates.kingdom_expansions;
         if (updates.display_name !== undefined) newStats.display_name = updates.display_name;
         if (updates.title !== undefined) newStats.title = updates.title;
@@ -188,6 +191,7 @@ class CharacterStatsService {
                         health: serverStats.health || 100,
                         max_health: serverStats.max_health || 100,
                         build_tokens: Math.max(serverStats.build_tokens || 0, localStats.build_tokens || 0),
+                        streak_tokens: Math.max(serverStats.streak_tokens || 0, localStats.streak_tokens || 0),
                         kingdom_expansions: Math.max(serverStats.kingdom_expansions || 0, localStats.kingdom_expansions || 0),
                         display_name: serverStats.display_name || localStats.display_name || 'Adventurer',
                         title: serverStats.title || localStats.title || 'Novice',
@@ -265,6 +269,7 @@ class CharacterStatsService {
                     health: currentStats.health,
                     max_health: currentStats.max_health,
                     build_tokens: currentStats.build_tokens,
+                    streak_tokens: currentStats.streak_tokens,
                     kingdom_expansions: currentStats.kingdom_expansions,
                     display_name: currentStats.display_name,
                     title: currentStats.title
@@ -321,6 +326,7 @@ class CharacterStatsService {
             health: stats.health,
             max_health: stats.max_health,
             build_tokens: stats.build_tokens,
+            streak_tokens: stats.streak_tokens,
             display_name: stats.display_name,
             title: stats.title
         };
@@ -345,6 +351,7 @@ class CharacterStatsService {
             health: 100,
             max_health: 100,
             build_tokens: 0,
+            streak_tokens: 0,
             kingdom_expansions: 0,
             display_name: 'Adventurer',
             title: 'Novice'

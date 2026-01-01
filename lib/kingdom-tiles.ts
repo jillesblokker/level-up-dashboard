@@ -10,6 +10,9 @@ export interface KingdomTile {
   itemType: 'weapon' | 'armor' | 'scroll' | 'potion' | 'food' | 'material' | 'artifact' | 'none'
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
   image: string
+  materialCost?: { itemId: string; quantity: number }[]
+  tokenCost?: number
+  cost?: number
 }
 
 import { TEXT_CONTENT } from './text-content'
@@ -79,7 +82,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Well.png'
+    image: '/images/kingdom-tiles/Well.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 5 }],
+    tokenCost: 1
   },
   {
     id: 'blacksmith',
@@ -99,7 +104,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'weapon',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Blacksmith.png'
+    image: '/images/kingdom-tiles/Blacksmith.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 20 }, { itemId: 'material-planks', quantity: 5 }],
+    tokenCost: 2
   },
   {
     id: 'sawmill',
@@ -168,7 +175,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'food',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Foodcourt.png'
+    image: '/images/kingdom-tiles/Foodcourt.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 40 }],
+    tokenCost: 2
   },
   {
     id: 'vegetables',
@@ -204,7 +213,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'scroll',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Wizard.png'
+    image: '/images/kingdom-tiles/Wizard.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 50 }, { itemId: 'material-silver', quantity: 10 }],
+    tokenCost: 3
   },
   {
     id: 'temple',
@@ -221,7 +232,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'potion',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Temple.png'
+    image: '/images/kingdom-tiles/Temple.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 20 }],
+    tokenCost: 2
   },
   {
     id: 'castle',
@@ -238,7 +251,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'artifact',
     rarity: 'legendary',
-    image: '/images/kingdom-tiles/Castle.png'
+    image: '/images/kingdom-tiles/Castle.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 100 }, { itemId: 'material-steel', quantity: 50 }],
+    tokenCost: 3
   },
   {
     id: 'mansion',
@@ -255,7 +270,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'artifact',
     rarity: 'epic',
-    image: '/images/kingdom-tiles/Mansion.png'
+    image: '/images/kingdom-tiles/Mansion.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 100 }],
+    tokenCost: 3
   },
   {
     id: 'fountain',
@@ -272,7 +289,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'potion',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Fountain.png'
+    image: '/images/kingdom-tiles/Fountain.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 10 }],
+    tokenCost: 1
   },
   {
     id: 'mayor',
@@ -289,7 +308,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'artifact',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Mayor.png'
+    image: '/images/kingdom-tiles/Mayor.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 100 }],
+    tokenCost: 3
   },
   {
     id: 'inn',
@@ -306,7 +327,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'artifact',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Inn.png'
+    image: '/images/kingdom-tiles/Inn.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 40 }],
+    tokenCost: 1
   },
 
   // Entertainment & Social Tiles
@@ -328,7 +351,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'weapon',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Jousting.png'
+    image: '/images/kingdom-tiles/Jousting.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 50 }],
+    tokenCost: 2
   },
   {
     id: 'archery',
@@ -345,7 +370,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'weapon',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Archery.png'
+    image: '/images/kingdom-tiles/Archery.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 40 }],
+    tokenCost: 2
   },
   {
     id: 'watchtower',
@@ -362,7 +389,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'artifact',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Watchtower.png'
+    image: '/images/kingdom-tiles/Watchtower.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 20 }],
+    tokenCost: 2
   },
   {
     id: 'pond',
@@ -379,7 +408,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Pond.png'
+    image: '/images/kingdom-tiles/Pond.png',
+    materialCost: [],
+    tokenCost: 1
   },
   {
     id: 'windmill',
@@ -396,7 +427,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'food',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Windmill.png'
+    image: '/images/kingdom-tiles/Windmill.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 20 }],
+    tokenCost: 1
   }
   ,
   // --- Seasonal & Utility Tiles (new) ---
@@ -563,7 +596,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'scroll',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Library.png'
+    image: '/images/kingdom-tiles/Library.png',
+    materialCost: [{ itemId: 'material-planks', quantity: 50 }],
+    tokenCost: 2
   },
   {
     id: 'training-grounds',
@@ -580,7 +615,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'weapon',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/TrainingGrounds.png'
+    image: '/images/kingdom-tiles/TrainingGrounds.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 40 }],
+    tokenCost: 2
   },
   {
     id: 'stable',
@@ -595,7 +632,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'material',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Stable.png'
+    image: '/images/kingdom-tiles/Stable.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 30 }],
+    tokenCost: 1
   },
   {
     id: 'house',
@@ -612,7 +651,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/House.png'
+    image: '/images/kingdom-tiles/House.png',
+    materialCost: [{ itemId: 'material-logs', quantity: 10 }],
+    tokenCost: 1
   }
 ]
 
