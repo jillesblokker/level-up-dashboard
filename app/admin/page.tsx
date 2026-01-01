@@ -95,7 +95,7 @@ export default function AdminPage() {
       if (res.ok) {
         toast({ title: "Stats Updated", description: `Updated stats for ${editingUser.display_name}` });
         // Update local list
-        setEditingUser(prev => ({ ...prev, stats: { ...prev.stats, ...statsForm } }));
+        setEditingUser((prev: any) => ({ ...prev, stats: { ...prev.stats, ...statsForm } }));
       } else {
         toast({ title: "Error", description: data.error, variant: "destructive" });
       }
