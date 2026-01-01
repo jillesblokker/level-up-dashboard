@@ -42,7 +42,7 @@ export function KingdomPropertiesInventory({
 
   // Mapping inventory counts to tile IDs
   const inventoryMap = new Map();
-  inventory.forEach(item => {
+  (inventory || []).forEach(item => {
     // Normalize item IDs: 'house' vs 'house-tile'? 
     // Inventory items usually have IDs like 'house' or names.
     // We check both id and name for safety.
