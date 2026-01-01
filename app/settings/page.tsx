@@ -119,20 +119,7 @@ export default function SettingsPage() {
     }
   }
 
-  const { openOnboarding, resetOnboarding } = useOnboarding()
 
-  const handleResetOnboarding = () => {
-    resetOnboarding()
-    toast({
-      title: TEXT_CONTENT.settings.toasts.onboardingReset.title,
-      description: TEXT_CONTENT.settings.toasts.onboardingReset.desc,
-    })
-  }
-
-  const handleShowTutorial = () => {
-    console.error("SettingsPage: Launching tutorial manually (force open)")
-    openOnboarding(true)
-  }
 
   const handleGithubToggle = async (checked: boolean) => {
     if (checked) {
@@ -274,37 +261,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="account" className="space-y-6">
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
-              <CardHeader>
-                <CardTitle className="font-serif text-white">{TEXT_CONTENT.settings.account.title}</CardTitle>
-                <CardDescription className="text-gray-400">{TEXT_CONTENT.settings.account.subtitle}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-white">{TEXT_CONTENT.settings.account.showTutorial.desc}</p>
-                    <Button
-                      variant="outline"
-                      className="text-white border-amber-800/20 hover:bg-amber-900/20"
-                      onClick={handleShowTutorial}
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      {TEXT_CONTENT.settings.account.showTutorial.button}
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-white">{TEXT_CONTENT.settings.account.resetTutorial.desc}</p>
-                    <Button
-                      variant="outline"
-                      className="text-white border-amber-800/20 hover:bg-amber-900/20"
-                      onClick={handleResetOnboarding}
-                    >
-                      {TEXT_CONTENT.settings.account.resetTutorial.button}
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </TabsContent>
         </Tabs>
 
