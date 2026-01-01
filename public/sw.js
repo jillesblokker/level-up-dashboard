@@ -13,7 +13,7 @@ const STATIC_FILES = [
   '/character',
   '/achievements',
   '/realm',
-  '/manifest.json',
+  '/manifest.webmanifest',
   '/icons/thrivehaven_fav.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'

@@ -64,7 +64,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Level Up - Medieval Habit Tracker",
   description: "A medieval-themed habit tracking app with quests, kingdom building, and character progression",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png" },

@@ -16,6 +16,7 @@ import { TEXT_CONTENT } from "@/lib/text-content"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
+import { useOnboarding } from "@/hooks/use-onboarding"
 
 
 export default function SettingsPage() {
@@ -118,8 +119,10 @@ export default function SettingsPage() {
     }
   }
 
+  const { openOnboarding, resetOnboarding } = useOnboarding()
+
   const handleResetOnboarding = () => {
-    console.log('Onboarding reset temporarily disabled');
+    resetOnboarding()
     toast({
       title: TEXT_CONTENT.settings.toasts.onboardingReset.title,
       description: TEXT_CONTENT.settings.toasts.onboardingReset.desc,
@@ -127,7 +130,7 @@ export default function SettingsPage() {
   }
 
   const handleShowTutorial = () => {
-    console.log('Onboarding tutorial temporarily disabled');
+    openOnboarding(true)
   }
 
   const handleGithubToggle = async (checked: boolean) => {
