@@ -268,31 +268,34 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 bg-black border-l border-amber-800/20 p-0" aria-modal="true">
         {/* Enhanced Header */}
         <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-gray-900 to-gray-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Mail className="w-6 h-6 text-white" />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Mail className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <SheetTitle className="text-xl font-bold text-amber-400 font-serif tracking-wide">Notifications</SheetTitle>
+                  <p className="text-gray-400 text-sm font-medium line-clamp-1">Kingdom Messages & Updates</p>
+                </div>
               </div>
-              <div>
-                <SheetTitle className="text-xl font-bold text-amber-400 font-serif tracking-wide">Notifications</SheetTitle>
-                <p className="text-gray-400 text-sm font-medium">Kingdom Messages & Updates</p>
-              </div>
+
+              {unreadCount > 0 && (
+                <div className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg flex-shrink-0">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </div>
+              )}
             </div>
-            {unreadCount > 0 && (
-              <div className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </div>
-            )}
+
             {unreadCount > 0 && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={handleMarkAllRead}
-                className="text-amber-500 hover:text-amber-400 hover:bg-amber-900/20"
-                title="Mark all as read"
+                className="w-full border-amber-800/20 text-amber-500 hover:text-amber-400 hover:bg-amber-900/20 hover:border-amber-500/50"
               >
                 <CheckCheck className="h-4 w-4 mr-2" />
-                Mark All
+                Mark All as Read
               </Button>
             )}
           </div>
