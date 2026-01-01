@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/use-toast'
 import QuestCard from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
+import { useSearchParams } from 'next/navigation'
 
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
@@ -116,6 +117,7 @@ export default function QuestsPage() {
   const { isLoaded: isClerkLoaded, user } = useUser();
   const { getToken } = useAuth();
   const { openQuickAdd } = useQuickAdd();
+  const searchParams = useSearchParams();
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
 
@@ -126,6 +128,15 @@ export default function QuestsPage() {
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
   const [mainTab, setMainTab] = useState<'quests' | 'challenges' | 'milestones' | 'recovery'>('quests');
+
+  // Sync tab with URL query param
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['quests', 'challenges', 'milestones', 'recovery'].includes(tab)) {
+      setMainTab(tab as any);
+    }
+  }, [searchParams]);
+
   const [questCategory, setQuestCategory] = useState(questCategories[0]);
   const [challengeCategory, setChallengeCategory] = useState<string>("all");
   const [milestoneCategory, setMilestoneCategory] = useState(questCategories[0]);

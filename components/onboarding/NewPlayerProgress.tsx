@@ -22,10 +22,10 @@ export function NewPlayerProgress() {
         { id: 'visit_town', label: 'Visit your first town', completed: false, href: '/town/greenhaven' },
         { id: 'build_property', label: 'Build your first property on the kingdom map', completed: false, href: '/kingdom' },
         { id: 'add_ally', label: 'Add an ally', completed: false, href: '/social' },
-        { id: 'create_challenge', label: 'Create your first challenge', completed: false, href: '/challenges' },
-        { id: 'finish_challenge', label: 'Finish your first challenge', completed: false, href: '/challenges' },
-        { id: 'create_milestone', label: 'Create your first milestone', completed: false, href: '/challenges' },
-        { id: 'finish_milestone', label: 'Finish your first milestone', completed: false, href: '/challenges' },
+        { id: 'create_challenge', label: 'Create your first challenge', completed: false, href: '/quests?tab=challenges' },
+        { id: 'finish_challenge', label: 'Finish your first challenge', completed: false, href: '/quests?tab=challenges' },
+        { id: 'create_milestone', label: 'Create your first milestone', completed: false, href: '/quests?tab=milestones' },
+        { id: 'finish_milestone', label: 'Finish your first milestone', completed: false, href: '/quests?tab=milestones' },
     ])
     const [isVisible, setIsVisible] = useState(false)
     const [isLoaded, setIsLoaded] = useState(false)
@@ -105,10 +105,10 @@ export function NewPlayerProgress() {
                 { id: 'visit_town', label: 'Visit your first town', completed: !!townPref, href: '/town/greenhaven' },
                 { id: 'build_property', label: 'Build your first property on the kingdom map', completed: propertyBuilt, href: '/kingdom' },
                 { id: 'add_ally', label: 'Add an ally', completed: allyAdded, href: '/social' },
-                { id: 'create_challenge', label: 'Create your first challenge', completed: challengeCreated, href: '/challenges' },
-                { id: 'finish_challenge', label: 'Finish your first challenge', completed: challengeFinished, href: '/challenges' },
-                { id: 'create_milestone', label: 'Create your first milestone', completed: milestoneCreated, href: '/challenges' },
-                { id: 'finish_milestone', label: 'Finish your first milestone', completed: milestoneFinished, href: '/challenges' },
+                { id: 'create_challenge', label: 'Create your first challenge', completed: challengeCreated, href: '/quests?tab=challenges' },
+                { id: 'finish_challenge', label: 'Finish your first challenge', completed: challengeFinished, href: '/quests?tab=challenges' },
+                { id: 'create_milestone', label: 'Create your first milestone', completed: milestoneCreated, href: '/quests?tab=milestones' },
+                { id: 'finish_milestone', label: 'Finish your first milestone', completed: milestoneFinished, href: '/quests?tab=milestones' },
             ]
 
             setItems(updatedItems)
