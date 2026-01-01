@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, memo } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
-import { RotateCw } from "lucide-react";
+import { RotateCw, Trash2 } from "lucide-react";
 import { CreatureLayer } from '@/components/creature-layer';
 import { MonsterSpawn } from "@/types/monsters";
 
@@ -13,6 +13,7 @@ interface MapGridProps {
   playerLevel?: number;
   onTileSizeChange?: (tileSize: number) => void;
   onTileRotate?: (x: number, y: number) => void;
+  onTileDelete?: (x: number, y: number) => void;
   // Animal props
   penguinPos?: { x: number; y: number } | null;
   horsePos?: { x: number; y: number } | null;
@@ -88,7 +89,8 @@ const MapTile = memo(({
   isPlayerHere,
   playerLevel,
   onTileClick,
-  onTileRotate
+  onTileRotate,
+  onTileDelete
 }: {
   tile: Tile,
   x: number,
@@ -97,7 +99,8 @@ const MapTile = memo(({
   isPlayerHere: boolean,
   playerLevel: number,
   onTileClick: (x: number, y: number) => void,
-  onTileRotate?: ((x: number, y: number) => void) | undefined
+  onTileRotate?: ((x: number, y: number) => void) | undefined,
+  onTileDelete?: ((x: number, y: number) => void) | undefined
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -145,19 +148,34 @@ const MapTile = memo(({
           transition: 'transform 0.3s ease'
         }}
       />
-      {isHovered && onTileRotate && !isPlayerHere && !tile.hasMonster && tile.type !== 'empty' && (
-        <div className="absolute top-1 right-1 z-20">
-          <div
-            role="button"
-            title="Rotate 90°"
-            className="bg-amber-600 text-white p-1 rounded-full hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              onTileRotate(x, y);
-            }}
-          >
-            <RotateCw className="w-3 h-3" />
-          </div>
+      {isHovered && !isPlayerHere && !tile.hasMonster && tile.type !== 'empty' && (
+        <div className="absolute top-1 right-1 z-20 flex gap-1">
+          {onTileDelete && (
+            <div
+              role="button"
+              title="Delete Tile"
+              className="bg-red-600/90 text-white p-1 rounded-full hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTileDelete(x, y);
+              }}
+            >
+              <Trash2 className="w-3 h-3" />
+            </div>
+          )}
+          {onTileRotate && (
+            <div
+              role="button"
+              title="Rotate 90°"
+              className="bg-amber-600/90 text-white p-1 rounded-full hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTileRotate(x, y);
+              }}
+            >
+              <RotateCw className="w-3 h-3" />
+            </div>
+          )}
         </div>
       )}
       {isPlayerHere && (
@@ -220,7 +238,8 @@ export function MapGrid({
   penguinCaught = false,
   monsters = [],
   onMonsterClick,
-  onTileRotate
+  onTileRotate,
+  onTileDelete
 }: MapGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(80);
@@ -356,6 +375,7 @@ export function MapGrid({
                       playerLevel={playerLevel}
                       onTileClick={onTileClick}
                       onTileRotate={onTileRotate}
+                      onTileDelete={onTileDelete}
                     />
                   );
                 })}

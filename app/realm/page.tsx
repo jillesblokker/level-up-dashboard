@@ -1152,7 +1152,7 @@ function RealmPageContent() {
                                     size="sm"
                                     onClick={() => setGameMode('destroy')}
                                     className={cn(
-                                        "flex items-center gap-2 min-w-[44px] min-h-[44px]",
+                                        "flex items-center gap-2 min-w-[44px] min-h-[44px] md:hidden",
                                         gameMode === 'destroy'
                                             ? "bg-red-500 text-white hover:bg-red-600"
                                             : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
@@ -1290,6 +1290,7 @@ function RealmPageContent() {
                         monsters={monsters}
                         onMonsterClick={handleMonsterClick}
                         onTileRotate={handleRotateTile}
+                        onTileDelete={handleDestroyTile}
                     />
                 </div>
                 {/* Overlay Inventory Panel */}
