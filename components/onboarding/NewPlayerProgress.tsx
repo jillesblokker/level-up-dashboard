@@ -66,8 +66,9 @@ export function NewPlayerProgress() {
             const friendsRes = await fetch('/api/friends')
             let allyAdded = false
             if (friendsRes.ok) {
-                const friends = await friendsRes.json()
-                allyAdded = friends.length > 0
+                const data = await friendsRes.json()
+                // Check for accepted friends or pending requests (sent or received count as interaction)
+                allyAdded = (data.friends && data.friends.length > 0) || (data.requests && data.requests.length > 0)
             }
 
             // 5. Challenges
