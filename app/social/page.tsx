@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck, Flame } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -54,6 +54,9 @@ interface Friend {
         xp: number;
         questsFinished: number;
         giftsShared: number;
+        challengesFinished?: number;
+        streak?: number;
+        allianceName?: string | null;
     };
 }
 
@@ -443,7 +446,23 @@ export default function AlliesPage() {
                                                     </div>
 
                                                     <div className="flex-1 min-w-0">
-                                                        <h4 className="font-bold text-lg truncate leading-none mb-1">{friend.username}</h4>
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <h4 className="font-bold text-lg truncate leading-none mb-1">{friend.username}</h4>
+                                                                {friend.stats?.allianceName && (
+                                                                    <div className="flex items-center gap-1 text-xs font-bold text-amber-600 mb-1">
+                                                                        <Shield className="w-3 h-3 fill-amber-100" />
+                                                                        {friend.stats.allianceName}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            {(friend.stats?.streak || 0) > 0 && (
+                                                                <div className="flex items-center gap-1 bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-xs font-bold border border-orange-200" title="Alliance Streak">
+                                                                    <Flame className="w-3 h-3 fill-orange-500" />
+                                                                    {friend.stats?.streak}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                                                             <Users className="w-3 h-3" />
                                                             Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
@@ -467,7 +486,7 @@ export default function AlliesPage() {
                                                 </div>
 
                                                 {/* Stats Grid */}
-                                                <div className="grid grid-cols-3 divide-x border-y bg-muted/10">
+                                                <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 border-y bg-muted/10">
                                                     <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
                                                         <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
                                                             <Crown className="w-3 h-3 text-amber-500" /> Level
@@ -479,6 +498,12 @@ export default function AlliesPage() {
                                                             <Scroll className="w-3 h-3 text-blue-500" /> Quests
                                                         </div>
                                                         <div className="font-bold text-lg">{friend.stats?.questsFinished || 0}</div>
+                                                    </div>
+                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
+                                                            <Sword className="w-3 h-3 text-red-500" /> Hard
+                                                        </div>
+                                                        <div className="font-bold text-lg">{friend.stats?.challengesFinished || 0}</div>
                                                     </div>
                                                     <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
                                                         <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">

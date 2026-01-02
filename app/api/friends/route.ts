@@ -62,6 +62,50 @@ export async function GET(request: Request) {
             questCounts.set(q.user_id, (questCounts.get(q.user_id) || 0) + 1);
         });
 
+        // Fetch "Challenges" (Hard Quests)
+        const { data: challengeData } = await supabaseServer
+            .from('quest_completion')
+            .select('user_id, quests!inner(difficulty)')
+            .in('user_id', friendIds)
+            .eq('quests.difficulty', 'hard');
+
+        const challengeCounts = new Map<string, number>();
+        challengeData?.forEach((c: any) => {
+            challengeCounts.set(c.user_id, (challengeCounts.get(c.user_id) || 0) + 1);
+        });
+
+        // Fetch Streaks and Alliances
+        const { data: streakData } = await supabaseServer
+            .from('streaks')
+            .select('user_id, current_streak, alliance_id')
+            .in('user_id', friendIds);
+
+        const streakMap = new Map<string, number>();
+        const allianceIdMap = new Map<string, string>();
+        const allianceIds = new Set<string>();
+
+        streakData?.forEach(s => {
+            if ((s.current_streak || 0) >= (streakMap.get(s.user_id) || 0)) {
+                streakMap.set(s.user_id, s.current_streak);
+                // Specifically look for a valid alliance ID to link
+                if (s.alliance_id) {
+                    allianceIdMap.set(s.user_id, s.alliance_id);
+                    allianceIds.add(s.alliance_id);
+                }
+            }
+        });
+
+        // Fetch Alliance Names
+        const allianceNameMap = new Map<string, string>();
+        if (allianceIds.size > 0) {
+            const { data: allianceData } = await supabaseServer
+                .from('alliances')
+                .select('id, name')
+                .in('id', Array.from(allianceIds));
+
+            allianceData?.forEach(a => allianceNameMap.set(a.id, a.name));
+        }
+
         // Fetch Shared Gifts (Sent or Received involving the current user)
         const { data: giftData } = await supabaseServer
             .from('gifts')
@@ -71,7 +115,7 @@ export async function GET(request: Request) {
         const giftCounts = new Map<string, number>();
         giftData?.forEach(g => {
             const friendId = g.sender_id === userId ? g.recipient_id : g.sender_id;
-            // Only count if this interaction is with one of our friends (it should be, given the query, but good to be safe)
+            // Only count if this interaction is with one of our friends
             if (friendIds.includes(friendId)) {
                 giftCounts.set(friendId, (giftCounts.get(friendId) || 0) + 1);
             }
@@ -107,7 +151,10 @@ export async function GET(request: Request) {
                     level: charStats?.level || 1,
                     xp: charStats?.xp || 0,
                     questsFinished: questCounts.get(otherId) || 0,
-                    giftsShared: giftCounts.get(otherId) || 0
+                    giftsShared: giftCounts.get(otherId) || 0,
+                    challengesFinished: challengeCounts.get(otherId) || 0,
+                    streak: streakMap.get(otherId) || 0,
+                    allianceName: allianceNameMap.get(allianceIdMap.get(otherId) || '') || null
                 }
             };
 
