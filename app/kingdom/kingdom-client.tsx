@@ -1716,7 +1716,7 @@ export function KingdomClient() {
         onClose={() => setPropertiesOpen(false)}
         tiles={kingdomTileInventory}
         selectedTile={selectedKingdomTile}
-        setSelectedTile={setSelectedKingdomTile}
+        setSelectedTile={(tile) => setSelectedKingdomTile(tile as any)}
         onBuy={handleBuyTile}
         onBuyToken={handleBuyToken}
         inventory={storedItems}
