@@ -83,8 +83,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 50,
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.well.clickMessage,
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/materials/material-water.png'
+    ],
+    itemType: 'material',
     rarity: 'common',
     image: '/images/kingdom-tiles/Well.png',
     materialCost: [{ itemId: 'material-stone', quantity: 5 }],
