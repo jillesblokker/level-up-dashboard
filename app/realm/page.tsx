@@ -1262,7 +1262,7 @@ function RealmPageContent() {
                     />
                 )}
                 {/* Full Width Map Area - Break out of all containers */}
-                <div className="fixed inset-0 top-[60px] left-0 right-0 bottom-0 z-10 bg-gray-900">
+                <div className="relative w-full min-h-screen z-10 bg-gray-900">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}
