@@ -1614,7 +1614,7 @@ export function KingdomGridWithTimers({
 
         {/* Resource HUD (Visible when not placing) */}
         {!placementMode && (
-          <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 items-center">
             <div className="flex gap-2">
               {/* Build Tokens */}
               <div className="bg-black/60 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 flex items-center gap-2 shadow-lg backdrop-blur-md">
