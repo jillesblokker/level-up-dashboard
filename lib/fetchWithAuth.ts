@@ -9,10 +9,15 @@ export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit 
       headers.set('Authorization', `Bearer ${token}`);
     }
     headers.set('Content-Type', headers.get('Content-Type') || 'application/json');
-    return fetch(input, { ...init, headers, credentials: init.credentials ?? 'include' });
+    return fetch(input, {
+      ...init,
+      headers,
+      credentials: init.credentials ?? 'include',
+      cache: init.cache ?? 'no-store'
+    });
   } catch {
     // Fallback without token
-    return fetch(input, init);
+    return fetch(input, { ...init, cache: init.cache ?? 'no-store' });
   }
 }
 
