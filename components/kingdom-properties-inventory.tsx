@@ -56,18 +56,50 @@ export function KingdomPropertiesInventory({
   // "Buy" tab shows ALL tiles (or filterable?).
 
   // Mapping inventory counts to tile IDs
-  const inventoryMap = new Map();
+  const inventoryMap = new Map<string, number>();
   (inventory || []).forEach(item => {
-    // Normalize item IDs: 'house' vs 'house-tile'?
-    inventoryMap.set(item.id, (inventoryMap.get(item.id) || 0) + (item.quantity || 0));
-    if (item.name) inventoryMap.set(item.name.toLowerCase(), (inventoryMap.get(item.name.toLowerCase()) || 0) + (item.quantity || 0));
+    // 1. Exact ID
+    const quantity = item.quantity || 0;
+    inventoryMap.set(item.id, (inventoryMap.get(item.id) || 0) + quantity);
+
+    // 2. Normalized ID (lowercase)
+    const lowerId = item.id.toLowerCase();
+    if (lowerId !== item.id) {
+      inventoryMap.set(lowerId, (inventoryMap.get(lowerId) || 0) + quantity);
+    }
+
+    // 3. ID without '-item' suffix
+    if (lowerId.endsWith('-item')) {
+      const cleanId = lowerId.replace('-item', '');
+      inventoryMap.set(cleanId, (inventoryMap.get(cleanId) || 0) + quantity);
+    }
+
+    // 4. Name-based keys
+    if (item.name) {
+      const lowerName = item.name.toLowerCase();
+      inventoryMap.set(lowerName, (inventoryMap.get(lowerName) || 0) + quantity);
+      // Also remove spaces for tighter matching
+      inventoryMap.set(lowerName.replace(/\s+/g, ''), (inventoryMap.get(lowerName.replace(/\s+/g, '')) || 0) + quantity);
+    }
   });
 
-  console.warn('[KingdomPropInv] Inventory:', inventory);
-  console.warn('[KingdomPropInv] Inventory Map keys:', Array.from(inventoryMap.keys()));
+  // Debug logs to verify map content
+  if ((inventory || []).length > 0) {
+    console.warn('[KingdomPropInv] Map Keys Sample:', Array.from(inventoryMap.keys()).slice(0, 10));
+  }
 
   const getOwnedCount = (tile: PropertyTile) => {
-    return inventoryMap.get(tile.id) || inventoryMap.get(tile.name.toLowerCase()) || 0;
+    const exactId = tile.id;
+    const lowerId = tile.id.toLowerCase();
+    const nameKey = tile.name.toLowerCase();
+    const nameNoSpace = nameKey.replace(/\s+/g, '');
+
+    // Try all reasonable keys
+    return inventoryMap.get(exactId) ||
+      inventoryMap.get(lowerId) ||
+      inventoryMap.get(nameKey) ||
+      inventoryMap.get(nameNoSpace) ||
+      0;
   };
 
   const ownedTiles = tiles.filter(t => {
