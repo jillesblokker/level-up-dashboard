@@ -70,7 +70,13 @@ export function KingdomPropertiesInventory({
     return inventoryMap.get(tile.id) || inventoryMap.get(tile.name.toLowerCase()) || 0;
   };
 
-  const ownedTiles = tiles.filter(t => getOwnedCount(t) > 0);
+  const ownedTiles = tiles.filter(t => {
+    const count = getOwnedCount(t);
+    if (t.id.includes('road') || t.id.includes('quarry')) {
+      console.warn(`[KingdomPropInv] Checking ${t.id} (${t.name}): Count=${count}`);
+    }
+    return count > 0;
+  });
   // Sort buyable tiles? Maybe filter out ones that can't be bought? 
   // For now show all in Buy tab.
   const buyableTiles = tiles;

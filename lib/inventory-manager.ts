@@ -5,7 +5,7 @@ import { z } from 'zod';
 export interface InventoryItem {
   name: string
   quantity: number
-  type: 'resource' | 'item' | 'creature' | 'scroll' | 'equipment' | 'artifact' | 'book'
+  type: 'resource' | 'item' | 'creature' | 'scroll' | 'equipment' | 'artifact' | 'book' | 'building'
   id: string
   category?: string
   description?: string

@@ -601,6 +601,10 @@ export function KingdomGridWithTimers({
   // Filter properties based on event status
   const getAvailableProperties = () => {
     const available = propertyInventory.filter(property => {
+      // DEBUG: Log first few properties to see definition
+      if (property.id.includes('road')) {
+        // console.warn('[KingdomGrid] Checking Availability:', property.id, property.itemType);
+      }
       if (!property.isSeasonal) {
         return true; // Always show non-seasonal properties
       }
@@ -704,7 +708,7 @@ export function KingdomGridWithTimers({
             id: property.id,
             name: property.name,
             quantity: 1,
-            type: 'item', // Treat buildings as items
+            type: 'building', // Changed from item to building
             image: property.image
           });
           console.warn('[Kingdom] Inventory add success (Gold)');
@@ -770,7 +774,7 @@ export function KingdomGridWithTimers({
               id: property.id,
               name: property.name,
               quantity: 1,
-              type: 'item',
+              type: 'building',
               image: property.image
             });
             console.warn('[Kingdom] Inventory add success (Materials)');
