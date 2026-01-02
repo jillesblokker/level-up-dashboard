@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import { useCreatureStore } from '@/stores/creatureStore'
 import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
-import { Trophy, Users, Sword, Crosshair } from 'lucide-react'
+import { Trophy, Users, Sword, Crosshair, Coins, Star, Shield, Zap } from 'lucide-react'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
 import { TEXT_CONTENT } from '@/lib/text-content'
 
@@ -462,6 +463,22 @@ export default function Page() {
     );
   }
   const hasAnyUnlocked = creatures.some(c => unlockedAchievements.has(c.id)) || achievementDefinitions.some(a => unlockedAchievements.has(a.id));
+
+  // Stats Calculations
+  const creatureAchievements = creatures.filter(c => parseInt(c.id) < 107);
+  const totalCreatures = creatureAchievements.length;
+  const unlockedCreaturesCount = creatureAchievements.filter(c => isCreatureUnlocked(c.id)).length;
+  const creatureProgress = totalCreatures > 0 ? (unlockedCreaturesCount / totalCreatures) * 100 : 0;
+
+  const allianceAchievementsList = achievementDefinitions.filter(a => { const id = parseInt(a.id); return id >= 107 && id <= 112; });
+  const totalAlliance = allianceAchievementsList.length;
+  const unlockedAllianceCount = allianceAchievementsList.filter(a => isUnlocked(a.id)).length;
+  const allianceProgress = totalAlliance > 0 ? (unlockedAllianceCount / totalAlliance) * 100 : 0;
+
+  const combatAchievements = achievementDefinitions.filter(a => { const id = parseInt(a.id); return id >= 201 && id <= 206; });
+  const totalCombat = combatAchievements.length;
+  const unlockedCombatCount = combatAchievements.filter(a => isUnlocked(a.id)).length;
+  const combatProgress = totalCombat > 0 ? (unlockedCombatCount / totalCombat) * 100 : 0;
   return (
     <>
       <SignedIn>
@@ -500,85 +517,129 @@ export default function Page() {
           )}
 
           {/* Original Creatures Section */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-amber-400">{TEXT_CONTENT.achievements.sections.creatures}</h2>
-              <button
-                type="button"
-                className="px-6 py-2 rounded-lg bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition-all duration-200"
-                aria-label={showAllUnlocked ? TEXT_CONTENT.achievements.ui.hideUnlocked : TEXT_CONTENT.achievements.ui.showUnlocked}
-                onClick={() => setShowAllUnlocked((prev) => !prev)}
-              >
-                {showAllUnlocked ? TEXT_CONTENT.achievements.ui.hideUnlocked : TEXT_CONTENT.achievements.ui.showUnlocked}
-              </button>
+          <div className="mb-16">
+            <div className="flex flex-col gap-3 mb-8">
+              <div className="flex justify-between items-end">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20 shadow-inner">
+                    <Crosshair className="w-6 h-6 text-amber-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-amber-400 leading-none mb-1">{TEXT_CONTENT.achievements.sections.creatures}</h2>
+                    <span className="text-sm text-muted-foreground font-medium">Discover and collect mythological beasts</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="text-right hidden sm:block">
+                    <div className="text-lg font-bold text-amber-500 leading-none">{unlockedCreaturesCount} <span className="text-sm text-muted-foreground font-normal">/ {totalCreatures}</span></div>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-xs text-amber-400 hover:text-amber-300 underline underline-offset-4 transition-colors"
+                    onClick={() => setShowAllUnlocked((prev) => !prev)}
+                  >
+                    {showAllUnlocked ? TEXT_CONTENT.achievements.ui.hideUnlocked : TEXT_CONTENT.achievements.ui.showUnlocked}
+                  </button>
+                </div>
+              </div>
+              <Progress value={creatureProgress} className="h-2.5 bg-secondary/30" indicatorClassName="bg-gradient-to-r from-amber-600 to-amber-400" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="creature-cards-grid">
+
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="creature-cards-grid">
               {creatures
                 .filter(creature => parseInt(creature.id) < 107) // Exclude alliance achievements from creature grid
                 .map(creature => {
                   if (!creature) return null;
                   const unlocked = isCreatureUnlocked(creature.id);
-                  const unlockDate = getUnlockDate(creature.id);
                   const isFlipped = flippedCardId === creature.id;
+
                   return (
-                    <Card
+                    <div
                       key={creature.id}
-                      className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
-                      aria-label={`creature-card-${creature.id}`}
+                      role="listitem"
+                      aria-label={`${creature.name} - ${unlocked ? 'Unlocked' : 'Locked'}`}
+                      className="relative h-[600px] w-full [perspective:1000px] group cursor-pointer"
+                      onClick={() => unlocked && setFlippedCardId(isFlipped ? null : creature.id)}
                     >
-                      {/* Full-width/height image only */}
-                      <div className="absolute inset-0 w-full h-full">
-                        {unlocked ? (
-                          <div className="relative w-full h-full cursor-pointer" onClick={() => setFlippedCardId(isFlipped ? null : creature.id)}>
+                      <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
+                        {/* FRONT FACE */}
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                          <div className="relative w-full h-full">
                             <Image
-                              src={creature.image}
+                              src={unlocked ? creature.image : '/images/undiscovered.png'}
                               alt={creature.name}
                               fill
-                              className="object-cover"
+                              className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                              key={unlocked ? 'unlocked' : 'locked'}
                             />
-                            {/* Stats Overlay */}
-                            {isFlipped && (
-                              <div className="absolute inset-0 bg-[#0a192f] p-10 flex flex-col z-30">
-                                <h3 className="text-xl font-bold text-amber-500 mb-4">{creature.name}</h3>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                  <div>
-                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.hp}</p>
-                                    <p className="text-white font-medium">{creature.stats.hp}</p>
+                            {/* Overlay for Name/Rewards */}
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center">
+                              {unlocked ? (
+                                <>
+                                  <Badge className="mb-3 bg-amber-500 text-black hover:bg-amber-400 font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                  <h3 className="text-3xl font-black text-white uppercase tracking-wider mb-2 drop-shadow-md">{creature.name}</h3>
+                                  <div className="flex items-center justify-center gap-4 text-xs font-mono text-amber-200/90 mt-1">
+                                    <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> {creature.stats.type}</span>
+                                    <span className="w-1 h-1 rounded-full bg-amber-500/50" />
+                                    <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> DEF: {creature.stats.defense}</span>
                                   </div>
-                                  <div>
-                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.attack}</p>
-                                    <p className="text-white font-medium">{creature.stats.attack}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.defense}</p>
-                                    <p className="text-white font-medium">{creature.stats.defense}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.speed}</p>
-                                    <p className="text-white font-medium">{creature.stats.speed}</p>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.type}</p>
-                                    <p className="text-white font-medium">{creature.stats.type}</p>
-                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Crosshair className="w-8 h-8 text-gray-500" /></div>
+                                  <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{creature.name}</h3>
+                                  <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">LOCKED CONTENT</p>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* BACK FACE */}
+                        {unlocked && (
+                          <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-amber-500/50 overflow-hidden flex flex-col shadow-2xl">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-slate-950 to-slate-950" />
+
+                            <div className="relative z-10 flex flex-col h-full p-8">
+                              <div className="flex items-center justify-between mb-8 border-b border-amber-500/10 pb-6">
+                                <h3 className="text-2xl font-black text-amber-500 uppercase">{creature.name}</h3>
+                                <Badge variant="outline" className="text-amber-200 border-amber-500/30 px-3 py-1">{creature.stats.type}</Badge>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-y-8 gap-x-6 mb-8">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                  <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Health</div>
+                                  <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" />{creature.stats.hp}</div>
                                 </div>
-                                <div className="mt-4">
-                                  <p className="text-gray-300 mb-1">{TEXT_CONTENT.achievements.card.description}</p>
-                                  <p className="text-white text-sm leading-relaxed">{creature.description}</p>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                  <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Attack</div>
+                                  <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]" />{creature.stats.attack}</div>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                  <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Defense</div>
+                                  <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />{creature.stats.defense}</div>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                  <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Speed</div>
+                                  <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />{creature.stats.speed}</div>
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        ) : (
-                          <Image
-                            src={'/images/undiscovered.png'}
-                            alt={TEXT_CONTENT.achievements.card.undiscovered}
-                            fill
-                            className="object-cover opacity-50"
-                          />
+
+                              <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                                <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">“</div>
+                                <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                  {creature.description}
+                                </p>
+                              </div>
+
+                              <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                              </div>
+                            </div>
+                          </Card>
                         )}
                       </div>
-                    </Card>
+                    </div>
                   );
                 })}
             </div>
@@ -586,44 +647,111 @@ export default function Page() {
 
           {/* Alliance Achievements Section */}
           {achievementDefinitions.length > 0 && (
-            <div className="mb-8">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="alliance-achievement-cards-grid">
+            <div className="mb-16">
+              <div className="flex flex-col gap-3 mb-8">
+                <div className="flex justify-between items-end">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20 shadow-inner">
+                      <Users className="w-6 h-6 text-blue-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-blue-400 leading-none mb-1">Alliance Achievements</h2>
+                      <span className="text-sm text-muted-foreground font-medium">Build your guild and expand your influence</span>
+                    </div>
+                  </div>
+                  <div className="text-right hidden sm:block">
+                    <div className="text-lg font-bold text-blue-500 leading-none">{unlockedAllianceCount} <span className="text-sm text-muted-foreground font-normal">/ {totalAlliance}</span></div>
+                  </div>
+                </div>
+                <Progress value={allianceProgress} className="h-2.5 bg-secondary/30" indicatorClassName="bg-gradient-to-r from-blue-600 to-blue-400" />
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="alliance-achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
-                    // Only show alliance achievements (107-112)
                     const achievementId = parseInt(achievement.id);
                     return achievementId >= 107 && achievementId <= 112;
                   })
                   .map(achievement => {
                     if (!achievement) return null;
                     const unlocked = isUnlocked(achievement.id);
-                    const unlockDate = getUnlockDate(achievement.id);
+                    const isFlipped = flippedCardId === achievement.id;
 
                     return (
-                      <Card
+                      <div
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
-                        aria-label={`alliance-achievement-card-${achievement.id}`}
+                        role="listitem"
+                        aria-label={`${achievement.name} - ${unlocked ? 'Unlocked' : 'Locked'}`}
+                        className="relative h-[600px] w-full [perspective:1000px] group cursor-pointer"
+                        onClick={() => unlocked && setFlippedCardId(isFlipped ? null : achievement.id)}
                       >
-                        {/* Full-width/height image only */}
-                        <div className="absolute inset-0 w-full h-full">
-                          {unlocked ? (
-                            <Image
-                              src={achievement.image_url}
-                              alt={achievement.name}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={'/images/undiscovered.png'}
-                              alt={TEXT_CONTENT.achievements.card.undiscovered}
-                              fill
-                              className="object-cover opacity-50"
-                            />
+                        <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
+                          {/* FRONT FACE */}
+                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={unlocked ? achievement.image_url : '/images/undiscovered.png'}
+                                alt={achievement.name}
+                                fill
+                                className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                              />
+                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center">
+                                {unlocked ? (
+                                  <>
+                                    <Badge className="mb-3 bg-blue-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                    <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{achievement.name}</h3>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <Badge variant="secondary" className="bg-black/40 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
+                                        <Zap className="w-3 h-3" /> +{achievement.xp_reward} XP
+                                      </Badge>
+                                      <Badge variant="secondary" className="bg-black/40 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
+                                        <Coins className="w-3 h-3" /> +{achievement.gold_reward} G
+                                      </Badge>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Users className="w-8 h-8 text-gray-500" /></div>
+                                    <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
+                                    <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
+                                    <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+
+                          {/* BACK FACE */}
+                          {unlocked && (
+                            <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-blue-500/50 overflow-hidden flex flex-col shadow-2xl">
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-slate-950 to-slate-950" />
+
+                              <div className="relative z-10 flex flex-col h-full p-8">
+                                <div className="flex items-center justify-between mb-8 border-b border-blue-500/10 pb-6">
+                                  <h3 className="text-xl font-black text-blue-500 uppercase">{achievement.name}</h3>
+                                  <Users className="w-5 h-5 text-blue-500/50" />
+                                </div>
+
+                                <div className="bg-white/5 p-6 rounded-xl border border-white/5 backdrop-blur-sm mb-6">
+                                  <p className="text-sm font-semibold text-blue-200 uppercase tracking-widest mb-2">Condition Met</p>
+                                  <p className="text-lg text-white font-medium">{achievement.unlock_condition}</p>
+                                </div>
+
+                                <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">“</div>
+                                  <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                    {achievement.description}
+                                  </p>
+                                </div>
+
+                                <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
+                                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                                </div>
+                              </div>
+                            </Card>
                           )}
                         </div>
-                      </Card>
+                      </div>
                     );
                   })}
               </div>
@@ -632,19 +760,35 @@ export default function Page() {
 
           {/* New Monster Achievements Section */}
           {achievementDefinitions.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">{TEXT_CONTENT.achievements.sections.monsterBattles}</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="achievement-cards-grid">
+            <div className="mb-16">
+              <div className="flex flex-col gap-3 mb-8">
+                <div className="flex justify-between items-end">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-red-500/10 rounded-xl border border-red-500/20 shadow-inner">
+                      <Sword className="w-6 h-6 text-red-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-red-400 leading-none mb-1">{TEXT_CONTENT.achievements.sections.monsterBattles}</h2>
+                      <span className="text-sm text-muted-foreground font-medium">Prove your might in legendary combat</span>
+                    </div>
+                  </div>
+                  <div className="text-right hidden sm:block">
+                    <div className="text-lg font-bold text-red-500 leading-none">{unlockedCombatCount} <span className="text-sm text-muted-foreground font-normal">/ {totalCombat}</span></div>
+                  </div>
+                </div>
+                <Progress value={combatProgress} className="h-2.5 bg-secondary/30" indicatorClassName="bg-gradient-to-r from-red-600 to-red-400" />
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="achievement-cards-grid">
                 {achievementDefinitions
                   .filter(achievement => {
-                    // Only show monster battle achievements (201-206)
                     const achievementId = parseInt(achievement.id);
                     return achievementId >= 201 && achievementId <= 206;
                   })
                   .map(achievement => {
                     if (!achievement) return null;
                     const unlocked = isUnlocked(achievement.id);
-                    const unlockDate = getUnlockDate(achievement.id);
+                    const isFlipped = flippedCardId === achievement.id;
 
                     // Map achievement IDs to monster names
                     const monsterNames: Record<string, string> = {
@@ -659,30 +803,80 @@ export default function Page() {
                     const monsterName = monsterNames[achievement.id] || achievement.name;
 
                     return (
-                      <Card
+                      <div
                         key={achievement.id}
-                        className={`${unlocked ? 'medieval-card' : 'medieval-card-undiscovered'} relative shadow-lg border-2 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/20 hover:scale-[1.02] h-[600px] p-0`}
-                        aria-label={`achievement-card-${achievement.id}`}
+                        role="listitem"
+                        aria-label={`${monsterName} - ${unlocked ? 'Unlocked' : 'Locked'}`}
+                        className="relative h-[600px] w-full [perspective:1000px] group cursor-pointer"
+                        onClick={() => unlocked && setFlippedCardId(isFlipped ? null : achievement.id)}
                       >
-                        {/* Full-width/height image only */}
-                        <div className="absolute inset-0 w-full h-full">
-                          {unlocked ? (
-                            <Image
-                              src={achievement.image_url}
-                              alt={monsterName}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={'/images/undiscovered.png'}
-                              alt={TEXT_CONTENT.achievements.card.undiscovered}
-                              fill
-                              className="object-cover opacity-50"
-                            />
+                        <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
+                          {/* FRONT FACE */}
+                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={unlocked ? achievement.image_url : '/images/undiscovered.png'}
+                                alt={monsterName}
+                                fill
+                                className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                              />
+                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center">
+                                {unlocked ? (
+                                  <>
+                                    <Badge className="mb-3 bg-red-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                    <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{monsterName}</h3>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <Badge variant="secondary" className="bg-black/40 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
+                                        <Zap className="w-3 h-3" /> +{achievement.xp_reward} XP
+                                      </Badge>
+                                      <Badge variant="secondary" className="bg-black/40 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
+                                        <Coins className="w-3 h-3" /> +{achievement.gold_reward} G
+                                      </Badge>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Sword className="w-8 h-8 text-gray-500" /></div>
+                                    <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{monsterName}</h3>
+                                    <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">DEFEAT TO UNLOCK</p>
+                                    <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+
+                          {/* BACK FACE */}
+                          {unlocked && (
+                            <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-red-500/50 overflow-hidden flex flex-col shadow-2xl">
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/10 via-slate-950 to-slate-950" />
+
+                              <div className="relative z-10 flex flex-col h-full p-8">
+                                <div className="flex items-center justify-between mb-8 border-b border-red-500/10 pb-6">
+                                  <h3 className="text-xl font-black text-red-500 uppercase">{monsterName}</h3>
+                                  <Sword className="w-5 h-5 text-red-500/50" />
+                                </div>
+
+                                <div className="bg-white/5 p-6 rounded-xl border border-white/5 backdrop-blur-sm mb-6">
+                                  <p className="text-sm font-semibold text-red-200 uppercase tracking-widest mb-2">Victory Condition</p>
+                                  <p className="text-lg text-white font-medium">{achievement.unlock_condition}</p>
+                                </div>
+
+                                <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">“</div>
+                                  <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                    {achievement.description}
+                                  </p>
+                                </div>
+
+                                <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
+                                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                                </div>
+                              </div>
+                            </Card>
                           )}
                         </div>
-                      </Card>
+                      </div>
                     );
                   })}
               </div>
