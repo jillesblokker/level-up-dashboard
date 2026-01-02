@@ -1717,7 +1717,7 @@ export function KingdomClient() {
         tiles={kingdomTileInventory}
         selectedTile={selectedKingdomTile}
         setSelectedTile={(tile) => setSelectedKingdomTile(tile as any)}
-        onBuy={handleBuyTile}
+        onBuy={(tile, method) => handleBuyTile(tile as any, method)}
         onBuyToken={handleBuyToken}
         inventory={storedItems}
         tokens={userTokens}
