@@ -58,12 +58,13 @@ export function KingdomPropertiesInventory({
   // Mapping inventory counts to tile IDs
   const inventoryMap = new Map();
   (inventory || []).forEach(item => {
-    // Normalize item IDs: 'house' vs 'house-tile'? 
-    // Inventory items usually have IDs like 'house' or names.
-    // We check both id and name for safety.
+    // Normalize item IDs: 'house' vs 'house-tile'?
     inventoryMap.set(item.id, (inventoryMap.get(item.id) || 0) + (item.quantity || 0));
     if (item.name) inventoryMap.set(item.name.toLowerCase(), (inventoryMap.get(item.name.toLowerCase()) || 0) + (item.quantity || 0));
   });
+
+  console.log('[KingdomPropInv] Inventory:', inventory);
+  console.log('[KingdomPropInv] Inventory Map keys:', Array.from(inventoryMap.keys()));
 
   const getOwnedCount = (tile: PropertyTile) => {
     return inventoryMap.get(tile.id) || inventoryMap.get(tile.name.toLowerCase()) || 0;
