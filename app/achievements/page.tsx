@@ -573,7 +573,7 @@ export default function Page() {
                               key={unlocked ? 'unlocked' : 'locked'}
                             />
                             {/* Overlay for Name/Rewards */}
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center">
+                            <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                               {unlocked ? (
                                 <>
                                   <Badge className="mb-3 bg-amber-500 text-black hover:bg-amber-400 font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
@@ -695,7 +695,7 @@ export default function Page() {
                                 fill
                                 className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
                               />
-                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center">
+                              <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
                                   <>
                                     <Badge className="mb-3 bg-blue-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
@@ -820,7 +820,7 @@ export default function Page() {
                                 fill
                                 className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
                               />
-                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center">
+                              <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
                                   <>
                                     <Badge className="mb-3 bg-red-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
