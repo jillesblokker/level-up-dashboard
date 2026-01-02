@@ -770,7 +770,7 @@ export function KingdomClient() {
         const newItems = [...prev];
         const existingItem = newItems[existingIndex];
         newItems[existingIndex] = {
-          ...existingItem,
+          ...(existingItem as any),
           quantity: (existingItem.quantity || 0) + newItem.quantity
         };
         return newItems;
