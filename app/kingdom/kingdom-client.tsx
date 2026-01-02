@@ -21,6 +21,7 @@ import {
   unequipItem,
   getTotalStats,
   addToInventory,
+  removeFromKingdomInventory,
   type InventoryItem
 } from "@/lib/inventory-manager"
 import {
@@ -746,6 +747,15 @@ export function KingdomClient() {
   };
 
   // Restore handlePlaceKingdomTile for KingdomGrid
+  const handleMaterialSpend = async (itemId: string, quantity: number) => {
+    if (!user?.id) return;
+    try {
+      await removeFromKingdomInventory(user.id, itemId, quantity);
+    } catch (e) {
+      console.error('Failed to spend material', e);
+    }
+  };
+
   function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
     setKingdomGrid(prev => {
       const newGrid = prev.map(row => row.slice());
@@ -1363,6 +1373,8 @@ export function KingdomClient() {
                     onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
                     onItemFound={isVisiting ? () => { } : handleKingdomTileItemFound}
                     readOnly={isVisiting}
+                    inventory={storedItems}
+                    onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
                   />
                 </div>
               )}
