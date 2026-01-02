@@ -343,7 +343,6 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       cost: kingdomTileConfig?.cost || 0,
       tokenCost: kingdomTileConfig?.tokenCost,
       materialCost: kingdomTileConfig?.materialCost,
-      levelRequired: kingdomTileConfig?.levelRequired,
       quantity: isCastle ? 1 : 0,
     };
   });
