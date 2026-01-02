@@ -130,22 +130,15 @@ export function KingdomPropertiesInventory({
           <ScrollArea className="flex-1 px-6 pb-6">
             <TabsContent value="place" className="mt-0">
               {ownedTiles.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-12 text-center">
+                <div className="flex flex-col items-center justify-center py-12 text-center text-gray-400 border border-dashed border-gray-700 rounded-xl bg-black/20">
                   <div className="w-16 h-16 bg-amber-900/20 rounded-full flex items-center justify-center mb-4 text-amber-700">
                     <Hammer size={32} />
                   </div>
-                  <h3 className="text-xl font-medium text-gray-400 mb-2">No Properties Owned</h3>
-                  <p className="text-gray-500 max-w-xs">Visit the Buy tab to purchase properties for your kingdom.</p>
-                  <Button
-                    variant="link"
-                    className="text-amber-500 mt-4"
-                    onClick={() => document.getElementById('tab-buy')?.click()} // Hacky but works if we controlled plain state, better to use state
-                  >
-                    Go to Shop
-                  </Button>
+                  <h3 className="text-xl font-medium text-amber-500/80 mb-2">No Properties Owned</h3>
+                  <p className="max-w-xs text-sm">Visit the Buy tab to purchase properties for your kingdom.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 gap-4 pb-8">
                   {ownedTiles.map(tile => (
                     <TileCard
                       key={tile.id}
@@ -154,8 +147,7 @@ export function KingdomPropertiesInventory({
                       mode="place"
                       onSelect={() => {
                         setSelectedTile(tile);
-                        onClose(); // Close to place immediately? Or keep open? User preference. Usually 'Place' implies selecting it for placement tool.
-                        // Assuming parent handles 'gameMode' switch on select.
+                        onClose();
                       }}
                     />
                   ))}
@@ -164,14 +156,14 @@ export function KingdomPropertiesInventory({
             </TabsContent>
 
             <TabsContent value="buy" className="mt-0">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {buyableTiles.map(tile => (
+              <div className="grid grid-cols-2 gap-4 pb-8">
+                {tiles.map(tile => (
                   <TileCard
                     key={tile.id}
                     tile={tile}
                     owned={getOwnedCount(tile)}
                     mode="buy"
-                    onAction={(method) => onBuy?.(tile, method)}
+                    onAction={(method) => onBuy && onBuy(tile, method)}
                   />
                 ))}
               </div>
@@ -191,100 +183,86 @@ function TileCard({ tile, owned, mode, onSelect, onAction }: {
   onSelect?: () => void;
   onAction?: (method: 'gold' | 'materials' | 'tokens') => void;
 }) {
-  // Determine cost display
-  const costGold = tile.cost || 0;
-  const costMaterial = tile.materialCost?.length ? tile.materialCost : null;
-  const costToken = tile.tokenCost || 0;
+  const isPlaceMode = mode === 'place';
+  const hasMaterialCost = tile.materialCost && tile.materialCost.length > 0;
+  const hasTokenCost = tile.tokenCost && tile.tokenCost > 0;
+  // If no cost specified, assume gold only (default behavior for old tiles)
+  const goldCost = tile.cost || 0;
+
+  // Determine displayed costs
+  // Prioritize Materials > Tokens > Gold Only for "Type" label? No, show all options.
 
   return (
     <Card
-      className="bg-[#1e2229] border-amber-900/30 hover:border-amber-500/50 transition-all duration-200 group overflow-hidden flex flex-col h-full cursor-pointer hover:shadow-xl hover:shadow-black/50 hover:-translate-y-1"
-      onClick={mode === 'place' ? onSelect : undefined}
+      className={cn(
+        "relative overflow-hidden transition-all duration-300 border-2 bg-[#0f1115]",
+        isPlaceMode
+          ? "border-amber-500/30 hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
+          : "border-gray-800 hover:border-gray-600"
+      )}
+      onClick={isPlaceMode ? onSelect : undefined}
     >
-      <div className="relative aspect-square w-full bg-[#15181e] p-4 flex items-center justify-center">
-        {/* Image */}
-        <div className="relative w-full h-full">
-          <Image
-            src={tile.image}
-            alt={tile.name}
-            fill
-            className="object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
-          />
-        </div>
+      {/* Card Header Illustration */}
+      <div className={cn("w-full aspect-[4/3] relative bg-[#1a1d24] p-4 flex items-center justify-center", isPlaceMode ? "bg-amber-900/10" : "")}>
+        <Image
+          src={tile.image}
+          alt={tile.name}
+          width={96}
+          height={96}
+          className="object-contain drop-shadow-lg transform transition-transform duration-300 group-hover:scale-110"
+          unoptimized
+        />
 
-        {/* Badges */}
-        <div className="absolute top-2 right-2">
-          <Badge className={cn("bg-black/60 backdrop-blur border border-white/10 text-xs", owned > 0 ? "text-green-400" : "text-gray-500")}>
+        {/* Owned Badge */}
+        {owned > 0 && (
+          <div className="absolute top-2 right-2 bg-green-600/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm border border-green-400/30">
             Owned: {owned}
-          </Badge>
-        </div>
 
-        {/* Cost Badge (Top Left) - Only for Buy mode */}
-        {mode === 'buy' && (
-          <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
-            {costGold > 0 && (
-              <Badge className="bg-amber-500/90 text-black font-bold border-0 flex gap-1 items-center px-1.5 h-6">
-                <span className="text-[10px]">💰</span> {costGold}g
-              </Badge>
-            )}
-            {costToken > 0 && (
-              <Badge className="bg-purple-500/90 text-white font-bold border-0 flex gap-1 items-center px-1.5 h-6">
-                <span className="text-[10px]">🎟️</span> {costToken}
-              </Badge>
-            )}
-            {/* Material badge if needed */}
-          </div>
-        )}
-      </div>
+            <div className="mt-auto pt-2 grid gap-2">
+              {mode === 'place' ? (
+                <div className="text-center text-xs text-amber-500/80 font-medium uppercase tracking-wider">
+                  Click to Place
+                </div>
+              ) : (
+                // Buy Actions
+                <>
+                  {/* Gold Buy */}
+                  {(costGold > 0 || (!costMaterial && !costToken)) && (
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-8 bg-amber-900/30 hover:bg-amber-600 border border-amber-800/50 text-amber-200"
+                      onClick={(e) => { e.stopPropagation(); onAction?.('gold'); }}
+                    >
+                      Buy {costGold}g
+                    </Button>
+                  )}
 
-      <div className="p-3 flex flex-col flex-1">
-        <h4 className="font-bold text-amber-100 text-center text-sm truncate mb-1" title={tile.name}>{tile.name}</h4>
+                  {/* Material Buy */}
+                  {costMaterial && (
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-8 bg-stone-800 hover:bg-stone-700 border border-stone-600 text-stone-300"
+                      onClick={(e) => { e.stopPropagation(); onAction?.('materials'); }}
+                      title={`Needs: ${costMaterial.map(m => `${m.quantity}x ${m.itemId}`).join(', ')}`}
+                    >
+                      Construct 🪵
+                    </Button>
+                  )}
 
-        <div className="mt-auto pt-2 grid gap-2">
-          {mode === 'place' ? (
-            <div className="text-center text-xs text-amber-500/80 font-medium uppercase tracking-wider">
-              Click to Place
+                  {/* Token Buy */}
+                  {costToken > 0 && (
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-8 bg-purple-900/30 hover:bg-purple-600 border border-purple-800/50 text-purple-200"
+                      onClick={(e) => { e.stopPropagation(); onAction?.('tokens'); }}
+                    >
+                      Redeem 🎟️
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
-          ) : (
-            // Buy Actions
-            <>
-              {/* Gold Buy */}
-              {(costGold > 0 || (!costMaterial && !costToken)) && (
-                <Button
-                  size="sm"
-                  className="w-full text-xs h-8 bg-amber-900/30 hover:bg-amber-600 border border-amber-800/50 text-amber-200"
-                  onClick={(e) => { e.stopPropagation(); onAction?.('gold'); }}
-                >
-                  Buy {costGold}g
-                </Button>
-              )}
-
-              {/* Material Buy */}
-              {costMaterial && (
-                <Button
-                  size="sm"
-                  className="w-full text-xs h-8 bg-stone-800 hover:bg-stone-700 border border-stone-600 text-stone-300"
-                  onClick={(e) => { e.stopPropagation(); onAction?.('materials'); }}
-                  title={`Needs: ${costMaterial.map(m => `${m.quantity}x ${m.itemId}`).join(', ')}`}
-                >
-                  Construct 🪵
-                </Button>
-              )}
-
-              {/* Token Buy */}
-              {costToken > 0 && (
-                <Button
-                  size="sm"
-                  className="w-full text-xs h-8 bg-purple-900/30 hover:bg-purple-600 border border-purple-800/50 text-purple-200"
-                  onClick={(e) => { e.stopPropagation(); onAction?.('tokens'); }}
-                >
-                  Redeem 🎟️
-                </Button>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+          </div>
     </Card>
   )
 } 
