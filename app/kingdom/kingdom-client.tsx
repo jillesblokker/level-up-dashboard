@@ -361,6 +361,12 @@ export function KingdomClient() {
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
+  useEffect(() => {
+    console.warn('[Kingdom] storedItems updated. Count:', storedItems.length);
+    if (storedItems.length > 0) {
+      console.warn('[Kingdom] Check straightroad:', storedItems.find(i => i.id === 'straightroad' || i.id === 'straightroad-item'));
+    }
+  }, [storedItems]);
   const [totalStats, setTotalStats] = useState<{ movement: number; attack: number; defense: number }>({ movement: 0, attack: 0, defense: 0 });
   const [modalOpen, setModalOpen] = useState(false)
   const [modalText, setModalText] = useState("")
@@ -749,12 +755,18 @@ export function KingdomClient() {
   // Restore handlePlaceKingdomTile for KingdomGrid
   // Optimistic update handler for inventory items
   const handleInventoryUpdate = useCallback((newItem: any) => {
+    console.warn('[Kingdom] handleInventoryUpdate called with:', newItem);
     setStoredItems(prev => {
+      console.warn('[Kingdom] Previous Stored Items count:', prev.length);
       const exists = prev.find(i => i.id === newItem.id);
       if (exists) {
-        return prev.map(i => i.id === newItem.id ? { ...i, quantity: i.quantity + newItem.quantity } : i);
+        console.warn('[Kingdom] Item exists, updating quantity');
+        return prev.map(i => i.id === newItem.id ? { ...i, quantity: (i.quantity || 0) + newItem.quantity } : i);
       }
-      return [...prev, newItem];
+      console.warn('[Kingdom] Item new, appending');
+      const updated = [...prev, newItem];
+      console.warn('[Kingdom] New Stored Items count:', updated.length);
+      return updated;
     });
   }, []);
 
