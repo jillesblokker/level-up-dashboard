@@ -1591,37 +1591,75 @@ export function KingdomGridWithTimers({
   return (
     <div className="w-full flex flex-col items-center gap-4">
       {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
-      <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-1">
+      {/* Kingdom Control Bar - Grounded visual style */}
+      <div className="w-full mb-6 mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-slate-950/50 border border-slate-800/50 backdrop-blur-md rounded-2xl shadow-xl">
         {/* Left: Weather Info */}
-        <div className="flex items-center">
-          <div className="bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-100 px-3 py-2 rounded-lg shadow-xl shadow-black/50 flex items-center gap-3">
-            <div className="text-3xl filter drop-shadow-md">
-              {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center cursor-help transition-opacity hover:opacity-80">
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl filter drop-shadow-md">
+                    {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
+                    <span className="text-[10px] text-slate-400 italic">{getWeatherDescription(weather)}</span>
+                  </div>
+                </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-widest font-medieval">{getWeatherName(weather)}</span>
-              <span className="text-[10px] text-gray-300 italic">{getWeatherDescription(weather)}</span>
-            </div>
-          </div>
-        </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Current Weather: Affects resource production rates</p>
+          </TooltipContent>
+        </Tooltip>
 
         {/* Center: Resource HUD */}
-        <div className="flex items-center gap-2">
-          <div className="bg-black/60 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 flex items-center gap-2 shadow-lg backdrop-blur-md">
-            <span className="text-sm">👑</span>
-            <span className="font-bold font-mono text-sm">{buildTokens}</span>
-          </div>
+        <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+              {/* Build Tokens */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help">
+                    <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">👑</span>
+                    <div className="flex flex-col leading-none">
+                      <span className="font-bold font-mono text-amber-400 text-sm">{buildTokens}</span>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Build Tokens: Specific currency for constructing buildings</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <div className="w-px h-6 bg-white/10 mx-1" />
 
-          {['wood', 'stone'].map(mat => {
-            const item = inventory?.find(i => i.id === `material-${mat}` || i.name?.toLowerCase() === mat);
-            if (!item || (item.quantity || 0) <= 0) return null;
-            return (
-              <div key={mat} className="bg-black/60 text-white px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-md">
-                <span className="text-sm capitalize">{mat === 'wood' ? '🪵' : '🪨'}</span>
-                <span className="font-bold font-mono text-sm">{item.quantity}</span>
-              </div>
-            );
-          })}
+              {/* Common Materials - Always show 0 */}
+              {['wood', 'stone', 'water'].map(mat => {
+                const item = inventory?.find(i => i.id === `material-${mat}` || i.name?.toLowerCase() === mat);
+                const qty = item?.quantity || 0;
+                
+                const icons: Record<string, string> = { wood: '🪵', stone: '🪨', water: '💧' };
+                const labels: Record<string, string> = { wood: 'Wood', stone: 'Stone', water: 'Water' };
+                const descs: Record<string, string> = { 
+                  wood: 'Essential for timber structures', 
+                  stone: 'Required for foundations and walls', 
+                  water: 'Used for irrigation and brewing' 
+                };
+
+                return (
+                  <Tooltip key={mat}>
+                    <TooltipTrigger asChild>
+                      <div className={`flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help ${qty === 0 ? 'opacity-50 grayscale' : ''}`}>
+                        <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{icons[mat] || '📦'}</span>
+                        <span className="font-bold font-mono text-slate-200 text-sm">{qty}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-bold text-amber-400">{labels[mat] || mat}</p>
+                      <p className="text-xs text-gray-300">{descs[mat] || 'Resource'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
         </div>
 
         {/* Right: Action Buttons */}
@@ -1629,12 +1667,12 @@ export function KingdomGridWithTimers({
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-lg font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-transform hover:scale-105"
+                className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-slate-600 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95"
                 onClick={expandKingdomGrid}
                 disabled={!canExpand}
                 aria-label="Expand kingdom grid"
               >
-                🏗️
+                <span className="text-lg">🏗️</span>
               </button>
             </TooltipTrigger>
             <TooltipContent
@@ -1648,13 +1686,20 @@ export function KingdomGridWithTimers({
             </TooltipContent>
           </Tooltip>
 
-          <button
-            className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-transform hover:scale-105"
-            aria-label="Open properties panel"
-            onClick={() => setPropertiesOpen(true)}
-          >
-            +
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-3xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group"
+                aria-label="Open properties panel"
+                onClick={() => setPropertiesOpen(true)}
+              >
+                <span className="filter drop-shadow-md group-hover:block transition-all">+</span>
+              </button>
+            </TooltipTrigger>
+             <TooltipContent side="left">
+               <p>Open Shop & Inventory</p>
+             </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
@@ -1682,53 +1727,55 @@ export function KingdomGridWithTimers({
         )}
       </AnimatePresence>
 
-      {/* Properties Inventory Panel (Replaced inline code with component) */}
-      <KingdomPropertiesInventory
-        open={propertiesOpen}
-        onClose={() => setPropertiesOpen(false)}
-        tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
-        selectedTile={selectedInventoryTile}
-        setSelectedTile={(tile) => {
-          setSelectedInventoryTile(tile as any);
-          if (tile) {
-            handlePropertySelect(tile as any); // This sets placement mode and closes panel
-          }
-        }}
-        onBuy={(tile, method) => {
-          handleBuyProperty(tile as any, method);
-        }}
-        onBuyToken={async () => {
-          try {
-            const success = await spendGold(1000, 'build-token-purchase');
-            if (success) {
-              setBuildTokens(prev => {
-                const newVal = (prev || 0) + 1;
-                import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-                  updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
-                });
-                return newVal;
-              });
-              toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
-            } else {
-              toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
-            }
-          } catch (e) {
-            console.error('Error purchasing build token:', e);
-            toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
-          }
-        }}
-        tokens={buildTokens}
-        playerLevel={playerLevel}
-        inventory={propertyInventory}
-      />
+      {/* Properties Inventory Panel (Replaced inline code with component) */ }
+  <KingdomPropertiesInventory
+    open={propertiesOpen}
+    onClose={() => setPropertiesOpen(false)}
+    tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
+    selectedTile={selectedInventoryTile}
+    setSelectedTile={(tile) => {
+      setSelectedInventoryTile(tile as any);
+      if (tile) {
+        handlePropertySelect(tile as any); // This sets placement mode and closes panel
+      }
+    }}
+    onBuy={(tile, method) => {
+      handleBuyProperty(tile as any, method);
+    }}
+    onBuyToken={async () => {
+      try {
+        const success = await spendGold(1000, 'build-token-purchase');
+        if (success) {
+          setBuildTokens(prev => {
+            const newVal = (prev || 0) + 1;
+            import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
+              updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
+            });
+            return newVal;
+          });
+          toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
+        } else {
+          toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
+        }
+      } catch (e) {
+        console.error('Error purchasing build token:', e);
+        toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
+      }
+    }}
+    tokens={buildTokens}
+    playerLevel={playerLevel}
+    inventory={propertyInventory}
+  />
 
-      {showModal && modalData && (
-        <KingdomTileModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          reward={modalData}
-        />
-      )}
-    </div>
+  {
+    showModal && modalData && (
+      <KingdomTileModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        reward={modalData}
+      />
+    )
+  }
+    </div >
   )
 } 
