@@ -1375,6 +1375,7 @@ export function KingdomClient() {
                     readOnly={isVisiting}
                     inventory={storedItems}
                     onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
+                    userId={user?.id || null}
                   />
                 </div>
               )}

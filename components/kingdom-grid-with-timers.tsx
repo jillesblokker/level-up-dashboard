@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
+import { addToKingdomInventory } from '@/lib/inventory-manager'
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -49,6 +50,7 @@ interface KingdomGridWithTimersProps {
   onTileRemove?: (tileId: string) => void
   inventory?: any[]
   onMaterialSpend?: ((itemId: string, quantity: number) => void | Promise<void>) | undefined
+  userId?: string | null
 }
 
 interface TileTimer {
@@ -71,7 +73,8 @@ export function KingdomGridWithTimers({
   readOnly = false,
   onTileRemove,
   inventory = [],
-  onMaterialSpend
+  onMaterialSpend,
+  userId
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
@@ -687,16 +690,24 @@ export function KingdomGridWithTimers({
 
       toast({ title: "Purchased!", description: `Bought ${property.name} for ${property.cost} Gold.` });
 
+      // Add to inventory
+      if (userId) {
+        try {
+          await addToKingdomInventory(userId, {
+            id: property.id,
+            name: property.name,
+            quantity: 1,
+            type: 'item', // Treat buildings as items
+            image: property.image
+          });
+        } catch (e) {
+          console.error('Failed to add to inventory', e);
+        }
+      }
+
       // Emit event to update inventory UI
       window.dispatchEvent(new Event('character-inventory-update'));
 
-      // We rely on the parent/reload to update the "Owned" count, 
-      // but for immediate feedback we can optimistically update propertyInventory?
-      // Since propertyInventory is derived from constant + stats, hard to update.
-      // User can now find it in 'Place' tab once inventory refreshes.
-      // We'll switch tab to 'place' to hint user?
-      // setPropertyTab('place'); // Not available in this context? 
-      // Actually KingdomPropertiesInventory manages its own tab state.
       return;
 
     } else if (method === 'materials') {
@@ -738,6 +749,22 @@ export function KingdomGridWithTimers({
         for (const mat of property.materialCost) {
           await onMaterialSpend(mat.itemId, mat.quantity);
         }
+
+        // Add to inventory
+        if (userId) {
+          try {
+            await addToKingdomInventory(userId, {
+              id: property.id,
+              name: property.name,
+              quantity: 1,
+              type: 'item',
+              image: property.image
+            });
+          } catch (e) {
+            console.error('Failed to add to inventory', e);
+          }
+        }
+
         toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
 
         // Trigger inventory update
