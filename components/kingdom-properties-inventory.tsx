@@ -14,12 +14,12 @@ interface PropertyTile {
   id: string;
   name: string;
   image: string;
-  description?: string;
-  cost?: number;
-  tokenCost?: number;
-  materialCost?: { itemId: string; quantity: number }[];
-  quantity?: number;
-  levelRequired?: number; // Added for compatibility
+  description?: string | undefined;
+  cost?: number | undefined;
+  tokenCost?: number | undefined;
+  materialCost?: { itemId: string; quantity: number }[] | undefined;
+  quantity?: number | undefined;
+  levelRequired?: number | undefined; // Added for compatibility
 }
 
 interface KingdomPropertiesInventoryProps {
