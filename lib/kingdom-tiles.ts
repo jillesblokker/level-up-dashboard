@@ -117,10 +117,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'sawmill',
     name: TEXT_CONTENT.kingdomTiles.sawmill.name,
-    timerMinutes: 240,
-    normalGoldRange: [0, 0], // No gold from sawmill
-    luckyGoldAmount: 0,
-    luckyChance: 0.12,
+    timerMinutes: 180, // Reduced from 240 to 180 minutes (3 hours)
+    normalGoldRange: [15, 35], // Now produces gold alongside materials
+    luckyGoldAmount: 100,
+    luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.sawmill.clickMessage,
     possibleItems: [
       '/images/items/materials/material-logs.png',
@@ -212,10 +212,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'wizard',
     name: TEXT_CONTENT.kingdomTiles.wizard.name,
-    timerMinutes: 360,
-    normalGoldRange: [15, 40],
-    luckyGoldAmount: 120,
-    luckyChance: 0.08,
+    timerMinutes: 240, // Reduced from 360 to 240 minutes (4 hours)
+    normalGoldRange: [60, 120], // Significantly increased (was 15-40)
+    luckyGoldAmount: 300, // Increased (was 120)
+    luckyChance: 0.12, // Increased (was 0.08)
     clickMessage: TEXT_CONTENT.kingdomTiles.wizard.clickMessage,
     possibleItems: [
       '/images/items/scroll/scroll-scrolly.png',
@@ -252,10 +252,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'castle',
     name: TEXT_CONTENT.kingdomTiles.castle.name,
-    timerMinutes: 720,
-    normalGoldRange: [30, 60],
-    luckyGoldAmount: 300,
-    luckyChance: 0.05,
+    timerMinutes: 480, // Reduced from 720 to 480 minutes (8 hours)
+    normalGoldRange: [200, 400], // Massively increased (was 30-60) - legendary rewards!
+    luckyGoldAmount: 1000, // Jackpot! (was 300)
+    luckyChance: 0.10, // Increased (was 0.05) - legendary should feel rewarding
     clickMessage: TEXT_CONTENT.kingdomTiles.castle.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
@@ -272,10 +272,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'mansion',
     name: TEXT_CONTENT.kingdomTiles.mansion.name,
-    timerMinutes: 480,
-    normalGoldRange: [20, 50],
-    luckyGoldAmount: 200,
-    luckyChance: 0.10,
+    timerMinutes: 300, // Reduced from 480 to 300 minutes (5 hours)
+    normalGoldRange: [100, 200], // Significantly increased (was 20-50)
+    luckyGoldAmount: 500, // Increased (was 200)
+    luckyChance: 0.12, // Increased (was 0.10)
     clickMessage: TEXT_CONTENT.kingdomTiles.mansion.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',

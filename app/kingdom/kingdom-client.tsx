@@ -409,23 +409,23 @@ export function KingdomClient() {
               '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
               '2,1': { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
               '3,1': { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-              '4,1': { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-              '5,1': { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+              '4,1': { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (180 * 60 * 1000), isReady: false }, // 3 hours (was 4 hours)
+              '5,1': { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
               '1,2': { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-              '2,2': { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-              '3,2': { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-              '4,2': { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-              '5,2': { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-              '1,3': { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-              '2,3': { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-              '3,3': { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-              '4,3': { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-              '5,3': { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-              '1,4': { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min
-              '2,4': { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-              '3,4': { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-              '4,4': { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-              '5,4': { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+              '2,2': { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (reduced from 12)
+              '3,2': { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
+              '4,2': { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (180 * 60 * 1000), isReady: false }, // 3 hours
+              '5,2': { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+              '1,3': { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+              '2,3': { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+              '3,3': { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours (reduced from 6)
+              '4,3': { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (360 * 60 * 1000), isReady: false }, // 6 hours
+              '5,3': { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+              '1,4': { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
+              '2,4': { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (300 * 60 * 1000), isReady: false }, // 5 hours (reduced from 8)
+              '3,4': { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours
+              '4,4': { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (180 * 60 * 1000), isReady: false }, // 3 hours
+              '5,4': { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (360 * 60 * 1000), isReady: false }, // 6 hours
             };
 
             // Save default timers to Supabase
@@ -491,23 +491,23 @@ export function KingdomClient() {
             { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
             { x: 2, y: 1, tileId: 'blacksmith', endTime: Date.now() + (30 * 60 * 1000), isReady: false }, // 30 min
             { x: 3, y: 1, tileId: 'fisherman', endTime: Date.now() + (15 * 60 * 1000), isReady: false }, // 15 min
-            { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (45 * 60 * 1000), isReady: false }, // 45 min
-            { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (20 * 60 * 1000), isReady: false }, // 20 min
+            { x: 4, y: 1, tileId: 'sawmill', endTime: Date.now() + (180 * 60 * 1000), isReady: false }, // 3 hours
+            { x: 5, y: 1, tileId: 'windmill', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
             { x: 1, y: 2, tileId: 'grocery', endTime: Date.now() + (5 * 60 * 1000), isReady: false }, // 5 min
-            { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours (legendary)
-            { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
-            { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (25 * 60 * 1000), isReady: false }, // 25 min
-            { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (12 * 60 * 1000), isReady: false }, // 12 min
-            { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (8 * 60 * 1000), isReady: false }, // 8 min
-            { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (35 * 60 * 1000), isReady: false }, // 35 min
-            { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
-            { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (75 * 60 * 1000), isReady: false }, // 1.25 hours
-            { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (18 * 60 * 1000), isReady: false }, // 18 min
-            { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (22 * 60 * 1000), isReady: false }, // 22 min - FIXED: was 'house'
-            { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
-            { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (150 * 60 * 1000), isReady: false }, // 2.5 hours
-            { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (28 * 60 * 1000), isReady: false }, // 28 min
-            { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (65 * 60 * 1000), isReady: false }, // 1.1 hours
+            { x: 2, y: 2, tileId: 'castle', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours
+            { x: 3, y: 2, tileId: 'temple', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
+            { x: 4, y: 2, tileId: 'fountain', endTime: Date.now() + (180 * 60 * 1000), isReady: false }, // 3 hours
+            { x: 5, y: 2, tileId: 'pond', endTime: Date.now() + (60 * 60 * 1000), isReady: false }, // 1 hour
+            { x: 1, y: 3, tileId: 'foodcourt', endTime: Date.now() + (90 * 60 * 1000), isReady: false }, // 1.5 hours
+            { x: 2, y: 3, tileId: 'vegetables', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+            { x: 3, y: 3, tileId: 'wizard', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
+            { x: 4, y: 3, tileId: 'mayor', endTime: Date.now() + (360 * 60 * 1000), isReady: false }, // 6 hours
+            { x: 5, y: 3, tileId: 'inn', endTime: Date.now() + (120 * 60 * 1000), isReady: false }, // 2 hours
+            { x: 1, y: 4, tileId: 'library', endTime: Date.now() + (240 * 60 * 1000), isReady: false }, // 4 hours
+            { x: 2, y: 4, tileId: 'mansion', endTime: Date.now() + (300 * 60 * 1000), isReady: false }, // 5 hours
+            { x: 3, y: 4, tileId: 'jousting', endTime: Date.now() + (480 * 60 * 1000), isReady: false }, // 8 hours
+            { x: 4, y: 4, tileId: 'archery', endTime: Date.now() + (180 * 60 * 1000), isReady: false }, // 3 hours
+            { x: 5, y: 4, tileId: 'watchtower', endTime: Date.now() + (360 * 60 * 1000), isReady: false }, // 6 hours
           ];
           localStorage.setItem('kingdom-tile-timers', JSON.stringify(defaultTimers));
         }
