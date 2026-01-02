@@ -1942,7 +1942,7 @@ export function KingdomGridWithTimers({
           }
         }}
         onBuy={(tile) => {
-          handleBuyProperty(tile);
+          handleBuyProperty(tile as any);
         }}
         onBuyToken={async () => {
           try {
