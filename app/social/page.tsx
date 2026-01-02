@@ -428,51 +428,56 @@ export default function AlliesPage() {
                                     const titleInfo = getCurrentTitle(level);
 
                                     return (
-                                        <Card key={friend.id} className="overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 flex flex-col">
+                                        <Card key={friend.id} className="overflow-hidden border border-primary/10 hover:border-primary/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-card/50 backdrop-blur-sm">
                                             <CardContent className="p-0 flex-1 flex flex-col">
                                                 {/* Header */}
-                                                <div className="p-4 flex items-center gap-4 bg-muted/20 border-b relative">
+                                                <div className="p-4 flex items-center gap-4 border-b border-primary/5 relative bg-gradient-to-r from-muted/20 to-transparent">
                                                     <div className="relative">
-                                                        <Avatar className="h-12 w-12 border-2 border-primary/20">
+                                                        <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
                                                             <AvatarImage src={friend.imageUrl} />
-                                                            <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                            <AvatarFallback className="bg-primary/10 text-primary font-bold">{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                         </Avatar>
                                                         <div className={cn(
-                                                            "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background",
-                                                            !friend.lastSeen ? "bg-gray-400" :
-                                                                (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-green-500 animate-pulse" :
-                                                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-yellow-500" : "bg-gray-400"
+                                                            "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background",
+                                                            !friend.lastSeen ? "bg-slate-300" :
+                                                                (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
+                                                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-amber-400" : "bg-slate-300"
                                                         )} title={friend.lastSeen ? TEXT_CONTENT.social.friendCard.status.lastSeen.replace('{date}', new Date(friend.lastSeen).toLocaleString()) : TEXT_CONTENT.social.friendCard.status.offline} />
                                                     </div>
 
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex justify-between items-start">
                                                             <div>
-                                                                <h4 className="font-bold text-lg truncate leading-none mb-1">{friend.username}</h4>
-                                                                {friend.stats?.allianceName && (
-                                                                    <div className="flex items-center gap-1 text-xs font-bold text-amber-600 mb-1">
-                                                                        <Shield className="w-3 h-3 fill-amber-100" />
+                                                                <h4 className="font-bold text-lg truncate leading-none mb-1.5">{friend.username}</h4>
+                                                                {friend.stats?.allianceName ? (
+                                                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 mb-1 bg-amber-500/10 px-2 py-0.5 rounded-full w-fit border border-amber-500/20">
+                                                                        <Shield className="w-3 h-3 fill-amber-500 text-amber-600" />
                                                                         {friend.stats.allianceName}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60 mb-1 px-1 italic">
+                                                                        <Shield className="w-3 h-3" />
+                                                                        No alliance yet
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             {(friend.stats?.streak || 0) > 0 && (
-                                                                <div className="flex items-center gap-1 bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-xs font-bold border border-orange-200" title="Alliance Streak">
+                                                                <div className="flex items-center gap-1 bg-orange-500/10 text-orange-600 px-2 py-1 rounded-full text-xs font-bold border border-orange-500/20 shadow-sm" title="Alliance Streak">
                                                                     <Flame className="w-3 h-3 fill-orange-500" />
                                                                     {friend.stats?.streak}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                                            <Users className="w-3 h-3" />
+                                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-medium pl-1">
                                                             Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 {/* Hero - Rank Visual */}
-                                                <div className="py-6 flex flex-col items-center justify-center bg-gradient-to-b from-background via-accent/5 to-background flex-1">
-                                                    <div className="relative w-32 h-32 mb-3 drop-shadow-md hover:scale-105 transition-transform duration-500">
+                                                <div className="py-6 flex flex-col items-center justify-center bg-gradient-to-b from-background via-primary/5 to-background flex-1 relative">
+                                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50" />
+                                                    <div className="relative w-32 h-32 mb-4 drop-shadow-xl hover:scale-105 transition-transform duration-500 filter sepia-[0.1]">
                                                         <Image
                                                             src={`/images/character/${titleInfo.id}.png`}
                                                             alt={titleInfo.name}
@@ -480,36 +485,40 @@ export default function AlliesPage() {
                                                             className="object-contain"
                                                         />
                                                     </div>
-                                                    <Badge variant="outline" className="px-3 py-1 bg-background/50 backdrop-blur-sm border-primary/30 text-base font-medieval text-foreground uppercase tracking-widest">
+                                                    <Badge className="px-4 py-1.5 bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary uppercase tracking-[0.2em] font-bold shadow-sm transition-colors text-xs">
                                                         {titleInfo.name}
                                                     </Badge>
                                                 </div>
 
                                                 {/* Stats Grid */}
-                                                <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 border-y bg-muted/10">
-                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
-                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
-                                                            <Crown className="w-3 h-3 text-amber-500" /> Level
+                                                <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-primary/10 border-y border-primary/10 bg-muted/5">
+                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
+                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Level</div>
+                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
+                                                            <Crown className="w-3 h-3 text-amber-500 mb-0.5" />
+                                                            {level}
                                                         </div>
-                                                        <div className="font-bold text-lg">{level}</div>
                                                     </div>
-                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
-                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
-                                                            <Scroll className="w-3 h-3 text-blue-500" /> Quests
+                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
+                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Quests</div>
+                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
+                                                            <Scroll className="w-3 h-3 text-blue-500 mb-0.5" />
+                                                            {friend.stats?.questsFinished || 0}
                                                         </div>
-                                                        <div className="font-bold text-lg">{friend.stats?.questsFinished || 0}</div>
                                                     </div>
-                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
-                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
-                                                            <Sword className="w-3 h-3 text-red-500" /> Hard
+                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
+                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Hard</div>
+                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
+                                                            <Sword className="w-3 h-3 text-red-500 mb-0.5" />
+                                                            {friend.stats?.challengesFinished || 0}
                                                         </div>
-                                                        <div className="font-bold text-lg">{friend.stats?.challengesFinished || 0}</div>
                                                     </div>
-                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
-                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
-                                                            <Gift className="w-3 h-3 text-pink-500" /> Shared
+                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
+                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Shared</div>
+                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
+                                                            <Gift className="w-3 h-3 text-pink-500 mb-0.5" />
+                                                            {friend.stats?.giftsShared || 0}
                                                         </div>
-                                                        <div className="font-bold text-lg">{friend.stats?.giftsShared || 0}</div>
                                                     </div>
                                                 </div>
 
@@ -518,7 +527,7 @@ export default function AlliesPage() {
                                                     <Button
                                                         variant="default"
                                                         size="sm"
-                                                        className="w-full"
+                                                        className="w-full font-semibold shadow-sm"
                                                         onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
                                                     >
                                                         <Crown className="w-4 h-4 mr-2" />
@@ -527,7 +536,7 @@ export default function AlliesPage() {
                                                     <Button
                                                         variant="secondary"
                                                         size="sm"
-                                                        className="w-full"
+                                                        className="w-full bg-background border border-input shadow-sm hover:bg-accent hover:text-accent-foreground"
                                                         onClick={() => openQuestModal(friend)}
                                                     >
                                                         <Scroll className="w-4 h-4 mr-2" />
@@ -535,35 +544,37 @@ export default function AlliesPage() {
                                                     </Button>
 
                                                     {/* Secondary Row */}
-                                                    <div className="col-span-2 flex gap-2">
+                                                    <div className="col-span-2 flex gap-1 pt-1">
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="flex-1 text-xs h-8 border border-transparent hover:border-border"
+                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => openCompareModal(friend)}
                                                         >
-                                                            <Target className="w-3 h-3 mr-2 text-muted-foreground" />
+                                                            <Target className="w-3 h-3 mr-2" />
                                                             Compare
                                                         </Button>
+                                                        <div className="w-px h-4 bg-border my-auto" />
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="flex-1 text-xs h-8 border border-transparent hover:border-border"
+                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => {
                                                                 setSelectedFriend(friend);
                                                                 setGiftModalOpen(true);
                                                             }}
                                                         >
-                                                            <Gift className="w-3 h-3 mr-2 text-muted-foreground" />
+                                                            <Gift className="w-3 h-3 mr-2" />
                                                             Gift
                                                         </Button>
+                                                        <div className="w-px h-4 bg-border my-auto" />
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                                                                     <MoreHorizontal className="w-4 h-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end">
+                                                            <DropdownMenuContent align="end" className="w-48">
                                                                 <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
                                                                     <Shield className="w-4 h-4 mr-2" />
                                                                     Visit Realm
