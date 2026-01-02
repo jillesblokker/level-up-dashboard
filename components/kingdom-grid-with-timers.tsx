@@ -1589,7 +1589,7 @@ export function KingdomGridWithTimers({
   }
 
   return (
-    <>
+    <div className="w-full flex flex-col items-center gap-4">
       {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
       <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-1">
         {/* Left: Weather Info */}
@@ -1729,6 +1729,6 @@ export function KingdomGridWithTimers({
           reward={modalData}
         />
       )}
-    </>
+    </div>
   )
 } 
