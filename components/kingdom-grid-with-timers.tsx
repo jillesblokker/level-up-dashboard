@@ -18,6 +18,8 @@ import { spendGold } from '@/lib/gold-manager'
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { AnimatePresence } from 'framer-motion'
+import { LuckyCelebration } from '@/components/lucky-celebration'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
@@ -181,6 +183,9 @@ export function KingdomGridWithTimers({
     isLucky: boolean
     message: string
   } | null>(null)
+
+  // State for lucky celebration
+  const [luckyCelebrationAmount, setLuckyCelebrationAmount] = useState<number | null>(null)
 
   // Add missing state for expand functionality
   const [propertiesOpen, setPropertiesOpen] = useState(false)
@@ -1112,7 +1117,13 @@ export function KingdomGridWithTimers({
         isLucky: wasLucky,
         message: kingdomTile.clickMessage
       })
-      setShowModal(true)
+
+      // If lucky, show celebration first, then modal
+      if (wasLucky) {
+        setLuckyCelebrationAmount(goldEarned)
+      } else {
+        setShowModal(true)
+      }
 
       // Trigger callbacks
       if (onGoldEarned) onGoldEarned(goldEarned)
@@ -1205,7 +1216,13 @@ export function KingdomGridWithTimers({
       isLucky: wasLucky,
       message: kingdomTile.clickMessage
     })
-    setShowModal(true)
+
+    // If lucky, show celebration first, then modal
+    if (wasLucky) {
+      setLuckyCelebrationAmount(goldEarned)
+    } else {
+      setShowModal(true)
+    }
 
     // Trigger callbacks
     if (onGoldEarned) onGoldEarned(goldEarned)
@@ -1573,6 +1590,18 @@ export function KingdomGridWithTimers({
 
         {renderGridWithBorder()}
       </div>
+
+      <AnimatePresence>
+        {luckyCelebrationAmount !== null && (
+          <LuckyCelebration
+            amount={luckyCelebrationAmount}
+            onComplete={() => {
+              setLuckyCelebrationAmount(null)
+              setShowModal(true)
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Properties Inventory Panel (Replaced inline code with component) */}
       <KingdomPropertiesInventory
