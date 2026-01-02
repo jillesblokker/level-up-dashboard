@@ -75,7 +75,8 @@ export function KingdomGridWithTimers({
   onTileRemove,
   inventory = [],
   onMaterialSpend,
-  userId
+  userId,
+  onInventoryUpdate
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
