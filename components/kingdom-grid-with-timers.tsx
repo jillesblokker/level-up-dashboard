@@ -51,6 +51,7 @@ interface KingdomGridWithTimersProps {
   inventory?: any[]
   onMaterialSpend?: ((itemId: string, quantity: number) => void | Promise<void>) | undefined
   userId?: string | null
+  onInventoryUpdate?: (item: any) => void
 }
 
 interface TileTimer {
@@ -713,6 +714,15 @@ export function KingdomGridWithTimers({
           });
           console.warn('[Kingdom] Inventory add success (Gold)');
           toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
+          if (onInventoryUpdate) {
+            onInventoryUpdate({
+              id: property.id,
+              name: property.name,
+              quantity: 1,
+              type: 'building',
+              image: property.image
+            });
+          }
         } catch (e) {
           console.error('Failed to add to inventory', e);
           toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
@@ -779,6 +789,15 @@ export function KingdomGridWithTimers({
             });
             console.warn('[Kingdom] Inventory add success (Materials)');
             toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
+            if (onInventoryUpdate) {
+              onInventoryUpdate({
+                id: property.id,
+                name: property.name,
+                quantity: 1,
+                type: 'building',
+                image: property.image
+              });
+            }
           } catch (e) {
             console.error('Failed to add to inventory', e);
             toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });

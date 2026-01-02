@@ -747,6 +747,17 @@ export function KingdomClient() {
   };
 
   // Restore handlePlaceKingdomTile for KingdomGrid
+  // Optimistic update handler for inventory items
+  const handleInventoryUpdate = useCallback((newItem: any) => {
+    setStoredItems(prev => {
+      const exists = prev.find(i => i.id === newItem.id);
+      if (exists) {
+        return prev.map(i => i.id === newItem.id ? { ...i, quantity: i.quantity + newItem.quantity } : i);
+      }
+      return [...prev, newItem];
+    });
+  }, []);
+
   const handleMaterialSpend = async (itemId: string, quantity: number) => {
     if (!user?.id) return;
     try {
@@ -1376,6 +1387,7 @@ export function KingdomClient() {
                     inventory={storedItems}
                     onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
                     userId={user?.id || null}
+                    onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}
                   />
                 </div>
               )}
