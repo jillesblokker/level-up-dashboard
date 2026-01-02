@@ -340,8 +340,11 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       y: 0,
       ariaLabel: `Kingdom tile: ${tileName}`,
       image: `/images/kingdom-tiles/${filename}`,
-      cost: isCastle ? 0 : Math.floor(Math.random() * 3) + 1, // 1-3 build tokens
-      quantity: isCastle ? 1 : 0, // Only Castle starts with 1, rest start with 0
+      cost: kingdomTileConfig?.cost || 0,
+      tokenCost: kingdomTileConfig?.tokenCost,
+      materialCost: kingdomTileConfig?.materialCost,
+      levelRequired: kingdomTileConfig?.levelRequired,
+      quantity: isCastle ? 1 : 0,
     };
   });
 }

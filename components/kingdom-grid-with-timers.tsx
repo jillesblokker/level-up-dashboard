@@ -465,430 +465,75 @@ export function KingdomGridWithTimers({
     };
   }, []);
 
-  // Kingdom tile inventory for properties panel - organized by logical categories
-  const [propertyInventory, setPropertyInventory] = useState([
-    // Basic Buildings (Level 1) - Affordable starter buildings
-    {
-      id: 'house',
-      name: 'House',
-      image: '/images/kingdom-tiles/House.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'basic'
-    },
-    {
-      id: 'well',
-      name: 'Well',
-      image: '/images/kingdom-tiles/Well.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'basic'
-    },
-    {
-      id: 'pond',
-      name: 'Pond',
-      image: '/images/kingdom-tiles/Pond.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'basic'
-    },
-    {
-      id: 'vegetables',
-      name: 'Vegetables',
-      image: '/images/kingdom-tiles/Vegetables.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'basic'
-    },
+  // Kingdom tile inventory for properties panel - dynamically loaded from KINGDOM_TILES source of truth
+  const [propertyInventory, setPropertyInventory] = useState(() => {
+    // Metadata for UI categorization and locking
+    const METADATA: Record<string, { category: string, levelRequired: number, isSeasonal?: boolean, eventType?: string }> = {
+      // Basic
+      house: { category: 'basic', levelRequired: 1 },
+      well: { category: 'basic', levelRequired: 1 },
+      pond: { category: 'basic', levelRequired: 1 },
+      vegetables: { category: 'basic', levelRequired: 1 },
 
-    // Commerce & Services (Level 1-2) - Business and trade buildings
-    {
-      id: 'market-stalls',
-      name: 'Market Stalls',
-      image: '/images/kingdom-tiles/MarketStalls.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'commerce'
-    },
-    {
-      id: 'grocery',
-      name: 'Grocery',
-      image: '/images/kingdom-tiles/Grocery.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'commerce'
-    },
-    {
-      id: 'bakery',
-      name: 'Bakery',
-      image: '/images/kingdom-tiles/Bakery.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'harvest',
-      category: 'commerce'
-    },
-    {
-      id: 'brewery',
-      name: 'Brewery',
-      image: '/images/kingdom-tiles/Brewery.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'harvest',
-      category: 'commerce'
-    },
+      // Commerce
+      'market-stalls': { category: 'commerce', levelRequired: 1 },
+      grocery: { category: 'commerce', levelRequired: 1 },
+      bakery: { category: 'commerce', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
+      brewery: { category: 'commerce', levelRequired: 2, isSeasonal: true, eventType: 'harvest' },
 
-    // Production & Crafting (Level 1-2) - Manufacturing and resource buildings
-    {
-      id: 'blacksmith',
-      name: 'Blacksmith',
-      image: '/images/kingdom-tiles/Blacksmith.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'production'
-    },
-    {
-      id: 'sawmill',
-      name: 'Sawmill',
-      image: '/images/kingdom-tiles/Sawmill.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'production'
-    },
-    {
-      id: 'windmill',
-      name: 'Windmill',
-      image: '/images/kingdom-tiles/Windmill.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'production'
-    },
+      // Production
+      blacksmith: { category: 'production', levelRequired: 1 },
+      sawmill: { category: 'production', levelRequired: 2 },
+      windmill: { category: 'production', levelRequired: 2 },
+      stable: { category: 'production', levelRequired: 1 },
+      'harvest-barn': { category: 'production', levelRequired: 2, isSeasonal: true, eventType: 'harvest' },
 
-    // Entertainment & Hospitality (Level 1-2) - Leisure and accommodation
-    {
-      id: 'inn',
-      name: 'Inn',
-      image: '/images/kingdom-tiles/Inn.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'entertainment'
-    },
-    {
-      id: 'foodcourt',
-      name: 'Food Court',
-      image: '/images/kingdom-tiles/Foodcourt.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'entertainment'
-    },
-    {
-      id: 'fountain',
-      name: 'Fountain',
-      image: '/images/kingdom-tiles/Fountain.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'entertainment'
-    },
-    {
-      id: 'crossroad',
-      name: 'Crossroad',
-      image: '/images/kingdom-tiles/Crossroad.png',
-      cost: 0,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
-    {
-      id: 'straightroad',
-      name: 'Straight Road',
-      image: '/images/kingdom-tiles/Straightroad.png',
-      cost: 0,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
-    {
-      id: 'cornerroad',
-      name: 'Corner Road',
-      image: '/images/kingdom-tiles/Cornerroad.png',
-      cost: 0,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
-    {
-      id: 'tsplitroad',
-      name: 'T-Split Road',
-      image: '/images/kingdom-tiles/Tsplitroad.png',
-      cost: 0,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
+      // Entertainment
+      inn: { category: 'entertainment', levelRequired: 1 },
+      'snowy-inn': { category: 'entertainment', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      foodcourt: { category: 'entertainment', levelRequired: 2 },
+      'training-grounds': { category: 'entertainment', levelRequired: 2 },
+      'jousting': { category: 'entertainment', levelRequired: 3 },
+      'fireworks-stand': { category: 'entertainment', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
 
-    // Combat & Training (Level 2) - Military and skill development
-    {
-      id: 'archery',
-      name: 'Archery',
-      image: '/images/kingdom-tiles/Archery.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'combat'
-    },
-    {
-      id: 'training-grounds',
-      name: 'Training Grounds',
-      image: '/images/kingdom-tiles/TrainingGrounds.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'combat'
-    },
-    {
-      id: 'jousting',
-      name: 'Jousting',
-      image: '/images/kingdom-tiles/Jousting.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'combat'
-    },
+      // Special / Seasonal
+      'pumpkin-patch': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
+      'winter-fountain': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      'ice-sculpture': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
 
-    // Infrastructure & Defense (Level 2-3) - Security and essential services
-    {
-      id: 'watchtower',
-      name: 'Watchtower',
-      image: '/images/kingdom-tiles/Watchtower.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
-    {
-      id: 'stable',
-      name: 'Stable',
-      image: '/images/kingdom-tiles/Stable.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
-    {
-      id: 'library',
-      name: 'Library',
-      image: '/images/kingdom-tiles/Library.png',
-      cost: 1,
-      levelRequired: 3,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'infrastructure'
-    },
+      // Advanced
+      library: { category: 'advanced', levelRequired: 3 },
+      temple: { category: 'advanced', levelRequired: 3 },
+      fountain: { category: 'advanced', levelRequired: 2 },
+      archery: { category: 'advanced', levelRequired: 2 },
+      watchtower: { category: 'advanced', levelRequired: 3 },
 
-    // Seasonal & Event Buildings (Level 1-2) - Special event structures
-    {
-      id: 'winter-fountain',
-      name: 'Winter Fountain',
-      image: '/images/kingdom-tiles/WinterFountain.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter',
-      category: 'seasonal'
-    },
-    {
-      id: 'snowy-inn',
-      name: 'Snowy Inn',
-      image: '/images/kingdom-tiles/SnowyInn.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter',
-      category: 'seasonal'
-    },
-    {
-      id: 'ice-sculpture',
-      name: 'Ice Sculpture',
-      image: '/images/kingdom-tiles/IceSculpture.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter',
-      category: 'seasonal'
-    },
-    {
-      id: 'fireworks-stand',
-      name: 'Fireworks Stand',
-      image: '/images/kingdom-tiles/FireworksStand.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'winter',
-      category: 'seasonal'
-    },
-    {
-      id: 'pumpkin-patch',
-      name: 'Pumpkin Patch',
-      image: '/images/kingdom-tiles/PumpkinPatch.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'harvest',
-      category: 'seasonal'
-    },
-    {
-      id: 'harvest-barn',
-      name: 'Harvest Barn',
-      image: '/images/kingdom-tiles/HarvestBarn.png',
-      cost: 1,
-      levelRequired: 2,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: true,
-      eventType: 'harvest',
-      category: 'seasonal'
-    },
+      // Prestige
+      mansion: { category: 'prestige', levelRequired: 4 },
+      mayor: { category: 'prestige', levelRequired: 5 },
+      castle: { category: 'prestige', levelRequired: 5 },
+      wizard: { category: 'prestige', levelRequired: 4 },
+    };
 
-    // Premium & Luxury (Level 3-6) - High-end and prestigious buildings
-    {
-      id: 'mansion',
-      name: 'Mansion',
-      image: '/images/kingdom-tiles/Mansion.png',
-      cost: 1,
-      levelRequired: 3,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'premium'
-    },
-    {
-      id: 'temple',
-      name: 'Temple',
-      image: '/images/kingdom-tiles/Temple.png',
-      cost: 1,
-      levelRequired: 4,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'premium'
-    },
-    {
-      id: 'mayor',
-      name: 'Mayor',
-      image: '/images/kingdom-tiles/Mayor.png',
-      cost: 1,
-      levelRequired: 5,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'premium'
-    },
-    {
-      id: 'wizard',
-      name: 'Wizard',
-      image: '/images/kingdom-tiles/Wizard.png',
-      cost: 1,
-      levelRequired: 6,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'premium'
-    },
+    return KINGDOM_TILES.map(tile => {
+      const meta = METADATA[tile.id] || { category: 'misc', levelRequired: 1 };
+      return {
+        id: tile.id,
+        name: tile.name,
+        image: tile.image,
+        cost: tile.cost || 0,
+        tokenCost: tile.tokenCost,
+        materialCost: tile.materialCost,
+        levelRequired: meta.levelRequired,
+        costType: 'gold', // Default identifier, actual logic handled by components
+        quantity: 0,
+        isSeasonal: meta.isSeasonal || false,
+        eventType: meta.eventType,
+        category: meta.category
+      };
+    });
+  });
 
-    // Special Buildings (Level 1) - Unique and starting buildings
-    {
-      id: 'castle',
-      name: 'Castle',
-      image: '/images/kingdom-tiles/Castle.png',
-      cost: 0,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 1, // Start with 1 castle
-      isSeasonal: false,
-      category: 'special'
-    },
-    {
-      id: 'fisherman',
-      name: 'Fisherman',
-      image: '/images/kingdom-tiles/Fisherman.png',
-      cost: 1,
-      levelRequired: 1,
-      costType: 'build-token',
-      quantity: 0,
-      isSeasonal: false,
-      category: 'special'
-    }
-  ]);
 
   // Property placement state
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)

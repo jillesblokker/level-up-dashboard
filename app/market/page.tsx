@@ -326,6 +326,7 @@ export default function MarketPage() {
                       className="w-full bg-gray-900 border border-amber-800/20 rounded-md p-2 text-sm"
                       onChange={(e) => setSelectedInventoryItem(e.target.value)}
                       value={selectedInventoryItem || ''}
+                      aria-label="Select item to sell"
                     >
                       <option value="">-- Choose an Item --</option>
                       {inventoryAsItems.filter(i => (i.quantity || 0) > 0).map(item => (
