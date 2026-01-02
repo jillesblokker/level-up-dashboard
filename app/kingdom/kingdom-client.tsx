@@ -758,11 +758,24 @@ export function KingdomClient() {
     console.warn('[Kingdom] handleInventoryUpdate called with:', newItem);
     setStoredItems(prev => {
       console.warn('[Kingdom] Previous Stored Items count:', prev.length);
-      const exists = prev.find(i => i.id === newItem.id);
-      if (exists) {
-        console.warn('[Kingdom] Item exists, updating quantity');
-        return prev.map(i => i.id === newItem.id ? { ...i, quantity: (i.quantity || 0) + newItem.quantity } : i);
+
+      // Check for exact match OR match with -item suffix (common in default items)
+      const targetId = newItem.id;
+      const defaultId = `${targetId}-item`;
+
+      const existingIndex = prev.findIndex(i => i.id === targetId || i.id === defaultId);
+
+      if (existingIndex >= 0) {
+        console.warn(`[Kingdom] Item exists at index ${existingIndex}, updating quantity`);
+        const newItems = [...prev];
+        const existingItem = newItems[existingIndex];
+        newItems[existingIndex] = {
+          ...existingItem,
+          quantity: (existingItem.quantity || 0) + newItem.quantity
+        };
+        return newItems;
       }
+
       console.warn('[Kingdom] Item new, appending');
       const updated = [...prev, newItem];
       console.warn('[Kingdom] New Stored Items count:', updated.length);
