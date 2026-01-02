@@ -1935,10 +1935,10 @@ export function KingdomGridWithTimers({
         onClose={() => setPropertiesOpen(false)}
         tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
         selectedTile={selectedInventoryTile}
-        setSelectedTile={(tile: typeof propertyInventory[0] | null) => {
-          setSelectedInventoryTile(tile);
+        setSelectedTile={(tile) => {
+          setSelectedInventoryTile(tile as any);
           if (tile) {
-            handlePropertySelect(tile); // This sets placement mode and closes panel
+            handlePropertySelect(tile as any); // This sets placement mode and closes panel
           }
         }}
         onBuy={(tile) => {
