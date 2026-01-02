@@ -189,8 +189,7 @@ function TileCard({ tile, owned, mode, onSelect, onAction }: {
   // If no cost specified, assume gold only (default behavior for old tiles)
   const goldCost = tile.cost || 0;
 
-  // Determine displayed costs
-  // Prioritize Materials > Tokens > Gold Only for "Type" label? No, show all options.
+  const tokenCost = tile.tokenCost || 0;
 
   return (
     <Card
@@ -217,52 +216,103 @@ function TileCard({ tile, owned, mode, onSelect, onAction }: {
         {owned > 0 && (
           <div className="absolute top-2 right-2 bg-green-600/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm border border-green-400/30">
             Owned: {owned}
-
-            <div className="mt-auto pt-2 grid gap-2">
-              {mode === 'place' ? (
-                <div className="text-center text-xs text-amber-500/80 font-medium uppercase tracking-wider">
-                  Click to Place
-                </div>
-              ) : (
-                // Buy Actions
-                <>
-                  {/* Gold Buy */}
-                  {(costGold > 0 || (!costMaterial && !costToken)) && (
-                    <Button
-                      size="sm"
-                      className="w-full text-xs h-8 bg-amber-900/30 hover:bg-amber-600 border border-amber-800/50 text-amber-200"
-                      onClick={(e) => { e.stopPropagation(); onAction?.('gold'); }}
-                    >
-                      Buy {costGold}g
-                    </Button>
-                  )}
-
-                  {/* Material Buy */}
-                  {costMaterial && (
-                    <Button
-                      size="sm"
-                      className="w-full text-xs h-8 bg-stone-800 hover:bg-stone-700 border border-stone-600 text-stone-300"
-                      onClick={(e) => { e.stopPropagation(); onAction?.('materials'); }}
-                      title={`Needs: ${costMaterial.map(m => `${m.quantity}x ${m.itemId}`).join(', ')}`}
-                    >
-                      Construct 🪵
-                    </Button>
-                  )}
-
-                  {/* Token Buy */}
-                  {costToken > 0 && (
-                    <Button
-                      size="sm"
-                      className="w-full text-xs h-8 bg-purple-900/30 hover:bg-purple-600 border border-purple-800/50 text-purple-200"
-                      onClick={(e) => { e.stopPropagation(); onAction?.('tokens'); }}
-                    >
-                      Redeem 🎟️
-                    </Button>
-                  )}
-                </>
-              )}
-            </div>
           </div>
+        )}
+
+        {/* Level Requirement */}
+        {tile.levelRequired && tile.levelRequired > 1 && (
+          <div className="absolute top-2 left-2 bg-blue-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-blue-400/30">
+            Lvl {tile.levelRequired}
+          </div>
+        )}
+      </div>
+
+      <CardContent className="p-3">
+        {/* Title */}
+        <h3 className="font-bold text-amber-100 text-lg leading-tight mb-2 truncate font-medieval tracking-wide text-center">
+          {tile.name}
+        </h3>
+
+        {/* Place Mode Visuals */}
+        {isPlaceMode && (
+          <div className="text-center">
+            <Button
+              size="sm"
+              className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold"
+            >
+              Place Structure
+            </Button>
+          </div>
+        )}
+
+        {/* Buy Mode Requirements */}
+        {!isPlaceMode && (
+          <div className="space-y-3">
+
+            {/* Option 1: Construction (Gold + Materials) */}
+            <div className="bg-black/40 rounded-lg p-2 border border-white/5">
+              <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1 text-center">Construct</div>
+              <div className="flex flex-col gap-1.5">
+                {/* Gold Cost */}
+                {(goldCost > 0 || (!hasMaterialCost && !hasTokenCost)) && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-amber-500 flex items-center gap-1.5">
+                      <Coins className="w-3.5 h-3.5" />
+                      <span className="font-bold">{goldCost}g</span>
+                    </span>
+                  </div>
+                )}
+
+                {/* Material Costs */}
+                {hasMaterialCost && tile.materialCost?.map((mat, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Hammer className="w-3 h-3 text-slate-400" />
+                      <span>{mat.quantity}x {mat.itemId}</span>
+                    </span>
+                  </div>
+                ))}
+
+                <Button
+                  size="sm"
+                  className="w-full mt-1 bg-amber-900/60 hover:bg-amber-800 text-amber-100 border border-amber-800/50 h-7 text-xs"
+                  onClick={(e) => { e.stopPropagation(); onAction?.(hasMaterialCost ? 'materials' : 'gold'); }}
+                >
+                  Build
+                </Button>
+              </div>
+            </div>
+
+            {/* Option 2: Token Redemption (if available) */}
+            {hasTokenCost && (
+              <div className="bg-purple-900/20 rounded-lg p-2 border border-purple-500/20">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-[10px] text-purple-300 uppercase tracking-widest font-bold">Fast Track</div>
+                  <div className="text-purple-400 font-bold text-sm flex items-center gap-1">
+                    <Crown className="w-3 h-3" />
+                    {tokenCost}
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="w-full bg-purple-700 hover:bg-purple-600 text-white h-7 text-xs border border-purple-500/40"
+                  onClick={(e) => { e.stopPropagation(); onAction?.('tokens'); }}
+                >
+                  Redeem
+                </Button>
+              </div>
+            )}
+
+            {/* Fallback if no token cost and no materials (Tier 0 mostly) */}
+            {!hasTokenCost && !hasMaterialCost && goldCost === 0 && (
+              <div className="text-center text-[10px] text-gray-500 italic">
+                Free Construction
+              </div>
+            )}
+
+          </div>
+        )}
+      </CardContent>
     </Card>
-  )
-} 
+  );
+}
