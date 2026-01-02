@@ -1590,10 +1590,11 @@ export function KingdomGridWithTimers({
 
   return (
     <>
-      <div className="relative w-full flex items-center justify-center">
-        {/* Weather Indicator */}
-        {!placementMode && (
-          <div className="absolute top-4 left-4 z-20 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-100 px-3 py-2 rounded-lg shadow-xl shadow-black/50 flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-700">
+      {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
+      <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-1">
+        {/* Left: Weather Info */}
+        <div className="flex items-center">
+          <div className="bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-100 px-3 py-2 rounded-lg shadow-xl shadow-black/50 flex items-center gap-3">
             <div className="text-3xl filter drop-shadow-md">
               {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
             </div>
@@ -1602,71 +1603,69 @@ export function KingdomGridWithTimers({
               <span className="text-[10px] text-gray-300 italic">{getWeatherDescription(weather)}</span>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Placement mode indicator */}
+        {/* Center: Resource HUD */}
+        <div className="flex items-center gap-2">
+          <div className="bg-black/60 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 flex items-center gap-2 shadow-lg backdrop-blur-md">
+            <span className="text-sm">👑</span>
+            <span className="font-bold font-mono text-sm">{buildTokens}</span>
+          </div>
+
+          {['wood', 'stone'].map(mat => {
+            const item = inventory?.find(i => i.id === `material-${mat}` || i.name?.toLowerCase() === mat);
+            if (!item || (item.quantity || 0) <= 0) return null;
+            return (
+              <div key={mat} className="bg-black/60 text-white px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-md">
+                <span className="text-sm capitalize">{mat === 'wood' ? '🪵' : '🪨'}</span>
+                <span className="font-bold font-mono text-sm">{item.quantity}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Right: Action Buttons */}
+        <div className="flex items-center gap-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-lg font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-transform hover:scale-105"
+                onClick={expandKingdomGrid}
+                disabled={!canExpand}
+                aria-label="Expand kingdom grid"
+              >
+                🏗️
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="left"
+              className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
+            >
+              {canExpand
+                ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
+                : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
+              }
+            </TooltipContent>
+          </Tooltip>
+
+          <button
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-transform hover:scale-105"
+            aria-label="Open properties panel"
+            onClick={() => setPropertiesOpen(true)}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      <div className="relative w-full flex items-center justify-center">
+        {/* Placement mode indicator logic remains on map for context */}
         {placementMode && selectedProperty && (
           <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
             <span className="text-sm font-bold">Placing: {selectedProperty.name}</span>
             <span className="text-xs">Click vacant tile or press ESC to cancel</span>
           </div>
         )}
-
-        {/* Resource HUD (Visible when not placing) */}
-        {!placementMode && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 items-center">
-            <div className="flex gap-2">
-              {/* Build Tokens */}
-              <div className="bg-black/60 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 flex items-center gap-2 shadow-lg backdrop-blur-md">
-                <span className="text-sm">👑</span>
-                <span className="font-bold font-mono text-sm">{buildTokens}</span>
-              </div>
-
-              {/* Common Materials */}
-              {['wood', 'stone'].map(mat => {
-                const item = inventory?.find(i => i.id === `material-${mat}` || i.name?.toLowerCase() === mat);
-                if (!item || (item.quantity || 0) <= 0) return null;
-                return (
-                  <div key={mat} className="bg-black/60 text-white px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-md">
-                    <span className="text-sm capitalize">{mat === 'wood' ? '🪵' : '🪨'}</span>
-                    <span className="font-bold font-mono text-sm">{item.quantity}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Floating + button in top right corner of grid */}
-        <button
-          className="absolute top-4 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation min-h-[44px]"
-          aria-label="Open properties panel"
-          onClick={() => setPropertiesOpen(true)}
-        >
-          +
-        </button>
-        {/* Floating expand button below the + button */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="absolute top-24 sm:top-20 right-4 z-20 w-14 h-14 sm:w-12 sm:h-12 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-base sm:text-sm font-bold hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
-              onClick={expandKingdomGrid}
-              disabled={!canExpand}
-              aria-label="Expand kingdom grid"
-            >
-              🏗️
-            </button>
-          </TooltipTrigger>
-          <TooltipContent
-            side="left"
-            className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
-          >
-            {canExpand
-              ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
-              : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
-            }
-          </TooltipContent>
-        </Tooltip>
 
         {renderGridWithBorder()}
       </div>
