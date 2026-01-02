@@ -63,8 +63,8 @@ export function KingdomPropertiesInventory({
     if (item.name) inventoryMap.set(item.name.toLowerCase(), (inventoryMap.get(item.name.toLowerCase()) || 0) + (item.quantity || 0));
   });
 
-  console.log('[KingdomPropInv] Inventory:', inventory);
-  console.log('[KingdomPropInv] Inventory Map keys:', Array.from(inventoryMap.keys()));
+  console.warn('[KingdomPropInv] Inventory:', inventory);
+  console.warn('[KingdomPropInv] Inventory Map keys:', Array.from(inventoryMap.keys()));
 
   const getOwnedCount = (tile: PropertyTile) => {
     return inventoryMap.get(tile.id) || inventoryMap.get(tile.name.toLowerCase()) || 0;
