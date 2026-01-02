@@ -37,6 +37,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
   const [showModal, setShowModal] = useState(false);
   const [evolution, setEvolution] = useState<TitleEvolution | null>(null);
   const [lastProcessedLevel, setLastProcessedLevel] = useState<number>(0);
+  const [isInitialized, setIsInitialized] = useState(false);
   const { user } = useUser();
   const userId = user?.id || null;
 
@@ -45,6 +46,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
   }, [showModal, evolution]);
 
   useEffect(() => {
+    if (!isInitialized) return;
+
     const checkForTitleEvolution = () => {
       try {
         const stats = getCharacterStats();
@@ -85,7 +88,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     return () => {
       window.removeEventListener('character-stats-update', handleStatsUpdate);
     };
-  }, [lastProcessedLevel]);
+  }, [lastProcessedLevel, isInitialized]);
 
   // Initialize lastProcessedLevel (prefer Supabase user preference; fallback to localStorage; else current level)
   useEffect(() => {
@@ -110,7 +113,10 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        if (!cancelled) setLastProcessedLevel(initialLevel);
+        if (!cancelled) {
+          setLastProcessedLevel(initialLevel);
+          setIsInitialized(true);
+        }
       } catch {
         // ignore
       }
