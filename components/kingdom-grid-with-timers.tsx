@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
@@ -81,6 +81,12 @@ export function KingdomGridWithTimers({
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
   const [movingTileSource, setMovingTileSource] = useState<{ x: number, y: number } | null>(null)
+
+  // Memoize callback to prevent infinite loops in LuckyCelebration useEffect
+  const handleLuckyComplete = useCallback(() => {
+    setLuckyCelebrationAmount(null);
+    setShowModal(true);
+  }, []);
 
   // Helper to calculate placement score for hints
   const getPlacementHint = (x: number, y: number, tileType: string) => {
@@ -693,7 +699,7 @@ export function KingdomGridWithTimers({
       // Add to inventory
       if (userId) {
         try {
-          console.log('[Kingdom] Adding to inventory (Gold):', property.name, userId);
+          console.warn('[Kingdom] Adding to inventory (Gold):', property.name, userId);
           await addToKingdomInventory(userId, {
             id: property.id,
             name: property.name,
@@ -701,7 +707,7 @@ export function KingdomGridWithTimers({
             type: 'item', // Treat buildings as items
             image: property.image
           });
-          console.log('[Kingdom] Inventory add success (Gold)');
+          console.warn('[Kingdom] Inventory add success (Gold)');
           toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
         } catch (e) {
           console.error('Failed to add to inventory', e);
@@ -759,7 +765,7 @@ export function KingdomGridWithTimers({
         // Add to inventory
         if (userId) {
           try {
-            console.log('[Kingdom] Adding to inventory (Materials):', property.name, userId);
+            console.warn('[Kingdom] Adding to inventory (Materials):', property.name, userId);
             await addToKingdomInventory(userId, {
               id: property.id,
               name: property.name,
@@ -767,7 +773,7 @@ export function KingdomGridWithTimers({
               type: 'item',
               image: property.image
             });
-            console.log('[Kingdom] Inventory add success (Materials)');
+            console.warn('[Kingdom] Inventory add success (Materials)');
             toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
           } catch (e) {
             console.error('Failed to add to inventory', e);
@@ -1777,10 +1783,7 @@ export function KingdomGridWithTimers({
         {luckyCelebrationAmount !== null && (
           <LuckyCelebration
             amount={luckyCelebrationAmount}
-            onComplete={() => {
-              setLuckyCelebrationAmount(null)
-              setShowModal(true)
-            }}
+            onComplete={handleLuckyComplete}
           />
         )}
       </AnimatePresence>
