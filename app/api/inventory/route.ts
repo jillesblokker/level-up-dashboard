@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // Add timeout handling
@@ -161,6 +163,7 @@ export async function POST(request: Request) {
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      console.log('[API Inventory] Processing POST for:', item.id, 'User:', userId);
       // Check if item exists
       const { data: existing, error: fetchError } = await supabase
         .from('inventory_items')
@@ -168,6 +171,12 @@ export async function POST(request: Request) {
         .eq('user_id', userId)
         .eq('item_id', item.id)
         .single();
+
+      if (existing) {
+        console.log('[API Inventory] Item exists. Old Qty:', existing.quantity, 'Adding:', item.quantity);
+      } else {
+        console.log('[API Inventory] Item/User not found. Fetch err:', fetchError?.code);
+      }
 
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;
