@@ -87,7 +87,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'none',
     rarity: 'common',
     image: '/images/kingdom-tiles/Well.png',
-    materialCost: [{ itemId: 'material-logs', quantity: 5 }],
+    materialCost: [{ itemId: 'material-stone', quantity: 5 }],
     tokenCost: 1,
     cost: 100
   },
@@ -110,7 +110,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'weapon',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/Blacksmith.png',
-    materialCost: [{ itemId: 'material-logs', quantity: 20 }, { itemId: 'material-planks', quantity: 5 }],
+    materialCost: [{ itemId: 'material-logs', quantity: 20 }, { itemId: 'material-stone', quantity: 20 }],
     tokenCost: 2,
     cost: 200
   },
@@ -130,6 +130,23 @@ export const KINGDOM_TILES: KingdomTile[] = [
     rarity: 'common',
     image: '/images/kingdom-tiles/Sawmill.png',
     cost: 120
+  },
+  {
+    id: 'stone-quarry',
+    name: 'Stone Quarry',
+    timerMinutes: 240,
+    normalGoldRange: [20, 45],
+    luckyGoldAmount: 120,
+    luckyChance: 0.15,
+    clickMessage: 'You quarried stone!',
+    possibleItems: [
+      '/images/items/materials/material-stone.png',
+      '/images/items/materials/material-stone-block.png'
+    ],
+    itemType: 'material',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/StoneQuarry.png',
+    cost: 200
   },
   {
     id: 'fisherman',
@@ -225,7 +242,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'scroll',
     rarity: 'rare',
     image: '/images/kingdom-tiles/Wizard.png',
-    materialCost: [{ itemId: 'material-planks', quantity: 50 }, { itemId: 'material-silver', quantity: 10 }],
+    materialCost: [{ itemId: 'material-stone-block', quantity: 100 }, { itemId: 'material-crystal', quantity: 10 }],
     tokenCost: 3,
     cost: 2000
   },
@@ -265,7 +282,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'artifact',
     rarity: 'legendary',
     image: '/images/kingdom-tiles/Castle.png',
-    materialCost: [{ itemId: 'material-planks', quantity: 100 }, { itemId: 'material-steel', quantity: 50 }],
+    materialCost: [{ itemId: 'material-stone-block', quantity: 200 }, { itemId: 'material-steel', quantity: 50 }],
     tokenCost: 3,
     cost: 5000
   },
@@ -285,7 +302,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'artifact',
     rarity: 'epic',
     image: '/images/kingdom-tiles/Mansion.png',
-    materialCost: [{ itemId: 'material-planks', quantity: 100 }],
+    materialCost: [{ itemId: 'material-planks', quantity: 100 }, { itemId: 'material-stone-block', quantity: 50 }],
     tokenCost: 3,
     cost: 1500
   },
@@ -325,7 +342,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'artifact',
     rarity: 'rare',
     image: '/images/kingdom-tiles/Mayor.png',
-    materialCost: [{ itemId: 'material-planks', quantity: 100 }],
+    materialCost: [{ itemId: 'material-planks', quantity: 100 }, { itemId: 'material-stone-block', quantity: 20 }],
     tokenCost: 3,
     cost: 800
   },

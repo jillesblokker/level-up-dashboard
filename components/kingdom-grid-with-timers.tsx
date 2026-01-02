@@ -702,8 +702,16 @@ export function KingdomGridWithTimers({
     } else if (method === 'materials') {
       if (!property.materialCost) return;
 
+      // 1. Check Gold (if applicable)
+      const goldCost = property.cost || 0;
+      // We can't easily check gold balance here definitively without trying to spend or storing it in state,
+      // but spendGold handles the check. We should do it FIRST to avoid partial material spend.
+      // However, verifying materials first is better UX (don't spend gold if missing wood).
+
+      // 2. Check Materials
       const missing = property.materialCost.filter(mat => {
-        const invItem = inventory.find(i => i.id === mat.itemId || i.name.toLowerCase() === mat.itemId.replace('material-', '').toLowerCase());
+        // Handle id mapping: 'material-logs' in cost vs 'material-logs' in inventory
+        const invItem = inventory.find(i => i.id === mat.itemId || i.name?.toLowerCase() === mat.itemId.replace('material-', '').toLowerCase());
         return !invItem || invItem.quantity < mat.quantity;
       });
 
@@ -716,9 +724,21 @@ export function KingdomGridWithTimers({
         return;
       }
 
+      // 3. Deduct Gold
+      if (goldCost > 0) {
+        const success = await spendGold(goldCost, `construct:${property.id}`);
+        if (!success) {
+          toast({ title: "Insufficient Gold", description: `You need ${goldCost} Gold in addition to materials.`, variant: "destructive" });
+          return;
+        }
+      }
+
+      // 4. Deduct Materials
       if (onMaterialSpend) {
-        property.materialCost.forEach(mat => onMaterialSpend(mat.itemId, mat.quantity));
-        toast({ title: "Construction Started", description: `Materials used to build ${property.name}.` });
+        for (const mat of property.materialCost) {
+          await onMaterialSpend(mat.itemId, mat.quantity);
+        }
+        toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
 
         // Trigger inventory update
         window.dispatchEvent(new Event('character-inventory-update'));
@@ -1632,30 +1652,29 @@ export function KingdomGridWithTimers({
 
           <div className="w-px h-6 bg-white/10 mx-1" />
 
-          {/* Common Materials - Always show 0 */}
-          {['wood', 'stone', 'water'].map(mat => {
-            const item = inventory?.find(i => i.id === `material-${mat}` || i.name?.toLowerCase() === mat);
+          {/* Construction Materials - Dynamic List */}
+          {[
+            { id: 'material-logs', label: 'Logs', icon: '🪵' },
+            { id: 'material-stone', label: 'Stone', icon: '🪨' },
+            { id: 'material-water', label: 'Water', icon: '💧' },
+            { id: 'material-planks', label: 'Planks', icon: '🪚' },
+            { id: 'material-stone-block', label: 'Blocks', icon: '🧱' }
+          ].map(mat => {
+            // Find item by ID or Name
+            const item = inventory?.find(i => i.id === mat.id || i.name?.toLowerCase() === mat.label.toLowerCase());
             const qty = item?.quantity || 0;
 
-            const icons: Record<string, string> = { wood: '🪵', stone: '🪨', water: '💧' };
-            const labels: Record<string, string> = { wood: 'Wood', stone: 'Stone', water: 'Water' };
-            const descs: Record<string, string> = {
-              wood: 'Essential for timber structures',
-              stone: 'Required for foundations and walls',
-              water: 'Used for irrigation and brewing'
-            };
-
             return (
-              <Tooltip key={mat}>
+              <Tooltip key={mat.id}>
                 <TooltipTrigger asChild>
                   <div className={`flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help ${qty === 0 ? 'opacity-50 grayscale' : ''}`}>
-                    <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{icons[mat] || '📦'}</span>
+                    <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{mat.icon}</span>
                     <span className="font-bold font-mono text-slate-200 text-sm">{qty}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="font-bold text-amber-400">{labels[mat] || mat}</p>
-                  <p className="text-xs text-gray-300">{descs[mat] || 'Resource'}</p>
+                  <p className="font-bold text-amber-400">{mat.label}</p>
+                  <p className="text-xs text-gray-300">Start with 0? Collect from tiles!</p>
                 </TooltipContent>
               </Tooltip>
             );
