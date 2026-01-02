@@ -9,13 +9,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Crown, Hammer, Coins } from "lucide-react";
 
+// Define a compatible interface for tiles used in this component
+interface PropertyTile {
+  id: string;
+  name: string;
+  image: string;
+  description?: string;
+  cost?: number;
+  tokenCost?: number;
+  materialCost?: { itemId: string; quantity: number }[];
+  quantity?: number;
+  levelRequired?: number; // Added for compatibility
+}
+
 interface KingdomPropertiesInventoryProps {
   open: boolean;
   onClose: () => void;
-  tiles: Tile[];
-  selectedTile: Tile | null;
-  setSelectedTile: (tile: Tile | null) => void;
-  onBuy?: (tile: Tile, method: 'gold' | 'materials' | 'tokens') => void;
+  tiles: PropertyTile[]; // Changed from Tile[]
+  selectedTile: PropertyTile | null; // Changed from Tile | null
+  setSelectedTile: (tile: PropertyTile | null) => void;
+  onBuy?: (tile: PropertyTile, method: 'gold' | 'materials' | 'tokens') => void;
   onBuyToken?: () => void;
   inventory?: any[];
   tokens?: number;
@@ -52,7 +65,7 @@ export function KingdomPropertiesInventory({
     if (item.name) inventoryMap.set(item.name.toLowerCase(), (inventoryMap.get(item.name.toLowerCase()) || 0) + (item.quantity || 0));
   });
 
-  const getOwnedCount = (tile: Tile) => {
+  const getOwnedCount = (tile: PropertyTile) => {
     return inventoryMap.get(tile.id) || inventoryMap.get(tile.name.toLowerCase()) || 0;
   };
 
@@ -172,7 +185,7 @@ export function KingdomPropertiesInventory({
 
 // Sub-component for individual cards
 function TileCard({ tile, owned, mode, onSelect, onAction }: {
-  tile: Tile;
+  tile: PropertyTile;
   owned: number;
   mode: 'place' | 'buy';
   onSelect?: () => void;
