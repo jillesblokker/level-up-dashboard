@@ -46,10 +46,36 @@ export async function GET(request: Request) {
         // Fetch character stats for titles and last_seen
         const { data: statsData } = await supabaseServer
             .from('character_stats')
-            .select('user_id, title, last_seen')
+            .select('user_id, title, last_seen, level, xp')
             .in('user_id', friendIds);
 
         const statsMap = new Map(statsData?.map(s => [s.user_id, s]) || []);
+
+        // Fetch Quest Completion Counts
+        const { data: questData } = await supabaseServer
+            .from('quest_completion')
+            .select('user_id')
+            .in('user_id', friendIds);
+
+        const questCounts = new Map<string, number>();
+        questData?.forEach(q => {
+            questCounts.set(q.user_id, (questCounts.get(q.user_id) || 0) + 1);
+        });
+
+        // Fetch Shared Gifts (Sent or Received involving the current user)
+        const { data: giftData } = await supabaseServer
+            .from('gifts')
+            .select('sender_id, recipient_id')
+            .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`);
+
+        const giftCounts = new Map<string, number>();
+        giftData?.forEach(g => {
+            const friendId = g.sender_id === userId ? g.recipient_id : g.sender_id;
+            // Only count if this interaction is with one of our friends (it should be, given the query, but good to be safe)
+            if (friendIds.includes(friendId)) {
+                giftCounts.set(friendId, (giftCounts.get(friendId) || 0) + 1);
+            }
+        });
 
         // Map users to a lookup map
         const userMap = new Map(users.data.map(u => [u.id, u]));
@@ -65,6 +91,8 @@ export async function GET(request: Request) {
 
             if (!otherUser) continue;
 
+            const charStats = statsMap.get(otherId);
+
             const friendData = {
                 id: f.id, // Friendship ID
                 friendId: otherId,
@@ -73,8 +101,14 @@ export async function GET(request: Request) {
                 status: f.status,
                 isSender, // To know if I sent the request or received it
                 createdAt: f.created_at,
-                title: statsMap.get(otherId)?.title,
-                lastSeen: statsMap.get(otherId)?.last_seen
+                title: charStats?.title,
+                lastSeen: charStats?.last_seen,
+                stats: {
+                    level: charStats?.level || 1,
+                    xp: charStats?.xp || 0,
+                    questsFinished: questCounts.get(otherId) || 0,
+                    giftsShared: giftCounts.get(otherId) || 0
+                }
             };
 
             if (f.status === 'accepted') {

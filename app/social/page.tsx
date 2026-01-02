@@ -36,6 +36,9 @@ import { Leaderboard } from "@/components/leaderboard"
 import { ActivityFeed } from "@/components/activity-feed"
 import { TEXT_CONTENT } from '@/lib/text-content'
 
+import { getCurrentTitle } from "@/lib/title-manager"
+
+// ... types
 interface Friend {
     id: string; // Friendship ID
     friendId: string; // User ID
@@ -48,11 +51,9 @@ interface Friend {
     lastSeen?: string;
     stats?: {
         level: number;
-        gold: number;
         xp: number;
-        quests: { total: number; breakdown: Record<string, number> };
-        challenges: { total: number; breakdown: Record<string, number> };
-        milestones: { total: number; breakdown: Record<string, number> };
+        questsFinished: number;
+        giftsShared: number;
     };
 }
 
@@ -69,6 +70,9 @@ const CATEGORY_ICONS: Record<string, any> = {
     mental: Book,
     physical: Sword
 };
+
+
+
 
 const CATEGORY_COLORS: Record<string, string> = {
     might: "text-red-500",
@@ -415,19 +419,21 @@ export default function AlliesPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="grid grid-cols-1 gap-4">
-                                {friends.map(friend => (
-                                    <Card key={friend.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                                        <CardContent className="p-0">
-                                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
-                                                {/* Avatar and Info */}
-                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {friends.map(friend => {
+                                    const level = friend.stats?.level || 0;
+                                    const titleInfo = getCurrentTitle(level);
+
+                                    return (
+                                        <Card key={friend.id} className="overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 flex flex-col">
+                                            <CardContent className="p-0 flex-1 flex flex-col">
+                                                {/* Header */}
+                                                <div className="p-4 flex items-center gap-4 bg-muted/20 border-b relative">
                                                     <div className="relative">
-                                                        <Avatar className="h-14 w-14 border-2 border-primary/20 flex-shrink-0">
+                                                        <Avatar className="h-12 w-12 border-2 border-primary/20">
                                                             <AvatarImage src={friend.imageUrl} />
                                                             <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                         </Avatar>
-                                                        {/* Status Indicator */}
                                                         <div className={cn(
                                                             "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background",
                                                             !friend.lastSeen ? "bg-gray-400" :
@@ -435,115 +441,120 @@ export default function AlliesPage() {
                                                                     (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-yellow-500" : "bg-gray-400"
                                                         )} title={friend.lastSeen ? TEXT_CONTENT.social.friendCard.status.lastSeen.replace('{date}', new Date(friend.lastSeen).toLocaleString()) : TEXT_CONTENT.social.friendCard.status.offline} />
                                                     </div>
-                                                    <div className="min-w-0 flex-1">
-                                                        <div className="flex items-center gap-2 flex-wrap">
-                                                            <h4 className="font-semibold text-lg truncate">{friend.username}</h4>
-                                                            {friend.stats?.level && (
-                                                                <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/30">
-                                                                    {TEXT_CONTENT.social.friendCard.status.level.replace('{level}', friend.stats.level.toString())}
-                                                                </Badge>
-                                                            )}
-                                                            {friend.title && (
-                                                                <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
-                                                                    {friend.title}
-                                                                </span>
-                                                            )}
-                                                        </div>
+
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-bold text-lg truncate leading-none mb-1">{friend.username}</h4>
                                                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                                                             <Users className="w-3 h-3" />
-                                                            {TEXT_CONTENT.social.friendCard.status.since.replace('{date}', new Date(friend.createdAt || Date.now()).toLocaleDateString())}
+                                                            Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                                                         </p>
                                                     </div>
                                                 </div>
 
-                                                {/* Action Buttons */}
-                                                {/* Action Buttons */}
-                                                <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                                                    {/* Primary Actions - Always Visible */}
+                                                {/* Hero - Rank Visual */}
+                                                <div className="py-6 flex flex-col items-center justify-center bg-gradient-to-b from-background via-accent/5 to-background flex-1">
+                                                    <div className="relative w-32 h-32 mb-3 drop-shadow-md hover:scale-105 transition-transform duration-500">
+                                                        <Image
+                                                            src={`/images/character/${titleInfo.id}.png`}
+                                                            alt={titleInfo.name}
+                                                            fill
+                                                            className="object-contain"
+                                                        />
+                                                    </div>
+                                                    <Badge variant="outline" className="px-3 py-1 bg-background/50 backdrop-blur-sm border-primary/30 text-base font-medieval text-foreground uppercase tracking-widest">
+                                                        {titleInfo.name}
+                                                    </Badge>
+                                                </div>
+
+                                                {/* Stats Grid */}
+                                                <div className="grid grid-cols-3 divide-x border-y bg-muted/10">
+                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
+                                                            <Crown className="w-3 h-3 text-amber-500" /> Level
+                                                        </div>
+                                                        <div className="font-bold text-lg">{level}</div>
+                                                    </div>
+                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
+                                                            <Scroll className="w-3 h-3 text-blue-500" /> Quests
+                                                        </div>
+                                                        <div className="font-bold text-lg">{friend.stats?.questsFinished || 0}</div>
+                                                    </div>
+                                                    <div className="p-3 text-center group hover:bg-muted/20 transition-colors">
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold mb-1 flex items-center justify-center gap-1">
+                                                            <Gift className="w-3 h-3 text-pink-500" /> Shared
+                                                        </div>
+                                                        <div className="font-bold text-lg">{friend.stats?.giftsShared || 0}</div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="p-3 grid grid-cols-2 gap-2 bg-muted/5">
                                                     <Button
+                                                        variant="default"
                                                         size="sm"
+                                                        className="w-full"
                                                         onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
-                                                        className="flex-1 sm:flex-none border-blue-500/50 hover:bg-blue-500/10"
-                                                        variant="outline"
                                                     >
                                                         <Crown className="w-4 h-4 mr-2" />
-                                                        <span className="hidden sm:inline">{TEXT_CONTENT.social.friendCard.actions.visitKingdom}</span>
-                                                        <span className="inline sm:hidden">{TEXT_CONTENT.social.friendCard.actions.visitKingdomMobile}</span>
+                                                        Visit
                                                     </Button>
-
                                                     <Button
+                                                        variant="secondary"
                                                         size="sm"
+                                                        className="w-full"
                                                         onClick={() => openQuestModal(friend)}
-                                                        className="flex-1 sm:flex-none"
                                                     >
                                                         <Scroll className="w-4 h-4 mr-2" />
-                                                        {TEXT_CONTENT.social.friendCard.actions.quest}
+                                                        Quest
                                                     </Button>
 
-                                                    {/* Secondary Actions - Desktop: Visible, Mobile: Dropdown */}
-                                                    <div className="hidden sm:flex gap-2">
+                                                    {/* Secondary Row */}
+                                                    <div className="col-span-2 flex gap-2">
                                                         <Button
+                                                            variant="ghost"
                                                             size="sm"
-                                                            variant="outline"
+                                                            className="flex-1 text-xs h-8 border border-transparent hover:border-border"
                                                             onClick={() => openCompareModal(friend)}
                                                         >
-                                                            <Target className="w-4 h-4 mr-2" />
-                                                            {TEXT_CONTENT.social.friendCard.actions.compare}
+                                                            <Target className="w-3 h-3 mr-2 text-muted-foreground" />
+                                                            Compare
                                                         </Button>
                                                         <Button
+                                                            variant="ghost"
                                                             size="sm"
-                                                            variant="outline"
-                                                            onClick={() => router.push(`/realm?visit=${friend.friendId}`)}
-                                                            className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
-                                                        >
-                                                            <Shield className="w-4 h-4 mr-2" />
-                                                            {TEXT_CONTENT.social.friendCard.actions.realm}
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="secondary"
+                                                            className="flex-1 text-xs h-8 border border-transparent hover:border-border"
                                                             onClick={() => {
                                                                 setSelectedFriend(friend);
                                                                 setGiftModalOpen(true);
                                                             }}
                                                         >
-                                                            <Gift className="w-4 h-4 mr-2" />
-                                                            {TEXT_CONTENT.social.friendCard.actions.gift}
+                                                            <Gift className="w-3 h-3 mr-2 text-muted-foreground" />
+                                                            Gift
                                                         </Button>
-                                                    </div>
-
-                                                    {/* Mobile Menu for Secondary Actions */}
-                                                    <div className="sm:hidden">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-9 w-9">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8">
                                                                     <MoreHorizontal className="w-4 h-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end">
-                                                                <DropdownMenuItem onClick={() => openCompareModal(friend)}>
-                                                                    <Target className="w-4 h-4 mr-2" />
-                                                                    {TEXT_CONTENT.social.friendCard.actions.compareStats}
-                                                                </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
                                                                     <Shield className="w-4 h-4 mr-2" />
-                                                                    {TEXT_CONTENT.social.friendCard.actions.visitRealm}
+                                                                    Visit Realm
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => {
-                                                                    setSelectedFriend(friend);
-                                                                    setGiftModalOpen(true);
-                                                                }}>
-                                                                    <Gift className="w-4 h-4 mr-2" />
-                                                                    {TEXT_CONTENT.social.friendCard.actions.sendGift}
+                                                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => removeFriend(friend.id)}>
+                                                                    <UserCheck className="w-4 h-4 mr-2" />
+                                                                    Unfriend
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })}
                             </div>
                         )}
                     </TabsContent>
