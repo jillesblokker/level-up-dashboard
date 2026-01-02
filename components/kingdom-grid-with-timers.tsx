@@ -51,7 +51,7 @@ interface KingdomGridWithTimersProps {
   inventory?: any[]
   onMaterialSpend?: ((itemId: string, quantity: number) => void | Promise<void>) | undefined
   userId?: string | null
-  onInventoryUpdate?: (item: any) => void
+  onInventoryUpdate?: ((item: any) => void) | undefined
 }
 
 interface TileTimer {
