@@ -164,6 +164,11 @@ export function KingdomPropertiesInventory({
                     owned={getOwnedCount(tile)}
                     mode="buy"
                     onAction={(method) => onBuy && onBuy(tile, method)}
+                    getMaterialCount={(itemId) => {
+                      return inventoryMap.get(itemId) ||
+                        inventoryMap.get(itemId.replace('material-', '')) ||
+                        inventoryMap.get(`material-${itemId}`) || 0;
+                    }}
                   />
                 ))}
               </div>
@@ -176,16 +181,17 @@ export function KingdomPropertiesInventory({
 }
 
 // Sub-component for individual cards
-function TileCard({ tile, owned, mode, onSelect, onAction }: {
+function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
   tile: PropertyTile;
   owned: number;
   mode: 'place' | 'buy';
   onSelect?: () => void;
   onAction?: (method: 'gold' | 'materials' | 'tokens') => void;
+  getMaterialCount?: (itemId: string) => number;
 }) {
   const isPlaceMode = mode === 'place';
-  const hasMaterialCost = tile.materialCost && tile.materialCost.length > 0;
-  const hasTokenCost = tile.tokenCost && tile.tokenCost > 0;
+  const hasMaterialCost = undefined !== tile.materialCost && tile.materialCost.length > 0;
+  const hasTokenCost = undefined !== tile.tokenCost && tile.tokenCost > 0;
   // If no cost specified, assume gold only (default behavior for old tiles)
   const goldCost = tile.cost || 0;
 
@@ -264,14 +270,28 @@ function TileCard({ tile, owned, mode, onSelect, onAction }: {
                 )}
 
                 {/* Material Costs */}
-                {hasMaterialCost && tile.materialCost?.map((mat, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <Hammer className="w-3 h-3 text-slate-400" />
-                      <span>{mat.quantity}x {mat.itemId}</span>
-                    </span>
-                  </div>
-                ))}
+                {hasMaterialCost && tile.materialCost?.map((mat, idx) => {
+                  const rawName = mat.itemId.replace('material-', '');
+                  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+                  const count = getMaterialCount ? getMaterialCount(mat.itemId) : 0;
+                  const isEnough = count >= mat.quantity;
+
+                  return (
+                    <div key={idx} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-1.5">
+                        <Hammer className={cn("w-3 h-3", isEnough ? "text-green-500" : "text-red-500")} />
+                        <span className={cn("font-bold", isEnough ? "text-green-500" : "text-red-500")}>
+                          {mat.quantity}x {displayName}
+                        </span>
+                      </span>
+                      {!isEnough && (
+                        <span className="text-[10px] text-red-500/70 ml-1">
+                          (Have: {count})
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
 
                 <Button
                   size="sm"
