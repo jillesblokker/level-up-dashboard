@@ -693,6 +693,7 @@ export function KingdomGridWithTimers({
       // Add to inventory
       if (userId) {
         try {
+          console.log('[Kingdom] Adding to inventory (Gold):', property.name, userId);
           await addToKingdomInventory(userId, {
             id: property.id,
             name: property.name,
@@ -700,9 +701,14 @@ export function KingdomGridWithTimers({
             type: 'item', // Treat buildings as items
             image: property.image
           });
+          console.log('[Kingdom] Inventory add success (Gold)');
+          toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
         } catch (e) {
           console.error('Failed to add to inventory', e);
+          toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
         }
+      } else {
+        console.warn('[Kingdom] No userId available for inventory add');
       }
 
       // Emit event to update inventory UI
@@ -753,6 +759,7 @@ export function KingdomGridWithTimers({
         // Add to inventory
         if (userId) {
           try {
+            console.log('[Kingdom] Adding to inventory (Materials):', property.name, userId);
             await addToKingdomInventory(userId, {
               id: property.id,
               name: property.name,
@@ -760,9 +767,14 @@ export function KingdomGridWithTimers({
               type: 'item',
               image: property.image
             });
+            console.log('[Kingdom] Inventory add success (Materials)');
+            toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
           } catch (e) {
             console.error('Failed to add to inventory', e);
+            toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
           }
+        } else {
+          console.warn('[Kingdom] No userId available for inventory add');
         }
 
         toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
