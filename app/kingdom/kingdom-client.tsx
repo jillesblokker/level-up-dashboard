@@ -367,12 +367,19 @@ export function KingdomClient() {
   const mergedItems = useMemo(() => {
     const items = [...storedItems];
     localItems.forEach(localItem => {
-      // Relaxed matching: case-insensitive
-      const idx = items.findIndex(i =>
-        i.id === localItem.id ||
-        i.id.toLowerCase() === localItem.id.toLowerCase() ||
-        i.id === `${localItem.id}-item`
-      );
+      // Relaxed matching: case-insensitive ID, or ID variants, or name-based
+      const localName = localItem.name?.toLowerCase();
+      const idx = items.findIndex(i => {
+        // ID-based matches
+        if (i.id === localItem.id) return true;
+        if (i.id.toLowerCase() === localItem.id.toLowerCase()) return true;
+        if (i.id === `${localItem.id}-item`) return true;
+
+        // Name-based matches (crucial for UUID vs string ID scenarios)
+        if (localName && i.name?.toLowerCase() === localName) return true;
+
+        return false;
+      });
 
       if (idx >= 0) {
         const existing = items[idx];
@@ -762,6 +769,8 @@ export function KingdomClient() {
       const stored = await getStoredItems(user.id);
       setEquippedItems(equipped);
       setStoredItems(stored);
+      // Clear local optimistic offsets since server data is now the source of truth
+      setLocalItems([]);
     } catch (error) {
       console.error('Failed to sell item:', error);
       toast({
@@ -855,31 +864,11 @@ export function KingdomClient() {
               image: tile.image || ''
             }];
           }
-          return prev;
         });
 
-        // Also update storedItems for consistency
-        setStoredItems(prev => {
-          const existingIndex = prev.findIndex(i =>
-            i.id === tileId ||
-            i.id === tileId.toLowerCase()
-          );
-
-          if (existingIndex >= 0) {
-            const newItems = [...prev];
-            const existing = newItems[existingIndex];
-            if (existing) {
-              const newQuantity = (existing.quantity || 1) - 1;
-              if (newQuantity <= 0) {
-                newItems.splice(existingIndex, 1);
-              } else {
-                newItems[existingIndex] = { ...existing, quantity: newQuantity };
-              }
-            }
-            return newItems;
-          }
-          return prev;
-        });
+        // NOTE: We do NOT modify storedItems here!
+        // storedItems represents the server's truth and will be updated on next fetch.
+        // localItems holds the optimistic offset (-1) that mergedItems uses.
       } catch (error) {
         console.error('[Kingdom] Failed to decrease inventory after placing tile:', error);
       }
@@ -1147,6 +1136,8 @@ export function KingdomClient() {
       }
 
       setStoredItems(normalize(stored));
+      // Clear local optimistic offsets since server data is now the source of truth
+      setLocalItems([]);
 
       // 4. Update Stats
       setTotalStats(stats || { movement: 0, attack: 0, defense: 0 });

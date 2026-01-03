@@ -74,12 +74,19 @@ export function KingdomPropertiesInventory({
       inventoryMap.set(cleanId, (inventoryMap.get(cleanId) || 0) + quantity);
     }
 
-    // 4. Name-based keys
+    // 4. Name-based keys - only if different from ID to avoid double-counting
     if (item.name) {
       const lowerName = item.name.toLowerCase();
-      inventoryMap.set(lowerName, (inventoryMap.get(lowerName) || 0) + quantity);
-      // Also remove spaces for tighter matching
-      inventoryMap.set(lowerName.replace(/\s+/g, ''), (inventoryMap.get(lowerName.replace(/\s+/g, '')) || 0) + quantity);
+      const lowerId = item.id.toLowerCase();
+      // Only add name-based key if it's different from the id
+      if (lowerName !== lowerId && lowerName !== item.id) {
+        inventoryMap.set(lowerName, (inventoryMap.get(lowerName) || 0) + quantity);
+        // Also remove spaces for tighter matching - BUT only if different from original
+        const nameNoSpace = lowerName.replace(/\s+/g, '');
+        if (nameNoSpace !== lowerName && nameNoSpace !== lowerId) {
+          inventoryMap.set(nameNoSpace, (inventoryMap.get(nameNoSpace) || 0) + quantity);
+        }
+      }
     }
   });
 
@@ -91,12 +98,20 @@ export function KingdomPropertiesInventory({
     const nameKey = tile.name.toLowerCase();
     const nameNoSpace = nameKey.replace(/\s+/g, '');
 
-    // Try all reasonable keys
-    return inventoryMap.get(exactId) ||
-      inventoryMap.get(lowerId) ||
-      inventoryMap.get(nameKey) ||
-      inventoryMap.get(nameNoSpace) ||
-      0;
+    // Try all reasonable keys - use nullish coalescing to handle 0 correctly
+    const exactCount = inventoryMap.get(exactId);
+    if (exactCount !== undefined) return exactCount;
+
+    const lowerCount = inventoryMap.get(lowerId);
+    if (lowerCount !== undefined) return lowerCount;
+
+    const nameCount = inventoryMap.get(nameKey);
+    if (nameCount !== undefined) return nameCount;
+
+    const noSpaceCount = inventoryMap.get(nameNoSpace);
+    if (noSpaceCount !== undefined) return noSpaceCount;
+
+    return 0;
   };
 
   const ownedTiles = tiles.filter(t => {
