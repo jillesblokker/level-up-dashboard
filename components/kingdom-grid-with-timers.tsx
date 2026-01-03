@@ -929,37 +929,49 @@ export function KingdomGridWithTimers({
       }
     }
 
-    if (updatedGrid[y]) {
-      updatedGrid[y][x] = newTile
-      // Removed debugging log
-    }
+    // Delegate completely to parent onTilePlace if available.
+    // This allows the parent (KingdomClient) to handle:
+    // 1. Grid persistence (saveKingdomGrid)
+    // 2. Inventory management (removeFromKingdomInventory + localItems optimistic update)
+    if (onTilePlace) {
+      console.log('[KingdomGrid] Delegating placement to onTilePlace:', newTile);
+      onTilePlace(x, y, newTile);
 
-    // Update the parent component's grid using the callback
-    if (onGridUpdate) {
-      // Removed debugging log
-      onGridUpdate(updatedGrid)
+      // We do NOT manually decrease inventory here because onTilePlace (handlePlaceKingdomTile) does it.
+      // We do NOT manually setPropertyInventory here because the parent will update the 'inventory' prop,
+      // which triggers the useEffect synchronization.
     } else {
-      // Removed debugging log
-    }
+      console.warn('[KingdomGrid] onTilePlace prop missing, falling back to local state update (Inventory might desync)');
 
-    // Decrease property quantity ONLY if NOT moving
-    if (!movingTileSource && selectedProperty.costType === 'build-token') {
-      const updatedInventory = propertyInventory.map(p =>
-        p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
-      )
-      setPropertyInventory(updatedInventory)
+      // Fallback: Update local grid if no parent handler
+      if (updatedGrid[y]) {
+        updatedGrid[y][x] = newTile
+      }
+      if (onGridUpdate) {
+        onGridUpdate(updatedGrid)
+      } else {
+        // ...
+      }
 
-      // Persist inventory decrement using the main inventory API
-      if (userId) {
-        (async () => {
-          try {
-            await removeFromKingdomInventory(userId, selectedProperty.id, 1);
-            // Also trigger inventory update event
-            window.dispatchEvent(new Event('character-inventory-update'));
-          } catch (e) {
-            console.warn('[Kingdom] Failed to decrement inventory', e)
-          }
-        })()
+      // Fallback: Decrease property quantity ONLY if NOT moving
+      if (!movingTileSource && selectedProperty.costType === 'build-token') {
+        const updatedInventory = propertyInventory.map(p =>
+          p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
+        )
+        setPropertyInventory(updatedInventory)
+
+        // Persist inventory decrement using the main inventory API
+        if (userId) {
+          (async () => {
+            try {
+              await removeFromKingdomInventory(userId, selectedProperty.id, 1);
+              // Also trigger inventory update event
+              window.dispatchEvent(new Event('character-inventory-update'));
+            } catch (e) {
+              console.warn('[Kingdom] Failed to decrement inventory', e)
+            }
+          })()
+        }
       }
     }
 
