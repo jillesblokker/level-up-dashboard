@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from './server-client';
 
 /**
@@ -16,61 +16,34 @@ export interface AuthResult {
 }
 
 /**
- * Step 1: Verify Clerk JWT from request headers
- * Extracts and validates the JWT token from Authorization header
+ * Step 1: Verify Clerk JWT using official Clerk auth() helper
+ * This replaces the fragile manual JWT parsing which was causing 401 errors
  */
 export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
-    // Prefer Authorization header for SPA-originated requests
-    const authHeader = request.headers.get('authorization');
-    console.log('[JWT Verification] Auth Header present:', !!authHeader);
+    // SECURITY UPGRADE: Use official Clerk auth() helper
+    // This handles all edge cases (Bearer tokens, cookies, etc.) robustly
+    const { userId } = await auth();
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      console.log('[JWT Verification] Token found, length:', token.length);
-      try {
-        const parts = token.split('.');
-        console.log('[JWT Verification] Token parts:', parts.length);
-        if (parts.length === 3 && parts[1]) {
-          // Decode base64url (not regular base64) using Buffer (Node.js)
-          const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = Buffer.from(base64, 'base64').toString('utf-8');
-          const payload = JSON.parse(jsonPayload);
-
-          console.log('[JWT Verification] Token payload:', { sub: payload.sub, exp: payload.exp });
-
-          if (payload.sub) {
-            console.log('[JWT Verification] Success with Header Auth, userId:', payload.sub);
-            return { success: true, userId: payload.sub };
-          }
-        }
-      } catch (decodeError) {
-        console.error('[JWT Verification] Token decode error:', decodeError);
-      }
-    }
-
-    // Fallback to Clerk getAuth (cookie-based auth) with timeout
-    const nextReq = request instanceof NextRequest
-      ? request
-      : new NextRequest(request.url, { headers: request.headers, method: request.method });
-
-    // Add timeout to Clerk getAuth
-    const authPromise = getAuth(nextReq);
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Auth timeout')), 3000); // 3 second timeout for auth
-    });
-
-    const { userId } = await Promise.race([authPromise, timeoutPromise]) as any;
     if (userId) {
-      console.log('[JWT Verification] Fallback auth successful, userId:', userId);
+      console.log('[JWT Verification] Success via Clerk auth(), userId:', userId);
       return { success: true, userId };
     }
 
-    console.log('[JWT Verification] No valid authentication found (No header and Clerk session failed)');
-    return { success: false, error: 'Authentication failed: No valid token found in Authorization header and session check failed.' };
+    // If auth() fails, try checking the header manually just for logging purposes
+    // but relying on auth() is the primary source of truth
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      console.log('[JWT Verification] No Authorization header found');
+    } else {
+      console.log('[JWT Verification] Authorization header present but auth() returned null');
+    }
+
+    console.log('[JWT Verification] Authentication failed');
+    return { success: false, error: 'Authentication failed: No valid session.' };
   } catch (error) {
-    console.error('[JWT Verification] Clerk verification failed:', error);
-    return { success: false, error: 'JWT verification failed' };
+    console.error('[JWT Verification] Clerk auth() failed:', error);
+    return { success: false, error: 'Internal authentication error' };
   }
 }
 
