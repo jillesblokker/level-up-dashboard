@@ -361,6 +361,22 @@ export function KingdomClient() {
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
+  const [localItems, setLocalItems] = useState<KingdomInventoryItem[]>([]);
+
+  const mergedItems = useMemo(() => {
+    const items = [...storedItems];
+    localItems.forEach(localItem => {
+      const idx = items.findIndex(i => i.id === localItem.id || i.id === `${localItem.id}-item`);
+      if (idx >= 0) {
+        const existing = items[idx];
+        items[idx] = { ...existing, quantity: (existing.quantity || 0) + localItem.quantity } as KingdomInventoryItem;
+      } else {
+        items.push(localItem);
+      }
+    });
+    return items;
+  }, [storedItems, localItems]);
+
   useEffect(() => {
     console.warn('[Kingdom] storedItems updated. Count:', storedItems.length);
     if (storedItems.length > 0) {
@@ -754,19 +770,16 @@ export function KingdomClient() {
 
   // Restore handlePlaceKingdomTile for KingdomGrid
   // Optimistic update handler for inventory items
+  // Optimistic update handler for inventory items
   const handleInventoryUpdate = useCallback((newItem: any) => {
-    console.warn('[Kingdom] handleInventoryUpdate called with:', newItem);
-    setStoredItems(prev => {
-      console.warn('[Kingdom] Previous Stored Items count:', prev.length);
-
-      // Check for exact match OR match with -item suffix (common in default items)
+    console.warn('[Kingdom] handleInventoryUpdate (Local) called with:', newItem);
+    setLocalItems(prev => {
       const targetId = newItem.id;
       const defaultId = `${targetId}-item`;
 
       const existingIndex = prev.findIndex(i => i.id === targetId || i.id === defaultId);
 
       if (existingIndex >= 0) {
-        console.warn(`[Kingdom] Item exists at index ${existingIndex}, updating quantity`);
         const newItems = [...prev];
         const existingItem = newItems[existingIndex];
         newItems[existingIndex] = {
@@ -776,10 +789,7 @@ export function KingdomClient() {
         return newItems;
       }
 
-      console.warn('[Kingdom] Item new, appending');
-      const updated = [...prev, newItem];
-      console.warn('[Kingdom] New Stored Items count:', updated.length);
-      return updated;
+      return [...prev, newItem];
     });
   }, []);
 
@@ -1771,7 +1781,7 @@ export function KingdomClient() {
         setSelectedTile={(tile) => setSelectedKingdomTile(tile as any)}
         onBuy={(tile, method) => handleBuyTile(tile as any, method)}
         onBuyToken={handleBuyToken}
-        inventory={storedItems}
+        inventory={mergedItems}
         tokens={userTokens}
       />
     </div>
