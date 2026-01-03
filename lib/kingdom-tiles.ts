@@ -148,7 +148,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'material',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Sawmill.png',
+    image: '/images/kingdom-tiles/StoneQuarry.png',
     cost: 200
   },
   {
