@@ -1429,7 +1429,7 @@ export function KingdomClient() {
                     onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
                     onItemFound={isVisiting ? () => { } : handleKingdomTileItemFound}
                     readOnly={isVisiting}
-                    inventory={storedItems}
+                    inventory={mergedItems}
                     onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
                     userId={user?.id || null}
                     onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}

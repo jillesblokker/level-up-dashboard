@@ -1816,6 +1816,7 @@ export function KingdomGridWithTimers({
       <KingdomPropertiesInventory
         open={propertiesOpen}
         onClose={() => setPropertiesOpen(false)}
+        inventory={inventory}
         tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
         selectedTile={selectedInventoryTile}
         setSelectedTile={(tile) => {
