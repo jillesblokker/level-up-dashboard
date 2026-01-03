@@ -799,7 +799,8 @@ export function KingdomClient() {
     }
   };
 
-  function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
+  async function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
+    // 1. Update the grid visually
     setKingdomGrid(prev => {
       const newGrid = prev.map(row => row.slice());
       if (newGrid[y]) {
@@ -808,13 +809,71 @@ export function KingdomClient() {
       return newGrid;
     });
 
-    // Save the updated grid
+    // 2. Decrease inventory count in database (the tile.type is the item ID like 'crossroad', 'well', etc.)
+    const tileId = tile.type || tile.id?.split('-')[0] || tile.id;
+    if (user?.id && tileId) {
+      try {
+        // Remove from database inventory
+        await removeFromKingdomInventory(user.id, tileId, 1);
+
+        // Update local state immediately for UI feedback
+        setLocalItems(prev => {
+          const existingIndex = prev.findIndex(i =>
+            i.id === tileId ||
+            i.id === tileId.toLowerCase() ||
+            i.name?.toLowerCase().replace(/\s+/g, '') === tileId.toLowerCase()
+          );
+
+          if (existingIndex >= 0) {
+            const newItems = [...prev];
+            const existing = newItems[existingIndex];
+            if (existing) {
+              const newQuantity = (existing.quantity || 1) - 1;
+              if (newQuantity <= 0) {
+                newItems.splice(existingIndex, 1);
+              } else {
+                newItems[existingIndex] = { ...existing, quantity: newQuantity };
+              }
+            }
+            return newItems;
+          }
+          return prev;
+        });
+
+        // Also update storedItems for consistency
+        setStoredItems(prev => {
+          const existingIndex = prev.findIndex(i =>
+            i.id === tileId ||
+            i.id === tileId.toLowerCase()
+          );
+
+          if (existingIndex >= 0) {
+            const newItems = [...prev];
+            const existing = newItems[existingIndex];
+            if (existing) {
+              const newQuantity = (existing.quantity || 1) - 1;
+              if (newQuantity <= 0) {
+                newItems.splice(existingIndex, 1);
+              } else {
+                newItems[existingIndex] = { ...existing, quantity: newQuantity };
+              }
+            }
+            return newItems;
+          }
+          return prev;
+        });
+      } catch (error) {
+        console.error('[Kingdom] Failed to decrease inventory after placing tile:', error);
+      }
+    }
+
+    // 3. Save the updated grid
     const updatedGrid = kingdomGrid.map(row => row.slice());
     if (updatedGrid[y]) {
       updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
     }
 
-    // Save to API
+    // 4. Save to API
     saveKingdomGridToSupabase(updatedGrid);
   }
 

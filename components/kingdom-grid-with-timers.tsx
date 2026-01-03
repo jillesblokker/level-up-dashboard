@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { spendGold } from '@/lib/gold-manager'
-import { addToKingdomInventory } from '@/lib/inventory-manager'
+import { addToKingdomInventory, removeFromKingdomInventory } from '@/lib/inventory-manager'
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -946,15 +946,19 @@ export function KingdomGridWithTimers({
         p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
       )
       setPropertyInventory(updatedInventory)
-        // Persist inventory decrement
-        ; (async () => {
+
+      // Persist inventory decrement using the main inventory API
+      if (userId) {
+        (async () => {
           try {
-            const url = `/api/tile-inventory?tileId=${encodeURIComponent(selectedProperty.id)}&quantity=1`
-            await fetchAuthRetry(url, { method: 'DELETE' })
+            await removeFromKingdomInventory(userId, selectedProperty.id, 1);
+            // Also trigger inventory update event
+            window.dispatchEvent(new Event('character-inventory-update'));
           } catch (e) {
             console.warn('[Kingdom] Failed to decrement inventory', e)
           }
         })()
+      }
     }
 
     // Start timer for the new property based on reward value (only if new place, or maybe preserve timer if moved?)
