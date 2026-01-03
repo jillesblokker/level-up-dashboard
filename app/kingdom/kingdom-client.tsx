@@ -872,6 +872,12 @@ export function KingdomClient() {
         // localItems holds the optimistic offset (-1) that mergedItems uses.
       } catch (error) {
         console.error('[Kingdom] Failed to decrease inventory after placing tile:', error);
+        // Notify user of the issue
+        toast({
+          title: "Sync Issue",
+          description: "Failed to update inventory on server. Your changes may not persist.",
+          variant: "destructive",
+        });
       }
     }
 
