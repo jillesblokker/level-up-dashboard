@@ -338,19 +338,21 @@ export async function getEquippedItems(userId: string): Promise<InventoryItem[]>
 export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
   if (!userId) return [];
 
+  const cached = getCachedInventory();
+
   try {
     const response = await authenticatedFetch('/api/inventory?equipped=false', {}, 'Stored Items');
 
     if (!response) {
       // Fallback to cache if API skipped (circuit breaker)
       console.warn('[Inventory Manager] API skipped, using cached inventory');
-      return getCachedInventory();
+      return cached;
     }
 
     if (!response.ok) {
       // Fallback to cache if API fails
       console.warn('[Inventory Manager] API failed, using cached inventory');
-      return getCachedInventory();
+      return cached;
     }
 
     const data = await response.json();
@@ -363,15 +365,27 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
       items = data;
     } else {
       console.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
-      items = [];
+      return cached; // Return cache on unexpected format
     }
 
-    // Update cache with fresh data
-    setUserScopedItem('offline-inventory-cache', JSON.stringify(items));
+    // Only update cache if we got actual data from API
+    // If API returned empty but cache has items, we keep the cache
+    if (items.length > 0) {
+      setUserScopedItem('offline-inventory-cache', JSON.stringify(items));
+      return items;
+    } else if (cached.length > 0) {
+      // API returned empty, but we have cached items - something might be wrong with the API
+      // Return cached items but don't overwrite the cache
+      console.warn('[Inventory Manager] API returned empty but cache has items, using cache');
+      return cached;
+    }
+
+    // Both empty
     return items;
   } catch (error) {
     console.error('Error fetching stored items:', error);
-    return [];
+    // Return cache on any error
+    return cached;
   }
 }
 
