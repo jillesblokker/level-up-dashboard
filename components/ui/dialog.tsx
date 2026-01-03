@@ -31,8 +31,10 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    hideDescription?: boolean;
+  }
+>(({ className, children, hideDescription = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -43,8 +45,13 @@ const DialogContent = React.forwardRef<
       )}
       aria-modal="true"
       role="dialog"
+      aria-describedby={hideDescription ? undefined : undefined}
       {...props}
     >
+      {/* Hidden description for accessibility - required by Radix */}
+      <DialogPrimitive.Description className="sr-only">
+        Dialog content
+      </DialogPrimitive.Description>
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full opacity-70 ring-offset-background transition-all hover:opacity-100 hover:bg-amber-900/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 h-10 w-10 flex items-center justify-center text-white hover:text-amber-400 border border-transparent hover:border-amber-500/30">
         <X className="h-5 w-5" />
