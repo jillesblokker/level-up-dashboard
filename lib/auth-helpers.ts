@@ -10,13 +10,13 @@ const CIRCUIT_BREAKER_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 export function hasRecentAuthError(endpoint: string): boolean {
   const lastError = authErrorTimestamps.get(endpoint);
   if (!lastError) return false;
-  
+
   const timeSinceError = Date.now() - lastError;
   if (timeSinceError > CIRCUIT_BREAKER_TIMEOUT) {
     authErrorTimestamps.delete(endpoint);
     return false;
   }
-  
+
   return true;
 }
 
@@ -38,28 +38,28 @@ export async function getClerkToken(): Promise<string> {
   // Wait for Clerk to be available with retry logic
   let attempts = 0;
   const maxAttempts = 10;
-  
+
   while (attempts < maxAttempts) {
     try {
       // Try multiple possible Clerk properties on window
       const clerkInstance = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
-      
+
       if (!clerkInstance) {
         console.log(`[Clerk Token] Clerk instance not found on window, attempt ${attempts + 1}/${maxAttempts}`);
         console.log('[Clerk Token] Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('clerk')));
-        
+
         // Try alternative approach: check if we're in a Clerk context
         if (attempts === 0) {
           console.log('[Clerk Token] Trying to check if Clerk context is available...');
           // This will help debug what's available
-          const availableProps = Object.keys(window).filter(key => 
-            key.toLowerCase().includes('clerk') || 
+          const availableProps = Object.keys(window).filter(key =>
+            key.toLowerCase().includes('clerk') ||
             key.toLowerCase().includes('auth') ||
             key.toLowerCase().includes('user')
           );
           console.log('[Clerk Token] Potentially relevant window properties:', availableProps);
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -84,7 +84,7 @@ export async function getClerkToken(): Promise<string> {
 
       // Get token WITHOUT template (for API routes, not Supabase RLS)
       const token = await session.getToken();
-      
+
       if (!token) {
         console.log(`[Clerk Token] Failed to get token from session, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -93,23 +93,23 @@ export async function getClerkToken(): Promise<string> {
       }
 
       // Successfully retrieved token
-      console.log('[Clerk Token] Successfully retrieved token');
+      // console.log('[Clerk Token] Successfully retrieved token');
       return token;
     } catch (error) {
-      console.error(`[Clerk Token] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      // console.error(`[Clerk Token] Error getting Clerk token (attempt ${attempts + 1}):`, error);
       await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
   }
-  
+
   console.error('[Clerk Token] Failed to get Clerk token after all attempts');
   return '';
 }
 
 // Shared fetch wrapper with authentication and circuit breaker
 export async function authenticatedFetch(
-  endpoint: string, 
-  options: RequestInit = {}, 
+  endpoint: string,
+  options: RequestInit = {},
   contextName: string = 'API'
 ): Promise<Response | null> {
   // Check circuit breaker
@@ -118,7 +118,7 @@ export async function authenticatedFetch(
     console.warn(`[${contextName}] Skipping request to ${endpoint} due to recent auth error`);
     return null;
   }
-  
+
   // Get authentication token
   const token = await getClerkToken();
   if (!token) {
@@ -126,7 +126,7 @@ export async function authenticatedFetch(
     return null;
   }
 
-      // Making authenticated request
+  // Making authenticated request
 
   // Make authenticated request
   const response = await fetch(endpoint, {
@@ -138,7 +138,7 @@ export async function authenticatedFetch(
     },
   });
 
-      // Response received
+  // Response received
 
   // Check for auth error and mark circuit breaker
   if (isAuthError(response)) {

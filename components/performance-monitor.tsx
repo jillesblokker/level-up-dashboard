@@ -22,7 +22,7 @@ export function PerformanceMonitor() {
 
     useEffect(() => {
         // Log initial load
-        console.log('[Performance] App mounted')
+        // console.log('[Performance] App mounted')
 
         let observer: PerformanceObserver | undefined
 
@@ -32,7 +32,7 @@ export function PerformanceMonitor() {
                 observer = new PerformanceObserver((list) => {
                     list.getEntries().forEach((entry) => {
                         if (entry.duration > 50) { // 50ms threshold for long tasks
-                            console.warn('[Performance] Long task detected:', entry.duration.toFixed(2), 'ms', entry)
+                            // console.warn('[Performance] Long task detected:', entry.duration.toFixed(2), 'ms', entry)
                         }
                     })
                 })

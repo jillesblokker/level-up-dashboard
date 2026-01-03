@@ -413,7 +413,7 @@ export function KingdomClient() {
   useEffect(() => {
     if (!user) return; // Wait for user to be loaded
 
-    console.log('[Kingdom] Initializing kingdom grid and timers for user:', user.id);
+    // console.log('[Kingdom] Initializing kingdom grid and timers for user:', user.id);
 
     const initializeKingdomData = async () => {
       try {
@@ -423,7 +423,7 @@ export function KingdomClient() {
         if (!isVisiting) {
           const savedTimers = await loadKingdomTimers(token);
           if (!savedTimers || Object.keys(savedTimers).length === 0) {
-            console.log('[Kingdom] Creating default timers...');
+            // console.log('[Kingdom] Creating default timers...');
 
             const defaultTimers = {
               '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
@@ -450,9 +450,9 @@ export function KingdomClient() {
 
             // Save default timers to Supabase
             await saveKingdomTimers(defaultTimers, token);
-            console.log('[Kingdom] Default timers created and saved to Supabase');
+            // console.log('[Kingdom] Default timers created and saved to Supabase');
           } else {
-            console.log('[Kingdom] Using existing timers from Supabase');
+            // console.log('[Kingdom] Using existing timers from Supabase');
           }
         }
 
@@ -464,42 +464,42 @@ export function KingdomClient() {
         const savedGrid = await loadKingdomGrid(token, targetId);
         if (savedGrid && savedGrid.length > 0) {
           try {
-            console.log('[Kingdom] Loading existing grid from Supabase...');
+            // console.log('[Kingdom] Loading existing grid from Supabase...');
 
             // Use the existing grid directly instead of recreating and merging
-            console.log('[Kingdom] Using existing grid from Supabase:', {
-              gridLength: savedGrid.length,
-              hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-              vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
-              userTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
-            });
+            // console.log('[Kingdom] Using existing grid from Supabase:', {
+            //   gridLength: savedGrid.length,
+            //   hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
+            //   vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
+            //   userTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
+            // });
 
             setKingdomGrid(savedGrid);
           } catch (error) {
-            console.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
+            // console.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
             const newGrid = createEmptyKingdomGrid();
-            console.log('[Kingdom] Created new grid:', {
-              gridLength: newGrid.length,
-              hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-            });
+            // console.log('[Kingdom] Created new grid:', {
+            //   gridLength: newGrid.length,
+            //   hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+            // });
             setKingdomGrid(newGrid);
             // Save the new grid to Supabase
             await saveKingdomGrid(newGrid, token);
           }
         } else {
-          console.log('[Kingdom] No existing grid found, creating new one...');
+          // console.log('[Kingdom] No existing grid found, creating new one...');
           const newGrid = createEmptyKingdomGrid();
-          console.log('[Kingdom] Created new grid:', {
-            gridLength: newGrid.length,
-            hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-          });
+          // console.log('[Kingdom] Created new grid:', {
+          //   gridLength: newGrid.length,
+          //   hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
+          // });
           setKingdomGrid(newGrid);
           // Save the new grid to Supabase
           await saveKingdomGrid(newGrid, token);
         }
 
         // Mark initialization as complete
-        console.log('[Kingdom] Kingdom initialization complete');
+        // console.log('[Kingdom] Kingdom initialization complete');
         setGridLoading(false);
       } catch (error) {
         console.error('[Kingdom] Error initializing kingdom data:', error);
@@ -578,11 +578,11 @@ export function KingdomClient() {
 
   // Debug: Log kingdom grid state changes
   useEffect(() => {
-    console.log('[Kingdom] kingdomGrid updated:', {
-      gridLength: kingdomGrid.length,
-      hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
-      tileTypes: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').map(cell => cell.type)
-    });
+    // console.log('[Kingdom] kingdomGrid updated:', {
+    //   gridLength: kingdomGrid.length,
+    //   hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
+    //   tileTypes: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').map(cell => cell.type)
+    // });
   }, [kingdomGrid]);
 
   // Save kingdom grid to Supabase
@@ -590,7 +590,7 @@ export function KingdomClient() {
     try {
       const token = await getToken();
       if (!token) {
-        console.log('[Kingdom] No token available, falling back to localStorage');
+        // console.log('[Kingdom] No token available, falling back to localStorage');
         localStorage.setItem('kingdom-grid', JSON.stringify(grid));
         return;
       }
@@ -605,14 +605,14 @@ export function KingdomClient() {
       });
 
       if (response.ok) {
-        console.log('[Kingdom] ✅ Grid saved to Supabase successfully');
+        // console.log('[Kingdom] ✅ Grid saved to Supabase successfully');
       } else {
         console.log('[Kingdom] ⚠️ Failed to save to Supabase, falling back to localStorage');
         localStorage.setItem('kingdom-grid', JSON.stringify(grid));
       }
     } catch (error) {
       console.error('[Kingdom] Error saving to Supabase:', error);
-      console.log('[Kingdom] Falling back to localStorage');
+      // console.log('[Kingdom] Falling back to localStorage');
       localStorage.setItem('kingdom-grid', JSON.stringify(grid));
     }
   }, [getToken]);
@@ -622,15 +622,15 @@ export function KingdomClient() {
     if (kingdomGrid && kingdomGrid.length > 0) {
       if (isInitialSaveRef.current) {
         isInitialSaveRef.current = false;
-        console.log('[Kingdom] Skipping initial grid save as it was just loaded');
+        // console.log('[Kingdom] Skipping initial grid save as it was just loaded');
         return;
       }
 
-      console.log('[Kingdom] Saving kingdomGrid to Supabase:', {
-        gridLength: kingdomGrid.length,
-        hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
-        tileCount: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length
-      });
+      // console.log('[Kingdom] Saving kingdomGrid to Supabase:', {
+      //   gridLength: kingdomGrid.length,
+      //   hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
+      //   tileCount: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length
+      // });
       saveKingdomGridToSupabase(kingdomGrid);
     }
   }, [kingdomGrid, saveKingdomGridToSupabase]);

@@ -70,7 +70,7 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                     animation: isJumping ? undefined : 'waddle 2s ease-in-out infinite',
                 }}
                 onLoad={() => {
-                    console.log('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
+                    // console.log('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
                 }}
                 onError={(e) => {
                     console.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);

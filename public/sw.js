@@ -21,11 +21,11 @@ const STATIC_FILES = [
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...')
+  // console.log('[SW] Installing service worker...')
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] Caching static files')
+        // console.log('[SW] Caching static files')
         return Promise.allSettled(
           STATIC_FILES.map(url =>
             cache.add(url).catch(err => {
@@ -36,7 +36,7 @@ self.addEventListener('install', (event) => {
         )
       })
       .then(() => {
-        console.log('[SW] Static files caching completed')
+        // console.log('[SW] Static files caching completed')
         return self.skipWaiting()
       })
   )
@@ -44,21 +44,21 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...')
+  // console.log('[SW] Activating service worker...')
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log('[SW] Deleting old cache:', cacheName)
+              // console.log('[SW] Deleting old cache:', cacheName)
               return caches.delete(cacheName)
             }
           })
         )
       })
       .then(() => {
-        console.log('[SW] Service worker activated and ready')
+        // console.log('[SW] Service worker activated and ready')
         return self.clients.claim()
       })
   )
