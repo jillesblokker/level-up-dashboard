@@ -828,14 +828,22 @@ export function KingdomClient() {
             const newItems = [...prev];
             const existing = newItems[existingIndex];
             if (existing) {
-              const newQuantity = (existing.quantity || 1) - 1;
-              if (newQuantity <= 0) {
-                newItems.splice(existingIndex, 1);
-              } else {
-                newItems[existingIndex] = { ...existing, quantity: newQuantity };
-              }
+              const newQuantity = (existing.quantity || 0) - 1;
+              // If new quantity is 0 and it was positive before, we might want to keep it as 0?
+              // Or if it becomes negative, we keep it negative to offset storedItems.
+              newItems[existingIndex] = { ...existing, quantity: newQuantity };
             }
             return newItems;
+          } else {
+            // Item not in localItems, but likely in storedItems.
+            // Add a negative entry to offset storedItems in mergedItems
+            return [...prev, {
+              id: tileId,
+              name: tile.name,
+              type: tile.type as any,
+              quantity: -1,
+              image: tile.image || ''
+            }];
           }
           return prev;
         });
