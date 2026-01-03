@@ -76,16 +76,11 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
 
 export async function spendGold(amount: number, source: string, metadata?: any) {
   try {
-    console.log('[Gold Manager] spendGold called with:', { amount, source, metadata });
-
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats();
-    console.log('[Gold Manager] Current stats:', currentStats);
-    console.log('[Gold Manager] Current gold balance:', currentStats.gold);
 
     // Check if player has enough gold
     if (currentStats.gold < amount) {
-      console.log('[Gold Manager] Insufficient gold:', { required: amount, available: currentStats.gold });
       toast({
         title: "Insufficient Gold",
         description: `You need ${amount} gold for ${source}. You have ${currentStats.gold} gold.`,
@@ -94,33 +89,26 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
       return false;
     }
 
-    console.log('[Gold Manager] Gold check passed, proceeding with purchase...');
-
     // Subtract gold from stats using synchronous update for immediate effect
     addToCharacterStat('gold', -amount, source);
-    console.log('[Gold Manager] Gold subtracted from stats');
 
     // Log transaction to database for audit trail
     const newBalance = currentStats.gold - amount;
-    console.log('[Gold Manager] New balance will be:', newBalance);
 
     try {
       await logGoldTransaction(-amount, newBalance, 'spend', source, metadata);
-      console.log('[Gold Manager] Transaction logged to database');
     } catch (error) {
       console.warn('[Gold Manager] Failed to log transaction, but continuing:', error);
     }
 
     // Emit kingdom event for tracking weekly progress (negative amount)
     emitGoldGained(-amount, source);
-    console.log('[Gold Manager] Kingdom event emitted');
 
     // Dispatch gold spend event for perk bonuses
     const goldSpendEvent = new CustomEvent("gold-spend", {
       detail: { amount, source }
     });
     window.dispatchEvent(goldSpendEvent);
-    console.log('[Gold Manager] Gold spend event dispatched');
 
     // Show toast notification
     toast({
@@ -128,7 +116,6 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
       description: `-${amount} gold for ${source}`,
     });
 
-    console.log('[Gold Manager] spendGold completed successfully');
     return true;
   } catch (error) {
     console.error("[Gold Manager] Error spending gold:", error);

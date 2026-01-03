@@ -107,17 +107,13 @@ class CharacterStatsService {
         // Handle progressive stats (can only increase)
         if (updates.gold !== undefined) {
             const goldDelta = updates.gold - currentStats.gold;
-            if (goldDelta < 0) {
-                console.warn(`[CharacterStatsService] ⚠️ Gold decrease detected from ${source}: ${goldDelta}`);
-            }
+
             newStats.gold = Math.max(currentStats.gold, updates.gold);
         }
 
         if (updates.experience !== undefined) {
             const xpDelta = updates.experience - currentStats.experience;
-            if (xpDelta < 0) {
-                console.warn(`[CharacterStatsService] ⚠️ XP decrease detected from ${source}: ${xpDelta}`);
-            }
+
             newStats.experience = Math.max(currentStats.experience, updates.experience);
         }
 
@@ -140,10 +136,7 @@ class CharacterStatsService {
         // Broadcast update event
         window.dispatchEvent(new Event('character-stats-update'));
 
-        console.log(`[CharacterStatsService] Stats updated from ${source}:`, {
-            updates,
-            newStats
-        });
+
     }
 
     /**
@@ -154,9 +147,8 @@ class CharacterStatsService {
         const currentValue = (currentStats[stat] as number) || 0;
         const newValue = currentValue + amount;
 
-        // Validate progressive stats
         if ((stat === 'gold' || stat === 'experience') && amount < 0) {
-            console.warn(`[CharacterStatsService] ⚠️ Attempting to decrease ${stat} by ${amount} from ${source}`);
+            // Decrease check suppressed
         }
 
         // Ensure no negative values
@@ -285,11 +277,11 @@ class CharacterStatsService {
             });
 
             if (response.ok) {
-                console.log(`[CharacterStatsService] ✅ Synced to server from ${source}`);
+
                 // Clear queue
                 this.syncQueue = [];
             } else {
-                console.warn('[CharacterStatsService] ⚠️ Sync failed, will retry');
+
             }
         } catch (error) {
             console.error('[CharacterStatsService] Sync error:', error);

@@ -697,9 +697,7 @@ export function KingdomGridWithTimers({
     });
   }
 
-  // Handle buying properties
   const handleBuyProperty = async (property: typeof propertyInventory[0], method: 'gold' | 'materials' | 'tokens' = 'tokens') => {
-    console.log('[Kingdom] handleBuyProperty called for:', property.name, 'Cost:', property.cost, 'Method:', method);
 
     if (method === 'tokens') {
       // Properties should cost build tokens
@@ -737,15 +735,13 @@ export function KingdomGridWithTimers({
       // Add to inventory
       if (userId) {
         try {
-          console.warn('[Kingdom] Adding to inventory (Gold):', property.name, userId);
           await addToKingdomInventory(userId, {
             id: property.id,
             name: property.name,
             quantity: 1,
-            type: 'building', // Changed from item to building
+            type: 'building',
             image: property.image
           });
-          console.warn('[Kingdom] Inventory add success (Gold)');
           toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
           if (onInventoryUpdate) {
             onInventoryUpdate({
@@ -1125,7 +1121,7 @@ export function KingdomGridWithTimers({
       })
 
       if (newTimers.length > 0) {
-        console.log('[Kingdom] Initializing timers for', newTimers.length, 'existing tiles')
+        // Removed debugging log
         setTileTimers(newTimers)
 
           // Persist these initial timers to the database
@@ -1146,9 +1142,9 @@ export function KingdomGridWithTimers({
                   })
                 })
               }
-              console.log('[Kingdom] Successfully persisted initial timers to database')
+              // Removed debugging log
             } catch (e) {
-              console.warn('[Kingdom] Failed to persist initial timers:', e)
+              // Removed debugging log
             }
           })()
       }
@@ -1263,10 +1259,10 @@ export function KingdomGridWithTimers({
             })
 
             // Dispatch event to notify other components (like notification manager)
-            console.log('[Kingdom] Dispatching kingdom-building-collected event for tile at', x, y)
+            // Removed debugging log
             window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
           } catch (e) {
-            console.warn('[Kingdom] Failed to update timer', e)
+            // Removed debugging log
           }
         })()
 
@@ -1366,10 +1362,10 @@ export function KingdomGridWithTimers({
           })
 
           // Dispatch event to notify other components (like notification manager)
-          console.log('[Kingdom] Dispatching kingdom-building-collected event for tile at', x, y)
+          // Removed debugging log
           window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
         } catch (e) {
-          console.warn('[Kingdom] Failed to update timer', e)
+          // Removed debugging log
         }
       })()
 
