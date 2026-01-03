@@ -628,11 +628,12 @@ export function KingdomGridWithTimers({
 
   // Check if player can place a property
   const canPlaceProperty = (property: typeof propertyInventory[0]) => {
-    if (property.costType === 'build-token') {
-      return (property.quantity || 0) > 0 && playerLevel >= property.levelRequired
+    // Check level requirement if it exists
+    if (property.levelRequired && playerLevel < property.levelRequired) {
+      return false
     }
-
-    return false
+    // Must have quantity
+    return (property.quantity || 0) > 0
   }
 
   // Handle property selection for placement

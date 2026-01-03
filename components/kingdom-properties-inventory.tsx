@@ -56,11 +56,6 @@ export function KingdomPropertiesInventory({
   // "Buy" tab shows ALL tiles (or filterable?).
 
   // Mapping inventory counts to tile IDs
-  if (inventory && inventory.length > 0) {
-    console.warn('[KingdomPropInv] Received Inventory:', inventory.length, 'items. First:', inventory[0]);
-  } else {
-    console.warn('[KingdomPropInv] Received Inventory is EMPTY');
-  }
   const inventoryMap = new Map<string, number>();
   (inventory || []).forEach(item => {
     // 1. Exact ID
@@ -88,10 +83,7 @@ export function KingdomPropertiesInventory({
     }
   });
 
-  // Debug logs to verify map content
-  if ((inventory || []).length > 0) {
-    console.warn('[KingdomPropInv] Map Keys Sample:', Array.from(inventoryMap.keys()).slice(0, 10));
-  }
+
 
   const getOwnedCount = (tile: PropertyTile) => {
     const exactId = tile.id;
@@ -109,9 +101,7 @@ export function KingdomPropertiesInventory({
 
   const ownedTiles = tiles.filter(t => {
     const count = getOwnedCount(t);
-    if (t.id.includes('road') || t.id.includes('quarry')) {
-      console.warn(`[KingdomPropInv] Checking ${t.id} (${t.name}): Count=${count}`);
-    }
+
     return count > 0;
   });
   // Sort buyable tiles? Maybe filter out ones that can't be bought? 
