@@ -56,6 +56,11 @@ export function KingdomPropertiesInventory({
   // "Buy" tab shows ALL tiles (or filterable?).
 
   // Mapping inventory counts to tile IDs
+  if (inventory && inventory.length > 0) {
+    console.warn('[KingdomPropInv] Received Inventory:', inventory.length, 'items. First:', inventory[0]);
+  } else {
+    console.warn('[KingdomPropInv] Received Inventory is EMPTY');
+  }
   const inventoryMap = new Map<string, number>();
   (inventory || []).forEach(item => {
     // 1. Exact ID
