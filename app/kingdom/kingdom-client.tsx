@@ -369,7 +369,7 @@ export function KingdomClient() {
       const idx = items.findIndex(i => i.id === localItem.id || i.id === `${localItem.id}-item`);
       if (idx >= 0) {
         const existing = items[idx];
-        items[idx] = { ...existing, quantity: (existing.quantity || 0) + localItem.quantity } as KingdomInventoryItem;
+        items[idx] = { ...existing, quantity: (existing?.quantity || 0) + localItem.quantity } as KingdomInventoryItem;
       } else {
         items.push(localItem);
       }
