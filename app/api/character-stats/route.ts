@@ -171,7 +171,9 @@ export async function POST(request: Request) {
 
       // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
       // For volatile stats (Gold, Health), use the new value
-      const mergedStats = {
+      // Note: We only include core columns that definitely exist in all schemas
+      // Optional columns (display_name, title, etc.) are stored in stats_data JSONB
+      const mergedStats: Record<string, unknown> = {
         user_id: userId,
         gold: ensureNumber(stats.gold ?? existingData?.gold, 0),
         experience: Math.max(ensureNumber(stats.experience, 0), ensureNumber(existingXP, 0)),
@@ -179,13 +181,8 @@ export async function POST(request: Request) {
         health: ensureNumber(stats.health ?? existingData?.health, 100),
         max_health: ensureNumber(stats.max_health ?? existingData?.max_health, 100),
         build_tokens: ensureNumber(stats.build_tokens ?? existingData?.build_tokens, 0),
-
-        // Handling Strings: New value OR existing value OR default
-        character_name: stats.display_name || existingData?.character_name || 'Adventurer',
-        display_name: stats.display_name || existingData?.display_name || 'Adventurer',
-        title: stats.title || existingData?.title || 'Novice',
-
         updated_at: new Date().toISOString(),
+        // Store all data in JSONB as a fallback (this column should always exist)
         stats_data: {
           ...existingJson,
           ...statsJson,
@@ -193,6 +190,10 @@ export async function POST(request: Request) {
           experience: Math.max(ensureNumber(stats.experience, 0), ensureNumber(existingXP, 0)),
           level: Math.max(ensureNumber(stats.level, 1), ensureNumber(existingLevel, 1)),
           kingdom_expansions: Math.max(ensureNumber(stats.kingdom_expansions, 0), ensureNumber(existingExpansions, 0)),
+          // Store optional fields in JSONB where they're safe
+          display_name: stats.display_name || existingData?.display_name || 'Adventurer',
+          character_name: stats.display_name || existingData?.character_name || 'Adventurer',
+          title: stats.title || existingData?.title || 'Novice',
         }
       };
 
