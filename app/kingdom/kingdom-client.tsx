@@ -367,10 +367,17 @@ export function KingdomClient() {
   const mergedItems = useMemo(() => {
     const items = [...storedItems];
     localItems.forEach(localItem => {
-      const idx = items.findIndex(i => i.id === localItem.id || i.id === `${localItem.id}-item`);
+      // Relaxed matching: case-insensitive
+      const idx = items.findIndex(i =>
+        i.id === localItem.id ||
+        i.id.toLowerCase() === localItem.id.toLowerCase() ||
+        i.id === `${localItem.id}-item`
+      );
+
       if (idx >= 0) {
         const existing = items[idx];
-        items[idx] = { ...existing, quantity: (existing?.quantity || 0) + localItem.quantity } as KingdomInventoryItem;
+        const newQty = (existing?.quantity || 0) + localItem.quantity;
+        items[idx] = { ...existing, quantity: newQty } as KingdomInventoryItem;
       } else {
         items.push(localItem);
       }
@@ -811,6 +818,8 @@ export function KingdomClient() {
 
     // 2. Decrease inventory count in database (the tile.type is the item ID like 'crossroad', 'well', etc.)
     const tileId = tile.type || tile.id?.split('-')[0] || tile.id;
+    console.log('[Kingdom] placing tile, decrementing inventory for:', tileId);
+
     if (user?.id && tileId) {
       try {
         // Remove from database inventory
@@ -820,7 +829,7 @@ export function KingdomClient() {
         setLocalItems(prev => {
           const existingIndex = prev.findIndex(i =>
             i.id === tileId ||
-            i.id === tileId.toLowerCase() ||
+            i.id.toLowerCase() === tileId.toLowerCase() ||
             i.name?.toLowerCase().replace(/\s+/g, '') === tileId.toLowerCase()
           );
 
@@ -837,6 +846,7 @@ export function KingdomClient() {
           } else {
             // Item not in localItems, but likely in storedItems.
             // Add a negative entry to offset storedItems in mergedItems
+            console.log('[Kingdom] Adding local offset for:', tileId);
             return [...prev, {
               id: tileId,
               name: tile.name,
