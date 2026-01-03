@@ -45,6 +45,7 @@ import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { updateCharacterStats, getCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
+import ErrorBoundary from '@/components/error-boundary';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import {
   saveKingdomGrid,
@@ -1481,21 +1482,23 @@ export function KingdomClient() {
                 </div>
               ) : (
                 <div className="flex items-center justify-center w-full">
-                  <KingdomGridWithTimers
-                    grid={kingdomGrid}
-                    onTilePlace={isVisiting ? () => { } : handlePlaceKingdomTile}
-                    selectedTile={selectedKingdomTile}
-                    setSelectedTile={isVisiting ? () => { } : setSelectedKingdomTile}
-                    onGridExpand={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                    onGridUpdate={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
-                    onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
-                    onItemFound={isVisiting ? () => { } : handleKingdomTileItemFound}
-                    readOnly={isVisiting}
-                    inventory={mergedItems}
-                    onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
-                    userId={user?.id || null}
-                    onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}
-                  />
+                  <ErrorBoundary>
+                    <KingdomGridWithTimers
+                      grid={kingdomGrid}
+                      onTilePlace={isVisiting ? () => { } : handlePlaceKingdomTile}
+                      selectedTile={selectedKingdomTile}
+                      setSelectedTile={isVisiting ? () => { } : setSelectedKingdomTile}
+                      onGridExpand={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                      onGridUpdate={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                      onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
+                      onItemFound={isVisiting ? () => { } : handleKingdomTileItemFound}
+                      readOnly={isVisiting}
+                      inventory={mergedItems}
+                      onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
+                      userId={user?.id || null}
+                      onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}
+                    />
+                  </ErrorBoundary>
                 </div>
               )}
             </div>
