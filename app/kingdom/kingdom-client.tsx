@@ -329,7 +329,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
     }
 
     return {
-      id: `kingdom-tile-${idx}`,
+      id: kingdomTileConfig ? kingdomTileConfig.id : `kingdom-tile-${idx}`,
       type: kingdomTileConfig ? (kingdomTileConfig.id as TileType) : 'special',
       name: tileName,
       description: kingdomTileConfig ? kingdomTileConfig.clickMessage : `${TEXT_CONTENT.kingdomTiles.specialPrefix}${tileName}`,
@@ -345,6 +345,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       tokenCost: kingdomTileConfig?.tokenCost,
       materialCost: kingdomTileConfig?.materialCost,
       quantity: isCastle ? 1 : 0,
+      levelRequired: kingdomTileConfig?.levelRequired,
     };
   });
 }
