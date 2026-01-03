@@ -47,31 +47,56 @@ This document tracks the quality improvements made based on the critical app ass
 - Wrapped KingdomGridWithTimers component
 - Graceful error display with retry/home options
 
+#### 5. ✅ User Feedback on Sync Failures
+
+**File:** `app/kingdom/kingdom-client.tsx`
+**Problem:** Users weren't notified when server sync failed
+**Solution:**
+
+- Added toast notification when inventory update fails
+- Informs user that changes may not persist
+
+#### 6. ✅ Database Constraints
+
+**File:** `migrations/add_non_negative_constraints.sql`
+**Problem:** No database-level protection against negative quantities
+**Solution:**
+
+- CHECK constraints on `kingdom_inventory.quantity`
+- CHECK constraints on `character_stats.build_tokens`, `streak_tokens`, `gold`
+- Safety net at database level
+
+#### 7. ✅ Quantity Utilities
+
+**File:** `lib/quantity-utils.ts`
+**Problem:** Inconsistent quantity handling across codebase
+**Solution:**
+
+- `safeDecrement()` - Never goes below 0
+- `safeIncrement()` - Safe addition
+- `canDecrement()` - Pre-check before decrement
+- `formatQuantity()` - Display formatting
+- `isValidQuantity()` - Validation helper
+
+#### 8. ✅ Unit Tests for Inventory Logic
+
+**File:** `__tests__/lib/inventory-logic.test.ts`
+**Problem:** No test coverage for critical inventory counting logic
+**Solution:**
+
+- Tests for all quantity utilities
+- Tests for merge logic (exact ID, case-insensitive, name-based)
+- Regression tests for multi-placement scenarios
+
 ### Pending Improvements
 
-#### 5. 🔲 Optimistic Update Rollback
-
-Add try/catch with rollback for all optimistic updates
-
-#### 6. 🔲 Image Loading Audit
-
-Verify all image paths and add consistent fallbacks
-
-#### 7. 🔲 Request Caching (SWR)
+#### 9. 🔲 Request Caching (SWR)
 
 Implement SWR for character stats and inventory data
 
-#### 8. 🔲 Database Schema Review
+#### 10. 🔲 Additional E2E Tests
 
-Add constraints for inventory quantity floors
-
-#### 9. 🔲 E2E Test Suite
-
-Write automated tests for critical flows
-
-#### 10. 🔲 Additional Memoization
-
-Profile and memoize other expensive calculations
+Write full end-to-end tests for placement flows
 
 ---
 
@@ -81,3 +106,7 @@ Profile and memoize other expensive calculations
 2. `feat: add skeleton loading states for better UX in kingdom grid and inventory`
 3. `perf: memoize getAvailableProperties to prevent unnecessary recalculations`
 4. `feat: wrap KingdomGridWithTimers in ErrorBoundary for graceful error handling`
+5. `feat: add toast notification when inventory sync fails`
+6. `feat: add database constraints to prevent negative inventory quantities`
+7. `feat: add quantity utilities and database constraints for data integrity`
+8. `test: add unit tests for quantity utilities and inventory merge logic`
