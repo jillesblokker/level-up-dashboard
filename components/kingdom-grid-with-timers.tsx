@@ -1850,7 +1850,6 @@ export function KingdomGridWithTimers({
         }}
         tokens={buildTokens}
         playerLevel={playerLevel}
-        inventory={propertyInventory}
       />
 
       {
