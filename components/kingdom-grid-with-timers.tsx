@@ -735,605 +735,502 @@ export function KingdomGridWithTimers({
       // Add to inventory
       if (userId) {
         try {
-          await addToKingdomInventory(userId, {
+          id: property.id,
+            name: property.name,
+              quantity: 1,
+                type: 'item',
+                  category: 'building',
+                    image: property.image
+        });
+        toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
+        if (onInventoryUpdate) {
+          onInventoryUpdate({
             id: property.id,
             name: property.name,
             quantity: 1,
             type: 'building',
             image: property.image
           });
-          toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
-          if (onInventoryUpdate) {
-            onInventoryUpdate({
-              id: property.id,
-              name: property.name,
-              quantity: 1,
-              type: 'building',
-              image: property.image
-            });
-          }
-        } catch (e) {
-          console.error('Failed to add to inventory', e);
-          toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
         }
-      } else {
-        console.warn('[Kingdom] No userId available for inventory add');
+      } catch (e) {
+        console.error('Failed to add to inventory', e);
+        toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
       }
+    } else {
+      console.warn('[Kingdom] No userId available for inventory add');
+    }
 
-      // Emit event to update inventory UI
-      window.dispatchEvent(new Event('character-inventory-update'));
+    // Emit event to update inventory UI
+    window.dispatchEvent(new Event('character-inventory-update'));
 
-      return;
+    return;
 
-    } else if (method === 'materials') {
-      if (!property.materialCost) return;
+  } else if (method === 'materials') {
+    if (!property.materialCost) return;
 
-      // 1. Check Gold (if applicable)
-      const goldCost = property.cost || 0;
-      // We can't easily check gold balance here definitively without trying to spend or storing it in state,
-      // but spendGold handles the check. We should do it FIRST to avoid partial material spend.
-      // However, verifying materials first is better UX (don't spend gold if missing wood).
+    // 1. Check Gold (if applicable)
+    const goldCost = property.cost || 0;
+    // We can't easily check gold balance here definitively without trying to spend or storing it in state,
+    // but spendGold handles the check. We should do it FIRST to avoid partial material spend.
+    // However, verifying materials first is better UX (don't spend gold if missing wood).
 
-      // 2. Check Materials
-      const missing = property.materialCost.filter(mat => {
-        // Handle id mapping: 'material-logs' in cost vs 'material-logs' in inventory
-        const invItem = inventory.find(i => i.id === mat.itemId || i.name?.toLowerCase() === mat.itemId.replace('material-', '').toLowerCase());
-        return !invItem || invItem.quantity < mat.quantity;
+    // 2. Check Materials
+    const missing = property.materialCost.filter(mat => {
+      // Handle id mapping: 'material-logs' in cost vs 'material-logs' in inventory
+      const invItem = inventory.find(i => i.id === mat.itemId || i.name?.toLowerCase() === mat.itemId.replace('material-', '').toLowerCase());
+      return !invItem || invItem.quantity < mat.quantity;
+    });
+
+    if (missing.length > 0) {
+      toast({
+        title: "Insufficient Materials",
+        description: `Missing: ${missing.map(m => `${m.quantity} ${m.itemId.replace('material-', '')}`).join(', ')}`,
+        variant: "destructive"
       });
+      return;
+    }
 
-      if (missing.length > 0) {
-        toast({
-          title: "Insufficient Materials",
-          description: `Missing: ${missing.map(m => `${m.quantity} ${m.itemId.replace('material-', '')}`).join(', ')}`,
-          variant: "destructive"
-        });
+    // 3. Deduct Gold
+    if (goldCost > 0) {
+      const success = await spendGold(goldCost, `construct:${property.id}`);
+      if (!success) {
+        toast({ title: "Insufficient Gold", description: `You need ${goldCost} Gold in addition to materials.`, variant: "destructive" });
         return;
       }
+    }
 
-      // 3. Deduct Gold
-      if (goldCost > 0) {
-        const success = await spendGold(goldCost, `construct:${property.id}`);
-        if (!success) {
-          toast({ title: "Insufficient Gold", description: `You need ${goldCost} Gold in addition to materials.`, variant: "destructive" });
-          return;
-        }
+    // 4. Deduct Materials
+    if (onMaterialSpend) {
+      for (const mat of property.materialCost) {
+        await onMaterialSpend(mat.itemId, mat.quantity);
       }
 
-      // 4. Deduct Materials
-      if (onMaterialSpend) {
-        for (const mat of property.materialCost) {
-          await onMaterialSpend(mat.itemId, mat.quantity);
-        }
-
-        // Add to inventory
-        if (userId) {
-          try {
-            console.warn('[Kingdom] Adding to inventory (Materials):', property.name, userId);
-            await addToKingdomInventory(userId, {
-              id: property.id,
-              name: property.name,
+      // Add to inventory
+      if (userId) {
+        try {
+          console.warn('[Kingdom] Adding to inventory (Materials):', property.name, userId);
+          id: property.id,
+            name: property.name,
               quantity: 1,
-              type: 'building',
-              image: property.image
-            });
-            console.warn('[Kingdom] Inventory add success (Materials)');
-            toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
-            if (onInventoryUpdate) {
-              onInventoryUpdate({
-                id: property.id,
-                name: property.name,
-                quantity: 1,
-                type: 'building',
-                image: property.image
-              });
-            }
-          } catch (e) {
-            console.error('Failed to add to inventory', e);
-            toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
-          }
-        } else {
-          console.warn('[Kingdom] No userId available for inventory add');
+                type: 'item',
+                  category: 'building',
+                    image: property.image
+        });
+        console.warn('[Kingdom] Inventory add success (Materials)');
+        toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
+        if (onInventoryUpdate) {
+          onInventoryUpdate({
+            id: property.id,
+            name: property.name,
+            quantity: 1,
+            type: 'building',
+            image: property.image
+          });
         }
-
-        toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
-
-        // Trigger inventory update
-        window.dispatchEvent(new Event('character-inventory-update'));
-      } else {
-        console.warn('onMaterialSpend callback missing');
+      } catch (e) {
+        console.error('Failed to add to inventory', e);
+        toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
       }
-      return;
+    } else {
+      console.warn('[Kingdom] No userId available for inventory add');
     }
 
-    // Common Placement Logic (only for Tokens or if we want auto-placement for others)
-    // For Gold/Materials, we just purchased it into inventory.
-    if (method !== 'tokens') return;
+    toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
 
-    // Store the source position and start placement mode WITHOUT removing old tile yet
-    setMovingTileSource(null);
+    // Trigger inventory update
+    window.dispatchEvent(new Event('character-inventory-update'));
+  } else {
+    console.warn('onMaterialSpend callback missing');
+  }
+  return;
+}
 
-    // Select it for placement directly, bypassing quantity checks
-    setSelectedProperty(property);
-    setPlacementMode(true);
-    setPropertiesOpen(false);
+// Common Placement Logic (only for Tokens or if we want auto-placement for others)
+// For Gold/Materials, we just purchased it into inventory.
+if (method !== 'tokens') return;
 
+// Store the source position and start placement mode WITHOUT removing old tile yet
+setMovingTileSource(null);
+
+// Select it for placement directly, bypassing quantity checks
+setSelectedProperty(property);
+setPlacementMode(true);
+setPropertiesOpen(false);
+
+toast({
+  title: "Placement Mode",
+  description: `Select a location for ${property.name}. Press ESC to cancel.`,
+});
+};
+
+// Handle property placement on grid
+const handlePropertyPlacement = (x: number, y: number) => {
+  // Removed debugging log
+
+  if (!selectedProperty || !placementMode) {
+    // Removed debugging log
+    return
+  }
+
+  const targetTile = grid[y]?.[x]
+  // Removed debugging log
+
+  // Allow placement on vacant tiles OR if we are moving to the same spot (effectively resetting)
+  const isMovingToSource = movingTileSource && movingTileSource.x === x && movingTileSource.y === y;
+
+  if (!targetTile || ((targetTile.type !== 'vacant' && targetTile.type !== 'empty') && !isMovingToSource)) {
     toast({
-      title: "Placement Mode",
-      description: `Select a location for ${property.name}. Press ESC to cancel.`,
+      title: 'Invalid Placement',
+      description: 'You can only place properties on vacant tiles.',
+      variant: 'destructive',
     });
-  };
+    return
+  }
 
-  // Handle property placement on grid
-  const handlePropertyPlacement = (x: number, y: number) => {
+  // Create the new kingdom tile
+  const newTile: Tile = {
+    id: isMovingToSource && targetTile.id ? targetTile.id : `${selectedProperty.id}-${x}-${y}`,
+    name: selectedProperty.name,
+    description: `A ${selectedProperty.name.toLowerCase()} building`,
+    type: selectedProperty.id as TileType,
+    image: selectedProperty.image,
+    cost: 0,
+    quantity: 0,
+    x,
+    y,
+    connections: [],
+    rotation: 0,
+    revealed: true,
+    isVisited: false,
+    ariaLabel: `${selectedProperty.name} tile`
+  }
+
+  // IMPORTANT: Update the local grid state directly instead of using onTilePlace
+  // This prevents the property from being treated as an inventory item
+  const updatedGrid = grid.map(row => row.slice())
+
+  // If we are moving, clear the OLD spot first (unless it's the same spot)
+  if (movingTileSource && !isMovingToSource) {
+    const srcY = movingTileSource.y;
+    const srcX = movingTileSource.x;
+    if (updatedGrid[srcY] && updatedGrid[srcY][srcX]) {
+      updatedGrid[srcY][srcX] = {
+        ...updatedGrid[srcY][srcX],
+        type: 'vacant',
+        name: 'Vacant Plot',
+        image: 'Vacant.png',
+        id: updatedGrid[srcY][srcX]?.id || `vacant-${srcX}-${srcY}`,
+        description: 'A vacant plot ready for building.',
+        connections: [],
+        rotation: 0
+      } as Tile;
+    }
+  }
+
+  if (updatedGrid[y]) {
+    updatedGrid[y][x] = newTile
     // Removed debugging log
+  }
 
-    if (!selectedProperty || !placementMode) {
-      // Removed debugging log
-      return
+  // Update the parent component's grid using the callback
+  if (onGridUpdate) {
+    // Removed debugging log
+    onGridUpdate(updatedGrid)
+  } else {
+    // Removed debugging log
+  }
+
+  // Decrease property quantity ONLY if NOT moving
+  if (!movingTileSource && selectedProperty.costType === 'build-token') {
+    const updatedInventory = propertyInventory.map(p =>
+      p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
+    )
+    setPropertyInventory(updatedInventory)
+
+    // Persist inventory decrement using the main inventory API
+    if (userId) {
+      (async () => {
+        try {
+          await removeFromKingdomInventory(userId, selectedProperty.id, 1);
+          // Also trigger inventory update event
+          window.dispatchEvent(new Event('character-inventory-update'));
+        } catch (e) {
+          console.warn('[Kingdom] Failed to decrement inventory', e)
+        }
+      })()
+    }
+  }
+
+  // Start timer for the new property based on reward value (only if new place, or maybe preserve timer if moved?)
+  // For now, restarting timer is acceptable for "Moving" as penalty/reset, unless we want to preserve it.
+  // Preserving timer would require reading old timer state. 
+  // Let's restart for simplicity as per original implementation, unless requested otherwise.
+  const kingdomTile = KINGDOM_TILES.find(kt => kt.id === selectedProperty.id.toLowerCase())
+
+  // Only create timer if the tile has a timer duration > 0 (i.e. it produces passive rewards)
+  if (kingdomTile && kingdomTile.timerMinutes > 0) {
+    const timerDuration = kingdomTile.timerMinutes * 60 * 1000
+
+    const newTimer: TileTimer = {
+      x,
+      y,
+      tileId: newTile.id,
+      endTime: Date.now() + timerDuration,
+      isReady: false
     }
 
-    const targetTile = grid[y]?.[x]
-    // Removed debugging log
+    // If we are moving, we should remove the OLD timer
+    let finalTimers = [...tileTimers];
+    if (movingTileSource) {
+      finalTimers = finalTimers.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y)
+    }
 
-    // Allow placement on vacant tiles OR if we are moving to the same spot (effectively resetting)
-    const isMovingToSource = movingTileSource && movingTileSource.x === x && movingTileSource.y === y;
+    // Add new timer
+    finalTimers = [...finalTimers, newTimer];
 
-    if (!targetTile || ((targetTile.type !== 'vacant' && targetTile.type !== 'empty') && !isMovingToSource)) {
+    setTileTimers(finalTimers)
+      // Persist timer to API
+      ; (async () => {
+        try {
+          const endIso = new Date(newTimer.endTime).toISOString()
+          // If moved, we might want to delete old timer record too? 
+          // The API might handle it by x/y overwrite if we just write the new one.
+          // But the OLD x/y still has a timer record? Ideally we should delete it.
+          if (movingTileSource && !isMovingToSource) {
+            // We don't have a direct delete-timer API endpoint exposed easily here, 
+            // but we can overwrite it with "vacant" or just let it rot? 
+            // Or better, since the tile type at old X,Y is now Vacant, the timer won't be used.
+            // We can rely on that.
+          }
+
+          await fetchAuthRetry('/api/property-timers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
+          })
+        } catch (e) {
+          console.warn('[Kingdom] Failed to persist timer', e)
+        }
+      })()
+  } else if (movingTileSource) {
+    // If we moved a non-timer tile (like a road), we still need to remove any stray timer at the old location/new location
+    // though roads shouldn't have timers usually.
+    // But just to be safe and clean up if we are moving:
+    setTileTimers(prev => prev.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y))
+  }
+
+  // Reset placement mode
+  setSelectedProperty(null)
+  setPlacementMode(false)
+  setMovingTileSource(null) // Clear moving state
+
+  toast({
+    title: 'Property Placed!',
+    description: `${selectedProperty.name} has been successfully placed on your kingdom!`,
+  });
+}
+
+// Handle ESC key to cancel placement
+useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && placementMode) {
+      setSelectedProperty(null)
+      setPlacementMode(false)
+      setMovingTileSource(null) // Clear moving state if present
       toast({
-        title: 'Invalid Placement',
-        description: 'You can only place properties on vacant tiles.',
+        title: 'Placement Cancelled',
+        description: 'Property placement has been cancelled.',
+      });
+    }
+  }
+
+  if (placementMode) {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }
+
+  // Return undefined when not in placement mode
+  return undefined
+}, [placementMode])
+
+// Load timers from API (fallback to localStorage) on mount
+useEffect(() => {
+  (async () => {
+    try {
+      const res = await fetchAuthRetry('/api/property-timers', { method: 'GET' })
+      if (res.ok) {
+        const json = await res.json()
+        const timers = (json?.data || []).map((t: any) => ({
+          x: t.x,
+          y: t.y,
+          tileId: t.tile_id,
+          endTime: typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time,
+          isReady: !!t.is_ready,
+        }))
+        setTileTimers(timers)
+        return
+      }
+    } catch { }
+    // Fallback to localStorage
+    try {
+      const savedTimers = localStorage.getItem('kingdom-tile-timers')
+      if (savedTimers) setTileTimers(JSON.parse(savedTimers))
+    } catch { }
+  })()
+}, [])
+
+// Save timers to localStorage whenever they change
+useEffect(() => {
+  localStorage.setItem('kingdom-tile-timers', JSON.stringify(tileTimers))
+}, [tileTimers])
+
+// Update timers every second
+useEffect(() => {
+  const interval = setInterval(() => {
+    setTileTimers(prev =>
+      prev.map(timer => {
+        const now = Date.now()
+        const isReady = now >= timer.endTime
+        return { ...timer, isReady }
+      })
+    )
+  }, 1000)
+
+  return () => clearInterval(interval)
+}, [])
+
+// Initialize timers for existing kingdom tiles on mount
+useEffect(() => {
+  // Only run this once on mount when tileTimers is empty
+  if (tileTimers.length === 0) {
+    const newTimers: TileTimer[] = []
+
+    grid.forEach((row, y) => {
+      row.forEach((tile, x) => {
+        if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
+          const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
+          if (kingdomTile && kingdomTile.timerMinutes > 0) {
+            // Create timer for existing tile
+            const endTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
+            newTimers.push({
+              x,
+              y,
+              tileId: kingdomTile.id,
+              endTime,
+              isReady: false
+            })
+          }
+        }
+      })
+    })
+
+    if (newTimers.length > 0) {
+      // Removed debugging log
+      setTileTimers(newTimers)
+
+        // Persist these initial timers to the database
+        ; (async () => {
+          try {
+            for (const timer of newTimers) {
+              const endIso = new Date(timer.endTime).toISOString()
+              await fetchAuthRetry('/api/property-timers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  tileId: timer.tileId,
+                  x: timer.x,
+                  y: timer.y,
+                  tileType: timer.tileId,
+                  endTime: endIso,
+                  isReady: false
+                })
+              })
+            }
+            // Removed debugging log
+          } catch (e) {
+            // Removed debugging log
+          }
+        })()
+    }
+  }
+}, []) // Empty dependency array - only run on mount
+
+// Update tile click handler to support property placement
+const handleTileClick = (x: number, y: number, tile: Tile) => {
+  if (readOnly) return;
+  // Removed debugging log
+
+  // If in placement mode, handle property placement
+  if (placementMode && selectedProperty) {
+    handlePropertyPlacement(x, y)
+    return
+  }
+
+  // Handle property tiles (archery, blacksmith, etc.)
+  if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' ||
+    tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
+    tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
+    tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
+    tile.type === 'jousting' || tile.type === 'mansion' || tile.type === 'mayor')) {
+
+    // Check if tile is ready
+    const timer = tileTimers.find(t => t.x === x && t.y === y)
+    if (!timer) {
+      toast({
+        title: 'Property Not Ready',
+        description: 'This property is still producing. Wait for the timer to finish.',
         variant: 'destructive',
       });
       return
     }
 
-    // Create the new kingdom tile
-    const newTile: Tile = {
-      id: isMovingToSource && targetTile.id ? targetTile.id : `${selectedProperty.id}-${x}-${y}`,
-      name: selectedProperty.name,
-      description: `A ${selectedProperty.name.toLowerCase()} building`,
-      type: selectedProperty.id as TileType,
-      image: selectedProperty.image,
-      cost: 0,
-      quantity: 0,
-      x,
-      y,
-      connections: [],
-      rotation: 0,
-      revealed: true,
-      isVisited: false,
-      ariaLabel: `${selectedProperty.name} tile`
-    }
+    // Calculate if timer is actually ready (real-time check)
+    const now = Date.now()
+    const isReady = now >= timer.endTime
 
-    // IMPORTANT: Update the local grid state directly instead of using onTilePlace
-    // This prevents the property from being treated as an inventory item
-    const updatedGrid = grid.map(row => row.slice())
-
-    // If we are moving, clear the OLD spot first (unless it's the same spot)
-    if (movingTileSource && !isMovingToSource) {
-      const srcY = movingTileSource.y;
-      const srcX = movingTileSource.x;
-      if (updatedGrid[srcY] && updatedGrid[srcY][srcX]) {
-        updatedGrid[srcY][srcX] = {
-          ...updatedGrid[srcY][srcX],
-          type: 'vacant',
-          name: 'Vacant Plot',
-          image: 'Vacant.png',
-          id: updatedGrid[srcY][srcX]?.id || `vacant-${srcX}-${srcY}`,
-          description: 'A vacant plot ready for building.',
-          connections: [],
-          rotation: 0
-        } as Tile;
-      }
-    }
-
-    if (updatedGrid[y]) {
-      updatedGrid[y][x] = newTile
-      // Removed debugging log
-    }
-
-    // Update the parent component's grid using the callback
-    if (onGridUpdate) {
-      // Removed debugging log
-      onGridUpdate(updatedGrid)
-    } else {
-      // Removed debugging log
-    }
-
-    // Decrease property quantity ONLY if NOT moving
-    if (!movingTileSource && selectedProperty.costType === 'build-token') {
-      const updatedInventory = propertyInventory.map(p =>
-        p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
-      )
-      setPropertyInventory(updatedInventory)
-
-      // Persist inventory decrement using the main inventory API
-      if (userId) {
-        (async () => {
-          try {
-            await removeFromKingdomInventory(userId, selectedProperty.id, 1);
-            // Also trigger inventory update event
-            window.dispatchEvent(new Event('character-inventory-update'));
-          } catch (e) {
-            console.warn('[Kingdom] Failed to decrement inventory', e)
-          }
-        })()
-      }
-    }
-
-    // Start timer for the new property based on reward value (only if new place, or maybe preserve timer if moved?)
-    // For now, restarting timer is acceptable for "Moving" as penalty/reset, unless we want to preserve it.
-    // Preserving timer would require reading old timer state. 
-    // Let's restart for simplicity as per original implementation, unless requested otherwise.
-    const kingdomTile = KINGDOM_TILES.find(kt => kt.id === selectedProperty.id.toLowerCase())
-
-    // Only create timer if the tile has a timer duration > 0 (i.e. it produces passive rewards)
-    if (kingdomTile && kingdomTile.timerMinutes > 0) {
-      const timerDuration = kingdomTile.timerMinutes * 60 * 1000
-
-      const newTimer: TileTimer = {
-        x,
-        y,
-        tileId: newTile.id,
-        endTime: Date.now() + timerDuration,
-        isReady: false
-      }
-
-      // If we are moving, we should remove the OLD timer
-      let finalTimers = [...tileTimers];
-      if (movingTileSource) {
-        finalTimers = finalTimers.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y)
-      }
-
-      // Add new timer
-      finalTimers = [...finalTimers, newTimer];
-
-      setTileTimers(finalTimers)
-        // Persist timer to API
-        ; (async () => {
-          try {
-            const endIso = new Date(newTimer.endTime).toISOString()
-            // If moved, we might want to delete old timer record too? 
-            // The API might handle it by x/y overwrite if we just write the new one.
-            // But the OLD x/y still has a timer record? Ideally we should delete it.
-            if (movingTileSource && !isMovingToSource) {
-              // We don't have a direct delete-timer API endpoint exposed easily here, 
-              // but we can overwrite it with "vacant" or just let it rot? 
-              // Or better, since the tile type at old X,Y is now Vacant, the timer won't be used.
-              // We can rely on that.
-            }
-
-            await fetchAuthRetry('/api/property-timers', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
-            })
-          } catch (e) {
-            console.warn('[Kingdom] Failed to persist timer', e)
-          }
-        })()
-    } else if (movingTileSource) {
-      // If we moved a non-timer tile (like a road), we still need to remove any stray timer at the old location/new location
-      // though roads shouldn't have timers usually.
-      // But just to be safe and clean up if we are moving:
-      setTileTimers(prev => prev.filter(t => t.x !== movingTileSource.x || t.y !== movingTileSource.y))
-    }
-
-    // Reset placement mode
-    setSelectedProperty(null)
-    setPlacementMode(false)
-    setMovingTileSource(null) // Clear moving state
-
-    toast({
-      title: 'Property Placed!',
-      description: `${selectedProperty.name} has been successfully placed on your kingdom!`,
-    });
-  }
-
-  // Handle ESC key to cancel placement
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && placementMode) {
-        setSelectedProperty(null)
-        setPlacementMode(false)
-        setMovingTileSource(null) // Clear moving state if present
-        toast({
-          title: 'Placement Cancelled',
-          description: 'Property placement has been cancelled.',
-        });
-      }
-    }
-
-    if (placementMode) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
-    }
-
-    // Return undefined when not in placement mode
-    return undefined
-  }, [placementMode])
-
-  // Load timers from API (fallback to localStorage) on mount
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetchAuthRetry('/api/property-timers', { method: 'GET' })
-        if (res.ok) {
-          const json = await res.json()
-          const timers = (json?.data || []).map((t: any) => ({
-            x: t.x,
-            y: t.y,
-            tileId: t.tile_id,
-            endTime: typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time,
-            isReady: !!t.is_ready,
-          }))
-          setTileTimers(timers)
-          return
-        }
-      } catch { }
-      // Fallback to localStorage
-      try {
-        const savedTimers = localStorage.getItem('kingdom-tile-timers')
-        if (savedTimers) setTileTimers(JSON.parse(savedTimers))
-      } catch { }
-    })()
-  }, [])
-
-  // Save timers to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('kingdom-tile-timers', JSON.stringify(tileTimers))
-  }, [tileTimers])
-
-  // Update timers every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTileTimers(prev =>
-        prev.map(timer => {
-          const now = Date.now()
-          const isReady = now >= timer.endTime
-          return { ...timer, isReady }
-        })
-      )
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  // Initialize timers for existing kingdom tiles on mount
-  useEffect(() => {
-    // Only run this once on mount when tileTimers is empty
-    if (tileTimers.length === 0) {
-      const newTimers: TileTimer[] = []
-
-      grid.forEach((row, y) => {
-        row.forEach((tile, x) => {
-          if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
-            const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-            if (kingdomTile && kingdomTile.timerMinutes > 0) {
-              // Create timer for existing tile
-              const endTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-              newTimers.push({
-                x,
-                y,
-                tileId: kingdomTile.id,
-                endTime,
-                isReady: false
-              })
-            }
-          }
-        })
-      })
-
-      if (newTimers.length > 0) {
-        // Removed debugging log
-        setTileTimers(newTimers)
-
-          // Persist these initial timers to the database
-          ; (async () => {
-            try {
-              for (const timer of newTimers) {
-                const endIso = new Date(timer.endTime).toISOString()
-                await fetchAuthRetry('/api/property-timers', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    tileId: timer.tileId,
-                    x: timer.x,
-                    y: timer.y,
-                    tileType: timer.tileId,
-                    endTime: endIso,
-                    isReady: false
-                  })
-                })
-              }
-              // Removed debugging log
-            } catch (e) {
-              // Removed debugging log
-            }
-          })()
-      }
-    }
-  }, []) // Empty dependency array - only run on mount
-
-  // Update tile click handler to support property placement
-  const handleTileClick = (x: number, y: number, tile: Tile) => {
-    if (readOnly) return;
-    // Removed debugging log
-
-    // If in placement mode, handle property placement
-    if (placementMode && selectedProperty) {
-      handlePropertyPlacement(x, y)
+    if (!isReady) {
+      toast({
+        title: 'Property Not Ready',
+        description: 'This property is still producing. Wait for the timer to finish.',
+        variant: 'destructive',
+      });
       return
     }
 
-    // Handle property tiles (archery, blacksmith, etc.)
-    if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' ||
-      tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
-      tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
-      tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
-      tile.type === 'jousting' || tile.type === 'mansion' || tile.type === 'mayor')) {
-
-      // Check if tile is ready
-      const timer = tileTimers.find(t => t.x === x && t.y === y)
-      if (!timer) {
-        toast({
-          title: 'Property Not Ready',
-          description: 'This property is still producing. Wait for the timer to finish.',
-          variant: 'destructive',
-        });
-        return
-      }
-
-      // Calculate if timer is actually ready (real-time check)
-      const now = Date.now()
-      const isReady = now >= timer.endTime
-
-      if (!isReady) {
-        toast({
-          title: 'Property Not Ready',
-          description: 'This property is still producing. Wait for the timer to finish.',
-          variant: 'destructive',
-        });
-        return
-      }
-
-      // Find the kingdom tile definition
-      const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-      if (!kingdomTile) return
-
-      // Generate rewards
-      const wasLucky = isLuckyTile(kingdomTile.luckyChance)
-      let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
-      // Apply winter event bonus where applicable
-      if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
-        goldEarned = Math.floor(goldEarned * 1.2)
-      }
-      // Apply harvest event bonus where applicable
-      if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
-        goldEarned = Math.floor(goldEarned * 1.2)
-      }
-      // Grant experience proportional to gold; apply winter +10% EXP on winter tiles
-      const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
-      const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
-        ? Math.ceil(baseExperience * 1.1)
-        : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
-          ? Math.ceil(baseExperience * 1.1)
-          : baseExperience
-
-        // Award gold and experience
-        ; (async () => {
-          try {
-            const { gainGold } = await import('@/lib/gold-manager')
-            const { gainExperience } = await import('@/lib/experience-manager')
-            // Award gold and experience
-            gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
-            gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
-          } catch { }
-        })()
-        // Basic telemetry: log collect
-        ; (async () => {
-          try {
-            await fetchAuthRetry('/api/kingdom-events', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
-            })
-          } catch { }
-        })()
-      const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
-
-      // Update timer to restart production
-      const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
-      setTileTimers(prev =>
-        prev.map(t =>
-          t.x === x && t.y === y
-            ? { ...t, endTime: newEndTime, isReady: false }
-            : t
-        )
-      )
-
-        // Persist timer restart
-        ; (async () => {
-          try {
-            const endIso = new Date(newEndTime).toISOString()
-            await fetchAuthRetry('/api/property-timers', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
-            })
-
-            // Dispatch event to notify other components (like notification manager)
-            // Removed debugging log
-            window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
-          } catch (e) {
-            // Removed debugging log
-          }
-        })()
-
-      // Show modal with rewards
-      setModalData({
-        tileName: kingdomTile.name,
-        goldEarned,
-        itemFound: itemFound ? {
-          image: itemFound,
-          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
-          type: kingdomTile.itemType
-        } : undefined,
-        isLucky: wasLucky,
-        message: kingdomTile.clickMessage
-      })
-
-      // If lucky, show celebration first, then modal
-      if (wasLucky) {
-        setLuckyCelebrationAmount(goldEarned)
-      } else {
-        setShowModal(true)
-      }
-
-      // Trigger callbacks
-      if (onGoldEarned) onGoldEarned(goldEarned)
-      if (onItemFound && itemFound) {
-        onItemFound({
-          image: itemFound,
-          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
-          type: kingdomTile.itemType
-        })
-      }
-
-      return
-    }
-
-    // Handle other tile types (if any)
+    // Find the kingdom tile definition
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-    if (!kingdomTile || kingdomTile.timerMinutes === 0) return
-
-    // Check if tile is ready
-    const timer = tileTimers.find(t => t.x === x && t.y === y)
-    if (!timer || !timer.isReady) return
+    if (!kingdomTile) return
 
     // Generate rewards
     const wasLucky = isLuckyTile(kingdomTile.luckyChance)
     let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
-    // Apply adjacency bonus
-    const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
+    // Apply winter event bonus where applicable
     if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
-      goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier)
-    } else {
-      goldEarned = Math.floor(goldEarned * adjacencyMultiplier)
+      goldEarned = Math.floor(goldEarned * 1.2)
     }
+    // Apply harvest event bonus where applicable
+    if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
+      goldEarned = Math.floor(goldEarned * 1.2)
+    }
+    // Grant experience proportional to gold; apply winter +10% EXP on winter tiles
     const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
     const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
       ? Math.ceil(baseExperience * 1.1)
-      : baseExperience
+      : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
+        ? Math.ceil(baseExperience * 1.1)
+        : baseExperience
+
       // Award gold and experience
       ; (async () => {
         try {
           const { gainGold } = await import('@/lib/gold-manager')
           const { gainExperience } = await import('@/lib/experience-manager')
+          // Award gold and experience
           gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
           gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
         } catch { }
       })()
+      // Basic telemetry: log collect
       ; (async () => {
         try {
           await fetchAuthRetry('/api/kingdom-events', {
@@ -1345,7 +1242,7 @@ export function KingdomGridWithTimers({
       })()
     const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
-    // Update timer
+    // Update timer to restart production
     const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
     setTileTimers(prev =>
       prev.map(t =>
@@ -1373,13 +1270,6 @@ export function KingdomGridWithTimers({
         }
       })()
 
-    // Generate message with bonus info
-    let message = kingdomTile.clickMessage;
-    if (adjacencyMultiplier > 1) {
-      const percent = Math.round((adjacencyMultiplier - 1) * 100);
-      message += ` (Adjacency Bonus: +${percent}%)`;
-    }
-
     // Show modal with rewards
     setModalData({
       tileName: kingdomTile.name,
@@ -1390,7 +1280,7 @@ export function KingdomGridWithTimers({
         type: kingdomTile.itemType
       } : undefined,
       isLucky: wasLucky,
-      message: message
+      message: kingdomTile.clickMessage
     })
 
     // If lucky, show celebration first, then modal
@@ -1409,490 +1299,600 @@ export function KingdomGridWithTimers({
         type: kingdomTile.itemType
       })
     }
+
+    return
   }
 
-  const handleMoveTile = (x: number, y: number, tile: Tile) => {
-    // Find the full property definition to select it for placement
-    // Find the full property definition to select it for placement
-    // Try by ID first (more reliable), then by name
-    const propertyDef = getAvailableProperties().find(p => p.id === tile.type || p.name === tile.name) ||
-      KINGDOM_TILES.find(kt => kt.id === tile.type || kt.name === tile.name);
+  // Handle other tile types (if any)
+  const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
+  if (!kingdomTile || kingdomTile.timerMinutes === 0) return
 
-    if (propertyDef) {
-      // "Pick up" the tile:
-      // 1. Select it as if we're placing it (entering placement mode)
-      // 2. Remove it from the current spot (set to vacant)
-      // 3. Update inventory temporarily or just relying on "swap" logic? 
-      // Simpler: Just delete it first (add to inv), then select it.
+  // Check if tile is ready
+  const timer = tileTimers.find(t => t.x === x && t.y === y)
+  if (!timer || !timer.isReady) return
 
+  // Generate rewards
+  const wasLucky = isLuckyTile(kingdomTile.luckyChance)
+  let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+  // Apply adjacency bonus
+  const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
+  if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
+    goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier)
+  } else {
+    goldEarned = Math.floor(goldEarned * adjacencyMultiplier)
+  }
+  const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
+  const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
+    ? Math.ceil(baseExperience * 1.1)
+    : baseExperience
+    // Award gold and experience
+    ; (async () => {
+      try {
+        const { gainGold } = await import('@/lib/gold-manager')
+        const { gainExperience } = await import('@/lib/experience-manager')
+        gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
+        gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+      } catch { }
+    })()
+    ; (async () => {
+      try {
+        await fetchAuthRetry('/api/kingdom-events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
+        })
+      } catch { }
+    })()
+  const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null
 
-      // Store the source position and start placement mode WITHOUT removing old tile yet
-      setMovingTileSource({ x, y });
+  // Update timer
+  const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
+  setTileTimers(prev =>
+    prev.map(t =>
+      t.x === x && t.y === y
+        ? { ...t, endTime: newEndTime, isReady: false }
+        : t
+    )
+  )
 
-      // Select it for placement directly, bypassing quantity checks
-      setSelectedProperty(propertyDef as any);
-      setPlacementMode(true);
-      setPropertiesOpen(false);
+    // Persist timer restart
+    ; (async () => {
+      try {
+        const endIso = new Date(newEndTime).toISOString()
+        await fetchAuthRetry('/api/property-timers', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ x, y, isReady: false, endTime: endIso })
+        })
 
-      toast({
-        title: "Moving Building",
-        description: `Select a new location for ${tile.name}. Press ESC to cancel.`,
-      });
-    }
-  };
+        // Dispatch event to notify other components (like notification manager)
+        // Removed debugging log
+        window.dispatchEvent(new CustomEvent('kingdom-building-collected'))
+      } catch (e) {
+        // Removed debugging log
+      }
+    })()
 
-  const handleDeleteTile = async (x: number, y: number, tile: Tile) => {
-    if (!window.confirm(`Are you sure you want to remove ${tile.name}? It will return to your inventory.`)) return;
-
-    // Remove from grid
-    const newGrid = [...grid];
-    if (newGrid[y]) {
-      newGrid[y] = [...newGrid[y]];
-      newGrid[y][x] = {
-        ...newGrid[y][x],
-        type: 'vacant',
-        name: 'Vacant Plot',
-        image: 'Vacant.png',
-        id: newGrid[y][x]?.id || `vacant-${x}-${y}`,
-        description: 'A vacant plot ready for building.',
-        connections: [],
-        rotation: 0
-      } as Tile;
-      if (onGridUpdate) onGridUpdate(newGrid);
-    }
-
-    // Return to inventory
-    const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name);
-    if (propertyDef && onTileRemove) {
-      onTileRemove(propertyDef.id);
-    } else if (propertyDef) {
-      console.warn('onTileRemove prop not provided');
-    }
-
-    toast({
-      title: "Building Stored",
-      description: `${tile.name} returned to inventory.`,
-    });
-  };
-
-  const handleRotateTile = (x: number, y: number, tile: Tile) => {
-    const newGrid = [...grid];
-    if (newGrid[y]) {
-      newGrid[y] = [...newGrid[y]];
-      const currentRotation = newGrid[y][x]?.rotation || 0;
-      const newRotation = (currentRotation + 90) % 360 as 0 | 90 | 180 | 270;
-
-      newGrid[y][x] = {
-        ...newGrid[y][x]!,
-        rotation: newRotation // Update the existing tile object with new rotation
-      };
-
-      if (onGridUpdate) onGridUpdate(newGrid);
-
-      toast({
-        title: "Rotated",
-        description: `Rotated ${tile.name} to ${newRotation}°.`,
-      });
-    }
-  };
-
-  const formatTimeRemaining = (endTime: number) => {
-    const now = Date.now()
-    const timeLeft = endTime - now
-
-    if (timeLeft <= 0) return 'Ready!'
-
-    const minutes = Math.floor(timeLeft / 60000)
-    const seconds = Math.floor((timeLeft % 60000) / 1000)
-
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  // Generate message with bonus info
+  let message = kingdomTile.clickMessage;
+  if (adjacencyMultiplier > 1) {
+    const percent = Math.round((adjacencyMultiplier - 1) * 100);
+    message += ` (Adjacency Bonus: +${percent}%)`;
   }
 
-  const handleCreatureClick = (creature: any) => {
-    // Determine creature name from definition ID or similar
-    // For now, showing a generic message
-    toast({
-      title: "Creature Spotted! 👀",
-      description: "This creature seems friendly but shy. (Interactions coming soon!)",
+  // Show modal with rewards
+  setModalData({
+    tileName: kingdomTile.name,
+    goldEarned,
+    itemFound: itemFound ? {
+      image: itemFound,
+      name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+      type: kingdomTile.itemType
+    } : undefined,
+    isLucky: wasLucky,
+    message: message
+  })
+
+  // If lucky, show celebration first, then modal
+  if (wasLucky) {
+    setLuckyCelebrationAmount(goldEarned)
+  } else {
+    setShowModal(true)
+  }
+
+  // Trigger callbacks
+  if (onGoldEarned) onGoldEarned(goldEarned)
+  if (onItemFound && itemFound) {
+    onItemFound({
+      image: itemFound,
+      name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+      type: kingdomTile.itemType
     })
   }
+}
 
-  const renderGridWithBorder = () => {
-    const rows = grid.length
-    const cols = grid[0]?.length || 6
+const handleMoveTile = (x: number, y: number, tile: Tile) => {
+  // Find the full property definition to select it for placement
+  // Find the full property definition to select it for placement
+  // Try by ID first (more reliable), then by name
+  const propertyDef = getAvailableProperties().find(p => p.id === tile.type || p.name === tile.name) ||
+    KINGDOM_TILES.find(kt => kt.id === tile.type || kt.name === tile.name);
 
-    return (
-      <div
-        className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl relative"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gridTemplateRows: `repeat(${rows}, 1fr)`,
-          width: '100%',
-          height: 'auto',
-          minHeight: '400px',
-          background: 'none',
-          border: '20px solid #374151',
-        }}
-        aria-label="thrivehaven-grid"
-      >
-        {/* Living World Creature Layer */}
-        <CreatureLayer grid={grid} mapType="kingdom" />
+  if (propertyDef) {
+    // "Pick up" the tile:
+    // 1. Select it as if we're placing it (entering placement mode)
+    // 2. Remove it from the current spot (set to vacant)
+    // 3. Update inventory temporarily or just relying on "swap" logic? 
+    // Simpler: Just delete it first (add to inv), then select it.
 
-        {Array.from({ length: rows }).map((_, y) =>
-          Array.from({ length: cols }).map((_, x) => {
-            const tile = grid[y]?.[x]
-            const timer = tileTimers.find(t => t.x === x && t.y === y)
-            const kingdomTile = tile && tile.type !== 'vacant' ? KINGDOM_TILES.find(kt =>
-              kt.id === tile.type.toLowerCase() ||
-              kt.name.toLowerCase() === tile.name.toLowerCase() ||
-              kt.image === tile.image
-            ) : null
 
-            if (!tile) {
-              return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />
-            }
+    // Store the source position and start placement mode WITHOUT removing old tile yet
+    setMovingTileSource({ x, y });
 
-            const isKingdomTile = kingdomTile !== null
-            const isReady = timer?.isReady || false
-            const rarityClass = ''
+    // Select it for placement directly, bypassing quantity checks
+    setSelectedProperty(propertyDef as any);
+    setPlacementMode(true);
+    setPropertiesOpen(false);
 
-            return (
-              <button
-                key={`tile-${x}-${y}`}
-                className={cn(
-                  "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none",
-                  selectedTile && "ring-2 ring-amber-500",
-                  isKingdomTile && rarityClass,
-                  placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
-                )}
-                onMouseEnter={() => setHoveredTile({ x, y })}
-                onMouseLeave={() => setHoveredTile(null)}
-                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
-                onClick={() => {
-                  // Removed debugging log
+    toast({
+      title: "Moving Building",
+      description: `Select a new location for ${tile.name}. Press ESC to cancel.`,
+    });
+  }
+};
 
-                  if (placementMode && selectedProperty) {
-                    // Removed debugging log
-                    handlePropertyPlacement(x, y)
-                  } else if (isKingdomTile && isReady) {
-                    // Removed debugging log
-                    handleTileClick(x, y, tile)
-                  } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    // Removed debugging log
-                    onTilePlace(x, y, selectedTile)
-                  }
-                }}
-                style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
-              >
-                <Image
-                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.png' : (isKingdomTile && kingdomTile ? kingdomTile.image : tile.image)}
-                  alt={tile.name}
-                  fill
-                  className="object-cover"
-                  draggable={false}
-                  unoptimized
-                  onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
-                  style={{ transform: `rotate(${tile.rotation || 0}deg)`, transition: 'transform 0.3s ease' }}
-                />
+const handleDeleteTile = async (x: number, y: number, tile: Tile) => {
+  if (!window.confirm(`Are you sure you want to remove ${tile.name}? It will return to your inventory.`)) return;
 
-                {/* Placement mode indicator for vacant tiles */}
-                {placementMode && tile.type === 'vacant' && (
-                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
-                    <div className="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
-                      Place {selectedProperty?.name}
-                    </div>
-                  </div>
-                )}
-
-                {/* Move/Delete Controls on Hover */}
-                {isKingdomTile && !placementMode && !readOnly && (
-                  <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div
-                      role="button"
-                      title="Move"
-                      className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleMoveTile(x, y, tile);
-                      }}
-                    >
-                      <ArrowRightLeft className="w-3 h-3" />
-                    </div>
-                    <div
-                      role="button"
-                      title="Store in Inventory"
-                      className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTile(x, y, tile);
-                      }}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </div>
-                    <div
-                      role="button"
-                      title="Rotate 90°"
-                      className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRotateTile(x, y, tile);
-                      }}
-                    >
-                      <RotateCw className="w-3 h-3" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
-                {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
-                  <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
-                    <div className={cn(
-                      "text-xs px-2 py-1 rounded text-center font-mono",
-                      isReady
-                        ? "bg-green-500 text-white"
-                        : "bg-black/80 text-white",
-                      // Mobile-specific improvements
-                      "sm:text-xs md:text-sm",
-                      "min-h-[24px] flex items-center justify-center"
-                    )}>
-                      {isReady ? (
-                        <div className="flex items-center justify-center gap-1">
-                          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap">Ready!</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-1">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap">{formatTimeRemaining(timer.endTime)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Placement Hint Overlay */}
-                {placementMode && selectedProperty && (tile.type === 'vacant' || tile.type === 'grass') && (
-                  (() => {
-                    // Safe access to type property
-                    const propType = (selectedProperty as any).type || (selectedProperty as any).id;
-                    const { score, reason } = getPlacementHint(x, y, propType);
-
-                    // Show hints for ALL building types now
-                    if (true) {
-                      return (
-                        <div className={cn(
-                          "absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-80 transition-opacity z-10",
-                          score === 'good' ? "bg-green-500/30 ring-2 ring-green-400" : "bg-yellow-500/10"
-                        )}>
-                          {score === 'good' && <div className="text-xl animate-bounce">✨</div>}
-                          {hoveredTile?.x === x && hoveredTile?.y === y && (
-                            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-50 bg-black/95 text-white text-xs px-3 py-2 rounded-lg border border-amber-500 shadow-2xl min-w-[150px] text-center pointer-events-auto">
-                              <div className={`font-bold uppercase tracking-wider mb-1 ${score === 'good' ? 'text-green-400' : 'text-yellow-400'}`}>
-                                {score === 'good' ? 'Excellent' : 'Average'}
-                              </div>
-                              <div className="text-[10px] text-gray-300 leading-tight">
-                                {reason}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    }
-                    return null;
-                  })()
-                )}
-              </button>
-            )
-          })
-        )}
-      </div>
-    )
+  // Remove from grid
+  const newGrid = [...grid];
+  if (newGrid[y]) {
+    newGrid[y] = [...newGrid[y]];
+    newGrid[y][x] = {
+      ...newGrid[y][x],
+      type: 'vacant',
+      name: 'Vacant Plot',
+      image: 'Vacant.png',
+      id: newGrid[y][x]?.id || `vacant-${x}-${y}`,
+      description: 'A vacant plot ready for building.',
+      connections: [],
+      rotation: 0
+    } as Tile;
+    if (onGridUpdate) onGridUpdate(newGrid);
   }
 
+  // Return to inventory
+  const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name);
+  if (propertyDef && onTileRemove) {
+    onTileRemove(propertyDef.id);
+  } else if (propertyDef) {
+    console.warn('onTileRemove prop not provided');
+  }
+
+  toast({
+    title: "Building Stored",
+    description: `${tile.name} returned to inventory.`,
+  });
+};
+
+const handleRotateTile = (x: number, y: number, tile: Tile) => {
+  const newGrid = [...grid];
+  if (newGrid[y]) {
+    newGrid[y] = [...newGrid[y]];
+    const currentRotation = newGrid[y][x]?.rotation || 0;
+    const newRotation = (currentRotation + 90) % 360 as 0 | 90 | 180 | 270;
+
+    newGrid[y][x] = {
+      ...newGrid[y][x]!,
+      rotation: newRotation // Update the existing tile object with new rotation
+    };
+
+    if (onGridUpdate) onGridUpdate(newGrid);
+
+    toast({
+      title: "Rotated",
+      description: `Rotated ${tile.name} to ${newRotation}°.`,
+    });
+  }
+};
+
+const formatTimeRemaining = (endTime: number) => {
+  const now = Date.now()
+  const timeLeft = endTime - now
+
+  if (timeLeft <= 0) return 'Ready!'
+
+  const minutes = Math.floor(timeLeft / 60000)
+  const seconds = Math.floor((timeLeft % 60000) / 1000)
+
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
+const handleCreatureClick = (creature: any) => {
+  // Determine creature name from definition ID or similar
+  // For now, showing a generic message
+  toast({
+    title: "Creature Spotted! 👀",
+    description: "This creature seems friendly but shy. (Interactions coming soon!)",
+  })
+}
+
+const renderGridWithBorder = () => {
+  const rows = grid.length
+  const cols = grid[0]?.length || 6
+
   return (
-    <div className="w-full flex flex-col items-center gap-4">
-      {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
-      {/* Kingdom Control Bar - Grounded visual style */}
-      <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-slate-950/50 border border-slate-800/50 backdrop-blur-md shadow-xl">
-        {/* Left: Weather Info */}
+    <div
+      className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl relative"
+      style={{
+        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+        gridTemplateRows: `repeat(${rows}, 1fr)`,
+        width: '100%',
+        height: 'auto',
+        minHeight: '400px',
+        background: 'none',
+        border: '20px solid #374151',
+      }}
+      aria-label="thrivehaven-grid"
+    >
+      {/* Living World Creature Layer */}
+      <CreatureLayer grid={grid} mapType="kingdom" />
+
+      {Array.from({ length: rows }).map((_, y) =>
+        Array.from({ length: cols }).map((_, x) => {
+          const tile = grid[y]?.[x]
+          const timer = tileTimers.find(t => t.x === x && t.y === y)
+          const kingdomTile = tile && tile.type !== 'vacant' ? KINGDOM_TILES.find(kt =>
+            kt.id === tile.type.toLowerCase() ||
+            kt.name.toLowerCase() === tile.name.toLowerCase() ||
+            kt.image === tile.image
+          ) : null
+
+          if (!tile) {
+            return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />
+          }
+
+          const isKingdomTile = kingdomTile !== null
+          const isReady = timer?.isReady || false
+          const rarityClass = ''
+
+          return (
+            <button
+              key={`tile-${x}-${y}`}
+              className={cn(
+                "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none",
+                selectedTile && "ring-2 ring-amber-500",
+                isKingdomTile && rarityClass,
+                placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
+              )}
+              onMouseEnter={() => setHoveredTile({ x, y })}
+              onMouseLeave={() => setHoveredTile(null)}
+              aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
+              onClick={() => {
+                // Removed debugging log
+
+                if (placementMode && selectedProperty) {
+                  // Removed debugging log
+                  handlePropertyPlacement(x, y)
+                } else if (isKingdomTile && isReady) {
+                  // Removed debugging log
+                  handleTileClick(x, y, tile)
+                } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
+                  // Removed debugging log
+                  onTilePlace(x, y, selectedTile)
+                }
+              }}
+              style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
+            >
+              <Image
+                src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.png' : (isKingdomTile && kingdomTile ? kingdomTile.image : tile.image)}
+                alt={tile.name}
+                fill
+                className="object-cover"
+                draggable={false}
+                unoptimized
+                onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
+                style={{ transform: `rotate(${tile.rotation || 0}deg)`, transition: 'transform 0.3s ease' }}
+              />
+
+              {/* Placement mode indicator for vacant tiles */}
+              {placementMode && tile.type === 'vacant' && (
+                <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                  <div className="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
+                    Place {selectedProperty?.name}
+                  </div>
+                </div>
+              )}
+
+              {/* Move/Delete Controls on Hover */}
+              {isKingdomTile && !placementMode && !readOnly && (
+                <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div
+                    role="button"
+                    title="Move"
+                    className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMoveTile(x, y, tile);
+                    }}
+                  >
+                    <ArrowRightLeft className="w-3 h-3" />
+                  </div>
+                  <div
+                    role="button"
+                    title="Store in Inventory"
+                    className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteTile(x, y, tile);
+                    }}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </div>
+                  <div
+                    role="button"
+                    title="Rotate 90°"
+                    className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRotateTile(x, y, tile);
+                    }}
+                  >
+                    <RotateCw className="w-3 h-3" />
+                  </div>
+                </div>
+              )}
+
+              {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
+              {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
+                <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
+                  <div className={cn(
+                    "text-xs px-2 py-1 rounded text-center font-mono",
+                    isReady
+                      ? "bg-green-500 text-white"
+                      : "bg-black/80 text-white",
+                    // Mobile-specific improvements
+                    "sm:text-xs md:text-sm",
+                    "min-h-[24px] flex items-center justify-center"
+                  )}>
+                    {isReady ? (
+                      <div className="flex items-center justify-center gap-1">
+                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="whitespace-nowrap">Ready!</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-1">
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="whitespace-nowrap">{formatTimeRemaining(timer.endTime)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Placement Hint Overlay */}
+              {placementMode && selectedProperty && (tile.type === 'vacant' || tile.type === 'grass') && (
+                (() => {
+                  // Safe access to type property
+                  const propType = (selectedProperty as any).type || (selectedProperty as any).id;
+                  const { score, reason } = getPlacementHint(x, y, propType);
+
+                  // Show hints for ALL building types now
+                  if (true) {
+                    return (
+                      <div className={cn(
+                        "absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-80 transition-opacity z-10",
+                        score === 'good' ? "bg-green-500/30 ring-2 ring-green-400" : "bg-yellow-500/10"
+                      )}>
+                        {score === 'good' && <div className="text-xl animate-bounce">✨</div>}
+                        {hoveredTile?.x === x && hoveredTile?.y === y && (
+                          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-50 bg-black/95 text-white text-xs px-3 py-2 rounded-lg border border-amber-500 shadow-2xl min-w-[150px] text-center pointer-events-auto">
+                            <div className={`font-bold uppercase tracking-wider mb-1 ${score === 'good' ? 'text-green-400' : 'text-yellow-400'}`}>
+                              {score === 'good' ? 'Excellent' : 'Average'}
+                            </div>
+                            <div className="text-[10px] text-gray-300 leading-tight">
+                              {reason}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }
+                  return null;
+                })()
+              )}
+            </button>
+          )
+        })
+      )}
+    </div>
+  )
+}
+
+return (
+  <div className="w-full flex flex-col items-center gap-4">
+    {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
+    {/* Kingdom Control Bar - Grounded visual style */}
+    <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-slate-950/50 border border-slate-800/50 backdrop-blur-md shadow-xl">
+      {/* Left: Weather Info */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center cursor-help transition-opacity hover:opacity-80">
+            <div className="flex items-center gap-3">
+              <div className="text-3xl filter drop-shadow-md">
+                {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
+                <span className="text-[10px] text-slate-400 italic">{getWeatherDescription(weather)}</span>
+              </div>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Current Weather: Affects resource production rates</p>
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Center: Resource HUD */}
+      <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+        {/* Build Tokens */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center cursor-help transition-opacity hover:opacity-80">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl filter drop-shadow-md">
-                  {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
-                  <span className="text-[10px] text-slate-400 italic">{getWeatherDescription(weather)}</span>
-                </div>
+            <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help">
+              <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">👑</span>
+              <div className="flex flex-col leading-none">
+                <span className="font-bold font-mono text-amber-400 text-sm">{buildTokens}</span>
               </div>
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Current Weather: Affects resource production rates</p>
+            <p>Build Tokens: Specific currency for constructing buildings</p>
           </TooltipContent>
         </Tooltip>
 
-        {/* Center: Resource HUD */}
-        <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
-          {/* Build Tokens */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help">
-                <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">👑</span>
-                <div className="flex flex-col leading-none">
-                  <span className="font-bold font-mono text-amber-400 text-sm">{buildTokens}</span>
+        <div className="w-px h-6 bg-white/10 mx-1" />
+
+        {/* Construction Materials - Dynamic List */}
+        {[
+          { id: 'material-logs', label: 'Logs', icon: '🪵' },
+          { id: 'material-stone', label: 'Stone', icon: '🪨' },
+          { id: 'material-water', label: 'Water', icon: '💧' },
+          { id: 'material-planks', label: 'Planks', icon: '🪚' },
+          { id: 'material-stone-block', label: 'Blocks', icon: '🧱' }
+        ].map(mat => {
+          // Find item by ID or Name
+          const item = inventory?.find(i => i.id === mat.id || i.name?.toLowerCase() === mat.label.toLowerCase());
+          const qty = item?.quantity || 0;
+
+          return (
+            <Tooltip key={mat.id}>
+              <TooltipTrigger asChild>
+                <div className={`flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help ${qty === 0 ? 'opacity-50 grayscale' : ''}`}>
+                  <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{mat.icon}</span>
+                  <span className="font-bold font-mono text-slate-200 text-sm">{qty}</span>
                 </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Build Tokens: Specific currency for constructing buildings</p>
-            </TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-bold text-amber-400">{mat.label}</p>
+                <p className="text-xs text-gray-300">Start with 0? Collect from tiles!</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </div>
 
-          <div className="w-px h-6 bg-white/10 mx-1" />
-
-          {/* Construction Materials - Dynamic List */}
-          {[
-            { id: 'material-logs', label: 'Logs', icon: '🪵' },
-            { id: 'material-stone', label: 'Stone', icon: '🪨' },
-            { id: 'material-water', label: 'Water', icon: '💧' },
-            { id: 'material-planks', label: 'Planks', icon: '🪚' },
-            { id: 'material-stone-block', label: 'Blocks', icon: '🧱' }
-          ].map(mat => {
-            // Find item by ID or Name
-            const item = inventory?.find(i => i.id === mat.id || i.name?.toLowerCase() === mat.label.toLowerCase());
-            const qty = item?.quantity || 0;
-
-            return (
-              <Tooltip key={mat.id}>
-                <TooltipTrigger asChild>
-                  <div className={`flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help ${qty === 0 ? 'opacity-50 grayscale' : ''}`}>
-                    <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{mat.icon}</span>
-                    <span className="font-bold font-mono text-slate-200 text-sm">{qty}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="font-bold text-amber-400">{mat.label}</p>
-                  <p className="text-xs text-gray-300">Start with 0? Collect from tiles!</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </div>
-
-        {/* Right: Action Buttons */}
-        <div className="flex items-center gap-3">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-slate-600 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95"
-                onClick={expandKingdomGrid}
-                disabled={!canExpand}
-                aria-label="Expand kingdom grid"
-              >
-                <span className="text-lg">🏗️</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="left"
-              className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
+      {/* Right: Action Buttons */}
+      <div className="flex items-center gap-3">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-slate-600 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95"
+              onClick={expandKingdomGrid}
+              disabled={!canExpand}
+              aria-label="Expand kingdom grid"
             >
-              {canExpand
-                ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
-                : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
-              }
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-3xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group"
-                aria-label="Open properties panel"
-                onClick={() => setPropertiesOpen(true)}
-              >
-                <span className="filter drop-shadow-md group-hover:block transition-all">+</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">
-              <p>Open Shop & Inventory</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </div>
-
-      <div className="relative w-full flex items-center justify-center">
-        {/* Placement mode indicator logic remains on map for context */}
-        {placementMode && selectedProperty && (
-          <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-            <span className="text-sm font-bold">Placing: {selectedProperty.name}</span>
-            <span className="text-xs">Click vacant tile or press ESC to cancel</span>
-          </div>
-        )}
-
-        {renderGridWithBorder()}
-      </div>
-
-      <AnimatePresence>
-        {luckyCelebrationAmount !== null && (
-          <LuckyCelebration
-            amount={luckyCelebrationAmount}
-            onComplete={handleLuckyComplete}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Properties Inventory Panel (Replaced inline code with component) */}
-      <KingdomPropertiesInventory
-        open={propertiesOpen}
-        onClose={() => setPropertiesOpen(false)}
-        inventory={inventory}
-        tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
-        selectedTile={selectedInventoryTile}
-        setSelectedTile={(tile) => {
-          setSelectedInventoryTile(tile as any);
-          if (tile) {
-            handlePropertySelect(tile as any); // This sets placement mode and closes panel
-          }
-        }}
-        onBuy={(tile, method) => {
-          handleBuyProperty(tile as any, method);
-        }}
-        onBuyToken={async () => {
-          try {
-            const success = await spendGold(1000, 'build-token-purchase');
-            if (success) {
-              setBuildTokens(prev => {
-                const newVal = (prev || 0) + 1;
-                import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-                  updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
-                });
-                return newVal;
-              });
-              toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
-            } else {
-              toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
+              <span className="text-lg">🏗️</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="left"
+            className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
+          >
+            {canExpand
+              ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`
+              : `Requires Level ${nextExpansionLevel} to expand (Current: ${playerLevel})`
             }
-          } catch (e) {
-            console.error('Error purchasing build token:', e);
-            toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
-          }
-        }}
-        tokens={buildTokens}
-        playerLevel={playerLevel}
-      />
+          </TooltipContent>
+        </Tooltip>
 
-      {
-        showModal && modalData && (
-          <KingdomTileModal
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-            reward={modalData}
-          />
-        )
-      }
-    </div >
-  )
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-3xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group"
+              aria-label="Open properties panel"
+              onClick={() => setPropertiesOpen(true)}
+            >
+              <span className="filter drop-shadow-md group-hover:block transition-all">+</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Open Shop & Inventory</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+
+    <div className="relative w-full flex items-center justify-center">
+      {/* Placement mode indicator logic remains on map for context */}
+      {placementMode && selectedProperty && (
+        <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+          <span className="text-sm font-bold">Placing: {selectedProperty.name}</span>
+          <span className="text-xs">Click vacant tile or press ESC to cancel</span>
+        </div>
+      )}
+
+      {renderGridWithBorder()}
+    </div>
+
+    <AnimatePresence>
+      {luckyCelebrationAmount !== null && (
+        <LuckyCelebration
+          amount={luckyCelebrationAmount}
+          onComplete={handleLuckyComplete}
+        />
+      )}
+    </AnimatePresence>
+
+    {/* Properties Inventory Panel (Replaced inline code with component) */}
+    <KingdomPropertiesInventory
+      open={propertiesOpen}
+      onClose={() => setPropertiesOpen(false)}
+      inventory={inventory}
+      tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
+      selectedTile={selectedInventoryTile}
+      setSelectedTile={(tile) => {
+        setSelectedInventoryTile(tile as any);
+        if (tile) {
+          handlePropertySelect(tile as any); // This sets placement mode and closes panel
+        }
+      }}
+      onBuy={(tile, method) => {
+        handleBuyProperty(tile as any, method);
+      }}
+      onBuyToken={async () => {
+        try {
+          const success = await spendGold(1000, 'build-token-purchase');
+          if (success) {
+            setBuildTokens(prev => {
+              const newVal = (prev || 0) + 1;
+              import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
+                updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
+              });
+              return newVal;
+            });
+            toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
+          } else {
+            toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
+          }
+        } catch (e) {
+          console.error('Error purchasing build token:', e);
+          toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
+        }
+      }}
+      tokens={buildTokens}
+      playerLevel={playerLevel}
+    />
+
+    {
+      showModal && modalData && (
+        <KingdomTileModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          reward={modalData}
+        />
+      )
+    }
+  </div >
+)
 } 
