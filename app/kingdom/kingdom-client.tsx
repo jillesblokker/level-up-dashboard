@@ -383,6 +383,16 @@ export function KingdomClient() {
       console.warn('[Kingdom] Check straightroad:', storedItems.find(i => i.id === 'straightroad' || i.id === 'straightroad-item'));
     }
   }, [storedItems]);
+  useEffect(() => {
+    console.warn('[Kingdom] Merged Items updated. Count:', mergedItems.length);
+    const road = mergedItems.find(i => i.id === 'straightroad' || i.id === 'straightroad-item');
+    if (road) {
+      console.warn('[Kingdom] Merged straightroad found:', road);
+    } else {
+      console.warn('[Kingdom] Merged straightroad NOT found');
+    }
+  }, [mergedItems]);
+
   const [totalStats, setTotalStats] = useState<{ movement: number; attack: number; defense: number }>({ movement: 0, attack: 0, defense: 0 });
   const [modalOpen, setModalOpen] = useState(false)
   const [modalText, setModalText] = useState("")
