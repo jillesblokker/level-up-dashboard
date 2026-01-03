@@ -631,13 +631,9 @@ export function KingdomGridWithTimers({
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
   const [placementMode, setPlacementMode] = useState(false)
 
-  // Filter properties based on event status
-  const getAvailableProperties = () => {
+  // Filter properties based on event status - memoized for performance
+  const availableProperties = useMemo(() => {
     const available = propertyInventory.filter(property => {
-      // DEBUG: Log first few properties to see definition
-      if (property.id.includes('road')) {
-        // console.warn('[KingdomGrid] Checking Availability:', property.id, property.itemType);
-      }
       if (!property.isSeasonal) {
         return true; // Always show non-seasonal properties
       }
@@ -654,7 +650,10 @@ export function KingdomGridWithTimers({
     });
 
     return available;
-  };
+  }, [propertyInventory, winterFestivalActive, harvestFestivalActive]);
+
+  // Legacy function wrapper for compatibility
+  const getAvailableProperties = () => availableProperties;
 
 
   // Check if player can place a property
