@@ -13,6 +13,7 @@ export interface KingdomTile {
   materialCost?: { itemId: string; quantity: number }[]
   tokenCost?: number
   cost?: number
+  levelRequired?: number
 }
 
 import { TEXT_CONTENT } from './text-content'
