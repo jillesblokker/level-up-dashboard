@@ -25,12 +25,22 @@ export async function GET() {
       return NextResponse.json({ stats: null });
     }
 
-    // Fetch streak data
-    const { data: streakData } = await supabaseServer
-      .from('streaks')
-      .select('current_streak')
-      .eq('user_id', userId)
-      .single();
+    // Fetch streak data (optional - don't fail if table doesn't exist)
+    let streakData = null;
+    try {
+      const { data: fetchedStreakData, error: streakError } = await supabaseServer
+        .from('streaks')
+        .select('current_streak')
+        .eq('user_id', userId)
+        .single();
+
+      if (!streakError) {
+        streakData = fetchedStreakData;
+      }
+    } catch (streakErr) {
+      // Streaks table might not exist - ignore the error
+      console.warn('[Character Stats] Streak fetch failed (might be missing table):', streakErr);
+    }
 
     // Return the individual columns as stats object
     // We check both the dedicated column and the stats_data JSONB column
