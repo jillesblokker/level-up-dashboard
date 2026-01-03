@@ -89,11 +89,15 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
 
 // Add or update an inventory item
 export async function addToInventory(userId: string, item: InventoryItem) {
-  if (!userId) return;
+  if (!userId) {
+    console.error('[Inventory Manager] addToInventory called without userId!');
+    return;
+  }
 
   try {
     // Update local cache first for immediate feedback
     updateCachedInventory(item);
+    console.log('[Inventory Manager] Added to cache:', item.id, item.name);
 
     const response = await authenticatedFetch('/api/inventory', {
       method: 'POST',
@@ -101,16 +105,21 @@ export async function addToInventory(userId: string, item: InventoryItem) {
     }, 'Add Inventory');
 
     if (!response) {
+      console.error('[Inventory Manager] authenticatedFetch returned null - item NOT saved to database!', item.id);
+      // Item is in cache but not in database - this will cause issues on refresh
       return;
     }
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Inventory Manager] Failed to add inventory item: ${response.status}`, errorText);
       throw new Error(`Failed to add inventory item: ${response.status}`);
     }
 
+    console.log('[Inventory Manager] Successfully saved to database:', item.id);
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
-    console.error('Error adding to inventory:', error);
+    console.error('[Inventory Manager] Error adding to inventory:', error);
   }
 }
 

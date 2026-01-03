@@ -115,7 +115,7 @@ export async function authenticatedFetch(
   // Check circuit breaker
   const circuitKey = `${endpoint}_${options.method || 'GET'}`;
   if (hasRecentAuthError(circuitKey)) {
-    console.warn(`[${contextName}] Skipping request to ${endpoint} due to recent auth error`);
+    console.warn(`[${contextName}] Skipping request to ${endpoint} due to recent auth error (circuit breaker active)`);
     return null;
   }
 
@@ -142,10 +142,13 @@ export async function authenticatedFetch(
 
   // Check for auth error and mark circuit breaker
   if (isAuthError(response)) {
-    console.error(`[${contextName}] Authentication failed for ${endpoint}, marking endpoint`);
+    console.error(`[${contextName}] Authentication failed for ${endpoint} (${response.status}), marking endpoint for circuit breaker`);
     markAuthError(circuitKey);
     return null;
   }
+
+  // On successful auth, clear any previous circuit breaker for this endpoint
+  authErrorTimestamps.delete(circuitKey);
 
   return response;
 } 
