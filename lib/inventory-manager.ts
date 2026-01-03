@@ -1,6 +1,38 @@
 import { authenticatedFetch } from './auth-helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { z } from 'zod';
+import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
+
+// Helper to update cached inventory
+function updateCachedInventory(item: InventoryItem) {
+  try {
+    const cachedJson = getUserScopedItem('offline-inventory-cache');
+    let cached: InventoryItem[] = cachedJson ? JSON.parse(cachedJson) : [];
+
+    // Check if item exists
+    const existingIndex = cached.findIndex(i => i.id === item.id || (i.id === item.id.replace('-item', '')));
+
+    if (existingIndex >= 0) {
+      cached[existingIndex] = { ...cached[existingIndex], quantity: (cached[existingIndex].quantity || 0) + item.quantity };
+    } else {
+      cached.push(item);
+    }
+
+    setUserScopedItem('offline-inventory-cache', JSON.stringify(cached));
+  } catch (e) {
+    console.warn('Failed to update inventory cache', e);
+  }
+}
+
+// Helper to get cached inventory
+function getCachedInventory(): InventoryItem[] {
+  try {
+    const cachedJson = getUserScopedItem('offline-inventory-cache');
+    return cachedJson ? JSON.parse(cachedJson) : [];
+  } catch (e) {
+    return [];
+  }
+}
 
 export interface InventoryItem {
   name: string
@@ -57,6 +89,9 @@ export async function addToInventory(userId: string, item: InventoryItem) {
   if (!userId) return;
 
   try {
+    // Update local cache first for immediate feedback
+    updateCachedInventory(item);
+
     const response = await authenticatedFetch('/api/inventory', {
       method: 'POST',
       body: JSON.stringify({ item }),
@@ -81,6 +116,9 @@ export async function removeFromInventory(userId: string, itemId: string, quanti
   if (!userId) return;
 
   try {
+    // Update local cache
+    removeCachedInventoryItem(itemId, quantity);
+
     const response = await authenticatedFetch('/api/inventory', {
       method: 'DELETE',
       body: JSON.stringify({ itemId, quantity }),
@@ -98,6 +136,23 @@ export async function removeFromInventory(userId: string, itemId: string, quanti
   } catch (error) {
     console.error('Error removing from inventory:', error);
   }
+}
+
+// Helper to remove from cache
+function removeCachedInventoryItem(itemId: string, quantity: number) {
+  try {
+    const cachedJson = getUserScopedItem('offline-inventory-cache');
+    let cached: InventoryItem[] = cachedJson ? JSON.parse(cachedJson) : [];
+
+    const existingIndex = cached.findIndex(i => i.id === itemId);
+    if (existingIndex >= 0) {
+      cached[existingIndex].quantity -= quantity;
+      if (cached[existingIndex].quantity <= 0) {
+        cached.splice(existingIndex, 1);
+      }
+      setUserScopedItem('offline-inventory-cache', JSON.stringify(cached));
+    }
+  } catch (e) { }
 }
 
 export async function clearInventory(userId: string) {
@@ -281,27 +336,33 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
     const response = await authenticatedFetch('/api/inventory?equipped=false', {}, 'Stored Items');
 
     if (!response) {
-      return [];
+      // Fallback to cache if API skipped (circuit breaker)
+      console.warn('[Inventory Manager] API skipped, using cached inventory');
+      return getCachedInventory();
     }
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch stored items: ${response.status}`);
+      // Fallback to cache if API fails
+      console.warn('[Inventory Manager] API failed, using cached inventory');
+      return getCachedInventory();
     }
 
     const data = await response.json();
 
     // Handle API response format: {success: true, data: Array}
+    let items: InventoryItem[] = [];
     if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
-      return data.data;
+      items = data.data;
+    } else if (Array.isArray(data)) {
+      items = data;
+    } else {
+      console.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
+      items = [];
     }
 
-    // Handle direct array response
-    if (Array.isArray(data)) {
-      return data;
-    }
-
-    console.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
-    return [];
+    // Update cache with fresh data
+    setUserScopedItem('offline-inventory-cache', JSON.stringify(items));
+    return items;
   } catch (error) {
     console.error('Error fetching stored items:', error);
     return [];
