@@ -1748,7 +1748,7 @@ export function KingdomGridWithTimers({
         </Tooltip>
 
         {/* Center: Resource HUD */}
-        <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+        <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap">
           {/* Build Tokens */}
           <Tooltip>
             <TooltipTrigger asChild>
