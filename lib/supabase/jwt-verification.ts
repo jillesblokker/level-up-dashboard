@@ -33,7 +33,11 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
         console.log('[JWT Verification] Token parts:', parts.length);
         if (parts.length === 3 && parts[1]) {
           // Decode base64url (not regular base64)
-          const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          // Add padding if needed
+          while (base64.length % 4) {
+            base64 += '=';
+          }
           const jsonPayload = atob(base64);
           const payload = JSON.parse(jsonPayload);
 
