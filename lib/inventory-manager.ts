@@ -13,7 +13,10 @@ function updateCachedInventory(item: InventoryItem) {
     const existingIndex = cached.findIndex(i => i.id === item.id || (i.id === item.id.replace('-item', '')));
 
     if (existingIndex >= 0) {
-      cached[existingIndex] = { ...cached[existingIndex], quantity: (cached[existingIndex].quantity || 0) + item.quantity } as InventoryItem;
+      const existing = cached[existingIndex];
+      if (existing) {
+        cached[existingIndex] = { ...existing, quantity: (existing.quantity || 0) + item.quantity } as InventoryItem;
+      }
     } else {
       cached.push(item);
     }
