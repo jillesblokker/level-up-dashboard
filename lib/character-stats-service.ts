@@ -40,6 +40,12 @@ class CharacterStatsService {
     private readonly SYNC_DEBOUNCE_MS = 2000; // Wait 2s before syncing
     private readonly MIN_SYNC_INTERVAL_MS = 3000; // Min 3s between syncs
 
+    // Tracking for "ahead of server" sync attempts to prevent spam
+    private lastAheadSyncTime = 0;
+    private aheadSyncCount = 0;
+    private readonly MAX_AHEAD_SYNCS_PER_SESSION = 3; // Limit sync attempts
+    private readonly AHEAD_SYNC_COOLDOWN_MS = 60000; // 1 minute cooldown between ahead-syncs
+
     private constructor() {
         // Initialize event listeners
         if (typeof window !== 'undefined') {
@@ -190,13 +196,38 @@ class CharacterStatsService {
                         updated_at: serverStats.updated_at
                     };
 
-                    // If local is ahead, trigger a sync
-                    if (mergedStats.gold > (serverStats.gold || 0) ||
-                        mergedStats.experience > (serverStats.experience || 0)) {
-                        console.log('[CharacterStatsService] Local stats ahead of server, syncing...');
-                        this.saveToLocalStorage(mergedStats);
-                        this.queueSync(mergedStats, 'fetch-and-merge');
+                    // If local is ahead, trigger a sync (with rate limiting to prevent spam)
+                    const localIsAhead = mergedStats.gold > (serverStats.gold || 0) ||
+                        mergedStats.experience > (serverStats.experience || 0);
+
+                    if (localIsAhead) {
+                        const now = Date.now();
+                        const cooldownExpired = (now - this.lastAheadSyncTime) > this.AHEAD_SYNC_COOLDOWN_MS;
+                        const underRetryLimit = this.aheadSyncCount < this.MAX_AHEAD_SYNCS_PER_SESSION;
+
+                        if (cooldownExpired || underRetryLimit) {
+                            // Reset count if cooldown expired, otherwise increment
+                            if (cooldownExpired) {
+                                this.aheadSyncCount = 1;
+                            } else {
+                                this.aheadSyncCount++;
+                            }
+                            this.lastAheadSyncTime = now;
+
+                            // Only log if this is the first attempt in a while
+                            if (this.aheadSyncCount === 1) {
+                                console.log('[CharacterStatsService] Local stats ahead of server, syncing...');
+                            }
+
+                            this.saveToLocalStorage(mergedStats);
+                            this.queueSync(mergedStats, 'fetch-and-merge');
+                        } else {
+                            // Rate limited - just save locally, don't sync
+                            this.saveToLocalStorage(mergedStats);
+                        }
                     } else {
+                        // Server is up to date, reset our retry counter
+                        this.aheadSyncCount = 0;
                         this.saveToLocalStorage(mergedStats);
                     }
 
@@ -277,11 +308,12 @@ class CharacterStatsService {
             });
 
             if (response.ok) {
-
-                // Clear queue
+                // Clear queue and reset ahead sync counter (server is now up to date)
                 this.syncQueue = [];
+                this.aheadSyncCount = 0;
             } else {
-
+                // Sync failed - log once but don't spam
+                console.warn('[CharacterStatsService] Sync failed with status:', response.status);
             }
         } catch (error) {
             console.error('[CharacterStatsService] Sync error:', error);
