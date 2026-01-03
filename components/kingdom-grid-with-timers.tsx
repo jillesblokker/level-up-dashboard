@@ -497,7 +497,7 @@ export function KingdomGridWithTimers({
         const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service');
         const freshStats = await fetchFreshCharacterStats();
         if (freshStats) {
-          console.log('[Kingdom] Fresh stats loaded, build tokens:', freshStats.build_tokens);
+
           setBuildTokens(freshStats.build_tokens || 0);
         }
       } catch (error) {
@@ -594,6 +594,37 @@ export function KingdomGridWithTimers({
       };
     });
   });
+
+  // Sync property inventory with user inventory (props)
+  useEffect(() => {
+    if (!inventory) return;
+
+    setPropertyInventory(prev => {
+      // Create a map for faster lookups
+      const inventoryMap = new Map();
+      inventory.forEach(i => {
+        inventoryMap.set(i.id, i.quantity || 0);
+        if (i.id.endsWith('-item')) {
+          inventoryMap.set(i.id.replace('-item', ''), i.quantity || 0);
+        }
+        if (i.name) {
+          inventoryMap.set(i.name.toLowerCase(), i.quantity || 0);
+        }
+      });
+
+      return prev.map(prop => {
+        const qty = inventoryMap.get(prop.id) ||
+          inventoryMap.get(prop.name?.toLowerCase()) ||
+          0;
+
+        // Only update if changed to avoid unnecessary re-renders
+        if (prop.quantity !== qty) {
+          return { ...prop, quantity: qty };
+        }
+        return prop;
+      });
+    });
+  }, [inventory]);
 
 
   // Property placement state
