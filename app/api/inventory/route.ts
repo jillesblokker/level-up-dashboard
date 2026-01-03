@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export const dynamic = 'force-dynamic';
@@ -155,6 +156,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      console.error('[Inventory API] Unauthorized POST request');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { item } = body;
 
@@ -162,72 +169,84 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item is required' }, { status: 400 });
     }
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log('[API Inventory] Processing POST for:', item.id, 'User:', userId);
-      // Check if item exists
-      const { data: existing, error: fetchError } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('item_id', item.id)
-        .single();
+    console.log('[API Inventory] Processing POST for:', item.id, 'User:', userId);
 
-      if (existing) {
-        console.log('[API Inventory] Item exists. Old Qty:', existing.quantity, 'Adding:', item.quantity);
-      } else {
-        console.log('[API Inventory] Item/User not found. Fetch err:', fetchError?.code);
-      }
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      if (existing) {
-        // Update quantity
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .update({ quantity: existing.quantity + (item.quantity || 1) })
-          .eq('user_id', userId)
-          .eq('item_id', item.id)
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
-      } else {
-        // Insert new item
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .insert({
-            user_id: userId,
-            item_id: item.id,
-            name: item.name || 'Unknown Item',
-            type: item.type || 'item',
-            category: item.category || item.type || 'misc',
-            description: item.description || `Found: ${item.name}`,
-            emoji: item.emoji || '📦',
-            image: item.image || '',
-            stats: item.stats || {},
-            quantity: item.quantity || 1,
-            equipped: item.equipped || false,
-            is_default: false,
-          })
-          .select()
-          .single();
-
-        if (error) {
-          console.error('[Inventory API] Insert error:', error);
-          throw error;
-        }
-        return data;
-      }
-    });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+    // Manually set user context for RLS if needed, though service role key bypasses it usually
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch (e) {
+      // Ignore context setting error
     }
 
-    return NextResponse.json(result.data);
+    // Check if item exists
+    const { data: existing, error: fetchError } = await supabaseServer
+      .from('inventory_items')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('item_id', item.id)
+      .single();
+
+    if (existing) {
+      console.log('[API Inventory] Item exists. Old Qty:', existing.quantity, 'Adding:', item.quantity);
+    } else {
+      console.log('[API Inventory] Item/User not found. Fetch err:', fetchError?.code);
+    }
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('[Inventory API] Fetch Error:', fetchError);
+      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    }
+
+    let resultData;
+
+    if (existing) {
+      // Update quantity
+      const { data, error } = await supabaseServer
+        .from('inventory_items')
+        .update({ quantity: existing.quantity + (item.quantity || 1) })
+        .eq('user_id', userId)
+        .eq('item_id', item.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Inventory API] Update Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      resultData = data;
+    } else {
+      // Insert new item
+      const { data, error } = await supabaseServer
+        .from('inventory_items')
+        .insert({
+          user_id: userId,
+          item_id: item.id,
+          name: item.name || 'Unknown Item',
+          type: item.type || 'item',
+          category: item.category || item.type || 'misc',
+          description: item.description || `Found: ${item.name}`,
+          emoji: item.emoji || '📦',
+          image: item.image || '',
+          stats: item.stats || {},
+          quantity: item.quantity || 1,
+          equipped: item.equipped || false,
+          is_default: false,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Inventory API] Insert error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      resultData = data;
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: resultData
+    });
+
   } catch (error) {
     console.error('[Inventory API] Error:', error);
     return NextResponse.json(
