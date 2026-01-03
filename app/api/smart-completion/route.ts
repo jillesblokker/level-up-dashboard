@@ -154,11 +154,19 @@ export async function POST(request: NextRequest) {
           .insert(insertPayload);
 
         if (insertError) {
-          console.error('[Smart Quest Completion] Insert error:', insertError);
-          return NextResponse.json({ error: insertError.message }, { status: 500 });
+          // If duplicate key error, it means it was already completed (race condition)
+          if (insertError.code === '23505') {
+            console.warn('[Smart Quest Completion] Race condition detected: Quest already completed. Treating as success.');
+            // We can return success, but we shouldn't award rewards again
+            // So we set earned to 0 to indicate no NEW rewards
+            result = { success: true, action: 'already_completed', xp_earned: 0, gold_earned: 0 };
+          } else {
+            console.error('[Smart Quest Completion] Insert error:', insertError);
+            return NextResponse.json({ error: insertError.message }, { status: 500 });
+          }
+        } else {
+          result = { success: true, action: 'inserted', xp_earned: verifiedXP, gold_earned: verifiedGold };
         }
-
-        result = { success: true, action: 'inserted', xp_earned: verifiedXP, gold_earned: verifiedGold };
       } else {
         // Update existing record
         const updatePayload: any = {
@@ -188,26 +196,29 @@ export async function POST(request: NextRequest) {
       }
 
       // 3. Update character stats (Verified amounts only)
-      const { data: currentStats, error: statsFetchError } = await supabaseServer
-        .from('character_stats')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (!statsFetchError && currentStats) {
-        const newXp = (currentStats.experience || 0) + verifiedXP;
-        const newGold = (currentStats.gold || 0) + verifiedGold;
-        const newLevel = calculateLevelFromExperience(newXp);
-
-        await supabaseServer
+      // Only update if we actually performed a new completion (not a duplicate race condition)
+      if (result.action !== 'already_completed') {
+        const { data: currentStats, error: statsFetchError } = await supabaseServer
           .from('character_stats')
-          .update({
-            experience: newXp,
-            gold: newGold,
-            level: Math.max(newLevel, currentStats.level || 1),
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', userId);
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+
+        if (!statsFetchError && currentStats) {
+          const newXp = (currentStats.experience || 0) + verifiedXP;
+          const newGold = (currentStats.gold || 0) + verifiedGold;
+          const newLevel = calculateLevelFromExperience(newXp);
+
+          await supabaseServer
+            .from('character_stats')
+            .update({
+              experience: newXp,
+              gold: newGold,
+              level: Math.max(newLevel, currentStats.level || 1),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+        }
       }
     } else {
       // Uncomplete: Revoke exactly what was earned if it was recent
