@@ -149,11 +149,14 @@ function removeCachedInventoryItem(itemId: string, quantity: number) {
 
     const existingIndex = cached.findIndex(i => i.id === itemId);
     if (existingIndex >= 0) {
-      cached[existingIndex].quantity -= quantity;
-      if (cached[existingIndex].quantity <= 0) {
-        cached.splice(existingIndex, 1);
+      const existing = cached[existingIndex];
+      if (existing) {
+        existing.quantity -= quantity;
+        if (existing.quantity <= 0) {
+          cached.splice(existingIndex, 1);
+        }
+        setUserScopedItem('offline-inventory-cache', JSON.stringify(cached));
       }
-      setUserScopedItem('offline-inventory-cache', JSON.stringify(cached));
     }
   } catch (e) { }
 }
