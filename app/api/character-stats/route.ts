@@ -198,9 +198,9 @@ export async function POST(request: Request) {
       };
 
       console.log('[Character Stats] Saving stats (merged):', {
-        newLevel: mergedStats.level,
+        newLevel: mergedStats['level'],
         oldLevel: existingLevel,
-        newXP: mergedStats.experience,
+        newXP: mergedStats['experience'],
         oldXP: existingXP
       });
 
