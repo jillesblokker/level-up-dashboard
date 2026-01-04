@@ -80,6 +80,14 @@ export const initialInventory: Record<TileType, Tile> = {
     straightroad: { ...defaultTile('straightroad'), cost: 0, owned: 0 },
     cornerroad: { ...defaultTile('cornerroad'), cost: 0, owned: 0 },
     tsplitroad: { ...defaultTile('tsplitroad'), cost: 0, owned: 0 },
+    jungle: { ...defaultTile('jungle'), cost: 100, owned: 5 },
+    ruins: { ...defaultTile('ruins'), cost: 150, owned: 2 },
+    graveyard: { ...defaultTile('graveyard'), cost: 150, owned: 2 },
+    farmland: { ...defaultTile('farmland'), cost: 80, owned: 5 },
+    oasis: { ...defaultTile('oasis'), cost: 120, owned: 3 },
+    coral_reef: { ...defaultTile('coral_reef'), cost: 150, owned: 5 },
+    crystal_cavern: { ...defaultTile('crystal_cavern'), cost: 200, owned: 2 },
+    floating_island: { ...defaultTile('floating_island'), cost: 500, owned: 1 },
 };
 
 function safeCheck(obj: any, key: any) {
