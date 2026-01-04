@@ -60,11 +60,11 @@ export default function CityPage() {
           </div>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label="city-locations-grid">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3" aria-label="city-locations-grid">
           {cityData.locations.map((location: CityLocation) => (
             <Link key={location.id} href={`/city/${params['cityName']}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer" aria-label={`${location.name}-card`}>
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-900 border-b border-amber-800/20">
+                <div className="relative aspect-[3/2] w-full overflow-hidden bg-gray-900 border-b border-amber-800/20">
                   <Image
                     src={location.image}
                     alt={location.name}
