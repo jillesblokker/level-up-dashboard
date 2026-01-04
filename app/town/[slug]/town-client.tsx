@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import Image from "next/image"
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Building, ShoppingBag, Swords, Home } from "lucide-react"
@@ -122,7 +123,7 @@ export default function TownClient({ slug }: Props) {
       </div>
 
       <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="town-locations-grid">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label="town-locations-grid">
           {townData.locations.map((location) => (
             <Link
               key={location.id}
@@ -131,11 +132,16 @@ export default function TownClient({ slug }: Props) {
               className="block"
             >
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer rounded-lg">
-                <div
-                  className="h-48 bg-cover bg-center mb-3 rounded-lg overflow-hidden"
-                  style={{ backgroundImage: `url(${location.image})` }}
-                  aria-label={`${location.name}-image`}
-                />
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg bg-gray-900">
+                  <Image
+                    src={location.image}
+                    alt={location.name}
+                    fill
+                    className="object-cover transition-transform duration-500 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    aria-label={`${location.name}-image`}
+                  />
+                </div>
                 <CardHeader className="pb-2 flex-row items-start gap-3">
                   <div className="mr-3" aria-hidden="true">{getIcon(location.icon)}</div>
                   <div>

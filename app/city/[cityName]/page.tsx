@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -59,16 +60,20 @@ export default function CityPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="city-locations-grid">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label="city-locations-grid">
           {cityData.locations.map((location: CityLocation) => (
             <Link key={location.id} href={`/city/${params['cityName']}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer" aria-label={`${location.name}-card`}>
-                <div
-                  className="h-48 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${location.image})` }}
-                  aria-label={`${location.name}-image`}
-                  role="img"
-                />
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-900 border-b border-amber-800/20">
+                  <Image
+                    src={location.image}
+                    alt={location.name}
+                    fill
+                    className="object-cover transition-transform duration-500 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    aria-label={`${location.name}-image`}
+                  />
+                </div>
                 <CardHeader>
                   <CardTitle className="text-white">{location.name}</CardTitle>
                   <CardDescription className="text-gray-400">{location.subtitle}</CardDescription>
