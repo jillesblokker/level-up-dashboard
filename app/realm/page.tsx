@@ -259,6 +259,42 @@ function RealmPageContent() {
         }
     }, [userId, triggerCatchUp]);
 
+    // Level 25 Ship Unlock Celebration
+    useEffect(() => {
+        if (characterStats.level >= 25 && userId) {
+            const key = `ship_unlock_shown_${userId}`;
+            const shown = localStorage.getItem(key);
+            if (!shown) {
+                toast({
+                    title: "🏴‍☠️ High Seas Unlocked!",
+                    description: "Level 25 Reached! You can now traverse Water tiles with your Pirate Ship!",
+                    duration: 5000,
+                    className: "bg-blue-900 border-2 border-amber-500 text-yellow-100 font-bold"
+                });
+                playSound('level_up');
+                localStorage.setItem(key, 'true');
+            }
+        }
+    }, [characterStats.level, userId, toast, playSound]);
+
+    // Level 25 Ship Unlock Celebration
+    useEffect(() => {
+        if (characterStats.level >= 25 && userId) {
+            const key = `ship_unlock_shown_${userId}`;
+            const shown = localStorage.getItem(key);
+            if (!shown) {
+                toast({
+                    title: "🏴‍☠️ High Seas Unlocked!",
+                    description: "Level 25 Reached! You can now traverse Water tiles with your Pirate Ship!",
+                    duration: 5000,
+                    className: "bg-blue-900 border-2 border-amber-500 text-yellow-100 font-bold"
+                });
+                playSound('level_up'); // Assuming 'level_up' or generic sound exists
+                localStorage.setItem(key, 'true');
+            }
+        }
+    }, [characterStats.level, userId, toast, playSound]);
+
     // Load monsters
     useEffect(() => {
         if (!isClerkLoaded || !user) return;
@@ -540,10 +576,15 @@ function RealmPageContent() {
                 return;
             }
 
-            if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
+            const blockedTiles = ['mountain', 'lava', 'volcano'];
+            if (characterStats.level < 25) blockedTiles.push('water');
+
+            if (targetTile && blockedTiles.includes(targetTile.type)) {
                 toast({
                     title: TEXT_CONTENT.realm.toasts.cannotMove.title,
-                    description: TEXT_CONTENT.realm.toasts.cannotMove.desc.replace("{type}", targetTile.type),
+                    description: targetTile.type === 'water' && characterStats.level < 25
+                        ? "You need Level 25 to sail!"
+                        : TEXT_CONTENT.realm.toasts.cannotMove.desc.replace("{type}", targetTile.type),
                     variant: "destructive",
                 });
                 return;
@@ -795,10 +836,15 @@ function RealmPageContent() {
                 return;
             }
 
-            if (targetTile && ['mountain', 'water', 'lava', 'volcano'].includes(targetTile.type)) {
+            const blockedTiles = ['mountain', 'lava', 'volcano'];
+            if (characterStats.level < 25) blockedTiles.push('water');
+
+            if (targetTile && blockedTiles.includes(targetTile.type)) {
                 toast({
                     title: TEXT_CONTENT.realm.toasts.cannotMove.title,
-                    description: TEXT_CONTENT.realm.toasts.cannotMove.desc.replace("{type}", targetTile.type),
+                    description: targetTile.type === 'water' && characterStats.level < 25
+                        ? "You need Level 25 to sail!"
+                        : TEXT_CONTENT.realm.toasts.cannotMove.desc.replace("{type}", targetTile.type),
                     variant: "destructive",
                 });
                 return;
@@ -915,7 +961,10 @@ function RealmPageContent() {
     useEffect(() => {
         if (!isLoading && grid.length && characterPosition) {
             const tile = grid[characterPosition.y]?.[characterPosition.x];
-            if (!tile || ['mountain', 'water', 'lava', 'volcano'].includes(tile.type)) {
+            const blockedTiles = ['mountain', 'lava', 'volcano'];
+            if (characterStats.level < 25) blockedTiles.push('water');
+
+            if (!tile || blockedTiles.includes(tile.type)) {
                 setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
             }
         }

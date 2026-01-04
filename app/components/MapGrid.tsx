@@ -180,13 +180,25 @@ const MapTile = memo(({
       )}
       {isPlayerHere && (
         <div className="absolute inset-0 flex items-center justify-center">
+          {tile.type === 'water' && playerLevel >= 25 && (
+            <Image
+              src="/images/tiles/pirate-ship.png"
+              alt="Pirate Ship"
+              width={Math.floor(tileSize * 0.9)}
+              height={Math.floor(tileSize * 0.9)}
+              className="absolute z-0"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
           <Image
             src={getCharacterImage(playerLevel)}
             alt="Character"
             width={Math.floor(tileSize * 0.5)}
             height={Math.floor(tileSize * 0.5)}
-            className="character-image"
-            priority // Character always needs priority
+            className="character-image relative z-10"
+            priority
             onError={(e) => {
               console.warn('Failed to load character image, using fallback');
               e.currentTarget.src = '/images/character/squire.png';
