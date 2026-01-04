@@ -880,9 +880,7 @@ function RealmPageContent() {
 
             switch (currentTile.type) {
                 case 'coral_reef':
-                case 'mermaid':
                 case 'floating_island':
-                case 'island':
                 case 'crystal_cavern':
                 case 'jungle':
                 case 'ruins':
