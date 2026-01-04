@@ -198,7 +198,15 @@ export class MapGenerator {
       crossroad: 'Crossroad',
       straightroad: 'Straight Road',
       cornerroad: 'Corner Road',
-      tsplitroad: 'T-Split Road'
+      tsplitroad: 'T-Split Road',
+      jungle: 'Jungle Tile',
+      ruins: 'Ancient Ruins',
+      graveyard: 'Graveyard',
+      farmland: 'Farmland',
+      oasis: 'Desert Oasis',
+      coral_reef: 'Coral Reef',
+      crystal_cavern: 'Crystal Cavern',
+      floating_island: 'Floating Island'
     };
 
     const tileDescriptions = {
@@ -251,7 +259,15 @@ export class MapGenerator {
       crossroad: 'A busy crossroad connecting the kingdom',
       straightroad: 'A straight road connecting the kingdom',
       cornerroad: 'A curved road connecting the kingdom',
-      tsplitroad: 'A T-shaped road split connecting three paths'
+      tsplitroad: 'A T-shaped road split connecting three paths',
+      jungle: 'A dense, overgrown jungle',
+      ruins: 'Crumbling remains of an ancient structure',
+      graveyard: 'A spooky graveyard',
+      farmland: 'Fertile land for farming',
+      oasis: 'A refreshing oasis in the desert',
+      coral_reef: 'A vibrant coral reef',
+      crystal_cavern: 'A cave filled with glowing crystals',
+      floating_island: 'A magical island floating in the sky'
     };
 
     const tileImages = {
@@ -304,7 +320,15 @@ export class MapGenerator {
       crossroad: '/images/kingdom-tiles/Crossroad.png',
       straightroad: '/images/kingdom-tiles/Straightroad.png',
       cornerroad: '/images/kingdom-tiles/Cornerroad.png',
-      tsplitroad: '/images/kingdom-tiles/Tsplitroad.png'
+      tsplitroad: '/images/kingdom-tiles/Tsplitroad.png',
+      jungle: '/images/tiles/jungle-tile.png',
+      ruins: '/images/tiles/ruins-tile.png',
+      graveyard: '/images/tiles/graveyard-tile.png',
+      farmland: '/images/tiles/farmland-tile.png',
+      oasis: '/images/tiles/oasis-tile.png',
+      coral_reef: '/images/tiles/coral_reef-tile.png',
+      crystal_cavern: '/images/tiles/crystal_cavern-tile.png',
+      floating_island: '/images/tiles/floating_island-tile.png'
     };
 
     return {
