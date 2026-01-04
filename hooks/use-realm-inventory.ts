@@ -62,6 +62,21 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                         }
                     });
                 }
+
+                // MERGE MISSING DEFAULT TILES (Fix for new tiles not showing up)
+                Object.entries(initialInventory).forEach(([key, val]) => {
+                    // If this tile type is meant to be owned by default (owned > 0)
+                    // and it is NOT in the current items list
+                    if (val.owned && val.owned > 0 && !items.some(i => i.type === key)) {
+                        items.push({
+                            ...val,
+                            quantity: val.owned, // explicit quantity from default
+                            // ensure required fields
+                            id: val.id || key,
+                            image: val.image || `/images/tiles/${key}-tile.png`
+                        } as TileInventoryItem);
+                    }
+                });
                 setInventoryAsItems(items);
 
                 // Update the legacy inventory mapping if still needed
