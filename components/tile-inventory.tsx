@@ -18,6 +18,7 @@ import { addTileToInventory } from "@/lib/tile-inventory-manager"
 import { useUser } from "@clerk/nextjs"
 import { useSupabase } from "@/lib/hooks/useSupabase"
 import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate, loadRareTiles } from "@/lib/rare-tiles-manager"
+import { getUserScopedItem } from "@/lib/user-scoped-storage"
 
 
 // Static definition of all possible tiles to prevent re-creation on every render
@@ -140,7 +141,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   useEffect(() => {
     const loadUserLevel = () => {
       try {
-        const stats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+        const stored = getUserScopedItem('character-stats');
+        const stats = stored ? JSON.parse(stored) : {};
         setUserLevel(stats.level || 1);
       } catch (error) {
         console.error('Error loading user level:', error);
@@ -162,6 +164,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     loadUserLevel();
     loadRareTilesData();
+
+    // Listen for character stats updates from the service
+    window.addEventListener('character-stats-update', loadUserLevel);
+
+    return () => {
+      window.removeEventListener('character-stats-update', loadUserLevel);
+    };
   }, [user?.id, supabase, isLoading]);
 
   // Listen for rare tile unlock/clear events
