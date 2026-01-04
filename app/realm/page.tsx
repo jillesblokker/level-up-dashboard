@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { DungeonModal } from "@/components/dungeon-modal"
+import { RealmEventModal } from '@/components/realm-event-modal'
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
@@ -149,7 +150,7 @@ function RealmPageContent() {
     } = useDataLoaders();
     const { unlockAchievement } = useAchievementUnlock();
     const { playSound } = useSound();
-    const { weather } = useWeather();
+    const { weather, setWeather } = useWeather();
     const weatherRef = useRef(weather);
     const lastMoveTimeRef = useRef(0);
 
@@ -225,6 +226,7 @@ function RealmPageContent() {
     // Tile size state for animal positioning
     const [tileSize, setTileSize] = useState(80);
 
+    const [activeEvent, setActiveEvent] = useState<string | null>(null);
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
     const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
@@ -831,6 +833,19 @@ function RealmPageContent() {
             }
 
             switch (currentTile.type) {
+                case 'coral_reef':
+                case 'mermaid':
+                case 'floating_island':
+                case 'island':
+                case 'crystal_cavern':
+                case 'jungle':
+                case 'ruins':
+                case 'graveyard':
+                case 'oasis':
+                case 'farmland': {
+                    setActiveEvent(currentTile.type);
+                    break;
+                }
                 case 'castle': {
                     setCastleEvent({ open: true });
                     break;
@@ -1333,6 +1348,14 @@ function RealmPageContent() {
                 </Sheet>
 
                 {/* Event Modals */}
+                {activeEvent && (
+                    <RealmEventModal
+                        isOpen={!!activeEvent}
+                        onClose={() => setActiveEvent(null)}
+                        tileType={activeEvent}
+                        onWeatherChange={setWeather}
+                    />
+                )}
                 {castleEvent?.open && (
                     <Dialog open={castleEvent.open} onOpenChange={() => setCastleEvent(null)}>
                         <DialogContent aria-label="Castle Event Royal Audience" role="dialog" aria-modal="true">
