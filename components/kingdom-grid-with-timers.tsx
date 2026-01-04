@@ -288,37 +288,50 @@ export function KingdomGridWithTimers({
     throw lastError || new Error('Request failed')
   }
 
-  // Load kingdom expansions from Supabase on mount
+  // Consolidate character stats loading (Expansions, Tokens, Level)
   useEffect(() => {
-    (async () => {
+    const loadCharacterData = async () => {
       try {
+        // First try to get from localStorage (synchronous)
         const { getCharacterStats } = await import('@/lib/character-stats-service')
         const stats = getCharacterStats()
+
+        // Update state from local stats first
         setKingdomExpansions(stats.kingdom_expansions || 0)
-      } catch {
-        setKingdomExpansions(0)
-      }
-    })()
-  }, [])
-
-  // Load build tokens from Supabase on mount
-  useEffect(() => {
-    (async () => {
-      try {
-        const { getCharacterStats } = await import('@/lib/character-stats-service')
-        const stats = getCharacterStats()
         setBuildTokens(stats.build_tokens || 0)
-      } catch {
-        setBuildTokens(0)
-      }
-    })()
-  }, [])
+        setPlayerLevel(calculateLevelFromExperience(stats.experience || 0))
 
-  // Calculate player level and expansion requirements
-  useEffect(() => {
-    const stats = getCharacterStats()
-    const currentLevel = calculateLevelFromExperience(stats.experience || 0)
-    setPlayerLevel(currentLevel)
+        // Then try to fetch fresh data from API
+        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service')
+        const freshStats = await fetchFreshCharacterStats()
+
+        if (freshStats) {
+          setKingdomExpansions(freshStats.kingdom_expansions || 0)
+          setBuildTokens(freshStats.build_tokens || 0)
+          setPlayerLevel(calculateLevelFromExperience(freshStats.experience || 0))
+        }
+      } catch (error) {
+        console.warn('[Kingdom] Failed to load character data:', error)
+      }
+    }
+
+    // Initial load
+    loadCharacterData()
+
+    // Listen for updates
+    const handleStatsUpdate = () => loadCharacterData()
+    // Also listen for explicit XP updates from other sources
+    const handleXPUpdate = () => loadCharacterData()
+
+    window.addEventListener('character-stats-update', handleStatsUpdate)
+    window.addEventListener('xp-update', handleXPUpdate)
+    window.addEventListener('gold-update', handleStatsUpdate) // Gold might trigger stats refresh needs
+
+    return () => {
+      window.removeEventListener('character-stats-update', handleStatsUpdate)
+      window.removeEventListener('xp-update', handleXPUpdate)
+      window.removeEventListener('gold-update', handleStatsUpdate)
+    }
   }, [])
 
   // Load simple event flags from game settings (per-user)
@@ -485,46 +498,7 @@ export function KingdomGridWithTimers({
     });
   };
 
-  // Load build tokens from character stats
-  useEffect(() => {
-    const loadBuildTokens = async () => {
-      try {
-        // First try to get from localStorage
-        const stats = getCharacterStats();
-        setBuildTokens(stats.build_tokens || 0);
-
-        // Then try to fetch fresh data from API (with smart rate limiting)
-        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service');
-        const freshStats = await fetchFreshCharacterStats();
-        if (freshStats) {
-
-          setBuildTokens(freshStats.build_tokens || 0);
-        }
-      } catch (error) {
-        console.warn('[Kingdom] Failed to load build tokens:', error);
-        // Fallback to localStorage
-        try {
-          const stats = getCharacterStats();
-          setBuildTokens(stats.build_tokens || 0);
-        } catch {
-          setBuildTokens(0);
-        }
-      }
-    };
-
-    loadBuildTokens();
-
-    // Listen for character stats updates
-    const handleStatsUpdate = () => {
-      loadBuildTokens();
-    };
-
-    window.addEventListener('character-stats-update', handleStatsUpdate);
-
-    return () => {
-      window.removeEventListener('character-stats-update', handleStatsUpdate);
-    };
-  }, []);
+  // Legacy effect removed - logic consolidated into the main character data effect above
 
   // Kingdom tile inventory for properties panel - dynamically loaded from KINGDOM_TILES source of truth
   const [propertyInventory, setPropertyInventory] = useState(() => {

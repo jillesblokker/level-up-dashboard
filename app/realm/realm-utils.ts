@@ -13,10 +13,16 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
     if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.png';
 
+    let name = type.charAt(0).toUpperCase() + type.slice(1);
+    if (type === 'coral_reef') name = 'Mermaid';
+    if (type === 'floating_island') name = 'Island';
+    if (type === 'ruins') name = 'Ancient Ruins';
+    if (type === 'crystal_cavern') name = 'Crystal Cavern';
+
     return {
         id: type,
-        name: type.charAt(0).toUpperCase() + type.slice(1),
-        description: `${type.charAt(0).toUpperCase() + type.slice(1)} tile`,
+        name,
+        description: `${name} tile`,
         type,
         connections: [],
         rotation: 0,

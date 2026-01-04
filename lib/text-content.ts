@@ -929,7 +929,7 @@ export const TEXT_CONTENT = {
             clickMessage: "You hack through the dense vines of the jungle. Amidst the exotic flora, you find ancient coins lost by past explorers."
         },
         ruins: {
-            name: "Ruins",
+            name: "Ancient Ruins",
             clickMessage: "You explore the crumbling stone structures. Hidden beneath a fallen pillar, you discover a stash of ancient gold."
         },
         graveyard: {
@@ -945,16 +945,16 @@ export const TEXT_CONTENT = {
             clickMessage: "The cool water of the oasis is refreshing. You find gold coins glimmering in the shallow pool."
         },
         "coral_reef": {
-            name: "Coral Reef",
-            clickMessage: "You dive into the colorful reef. Among the coral and fish, you spot a sunken chest containing gold."
+            name: "Mermaid",
+            clickMessage: "You swim to the mermaid's rock. She smiles and points you toward a sunken chest filled with gold."
         },
         "crystal_cavern": {
             name: "Crystal Cavern",
             clickMessage: "The crystals hum with energy. You harvest a small glowing shard which turns into gold in your hand."
         },
         "floating_island": {
-            name: "Floating Island",
-            clickMessage: "The view from the floating island is breathtaking. You find a celestial chest that grants you gold."
+            name: "Island",
+            clickMessage: "You row your boat to the mysterious island. On the shore, you find a chest washed up by the magical tide."
         }
     },
     riddleChallenge: {

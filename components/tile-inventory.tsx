@@ -51,7 +51,17 @@ const allPossibleTiles: InventoryItem[] = [
   { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.png' },
 
   // Consumables
-  { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.png', unlocked: true }
+  { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.png', unlocked: true },
+
+  // New Realm Tiles (Adventure & Mystic)
+  { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.png' },
+  { id: 'jungle', name: 'Jungle', type: 'jungle', quantity: 0, cost: 100, connections: [], description: 'Dense tropical jungle', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jungle tile', image: '/images/tiles/jungle-tile.png' },
+  { id: 'oasis', name: 'Oasis', type: 'oasis', quantity: 0, cost: 120, connections: [], description: 'A refreshing desert oasis', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Oasis tile', image: '/images/tiles/oasis-tile.png' },
+  { id: 'coral_reef', name: 'Mermaid', type: 'coral_reef', quantity: 0, cost: 150, connections: [], description: 'A mermaid resting on a rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mermaid tile', image: '/images/tiles/coral_reef-tile.png' },
+  { id: 'graveyard', name: 'Graveyard', type: 'graveyard', quantity: 0, cost: 150, connections: [], description: 'Spooky resting place', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Graveyard tile', image: '/images/tiles/graveyard-tile.png' },
+  { id: 'ruins', name: 'Ancient Ruins', type: 'ruins', quantity: 0, cost: 150, connections: [], description: 'Ancient mysterious ruins', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ancient Ruins tile', image: '/images/tiles/ruins-tile.png' },
+  { id: 'crystal_cavern', name: 'Crystal Cavern', type: 'crystal_cavern', quantity: 0, cost: 200, connections: [], description: 'Cave filled with magical crystals', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crystal Cavern tile', image: '/images/tiles/crystal_cavern-tile.png' },
+  { id: 'floating_island', name: 'Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious island accessible by boat', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.png' }
 ];
 
 // Tile categories with logical organization
@@ -62,7 +72,7 @@ const tileCategories = [
     minLevel: 0,
     maxLevel: 20,
     description: 'Basic terrain and natural features',
-    tiles: ['grass', 'water', 'forest', 'mountain', 'desert', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad']
+    tiles: ['grass', 'water', 'forest', 'mountain', 'desert', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'jungle', 'oasis', 'coral_reef', 'graveyard', 'ruins', 'crystal_cavern', 'floating_island']
   },
   {
     id: 'settlement',
