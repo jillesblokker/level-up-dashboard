@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { questId } = body;
 
-        console.log('[Smart Completion] Processing request for quest:', questId);
+        console.log('[Smart Completion v2] Processing request for quest:', questId);
 
         if (!questId) {
             return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
@@ -145,4 +145,14 @@ export async function POST(req: NextRequest) {
         console.error('[Smart Completion] Error:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
+}
+
+export async function OPTIONS(request: NextRequest) {
+    return NextResponse.json({}, {
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
 }
