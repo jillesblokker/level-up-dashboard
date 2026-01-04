@@ -275,10 +275,91 @@ export async function POST(request: Request) {
 
         if (questCompleteError) {
             console.error('[ACHIEVEMENTS][CATCH-UP] Error counting completed quests:', questCompleteError);
+            errors.push(`Quest completion count error: ${questCompleteError.message}`);
         } else {
             console.log(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedQuestCount || 0} quests`);
-            // Future: Add achievements for completing X quests (e.g., "Complete 10 quests", "Complete 50 quests")
-            // For now, just log the count for future use
+
+            // Quest Completion Achievements (301-303)
+            if (completedQuestCount && completedQuestCount >= 10) {
+                await unlockAchievement('301', null, 'Quest Apprentice', 'Every journey begins with a single step. Complete your first 10 quests.', 100, 50);
+            }
+            if (completedQuestCount && completedQuestCount >= 25) {
+                await unlockAchievement('302', null, 'Quest Journeyman', 'Your dedication to duty grows stronger. Complete 25 quests.', 250, 125);
+            }
+            if (completedQuestCount && completedQuestCount >= 50) {
+                await unlockAchievement('303', null, 'Quest Master', 'Legendary heroes are forged through countless trials. Complete 50 quests.', 500, 250);
+            }
+        }
+
+        // ============================================
+        // 6. Check CHARACTER LEVEL achievements (304-306)
+        // ============================================
+        console.log('[ACHIEVEMENTS][CATCH-UP] Checking character level...');
+
+        const { data: characterStats, error: statsError } = await supabaseServer
+            .from('character_stats')
+            .select('level, gold, experience')
+            .eq('user_id', userId)
+            .single();
+
+        if (statsError) {
+            console.error('[ACHIEVEMENTS][CATCH-UP] Error fetching character stats:', statsError);
+            errors.push(`Character stats error: ${statsError.message}`);
+        } else if (characterStats) {
+            const level = characterStats.level || 1;
+            const gold = characterStats.gold || 0;
+            console.log(`[ACHIEVEMENTS][CATCH-UP] User is level ${level} with ${gold} gold`);
+
+            // Level Achievements (304-306)
+            if (level >= 5) {
+                await unlockAchievement('304', null, 'Rising Hero', 'Your power grows. Reach level 5.', 150, 75);
+            }
+            if (level >= 10) {
+                await unlockAchievement('305', null, 'Seasoned Adventurer', 'Experience has made you wise. Reach level 10.', 300, 150);
+            }
+            if (level >= 25) {
+                await unlockAchievement('306', null, 'Legendary Champion', 'Few reach such heights. Reach level 25.', 750, 400);
+            }
+
+            // Gold Achievements (310-312) - based on current gold (could also track total earned)
+            if (gold >= 1000) {
+                await unlockAchievement('310', null, 'Coin Collector', 'A growing treasury. Accumulate 1,000 gold total.', 100, 100);
+            }
+            if (gold >= 5000) {
+                await unlockAchievement('311', null, 'Wealthy Merchant', 'Your coffers overflow. Accumulate 5,000 gold total.', 250, 250);
+            }
+            if (gold >= 10000) {
+                await unlockAchievement('312', null, 'Golden Sovereign', 'A fortune fit for royalty. Accumulate 10,000 gold total.', 500, 500);
+            }
+        }
+
+        // ============================================
+        // 7. Check CHALLENGE COMPLETION achievements (307-309)
+        // ============================================
+        console.log('[ACHIEVEMENTS][CATCH-UP] Checking completed challenges...');
+
+        const { count: completedChallengeCount, error: challengeError } = await supabaseServer
+            .from('challenges')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('completed', true);
+
+        if (challengeError) {
+            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting challenges:', challengeError);
+            errors.push(`Challenge count error: ${challengeError.message}`);
+        } else {
+            console.log(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedChallengeCount || 0} challenges`);
+
+            // Challenge Achievements (307-309)
+            if (completedChallengeCount && completedChallengeCount >= 5) {
+                await unlockAchievement('307', null, 'Challenge Seeker', 'Embrace difficulty. Complete 5 challenges.', 100, 50);
+            }
+            if (completedChallengeCount && completedChallengeCount >= 15) {
+                await unlockAchievement('308', null, 'Challenge Conqueror', 'Obstacles fuel your resolve. Complete 15 challenges.', 250, 125);
+            }
+            if (completedChallengeCount && completedChallengeCount >= 30) {
+                await unlockAchievement('309', null, 'Challenge Legend', 'Nothing stands in your way. Complete 30 challenges.', 500, 250);
+            }
         }
 
         console.log(`[ACHIEVEMENTS][CATCH-UP] Completed. Newly unlocked: ${unlockedAchievements.length}`);
@@ -288,7 +369,11 @@ export async function POST(request: Request) {
             checked: {
                 friends: friendCount || 0,
                 questsSent: sentQuestCount || 0,
-                tiles: tileCounts?.length || 0
+                tiles: tileCounts?.length || 0,
+                questsCompleted: completedQuestCount || 0,
+                challengesCompleted: completedChallengeCount || 0,
+                level: characterStats?.level || 1,
+                gold: characterStats?.gold || 0
             },
             newlyUnlocked: unlockedAchievements,
             errors: errors.length > 0 ? errors : undefined,
