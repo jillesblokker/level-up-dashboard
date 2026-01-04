@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -212,14 +212,7 @@ export function QuestOrganization({
   const [isCategoriesCollapsed, setIsCategoriesCollapsed] = useState(false)
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
 
-  // Context-based labels
-  const getEmptyStateImage = () => {
-    switch (context) {
-      case 'challenges': return '/images/empty-states/challenges.png';
-      case 'milestones': return '/images/empty-states/milestones.png';
-      default: return '/images/empty-states/quests.png';
-    }
-  };
+
 
   const labels = {
     quests: {
@@ -598,17 +591,20 @@ export function QuestOrganization({
                 ))}
               </div>
             ) : sortedQuests.length === 0 ? (
-              <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
-                <CardContent className="p-0">
-                  <EmptyState
-                    title={currentLabels.noItems}
-                    description={currentLabels.noItemsSubtitle}
-                    imageSrc={getEmptyStateImage()}
-                    actionLabel={currentLabels.addButton}
-                    onAction={onAddQuest}
-                  />
-                </CardContent>
-              </Card>
+              <EmptyState
+                title={currentLabels.noItems}
+                description={currentLabels.noItemsSubtitle}
+                icon={context === 'challenges' ? Dumbbell : context === 'milestones' ? Flag : Scroll}
+                action={
+                  <Button
+                    onClick={onAddQuest}
+                    className="bg-amber-500 hover:bg-amber-600 text-black mt-4"
+                  >
+                    {currentLabels.addButton}
+                  </Button>
+                }
+                className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800"
+              />
             ) : (
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
                 {sortedQuests.map((quest) => (
