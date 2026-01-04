@@ -8,6 +8,7 @@ import { ArrowLeft, Building, ShoppingBag, Swords, Home } from "lucide-react"
 import Link from "next/link"
 import { setUserPreference } from '@/lib/user-preferences-manager'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { HeaderSection } from "@/components/HeaderSection"
 
 interface TownData {
   name: string
@@ -100,19 +101,13 @@ export default function TownClient({ slug }: Props) {
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
       {/* Cover image banner */}
-      <div className="relative w-full h-[300px] rounded-lg overflow-hidden border-2 border-amber-800/20 mb-8">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(/images/locations/town.png)` }}
-          aria-label="town-cover-image"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <h2 className="text-4xl font-bold mb-2 font-serif text-amber-500 drop-shadow-lg">{townData.name}</h2>
-            <p className="text-lg text-gray-300 max-w-2xl text-center">{townData.description}</p>
-          </div>
-        </div>
-      </div>
+      <HeaderSection
+        title={townData.name}
+        subtitle={townData.description}
+        imageSrc="/images/locations/town.png"
+        shouldRevealImage={true}
+        className="mb-8"
+      />
 
       <div className="flex justify-end mb-6">
         <Button
