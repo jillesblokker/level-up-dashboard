@@ -1562,7 +1562,7 @@ export function KingdomClient() {
                     <TabsTrigger value="stored" aria-label="stored-tab">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</TabsTrigger>
                   </TabsList>
                   {inventoryLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className="bg-gray-800/50 rounded-xl p-4 animate-pulse">
                           <div className="w-full h-32 bg-gray-700/50 rounded-lg mb-3" />
@@ -1579,7 +1579,7 @@ export function KingdomClient() {
                             {TEXT_CONTENT.kingdom.ui.emptyBag.noEquipped}
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="equipped-items-grid">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" aria-label="equipped-items-grid">
                             {equippedItems.map((item) => renderItemCard(item, true))}
                           </div>
                         )}
@@ -1598,7 +1598,7 @@ export function KingdomClient() {
                             </CardContent>
                           </Card>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="stored-items-grid">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" aria-label="stored-items-grid">
                             {storedItems.map((item) => renderItemCard(item, false))}
                           </div>
                         )}
