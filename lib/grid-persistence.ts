@@ -54,6 +54,14 @@ const tileTypeToNumeric: Record<TileType, number> = {
   straightroad: 45,
   cornerroad: 46,
   tsplitroad: 47,
+  jungle: 48,
+  ruins: 49,
+  graveyard: 50,
+  farmland: 51,
+  oasis: 52,
+  coral_reef: 53,
+  crystal_cavern: 54,
+  floating_island: 55,
 };
 
 // Convert numeric value back to tile type
