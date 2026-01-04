@@ -567,8 +567,14 @@ function RealmPageContent() {
 
 
     // Helper to track stats and unlock related creatures
+    // Uses combined counters for related tile types to ensure proper milestone tracking
     const checkAchievementProgress = (action: 'destroy' | 'place', tileType: string) => {
-        const key = `stats_${action}_${tileType}`;
+        // Normalize tile types into groups for proper counting
+        let counterKey = tileType;
+        if (tileType === 'tree') counterKey = 'forest'; // Combine tree with forest
+        if (tileType === 'snow') counterKey = 'ice'; // Combine snow with ice
+
+        const key = `stats_${action}_${counterKey}`;
         const current = parseInt(localStorage.getItem(key) || '0');
         const newVal = current + 1;
         localStorage.setItem(key, newVal.toString());
@@ -583,14 +589,14 @@ function RealmPageContent() {
             });
         };
 
-        // Forest Destruction (Flamio line)
-        if (action === 'destroy' && (tileType === 'forest' || tileType === 'tree')) {
+        // Forest Destruction (Flamio line) - counts both 'forest' and 'tree' together
+        if (action === 'destroy' && counterKey === 'forest') {
             if (newVal === 1) unlock('001', 'Flamio', 'A fiery creature awakened by any forest destruction.');
             if (newVal === 5) unlock('002', 'Embera', 'A more powerful fire entity born from continued forest destruction.');
             if (newVal === 10) unlock('003', 'Vulcana', 'The ultimate fire creature, master of forest destruction.');
         }
         // Mountain Destruction (Rockie line)
-        if (action === 'destroy' && tileType === 'mountain') {
+        if (action === 'destroy' && counterKey === 'mountain') {
             if (newVal === 1) unlock('010', 'Rockie', 'A small rock creature that emerges from destroyed mountains.');
             if (newVal === 5) unlock('011', 'Buldour', 'A stronger mountain spirit, born from continued destruction.');
             if (newVal === 10) unlock('012', 'Montano', 'The ultimate mountain creature, master of destroyed peaks.');
@@ -599,22 +605,28 @@ function RealmPageContent() {
         // Placement Achievements
         if (action === 'place') {
             // Water (Dolphio line)
-            if (tileType === 'water') {
+            if (counterKey === 'water') {
                 if (newVal === 1) unlock('004', 'Dolphio', 'A playful water creature that appears when expanding water territories.');
                 if (newVal === 5) unlock('005', 'Divero', 'A more experienced water dweller, guardian of expanding waters.');
                 if (newVal === 10) unlock('006', 'Flippur', 'The supreme water creature, master of vast water territories.');
             }
-            // Forest (Leaf line)
-            if (tileType === 'forest' || tileType === 'tree' || tileType === 'grass') {
-                if (newVal === 1) unlock('007', 'Leaf', 'A small grass creature that appears when planting new forests.');
-                if (newVal === 5) unlock('008', 'Oaky', 'A stronger forest guardian, protector of growing woodlands.');
-                if (newVal === 10) unlock('009', 'Seqoio', 'The mighty forest spirit, overseer of vast woodlands.');
+            // Forest/Grass (Leaf line) - counts forest, tree, grass together
+            if (counterKey === 'forest' || counterKey === 'grass') {
+                // Use a combined key for forest+grass placement
+                const forestGrassKey = `stats_place_forest_grass`;
+                const fgCurrent = parseInt(localStorage.getItem(forestGrassKey) || '0');
+                const fgNewVal = fgCurrent + 1;
+                localStorage.setItem(forestGrassKey, fgNewVal.toString());
+
+                if (fgNewVal === 1) unlock('007', 'Leaf', 'A small grass creature that appears when planting new forests.');
+                if (fgNewVal === 5) unlock('008', 'Oaky', 'A stronger forest guardian, protector of growing woodlands.');
+                if (fgNewVal === 10) unlock('009', 'Seqoio', 'The mighty forest spirit, overseer of vast woodlands.');
             }
-            // Ice (Icey line)
-            if (tileType === 'ice' || tileType === 'snow') {
-                if (newVal === 1) unlock('013', 'Icey', 'A small ice creature that appears in frozen territories.');
-                if (newVal === 5) unlock('014', 'Blizzey', 'A powerful ice spirit, master of frozen landscapes.');
-                if (newVal === 10) unlock('015', 'Hailey', 'The supreme ice creature, ruler of vast frozen realms.');
+            // Ice (IceCube line) - Fixed names to match database
+            if (counterKey === 'ice') {
+                if (newVal === 1) unlock('013', 'IceCube', 'A small ice creature born from placing ice tiles.');
+                if (newVal === 5) unlock('014', 'Iciclo', 'A sharp ice spirit responding to expanded frozen lands.');
+                if (newVal === 10) unlock('015', 'Glacior', 'The ruler of the frozen wastes, master of ice placement.');
             }
         }
     };

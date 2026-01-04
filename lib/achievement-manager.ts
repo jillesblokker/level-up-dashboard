@@ -10,6 +10,7 @@ export type AchievementType =
 
 export interface AchievementDefinition {
     id: AchievementType;
+    dbId: string; // Database ID for the achievements table
     title: string;
     description: string;
     icon: string;
@@ -22,9 +23,11 @@ export interface AchievementDefinition {
     };
 }
 
+// Map achievement types to their database IDs (from achievement_definitions)
 export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
     first_friend: {
         id: 'first_friend',
+        dbId: '107', // Maps to 'First Alliance' in achievement_definitions
         title: 'New Alliance',
         description: 'Add your first friend',
         icon: 'UserPlus',
@@ -34,6 +37,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
     },
     five_friends: {
         id: 'five_friends',
+        dbId: '108', // Maps to 'Guild Founder' in achievement_definitions
         title: 'Popular Companion',
         description: 'Add 5 friends',
         icon: 'Users',
@@ -43,6 +47,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
     },
     ten_friends: {
         id: 'ten_friends',
+        dbId: '109', // Maps to 'Fellowship Leader' in achievement_definitions
         title: 'Guild Leader',
         description: 'Add 10 friends',
         icon: 'Crown',
@@ -52,6 +57,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
     },
     first_quest_sent: {
         id: 'first_quest_sent',
+        dbId: '110', // Maps to 'Quest Giver' in achievement_definitions
         title: 'Quest Giver',
         description: 'Send your first quest to a friend',
         icon: 'Scroll',
@@ -61,6 +67,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
     },
     five_quests_sent: {
         id: 'five_quests_sent',
+        dbId: '111', // Maps to 'Master Strategist' in achievement_definitions
         title: 'Task Master',
         description: 'Send 5 quests to friends',
         icon: 'ScrollText',
@@ -70,6 +77,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
     },
     ten_quests_sent: {
         id: 'ten_quests_sent',
+        dbId: '112', // Maps to 'Grand Questmaster' in achievement_definitions
         title: 'Grand Questmaster',
         description: 'Send 10 quests to friends',
         icon: 'BookOpen',
@@ -91,7 +99,7 @@ export class AchievementManager {
         if (!definition) return false;
 
         if (currentCount >= definition.requirement) {
-            // Check if already unlocked
+            // Check if already unlocked in alliance_achievements
             const { data: existing } = await this.supabase
                 .from('alliance_achievements')
                 .select('*')
@@ -100,7 +108,7 @@ export class AchievementManager {
                 .single();
 
             if (!existing) {
-                // Unlock!
+                // Unlock in alliance_achievements table
                 await this.supabase
                     .from('alliance_achievements')
                     .insert({
@@ -110,10 +118,52 @@ export class AchievementManager {
                         unlocked_at: new Date().toISOString()
                     });
 
-                // Award rewards (XP/Gold)
-                // Note: This assumes a function to add rewards exists or we do it manually
-                // For now, we'll just return true and let the caller handle notifications
-                // In a real app, we'd call a stored procedure to add stats safely
+                // ALSO insert into main achievements table for unified display
+                try {
+                    const { error: mainAchError } = await this.supabase
+                        .from('achievements')
+                        .insert({
+                            user_id: userId,
+                            achievement_id: definition.dbId,
+                            achievement_name: definition.title,
+                            description: definition.description,
+                            unlocked_at: new Date().toISOString(),
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        });
+
+                    if (mainAchError) {
+                        console.error('[AchievementManager] Failed to insert into main achievements table:', mainAchError);
+                    } else {
+                        console.log(`[AchievementManager] ✅ Achievement ${definition.title} added to main achievements table`);
+                    }
+                } catch (err) {
+                    console.error('[AchievementManager] Error inserting into main achievements:', err);
+                }
+
+                // Award rewards by updating character_stats
+                try {
+                    const { data: stats } = await this.supabase
+                        .from('character_stats')
+                        .select('gold, experience')
+                        .eq('user_id', userId)
+                        .single();
+
+                    if (stats) {
+                        await this.supabase
+                            .from('character_stats')
+                            .update({
+                                gold: (stats.gold || 0) + definition.reward.gold,
+                                experience: (stats.experience || 0) + definition.reward.xp,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('user_id', userId);
+
+                        console.log(`[AchievementManager] ✅ Awarded ${definition.reward.gold} gold and ${definition.reward.xp} XP for ${definition.title}`);
+                    }
+                } catch (rewardErr) {
+                    console.error('[AchievementManager] Error awarding rewards:', rewardErr);
+                }
 
                 return true; // Unlocked successfully
             }
@@ -141,3 +191,4 @@ export class AchievementManager {
         return data || [];
     }
 }
+
