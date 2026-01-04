@@ -26,7 +26,7 @@ interface MinigameProps {
     gameState: GameState
     setGameState: (state: GameState) => void
     setReward: (reward: string) => void
-    onWeatherChange?: (weather: 'sunny' | 'rainy' | 'snowy') => void
+    onWeatherChange?: ((weather: 'sunny' | 'rainy' | 'snowy') => void) | undefined
 }
 
 // --- MINIGAMES (Defined outside to prevent re-creation/remounting bugs) ---
