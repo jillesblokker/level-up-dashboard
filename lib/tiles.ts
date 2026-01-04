@@ -51,6 +51,14 @@ export function getTileName(type: TileType): string {
     straightroad: 'Straight Road',
     cornerroad: 'Corner Road',
     tsplitroad: 'T-Split Road',
+    jungle: 'Jungle',
+    ruins: 'Ruins',
+    graveyard: 'Graveyard',
+    farmland: 'Farmland',
+    oasis: 'Oasis',
+    coral_reef: 'Coral Reef',
+    crystal_cavern: 'Crystal Cavern',
+    floating_island: 'Floating Island',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -106,6 +114,14 @@ export function getDefaultConnections(type: TileType): string[] {
     straightroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
     cornerroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
     tsplitroad: ['grass', 'city', 'town', 'crossroad', 'straightroad'],
+    jungle: ['grass', 'forest'],
+    ruins: ['grass', 'forest', 'desert'],
+    graveyard: ['grass', 'forest'],
+    farmland: ['grass'],
+    oasis: ['desert', 'water'],
+    coral_reef: ['water'],
+    crystal_cavern: ['mountain', 'cave'],
+    floating_island: [],
   };
   return defaultConnections[type] || [];
 } 
