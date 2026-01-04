@@ -738,7 +738,7 @@ function RealmPageContent() {
     };
 
     const transformTile = async (x: number, y: number, newType: string) => {
-        const numericType = tileTypeToNumeric(newType);
+        const numericType = (tileTypeToNumeric as any)[newType];
 
         // Optimistic update
         setGrid(prev => {
