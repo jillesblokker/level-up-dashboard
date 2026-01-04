@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { gainGold } from '@/lib/gold-manager'
+import { gainGold, spendGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useToast } from '@/components/ui/use-toast'
 import {
@@ -362,24 +362,18 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
     const GraveyardGame = () => {
         const [bet, setBet] = useState(10)
 
-        const flip = () => {
+        const flip = async () => {
+            const success = await spendGold(bet, 'ghost-wager-entry')
+            if (!success) return
+
             const win = Math.random() > 0.5
             if (win) {
-                gainGold(bet, 'ghost-wager-win')
+                // Return original bet + winning
+                gainGold(bet * 2, 'ghost-wager-win')
                 setReward(`Won ${bet} Gold`)
                 setGameState('success')
                 toast({ title: "You Won!", description: "The ghost pays up grumbling." })
             } else {
-                // Ideally deduct gold, but 'gainGold' handles positive. 
-                // Assuming we can't deduct easily without negative support or 'pay' function.
-                // For safety, just "Lost the bet" (visual) or create deduct logic.
-                // Assuming gainGold(-bet) works? Or simply 0 reward.
-                // Let's assume we limit to "Winning" mechanics for fun, or 0 loss.
-                // "The ghost takes your coin."
-                // Since I don't have 'spendGold', I'll just say "Lost" and not award anything (and player keeps gold? No, that's not a wager).
-                // I'll simulate "Loss" by just ending. 
-                // To be robust, I'd need 'spendGold'. 
-                // I'll skip deduction for now to avoid breaking if API rejects negative.
                 setGameState('fail')
                 toast({ title: "You Lost...", description: "The ghost vanishes with your coin.", variant: "destructive" })
             }
@@ -417,23 +411,38 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
 
     // 8. Farmland: Harvest
     const FarmGame = () => {
-        // Simple mock persistence using component state for demo (resets on reload)
-        // Ideally use localStorage in parent or here
         const PLANT_KEY = 'farm-planted-time'
         const [plantedAt, setPlantedAt] = useState<string | null>(null)
+        // 24 hours in ms
+        const GROWTH_TIME = 24 * 60 * 60 * 1000
 
         useEffect(() => {
             setPlantedAt(localStorage.getItem(PLANT_KEY))
         }, [])
 
-        const plant = () => {
-            localStorage.setItem(PLANT_KEY, Date.now().toString())
-            setPlantedAt(Date.now().toString())
-            toast({ title: "Planted!", description: "Come back later to harvest." })
+        const plant = async () => {
+            if (!(await spendGold(50, 'farm-plant'))) return
+
+            const now = Date.now().toString()
+            localStorage.setItem(PLANT_KEY, now)
+            setPlantedAt(now)
+            toast({ title: "Planted!", description: "Come back in 24 hours to harvest." })
             setGameState('success')
         }
 
         const harvest = () => {
+            if (!plantedAt) return
+
+            const plantedTime = parseInt(plantedAt)
+            const now = Date.now()
+            const elapsed = now - plantedTime
+
+            if (elapsed < GROWTH_TIME) {
+                const hoursLeft = Math.ceil((GROWTH_TIME - elapsed) / (1000 * 60 * 60))
+                toast({ title: "Still Growing", description: `Crops need ${hoursLeft} more hours.`, variant: "destructive" })
+                return
+            }
+
             localStorage.removeItem(PLANT_KEY)
             setPlantedAt(null)
             gainGold(200, 'farm-harvest')
@@ -442,12 +451,21 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
             toast({ title: "Harvested!", description: "Bountiful crops!" })
         }
 
+        const getProgress = () => {
+            if (!plantedAt) return 0
+            const elapsed = Date.now() - parseInt(plantedAt)
+            return Math.min(100, (elapsed / GROWTH_TIME) * 100)
+        }
+
         return (
             <div className="flex flex-col items-center gap-6 py-4">
                 {plantedAt ? (
                     <>
                         <p>Crops are growing...</p>
-                        <Button onClick={harvest} className="bg-green-600 hover:bg-green-500">Harvest Now</Button>
+                        <Progress value={getProgress()} className="w-full" />
+                        <Button onClick={harvest} className="bg-green-600 hover:bg-green-500">
+                            {getProgress() >= 100 ? "Harvest Now" : "Check Crops"}
+                        </Button>
                     </>
                 ) : (
                     <>
