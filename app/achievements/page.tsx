@@ -396,14 +396,36 @@ export default function Page() {
       if (isClerkLoaded && isAuthLoaded) setIsLoading(false);
       return;
     }
-    const fetchAchievements = async () => {
+
+    const runCatchUpAndFetch = async () => {
       setIsLoading(true);
       setError(null);
+
+      // First, run catch-up to unlock any achievements based on current state
+      try {
+        console.log('[Achievements Page] Running catch-up...');
+        const catchUpResponse = await fetch('/api/achievements/catch-up', { method: 'POST' });
+        if (catchUpResponse.ok) {
+          const catchUpResult = await catchUpResponse.json();
+          console.log('[Achievements Page] Catch-up result:', catchUpResult);
+        } else {
+          console.warn('[Achievements Page] Catch-up failed:', catchUpResponse.status);
+        }
+      } catch (catchUpError) {
+        console.error('[Achievements Page] Catch-up error:', catchUpError);
+      }
+
+      // Then fetch all achievements (including newly unlocked ones)
       try {
         const response = await fetch(`/api/achievements?userId=${userId}`);
         if (response.ok) {
           const data: DbAchievement[] = await response.json();
-          const achievementMap = new Map(data.filter(Boolean).map(ach => [ach.achievementId, ach]));
+          // Map by both achievementId and achievement_id for compatibility
+          const achievementMap = new Map<string, DbAchievement>();
+          data.filter(Boolean).forEach(ach => {
+            if (ach.achievementId) achievementMap.set(ach.achievementId, ach);
+            if (ach.achievement_id) achievementMap.set(ach.achievement_id, ach);
+          });
 
           // Fetched achievements
           console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
@@ -420,7 +442,8 @@ export default function Page() {
         setIsLoading(false);
       }
     };
-    fetchAchievements();
+
+    runCatchUpAndFetch();
   }, [isClerkLoaded, isAuthLoaded, userId, getToken]);
 
   const isUnlocked = (achievementId: string) => {
