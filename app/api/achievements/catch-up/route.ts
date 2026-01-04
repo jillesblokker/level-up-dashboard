@@ -215,18 +215,71 @@ export async function POST(request: Request) {
             if (iceCount >= 1) await unlockAchievement('013', null, 'IceCube', 'A small ice creature born from placing ice tiles.', 100, 50);
             if (iceCount >= 5) await unlockAchievement('014', null, 'Iciclo', 'A sharp ice spirit responding to expanded frozen lands.', 200, 100);
             if (iceCount >= 10) await unlockAchievement('015', null, 'Glacior', 'The ruler of the frozen wastes, master of ice placement.', 500, 250);
-
-            // Mountain destroyer (special achievement)
-            const mountainCount = tileTypeCounts[3] || 0;
-            // Note: We can't easily track destroyed tiles from realm_tiles, but we can check if user has the Mountain Destroyer achievement requirement met
         }
 
         // ============================================
-        // 4. Check for Mountain Destroyer achievement (ID 201)
-        // This one is triggered when destroying a mountain, but we can retroactively check
-        // if the user has ever destroyed a mountain by checking localStorage sync or other means
-        // For now, we'll skip this as it requires a different approach
+        // 4. Check MONSTER BATTLE achievements (201-206)
+        // Based on defeated monsters in monster_spawns table
         // ============================================
+        console.log('[ACHIEVEMENTS][CATCH-UP] Checking defeated monsters...');
+
+        const { data: defeatedMonsters, error: monsterError } = await supabaseServer
+            .from('monster_spawns')
+            .select('monster_type')
+            .eq('user_id', userId)
+            .eq('defeated', true);
+
+        if (monsterError) {
+            console.error('[ACHIEVEMENTS][CATCH-UP] Error fetching monsters:', monsterError);
+            errors.push(`Monster fetch error: ${monsterError.message}`);
+        } else if (defeatedMonsters && defeatedMonsters.length > 0) {
+            // Get unique monster types defeated
+            const defeatedTypes = new Set(defeatedMonsters.map(m => m.monster_type?.toLowerCase()));
+            console.log(`[ACHIEVEMENTS][CATCH-UP] Defeated monster types:`, Array.from(defeatedTypes));
+
+            // Monster type to achievement mapping
+            const monsterAchievements: Record<string, { id: string; name: string; desc: string }> = {
+                'dragon': { id: '201', name: 'Ancient Dragon Slayer', desc: 'Face the ancient winged beast. Watch its movements closely and strike true.' },
+                'dragoni': { id: '201', name: 'Ancient Dragon Slayer', desc: 'Face the ancient winged beast.' },
+                'goblin': { id: '202', name: 'Goblin Hunter', desc: 'The crafty looting menace hides in the shadows. Match its cunning moves.' },
+                'orci': { id: '202', name: 'Goblin Hunter', desc: 'The crafty looting menace.' },
+                'troll': { id: '203', name: 'Troll Crusher', desc: 'A mountain of muscle blocks your path. Mimic its brute force to bring it down.' },
+                'trollie': { id: '203', name: 'Troll Crusher', desc: 'A mountain of muscle blocks your path.' },
+                'wizard': { id: '204', name: 'Dark Wizard Vanquisher', desc: 'Magic swirls in complex patterns. Memorize the arcane sequence.' },
+                'sorcero': { id: '204', name: 'Dark Wizard Vanquisher', desc: 'Magic swirls in complex patterns.' },
+                'pegasus': { id: '205', name: 'Pegasus Tamer', desc: 'A majestic creature of the clouds. Follow its graceful flight to earn its trust.' },
+                'peggie': { id: '205', name: 'Pegasus Tamer', desc: 'A majestic creature of the clouds.' },
+                'fairy': { id: '206', name: 'Fairy Friend', desc: 'Small and swift, dancing in the light. Keep up with the fae\'s rhythm.' },
+                'fairiel': { id: '206', name: 'Fairy Friend', desc: 'Small and swift, dancing in the light.' }
+            };
+
+            for (const monsterType of defeatedTypes) {
+                if (monsterType && monsterAchievements[monsterType]) {
+                    const ach = monsterAchievements[monsterType];
+                    await unlockAchievement(ach.id, null, ach.name, ach.desc, 100, 100);
+                }
+            }
+        }
+
+        // ============================================
+        // 5. Check QUEST COMPLETION achievements
+        // Based on completed quests count
+        // ============================================
+        console.log('[ACHIEVEMENTS][CATCH-UP] Checking completed quests...');
+
+        const { count: completedQuestCount, error: questCompleteError } = await supabaseServer
+            .from('quests')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('completed', true);
+
+        if (questCompleteError) {
+            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting completed quests:', questCompleteError);
+        } else {
+            console.log(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedQuestCount || 0} quests`);
+            // Future: Add achievements for completing X quests (e.g., "Complete 10 quests", "Complete 50 quests")
+            // For now, just log the count for future use
+        }
 
         console.log(`[ACHIEVEMENTS][CATCH-UP] Completed. Newly unlocked: ${unlockedAchievements.length}`);
 
