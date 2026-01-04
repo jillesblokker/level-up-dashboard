@@ -238,6 +238,10 @@ function RealmPageContent() {
     const [monsterEvent, setMonsterEvent] = useState<{ open: boolean; monster: MonsterSpawn | null }>({ open: false, monster: null });
 
 
+
+    // Achievement catch-up hook
+    const { triggerCatchUp } = require('@/hooks/use-achievement-catch-up').useAchievementCatchUp();
+
     useEffect(() => {
         // Load initial stats
         const stats = getCharacterStats();
@@ -248,8 +252,10 @@ function RealmPageContent() {
             fetchFreshCharacterStats().then(freshStats => {
                 if (freshStats) setCharacterStats(freshStats);
             });
+            // Trigger achievement catch-up when visiting realm page
+            triggerCatchUp(true);
         }
-    }, [userId]);
+    }, [userId, triggerCatchUp]);
 
     // Load monsters
     useEffect(() => {

@@ -131,10 +131,15 @@ export default function AlliesPage() {
     const [coverImage, setCoverImage] = useState<string>('');
     const [giftModalOpen, setGiftModalOpen] = useState(false);
 
+    // Import achievement catch-up hook
+    const { triggerCatchUp } = require('@/hooks/use-achievement-catch-up').useAchievementCatchUp();
+
     useEffect(() => {
         if (user?.id) {
             fetchFriends();
             fetchMyStats();
+            // Trigger achievement catch-up when visiting social page
+            triggerCatchUp(true);
         }
 
         // Load cover image from localStorage
@@ -144,7 +149,7 @@ export default function AlliesPage() {
         } else {
             setCoverImage('/images/allies-cover.jpg');
         }
-    }, [user?.id]);
+    }, [user?.id, triggerCatchUp]);
 
     const fetchMyStats = async () => {
         if (!user?.id) return;
