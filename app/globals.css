@@ -1,6 +1,12 @@
 /* Import medieval animations */
 @import '../styles/medieval-animations.css';
 
+/* Global UI Fixes */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
 /* Line clamp utilities for text truncation */
 .line-clamp-1 {
   overflow: hidden;
@@ -284,4 +290,20 @@
 .fx-low *::after {
   animation: none !important;
   transition: none !important;
+}
+/* Medieval Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #0f172a; /* slate-900 */
+}
+::-webkit-scrollbar-thumb {
+  background-color: #78350f; /* amber-900 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background-color: #0f172a;
+}
+::-webkit-scrollbar-corner {
+  background-color: #0f172a;
 }

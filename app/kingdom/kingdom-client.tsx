@@ -33,6 +33,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
+import { EmptyState } from "@/components/ui/empty-state"
+import { Backpack, Sword } from "lucide-react";
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
@@ -903,16 +905,13 @@ export function KingdomClient() {
       >
         {/* Full-width image container */}
         <div className="w-full h-80 relative overflow-hidden rounded-t-xl">
-          <img
+          <Image
             src={imagePath}
             alt={`${getItemDisplayName(item)} ${item.type}`}
-            className="object-cover w-full h-full"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
             aria-label={`${item.name}-image`}
-            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-              (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg";
-            }}
-            onLoad={() => {
-            }}
           />
           {/* Equipped label in top right corner */}
           {isEquipped && (
@@ -1586,17 +1585,11 @@ export function KingdomClient() {
                       </TabsContent>
                       <TabsContent value="stored" className="mt-4">
                         {storedItems.length === 0 ? (
-                          <Card className="bg-black/50 border-amber-800/30 border-dashed">
-                            <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                              <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center">
-                                <span className="text-2xl">🎒</span>
-                              </div>
-                              <h3 className="text-amber-500 font-semibold text-lg mb-2">{TEXT_CONTENT.kingdom.ui.emptyBag.title}</h3>
-                              <p className="text-gray-400 text-sm leading-relaxed">
-                                {TEXT_CONTENT.kingdom.ui.emptyBag.description}
-                              </p>
-                            </CardContent>
-                          </Card>
+                          <EmptyState
+                            icon={Backpack}
+                            title={TEXT_CONTENT.kingdom.ui.emptyBag.title}
+                            description={TEXT_CONTENT.kingdom.ui.emptyBag.description}
+                          />
                         ) : (
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" aria-label="stored-items-grid">
                             {storedItems.map((item) => renderItemCard(item, false))}

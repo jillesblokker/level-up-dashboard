@@ -345,7 +345,7 @@ export function MapGrid({
       )}
       <div
         ref={gridRef}
-        className="absolute inset-0 overflow-auto map-grid-scroll"
+        className="absolute inset-0 overflow-auto map-grid-scroll select-none"
         aria-label="map-grid-scroll-area"
         style={{
           WebkitOverflowScrolling: 'touch',
