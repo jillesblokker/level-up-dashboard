@@ -737,6 +737,37 @@ function RealmPageContent() {
         }
     };
 
+    const transformTile = async (x: number, y: number, newType: string) => {
+        const numericType = tileTypeToNumeric(newType);
+
+        // Optimistic update
+        setGrid(prev => {
+            const next = [...prev];
+            if (next[y]) {
+                // Keep some props like rotation? No, reset to default for new type.
+                next[y][x] = {
+                    ...defaultTile(newType as any),
+                    x, y,
+                    id: `${newType}-${x}-${y}`,
+                    image: getTileImage(newType as any),
+                    isVisited: true
+                };
+            }
+            return next;
+        });
+
+        try {
+            const res = await fetch('/api/realm-tiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y, tile_type: numericType })
+            });
+            if (!res.ok) throw new Error('Failed to transform tile');
+        } catch (err) {
+            console.error('Transform failed', err);
+        }
+    };
+
 
     // --- Helper Functions and Side Effects ---
     const nextExpansionLevel = (expansions + 1) * 5;
@@ -879,7 +910,11 @@ function RealmPageContent() {
             }
 
             switch (currentTile.type) {
-                case 'coral_reef':
+                case 'coral_reef': {
+                    setActiveEvent(currentTile.type);
+                    transformTile(characterPosition.x, characterPosition.y, 'water');
+                    break;
+                }
                 case 'floating_island':
                 case 'crystal_cavern':
                 case 'jungle':
@@ -888,6 +923,7 @@ function RealmPageContent() {
                 case 'oasis':
                 case 'farmland': {
                     setActiveEvent(currentTile.type);
+                    transformTile(characterPosition.x, characterPosition.y, 'grass');
                     break;
                 }
                 case 'castle': {

@@ -168,11 +168,12 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
         const TARGET_CLICKS = 30
 
         useEffect(() => {
+            let interval: NodeJS.Timeout
+
             if (isActive && timeLeft > 0) {
-                const interval = setInterval(() => {
+                interval = setInterval(() => {
                     setTimeLeft(prev => Math.max(0, prev - 0.1))
                 }, 100)
-                return () => clearInterval(interval)
             } else if (isActive && timeLeft <= 0) {
                 setIsActive(false)
                 if (clicks >= TARGET_CLICKS) {
@@ -184,6 +185,10 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
                     setGameState('fail')
                     toast({ title: "Hard as Rock", description: "The geode refused to break.", variant: "destructive" })
                 }
+            }
+
+            return () => {
+                if (interval) clearInterval(interval)
             }
         }, [isActive, timeLeft, clicks])
 
