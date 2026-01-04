@@ -232,35 +232,14 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
     // 4. Jungle: Vine Swing (Timing)
     const VineGame = () => {
         const [pos, setPos] = useState(0)
-        const [direction, setDirection] = useState(1) // 1 forward, -1 back
         const [isActive, setIsActive] = useState(false)
-        const reqRef = useRef<number>()
 
         const startSwing = () => {
             setIsActive(true)
             setGameState('playing')
         }
 
-        useEffect(() => {
-            if (!isActive) return
 
-            const animate = () => {
-                setPos(prev => {
-                    let next = prev + (1.5 * direction)
-                    if (next >= 100) {
-                        next = 100
-                        setDirection(-1)
-                    } else if (next <= 0) {
-                        next = 0
-                        setDirection(1)
-                    }
-                    return next
-                })
-                reqRef.current = requestAnimationFrame(animate)
-            }
-            reqRef.current = requestAnimationFrame(animate)
-            return () => cancelAnimationFrame(reqRef.current!)
-        }, [isActive, direction]) // Depend on direction to update closure
 
         // Need to update direction ref or use functional state to handle flip correctly
         // Implementing simple ping-pong using time is smoother
