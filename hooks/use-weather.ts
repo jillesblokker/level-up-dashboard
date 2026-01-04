@@ -40,5 +40,5 @@ export function useWeather() {
         }
     };
 
-    return { weather, getWeatherName, getWeatherDescription };
+    return { weather, setWeather, getWeatherName, getWeatherDescription };
 }
