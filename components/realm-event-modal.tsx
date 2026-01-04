@@ -61,14 +61,19 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
 
         // Playback logic
         useEffect(() => {
+            let timer: NodeJS.Timeout
+
             if (gameState === 'playing' && !isUserTurn && playbackIndex < sequence.length) {
-                const timer = setTimeout(() => {
+                timer = setTimeout(() => {
                     setPlaybackIndex(prev => prev + 1)
-                }, 800) // Speed of notes
-                return () => clearTimeout(timer)
+                }, 800)
             } else if (playbackIndex >= sequence.length && !isUserTurn) {
                 setIsUserTurn(true)
                 setUserIndex(0)
+            }
+
+            return () => {
+                if (timer) clearTimeout(timer)
             }
         }, [playbackIndex, gameState, isUserTurn, sequence])
 
