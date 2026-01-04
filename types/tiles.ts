@@ -51,7 +51,15 @@ export type TileType =
   | 'crossroad'
   | 'straightroad'
   | 'cornerroad'
-  | 'tsplitroad';
+  | 'tsplitroad'
+  | 'jungle'
+  | 'ruins'
+  | 'graveyard'
+  | 'farmland'
+  | 'oasis'
+  | 'coral_reef'
+  | 'crystal_cavern'
+  | 'floating_island';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

@@ -574,10 +574,20 @@ export function KingdomGridWithTimers({
       mayor: { category: 'prestige', levelRequired: 5 },
       castle: { category: 'prestige', levelRequired: 5 },
       wizard: { category: 'prestige', levelRequired: 4 },
+
+      // New Realm Tiles
+      farmland: { category: 'production', levelRequired: 2 },
+      jungle: { category: 'adventure', levelRequired: 3 },
+      ruins: { category: 'adventure', levelRequired: 4 },
+      oasis: { category: 'adventure', levelRequired: 5 },
+      coral_reef: { category: 'adventure', levelRequired: 6 },
+      graveyard: { category: 'mystic', levelRequired: 7 },
+      crystal_cavern: { category: 'mystic', levelRequired: 8 },
+      floating_island: { category: 'mystic', levelRequired: 10 },
     };
 
     return KINGDOM_TILES.map(tile => {
-      const meta = METADATA[tile.id] || { category: 'misc', levelRequired: 1 };
+      const meta = METADATA[tile.id] || { category: 'misc', levelRequired: tile.levelRequired || 1 };
       return {
         id: tile.id,
         name: tile.name,
@@ -585,7 +595,7 @@ export function KingdomGridWithTimers({
         cost: tile.cost || 0,
         tokenCost: tile.tokenCost,
         materialCost: tile.materialCost,
-        levelRequired: meta.levelRequired,
+        levelRequired: meta.levelRequired || tile.levelRequired || 1,
         costType: 'gold', // Default identifier, actual logic handled by components
         quantity: 0,
         isSeasonal: meta.isSeasonal || false,

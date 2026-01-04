@@ -923,6 +923,38 @@ export const TEXT_CONTENT = {
         house: {
             name: "House",
             clickMessage: "The cozy house welcomes you with warmth. The residents appreciate your visit and reward you with gold for your hospitality."
+        },
+        jungle: {
+            name: "Jungle",
+            clickMessage: "You hack through the dense vines of the jungle. Amidst the exotic flora, you find ancient coins lost by past explorers."
+        },
+        ruins: {
+            name: "Ruins",
+            clickMessage: "You explore the crumbling stone structures. Hidden beneath a fallen pillar, you discover a stash of ancient gold."
+        },
+        graveyard: {
+            name: "Graveyard",
+            clickMessage: "A chill runs down your spine as you walk among the tombstones. You find some coins left as offerings on an old grave."
+        },
+        farmland: {
+            name: "Farmland",
+            clickMessage: "The crops are growing well. You help with the harvest and earn a fair share of the profits in gold."
+        },
+        oasis: {
+            name: "Oasis",
+            clickMessage: "The cool water of the oasis is refreshing. You find gold coins glimmering in the shallow pool."
+        },
+        "coral_reef": {
+            name: "Coral Reef",
+            clickMessage: "You dive into the colorful reef. Among the coral and fish, you spot a sunken chest containing gold."
+        },
+        "crystal_cavern": {
+            name: "Crystal Cavern",
+            clickMessage: "The crystals hum with energy. You harvest a small glowing shard which turns into gold in your hand."
+        },
+        "floating_island": {
+            name: "Floating Island",
+            clickMessage: "The view from the floating island is breathtaking. You find a celestial chest that grants you gold."
         }
     },
     riddleChallenge: {

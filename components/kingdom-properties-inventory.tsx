@@ -212,6 +212,7 @@ export function KingdomPropertiesInventory({
                     tile={tile}
                     owned={getOwnedCount(tile)}
                     mode="buy"
+                    playerLevel={playerLevel}
                     onAction={(method) => onBuy && onBuy(tile, method)}
                     getMaterialCount={(itemId) => {
                       return inventoryMap.get(itemId) ||
@@ -230,10 +231,11 @@ export function KingdomPropertiesInventory({
 }
 
 // Sub-component for individual cards
-function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
+function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getMaterialCount }: {
   tile: PropertyTile;
   owned: number;
   mode: 'place' | 'buy';
+  playerLevel?: number;
   onSelect?: () => void;
   onAction?: (method: 'gold' | 'materials' | 'tokens') => void;
   getMaterialCount?: (itemId: string) => number;
@@ -246,13 +248,18 @@ function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
 
   const tokenCost = tile.tokenCost || 0;
 
+  // Calculate lock state
+  const isLocked = !isPlaceMode && tile.levelRequired !== undefined && playerLevel < tile.levelRequired;
+
   return (
     <Card
       className={cn(
         "relative overflow-hidden transition-all duration-300 border-2 bg-[#0f1115]",
         isPlaceMode
           ? "border-amber-500/30 hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
-          : "border-gray-800 hover:border-gray-600"
+          : isLocked
+            ? "border-gray-800 opacity-70 grayscale-[0.5]"
+            : "border-gray-800 hover:border-gray-600"
       )}
       onClick={isPlaceMode ? onSelect : undefined}
     >
@@ -263,20 +270,33 @@ function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
           alt={tile.name}
           width={96}
           height={96}
-          className="object-contain drop-shadow-lg transform transition-transform duration-300 group-hover:scale-110"
+          className={cn(
+            "object-contain drop-shadow-lg transform transition-transform duration-300",
+            !isLocked && "group-hover:scale-110",
+            isLocked && "opacity-50 blur-[1px]"
+          )}
           unoptimized
         />
 
+        {/* Locked Overlay */}
+        {isLocked && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+            <div className="bg-red-900/90 text-red-100 px-3 py-1 rounded-full text-xs font-bold border border-red-500/50 flex items-center gap-1 shadow-lg">
+              <span>🔒 Lvl {tile.levelRequired}</span>
+            </div>
+          </div>
+        )}
+
         {/* Owned Badge */}
         {owned > 0 && (
-          <div className="absolute top-2 right-2 bg-green-600/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm border border-green-400/30">
+          <div className="absolute top-2 right-2 bg-green-600/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm border border-green-400/30 z-20">
             Owned: {owned}
           </div>
         )}
 
-        {/* Level Requirement */}
-        {tile.levelRequired && tile.levelRequired > 1 && (
-          <div className="absolute top-2 left-2 bg-blue-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-blue-400/30">
+        {/* Level Requirement Badge (if unlocked but high level) */}
+        {!isLocked && tile.levelRequired && tile.levelRequired > 1 && (
+          <div className="absolute top-2 left-2 bg-blue-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-blue-400/30 z-20">
             Lvl {tile.levelRequired}
           </div>
         )}
@@ -284,7 +304,7 @@ function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
 
       <CardContent className="p-3">
         {/* Title */}
-        <h3 className="font-bold text-amber-100 text-lg leading-tight mb-2 truncate font-medieval tracking-wide text-center">
+        <h3 className={cn("font-bold text-lg leading-tight mb-2 truncate font-medieval tracking-wide text-center", isLocked ? "text-gray-500" : "text-amber-100")}>
           {tile.name}
         </h3>
 
@@ -305,7 +325,7 @@ function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
           <div className="space-y-3">
 
             {/* Option 1: Construction (Gold + Materials) */}
-            <div className="bg-black/40 rounded-lg p-2 border border-white/5">
+            <div className={cn("bg-black/40 rounded-lg p-2 border border-white/5", isLocked && "opacity-50")}>
               <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1 text-center">Construct</div>
               <div className="flex flex-col gap-1.5">
                 {/* Gold Cost */}
@@ -346,15 +366,16 @@ function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
                   size="sm"
                   className="w-full mt-1 bg-amber-900/60 hover:bg-amber-800 text-amber-100 border border-amber-800/50 h-7 text-xs"
                   onClick={(e) => { e.stopPropagation(); onAction?.(hasMaterialCost ? 'materials' : 'gold'); }}
+                  disabled={isLocked}
                 >
-                  Build
+                  {isLocked ? 'Locked' : 'Build'}
                 </Button>
               </div>
             </div>
 
             {/* Option 2: Token Redemption (if available) */}
             {hasTokenCost && (
-              <div className="bg-purple-900/20 rounded-lg p-2 border border-purple-500/20">
+              <div className={cn("bg-purple-900/20 rounded-lg p-2 border border-purple-500/20", isLocked && "opacity-50")}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="text-[10px] text-purple-300 uppercase tracking-widest font-bold">Fast Track</div>
                   <div className="text-purple-400 font-bold text-sm flex items-center gap-1">
@@ -366,8 +387,9 @@ function TileCard({ tile, owned, mode, onSelect, onAction, getMaterialCount }: {
                   size="sm"
                   className="w-full bg-purple-700 hover:bg-purple-600 text-white h-7 text-xs border border-purple-500/40"
                   onClick={(e) => { e.stopPropagation(); onAction?.('tokens'); }}
+                  disabled={isLocked}
                 >
-                  Redeem
+                  {isLocked ? 'Locked' : 'Redeem'}
                 </Button>
               </div>
             )}

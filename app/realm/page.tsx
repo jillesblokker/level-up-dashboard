@@ -577,8 +577,9 @@ function RealmPageContent() {
     const checkAchievementProgress = (action: 'destroy' | 'place', tileType: string) => {
         // Normalize tile types into groups for proper counting
         let counterKey = tileType;
-        if (tileType === 'tree') counterKey = 'forest'; // Combine tree with forest
+        if (tileType === 'tree' || tileType === 'jungle' || tileType === 'farmland') counterKey = 'forest'; // Combine with forest
         if (tileType === 'snow') counterKey = 'ice'; // Combine snow with ice
+        if (tileType === 'oasis' || tileType === 'coral_reef') counterKey = 'water'; // Combine with water
 
         const key = `stats_${action}_${counterKey}`;
         const current = parseInt(localStorage.getItem(key) || '0');

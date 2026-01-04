@@ -8,6 +8,22 @@ const getTileDetails = (tileId: string) => {
     return KINGDOM_TILES.find(t => t.id === tileId);
 };
 
+// Start Level Calc Helper
+const calculateLevelFromExperience = (experience: number): number => {
+    if (experience < 100) return 1
+    if (experience < 300) return 2
+    if (experience < 600) return 3
+    if (experience < 1000) return 4
+    if (experience < 1500) return 5
+    if (experience < 2100) return 6
+    if (experience < 2800) return 7
+    if (experience < 3600) return 8
+    if (experience < 4500) return 9
+    if (experience < 5500) return 10
+    return Math.floor(experience / 1000) + 1
+}
+// End Level Calc Helper
+
 export async function POST(request: Request) {
     const supabase = createRouteHandlerClient({ cookies });
     const { data: { session } } = await supabase.auth.getSession();
@@ -44,11 +60,18 @@ export async function POST(request: Request) {
 
             const { data: statsData, error: statsError } = await supabase
                 .from('character_stats')
-                .select('gold')
+                .select('gold, experience')
                 .eq('user_id', userId)
                 .single();
 
             if (statsError || !statsData) { throw new Error('Failed to fetch stats'); }
+
+            // Check Level Requirement
+            const userLevel = calculateLevelFromExperience(statsData.experience || 0);
+            if (tile.levelRequired && userLevel < tile.levelRequired) {
+                return NextResponse.json({ error: `Level ${tile.levelRequired} required` }, { status: 403 });
+            }
+
             if (statsData.gold < costVal) {
                 return NextResponse.json({ error: 'Insufficient gold' }, { status: 402 });
             }
