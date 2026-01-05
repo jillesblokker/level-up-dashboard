@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Crown, Hammer, Coins } from "lucide-react";
+import { Crown, Hammer, Coins, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Define a compatible interface for tiles used in this component
 interface PropertyTile {
@@ -48,6 +49,7 @@ export function KingdomPropertiesInventory({
   playerLevel = 1
 }: KingdomPropertiesInventoryProps) {
   const [activeTab, setActiveTab] = useState<'place' | 'buy'>('place');
+  const [selectedTier, setSelectedTier] = useState<string>("all");
 
   if (!open) return null;
 
@@ -121,7 +123,18 @@ export function KingdomPropertiesInventory({
   });
   // Sort buyable tiles? Maybe filter out ones that can't be bought? 
   // For now show all in Buy tab.
-  const buyableTiles = tiles;
+  // Filter buyable tiles based on the selected tier
+  const buyableTiles = tiles.filter(tile => {
+    const level = tile.levelRequired || 0;
+    if (selectedTier === "0-20") {
+      return level < 20;
+    } else if (selectedTier === "20-40") {
+      return level >= 20 && level < 40;
+    } else if (selectedTier === "40+") {
+      return level >= 40;
+    }
+    return true; // "all"
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
@@ -205,8 +218,27 @@ export function KingdomPropertiesInventory({
             </TabsContent>
 
             <TabsContent value="buy" className="mt-0">
+              {/* Filter Dropdown */}
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <Filter className="w-4 h-4" />
+                  <span>Filter by Tier:</span>
+                </div>
+                <Select value={selectedTier} onValueChange={setSelectedTier}>
+                  <SelectTrigger className="w-[200px] bg-[#1a1d24] border-gray-700 text-amber-100 h-9">
+                    <SelectValue placeholder="Select Tier" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1d24] border-gray-700 text-amber-100">
+                    <SelectItem value="all">All Structures</SelectItem>
+                    <SelectItem value="0-20">Tiles (Lvl 0-20)</SelectItem>
+                    <SelectItem value="20-40">Settlements (Lvl 20-40)</SelectItem>
+                    <SelectItem value="40+">Kingdom (Lvl 40+)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4 pb-8">
-                {tiles.map(tile => (
+                {buyableTiles.map(tile => (
                   <TileCard
                     key={tile.id}
                     tile={tile}
