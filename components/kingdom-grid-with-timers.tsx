@@ -289,43 +289,44 @@ export function KingdomGridWithTimers({
   }
 
   // Consolidate character stats loading (Expansions, Tokens, Level)
+  // Consolidate character stats loading (Expansions, Tokens, Level)
   useEffect(() => {
-    const loadCharacterData = async () => {
+    // Function to load stats from local state only (safe for event listeners)
+    const loadLocalStats = async () => {
       try {
-        // First try to get from localStorage (synchronous)
         const { getCharacterStats } = await import('@/lib/character-stats-service')
         const stats = getCharacterStats()
 
-        // Update state from local stats first
         setKingdomExpansions(stats.kingdom_expansions || 0)
         setBuildTokens(stats.build_tokens || 0)
         setPlayerLevel(calculateLevelFromExperience(stats.experience || 0))
-
-        // Then try to fetch fresh data from API
-        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service')
-        const freshStats = await fetchFreshCharacterStats()
-
-        if (freshStats) {
-          setKingdomExpansions(freshStats.kingdom_expansions || 0)
-          setBuildTokens(freshStats.build_tokens || 0)
-          setPlayerLevel(calculateLevelFromExperience(freshStats.experience || 0))
-        }
       } catch (error) {
-        console.warn('[Kingdom] Failed to load character data:', error)
+        console.warn('[Kingdom] Failed to load local character data:', error)
       }
     }
 
-    // Initial load
-    loadCharacterData()
+    // Initial sequence: Load local, then fetch fresh from server ONCE
+    const init = async () => {
+      await loadLocalStats()
 
-    // Listen for updates
-    const handleStatsUpdate = () => loadCharacterData()
-    // Also listen for explicit XP updates from other sources
-    const handleXPUpdate = () => loadCharacterData()
+      try {
+        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service')
+        // This will fetch from server, merge, and emit 'character-stats-update'
+        await fetchFreshCharacterStats()
+      } catch (error) {
+        console.warn('[Kingdom] Failed to fetch fresh stats:', error)
+      }
+    }
+
+    init()
+
+    // Listen for updates - ONLY reload local stats, DO NOT fetch again
+    const handleStatsUpdate = () => loadLocalStats()
+    const handleXPUpdate = () => loadLocalStats()
 
     window.addEventListener('character-stats-update', handleStatsUpdate)
     window.addEventListener('xp-update', handleXPUpdate)
-    window.addEventListener('gold-update', handleStatsUpdate) // Gold might trigger stats refresh needs
+    window.addEventListener('gold-update', handleStatsUpdate)
 
     return () => {
       window.removeEventListener('character-stats-update', handleStatsUpdate)
