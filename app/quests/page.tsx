@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { AddMilestoneForm } from "@/components/add-milestone-form"
+import { AddChallengeForm } from "@/components/add-challenge-form"
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
@@ -141,13 +143,6 @@ export default function QuestsPage() {
   const [challengeCategory, setChallengeCategory] = useState<string>("all");
   const [milestoneCategory, setMilestoneCategory] = useState(questCategories[0]);
   const [completedChallenges, setCompletedChallenges] = useState<Record<string, boolean[]>>({});
-  const [newChallenge, setNewChallenge] = useState({
-    name: '',
-    instructions: '',
-    setsReps: '',
-    tips: '',
-    weight: '',
-  });
   const [customChallenges, setCustomChallenges] = useState<Record<string, any[]>>({});
   const [challengeStreaks, setChallengeStreaks] = useState<Record<string, number[]>>({});
   const [challengeLastCompleted, setChallengeLastCompleted] = useState<Record<string, string[]>>({});
@@ -185,16 +180,6 @@ export default function QuestsPage() {
   const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [addMilestoneModalOpen, setAddMilestoneModalOpen] = useState(false);
-  const [newMilestone, setNewMilestone] = useState({
-    name: '',
-    description: '',
-    category: 'might',
-    difficulty: 'medium',
-    xp: 100,
-    gold: 50,
-    target: 1,
-    unit: ''
-  });
   const [token, setToken] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dailyResetInitiated = useRef(false);
@@ -1710,105 +1695,7 @@ export default function QuestsPage() {
     setAddMilestoneModalOpen(true);
   };
 
-  const handleAddMilestoneSubmit = async () => {
-    if (!token || !userId) return;
 
-    try {
-      const res = await fetch('/api/milestones', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...newMilestone,
-          category: newMilestone.category || 'might',
-          difficulty: 'medium',
-          xp: Number(newMilestone.xp) || 0,
-          gold: Number(newMilestone.gold) || 0,
-          target: Number(newMilestone.target) || 1,
-        })
-      });
-
-      if (!res.ok) throw new Error('Failed to add milestone');
-
-      const savedMilestone = await res.json();
-
-      setMilestones(prev => [...prev, { ...savedMilestone, completed: false }]);
-
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.addition.milestone.title,
-        description: TEXT_CONTENT.questBoard.toasts.addition.milestone.desc.replace('{name}', newMilestone.name),
-      });
-
-      setAddMilestoneModalOpen(false);
-      setNewMilestone({ name: '', description: '', category: '', difficulty: 'medium', xp: 0, gold: 0, target: 1, unit: '' });
-
-    } catch (error) {
-      console.error('Error adding milestone:', error);
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.addition.milestoneError.title,
-        description: TEXT_CONTENT.questBoard.toasts.addition.milestoneError.desc,
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleAddChallengeSubmit = async () => {
-    if (!token || !userId) return;
-
-    try {
-      const res = await fetch('/api/challenges', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: newChallenge.name,
-          instructions: newChallenge.instructions,
-          category: 'might', // Default or add selector
-          difficulty: 'medium',
-          xp: 10, // Default
-          gold: 5, // Default
-          setsReps: newChallenge.setsReps,
-          tips: newChallenge.tips,
-          weight: newChallenge.weight
-        })
-      });
-
-      if (!res.ok) throw new Error('Failed to add challenge');
-
-      const savedChallenge = await res.json();
-
-      // Update local state if we have a challenges list state
-      // Assuming 'challenges' state exists or we trigger a refetch
-      // For now, let's assume we need to refetch or update a list
-      // But looking at the code, challenges might be fetched in a useEffect
-      // Let's try to update 'challenges' state if it exists
-      setChallenges(prev => [...prev, savedChallenge]);
-
-      // Force reload or just notify
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.addition.challenge.title,
-        description: TEXT_CONTENT.questBoard.toasts.addition.challenge.desc.replace('{name}', newChallenge.name),
-      });
-
-      setAddChallengeModalOpen(false);
-      setNewChallenge({ name: '', instructions: '', setsReps: '', tips: '', weight: '' });
-
-      // Trigger data reload if possible
-      // fetchChallenges(); // if exists
-
-    } catch (error) {
-      console.error('Error adding challenge:', error);
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.addition.challengeError.title,
-        description: TEXT_CONTENT.questBoard.toasts.addition.challengeError.desc,
-        variant: "destructive"
-      });
-    }
-  };
 
 
   const handleChallengeCategoryChange = (value: string) => {
@@ -2959,150 +2846,28 @@ export default function QuestsPage() {
           isOpen={addMilestoneModalOpen}
           onClose={() => setAddMilestoneModalOpen(false)}
           title={TEXT_CONTENT.questBoard.modals.addMilestone.title}
-          footer={
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setAddMilestoneModalOpen(false)}
-              >
-                {TEXT_CONTENT.questBoard.buttons.cancel}
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={handleAddMilestoneSubmit}
-              >
-                {TEXT_CONTENT.questBoard.buttons.add}
-              </Button>
-            </>
-          }
         >
-          <label className="block mb-2 text-sm font-medium">{TEXT_CONTENT.questBoard.modals.addMilestone.labels.name}</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newMilestone.name}
-            onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
-            placeholder={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.name}
-            title={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.name}
-            aria-label={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.name}
-            required
+          <AddMilestoneForm
+            userId={userId}
+            onSuccess={() => {
+              setAddMilestoneModalOpen(false);
+              fetchChallengesAndMilestones();
+            }}
+            onCancel={() => setAddMilestoneModalOpen(false)}
           />
-          <label className="block mb-2 text-sm font-medium">{TEXT_CONTENT.questBoard.modals.addMilestone.labels.description}</label>
-          <textarea
-            className="w-full mb-4 p-2 border rounded"
-            value={newMilestone.description}
-            onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
-            placeholder={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.description}
-            title={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.description}
-            aria-label={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.description}
-          />
-          <label className="block mb-2 text-sm font-medium">{TEXT_CONTENT.questBoard.modals.addMilestone.labels.category}</label>
-          <Select
-            value={newMilestone.category || ''}
-            onValueChange={(value) => setNewMilestone({ ...newMilestone, category: value })}
-          >
-            <SelectTrigger className="w-full mb-4">
-              <SelectValue placeholder={TEXT_CONTENT.questBoard.modals.addMilestone.placeholders.selectCategory} />
-            </SelectTrigger>
-            <SelectContent>
-              {questCategories.map((category: string) => (
-                <SelectItem key={category} value={category}>
-                  {getCategoryLabel(category)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <label className="block mb-2 text-sm font-medium">Target Value</label>
-          <input
-            type="number"
-            className="w-full mb-4 p-2 border rounded"
-            value={newMilestone.target}
-            onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
-            placeholder="Target value"
-            title="Target value"
-            aria-label="Target value"
-          />
-          <label className="block mb-2 text-sm font-medium">Unit</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newMilestone.unit}
-            onChange={e => setNewMilestone({ ...newMilestone, unit: e.target.value })}
-            placeholder="Unit (e.g. km, kg, days)"
-            title="Unit"
-            aria-label="Unit"
-          />
-
         </ResponsiveModal>
         {/* Add Custom Challenge Modal */}
         <ResponsiveModal
           isOpen={addChallengeModalOpen}
           onClose={() => setAddChallengeModalOpen(false)}
           title="Add Custom Challenge"
-          footer={
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setAddChallengeModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={handleAddChallengeSubmit}
-              >
-                Add
-              </Button>
-            </>
-          }
         >
-          <label className="block mb-2 text-sm font-medium">Name</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newChallenge.name}
-            onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
-            placeholder="Challenge name"
-            title="Challenge name"
-            aria-label="Challenge name"
-            required
-          />
-          <label className="block mb-2 text-sm font-medium">Instructions</label>
-          <textarea
-            className="w-full mb-4 p-2 border rounded"
-            value={newChallenge.instructions}
-            onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
-            placeholder="Instructions"
-            title="Instructions"
-            aria-label="Instructions"
-          />
-          <label className="block mb-2 text-sm font-medium">Sets/Reps</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newChallenge.setsReps}
-            onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
-            placeholder="e.g. 3x12"
-            title="Sets/Reps"
-            aria-label="Sets/Reps"
-          />
-          <label className="block mb-2 text-sm font-medium">Tips</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newChallenge.tips}
-            onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
-            placeholder="Tips"
-            title="Tips"
-            aria-label="Tips"
-          />
-          <label className="block mb-2 text-sm font-medium">Weight</label>
-          <input
-            className="w-full mb-4 p-2 border rounded"
-            value={newChallenge.weight}
-            onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
-            placeholder="e.g. 8kg"
-            title="Weight"
-            aria-label="Weight"
+          <AddChallengeForm
+            onSuccess={() => {
+              setAddChallengeModalOpen(false);
+              fetchChallengesAndMilestones();
+            }}
+            onCancel={() => setAddChallengeModalOpen(false)}
           />
         </ResponsiveModal>
         {/* Edit Custom Challenge Modal */}

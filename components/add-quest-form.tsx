@@ -169,15 +169,26 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
                 <div className="space-y-2">
                     <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.categoryLabel}</label>
                     <Select
                         value={newQuest.category}
                         onValueChange={(val) => setNewQuest({ ...newQuest, category: val })}
                     >
-                        <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30">
-                            <SelectValue />
+                        <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
+                            <div className="flex items-center gap-3">
+                                {newQuest.category && categoryIcons[newQuest.category as keyof typeof categoryIcons] ? (
+                                    <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                                        {React.createElement(categoryIcons[newQuest.category as keyof typeof categoryIcons], { className: "w-4 h-4" })}
+                                    </div>
+                                ) : (
+                                    <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                                        <Sword className="w-4 h-4" />
+                                    </div>
+                                )}
+                                <span className="font-medium">{categoryLabels[newQuest.category as keyof typeof categoryLabels]}</span>
+                            </div>
                         </SelectTrigger>
                         <SelectContent className="bg-gray-900 border-amber-900/50">
                             {questCategories.map((cat) => (
@@ -200,8 +211,19 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         value={newQuest.difficulty}
                         onValueChange={(val) => setNewQuest({ ...newQuest, difficulty: val })}
                     >
-                        <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30">
-                            <SelectValue />
+                        <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 bg-gray-800 rounded-lg ${difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].color}`}>
+                                    {difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].icon}
+                                </div>
+                                <div className="flex flex-col items-start translate-y-[1px]">
+                                    <span className="font-bold text-sm leading-tight">{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].label}</span>
+                                    <div className="text-[10px] text-gray-500 uppercase flex gap-2">
+                                        <span>+{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].gold} Gold</span>
+                                        <span>+{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].xp} XP</span>
+                                    </div>
+                                </div>
+                            </div>
                         </SelectTrigger>
                         <SelectContent className="bg-gray-900 border-amber-900/50">
                             {Object.entries(difficultySettings).map(([key, value]) => (

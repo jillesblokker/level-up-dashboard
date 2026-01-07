@@ -748,7 +748,7 @@ export const TEXT_CONTENT = {
             expectedReward: "Expected Reward",
             quote: "\"Valor awaits...\"",
             abandon: "Abandon",
-            submit: "Embark on Quest",
+            submit: "Add Quest",
             submitting: "Forging..."
         },
         toast: {

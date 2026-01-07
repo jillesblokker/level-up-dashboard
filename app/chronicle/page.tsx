@@ -4,31 +4,34 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, CloudRain, Cloud, CloudSun, Sun, Sparkles, Feather } from 'lucide-react'
 import Link from 'next/link'
+import { JournalModal } from '@/components/chronicle/JournalModal'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [isJournalOpen, setIsJournalOpen] = useState(false)
     const supabase = createClientComponentClient()
 
-    useEffect(() => {
-        async function loadEntries() {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                setIsLoading(false)
-                return
-            }
-
-            const { data } = await supabase
-                .from('chronicle_entries')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('entry_date', { ascending: false })
-
-            if (data) setEntries(data)
+    const loadEntries = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
             setIsLoading(false)
+            return
         }
+
+        const { data } = await supabase
+            .from('chronicle_entries')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('entry_date', { ascending: false })
+
+        if (data) setEntries(data)
+        setIsLoading(false)
+    }
+
+    useEffect(() => {
         loadEntries()
     }, [])
 
@@ -90,9 +93,21 @@ export default function ChroniclePage() {
                             <Feather className="w-12 h-12 text-amber-500/80" />
                         </div>
                         <h3 className="text-xl font-serif text-amber-200 mb-2">The Pages are Empty</h3>
-                        <p className="text-amber-500/60 max-w-sm leading-relaxed px-4">
-                            Your legend awaits its first chapter. Return at sunset (18:00) to record your journey.
-                        </p>
+                        <div className="space-y-6">
+                            <p className="text-amber-500/60 max-w-sm leading-relaxed px-4">
+                                {new Date().getHours() >= 18
+                                    ? "The sun has set. The parchment is ready for your story."
+                                    : "Your legend awaits its first chapter. Return at sunset (18:00) to record your journey."}
+                            </p>
+                            {new Date().getHours() >= 18 && (
+                                <Button
+                                    onClick={() => setIsJournalOpen(true)}
+                                    className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl px-8 h-12 shadow-lg shadow-amber-900/20 border-t border-white/10"
+                                >
+                                    Write Today&apos;s Chronicle
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-0">
@@ -128,6 +143,13 @@ export default function ChroniclePage() {
                     </div>
                 )}
             </div>
+            <JournalModal
+                isOpen={isJournalOpen}
+                onClose={() => {
+                    setIsJournalOpen(false);
+                    loadEntries();
+                }}
+            />
         </div>
     )
 }
