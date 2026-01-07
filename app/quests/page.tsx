@@ -2207,9 +2207,8 @@ export default function QuestsPage() {
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-bold text-amber-500 font-medieval">{TEXT_CONTENT.questBoard.journey.title}</h3>
                         <StreakIndicator
-                          currentStreak={questStreakData?.currentStreak || 0}
-                          longestStreak={questStreakData?.longestStreak || 0}
-                          isActive={questStreakData?.isActive || false}
+                          currentStreak={streakData?.streak_days || 0}
+                          isCompletedToday={quests.some(q => q.completed)}
                         />
                       </div>
                       <GameplayLoopIndicator />
