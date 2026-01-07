@@ -284,7 +284,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     itemType: 'scroll',
     rarity: 'rare',
     image: '/images/kingdom-tiles/ZenGarden.png',
-    materialCost: [{ itemId: 'material-stone', quantity: 10 }, { itemId: 'material-logs', quantity: 5 }],
+    materialCost: [{ itemId: 'material-stone', quantity: 5 }, { itemId: 'material-logs', quantity: 5 }],
     tokenCost: 2,
     cost: 350
   },
