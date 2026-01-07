@@ -133,16 +133,16 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
                         <div className="flex gap-4 justify-center">
                             <Button
                                 onClick={() => handleGuess('higher')}
-                                className="flex-1 py-8 bg-gradient-to-b from-emerald-800 to-emerald-900 hover:from-emerald-700 hover:to-emerald-800 border border-emerald-600/30 text-emerald-100 font-serif text-lg gap-2 shadow-lg shadow-emerald-900/30"
+                                className="flex-1 h-20 bg-gradient-to-b from-emerald-800 to-emerald-900 hover:from-emerald-700 hover:to-emerald-800 border border-emerald-600/30 text-emerald-100 font-serif text-xl gap-2 shadow-lg shadow-emerald-900/30 rounded-xl"
                             >
-                                <ChevronUp className="w-6 h-6" />
+                                <ChevronUp className="w-8 h-8" />
                                 Higher
                             </Button>
                             <Button
                                 onClick={() => handleGuess('lower')}
-                                className="flex-1 py-8 bg-gradient-to-b from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 border border-red-600/30 text-red-100 font-serif text-lg gap-2 shadow-lg shadow-red-900/30"
+                                className="flex-1 h-20 bg-gradient-to-b from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 border border-red-600/30 text-red-100 font-serif text-xl gap-2 shadow-lg shadow-red-900/30 rounded-xl"
                             >
-                                <ChevronDown className="w-6 h-6" />
+                                <ChevronDown className="w-8 h-8" />
                                 Lower
                             </Button>
                         </div>
@@ -176,7 +176,7 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
                             <p className="text-zinc-300">{resultMessage}</p>
                         </div>
                         <Button
-                            className="w-full py-5 bg-purple-700 hover:bg-purple-600 text-white font-serif"
+                            className="w-full h-12 bg-purple-700 hover:bg-purple-600 text-white font-serif rounded-xl shadow-lg shadow-purple-900/40"
                             onClick={onClose}
                         >
                             Leave the Dungeon

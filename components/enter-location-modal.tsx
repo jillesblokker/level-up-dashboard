@@ -111,17 +111,17 @@ export function EnterLocationModal({
           </div>
 
           {/* Action buttons */}
-          <DialogFooter className="flex gap-3 mt-6 sm:gap-3">
+          <DialogFooter className="relative z-10 flex flex-row gap-3 mt-6">
             <Button
               variant="ghost"
               onClick={handleCancel}
-              className="text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20"
+              className="flex-1 h-12 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20 rounded-xl"
             >
               Not Yet
             </Button>
             <Button
               onClick={handleEnter}
-              className="flex-1 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2"
+              className="flex-1 h-12 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2 rounded-xl"
             >
               {buttonText}
               <ArrowRight className="w-4 h-4" />

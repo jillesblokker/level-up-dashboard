@@ -196,11 +196,11 @@ export function AnimalInteractionModal({
         </div>
 
         {/* Action buttons */}
-        <DialogFooter className="relative z-10 flex gap-3 mt-4 sm:gap-3">
+        <DialogFooter className="relative z-10 flex flex-row gap-3 mt-4">
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+            className="flex-1 h-12 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-xl"
           >
             Leave Alone
           </Button>
@@ -208,7 +208,7 @@ export function AnimalInteractionModal({
             onClick={handleInteract}
             disabled={isInteracting}
             className={cn(
-              "flex-1 text-white shadow-lg gap-2",
+              "flex-1 h-12 text-white shadow-lg gap-2 rounded-xl",
               style.button,
               isInteracting && "opacity-70"
             )}

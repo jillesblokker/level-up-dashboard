@@ -72,7 +72,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     </DialogTitle>
                     <DialogDescription className="text-center text-zinc-400 mt-2 text-sm italic font-light">
                         Leave the chaos of the realm behind.
-                        A moment of silence is a hero&apos;s greatest weapon.
+                        {"A moment of silence is a hero's greatest weapon."}
                     </DialogDescription>
                 </DialogHeader>
 

@@ -784,15 +784,15 @@ export default function CharacterPage() {
                       return (
                         <Card
                           key={title.id}
-                          className={`w-full ${!isUnlocked
+                          className={`h-full flex flex-col ${!isUnlocked
                             ? "medieval-card-undiscovered"
                             : isCurrent
-                              ? "medieval-card border-amber-500"
+                              ? "medieval-card border-amber-500 shadow-amber-500/20 shadow-lg"
                               : "medieval-card"
                             }`}
                         >
                           <CardHeader className="pb-2">
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-start">
                               <div className="flex items-center gap-3">
                                 {/* Character image */}
                                 <div className="relative w-16 h-16 flex-shrink-0">
@@ -828,9 +828,9 @@ export default function CharacterPage() {
                                 {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
                               </Badge>
                             </div>
-                            <CardDescription>{title.description}</CardDescription>
+                            <CardDescription className="min-h-[3rem] line-clamp-2">{title.description}</CardDescription>
                           </CardHeader>
-                          <CardContent className="pb-2">
+                          <CardContent className="pb-2 flex-grow">
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Badge variant="outline" className="mr-2">
                                 {TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(title.level))}
@@ -838,7 +838,7 @@ export default function CharacterPage() {
                               <span>{isUnlocked ? TEXT_CONTENT.character.titles.unlocked : TEXT_CONTENT.character.titles.requires.replace("{level}", String(title.level))}</span>
                             </div>
                           </CardContent>
-                          <CardFooter>
+                          <CardFooter className="mt-auto pt-0">
                             {isUnlocked ? (
                               <Button
                                 className={`w-full ${isCurrent
@@ -867,15 +867,15 @@ export default function CharacterPage() {
                     {perks.map((perk) => (
                       <Card
                         key={perk.id}
-                        className={`w-full ${!perk.unlocked
+                        className={`h-full flex flex-col ${!perk.unlocked
                           ? "medieval-card-undiscovered"
                           : perk.active
-                            ? "medieval-card border-purple-500"
+                            ? "medieval-card border-purple-500 shadow-purple-500/10 shadow-lg"
                             : "medieval-card"
                           }`}
                       >
                         <CardHeader className="pb-2">
-                          <div className="flex justify-between">
+                          <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
                               {(() => {
                                 const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
@@ -894,7 +894,7 @@ export default function CharacterPage() {
                               {perk.unlocked ? TEXT_CONTENT.character.perks.levelMax.replace("{level}", String(perk.level)).replace("{max}", String(perk.maxLevel)) : TEXT_CONTENT.character.perks.levelReq.replace("{level}", String(perk.requiredLevel))}
                             </Badge>
                           </div>
-                          <CardDescription className="text-sm">
+                          <CardDescription className="text-sm min-h-[2.5rem] line-clamp-2">
                             {perk.description}
                           </CardDescription>
                           {!perk.unlocked && (
@@ -903,7 +903,7 @@ export default function CharacterPage() {
                             </div>
                           )}
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-3 flex-grow">
                           <div className="space-y-2">
                             <p className="text-sm font-medium">{perk.effect}</p>
                             <div className="flex justify-between text-xs text-muted-foreground">
@@ -920,17 +920,32 @@ export default function CharacterPage() {
                                   <p className="text-xs text-amber-400">
                                     {getTimeUntilExpiry(perk)}
                                   </p>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => deactivatePerk(perk.id)}
-                                    className="w-full"
-                                  >
-                                    {TEXT_CONTENT.character.perks.deactivate}
-                                  </Button>
                                 </div>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4">
+                              <Lock className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                              <p className="text-sm text-gray-500">
+                                {TEXT_CONTENT.character.perks.locked.replace("{level}", String(perk.requiredLevel))}
+                              </p>
+                            </div>
+                          )}
+                        </CardContent>
+                        <CardFooter className="mt-auto flex flex-col gap-2 pt-0">
+                          {perk.unlocked && (
+                            <div className="w-full space-y-2">
+                              {perk.active ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => deactivatePerk(perk.id)}
+                                  className="w-full"
+                                >
+                                  {TEXT_CONTENT.character.perks.deactivate}
+                                </Button>
                               ) : (
-                                <div className="space-y-2">
+                                <>
                                   <Button
                                     onClick={() => activatePerk(perk.id)}
                                     disabled={!canActivatePerk(perk) || characterStats.gold < perk.activationCost}
@@ -949,18 +964,11 @@ export default function CharacterPage() {
                                       {TEXT_CONTENT.character.perks.upgrade.replace("{cost}", String(perk.upgradeCost))}
                                     </Button>
                                   )}
-                                </div>
+                                </>
                               )}
                             </div>
-                          ) : (
-                            <div className="text-center py-4">
-                              <Lock className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                              <p className="text-sm text-gray-500">
-                                {TEXT_CONTENT.character.perks.locked.replace("{level}", String(perk.requiredLevel))}
-                              </p>
-                            </div>
                           )}
-                        </CardContent>
+                        </CardFooter>
                       </Card>
                     ))}
                   </div>
@@ -972,10 +980,10 @@ export default function CharacterPage() {
                     {strengths.map((strength) => (
                       <Card
                         key={strength.id}
-                        className="medieval-card w-full"
+                        className="medieval-card h-full flex flex-col w-full shadow-inner"
                       >
                         <CardHeader className="pb-2">
-                          <div className="flex justify-between">
+                          <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
                               <span className="text-2xl">{strength.icon}</span>
                               <CardTitle className="font-serif">{strength.name}</CardTitle>
@@ -984,11 +992,11 @@ export default function CharacterPage() {
                               Lvl {strength.level}
                             </Badge>
                           </div>
-                          <CardDescription className="text-sm">
+                          <CardDescription className="text-sm line-clamp-2 min-h-[2.5rem]">
                             {strength.description}
                           </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-3 flex-grow">
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
                               <span>{TEXT_CONTENT.character.strengths.experience}</span>
@@ -1000,7 +1008,7 @@ export default function CharacterPage() {
                             </p>
                           </div>
                         </CardContent>
-                        <CardFooter className="pt-2">
+                        <CardFooter className="mt-auto pt-2">
                           <div className="w-full text-center">
                             <Badge variant="outline" className="w-full justify-center">
                               {TEXT_CONTENT.character.strengths.mastery.replace("{category}", strength.category.charAt(0).toUpperCase() + strength.category.slice(1))}

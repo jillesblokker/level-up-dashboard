@@ -136,11 +136,11 @@ export function GiftModal({ open, onOpenChange, recipientId, recipientName, user
                     </div>
                 </div>
 
-                <DialogFooter className="relative z-10 flex gap-3 sm:gap-3">
+                <DialogFooter className="relative z-10 flex flex-row gap-3">
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20"
+                        className="flex-1 h-12 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20 rounded-xl"
                     >
                         Cancel
                     </Button>
@@ -148,7 +148,7 @@ export function GiftModal({ open, onOpenChange, recipientId, recipientName, user
                         onClick={handleSend}
                         disabled={sending || amount <= 0 || amount > userGold}
                         className={cn(
-                            "bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2",
+                            "flex-1 h-12 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2 rounded-xl",
                             sending && "opacity-70"
                         )}
                     >

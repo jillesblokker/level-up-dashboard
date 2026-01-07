@@ -95,17 +95,17 @@ export function AchievementUnlockModal({
           </div>
         </div>
 
-        <DialogFooter className="relative z-10 flex gap-3 sm:gap-3">
+        <DialogFooter className="relative z-10 flex flex-row gap-3">
           <Button
             variant="ghost"
             onClick={onClose}
-            className="flex-1 sm:flex-none text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20"
+            className="flex-1 h-12 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20 rounded-xl"
           >
             Close
           </Button>
           <Button
             onClick={handleViewAchievement}
-            className="flex-1 sm:flex-none bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2"
+            className="flex-1 h-12 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2 rounded-xl"
           >
             <Eye className="w-4 h-4" />
             View in Collection
