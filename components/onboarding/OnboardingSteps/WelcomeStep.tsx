@@ -81,4 +81,4 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
       </div>
     </div>
   )
-} 
+}
