@@ -2072,65 +2072,251 @@ export default function QuestsPage() {
               </button>
             </div>
 
-            {activeView === 'ledger' ? (
-              <MasteryLedger />
-            ) : (
-              <Tabs value={mainTab} onValueChange={v => setMainTab(v as 'quests' | 'challenges' | 'milestones' | 'recovery')} className="space-y-6">
-                <TabsList className="mb-6 w-full grid grid-cols-4">
-                  <TabsTrigger value="quests">{TEXT_CONTENT.questBoard.tabs.tasks}</TabsTrigger>
-                  <TabsTrigger value="challenges">{TEXT_CONTENT.questBoard.tabs.challenges}</TabsTrigger>
-                  <TabsTrigger value="milestones">{TEXT_CONTENT.questBoard.tabs.milestones}</TabsTrigger>
-                  <TabsTrigger value="recovery">{TEXT_CONTENT.questBoard.tabs.recovery}</TabsTrigger>
-                </TabsList>
+{/* THE LEDGER - Mastery Tracking */ }
+{
+    activeView === 'ledger' && (
+        <MasteryLedger />
+    )
+}
 
-                {/* Quests Tab */}
-                <TabsContent value="quests">
-                  {/* Nested Tabs for Errands and Progression */}
-                  <Tabs defaultValue="errands" className="space-y-6">
-                    <TabsList className="mb-6 w-full grid grid-cols-2">
-                      <TabsTrigger value="errands">{TEXT_CONTENT.questBoard.tabs.sub.errands}</TabsTrigger>
-                      <TabsTrigger value="progression">{TEXT_CONTENT.questBoard.tabs.sub.progression}</TabsTrigger>
-                    </TabsList>
+{/* THE FORGE - Unified Active Board */ }
+{
+    activeView === 'forge' && (
+        <div className="space-y-8">
+            {/* Bulk Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+                <Button
+                    onClick={handleBulkCompleteFavorites}
+                    disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
+                    className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                    aria-label="Complete all favorited quests in this category"
+                >
+                    <Star className="w-4 h-4 mr-2" />
+                    {TEXT_CONTENT.questBoard.buttons.completeFavorites.replace('{count}', String(quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
+                </Button>
+                <Button
+                    onClick={handleBulkCompleteAllFavorites}
+                    disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
+                    className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                    aria-label="Complete all favorited quests across all categories"
+                >
+                    <Star className="w-4 h-4 mr-2" />
+                    {TEXT_CONTENT.questBoard.buttons.completeAllFavorites.replace('{count}', String(quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
+                </Button>
+                <Button
+                    onClick={handleManualReset}
+                    disabled={manualResetLoading || !token}
+                    className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500"
+                    aria-label="Manually reset today's quests"
+                >
+                    {manualResetLoading ? (
+                        <>
+                            <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            {TEXT_CONTENT.questBoard.buttons.resetting}
+                        </>
+                    ) : (
+                        <>
+                            🔄 {TEXT_CONTENT.questBoard.buttons.reset}
+                        </>
+                    )}
+                </Button>
+            </div>
 
-                    {/* Errands Tab - Quest Filters and Cards */}
-                    <TabsContent value="errands" className="space-y-6">
-                      <div className="space-y-6">
-                        {/* Bulk Complete Favorites Button */}
-                        <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-                          <Button
-                            onClick={handleBulkCompleteFavorites}
-                            disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                            className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                            aria-label="Complete all favorited quests in this category"
-                          >
-                            <Star className="w-4 h-4 mr-2" />
-                            {TEXT_CONTENT.questBoard.buttons.completeFavorites.replace('{count}', String(quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
-                          </Button>
-                          <Button
-                            onClick={handleBulkCompleteAllFavorites}
-                            disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                            className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                            aria-label="Complete all favorited quests across all categories"
-                          >
-                            <Star className="w-4 h-4 mr-2" />
-                            {TEXT_CONTENT.questBoard.buttons.completeAllFavorites.replace('{count}', String(quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
-                          </Button>
-                          <Button
-                            onClick={handleManualReset}
-                            disabled={manualResetLoading || !token}
-                            className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500"
-                            aria-label="Manually reset today's quests"
-                          >
-                            {manualResetLoading ? (
-                              <>
-                                <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                {TEXT_CONTENT.questBoard.buttons.resetting}
-                              </>
-                            ) : (
-                              <>
-                                🔄 {TEXT_CONTENT.questBoard.buttons.reset}
-                              </>
-                            )}
+            {/* Strategic Mandates Section */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-3 border-b border-amber-900/20 pb-3">
+                    <div className="p-2 bg-orange-500/10 rounded-lg">
+                        <Flame className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-orange-400 font-serif">Strategic Mandates</h2>
+                        <p className="text-xs text-gray-500">Daily deeds and recurring habits</p>
+                    </div>
+                </div>
+                <QuestOrganization
+                    quests={quests}
+                    onQuestToggle={handleQuestToggle}
+                    onQuestFavorite={handleQuestFavorite}
+                    onQuestEdit={handleEditQuest}
+                    onQuestDelete={handleDeleteQuest}
+                    onAddQuest={() => openQuickAdd()}
+                    showCategoryFilter={true}
+                    context="quests"
+                    hideOverview={true}
+                    hideCategoryOverview={true}
+                    isLoading={loading}
+                />
+            </div>
+
+            {/* Kingdom Decrees Section */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-3 border-b border-blue-900/20 pb-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                        <Crown className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-blue-400 font-serif">Kingdom Decrees</h2>
+                        <p className="text-xs text-gray-500">Epic challenges and one-time quests</p>
+                    </div>
+                </div>
+                <QuestOrganization
+                    quests={challenges}
+                    onQuestToggle={handleChallengeToggle}
+                    onQuestFavorite={() => { }}
+                    onQuestEdit={handleEditChallenge}
+                    onQuestDelete={handleDeleteChallenge}
+                    onAddQuest={handleAddChallenge}
+                    showCategoryFilter={true}
+                    context="challenges"
+                    hideOverview={true}
+                    hideCategoryOverview={true}
+                    isLoading={loading}
+                />
+            </div>
+
+            {/* Journey Progress Section */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-3 border-b border-amber-900/20 pb-3">
+                    <div className="p-2 bg-amber-500/10 rounded-lg">
+                        <Zap className="w-5 h-5 text-amber-500" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-amber-400 font-serif">Journey Progress</h2>
+                        <p className="text-xs text-gray-500">Track your path and achievements</p>
+                    </div>
+                </div>
+
+                {/* Sync Status Indicators */}
+                <div className="flex justify-between items-center">
+                    <OfflineQueueIndicator
+                        isOnline={isOnline}
+                        queueStats={queueStats}
+                        isProcessing={isQueueProcessing}
+                        onProcessQueue={processQueue}
+                        onClearQueue={clearQueue}
+                    />
+                    <SyncStatusIndicator
+                        isSyncing={isSyncing}
+                        lastSync={lastSync}
+                        error={syncError}
+                    />
+                </div>
+
+                {/* Gameplay Loop Indicator */}
+                <div>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-bold text-amber-500 font-medieval">{TEXT_CONTENT.questBoard.journey.title}</h3>
+                        <StreakIndicator
+                            currentStreak={questStreakData?.currentStreak || 0}
+                            longestStreak={questStreakData?.longestStreak || 0}
+                            isActive={questStreakData?.isActive || false}
+                        />
+                    </div>
+                    <GameplayLoopIndicator />
+                </div>
+
+                {/* Daily Progress Card */}
+                <DailyProgressCard
+                    totalQuests={quests.length}
+                    completedQuests={quests.filter(q => q.completed).length}
+                    totalChallenges={challenges.length}
+                    completedChallenges={challenges.filter(c => c.completed).length}
+                />
+
+                {/* Chronicles Card */}
+                <ChroniclesCard />
+
+                {/* Tarot Card Display */}
+                <TarotCardDisplay />
+            </div>
+        </div>
+    )
+}
+
+{/* THE SANCTUARY - Milestones */ }
+{
+    activeView === 'sanctuary' && (
+        <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-blue-900/20 pb-4 mb-6">
+                <div className="p-3 bg-blue-500/10 rounded-xl">
+                    <Trophy className="w-6 h-6 text-blue-500" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-blue-400 font-serif">The Sanctuary</h2>
+                    <p className="text-sm text-gray-500">Epic milestones and legendary achievements</p>
+                </div>
+            </div>
+            <QuestOrganization
+                quests={milestones}
+                onQuestToggle={handleMilestoneToggle}
+                onQuestFavorite={() => { }}
+                onQuestEdit={handleMilestoneEdit}
+                onQuestDelete={handleMilestoneDelete}
+                onAddQuest={handleAddMilestone}
+                showCategoryFilter={true}
+                context="milestones"
+                hideOverview={true}
+                hideCategoryOverview={true}
+                isLoading={loading}
+            />
+        </div>
+    )
+}
+
+{/* RECOVERY - Streak Management */ }
+{
+    activeView === 'recovery' && (
+        <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-green-900/20 pb-4 mb-6">
+                <div className="p-3 bg-green-500/10 rounded-xl">
+                    <Heart className="w-6 h-6 text-green-500" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-green-400 font-serif">Recovery</h2>
+                    <p className="text-sm text-gray-500">Restore your streaks and momentum</p>
+                </div>
+            </div>
+            <div className="mb-6">
+                <label htmlFor="recovery-category-select" className="block text-sm font-medium text-amber-300 mb-2">
+                    Select Workout Category
+                </label>
+                <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
+                    <SelectTrigger className="w-full rounded-lg border border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
+                        <SelectValue placeholder="Select workout category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black border border-[#F59E0B]">
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {workoutPlan.map(day => (
+                            <SelectItem key={day.category} value={day.category}>
+                                {day.category}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            {token && (
+                <StreakRecovery
+                    token={token}
+                    category={challengeCategory}
+                    streakData={challengeStreakData}
+                    onStreakUpdate={() => {
+                        if (token && challengeCategory) {
+                            fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+                                headers: { Authorization: `Bearer ${token}` },
+                            })
+                                .then(res => {
+                                    if (res.ok) return res.json();
+                                    throw new Error('Failed to refetch');
+                                })
+                                .then(data => setChallengeStreakData(data))
+                                .catch(error => console.error('Error refetching streak:', error));
+                        }
+                    }}
+                />
+            )}
+        </div>
+    )
+}
                           </Button>
                         </div>
 
