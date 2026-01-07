@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { CloudRain, Cloud, CloudSun, Sun, Sparkles } from 'lucide-react'
+import { Frown, Meh, Smile, Laugh, PartyPopper, Sparkles } from 'lucide-react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { toast } from 'sonner'
 import { updateCharacterStats } from '@/lib/character-stats-service'
@@ -58,11 +58,11 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
     }
 
     const moods = [
-        { score: 1, icon: CloudRain, label: "Stormy" },
-        { score: 2, icon: Cloud, label: "Cloudy" },
-        { score: 3, icon: CloudSun, label: "Mixed" },
-        { score: 4, icon: Sun, label: "Sunny" },
-        { score: 5, icon: Sparkles, label: "Radiant" },
+        { score: 1, icon: Frown, label: "Gloomy" },
+        { score: 2, icon: Meh, label: "Quiet" },
+        { score: 3, icon: Smile, label: "Good" },
+        { score: 4, icon: Laugh, label: "Great" },
+        { score: 5, icon: PartyPopper, label: "Radiant" },
     ]
 
     return (

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, CloudRain, Cloud, CloudSun, Sun, Sparkles, Feather } from 'lucide-react'
+import { ArrowLeft, Frown, Meh, Smile, Laugh, PartyPopper, Feather } from 'lucide-react'
 import Link from 'next/link'
 import { JournalModal } from '@/components/chronicle/JournalModal'
 import { Button } from '@/components/ui/button'
@@ -37,11 +37,11 @@ export default function ChroniclePage() {
 
     const getMoodIcon = (score: number) => {
         switch (score) {
-            case 1: return <CloudRain className="w-4 h-4 text-zinc-500" />
-            case 2: return <Cloud className="w-4 h-4 text-zinc-400" />
-            case 3: return <CloudSun className="w-4 h-4 text-amber-200" />
-            case 4: return <Sun className="w-4 h-4 text-amber-400" />
-            case 5: return <Sparkles className="w-4 h-4 text-amber-500" />
+            case 1: return <Frown className="w-4 h-4 text-zinc-500" />
+            case 2: return <Meh className="w-4 h-4 text-zinc-400" />
+            case 3: return <Smile className="w-4 h-4 text-amber-200" />
+            case 4: return <Laugh className="w-4 h-4 text-amber-400" />
+            case 5: return <PartyPopper className="w-4 h-4 text-amber-500" />
             default: return null
         }
     }

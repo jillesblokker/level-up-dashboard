@@ -99,6 +99,13 @@ const categoryColorMap: Record<string, string> = {
   exploration: 'text-emerald-500 border-emerald-800/30 bg-emerald-900/10'
 };
 
+const difficultySettings = {
+  easy: { label: TEXT_CONTENT.quests.difficulties.easy, color: 'text-green-400', gold: 10, xp: 20, icon: <Zap className="w-4 h-4" /> },
+  medium: { label: TEXT_CONTENT.quests.difficulties.medium, color: 'text-blue-400', gold: 25, xp: 50, icon: <Zap className="w-4 h-4" /> },
+  hard: { label: TEXT_CONTENT.quests.difficulties.hard, color: 'text-orange-400', gold: 60, xp: 120, icon: <Flame className="w-4 h-4" /> },
+  epic: { label: TEXT_CONTENT.quests.difficulties.epic, color: 'text-purple-400', gold: 150, xp: 300, icon: <Trophy className="w-4 h-4" /> },
+};
+
 // --- 4-Day Workout Plan Data ---
 const workoutPlan = TEXT_CONTENT.workouts;
 
