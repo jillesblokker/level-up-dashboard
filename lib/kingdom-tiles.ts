@@ -270,6 +270,25 @@ export const KINGDOM_TILES: KingdomTile[] = [
     cost: 300
   },
   {
+    id: 'zen-garden',
+    name: 'Zen Garden',
+    timerMinutes: 120,
+    normalGoldRange: [10, 25],
+    luckyGoldAmount: 80,
+    luckyChance: 0.20,
+    clickMessage: 'You found peace in the garden.',
+    possibleItems: [
+      '/images/items/scroll/scroll-scrolly.png',
+      '/images/items/potion/potion-exp.png'
+    ],
+    itemType: 'scroll',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/ZenGarden.png',
+    materialCost: [{ itemId: 'material-stone', quantity: 10 }, { itemId: 'material-logs', quantity: 5 }],
+    tokenCost: 2,
+    cost: 350
+  },
+  {
     id: 'castle',
     name: TEXT_CONTENT.kingdomTiles.castle.name,
     timerMinutes: 480, // Reduced from 720 to 480 minutes (8 hours)
