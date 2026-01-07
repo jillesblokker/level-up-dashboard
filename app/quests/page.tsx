@@ -1463,107 +1463,106 @@ export default function QuestsPage() {
   };
 
 
+  // Fetch challenges and milestones from Supabase instead of using predefined data
+  const fetchChallengesAndMilestones = React.useCallback(async () => {
+    if (!user) {
+      console.log('[Challenges Frontend] No user available, skipping fetch');
+      return;
+    }
+
+    // Get token directly instead of depending on token state
+    const token = await getToken({ template: 'supabase' });
+    if (!token) {
+      console.log('[Challenges Frontend] No token available, skipping fetch');
+      return;
+    }
+
+    console.log('[Challenges Frontend] Starting to fetch challenges and milestones...');
+
+    try {
+      // Fetch challenges
+      console.log('[Challenges Frontend] Fetching challenges from /api/challenges-ultra-simple...');
+      const challengesRes = await fetch(`/api/challenges-ultra-simple?t=${Date.now()}&r=${Math.random()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+      });
+      console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
+
+      if (challengesRes.ok) {
+        const challengesData = await challengesRes.json();
+        const completedChallenges = challengesData?.filter((c: any) => c.completed === true) || [];
+        console.log('[Challenges Frontend] Challenges data received:', {
+          count: challengesData?.length || 0,
+          completedCount: completedChallenges.length,
+          sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed, date: c.date }))
+        });
+        console.log('[Challenges Frontend] Detailed completion debug:', challengesData.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          completed: c.completed,
+          date: c.date,
+          debug: c.completion_debug
+        })));
+
+        console.log('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
+        console.log('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
+        setChallenges(challengesData || []);
+      } else {
+        console.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
+        toast({
+          title: 'Error loading challenges',
+          description: `Failed to load challenges: ${challengesRes.status} ${challengesRes.statusText}`,
+          variant: 'destructive'
+        });
+
+        try {
+          const errorJson = await challengesRes.json();
+          const errorDetails = errorJson.details || errorJson.error;
+          if (errorDetails) {
+            toast({
+              title: 'Server Error Details',
+              description: errorDetails,
+              variant: 'destructive'
+            });
+          }
+        } catch (e) { console.error('Error parsing error response', e); }
+      }
+
+      // Fetch milestones
+      console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
+      const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}&r=${Math.random()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+      });
+      console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
+
+      if (milestonesRes.ok) {
+        const milestonesData = await milestonesRes.json();
+        console.log('[Challenges Frontend] Milestones data received:', {
+          count: milestonesData?.length || 0,
+          sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed, date: m.date }))
+        });
+        console.log('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
+        setMilestones(milestonesData || []);
+      } else {
+        console.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
+      }
+    } catch (error) {
+      console.error('[Challenges Frontend] Error fetching challenges and milestones:', error);
+    }
+  }, [user, getToken]);
+
   // Initialize challenges and milestones data - must be before early returns
   useEffect(() => {
     console.log('[Challenges Frontend] useEffect triggered, user:', !!user);
-
-    // Fetch challenges and milestones from Supabase instead of using predefined data
-    const fetchChallengesAndMilestones = async () => {
-      if (!user) {
-        console.log('[Challenges Frontend] No user available, skipping fetch');
-        return;
-      }
-
-      // Get token directly instead of depending on token state
-      const token = await getToken({ template: 'supabase' });
-      if (!token) {
-        console.log('[Challenges Frontend] No token available, skipping fetch');
-        return;
-      }
-
-      console.log('[Challenges Frontend] Starting to fetch challenges and milestones...');
-
-      try {
-        // Fetch challenges
-        console.log('[Challenges Frontend] Fetching challenges from /api/challenges-ultra-simple...');
-        const challengesRes = await fetch(`/api/challenges-ultra-simple?t=${Date.now()}&r=${Math.random()}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-        });
-        console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
-
-        if (challengesRes.ok) {
-          const challengesData = await challengesRes.json();
-          const completedChallenges = challengesData?.filter((c: any) => c.completed === true) || [];
-          console.log('[Challenges Frontend] Challenges data received:', {
-            count: challengesData?.length || 0,
-            completedCount: completedChallenges.length,
-            sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed, date: c.date }))
-          });
-          console.log('[Challenges Frontend] Detailed completion debug:', challengesData.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            completed: c.completed,
-            date: c.date,
-            debug: c.completion_debug
-          })));
-
-          console.log('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
-          console.log('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
-          setChallenges(challengesData || []);
-        } else {
-          console.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
-          toast({
-            title: 'Error loading challenges',
-            description: `Failed to load challenges: ${challengesRes.status} ${challengesRes.statusText}`,
-            variant: 'destructive'
-          });
-
-          try {
-            const errorJson = await challengesRes.json();
-            const errorDetails = errorJson.details || errorJson.error;
-            if (errorDetails) {
-              toast({
-                title: 'Server Error Details',
-                description: errorDetails,
-                variant: 'destructive'
-              });
-            }
-          } catch (e) { console.error('Error parsing error response', e); }
-        }
-
-        // Fetch milestones
-        console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
-        const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}&r=${Math.random()}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-        });
-        console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
-
-        if (milestonesRes.ok) {
-          const milestonesData = await milestonesRes.json();
-          console.log('[Challenges Frontend] Milestones data received:', {
-            count: milestonesData?.length || 0,
-            sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed, date: m.date }))
-          });
-          console.log('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
-          setMilestones(milestonesData || []);
-        } else {
-          console.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
-        }
-      } catch (error) {
-        console.error('[Challenges Frontend] Error fetching challenges and milestones:', error);
-      }
-    };
-
     fetchChallengesAndMilestones();
-  }, [user, getToken]);
+  }, [user, fetchChallengesAndMilestones]);
 
   const handleMilestoneToggle = async (milestoneId: string, newCompleted: boolean) => {
     if (!token || !userId) return;
