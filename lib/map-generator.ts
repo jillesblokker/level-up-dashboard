@@ -206,7 +206,8 @@ export class MapGenerator {
       oasis: 'Desert Oasis',
       coral_reef: 'Coral Reef',
       crystal_cavern: 'Crystal Cavern',
-      floating_island: 'Floating Island'
+      floating_island: 'Floating Island',
+      'zen-garden': 'Zen Garden'
     };
 
     const tileDescriptions = {
@@ -267,7 +268,8 @@ export class MapGenerator {
       oasis: 'A refreshing oasis in the desert',
       coral_reef: 'A vibrant coral reef',
       crystal_cavern: 'A cave filled with glowing crystals',
-      floating_island: 'A magical island floating in the sky'
+      floating_island: 'A magical island floating in the sky',
+      'zen-garden': 'A peaceful sanctuary for meditation'
     };
 
     const tileImages = {
@@ -328,7 +330,8 @@ export class MapGenerator {
       oasis: '/images/tiles/oasis-tile.png',
       coral_reef: '/images/tiles/coral_reef-tile.png',
       crystal_cavern: '/images/tiles/crystal_cavern-tile.png',
-      floating_island: '/images/tiles/floating_island-tile.png'
+      floating_island: '/images/tiles/floating_island-tile.png',
+      'zen-garden': '/images/kingdom-tiles/ZenGarden.png'
     };
 
     return {

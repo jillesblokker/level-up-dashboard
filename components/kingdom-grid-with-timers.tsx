@@ -561,6 +561,7 @@ export function KingdomGridWithTimers({
       graveyard: { category: 'mystic', levelRequired: 7 },
       crystal_cavern: { category: 'mystic', levelRequired: 8 },
       floating_island: { category: 'mystic', levelRequired: 10 },
+      'zen-garden': { category: 'mystic', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {
