@@ -32,6 +32,7 @@ const categoryColors = {
 export function MasteryLedger() {
     const [habits, setHabits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const [view, setView] = useState<'week' | 'year'>('week')
 
     const fetchHistory = async () => {
         try {
@@ -112,31 +113,66 @@ export function MasteryLedger() {
                                 </div>
                             </div>
 
-                            {/* 7-Day Grid */}
+                            {/* Mastery Cycle Grid */}
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">Last 7 Sun-Cycles</span>
-                                    <div className="flex gap-1 text-[8px] font-bold text-gray-700">
-                                        {TEXT_CONTENT.quests.mastery.grid.days.map((d, i) => (
-                                            <span key={i} className="w-6 text-center">{d}</span>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    {habit.grid.map((done: boolean, i: number) => (
-                                        <div
-                                            key={i}
+                                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest px-1">
+                                        {view === 'week' ? 'Last 7 Sun-Cycles' : 'Full Legend Cycle'}
+                                    </span>
+                                    <div className="flex bg-gray-900/50 p-0.5 rounded-lg border border-gray-800">
+                                        <button
+                                            onClick={() => setView('week')}
                                             className={cn(
-                                                "w-full h-8 rounded-lg border-2 flex items-center justify-center transition-all",
-                                                done
-                                                    ? "bg-amber-500/20 border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                                                    : "bg-gray-900/50 border-gray-800 text-gray-700"
+                                                "px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all",
+                                                view === 'week'
+                                                    ? "bg-amber-500/20 text-amber-500 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.1)]"
+                                                    : "text-gray-600 hover:text-gray-400"
                                             )}
                                         >
-                                            {done ? <Shield className="w-4 h-4" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
-                                        </div>
-                                    ))}
+                                            Week
+                                        </button>
+                                        <button
+                                            onClick={() => setView('year')}
+                                            className={cn(
+                                                "px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all",
+                                                view === 'year'
+                                                    ? "bg-amber-500/20 text-amber-500 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.1)]"
+                                                    : "text-gray-600 hover:text-gray-400"
+                                            )}
+                                        >
+                                            Year
+                                        </button>
+                                    </div>
                                 </div>
+
+                                {view === 'week' ? (
+                                    <div className="space-y-1.5">
+                                        <div className="grid grid-cols-7 gap-1 text-[8px] font-bold text-gray-700">
+                                            {TEXT_CONTENT.quests.mastery.grid.days.map((d, i) => (
+                                                <span key={i} className="text-center">{d}</span>
+                                            ))}
+                                        </div>
+                                        <div className="grid grid-cols-7 gap-1">
+                                            {habit.grid.map((done: boolean, i: number) => (
+                                                <div
+                                                    key={i}
+                                                    className={cn(
+                                                        "h-8 rounded-lg border-2 flex items-center justify-center transition-all",
+                                                        done
+                                                            ? "bg-amber-500/20 border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                                                            : "bg-gray-900/50 border-gray-800 text-gray-700"
+                                                    )}
+                                                >
+                                                    {done ? <Shield className="w-4 h-4" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-wrap gap-0.5 h-12 items-center justify-center bg-gray-900/10 rounded-xl border border-dashed border-gray-800/50">
+                                        <div className="text-[10px] text-gray-600 font-serif italic">Yearly Heatmap coming in the next epoch...</div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Mastery Stats */}
