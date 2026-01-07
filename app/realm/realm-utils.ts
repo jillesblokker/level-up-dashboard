@@ -12,12 +12,14 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
     if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
     if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.png';
+    if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.png';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
     if (type === 'floating_island') name = 'Island';
     if (type === 'ruins') name = 'Ancient Ruins';
     if (type === 'crystal_cavern') name = 'Crystal Cavern';
+    if (type === 'zen-garden') name = 'Zen Garden';
 
     return {
         id: type,
@@ -94,6 +96,7 @@ export const initialInventory: Record<TileType, Tile> = {
     coral_reef: { ...defaultTile('coral_reef'), cost: 150, owned: 5 },
     crystal_cavern: { ...defaultTile('crystal_cavern'), cost: 200, owned: 2 },
     floating_island: { ...defaultTile('floating_island'), cost: 500, owned: 1 },
+    'zen-garden': { ...defaultTile('zen-garden'), cost: 350, owned: 1 },
 };
 
 function safeCheck(obj: any, key: any) {
