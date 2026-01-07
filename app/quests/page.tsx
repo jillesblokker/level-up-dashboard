@@ -17,6 +17,7 @@ import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
+import { useCharacterStats } from '@/hooks/use-character-stats'
 import { toast } from '@/components/ui/use-toast'
 import QuestCard from '@/components/quest-card'
 import React from 'react'
@@ -131,6 +132,7 @@ export default function QuestsPage() {
   const { getToken } = useAuth();
   const { openQuickAdd } = useQuickAdd();
   const searchParams = useSearchParams();
+  const { stats } = useCharacterStats();
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
 
@@ -2216,10 +2218,12 @@ export default function QuestsPage() {
 
                     {/* Daily Progress Card */}
                     <DailyProgressCard
-                      totalQuests={quests.length}
-                      completedQuests={quests.filter(q => q.completed).length}
-                      totalChallenges={challenges.length}
-                      completedChallenges={challenges.filter(c => c.completed).length}
+                      completedCount={quests.filter(q => q.completed).length}
+                      totalCount={quests.length}
+                      currentLevel={stats.level}
+                      currentXP={stats.experience}
+                      xpToNextLevel={stats.experience_to_next_level}
+                      currentGold={stats.gold}
                     />
 
                     {/* Chronicles Card */}
