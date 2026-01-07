@@ -32,7 +32,7 @@ const categoryColors = {
 export function MasteryLedger() {
     const [habits, setHabits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [view, setView] = useState<'week' | 'year'>('week')
+    const [view, setView] = useState<'week' | 'month'>('week')
 
     const fetchHistory = async () => {
         try {
@@ -117,7 +117,7 @@ export function MasteryLedger() {
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest px-1">
-                                        {view === 'week' ? 'Last 7 Sun-Cycles' : 'Full Legend Cycle'}
+                                        {view === 'week' ? 'Last 7 Sun-Cycles' : 'Full Moon Cycle'}
                                     </span>
                                     <div className="flex bg-gray-900/50 p-0.5 rounded-lg border border-gray-800">
                                         <button
@@ -132,15 +132,15 @@ export function MasteryLedger() {
                                             Week
                                         </button>
                                         <button
-                                            onClick={() => setView('year')}
+                                            onClick={() => setView('month')}
                                             className={cn(
                                                 "px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all",
-                                                view === 'year'
+                                                view === 'month'
                                                     ? "bg-amber-500/20 text-amber-500 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.1)]"
                                                     : "text-gray-600 hover:text-gray-400"
                                             )}
                                         >
-                                            Year
+                                            Month
                                         </button>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@ export function MasteryLedger() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-wrap gap-0.5 h-12 items-center justify-center bg-gray-900/10 rounded-xl border border-dashed border-gray-800/50">
-                                        <div className="text-[10px] text-gray-600 font-serif italic">Yearly Heatmap coming in the next epoch...</div>
+                                        <div className="text-[10px] text-gray-600 font-serif italic">Monthly moon-cycle history coming soon...</div>
                                     </div>
                                 )}
                             </div>

@@ -137,7 +137,7 @@ export default function QuestsPage() {
   console.log('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
   const [quests, setQuests] = useState<Quest[]>([]);
-  const [activeView, setActiveView] = useState<'board' | 'ledger'>('board');
+  const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
@@ -146,8 +146,8 @@ export default function QuestsPage() {
   // Sync tab with URL query param
   useEffect(() => {
     const tab = searchParams?.get('tab');
-    if (tab && ['quests', 'challenges', 'milestones', 'recovery'].includes(tab)) {
-      setMainTab(tab as any);
+    if (tab && ['forge', 'ledger', 'sanctuary', 'recovery'].includes(tab)) {
+      setActiveView(tab as any);
     }
   }, [searchParams]);
 
@@ -2020,29 +2020,55 @@ export default function QuestsPage() {
           <MobileContentWrapper>
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
-            {/* Mastery View Toggle */}
-            <div className="flex bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 max-w-fit self-center md:self-start">
+            {/* Three Pillars Perspective Switcher */}
+            <div className="flex bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto">
               <button
-                onClick={() => setActiveView('board')}
+                onClick={() => setActiveView('forge')}
                 className={cn(
-                  "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all",
-                  activeView === 'board'
-                    ? "bg-amber-500 text-white shadow-lg"
-                    : "text-gray-500 hover:text-gray-300"
+                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
+                  activeView === 'forge'
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/20"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
                 )}
               >
-                {TEXT_CONTENT.quests.mastery.tabs.board}
+                <Sword className="w-4 h-4" />
+                <span>The Forge</span>
               </button>
               <button
                 onClick={() => setActiveView('ledger')}
                 className={cn(
-                  "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all",
+                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
                   activeView === 'ledger'
-                    ? "bg-amber-500 text-white shadow-lg"
-                    : "text-gray-500 hover:text-gray-300"
+                    ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-lg shadow-amber-500/20"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
                 )}
               >
-                {TEXT_CONTENT.quests.mastery.tabs.ledger}
+                <Flame className="w-4 h-4" />
+                <span>The Ledger</span>
+              </button>
+              <button
+                onClick={() => setActiveView('sanctuary')}
+                className={cn(
+                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
+                  activeView === 'sanctuary'
+                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
+                )}
+              >
+                <Trophy className="w-4 h-4" />
+                <span>The Sanctuary</span>
+              </button>
+              <button
+                onClick={() => setActiveView('recovery')}
+                className={cn(
+                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
+                  activeView === 'recovery'
+                    ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-lg shadow-green-500/20"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
+                )}
+              >
+                <Heart className="w-4 h-4" />
+                <span>Recovery</span>
               </button>
             </div>
 
