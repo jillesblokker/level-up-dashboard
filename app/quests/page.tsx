@@ -2227,7 +2227,7 @@ export default function QuestsPage() {
                     />
 
                     {/* Chronicles Card */}
-                    <ChroniclesCard />
+                    <ChroniclesCard currentLevel={stats.level} />
 
                     {/* Tarot Card Display */}
                     <TarotCardDisplay />
