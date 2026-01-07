@@ -61,37 +61,41 @@ export function AchievementUnlockModal({
         </DialogHeader>
 
         {/* Creature Display */}
-        <div className="relative z-10 flex flex-col items-center py-6">
-          {/* Glow Ring */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-2xl animate-pulse scale-110" />
-            <div className="absolute inset-0 border-2 border-amber-400/30 rounded-full animate-spin" style={{ animationDuration: '8s' }} />
+        <div className="relative z-10 flex flex-col items-center py-8">
+          {/* Decorative Ring System */}
+          <div className="relative group">
+            {/* Large Outer Glow */}
+            <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-3xl animate-pulse scale-150 opacity-40" />
 
-            <div className="relative w-48 h-48 rounded-full bg-gradient-to-b from-amber-900/40 to-zinc-900/80 border border-amber-500/30 p-4 shadow-xl shadow-amber-500/10">
-              <Image
-                src={`/images/creatures/${creatureId}_front.png`}
-                alt={creatureName}
-                fill
-                className="object-contain p-4 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]"
-              />
+            {/* Inner Rotating Border */}
+            <div className="absolute -inset-2 border-2 border-dashed border-amber-400/30 rounded-full animate-spin-slow" />
+
+            {/* Main Portrait Container */}
+            <div className="relative w-52 h-52 rounded-full bg-zinc-900 border-4 border-amber-500/40 p-1.5 shadow-2xl shadow-amber-500/20 overflow-hidden group-hover:scale-105 transition-transform duration-500">
+              <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-900/20 to-zinc-950">
+                <Image
+                  src={`/images/creatures/${creatureId}_front.png`}
+                  alt={creatureName}
+                  fill
+                  className="object-contain p-6 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"
+                />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_black_90%)] opacity-40" />
+              </div>
+            </div>
+
+            {/* Sparkle Decorations */}
+            <div className="absolute -top-6 -left-6">
+              <Sparkles className="w-8 h-8 text-amber-300/60 animate-pulse" />
+            </div>
+            <div className="absolute -bottom-4 -right-2">
+              <Sparkles className="w-6 h-6 text-amber-400/50 animate-pulse" style={{ animationDelay: '0.7s' }} />
             </div>
           </div>
 
           {/* Creature Info */}
-          <div className="mt-6 text-center">
-            <h3 className="text-2xl font-serif text-amber-100 mb-1">{creatureName}</h3>
-            <p className="text-amber-400/60 font-mono text-sm">#{creatureId}</p>
-          </div>
-
-          {/* Sparkle Decorations */}
-          <div className="absolute top-4 left-8">
-            <Sparkles className="w-4 h-4 text-amber-300/50 animate-pulse" />
-          </div>
-          <div className="absolute top-12 right-10">
-            <Sparkles className="w-3 h-3 text-amber-300/40 animate-pulse" style={{ animationDelay: '0.5s' }} />
-          </div>
-          <div className="absolute bottom-8 left-12">
-            <Sparkles className="w-5 h-5 text-amber-300/30 animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="mt-8 text-center relative z-10">
+            <h3 className="text-3xl font-serif text-amber-100 mb-1">{creatureName}</h3>
+            <p className="text-amber-400/60 font-mono text-sm tracking-widest uppercase">Registry Entry #{creatureId}</p>
           </div>
         </div>
 

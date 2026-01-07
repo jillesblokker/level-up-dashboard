@@ -114,19 +114,26 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
                   </div>
 
                   {/* Improved Image Container */}
-                  <div className="relative w-16 h-16 rounded-lg bg-zinc-900 border border-blue-500/30 overflow-hidden shadow-inner group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
-                    <Image
-                      src={reward.itemFound.image}
-                      alt={reward.itemFound.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.src = '/images/placeholders/item-placeholder.svg'
-                      }}
-                    />
-                    <div className="absolute inset-0 border border-white/5 pointer-events-none rounded-lg" />
+                  <div className="relative w-24 h-24 rounded-2xl bg-zinc-950 border border-blue-500/20 overflow-hidden shadow-2xl group flex items-center justify-center">
+                    {/* Background decorative elements */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-50" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent" />
+
+                    {/* Inner image container with padding */}
+                    <div className="relative w-16 h-16">
+                      <Image
+                        src={reward.itemFound.image}
+                        alt={reward.itemFound.name}
+                        fill
+                        className="object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = '/images/placeholders/item-placeholder.svg'
+                        }}
+                      />
+                    </div>
+                    {/* Glossy overlay */}
+                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
                   </div>
                 </div>
               </div>

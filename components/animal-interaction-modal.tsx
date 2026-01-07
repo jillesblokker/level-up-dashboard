@@ -156,32 +156,47 @@ export function AnimalInteractionModal({
         </DialogHeader>
 
         {/* Animal Display */}
-        <div className="relative z-10 flex flex-col items-center py-4">
-          {/* Glow Ring */}
-          <div className="relative">
-            <div className={cn("absolute inset-0 rounded-full blur-2xl animate-pulse scale-110 opacity-30", style.accentBg)} />
-
+        <div className="relative z-10 flex flex-col items-center py-8">
+          {/* Decorative Outer Ring */}
+          <div className="relative group">
+            {/* Pulsing Outer Glow */}
             <div className={cn(
-              "relative w-40 h-40 rounded-full border p-4 shadow-xl",
-              style.border,
+              "absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20",
               style.accentBg
-            )}>
-              <Image
-                src={getAnimalImage()}
-                alt={`${animalName} animal`}
-                fill
-                className="object-contain p-4 drop-shadow-lg"
-                priority
-              />
-            </div>
-          </div>
+            )} />
 
-          {/* Sparkle decorations */}
-          <div className="absolute top-8 right-12">
-            <Sparkles className={cn("w-4 h-4 animate-pulse opacity-50", style.accent)} />
-          </div>
-          <div className="absolute bottom-16 left-10">
-            <Wind className={cn("w-5 h-5 animate-pulse opacity-40", style.accent)} style={{ animationDelay: '0.5s' }} />
+            {/* Rotating Decorative Border */}
+            <div className={cn(
+              "absolute -inset-4 border border-dashed rounded-full animate-spin-slow opacity-30",
+              style.accent
+            )} style={{ animationDuration: '15s' }} />
+
+            {/* Main Image Container */}
+            <div className={cn(
+              "relative w-48 h-48 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 group-hover:scale-105 transition-transform duration-500",
+              style.border
+            )}>
+              {/* Inner clipped container for the image */}
+              <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
+                <Image
+                  src={getAnimalImage()}
+                  alt={`${animalName} animal`}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                {/* Subtle overlay to integrate with dark theme */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
+              </div>
+            </div>
+
+            {/* Sparkle decorations attached to the ring */}
+            <div className="absolute -top-4 -right-4">
+              <Sparkles className={cn("w-6 h-6 animate-pulse opacity-60", style.accent)} />
+            </div>
+            <div className="absolute -bottom-2 -left-4">
+              <Wind className={cn("w-6 h-6 animate-pulse opacity-40", style.accent)} style={{ animationDelay: '0.5s' }} />
+            </div>
           </div>
         </div>
 

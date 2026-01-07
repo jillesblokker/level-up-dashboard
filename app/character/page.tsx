@@ -618,18 +618,23 @@ export default function CharacterPage() {
                           {/* Current title character image and info side by side */}
                           <div className="flex items-start gap-4">
                             {/* Character image on the left */}
-                            <div className="relative w-20 h-20 flex-shrink-0">
-                              <Image
-                                src={`/images/character/${titleInfo.current.id}.png`}
-                                alt={`${titleInfo.current.name} character`}
-                                fill
-                                className="object-contain"
-                                onError={(e) => {
-                                  // Fallback to squire image if specific image not found
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = '/images/character/squire.png';
-                                }}
-                              />
+                            <div className="relative w-24 h-24 flex-shrink-0 group">
+                              <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-xl animate-pulse" />
+                              <div className="relative w-full h-full rounded-full border-2 border-amber-500/20 bg-zinc-900/80 p-2 overflow-hidden shadow-lg transition-all duration-500 group-hover:border-amber-500/40">
+                                <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-500/5 to-transparent">
+                                  <Image
+                                    src={`/images/character/${titleInfo.current.id}.png`}
+                                    alt={`${titleInfo.current.name} character`}
+                                    fill
+                                    className="object-contain p-2"
+                                    onError={(e) => {
+                                      // Fallback to squire image if specific image not found
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = '/images/character/squire.png';
+                                    }}
+                                  />
+                                </div>
+                              </div>
                             </div>
                             {/* Title info on the right */}
                             <div className="flex-1 space-y-2">
