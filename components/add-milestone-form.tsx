@@ -136,18 +136,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                         onValueChange={(val) => setNewMilestone({ ...newMilestone, category: val })}
                     >
                         <SelectTrigger className="h-12 bg-zinc-900/60 border-white/5 rounded-xl transition-all hover:border-amber-500/30 w-full text-zinc-200">
-                            <div className="flex items-center gap-3">
-                                {newMilestone.category && categoryIcons[newMilestone.category as keyof typeof categoryIcons] ? (
-                                    <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500">
-                                        {React.createElement(categoryIcons[newMilestone.category as keyof typeof categoryIcons], { className: "w-4 h-4" })}
-                                    </div>
-                                ) : (
-                                    <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500">
-                                        <Trophy className="w-4 h-4" />
-                                    </div>
-                                )}
-                                <SelectValue placeholder="Select Category" />
-                            </div>
+                            <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-zinc-950 border-zinc-800 text-zinc-200">
                             {questCategories.map((cat) => (
