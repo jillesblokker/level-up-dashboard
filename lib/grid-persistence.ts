@@ -62,6 +62,7 @@ const tileTypeToNumeric: Record<TileType, number> = {
   coral_reef: 53,
   crystal_cavern: 54,
   floating_island: 55,
+  'zen-garden': 56,
 };
 
 // Convert numeric value back to tile type
