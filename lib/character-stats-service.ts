@@ -28,6 +28,7 @@ export interface CharacterStats {
     kingdom_expansions: number;
     display_name?: string;
     title?: string;
+    ascension_level?: number;
     updated_at?: string;
 }
 
@@ -85,7 +86,8 @@ class CharacterStatsService {
                     streak_tokens: stats.streak_tokens || stats.streakTokens || 0,
                     kingdom_expansions: parseInt(getUserScopedItem('kingdom-grid-expansions') || '0', 10),
                     display_name: stats.display_name || 'Adventurer',
-                    title: stats.title || 'Novice'
+                    title: stats.title || 'Novice',
+                    ascension_level: stats.ascension_level || 0
                 };
             }
         } catch (error) {
@@ -132,6 +134,7 @@ class CharacterStatsService {
         if (updates.kingdom_expansions !== undefined) newStats.kingdom_expansions = updates.kingdom_expansions;
         if (updates.display_name !== undefined) newStats.display_name = updates.display_name;
         if (updates.title !== undefined) newStats.title = updates.title;
+        if (updates.ascension_level !== undefined) newStats.ascension_level = updates.ascension_level;
 
         // Save to local storage immediately
         this.saveToLocalStorage(newStats);
@@ -193,6 +196,7 @@ class CharacterStatsService {
                         kingdom_expansions: Math.max(serverStats.kingdom_expansions || 0, localStats.kingdom_expansions || 0),
                         display_name: serverStats.display_name || localStats.display_name || 'Adventurer',
                         title: serverStats.title || localStats.title || 'Novice',
+                        ascension_level: Math.max(serverStats.ascension_level || 0, localStats.ascension_level || 0),
                         updated_at: serverStats.updated_at
                     };
 
@@ -295,7 +299,8 @@ class CharacterStatsService {
                     streak_tokens: currentStats.streak_tokens,
                     kingdom_expansions: currentStats.kingdom_expansions,
                     display_name: currentStats.display_name,
-                    title: currentStats.title
+                    title: currentStats.title,
+                    ascension_level: currentStats.ascension_level
                 }
             };
 
@@ -352,7 +357,8 @@ class CharacterStatsService {
             build_tokens: stats.build_tokens,
             streak_tokens: stats.streak_tokens,
             display_name: stats.display_name,
-            title: stats.title
+            title: stats.title,
+            ascension_level: stats.ascension_level
         };
 
         setUserScopedItem('character-stats', JSON.stringify(localStorageStats));
@@ -378,7 +384,8 @@ class CharacterStatsService {
             streak_tokens: 0,
             kingdom_expansions: 0,
             display_name: 'Adventurer',
-            title: 'Novice'
+            title: 'Novice',
+            ascension_level: 0
         };
     }
 }

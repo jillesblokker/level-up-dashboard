@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
-import { Castle, Coins } from "lucide-react"
+import { Castle, Coins, Star } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
@@ -36,6 +36,7 @@ export function NavBar({ session }: NavBarProps) {
     experience: 0,
     experienceToNextLevel: 100,
     gold: 1000,
+    ascension_level: 0,
     titles: {
       equipped: "",
       unlocked: 0,
@@ -71,7 +72,9 @@ export function NavBar({ session }: NavBarProps) {
           level: currentLevel,
           experience: localStats.experience,
           experienceToNextLevel: calculateExperienceForLevel(currentLevel),
+          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
           gold: localStats.gold,
+          ascension_level: localStats.ascension_level || 0,
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
         })
@@ -93,6 +96,7 @@ export function NavBar({ session }: NavBarProps) {
                 // if local is ahead (due to recent action), we might want to keep local.
                 // But for now, let's assume periodic sync is safe.
                 gold: freshStats.gold,
+                ascension_level: freshStats.ascension_level || 0
               }))
             }
           }
@@ -160,6 +164,12 @@ export function NavBar({ session }: NavBarProps) {
               aria-live="polite"
               aria-atomic="true"
             >
+              {characterStats.ascension_level > 0 && (
+                <span className="flex items-center text-amber-500 mr-2 font-bold">
+                  <Star className="h-4 w-4 fill-amber-500 mr-1" />
+                  {characterStats.ascension_level}
+                </span>
+              )}
               Level {characterStats.level}
             </div>
             <Progress value={levelProgress} className="w-32 h-2" />
