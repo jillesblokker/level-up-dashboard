@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { logout } from '@/app/actions/auth'
 import Link from "next/link"
-import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX, ChevronRight, Keyboard, Calendar } from "lucide-react"
+import { ClipboardCheck, Palette, User, Settings, Monitor, BookOpen, Database, Volume2, VolumeX, ChevronRight, Keyboard, Calendar, Scroll } from "lucide-react"
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
@@ -131,6 +131,15 @@ export function UserNav() {
                 <div className="flex-1 text-left">
                   <span className="text-base font-medium text-white">Profile</span>
                   <p className="text-xs text-gray-400">Manage your character and settings</p>
+                </div>
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/chronicle">
+              <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
+                <Scroll className="h-5 w-5 text-amber-400" />
+                <div className="flex-1 text-left">
+                  <span className="text-base font-medium text-white">My Chronicle</span>
+                  <p className="text-xs text-gray-400">View your daily journals</p>
                 </div>
               </DropdownMenuItem>
             </Link>

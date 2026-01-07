@@ -72,7 +72,6 @@ export function NavBar({ session }: NavBarProps) {
           level: currentLevel,
           experience: localStats.experience,
           experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-          experienceToNextLevel: calculateExperienceForLevel(currentLevel),
           gold: localStats.gold,
           ascension_level: localStats.ascension_level || 0,
           titles: { equipped: '', unlocked: 0, total: 0 },
