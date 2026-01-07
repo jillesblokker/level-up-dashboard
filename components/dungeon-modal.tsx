@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button"
 import { gainExperience } from "@/lib/experience-manager"
 import { useSound, SOUNDS } from "@/lib/sound-manager"
+import { Skull, Flame, ChevronUp, ChevronDown, Trophy } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface DungeonQuestion {
     fact: string;
@@ -80,30 +82,109 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
         if (onComplete) onComplete(finalScore);
     }
 
+    const progress = questions.length > 1 ? (currentIndex / (questions.length - 1)) * 100 : 0;
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent aria-label="Dungeon Event Higher or Lower" role="dialog" aria-modal="true">
-                <DialogHeader>
-                    <DialogTitle>Medieval Dungeon: Higher or Lower?</DialogTitle>
-                    <DialogDescription>You descend into a damp, torch-lit dungeon. Echoes bounce from the walls. A voice from the shadows challenges you to a battle of wit and lore.<br />&quot;Is the next number higher or lower?&quot;</DialogDescription>
+            <DialogContent
+                className="bg-gradient-to-b from-purple-950/95 via-zinc-950 to-zinc-950 border-purple-800/30 shadow-2xl shadow-purple-500/10 overflow-hidden max-w-md"
+                aria-label="Dungeon Event Higher or Lower"
+                role="dialog"
+                aria-modal="true"
+            >
+                {/* Background Effects */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 left-4 w-8 h-32 bg-gradient-to-b from-orange-500/20 to-transparent blur-xl animate-pulse" />
+                    <div className="absolute top-0 right-4 w-8 h-32 bg-gradient-to-b from-orange-500/20 to-transparent blur-xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-purple-500/10 rounded-full blur-3xl" />
+                </div>
+
+                <DialogHeader className="relative z-10">
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                        <Flame className="w-5 h-5 text-orange-400 animate-pulse" />
+                        <DialogTitle className="text-2xl font-serif text-purple-200">The Dungeon Challenge</DialogTitle>
+                        <Flame className="w-5 h-5 text-orange-400 animate-pulse" style={{ animationDelay: '0.3s' }} />
+                    </div>
+                    <DialogDescription className="text-purple-300/70 text-sm italic text-center">
+                        You descend into a damp, torch-lit dungeon. A voice from the shadows challenges you...
+                        <br />
+                        <span className="text-purple-200 font-medium">&quot;Is the next number higher or lower?&quot;</span>
+                    </DialogDescription>
                 </DialogHeader>
 
+                {/* Progress Bar */}
+                <div className="relative z-10 w-full h-2 bg-zinc-800/50 rounded-full overflow-hidden border border-purple-800/20">
+                    <div
+                        className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+
                 {gameState === 'playing' && questions[currentIndex] ? (
-                    <div className="space-y-4">
-                        <div className="text-lg font-semibold text-center">{questions[currentIndex].fact}</div>
-                        <div className="flex gap-4 justify-center">
-                            <Button onClick={() => handleGuess('higher')}>Higher</Button>
-                            <Button onClick={() => handleGuess('lower')}>Lower</Button>
+                    <div className="relative z-10 space-y-6 py-4">
+                        {/* Current Fact Card */}
+                        <div className="bg-zinc-900/80 border border-purple-700/30 rounded-lg p-6 text-center shadow-inner">
+                            <p className="text-lg font-medium text-zinc-100 leading-relaxed">
+                                {questions[currentIndex].fact}
+                            </p>
                         </div>
-                        <div className="text-sm text-center text-gray-400">Current Score: {score}</div>
+
+                        {/* Choice Buttons */}
+                        <div className="flex gap-4 justify-center">
+                            <Button
+                                onClick={() => handleGuess('higher')}
+                                className="flex-1 py-8 bg-gradient-to-b from-emerald-800 to-emerald-900 hover:from-emerald-700 hover:to-emerald-800 border border-emerald-600/30 text-emerald-100 font-serif text-lg gap-2 shadow-lg shadow-emerald-900/30"
+                            >
+                                <ChevronUp className="w-6 h-6" />
+                                Higher
+                            </Button>
+                            <Button
+                                onClick={() => handleGuess('lower')}
+                                className="flex-1 py-8 bg-gradient-to-b from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 border border-red-600/30 text-red-100 font-serif text-lg gap-2 shadow-lg shadow-red-900/30"
+                            >
+                                <ChevronDown className="w-6 h-6" />
+                                Lower
+                            </Button>
+                        </div>
+
+                        {/* Score Display */}
+                        <div className="flex items-center justify-center gap-2 text-purple-300/70">
+                            <Skull className="w-4 h-4" />
+                            <span className="text-sm font-medium">Current Score: {score}</span>
+                        </div>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        <div className="text-lg font-semibold text-center">{resultMessage}</div>
-                        <Button className="w-full" onClick={onClose}>Close</Button>
+                    <div className="relative z-10 space-y-6 py-8 text-center">
+                        <div className={cn(
+                            "inline-flex items-center justify-center w-20 h-20 rounded-full mb-4",
+                            score >= (questions.length - 1)
+                                ? "bg-amber-500/20 border-2 border-amber-400/50"
+                                : "bg-purple-500/20 border-2 border-purple-400/50"
+                        )}>
+                            <Trophy className={cn(
+                                "w-10 h-10",
+                                score >= (questions.length - 1) ? "text-amber-400" : "text-purple-400"
+                            )} />
+                        </div>
+                        <div>
+                            <h3 className={cn(
+                                "text-2xl font-serif mb-2",
+                                score >= (questions.length - 1) ? "text-amber-300" : "text-purple-200"
+                            )}>
+                                {score >= (questions.length - 1) ? "Perfect Victory!" : "Challenge Complete"}
+                            </h3>
+                            <p className="text-zinc-300">{resultMessage}</p>
+                        </div>
+                        <Button
+                            className="w-full py-5 bg-purple-700 hover:bg-purple-600 text-white font-serif"
+                            onClick={onClose}
+                        >
+                            Leave the Dungeon
+                        </Button>
                     </div>
                 )}
             </DialogContent>
         </Dialog>
     )
 }
+
