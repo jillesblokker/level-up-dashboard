@@ -15,7 +15,10 @@ export default function ChroniclePage() {
     useEffect(() => {
         async function loadEntries() {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            if (!user) {
+                setIsLoading(false)
+                return
+            }
 
             const { data } = await supabase
                 .from('chronicle_entries')
