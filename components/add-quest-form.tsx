@@ -81,7 +81,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
 
         try {
             const token = await getToken({ template: 'supabase' })
-            const response = await fetch('/api/quests', {
+            const response = await fetch('/api/quests/new', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -41,7 +41,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
 
         try {
             const token = await getToken({ template: 'supabase' })
-            const response = await fetch('/api/challenges/custom', {
+            const response = await fetch('/api/challenges', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

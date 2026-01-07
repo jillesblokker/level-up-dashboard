@@ -210,7 +210,7 @@ export async function PUT(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, description, category, difficulty } = body;
+    const { id, name, description, category, difficulty, target, unit } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Milestone ID is required' }, { status: 400 });
@@ -230,6 +230,8 @@ export async function PATCH(request: Request) {
           difficulty: difficulty || undefined,
           xp: difficulty ? calculateRewards(difficulty).xp : undefined,
           gold: difficulty ? calculateRewards(difficulty).gold : undefined,
+          target: target || undefined,
+          unit: unit || undefined,
         })
         .eq('id', id)
         .select()

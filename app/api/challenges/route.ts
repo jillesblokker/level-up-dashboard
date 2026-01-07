@@ -379,7 +379,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, description, category, difficulty } = body;
+    const { id, name, description, category, difficulty, mandate_period, mandate_count } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Challenge ID is required' }, { status: 400 });
@@ -399,6 +399,8 @@ export async function PATCH(request: Request) {
           difficulty: difficulty || undefined,
           xp: difficulty ? calculateRewards(difficulty).xp : undefined,
           gold: difficulty ? calculateRewards(difficulty).gold : undefined,
+          mandate_period: mandate_period || undefined,
+          mandate_count: mandate_count || undefined,
         })
         .eq('id', id)
         .select()

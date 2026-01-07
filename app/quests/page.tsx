@@ -69,6 +69,8 @@ interface Quest {
   date?: Date;
   isNew: boolean;
   completionId?: string;
+  mandate_period?: string;
+  mandate_count?: number;
 }
 
 const categoryIcons = {
@@ -1044,7 +1046,11 @@ export default function QuestsPage() {
   };
 
   const handleEditQuest = (quest: Quest) => {
-    setEditingQuest(quest);
+    setEditingQuest({
+      ...quest,
+      mandate_period: quest.mandate_period || 'daily',
+      mandate_count: quest.mandate_count || 1
+    });
     setEditModalOpen(true);
   };
 
@@ -1164,7 +1170,11 @@ export default function QuestsPage() {
   };
 
   const handleEditChallenge = (challenge: any) => {
-    setEditingChallenge(challenge);
+    setEditingChallenge({
+      ...challenge,
+      mandate_period: challenge.mandate_period || 'daily',
+      mandate_count: challenge.mandate_count || 1
+    });
     setEditChallengeModalOpen(true);
   };
 
@@ -1251,6 +1261,7 @@ export default function QuestsPage() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({
               questId: quest.id,
@@ -1731,6 +1742,8 @@ export default function QuestsPage() {
           difficulty: updatedQuest.difficulty,
           xp_reward: updatedQuest.xp || 50,
           gold_reward: updatedQuest.gold || 25,
+          mandate_period: updatedQuest.mandate_period || 'daily',
+          mandate_count: updatedQuest.mandate_count || 1,
         })
       });
 
@@ -1788,7 +1801,9 @@ export default function QuestsPage() {
           category: updatedChallenge.category,
           difficulty: updatedChallenge.difficulty,
           xp: updatedChallenge.xp,
-          gold: updatedChallenge.gold
+          gold: updatedChallenge.gold,
+          mandate_period: updatedChallenge.mandate_period || 'daily',
+          mandate_count: updatedChallenge.mandate_count || 1
         })
       });
 
@@ -1842,7 +1857,9 @@ export default function QuestsPage() {
           category: updatedMilestone.category,
           difficulty: updatedMilestone.difficulty,
           xp: updatedMilestone.xp,
-          gold: updatedMilestone.gold
+          gold: updatedMilestone.gold,
+          target: updatedMilestone.target,
+          unit: updatedMilestone.unit
         })
       });
 
@@ -2622,226 +2639,390 @@ export default function QuestsPage() {
         {/* Bottom spacing */}
         <div className="h-8 md:h-12"></div>
         {/* Edit Quest Modal */}
-        {editModalOpen && editingQuest && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">{TEXT_CONTENT.questBoard.modals.editQuest.title}</h2>
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  handleEditQuestSubmit(editingQuest);
-                }}
-              >
-                <label className="block mb-2 text-sm font-medium">Name</label>
+        <ResponsiveModal
+          isOpen={editModalOpen && !!editingQuest}
+          onClose={() => { setEditModalOpen(false); setEditingQuest(null); }}
+          title={TEXT_CONTENT.questBoard.modals.editQuest.title}
+        >
+          {editingQuest && (
+            <div className="space-y-6 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Name</label>
                 <input
-                  className="w-full mb-4 p-2 border rounded"
+                  className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-gray-900/80 outline-none transition-all duration-300 text-white placeholder:text-gray-700"
                   value={editingQuest.name}
                   onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
                   placeholder="Quest name"
-                  title="Quest name"
-                  aria-label="Quest name"
                   required
                 />
-                <label className="block mb-2 text-sm font-medium">Description</label>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Description</label>
                 <textarea
-                  className="w-full mb-4 p-2 border rounded resize-none"
-                  rows={3}
+                  className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-gray-900/80 outline-none transition-all duration-300 min-h-[100px] resize-none text-gray-200 placeholder:text-gray-700"
                   value={editingQuest.description}
                   onChange={e => setEditingQuest({ ...editingQuest, description: e.target.value })}
                   placeholder="Quest description"
-                  title="Quest description"
-                  aria-label="Quest description"
                 />
-                <label className="block mb-2 text-sm font-medium">Category</label>
-                <select
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingQuest.category}
-                  onChange={e => setEditingQuest({ ...editingQuest, category: e.target.value })}
-                  aria-label="Quest category"
-                >
-                  {questCategories.map((category: string) => (
-                    <option key={category} value={category}>{getCategoryLabel(category)}</option>
-                  ))}
-                </select>
-                <label className="block mb-2 text-sm font-medium">Difficulty</label>
-                <input
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingQuest.difficulty}
-                  onChange={e => setEditingQuest({ ...editingQuest, difficulty: e.target.value })}
-                  placeholder="Difficulty"
-                  title="Difficulty"
-                  aria-label="Difficulty"
-                />
+              </div>
 
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="secondary" onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}>{TEXT_CONTENT.questBoard.modals.editQuest.cancel}</Button>
-                  <Button type="submit" variant="default">{TEXT_CONTENT.questBoard.modals.editQuest.save}</Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.categoryLabel}</label>
+                  <Select
+                    value={editingQuest.category}
+                    onValueChange={(val) => setEditingQuest({ ...editingQuest, category: val })}
+                  >
+                    <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full text-white">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                      {questCategories.map((cat) => (
+                        <SelectItem key={cat} value={cat} className="focus:bg-amber-500/10 focus:text-amber-200">
+                          <div className="flex items-center gap-3 py-1">
+                            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                              {React.createElement(categoryIcons[cat as keyof typeof categoryIcons] || Sword, { className: "w-4 h-4" })}
+                            </div>
+                            <span className="font-medium">{categoryLabels[cat as keyof typeof categoryLabels] || cat}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </form>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.difficultyLabel}</label>
+                  <Select
+                    value={editingQuest.difficulty}
+                    onValueChange={(val) => setEditingQuest({ ...editingQuest, difficulty: val })}
+                  >
+                    <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full text-white">
+                      <SelectValue placeholder="Select Difficulty" />
+                    </SelectTrigger>
+                    <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                      {Object.entries(difficultySettings).map(([key, value]) => (
+                        <SelectItem key={key} value={key} className="focus:bg-amber-500/10 focus:text-amber-200">
+                          <div className="flex items-center gap-3 py-1">
+                            <div className={`p-2 bg-gray-800 rounded-lg ${value.color}`}>
+                              {value.icon}
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-200">{value.label}</div>
+                              <div className="text-[10px] text-gray-500 uppercase flex gap-2">
+                                <span>+{value.gold} Gold</span>
+                                <span>+{value.xp} XP</span>
+                              </div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Strategic Mandate Section */}
+              <div className="space-y-4 p-5 bg-gray-950/40 border-2 border-amber-900/20 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                    <Select
+                      value={editingQuest.mandate_period || 'daily'}
+                      onValueChange={(val) => setEditingQuest({ ...editingQuest, mandate_period: val as any })}
+                    >
+                      <SelectTrigger className="h-12 bg-gray-900/50 border border-amber-900/30 rounded-xl transition-all hover:border-amber-500/30 text-white text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                        <SelectItem value="daily">{TEXT_CONTENT.quests.mastery.form.periods.daily}</SelectItem>
+                        <SelectItem value="weekly">{TEXT_CONTENT.quests.mastery.form.periods.weekly}</SelectItem>
+                        <SelectItem value="monthly">{TEXT_CONTENT.quests.mastery.form.periods.monthly}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max={editingQuest.mandate_period === 'weekly' ? 7 : 31}
+                        className="h-12 w-full bg-gray-900/50 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all text-white text-sm"
+                        value={editingQuest.mandate_count || 1}
+                        onChange={(e) => setEditingQuest({ ...editingQuest, mandate_count: parseInt(e.target.value) || 1 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 px-6 rounded-xl border-amber-900/30 text-amber-500 hover:bg-amber-500/10 transition-all font-bold uppercase tracking-widest text-[10px]"
+                  onClick={() => { setEditModalOpen(false); setEditingQuest(null); }}
+                >
+                  {TEXT_CONTENT.questBoard.modals.editQuest.cancel}
+                </Button>
+                <Button
+                  type="button"
+                  className="h-12 px-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 transition-all font-bold uppercase tracking-widest text-[10px]"
+                  onClick={() => handleEditQuestSubmit(editingQuest)}
+                >
+                  {TEXT_CONTENT.questBoard.modals.editQuest.save}
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </ResponsiveModal>
 
         {/* Edit Challenge Modal */}
-        {editChallengeModalOpen && editingChallenge && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black backdrop-blur-sm" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }} />
-            <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">{TEXT_CONTENT.questBoard.modals.editChallenge.title}</h2>
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  handleEditChallengeSubmit(editingChallenge);
-                }}
-              >
-                <label className="block mb-2 text-sm font-medium">Name</label>
+        <ResponsiveModal
+          isOpen={editChallengeModalOpen && !!editingChallenge}
+          onClose={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}
+          title={TEXT_CONTENT.questBoard.modals.editChallenge.title}
+        >
+          {editingChallenge && (
+            <div className="space-y-6 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 ml-1">Name</label>
                 <input
-                  className="w-full mb-4 p-2 border rounded"
+                  className="w-full p-4 bg-zinc-950/50 border-2 border-red-900/10 rounded-xl focus:border-red-500/30 focus:bg-zinc-900/80 outline-none transition-all duration-300 text-white placeholder:text-zinc-800"
                   value={editingChallenge.name}
                   onChange={e => setEditingChallenge({ ...editingChallenge, name: e.target.value })}
                   placeholder="Challenge name"
-                  title="Challenge name"
-                  aria-label="Challenge name"
                   required
                 />
-                <label className="block mb-2 text-sm font-medium">Description</label>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 ml-1">Description</label>
                 <textarea
-                  className="w-full mb-4 p-2 border rounded resize-none"
-                  rows={3}
+                  className="w-full p-4 bg-zinc-950/50 border-2 border-red-900/10 rounded-xl focus:border-red-500/30 focus:bg-zinc-900/80 outline-none transition-all duration-300 min-h-[100px] resize-none text-zinc-200 placeholder:text-zinc-800"
                   value={editingChallenge.description}
                   onChange={e => setEditingChallenge({ ...editingChallenge, description: e.target.value })}
                   placeholder="Challenge description"
-                  title="Challenge description"
-                  aria-label="Challenge description"
                 />
-                <label className="block mb-2 text-sm font-medium">Category</label>
-                <select
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingChallenge.category}
-                  onChange={e => setEditingChallenge({ ...editingChallenge, category: e.target.value })}
-                  aria-label="Challenge category"
-                >
-                  <option value="HIIT & Full Body">HIIT & Full Body</option>
-                </select>
-                <label className="block mb-2 text-sm font-medium">Difficulty</label>
-                <select
-                  className="w-full mb-4 p-2 border rounded"
-                  value={editingChallenge.difficulty}
-                  onChange={e => setEditingChallenge({ ...editingChallenge, difficulty: e.target.value })}
-                  aria-label="Challenge difficulty"
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
+              </div>
 
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="secondary" onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}>{TEXT_CONTENT.questBoard.modals.editChallenge.cancel}</Button>
-                  <Button type="submit" variant="default">{TEXT_CONTENT.questBoard.modals.editChallenge.save}</Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 ml-1">Category</label>
+                  <Select
+                    value={editingChallenge.category}
+                    onValueChange={(val) => setEditingChallenge({ ...editingChallenge, category: val })}
+                  >
+                    <SelectTrigger className="h-14 bg-zinc-950/50 border-2 border-red-900/20 rounded-xl transition-all hover:border-red-500/30 w-full text-white">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
+                      <SelectItem value="Might">Might</SelectItem>
+                      <SelectItem value="Knowledge">Knowledge</SelectItem>
+                      <SelectItem value="Spirit">Spirit</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </form>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 ml-1">Difficulty</label>
+                  <Select
+                    value={editingChallenge.difficulty}
+                    onValueChange={(val) => setEditingChallenge({ ...editingChallenge, difficulty: val })}
+                  >
+                    <SelectTrigger className="h-14 bg-zinc-950/50 border-2 border-red-900/20 rounded-xl transition-all hover:border-red-500/30 w-full text-white">
+                      <SelectValue placeholder="Select Difficulty" />
+                    </SelectTrigger>
+                    <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
+                      <SelectItem value="epic">Epic</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Strategic Mandate Section */}
+              <div className="space-y-4 p-5 bg-red-950/10 border-2 border-red-900/20 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-bold uppercase tracking-wider text-red-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                    <Select
+                      value={editingChallenge.mandate_period || 'daily'}
+                      onValueChange={(val) => setEditingChallenge({ ...editingChallenge, mandate_period: val as any })}
+                    >
+                      <SelectTrigger className="h-12 bg-zinc-900/50 border border-red-900/30 rounded-xl transition-all hover:border-red-500/30 text-white text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
+                        <SelectItem value="daily">{TEXT_CONTENT.quests.mastery.form.periods.daily}</SelectItem>
+                        <SelectItem value="weekly">{TEXT_CONTENT.quests.mastery.form.periods.weekly}</SelectItem>
+                        <SelectItem value="monthly">{TEXT_CONTENT.quests.mastery.form.periods.monthly}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max={editingChallenge.mandate_period === 'weekly' ? 7 : 31}
+                        className="h-12 w-full bg-zinc-900/50 border border-red-900/30 rounded-xl px-4 focus:border-red-500/50 outline-none transition-all text-white text-sm"
+                        value={editingChallenge.mandate_count || 1}
+                        onChange={(e) => setEditingChallenge({ ...editingChallenge, mandate_count: parseInt(e.target.value) || 1 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 px-6 rounded-xl border-red-900/30 text-red-500 hover:bg-red-500/10 transition-all font-bold uppercase tracking-widest text-[10px]"
+                  onClick={() => { setEditChallengeModalOpen(false); setEditingChallenge(null); }}
+                >
+                  {TEXT_CONTENT.questBoard.modals.editChallenge.cancel}
+                </Button>
+                <Button
+                  type="button"
+                  className="h-12 px-8 rounded-xl bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 transition-all font-bold uppercase tracking-widest text-[10px]"
+                  onClick={() => handleEditChallengeSubmit(editingChallenge)}
+                >
+                  {TEXT_CONTENT.questBoard.modals.editChallenge.save}
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </ResponsiveModal>
 
         {/* Edit Milestone Modal */}
         <ResponsiveModal
           isOpen={editMilestoneModalOpen && !!editingMilestone}
           onClose={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
           title={TEXT_CONTENT.questBoard.modals.editMilestone.title}
-          footer={
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
-              >
-                {TEXT_CONTENT.questBoard.modals.editMilestone.cancel}
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={() => handleEditMilestoneSubmit(editingMilestone)}
-              >
-                {TEXT_CONTENT.questBoard.modals.editMilestone.save}
-              </Button>
-            </>
-          }
         >
           {editingMilestone && (
-            <>
-              <label className="block mb-2 text-sm font-medium">Name</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.name}
-                onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
-                placeholder="Milestone name"
-                title="Milestone name"
-                aria-label="Milestone name"
-                required
-              />
-              <label className="block mb-2 text-sm font-medium">Description</label>
-              <textarea
-                className="w-full mb-4 p-2 border rounded resize-none"
-                rows={3}
-                value={editingMilestone.description}
-                onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
-                placeholder="Milestone description"
-                title="Milestone description"
-                aria-label="Milestone description"
-              />
-              <label className="block mb-2 text-sm font-medium">Category</label>
-              <Select
-                value={editingMilestone.category}
-                onValueChange={(value) => setEditingMilestone({ ...editingMilestone, category: value })}
-              >
-                <SelectTrigger className="w-full mb-4">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {questCategories.map((category: string) => (
-                    <SelectItem key={category} value={category}>
-                      {getCategoryLabel(category)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <label className="block mb-2 text-sm font-medium">Difficulty</label>
-              <Select
-                value={editingMilestone.difficulty}
-                onValueChange={(value) => setEditingMilestone({ ...editingMilestone, difficulty: value })}
-              >
-                <SelectTrigger className="w-full mb-4">
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="space-y-6 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-bold uppercase tracking-wider text-blue-500/80 ml-1">Name</label>
+                <input
+                  className="w-full p-4 bg-blue-950/10 border-2 border-blue-900/10 rounded-xl focus:border-blue-500/30 focus:bg-blue-900/20 outline-none transition-all duration-300 text-white placeholder:text-blue-900/30"
+                  value={editingMilestone.name}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, name: e.target.value })}
+                  placeholder="Milestone name"
+                  required
+                />
+              </div>
 
-              <label className="block mb-2 text-sm font-medium">Target</label>
-              <input
-                type="number"
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.target}
-                onChange={e => setEditingMilestone({ ...editingMilestone, target: Number(e.target.value) })}
-                placeholder="Target value"
-                title="Target value"
-                aria-label="Target value"
-              />
-              <label className="block mb-2 text-sm font-medium">Unit</label>
-              <input
-                className="w-full mb-4 p-2 border rounded"
-                value={editingMilestone.unit}
-                onChange={e => setEditingMilestone({ ...editingMilestone, unit: e.target.value })}
-                placeholder="Unit (e.g. times, minutes)"
-                title="Unit"
-                aria-label="Unit"
-              />
-            </>
+              <div className="space-y-2">
+                <label className="text-sm font-bold uppercase tracking-wider text-blue-500/80 ml-1">Description</label>
+                <textarea
+                  className="w-full p-4 bg-blue-950/10 border-2 border-blue-900/10 rounded-xl focus:border-blue-500/30 focus:bg-blue-900/20 outline-none transition-all duration-300 min-h-[100px] resize-none text-zinc-200 placeholder:text-blue-900/30"
+                  value={editingMilestone.description}
+                  onChange={e => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
+                  placeholder="Milestone description"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-blue-500/80 ml-1">{TEXT_CONTENT.quests.form.categoryLabel}</label>
+                  <Select
+                    value={editingMilestone.category}
+                    onValueChange={(val) => setEditingMilestone({ ...editingMilestone, category: val })}
+                  >
+                    <SelectTrigger className="h-14 bg-blue-950/10 border-2 border-blue-900/20 rounded-xl transition-all hover:border-blue-500/30 w-full text-white">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent side="top" className="bg-zinc-900 border-blue-900/50">
+                      {questCategories.map((cat) => (
+                        <SelectItem key={cat} value={cat} className="focus:bg-blue-500/10 focus:text-blue-200">
+                          <div className="flex items-center gap-3 py-1">
+                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                              {React.createElement(categoryIcons[cat as keyof typeof categoryIcons] || Sword, { className: "w-4 h-4" })}
+                            </div>
+                            <span className="font-medium">{categoryLabels[cat as keyof typeof categoryLabels] || cat}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-blue-500/80 ml-1">{TEXT_CONTENT.quests.form.difficultyLabel}</label>
+                  <Select
+                    value={editingMilestone.difficulty}
+                    onValueChange={(val) => setEditingMilestone({ ...editingMilestone, difficulty: val })}
+                  >
+                    <SelectTrigger className="h-14 bg-blue-950/10 border-2 border-blue-900/20 rounded-xl transition-all hover:border-blue-500/30 w-full text-white">
+                      <SelectValue placeholder="Select Difficulty" />
+                    </SelectTrigger>
+                    <SelectContent side="top" className="bg-zinc-900 border-blue-900/50">
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-blue-500/80 ml-1">Target</label>
+                  <input
+                    type="number"
+                    className="w-full p-4 bg-blue-950/10 border-2 border-blue-900/10 rounded-xl focus:border-blue-500/30 focus:bg-blue-900/20 outline-none transition-all duration-300 text-white"
+                    value={editingMilestone.target}
+                    onChange={e => setEditingMilestone({ ...editingMilestone, target: Number(e.target.value) })}
+                    placeholder="Target value"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold uppercase tracking-wider text-blue-500/80 ml-1">Unit</label>
+                  <input
+                    className="w-full p-4 bg-blue-950/10 border-2 border-blue-900/10 rounded-xl focus:border-blue-500/30 focus:bg-blue-900/20 outline-none transition-all duration-300 text-white placeholder:text-blue-900/30"
+                    value={editingMilestone.unit}
+                    onChange={e => setEditingMilestone({ ...editingMilestone, unit: e.target.value })}
+                    placeholder="e.g. times"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 px-6 rounded-xl border-blue-900/30 text-blue-500 hover:bg-blue-500/10 transition-all font-bold uppercase tracking-widest text-[10px]"
+                  onClick={() => { setEditMilestoneModalOpen(false); setEditingMilestone(null); }}
+                >
+                  {TEXT_CONTENT.questBoard.modals.editMilestone.cancel}
+                </Button>
+                <Button
+                  type="button"
+                  className="h-12 px-8 rounded-xl bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20 transition-all font-bold uppercase tracking-widest text-[10px]"
+                  onClick={() => handleEditMilestoneSubmit(editingMilestone)}
+                >
+                  {TEXT_CONTENT.questBoard.modals.editMilestone.save}
+                </Button>
+              </div>
+            </div>
           )}
         </ResponsiveModal>
         {/* Delete Milestone Confirmation Modal */}
