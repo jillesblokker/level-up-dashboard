@@ -177,20 +177,18 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         onValueChange={(val) => setNewQuest({ ...newQuest, category: val })}
                     >
                         <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
-                            <SelectValue placeholder="Select Category">
-                                <div className="flex items-center gap-3">
-                                    {newQuest.category && categoryIcons[newQuest.category as keyof typeof categoryIcons] ? (
-                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
-                                            {React.createElement(categoryIcons[newQuest.category as keyof typeof categoryIcons], { className: "w-4 h-4" })}
-                                        </div>
-                                    ) : (
-                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
-                                            <Sword className="w-4 h-4" />
-                                        </div>
-                                    )}
-                                    <span className="font-medium text-gray-200">{categoryLabels[newQuest.category as keyof typeof categoryLabels]}</span>
-                                </div>
-                            </SelectValue>
+                            <div className="flex items-center gap-3">
+                                {newQuest.category && categoryIcons[newQuest.category as keyof typeof categoryIcons] ? (
+                                    <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                                        {React.createElement(categoryIcons[newQuest.category as keyof typeof categoryIcons], { className: "w-4 h-4" })}
+                                    </div>
+                                ) : (
+                                    <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                                        <Sword className="w-4 h-4" />
+                                    </div>
+                                )}
+                                <SelectValue placeholder="Select Category" />
+                            </div>
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
                             {questCategories.map((cat) => (
@@ -214,20 +212,18 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         onValueChange={(val) => setNewQuest({ ...newQuest, difficulty: val })}
                     >
                         <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
-                            <SelectValue placeholder="Select Difficulty">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 bg-gray-800 rounded-lg ${difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].color}`}>
-                                        {difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].icon}
-                                    </div>
-                                    <div className="flex flex-col items-start translate-y-[1px]">
-                                        <span className="font-bold text-sm leading-tight text-gray-200">{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].label}</span>
-                                        <div className="text-[10px] text-gray-500 uppercase flex gap-2">
-                                            <span>+{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].gold} Gold</span>
-                                            <span>+{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].xp} XP</span>
-                                        </div>
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 bg-gray-800 rounded-lg ${difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].color}`}>
+                                    {difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].icon}
+                                </div>
+                                <div className="flex flex-col items-start translate-y-[1px]">
+                                    <SelectValue placeholder="Select Difficulty" />
+                                    <div className="text-[10px] text-gray-500 uppercase flex gap-2">
+                                        <span>+{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].gold} Gold</span>
+                                        <span>+{difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].xp} XP</span>
                                     </div>
                                 </div>
-                            </SelectValue>
+                            </div>
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
                             {Object.entries(difficultySettings).map(([key, value]) => (
