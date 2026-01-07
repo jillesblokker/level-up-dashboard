@@ -15,9 +15,10 @@ import { gainExperience } from '@/lib/experience-manager'
 import { useToast } from '@/components/ui/use-toast'
 import {
     Music, CloudRain, CloudSun, Snowflake, Hammer,
-    Trees, Ghost, Coins, Sprout, Droplets
+    Trees, Ghost, Coins, Sprout, Droplets, Trophy, Zap, Skull
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 // Types
 type GameState = 'intro' | 'playing' | 'success' | 'fail'
@@ -573,42 +574,95 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
     const GameComponent = content.comp
     const Icon = content.icon
 
+    const getImageForType = (type: string) => {
+        switch (type) {
+            case 'coral_reef': case 'mermaid': return '/images/tiles/coral_reef-tile.png'
+            case 'floating_island': case 'island': return '/images/tiles/floating_island-tile.png'
+            case 'crystal_cavern': return '/images/tiles/crystal_cavern-tile.png'
+            case 'jungle': return '/images/tiles/jungle-tile.png'
+            case 'ruins': return '/images/tiles/ruins-tile.png'
+            case 'graveyard': return '/images/tiles/graveyard-tile.png'
+            case 'oasis': return '/images/tiles/oasis-tile.png'
+            case 'farmland': return '/images/tiles/farmland-tile.png'
+            default: return '/images/tiles/grass-tile.png'
+        }
+    }
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700 text-white">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-xl text-amber-500">
-                        <Icon className="w-6 h-6" />
-                        {content.title}
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-400">
-                        {content.desc}
-                    </DialogDescription>
-                </DialogHeader>
+            <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-0">
+                <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
 
-                <div className="py-4 min-h-[200px] flex items-center justify-center">
-                    {gameState === 'success' ? (
-                        <div className="text-center animate-in zoom-in spin-in-3">
-                            <h3 className="text-2xl font-bold text-green-400 mb-2">Success!</h3>
-                            <p className="text-lg">{reward}</p>
-                            <Button onClick={onClose} className="mt-6">Continue Journey</Button>
+                <div className="relative z-10 p-6 flex flex-col items-center">
+                    <DialogHeader className="w-full text-center items-center">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-500">
+                            <Icon className="w-3 h-3" />
+                            {content.title}
                         </div>
-                    ) : gameState === 'fail' ? (
-                        <div className="text-center animate-in shake">
-                            <h3 className="text-2xl font-bold text-red-400 mb-2">Failed!</h3>
-                            <p className="text-gray-400">Better luck next time.</p>
-                            <Button onClick={onClose} variant="ghost" className="mt-6">Close</Button>
+                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                            {content.desc}
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    {/* Portrait Display */}
+                    <div className="relative w-full flex flex-col items-center py-8">
+                        <div className="relative group">
+                            <div className="absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 bg-amber-500" />
+                            <div className="absolute -inset-4 border border-dashed rounded-full animate-spin-slow opacity-30 border-amber-500/40" style={{ animationDuration: '15s' }} />
+                            <div className="relative w-40 h-40 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-500/30">
+                                <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
+                                    <Image
+                                        src={getImageForType(tileType)}
+                                        alt={content.title}
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
+                                </div>
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-zinc-900 border border-amber-500/50 flex items-center justify-center shadow-xl">
+                                <Zap className="w-6 h-6 text-amber-500 animate-pulse" />
+                            </div>
                         </div>
-                    ) : (
-                        <div className="w-full">
-                            <GameComponent
-                                gameState={gameState}
-                                setGameState={setGameState}
-                                setReward={setReward}
-                                onWeatherChange={onWeatherChange}
-                            />
-                        </div>
-                    )}
+                    </div>
+
+                    <div className="w-full min-h-[160px] flex items-center justify-center">
+                        {gameState === 'success' ? (
+                            <div className="text-center animate-in zoom-in-95 duration-300 w-full">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 border border-green-500/30 mb-4">
+                                    <Trophy className="w-8 h-8 text-green-400" />
+                                </div>
+                                <h3 className="text-2xl font-serif font-bold text-white mb-2">Success!</h3>
+                                <div className="bg-zinc-900/60 rounded-xl p-3 mb-6 border border-white/5">
+                                    <p className="text-lg text-amber-200 font-medium">{reward}</p>
+                                </div>
+                                <Button onClick={onClose} className="w-full h-12 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg">
+                                    Continue Journey
+                                </Button>
+                            </div>
+                        ) : gameState === 'fail' ? (
+                            <div className="text-center animate-in shake duration-300 w-full">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 border border-red-500/30 mb-4">
+                                    <Skull className="w-8 h-8 text-red-500" />
+                                </div>
+                                <h3 className="text-2xl font-serif font-bold text-white mb-2">Defeat!</h3>
+                                <p className="text-zinc-400 mb-6">The challenge proved too great this time.</p>
+                                <Button onClick={onClose} variant="secondary" className="w-full h-12 rounded-xl">
+                                    Close
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="w-full">
+                                <GameComponent
+                                    gameState={gameState}
+                                    setGameState={setGameState}
+                                    setReward={setReward}
+                                    onWeatherChange={onWeatherChange}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>

@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import { Sparkles, Award, Coins, Brain } from "lucide-react"
+import { Sparkles, Award, Coins, Brain, Heart, Star, CheckCircle2, XCircle } from "lucide-react"
 import { TEXT_CONTENT } from "@/lib/text-content"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 // Medieval-themed riddles with answers
 const riddles = [
@@ -48,7 +50,7 @@ const riddles = [
     answer: "The letter M",
   },
   {
-    question: "I'm light as a feather, yet the strongest man cannot hold me for much more than a minute. What am I?",
+    question: "I'm light as a feather, yet the strongest hero cannot hold me for much more than a minute. What am I?",
     options: ["Breath", "Thought", "Time", "Hope"],
     answer: "Breath",
   },
@@ -258,7 +260,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
   // Define currentRiddleData once for the whole component
   const currentRiddleData = riddles[currentRiddle] || null
 
-  // Get a random riddle
+  // Get a random riddle on mount
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * riddles.length)
     setCurrentRiddle(randomIndex)
@@ -271,12 +273,10 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
     if (selectedOption !== null) return // Prevent multiple selections
 
     setSelectedOption(option)
-    // Use currentRiddleData from component scope
     const correct = currentRiddleData ? option === currentRiddleData.answer : false
     setIsCorrect(correct)
 
     if (correct) {
-      // Award XP for correct answer
       const xpAmount = 50
       setStats((prev) => ({
         ...prev,
@@ -292,10 +292,8 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       toast({
         title: TEXT_CONTENT.riddleChallenge.success.title,
         description: TEXT_CONTENT.riddleChallenge.success.description.replace('{xpAmount}', xpAmount.toString()),
-        variant: "default",
       })
     } else {
-      // Deduct gold for incorrect answer
       const goldAmount = 50
 
       if (gold >= goldAmount) {
@@ -321,10 +319,9 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       }
     }
 
-    // Show the correct answer after a delay
     setTimeout(() => {
       setShowAnswer(true)
-    }, 1000)
+    }, 800)
   }
 
   const handleNextRiddle = () => {
@@ -336,75 +333,130 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
   }
 
   return (
-    <Card className="medieval-card w-full max-w-md mx-auto overflow-hidden">
-      <CardHeader className="bg-amber-800/10 border-b border-amber-800/20">
+    <Card className="relative bg-zinc-950 border-zinc-800 shadow-2xl overflow-hidden group">
+      {/* Background Decorative Element */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/5 blur-[100px] pointer-events-none" />
+
+      <CardHeader className="bg-zinc-900/50 border-b border-white/5 relative z-10">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-xl font-medieval flex items-center">
-            <Brain className="mr-2 h-5 w-5" /> {TEXT_CONTENT.riddleChallenge.ui.title}
-          </CardTitle>
-          <div className="flex space-x-2">
-            <Badge className="text-amber-300 border-amber-800/20">
-              <Award className="mr-1 h-3 w-3" /> {stats.correct} Correct
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+              <Brain className="h-6 w-6 text-purple-400" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-serif text-white uppercase tracking-tight">
+                {TEXT_CONTENT.riddleChallenge.ui.title}
+              </CardTitle>
+              <CardDescription className="text-zinc-500 text-xs font-medium">
+                {TEXT_CONTENT.riddleChallenge.ui.description}
+              </CardDescription>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Badge variant="outline" className="bg-zinc-900 border-zinc-800 text-amber-400 font-bold px-3 py-1 gap-1.5 h-8">
+              <Star className="h-3 w-3 fill-amber-400" /> {stats.correct}
             </Badge>
-            <Badge className="text-amber-300 border-amber-800/20">
-              <Coins className="mr-1 h-3 w-3" /> {stats.goldSpent} Gold Spent
+            <Badge variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-400 font-bold px-3 py-1 gap-1.5 h-8">
+              <Coins className="h-3 w-3" /> {stats.goldSpent}
             </Badge>
           </div>
         </div>
-        <CardDescription>{TEXT_CONTENT.riddleChallenge.ui.description}</CardDescription>
       </CardHeader>
-      <CardContent className="pt-6 pb-2">
-        <div className="scroll-decoration p-4 mb-4">
-          <p className="text-lg font-medieval mb-4">
-            {currentRiddleData ? currentRiddleData.question : ""}
-          </p>
 
-          <div className="grid grid-cols-1 gap-2 mt-4">
+      <CardContent className="pt-8 pb-4 px-8 relative z-10 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
+        {/* Sage Portrait Container */}
+        <div className="relative shrink-0 mt-2">
+          {/* Animated Rings */}
+          <div className="absolute inset-0 rounded-full blur-2xl bg-purple-500/20 animate-pulse scale-110" />
+          <div className="absolute -inset-3 border border-dashed border-purple-500/30 rounded-full animate-spin-slow" style={{ animationDuration: '20s' }} />
+
+          <div className="relative w-36 h-36 rounded-full border-2 border-purple-500/40 p-1 bg-zinc-900 shadow-2xl">
+            <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
+              <Image
+                src="/images/riddle-sage.png"
+                alt="Celestial Sage"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+            </div>
+          </div>
+
+          {/* Decorative Floating Icon */}
+          <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-zinc-900 border border-purple-500/50 flex items-center justify-center shadow-lg">
+            <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+          </div>
+        </div>
+
+        <div className="flex-1 w-full flex flex-col">
+          <div className="bg-zinc-900/40 border border-white/5 rounded-2xl p-6 mb-8 relative">
+            <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white uppercase tracking-widest">
+              The Question
+            </div>
+            <p className="text-xl font-serif text-white leading-relaxed italic">
+              &quot;{currentRiddleData ? currentRiddleData.question : ""}&quot;
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {currentRiddleData &&
               currentRiddleData.options.map((option: string, index: number) => {
-                let variant: "default" | "destructive" | "outline" = "outline";
-                if (selectedOption === option) {
-                  variant = isCorrect ? "default" : "destructive";
-                } else if (showAnswer && option === currentRiddleData.answer) {
-                  variant = "default";
-                }
+                const isSelected = selectedOption === option;
+                const isCorrectAnswer = option === currentRiddleData.answer;
 
-                let extraClass = "";
-                if (selectedOption === option && isCorrect) {
-                  extraClass = "bg-green-600 hover:bg-green-700";
-                } else if (
-                  showAnswer &&
-                  option === currentRiddleData.answer &&
-                  selectedOption !== option
-                ) {
-                  extraClass = "bg-green-600 hover:bg-green-700";
+                let buttonStyle = "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800/80 hover:border-zinc-700";
+
+                if (showAnswer) {
+                  if (isCorrectAnswer) {
+                    buttonStyle = "bg-green-500/20 border-green-500/50 text-green-400";
+                  } else if (isSelected && !isCorrectAnswer) {
+                    buttonStyle = "bg-red-500/20 border-red-500/50 text-red-400";
+                  } else {
+                    buttonStyle = "bg-zinc-900/50 border-zinc-800/50 text-zinc-500 opacity-50";
+                  }
                 }
 
                 return (
                   <Button
                     key={index}
-                    variant={variant}
-                    className={`justify-start text-left p-4 h-auto ${extraClass} hover-scale btn-click-effect`}
                     onClick={() => handleOptionSelect(option)}
                     disabled={selectedOption !== null}
-                  >
-                    <span className="mr-2">{String.fromCharCode(65 + index)}.</span> {option}
-                    {selectedOption === option && isCorrect && (
-                      <Sparkles className={`ml-auto h-5 w-5 ${isAnimating ? "animate-pulse" : ""}`} />
+                    className={cn(
+                      "group relative h-14 justify-start px-6 rounded-xl border-2 transition-all duration-300 font-medium overflow-hidden",
+                      buttonStyle
                     )}
+                  >
+                    <span className="relative z-10 flex items-center w-full">
+                      <span className="mr-3 text-xs font-bold opacity-50 bg-white/5 w-6 h-6 flex items-center justify-center rounded-md">
+                        {String.fromCharCode(65 + index)}
+                      </span>
+                      {option}
+                      {showAnswer && isCorrectAnswer && (
+                        <CheckCircle2 className="ml-auto h-5 w-5 text-green-400" />
+                      )}
+                      {showAnswer && isSelected && !isCorrectAnswer && (
+                        <XCircle className="ml-auto h-5 w-5 text-red-400" />
+                      )}
+                    </span>
                   </Button>
                 );
               })}
           </div>
 
           {showAnswer && (
-            <div
-              className={`mt-4 p-3 rounded-md ${isCorrect
-                ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                }`}
-            >
-              <p className="font-medieval">
+            <div className={cn(
+              "mt-8 p-4 rounded-xl border animate-in slide-in-from-top-2 flex items-center gap-4",
+              isCorrect ? "bg-green-500/10 border-green-500/20" : "bg-amber-500/10 border-amber-500/20"
+            )}>
+              <div className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                isCorrect ? "bg-green-500/20" : "bg-amber-500/20"
+              )}>
+                {isCorrect ? <Award className="w-6 h-6 text-green-400" /> : <Star className="w-6 h-6 text-amber-400" />}
+              </div>
+              <p className="text-sm font-medium leading-relaxed">
                 {isCorrect
                   ? TEXT_CONTENT.riddleChallenge.ui.correctOverlay
                   : TEXT_CONTENT.riddleChallenge.ui.incorrectOverlay.replace('{answer}', currentRiddleData ? currentRiddleData.answer : "")}
@@ -413,12 +465,24 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between border-t border-amber-800/20 pt-4">
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medieval">XP Earned: {stats.xpEarned}</span>
+
+      <CardFooter className="bg-zinc-900/30 border-t border-white/5 p-6 flex justify-between items-center relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Total Earnings</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-blue-500" /> {stats.xpEarned} XP
+              </span>
+            </div>
+          </div>
         </div>
+
         {showAnswer && (
-          <Button onClick={handleNextRiddle} className="btn-primary-gradient hover-float btn-click-effect">
+          <Button
+            onClick={handleNextRiddle}
+            className="bg-purple-600 hover:bg-purple-500 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-purple-950/20 animate-in zoom-in-95 duration-300"
+          >
             Next Riddle
           </Button>
         )}
@@ -426,4 +490,3 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
     </Card>
   )
 }
-

@@ -27,6 +27,7 @@ import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { cn } from "@/lib/utils"
+import Image from 'next/image'
 import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
@@ -79,6 +80,9 @@ import { ErrorBoundary } from "@/components/error-boundary-component";
 
 
 const EnterLocationModal = dynamic(() => import('@/components/enter-location-modal').then(mod => ({ default: mod.EnterLocationModal })), {
+    ssr: false
+});
+const MysteryEventModal = dynamic(() => import('@/components/mystery-event-modal').then(mod => ({ default: mod.MysteryEventModal })), {
     ssr: false
 });
 
@@ -1512,90 +1516,106 @@ function RealmPageContent() {
                         onBattleComplete={handleBattleComplete}
                     />
                 )}
+                {/* Cave Event Modal */}
                 {caveEvent?.open && (
                     <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>
-                        <DialogContent aria-label="Cave Event Three Paths" role="dialog" aria-modal="true">
-                            <DialogHeader>
-                                <DialogTitle>{TEXT_CONTENT.realm.events.cave.title}</DialogTitle>
-                                <DialogDescription>{TEXT_CONTENT.realm.events.cave.desc}</DialogDescription>
-                            </DialogHeader>
-                            {!caveEvent.result ? (
-                                <div className="space-y-4 flex flex-col">
-                                    <Button className="w-full" aria-label="Gem Path" onClick={() => {
-                                        const roll = Math.random();
-                                        if (roll < 0.2) {
-                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res1a });
-                                            gainGold(80, 'cave-event');
-                                        } else {
-                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res1b });
-                                        }
-                                    }}>{TEXT_CONTENT.realm.events.cave.path1}</Button>
-                                    <Button className="w-full" aria-label="Dark Path" onClick={() => {
-                                        const roll = Math.random();
-                                        if (roll < 0.1) {
-                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res2a });
-                                            gainExperience(120, 'cave-event');
-                                        } else {
-                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res2b });
-                                        }
-                                    }}>{TEXT_CONTENT.realm.events.cave.path2}</Button>
-                                    <Button className="w-full" aria-label="Light at the End" onClick={() => {
-                                        const roll = Math.random();
-                                        if (roll < 0.9) {
-                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res3a });
-                                            gainGold(10, 'cave-event');
-                                        } else {
-                                            setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res3b });
-                                            gainGold(-10, 'cave-event');
-                                        }
-                                    }}>{TEXT_CONTENT.realm.events.cave.path3}</Button>
+                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-0">
+                            <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
+
+                            <div className="relative z-10 p-6 flex flex-col items-center">
+                                <DialogHeader className="w-full text-center items-center">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
+                                        <Compass className="w-3 h-3" />
+                                        Exploration Event
+                                    </div>
+                                    <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                        {TEXT_CONTENT.realm.events.cave.title}
+                                    </DialogTitle>
+                                    <DialogDescription className="text-zinc-400 text-center leading-relaxed max-w-[280px]">
+                                        {TEXT_CONTENT.realm.events.cave.desc}
+                                    </DialogDescription>
+                                </DialogHeader>
+
+                                {/* Cave Display */}
+                                <div className="relative w-full flex flex-col items-center py-8">
+                                    <div className="relative group">
+                                        <div className="absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 bg-blue-500" />
+                                        <div className="absolute -inset-4 border border-dashed rounded-full animate-spin-slow opacity-30 border-blue-400" style={{ animationDuration: '15s' }} />
+                                        <div className="relative w-48 h-48 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-blue-500/30">
+                                            <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
+                                                <Image
+                                                    src="/images/tiles/cave-tile.png"
+                                                    alt="Ancient Cave"
+                                                    fill
+                                                    className="object-cover"
+                                                    priority
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="text-lg font-semibold text-center">{caveEvent.result}</div>
-                                    <Button aria-label="Close" onClick={() => setCaveEvent(null)}>{TEXT_CONTENT.realm.events.cave.close}</Button>
-                                </div>
-                            )}
+
+                                {!caveEvent.result ? (
+                                    <div className="w-full space-y-3 mt-4">
+                                        <Button className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg border-t border-white/10"
+                                            onClick={() => {
+                                                const roll = Math.random();
+                                                if (roll < 0.2) {
+                                                    setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res1a });
+                                                    gainGold(80, 'cave-event');
+                                                } else {
+                                                    setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res1b });
+                                                }
+                                            }}>{TEXT_CONTENT.realm.events.cave.path1}</Button>
+                                        <Button className="w-full h-12 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-xl"
+                                            onClick={() => {
+                                                const roll = Math.random();
+                                                if (roll < 0.1) {
+                                                    setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res2a });
+                                                    gainExperience(120, 'cave-event');
+                                                } else {
+                                                    setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res2b });
+                                                }
+                                            }}>{TEXT_CONTENT.realm.events.cave.path2}</Button>
+                                        <Button variant="ghost" className="w-full h-12 text-zinc-400 hover:text-white"
+                                            onClick={() => {
+                                                const roll = Math.random();
+                                                if (roll < 0.9) {
+                                                    setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res3a });
+                                                    gainGold(10, 'cave-event');
+                                                } else {
+                                                    setCaveEvent({ open: true, result: TEXT_CONTENT.realm.events.cave.res3b });
+                                                    gainGold(-10, 'cave-event');
+                                                }
+                                            }}>{TEXT_CONTENT.realm.events.cave.path3}</Button>
+                                    </div>
+                                ) : (
+                                    <div className="w-full text-center space-y-6 py-4">
+                                        <div className="text-xl font-medium text-blue-100">{caveEvent.result}</div>
+                                        <Button className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl" onClick={() => setCaveEvent(null)}>
+                                            {TEXT_CONTENT.realm.events.cave.close}
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                         </DialogContent>
                     </Dialog>
                 )}
 
                 {/* Mystery Event Modal */}
-                {mysteryEvent?.open && (
-                    <Dialog open={mysteryEvent.open} onOpenChange={() => setMysteryEvent(null)}>
-                        <DialogContent aria-label="Mystery Event" role="dialog" aria-modal="true">
-                            <DialogHeader>
-                                <DialogTitle>{mysteryEvent.event.title}</DialogTitle>
-                                <DialogDescription>{mysteryEvent.event.description}</DialogDescription>
-                            </DialogHeader>
-                            {!mysteryEvent.choice ? (
-                                <div className="space-y-4 flex flex-col">
-                                    {mysteryEvent.event.choices.map((choice: string, index: number) => (
-                                        <Button
-                                            key={index}
-                                            className="w-full"
-                                            aria-label={`Choice ${index + 1}: ${choice}`}
-                                            onClick={() => {
-                                                setMysteryEvent({ ...mysteryEvent, choice });
-                                                handleEventOutcome(mysteryEvent.event, choice, user?.id);
-                                                setMysteryEventCompleted(true);
-                                                setTimeout(() => setMysteryEvent(null), 2000);
-                                            }}
-                                        >
-                                            {choice}
-                                        </Button>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="text-lg font-semibold text-center">
-                                        {TEXT_CONTENT.realm.events.mystery.processing}
-                                    </div>
-                                </div>
-                            )}
-                        </DialogContent>
-                    </Dialog>
-                )}
+                <MysteryEventModal
+                    isOpen={!!mysteryEvent?.open}
+                    onClose={() => setMysteryEvent(null)}
+                    event={mysteryEvent?.event || null}
+                    isProcessing={!!mysteryEvent?.choice}
+                    onChoice={(choice) => {
+                        setMysteryEvent({ ...mysteryEvent!, choice });
+                        handleEventOutcome(mysteryEvent!.event, choice, user?.id);
+                        setMysteryEventCompleted(true);
+                        setTimeout(() => setMysteryEvent(null), 2000);
+                    }}
+                />
 
                 {/* Monster Battle Component */}
                 <MonsterBattle
