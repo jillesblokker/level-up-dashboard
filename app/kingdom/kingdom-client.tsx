@@ -307,7 +307,7 @@ function createEmptyKingdomGrid(): Tile[][] {
 // Helper to get the kingdom tile inventory with build tokens
 function getKingdomTileInventoryWithBuildTokens(): Tile[] {
   const KINGDOM_TILE_IMAGES = [
-    'Crossroad.png', 'Straightroad.png', 'Cornerroad.png', 'Tsplitroad.png', 'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png'
+    'Crossroad.png', 'Straightroad.png', 'Cornerroad.png', 'Tsplitroad.png', 'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png', 'ZenGarden.png'
   ];
   return KINGDOM_TILE_IMAGES.map((filename, idx) => {
     const tileName = filename.replace('.png', '');
