@@ -96,7 +96,30 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-300">Chronicle Entry</label>
+                        <div className="flex justify-between items-end">
+                            <label className="text-sm font-medium text-zinc-300">Chronicle Entry</label>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                    const prompts = [
+                                        "What made you smile today?",
+                                        "What was your biggest challenge, and how did you face it?",
+                                        "What are you grateful for in this moment?",
+                                        "What did you learn about yourself today?",
+                                        "If you could relive one moment from today, what would it be?",
+                                        "How did you move closer to your goals today?",
+                                        "What was the most peaceful moment of your day?"
+                                    ];
+                                    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+                                    setContent(prev => prev ? `${prev}\n\nPrompt: ${randomPrompt}` : `Prompt: ${randomPrompt}\n\n`);
+                                }}
+                                className="h-7 text-[10px] uppercase tracking-wider text-amber-500/60 hover:text-amber-400 hover:bg-amber-900/20"
+                            >
+                                <Sparkles className="w-3 h-3 mr-1" />
+                                Get Inspired
+                            </Button>
+                        </div>
                         <Textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}

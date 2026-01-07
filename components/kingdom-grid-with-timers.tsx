@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
+import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
 import { useToast } from '@/components/ui/use-toast'
 import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
@@ -227,6 +228,7 @@ export function KingdomGridWithTimers({
 
     return 1 + bonus;
   };
+  const [zenModalOpen, setZenModalOpen] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [modalData, setModalData] = useState<{
     tileName: string
@@ -1164,6 +1166,12 @@ export function KingdomGridWithTimers({
       return
     }
 
+    // Handle Zen Garden interaction
+    if (tile.type === 'zen-garden') {
+      setZenModalOpen(true);
+      return;
+    }
+
     // Handle property tiles (archery, blacksmith, etc.)
     if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' ||
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
@@ -1572,7 +1580,7 @@ export function KingdomGridWithTimers({
                   if (placementMode && selectedProperty) {
                     // Removed debugging log
                     handlePropertyPlacement(x, y)
-                  } else if (isKingdomTile && isReady) {
+                  } else if (isKingdomTile && (isReady || tile.type === 'zen-garden')) {
                     // Removed debugging log
                     handleTileClick(x, y, tile)
                   } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
@@ -1592,6 +1600,17 @@ export function KingdomGridWithTimers({
                   onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
                   style={{ transform: `rotate(${tile.rotation || 0}deg)`, transition: 'transform 0.3s ease' }}
                 />
+
+                {/* Zen Garden Specialty Effect */}
+                {tile.type === 'zen-garden' && (
+                  <div className="absolute inset-0 bg-teal-400/5 group-hover:bg-teal-400/10 transition-colors pointer-events-none flex flex-col items-center justify-center">
+                    <div className="w-full h-full absolute inset-0 animate-pulse bg-teal-400/5" />
+                    <Sparkles className="w-4 h-4 text-teal-300 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100 mb-1" />
+                    <span className="text-[8px] font-bold text-teal-200 tracking-[0.2em] uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-black drop-shadow-lg">
+                      Zen
+                    </span>
+                  </div>
+                )}
 
                 {/* Placement mode indicator for vacant tiles */}
                 {placementMode && tile.type === 'vacant' && (
@@ -1883,6 +1902,7 @@ export function KingdomGridWithTimers({
       />
 
       {
+        /* Kingdom Tile Reward Modal */
         showModal && modalData && (
           <KingdomTileModal
             isOpen={showModal}
@@ -1891,6 +1911,12 @@ export function KingdomGridWithTimers({
           />
         )
       }
+
+      {/* Zen Garden Meditation Modal */}
+      <ZenMeditateModal
+        isOpen={zenModalOpen}
+        onClose={() => setZenModalOpen(false)}
+      />
     </div >
   )
-} 
+}

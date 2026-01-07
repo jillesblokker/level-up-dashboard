@@ -59,7 +59,8 @@ export type TileType =
   | 'oasis'
   | 'coral_reef'
   | 'crystal_cavern'
-  | 'floating_island';
+  | 'floating_island'
+  | 'zen-garden';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
