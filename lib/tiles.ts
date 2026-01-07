@@ -59,6 +59,7 @@ export function getTileName(type: TileType): string {
     coral_reef: 'Coral Reef',
     crystal_cavern: 'Crystal Cavern',
     floating_island: 'Floating Island',
+    'zen-garden': 'Zen Garden',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -122,6 +123,7 @@ export function getDefaultConnections(type: TileType): string[] {
     coral_reef: ['water'],
     crystal_cavern: ['mountain', 'cave'],
     floating_island: [],
+    'zen-garden': ['grass', 'forest'],
   };
   return defaultConnections[type] || [];
 } 
