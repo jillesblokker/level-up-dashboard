@@ -2165,7 +2165,7 @@ export default function QuestsPage() {
                       onQuestFavorite={() => { }}
                       onQuestEdit={handleEditChallenge}
                       onQuestDelete={handleDeleteChallenge}
-                      onAddQuest={handleAddChallenge}
+                      onAddQuest={handleAddChallengeType}
                       showCategoryFilter={true}
                       context="challenges"
                       hideOverview={true}
