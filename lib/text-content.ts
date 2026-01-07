@@ -1114,7 +1114,7 @@ export const TEXT_CONTENT = {
             completeAllFavorites: "Complete {count} Total Favorites",
             reset: "Reset Today's Quests",
             resetting: "Resetting...",
-            add: "Add",
+            add: "Add Milestone",
             cancel: "Cancel",
             delete: "Delete",
             save: "Save"

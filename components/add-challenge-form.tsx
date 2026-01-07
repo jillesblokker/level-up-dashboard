@@ -161,7 +161,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     disabled={loading || !newChallenge.name.trim()}
                     className="flex-[2] h-12 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-lg border-t border-white/20"
                 >
-                    {loading ? "Forging..." : "Embark on Challenge"}
+                    {loading ? "Forging..." : "Add Challenge"}
                 </Button>
             </div>
         </form>

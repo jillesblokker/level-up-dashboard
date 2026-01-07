@@ -136,20 +136,22 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                         onValueChange={(val) => setNewMilestone({ ...newMilestone, category: val })}
                     >
                         <SelectTrigger className="h-12 bg-zinc-900/60 border-white/5 rounded-xl transition-all hover:border-amber-500/30 w-full text-zinc-200">
-                            <div className="flex items-center gap-3">
-                                {newMilestone.category && categoryIcons[newMilestone.category as keyof typeof categoryIcons] ? (
-                                    <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500">
-                                        {React.createElement(categoryIcons[newMilestone.category as keyof typeof categoryIcons], { className: "w-4 h-4" })}
-                                    </div>
-                                ) : (
-                                    <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500">
-                                        <Trophy className="w-4 h-4" />
-                                    </div>
-                                )}
-                                <span className="font-medium">{categoryLabels[newMilestone.category as keyof typeof categoryLabels]}</span>
-                            </div>
+                            <SelectValue placeholder="Select Category">
+                                <div className="flex items-center gap-3">
+                                    {newMilestone.category && categoryIcons[newMilestone.category as keyof typeof categoryIcons] ? (
+                                        <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500">
+                                            {React.createElement(categoryIcons[newMilestone.category as keyof typeof categoryIcons], { className: "w-4 h-4" })}
+                                        </div>
+                                    ) : (
+                                        <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500">
+                                            <Trophy className="w-4 h-4" />
+                                        </div>
+                                    )}
+                                    <span className="font-medium">{categoryLabels[newMilestone.category as keyof typeof categoryLabels]}</span>
+                                </div>
+                            </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-200">
+                        <SelectContent side="top" className="bg-zinc-950 border-zinc-800 text-zinc-200">
                             {questCategories.map((cat) => (
                                 <SelectItem key={cat} value={cat} className="focus:bg-amber-500/10 focus:text-amber-200">
                                     <div className="flex items-center gap-3 py-1">
@@ -213,7 +215,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                     disabled={loading || !newMilestone.name.trim()}
                     className="flex-[2] h-12 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg border-t border-white/10"
                 >
-                    {loading ? "Establishing..." : "Enshrine Milestone"}
+                    {loading ? "Establishing..." : "Add Milestone"}
                 </Button>
             </div>
         </form>
