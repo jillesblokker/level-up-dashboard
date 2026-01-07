@@ -207,7 +207,8 @@ export const numericToTileType: { [key: number]: TileType } = {
   54: 'oasis',
   55: 'coral_reef',
   56: 'crystal_cavern',
-  57: 'floating_island'
+  57: 'floating_island',
+  58: 'zen-garden'
 }
 
 // Create the reverse mapping from TileType to numeric
@@ -317,6 +318,7 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
   if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
   if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
   if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.png';
+  if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.png';
 
   return {
     id: `tile-${x}-${y}`,
