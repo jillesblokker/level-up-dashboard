@@ -337,7 +337,9 @@ export async function GET(request: Request) {
         xpEarned: completion?.xpEarned || 0,
         goldEarned: completion?.goldEarned || 0,
         isRecurring: quest.is_recurring || false,
-        recurrenceInterval: quest.recurrence_interval || 'none'
+        recurrenceInterval: quest.recurrence_interval || 'none',
+        mandate_period: quest.mandate_period || 'daily',
+        mandate_count: quest.mandate_count || 1
       };
 
       // RECURRENCE LOGIC:

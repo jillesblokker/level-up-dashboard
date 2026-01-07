@@ -324,7 +324,7 @@ export async function POST(request: Request) {
     }
 
     // Handle single challenge creation
-    const { name, instructions, description, category, difficulty, setsReps, tips, weight } = body;
+    const { name, instructions, description, category, difficulty, setsReps, tips, weight, mandate_period, mandate_count } = body;
 
     if (!name || !category) {
       return NextResponse.json({ error: 'Missing required fields (name, category)' }, { status: 400 });
@@ -345,6 +345,8 @@ export async function POST(request: Request) {
         sets: setsReps || null,
         tips: tips || null,
         weight: weight || null,
+        mandate_period: mandate_period || 'daily',
+        mandate_count: mandate_count || 1,
       };
 
       const { data: newChallenge, error } = await supabase

@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sword, Zap, Flame, Trophy, Info, Dumbbell, History } from 'lucide-react'
+import { TEXT_CONTENT } from '@/lib/text-content'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from '@/components/ui/use-toast'
 import { Input } from '@/components/ui/input'
@@ -26,6 +28,8 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
         tips: initialData?.tips || '',
         weight: initialData?.weight || '',
         category: initialData?.category || 'might',
+        mandatePeriod: initialData?.mandate_period || 'daily',
+        mandateCount: initialData?.mandate_count || 1,
     })
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +47,11 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(newChallenge)
+                body: JSON.stringify({
+                    ...newChallenge,
+                    mandate_period: newChallenge.mandatePeriod,
+                    mandate_count: newChallenge.mandateCount
+                })
             })
 
             if (!response.ok) {
@@ -134,6 +142,54 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                 />
             </div>
 
+            {/* Strategic Mandate Section */}
+            <div className="space-y-4 p-5 bg-red-950/10 border-2 border-red-900/20 rounded-2xl">
+                <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 font-serif">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
+                    <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-tighter">Trials System</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                        <Select
+                            value={newChallenge.mandatePeriod}
+                            onValueChange={(val) => setNewChallenge({ ...newChallenge, mandatePeriod: val as any })}
+                        >
+                            <SelectTrigger className="h-12 bg-zinc-900/40 border-red-900/30 rounded-xl transition-all hover:border-red-500/30 text-zinc-200">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
+                                <SelectItem value="daily">{TEXT_CONTENT.quests.mastery.form.periods.daily}</SelectItem>
+                                <SelectItem value="weekly">{TEXT_CONTENT.quests.mastery.form.periods.weekly}</SelectItem>
+                                <SelectItem value="monthly">{TEXT_CONTENT.quests.mastery.form.periods.monthly}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                        <div className="flex items-center gap-2">
+                            <Input
+                                type="number"
+                                min="1"
+                                max={newChallenge.mandatePeriod === 'weekly' ? 7 : 31}
+                                className="h-12 w-full bg-zinc-900/40 border-red-900/30 rounded-xl px-4 focus:border-red-500/50 text-zinc-200 outline-none transition-all"
+                                value={newChallenge.mandateCount}
+                                onChange={(e) => setNewChallenge({ ...newChallenge, mandateCount: parseInt(e.target.value) || 1 })}
+                            />
+                            <div className="text-[10px] font-bold text-zinc-600 uppercase">Times</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p className="text-[10px] text-zinc-500 italic px-1 font-serif">
+                    {newChallenge.mandatePeriod === 'daily'
+                        ? "A trial to be faced every sun-cycle without fail."
+                        : `A ritual to be performed ${newChallenge.mandateCount} times throughout the ${newChallenge.mandatePeriod === 'weekly' ? 'week' : 'month'}.`}
+                </p>
+            </div>
+
             <div className="p-4 bg-red-900/10 border border-red-500/20 rounded-2xl flex items-center gap-4">
                 <div className="p-3 rounded-xl bg-zinc-950/80 border border-red-500/30">
                     <Flame className="w-5 h-5 text-red-500 animate-pulse" />
@@ -164,6 +220,6 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     {loading ? "Forging..." : "Add Challenge"}
                 </Button>
             </div>
-        </form>
+        </form >
     )
 }

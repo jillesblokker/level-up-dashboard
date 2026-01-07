@@ -38,6 +38,8 @@ export const questSchema = z.object({
   tags: z.array(z.string()).optional(),
   isRepeatable: z.boolean().optional(),
   cooldownHours: z.number().min(0).optional(),
+  mandatePeriod: z.enum(['daily', 'weekly', 'monthly']).optional().default('daily'),
+  mandateCount: z.number().min(1).optional().default(1),
 });
 
 export const questCompletionSchema = z.object({
@@ -64,6 +66,8 @@ export const challengeSchema = z.object({
   target: z.number().min(1, 'Target must be at least 1'),
   unit: z.string().optional(),
   frequency: z.enum(['daily', 'weekly', 'monthly']).optional(),
+  mandatePeriod: z.enum(['daily', 'weekly', 'monthly']).optional().default('daily'),
+  mandateCount: z.number().min(1).optional().default(1),
 });
 
 export const challengeCompletionSchema = z.object({

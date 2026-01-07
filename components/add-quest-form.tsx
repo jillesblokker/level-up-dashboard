@@ -46,7 +46,9 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
         name: '',
         description: '',
         category: 'might',
-        difficulty: 'medium'
+        difficulty: 'medium',
+        mandatePeriod: 'daily',
+        mandateCount: 1
     })
 
     // Init with data if provided
@@ -56,7 +58,9 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 name: initialData.name || '',
                 description: initialData.description || '',
                 category: initialData.category || 'might',
-                difficulty: initialData.difficulty || 'medium'
+                difficulty: initialData.difficulty || 'medium',
+                mandatePeriod: initialData.mandate_period || 'daily',
+                mandateCount: initialData.mandate_count || 1
             })
         }
     }, [initialData])
@@ -85,6 +89,8 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 },
                 body: JSON.stringify({
                     ...newQuest,
+                    mandate_period: newQuest.mandatePeriod,
+                    mandate_count: newQuest.mandateCount,
                     is_active: true
                 })
             })
@@ -223,6 +229,54 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+
+            {/* Strategic Mandate Section */}
+            <div className="space-y-4 p-5 bg-gray-950/40 border-2 border-amber-900/20 rounded-2xl">
+                <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
+                    <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">NEW SYSTEM</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                        <Select
+                            value={newQuest.mandatePeriod}
+                            onValueChange={(val) => setNewQuest({ ...newQuest, mandatePeriod: val as any })}
+                        >
+                            <SelectTrigger className="h-12 bg-gray-900/50 border border-amber-900/30 rounded-xl transition-all hover:border-amber-500/30">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                                <SelectItem value="daily">{TEXT_CONTENT.quests.mastery.form.periods.daily}</SelectItem>
+                                <SelectItem value="weekly">{TEXT_CONTENT.quests.mastery.form.periods.weekly}</SelectItem>
+                                <SelectItem value="monthly">{TEXT_CONTENT.quests.mastery.form.periods.monthly}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                min="1"
+                                max={newQuest.mandatePeriod === 'weekly' ? 7 : 31}
+                                className="h-12 w-full bg-gray-900/50 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all"
+                                value={newQuest.mandateCount}
+                                onChange={(e) => setNewQuest({ ...newQuest, mandateCount: parseInt(e.target.value) || 1 })}
+                            />
+                            <div className="text-xs font-bold text-gray-600 uppercase">Times</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p className="text-[10px] text-gray-600 italic px-1">
+                    {newQuest.mandatePeriod === 'daily'
+                        ? "This duty must be fulfilled every single day to maintain its legend."
+                        : `A ritual to be performed ${newQuest.mandateCount} times throughout the ${newQuest.mandatePeriod === 'weekly' ? 'week' : 'month'}.`}
+                </p>
             </div>
 
             {/* Reward Preview Card */}

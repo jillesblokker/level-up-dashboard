@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     console.log('[API/quests/new] Received body:', body);
 
 
-    const { name, description, category, difficulty } = body;
+    const { name, description, category, difficulty, mandate_period, mandate_count } = body;
 
     // Calculate rewards based on difficulty
     const rewards = calculateRewards(difficulty || 'medium');
@@ -49,7 +49,9 @@ export async function POST(request: Request) {
           difficulty,
           xp_reward,
           gold_reward,
-          is_recurring: false, // Default to non-recurring for now
+          is_recurring: mandate_period !== 'once',
+          mandate_period: mandate_period || 'daily',
+          mandate_count: mandate_count || 1,
           user_id: userId, // Assign quest to the current user
         },
       ])

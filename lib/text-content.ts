@@ -772,6 +772,35 @@ export const TEXT_CONTENT = {
             medium: "Adventurer",
             hard: "Heroic",
             epic: "Legendary"
+        },
+        mastery: {
+            title: "Mastery Ledger",
+            subtitle: "Historical record of your discipline",
+            tabs: {
+                board: "Active Board",
+                ledger: "Mastery Ledger"
+            },
+            grid: {
+                days: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+                weeklyGoal: "Weekly Mandate",
+                completions: "{current}/{target} this week"
+            },
+            stats: {
+                monthly: "Moon Cycle",
+                lifetime: "Eternal Record",
+                fulfillment: "Mandate Fulfillment",
+                completions: "Deeds Recorded"
+            },
+            form: {
+                sectionTitle: "Strategic Mandate",
+                periodLabel: "Frequency",
+                countLabel: "Weekly Target",
+                periods: {
+                    daily: "Every Day",
+                    weekly: "Weekly Ritual",
+                    monthly: "Monthly Mandate"
+                }
+            }
         }
     },
     kingdomTiles: {
