@@ -793,7 +793,7 @@ export function KingdomGridWithTimers({
         // Add to inventory
         if (userId) {
           try {
-            console.warn('[Kingdom] Adding to inventory (Materials):', property.name, userId);
+
             await addToKingdomInventory(userId, {
               id: property.id,
               name: property.name,

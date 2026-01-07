@@ -788,7 +788,7 @@ export function KingdomClient() {
   // Optimistic update handler for inventory items
   // Optimistic update handler for inventory items
   const handleInventoryUpdate = useCallback((newItem: any) => {
-    console.warn('[Kingdom] handleInventoryUpdate (Local) called with:', newItem);
+
     setLocalItems(prev => {
       const targetId = newItem.id;
       const defaultId = `${targetId}-item`;
