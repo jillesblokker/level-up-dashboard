@@ -7,6 +7,7 @@ import { CloudRain, Cloud, CloudSun, Sun, Sparkles } from 'lucide-react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { toast } from 'sonner'
 import { updateCharacterStats } from '@/lib/character-stats-service'
+import { cn } from '@/lib/utils'
 
 interface JournalModalProps {
     isOpen: boolean
@@ -66,75 +67,125 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md bg-zinc-950 border-amber-900/50 text-amber-50">
-                <DialogHeader>
-                    <DialogTitle className="font-serif text-2xl text-amber-500">The Sun Sets...</DialogTitle>
-                    <DialogDescription className="text-zinc-400">
-                        Take a moment to record your journey. What challenges did you face? What victories did you claim?
-                    </DialogDescription>
-                </DialogHeader>
+            <DialogContent className="sm:max-w-md max-h-[90vh] bg-zinc-950 border-zinc-800 text-amber-50 p-0 overflow-hidden flex flex-col shadow-2xl">
+                {/* Background Effects */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] animate-pulse" />
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10" />
+                </div>
 
-                <div className="space-y-6 py-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-300">How was your day?</label>
-                        <div className="flex justify-between items-center bg-zinc-900/50 p-3 rounded-lg border border-zinc-800">
-                            {moods.map((m) => {
-                                const Icon = m.icon
-                                const isSelected = mood === m.score
-                                return (
-                                    <button
-                                        key={m.score}
-                                        onClick={() => setMood(m.score)}
-                                        className={`flex flex-col items-center gap-1 p-2 rounded-md transition-all ${isSelected ? 'text-amber-400 bg-amber-900/20 scale-110' : 'text-zinc-500 hover:text-zinc-300'}`}
-                                    >
-                                        <Icon className="w-6 h-6" />
-                                        <span className="text-[10px] uppercase tracking-wider">{m.label}</span>
-                                    </button>
-                                )
-                            })}
+                <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
+                    <DialogHeader className="text-center items-center pb-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold uppercase tracking-widest mb-4 text-amber-500 shadow-sm">
+                            <Sparkles className="w-3 h-3" />
+                            Daily Reflection
                         </div>
-                    </div>
+                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                            The Sun Sets...
+                        </DialogTitle>
+                        <DialogDescription className="text-zinc-400 text-sm max-w-[300px] text-center leading-relaxed italic">
+                            &quot;The scrolls of time await your inscription. How did the stars align for you today?&quot;
+                        </DialogDescription>
+                    </DialogHeader>
 
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-end">
-                            <label className="text-sm font-medium text-zinc-300">Chronicle Entry</label>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                    const prompts = [
-                                        "What made you smile today?",
-                                        "What was your biggest challenge, and how did you face it?",
-                                        "What are you grateful for in this moment?",
-                                        "What did you learn about yourself today?",
-                                        "If you could relive one moment from today, what would it be?",
-                                        "How did you move closer to your goals today?",
-                                        "What was the most peaceful moment of your day?"
-                                    ];
-                                    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-                                    setContent(prev => prev ? `${prev}\n\nPrompt: ${randomPrompt}` : `Prompt: ${randomPrompt}\n\n`);
-                                }}
-                                className="h-7 text-[10px] uppercase tracking-wider text-amber-500/60 hover:text-amber-400 hover:bg-amber-900/20"
-                            >
-                                <Sparkles className="w-3 h-3 mr-1" />
-                                Get Inspired
-                            </Button>
+                    <div className="space-y-8 py-4">
+                        {/* Mood Selector Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between px-1">
+                                <label className="text-xs font-bold uppercase tracking-widest text-zinc-500">Current Aura</label>
+                                {mood && (
+                                    <span className="text-[10px] font-medium text-amber-500 uppercase tracking-tight px-2 py-0.5 rounded-full bg-amber-900/30 border border-amber-500/20">
+                                        {moods.find(m => m.score === mood)?.label}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-5 gap-2 bg-zinc-900/40 p-2 rounded-2xl border border-white/5 backdrop-blur-sm">
+                                {moods.map((m) => {
+                                    const Icon = m.icon
+                                    const isSelected = mood === m.score
+                                    return (
+                                        <button
+                                            key={m.score}
+                                            onClick={() => setMood(m.score)}
+                                            className={cn(
+                                                "relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-300 group",
+                                                isSelected
+                                                    ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30'
+                                                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent'
+                                            )}
+                                        >
+                                            {isSelected && (
+                                                <div className="absolute inset-0 bg-amber-400/10 blur-xl rounded-full animate-pulse" />
+                                            )}
+                                            <Icon className={cn(
+                                                "w-7 h-7 transition-transform duration-500 group-hover:scale-110",
+                                                isSelected ? "drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" : ""
+                                            )} />
+                                        </button>
+                                    )
+                                })}
+                            </div>
                         </div>
-                        <Textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            placeholder="Today I conquered..."
-                            className="bg-zinc-900/50 border-zinc-800 focus:border-amber-700 min-h-[120px] resize-none text-zinc-200 placeholder:text-zinc-600"
-                        />
+
+                        {/* Chronicle Entry Section */}
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center px-1">
+                                <label className="text-xs font-bold uppercase tracking-widest text-zinc-500">The Chronicle</label>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        const prompts = [
+                                            "What made you smile today?",
+                                            "What was your biggest challenge, and how did you face it?",
+                                            "What are you grateful for in this moment?",
+                                            "What did you learn about yourself today?",
+                                            "If you could relive one moment from today, what would it be?",
+                                            "How did you move closer to your goals today?",
+                                            "What was the most peaceful moment of your day?"
+                                        ];
+                                        const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+                                        setContent(prev => prev ? `${prev}\n\nPrompt: ${randomPrompt}` : `Prompt: ${randomPrompt}\n\n`);
+                                    }}
+                                    className="h-7 text-[10px] uppercase tracking-widest text-amber-500/60 hover:text-amber-400 hover:bg-amber-950/40 rounded-full px-3 border border-amber-500/10"
+                                >
+                                    <Sparkles className="w-3 h-3 mr-1.5" />
+                                    Inspiration
+                                </Button>
+                            </div>
+                            <div className="relative group/textarea">
+                                <div className="absolute -inset-[1px] bg-gradient-to-b from-amber-500/20 to-transparent rounded-2xl opacity-0 group-hover/textarea:opacity-100 transition-opacity" />
+                                <Textarea
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="Speak your truth into the annals of history..."
+                                    className="relative bg-zinc-900/60 border-white/5 focus:border-amber-500/50 min-h-[160px] max-h-[250px] rounded-2xl p-4 text-zinc-200 placeholder:text-zinc-600 focus:ring-0 transition-all font-serif italic text-lg leading-relaxed shadow-inner"
+                                />
+                                {/* Bottom scroll decorative flair */}
+                                <div className="absolute bottom-2 right-2 opacity-20 group-hover/textarea:opacity-40 transition-opacity">
+                                    <Sparkles className="w-4 h-4 text-amber-500" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <DialogFooter>
-                    <Button variant="ghost" onClick={onClose} className="text-zinc-400 hover:text-zinc-200">Skip</Button>
-                    <Button onClick={handleSave} disabled={isSubmitting || !mood} className="bg-amber-700 hover:bg-amber-600 text-white">
-                        {isSubmitting ? 'Inscribing...' : 'Save to Chronicle'}
+                <div className="p-4 bg-zinc-950 border-t border-white/5 flex flex-row gap-3">
+                    <Button
+                        variant="ghost"
+                        onClick={onClose}
+                        className="flex-1 h-12 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900"
+                    >
+                        Skip for Now
                     </Button>
-                </DialogFooter>
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSubmitting || !mood}
+                        className="flex-[2] h-12 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-900/20 border-t border-white/10 active:scale-[0.98] transition-all"
+                    >
+                        {isSubmitting ? 'Inscribing...' : 'Inscribe Chronicle'}
+                    </Button>
+                </div>
             </DialogContent>
         </Dialog>
     )

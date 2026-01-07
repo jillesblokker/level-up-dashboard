@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, X, Shield, Heart, Book, Apple, Brain, Sword } from "lucide-react"
+import { Plus, X, Shield, Heart, Book, Apple, Brain, Sword, Sparkles } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
@@ -237,89 +237,239 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
   return (
     <>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight font-serif">Daily Quests</h2>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between px-1">
+          <div>
+            <h2 className="text-3xl font-serif text-white tracking-tight">Daily Quests</h2>
+            <p className="text-zinc-500 text-sm mt-1">Consistency is the path to legendary status.</p>
+          </div>
           <Button
             onClick={() => setShowAddTask(true)}
-            className="bg-amber-700 hover:bg-amber-800 text-white"
+            className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg border-t border-white/10 px-6 h-11"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Quest
+            New Quest
           </Button>
         </div>
 
         {/* Daily Tasks List */}
         <div className="w-full">
           {/* Mobile: horizontally scrollable row for daily tasks */}
-          <div className="flex gap-4 overflow-x-auto flex-nowrap md:hidden py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex gap-4 overflow-x-auto flex-nowrap md:hidden py-4 px-1 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
             {Object.keys(tasksByCategory).map((category) => (
               <Card
                 key={category}
                 className={cn(
-                  "bg-gray-950 border-amber-800 overflow-hidden min-w-[180px] max-w-[220px] flex-shrink-0",
+                  "bg-zinc-950 border-zinc-800 overflow-hidden min-w-[260px] max-w-[280px] flex-shrink-0 flex flex-col shadow-xl",
+                  "hover:border-zinc-700 transition-all duration-300"
                 )}
               >
-                <CardHeader className={`${getCategoryStyle(category)} rounded-t-lg p-4`}>
-                  <CardTitle className="text-white flex items-center gap-2 font-serif">
-                    {getCategoryIcon(category)}
-                    {getCategoryName(category)}
-                  </CardTitle>
-                  <CardDescription className="text-white/90">
-                    {tasksByCategory[category]?.filter((t) => t.completed).length || 0} of {tasksByCategory[category]?.length || 0}{" "}
-                    completed
-                  </CardDescription>
+                <div className={cn(
+                  "h-1.5 w-full",
+                  category === "strength" ? "bg-red-500" :
+                    category === "condition" ? "bg-blue-500" :
+                      category === "knowledge" ? "bg-purple-500" :
+                        category === "nutrition" ? "bg-green-500" :
+                          "bg-indigo-500"
+                )} />
+                <CardHeader className="p-5 pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "p-2 rounded-lg bg-white/5 border border-white/5",
+                      category === "strength" ? "text-red-400" :
+                        category === "condition" ? "text-blue-400" :
+                          category === "knowledge" ? "text-purple-400" :
+                            category === "nutrition" ? "text-green-400" :
+                              "text-indigo-400"
+                    )}>
+                      {getCategoryIcon(category)}
+                    </div>
+                    <div>
+                      <CardTitle className="text-white text-lg font-serif">
+                        {getCategoryName(category)}
+                      </CardTitle>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
+                        {tasksByCategory[category]?.filter((t) => t.completed).length || 0} / {tasksByCategory[category]?.length || 0} Complete
+                      </p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-5 pt-0 space-y-3 flex-1">
                   {(tasksByCategory[category] || []).map((task) => (
-                    <div key={task.id} className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-sm font-medium text-white">{task.title}</span>
-                      <Button
-                        onClick={() => handleTaskToggle(task.id)}
-                        size="sm"
-                        className="min-h-[44px] min-w-[44px]"
-                        aria-label={`Toggle task: ${task.title}`}
-                      >
-                        Complete
-                      </Button>
+                    <div
+                      key={task.id}
+                      className={cn(
+                        "flex items-center justify-between gap-3 p-3 rounded-xl border transition-all cursor-pointer group",
+                        task.completed
+                          ? "bg-zinc-900/40 border-emerald-500/20"
+                          : "bg-zinc-900/60 border-white/5 hover:border-white/10"
+                      )}
+                      onClick={() => handleTaskToggle(task.id)}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <span className={cn(
+                          "text-sm font-medium block truncate",
+                          task.completed ? "text-zinc-500 line-through" : "text-zinc-200"
+                        )}>
+                          {task.title}
+                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] text-amber-500 font-bold">+{task.gold}g</span>
+                          <span className="text-[10px] text-blue-400 font-bold">+{task.xp}xp</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 relative z-10">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTask(task.id);
+                          }}
+                          className="h-8 w-8 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                          aria-label={`Delete task: ${task.title}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <Checkbox
+                          checked={task.completed}
+                          onCheckedChange={() => handleTaskToggle(task.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="h-5 w-5 border-zinc-700 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                          aria-label={`Mark as ${task.completed ? 'incomplete' : 'complete'}`}
+                        />
+                      </div>
                     </div>
                   ))}
                 </CardContent>
               </Card>
             ))}
           </div>
+
           {/* Desktop/tablet: grid layout */}
-          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {Object.keys(tasksByCategory).map((category) => (
               <Card
                 key={category}
                 className={cn(
-                  "bg-gray-950 border-amber-800 overflow-hidden",
+                  "bg-zinc-950 border-zinc-800 overflow-hidden flex flex-col shadow-2xl relative group/card",
+                  "hover:border-zinc-700 transition-all duration-500"
                 )}
               >
-                <CardHeader className={`${getCategoryStyle(category)} rounded-t-lg p-4`}>
-                  <CardTitle className="text-white flex items-center gap-2 font-serif">
-                    {getCategoryIcon(category)}
-                    {getCategoryName(category)}
-                  </CardTitle>
-                  <CardDescription className="text-white/90">
-                    {tasksByCategory[category]?.filter((t) => t.completed).length || 0} of {tasksByCategory[category]?.length || 0}{" "}
-                    completed
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4">
-                  {(tasksByCategory[category] || []).map((task) => (
-                    <div key={task.id} className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-sm font-medium text-white">{task.title}</span>
-                      <Button
-                        onClick={() => handleTaskToggle(task.id)}
-                        size="sm"
-                        aria-label={`Toggle task: ${task.title}`}
-                      >
-                        Complete
-                      </Button>
+                {/* Accent line with glow */}
+                <div className={cn(
+                  "h-1 w-full relative",
+                  category === "strength" ? "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]" :
+                    category === "condition" ? "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]" :
+                      category === "knowledge" ? "bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]" :
+                        category === "nutrition" ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]" :
+                          "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+                )} />
+
+                <CardHeader className="p-6 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "p-3 rounded-xl bg-zinc-900 border border-white/5 transition-transform duration-300 group-hover/card:scale-110",
+                        category === "strength" ? "text-red-400 shadow-lg shadow-red-900/10" :
+                          category === "condition" ? "text-blue-400 shadow-lg shadow-blue-900/10" :
+                            category === "knowledge" ? "text-purple-400 shadow-lg shadow-purple-900/10" :
+                              category === "nutrition" ? "text-green-400 shadow-lg shadow-green-900/10" :
+                                "text-indigo-400 shadow-lg shadow-indigo-900/10"
+                      )}>
+                        {getCategoryIcon(category)}
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl font-serif text-white tracking-wide">
+                          {getCategoryName(category)}
+                        </CardTitle>
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">
+                          The Path of the {getCategoryName(category)}
+                        </p>
+                      </div>
                     </div>
-                  ))}
+                    <div className="text-right">
+                      <p className="text-2xl font-serif text-white opacity-20">
+                        {tasksByCategory[category]?.filter((t) => t.completed).length || 0}
+                        <span className="text-sm opacity-50 mx-1">/</span>
+                        {tasksByCategory[category]?.length || 0}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-6 pt-0 space-y-4">
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-white/5 to-transparent mb-6" />
+
+                  <div className="space-y-3">
+                    {(tasksByCategory[category] || []).map((task) => (
+                      <div
+                        key={task.id}
+                        className={cn(
+                          "relative flex items-center justify-between gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer group/item overflow-hidden",
+                          task.completed
+                            ? "bg-emerald-500/5 border-emerald-500/20"
+                            : "bg-zinc-900/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10"
+                        )}
+                        onClick={() => handleTaskToggle(task.id)}
+                      >
+                        {/* Task background flash on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover/item:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+
+                        <div className="flex-1 min-w-0 relative z-10">
+                          <span className={cn(
+                            "text-sm font-medium block transition-all duration-300",
+                            task.completed ? "text-zinc-500 line-through" : "text-zinc-200 group-hover/item:text-white"
+                          )}>
+                            {task.title}
+                          </span>
+                          <div className="flex items-center gap-3 mt-1.5">
+                            <div className="flex items-center gap-1">
+                              <div className="w-1 h-1 rounded-full bg-amber-500" />
+                              <span className="text-[10px] text-amber-500/80 font-bold uppercase">{task.gold} Gold</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <div className="w-1 h-1 rounded-full bg-blue-500" />
+                              <span className="text-[10px] text-blue-400/80 font-bold uppercase">{task.xp} XP</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 relative z-10">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTask(task.id);
+                            }}
+                            className="h-8 w-8 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors opacity-0 group-hover/item:opacity-100"
+                            aria-label={`Delete task: ${task.title}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={() => handleTaskToggle(task.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className={cn(
+                              "h-6 w-6 rounded-lg transition-all duration-300",
+                              "border-zinc-700 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500",
+                              "group-hover/item:border-zinc-500"
+                            )}
+                            aria-label={`Mark as ${task.completed ? 'incomplete' : 'complete'}`}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {tasksByCategory[category]?.length === 0 && (
+                    <div className="py-12 flex flex-col items-center justify-center text-center opacity-40">
+                      <Sparkles className="h-8 w-8 mb-3 text-zinc-600" />
+                      <p className="text-xs font-medium text-zinc-500">No quests registered in this focus.</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -328,74 +478,104 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
       </div>
 
       <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
-        <DialogContent className="sm:max-w-md bg-black text-white border-amber-800/20" role="dialog" aria-label="daily-tasks-modal">
-          <DialogHeader>
-            <DialogDescription id="daily-tasks-modal-desc">Daily tasks and progress</DialogDescription>
-            <DialogTitle>Add New Quest</DialogTitle>
-            <DialogDescription>Create a new daily quest to track your progress.</DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-md max-h-[90vh] bg-zinc-950 border-zinc-800 text-zinc-100 p-0 overflow-hidden flex flex-col shadow-2xl" role="dialog" aria-label="daily-tasks-modal">
+          {/* Background Effects */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] animate-pulse" />
+          </div>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="task-title">Quest Title</Label>
-              <Input
-                id="task-title"
-                value={newTaskTitle}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.target.value)}
-                placeholder="Enter quest description..."
-                className="bg-gray-900 border-amber-800/20"
-              />
-            </div>
+          <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
+            <DialogHeader className="text-center items-center pb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold uppercase tracking-widest mb-4 text-amber-500 shadow-sm">
+                <Plus className="w-3 h-3" />
+                New Scroll
+              </div>
+              <DialogTitle className="text-3xl font-serif text-white tracking-tight">Draft New Quest</DialogTitle>
+              <DialogDescription id="daily-tasks-modal-desc" className="text-zinc-500 mt-2">
+                Specify a new deed to be recorded in your daily archive.
+              </DialogDescription>
+            </DialogHeader>
 
-            <div className="space-y-2">
-              <Label htmlFor="task-category">Category</Label>
-              <select
-                id="task-category"
-                aria-label="Task Category"
-                value={newTaskCategory}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-900 border border-amber-800/20 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-              >
-                <option value="strength">Might</option>
-                <option value="condition">Endurance</option>
-                <option value="knowledge">Wisdom</option>
-                <option value="nutrition">Vitality</option>
-                <option value="mental">Spirit</option>
-              </select>
-            </div>
+            <div className="space-y-6 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="task-title" className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Quest Title</Label>
+                <div className="relative group/input">
+                  <Input
+                    id="task-title"
+                    value={newTaskTitle}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.target.value)}
+                    placeholder="e.g., Slay the morning fog (10 min meditation)..."
+                    className="bg-zinc-900/60 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all"
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="task-priority">Priority</Label>
-              <select
-                id="task-priority"
-                aria-label="Task Priority"
-                value={newTaskPriority}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskPriority(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-900 border border-amber-800/20 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="task-category" className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Category</Label>
+                  <select
+                    id="task-category"
+                    aria-label="Task Category"
+                    value={newTaskCategory}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskCategory(e.target.value)}
+                    className="w-full h-12 px-4 bg-zinc-900/60 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-amber-500/50 appearance-none transition-all cursor-pointer"
+                  >
+                    <option value="strength">Might</option>
+                    <option value="condition">Endurance</option>
+                    <option value="knowledge">Wisdom</option>
+                    <option value="nutrition">Vitality</option>
+                    <option value="mental">Spirit</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="task-priority" className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Priority</Label>
+                  <select
+                    id="task-priority"
+                    aria-label="Task Priority"
+                    value={newTaskPriority}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskPriority(e.target.value)}
+                    className="w-full h-12 px-4 bg-zinc-900/60 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-amber-500/50 appearance-none transition-all cursor-pointer"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/20">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500/60">Estimated Reward</p>
+                    <p className="text-sm font-bold text-amber-200">Bonus XP & Gold awarded upon success</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddTask(false)}>
+          <div className="p-4 bg-zinc-950 border-t border-white/5 flex flex-row gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setShowAddTask(false)}
+              className="flex-1 h-12 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900"
+            >
               Cancel
             </Button>
             <Button
               onClick={handleAddTask}
               aria-label="Add Task"
-              title="Add Task"
-              className="w-full"
+              className="flex-[2] h-12 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-900/20 border-t border-white/10"
             >
-              Add Task
+              Dispatch Quest
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>
   )
 }
-
