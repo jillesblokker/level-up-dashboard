@@ -2222,7 +2222,7 @@ export default function QuestsPage() {
                       totalCount={quests.length}
                       currentLevel={stats.level}
                       currentXP={stats.experience}
-                      xpToNextLevel={stats.experience_to_next_level}
+                      xpToNextLevel={stats.experienceToNextLevel}
                       currentGold={stats.gold}
                     />
 
