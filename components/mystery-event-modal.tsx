@@ -99,91 +99,93 @@ export function MysteryEventModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
-            <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-0">
+            <DialogContent className="sm:max-w-[420px] max-h-[90vh] bg-zinc-950 border-zinc-800 text-zinc-100 p-0 overflow-hidden flex flex-col">
                 {/* Thematic Background */}
                 <div className={cn("absolute inset-0 opacity-10 pointer-events-none", style.accentBg)}
                     style={{ filter: 'blur(100px)' }} />
 
-                <div className="relative z-10 p-6 flex flex-col items-center">
-                    <DialogHeader className="w-full text-center items-center">
-                        <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border text-xs font-bold uppercase tracking-widest mb-4", style.border, style.accent)}>
-                            <Icon className="w-3 h-3" />
-                            Mystery Event
-                        </div>
-                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
-                            {event.title}
-                        </DialogTitle>
-                        <DialogDescription className="text-zinc-400 text-center leading-relaxed max-w-[280px]">
-                            {event.description}
-                        </DialogDescription>
-                    </DialogHeader>
+                <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
+                    <div className="flex flex-col items-center">
+                        <DialogHeader className="w-full text-center items-center">
+                            <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border text-xs font-bold uppercase tracking-widest mb-4", style.border, style.accent)}>
+                                <Icon className="w-3 h-3" />
+                                Mystery Event
+                            </div>
+                            <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                {event.title}
+                            </DialogTitle>
+                            <DialogDescription className="text-zinc-400 text-center leading-relaxed max-w-[280px]">
+                                {event.description}
+                            </DialogDescription>
+                        </DialogHeader>
 
-                    {/* Event Display */}
-                    <div className="relative w-full flex flex-col items-center py-8">
-                        <div className="relative group">
-                            {/* Pulsing Outer Glow */}
-                            <div className={cn(
-                                "absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20",
-                                style.accentBg
-                            )} />
+                        {/* Event Display */}
+                        <div className="relative w-full flex flex-col items-center py-6">
+                            <div className="relative group">
+                                {/* Pulsing Outer Glow */}
+                                <div className={cn(
+                                    "absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20",
+                                    style.accentBg
+                                )} />
 
-                            {/* Rotating Decorative Border */}
-                            <div className={cn(
-                                "absolute -inset-4 border border-dashed rounded-full animate-spin-slow opacity-30",
-                                style.accent
-                            )} style={{ animationDuration: '15s' }} />
+                                {/* Rotating Decorative Border */}
+                                <div className={cn(
+                                    "absolute -inset-4 border border-dashed rounded-full animate-spin-slow opacity-30",
+                                    style.accent
+                                )} style={{ animationDuration: '15s' }} />
 
-                            {/* Main Image Container */}
-                            <div className={cn(
-                                "relative w-48 h-48 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900",
-                                style.border
-                            )}>
-                                <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
-                                    <Image
-                                        src={displayImage}
-                                        alt={event.title}
-                                        fill
-                                        className="object-cover"
-                                        priority
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
+                                {/* Main Image Container */}
+                                <div className={cn(
+                                    "relative w-36 h-36 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 transition-all duration-500",
+                                    style.border
+                                )}>
+                                    <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
+                                        <Image
+                                            src={displayImage}
+                                            alt={event.title}
+                                            fill
+                                            className="object-cover"
+                                            priority
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
+                                    </div>
+                                </div>
+
+                                {/* Decorative Icons */}
+                                <div className="absolute -top-4 -right-4">
+                                    <Icon className={cn("w-6 h-6 animate-pulse opacity-60", style.accent)} />
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Decorative Icons */}
-                            <div className="absolute -top-4 -right-4">
-                                <Icon className={cn("w-8 h-8 animate-pulse opacity-60", style.accent)} />
+                        {!isProcessing ? (
+                            <div className="w-full space-y-3 mt-4">
+                                {event.choices.map((choice, index) => {
+                                    const isSecondary = choice.toLowerCase().includes('leave') || choice.toLowerCase().includes('walk')
+                                    return (
+                                        <Button
+                                            key={index}
+                                            onClick={() => onChoice(choice)}
+                                            variant={isSecondary ? "ghost" : "default"}
+                                            className={cn(
+                                                "w-full h-12 text-md font-medium tracking-wide transition-all duration-300 rounded-xl",
+                                                !isSecondary && cn("text-white shadow-lg", style.button),
+                                                isSecondary && "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+                                            )}
+                                        >
+                                            {choice}
+                                        </Button>
+                                    )
+                                })}
                             </div>
-                        </div>
+                        ) : (
+                            <div className="w-full py-8 flex flex-col items-center justify-center gap-4">
+                                <div className={cn("w-12 h-12 border-4 border-t-transparent rounded-full animate-spin", style.accent)}
+                                    style={{ borderColor: 'currentColor', borderTopColor: 'transparent' }} />
+                                <p className="text-zinc-400 font-medium animate-pulse">Processing your choice...</p>
+                            </div>
+                        )}
                     </div>
-
-                    {!isProcessing ? (
-                        <div className="w-full space-y-3 mt-4">
-                            {event.choices.map((choice, index) => {
-                                const isSecondary = choice.toLowerCase().includes('leave') || choice.toLowerCase().includes('walk')
-                                return (
-                                    <Button
-                                        key={index}
-                                        onClick={() => onChoice(choice)}
-                                        variant={isSecondary ? "ghost" : "default"}
-                                        className={cn(
-                                            "w-full h-12 text-md font-medium tracking-wide transition-all duration-300 rounded-xl",
-                                            !isSecondary && cn("text-white shadow-lg", style.button),
-                                            isSecondary && "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
-                                        )}
-                                    >
-                                        {choice}
-                                    </Button>
-                                )
-                            })}
-                        </div>
-                    ) : (
-                        <div className="w-full py-8 flex flex-col items-center justify-center gap-4">
-                            <div className={cn("w-12 h-12 border-4 border-t-transparent rounded-full animate-spin", style.accent)}
-                                style={{ borderColor: 'currentColor', borderTopColor: 'transparent' }} />
-                            <p className="text-zinc-400 font-medium animate-pulse">Processing your choice...</p>
-                        </div>
-                    )}
                 </div>
             </DialogContent>
         </Dialog>
