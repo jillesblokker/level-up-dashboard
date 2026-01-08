@@ -50,14 +50,14 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
         }
     }, [isOpen])
 
-    // Simple claim check
+    // Simple claim check - now requires 3 full cycles (3 * 12s = 36s)
     useEffect(() => {
-        if (seconds >= 12) setCanClaim(true)
+        if (seconds >= 36) setCanClaim(true)
     }, [seconds])
 
     const handleMeditate = async () => {
-        await updateCharacterStats({ experience: 10 })
-        toast.success("You feel centered.", { description: "+10 XP" })
+        await updateCharacterStats({ experience: 30 }) // Increased reward to 30 XP
+        toast.success("You feel deeply centered.", { description: "+30 XP" })
         onClose()
     }
 
@@ -72,7 +72,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     </DialogTitle>
                     <DialogDescription className="text-center text-zinc-400 mt-2 text-sm italic font-light">
                         Leave the chaos of the realm behind.
-                        {"A moment of silence is a hero's greatest weapon."}
+                        {"Perform 3 cycles of breathing to center your spirit."}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -120,10 +120,12 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                         <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
                             <div
                                 className="h-full bg-teal-500/50 transition-all duration-1000"
-                                style={{ width: `${Math.min(100, (seconds / 12) * 100)}%` }}
+                                style={{ width: `${Math.min(100, (seconds / 36) * 100)}%` }}
                             />
                         </div>
-                        <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Moment remaining...</span>
+                        <span className="text-[10px] text-zinc-500 uppercase tracking-widest">
+                            {seconds < 36 ? "Centering Spirit..." : "Spirit Aligned"}
+                        </span>
                     </div>
 
                     <Button
