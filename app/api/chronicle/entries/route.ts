@@ -8,8 +8,8 @@ import { supabase } from '@/lib/supabase/client'; // Use the server-client if av
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase Client (Server-side)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
+const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY']!;
 
 export async function GET(request: NextRequest) {
     try {
