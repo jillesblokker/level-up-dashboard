@@ -54,6 +54,19 @@ export function MasteryLedger() {
         fetchHistory()
     }, [])
 
+    const getLast7Days = () => {
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+        const result = []
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date()
+            d.setDate(d.getDate() - i)
+            result.push(days[d.getDay()])
+        }
+        return result
+    }
+
+    const last7DaysLabels = getLast7Days()
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center p-12 space-y-4">
@@ -67,8 +80,8 @@ export function MasteryLedger() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-900/20 pb-6">
                 <div>
-                    <h2 className="text-2xl font-bold font-serif text-amber-500 tracking-tight">{TEXT_CONTENT.quests.mastery.title}</h2>
-                    <p className="text-gray-500 text-sm mt-1">{TEXT_CONTENT.quests.mastery.subtitle}</p>
+                    <h2 className="text-2xl font-bold font-serif text-amber-500 tracking-tight">Mastery Ledger</h2>
+                    <p className="text-gray-500 text-sm mt-1">A historical record of your habits and mandates.</p>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="text-center">
@@ -91,7 +104,7 @@ export function MasteryLedger() {
                     <Card key={habit.id} className="bg-gray-950/40 border-amber-900/20 hover:border-amber-500/30 transition-all p-4 relative overflow-hidden group">
                         {/* Foil gradient for top performers */}
                         {idx < 3 && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent pointer-events-none" />
                         )}
 
                         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10">
@@ -117,7 +130,7 @@ export function MasteryLedger() {
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest px-1">
-                                        {view === 'week' ? 'Last 7 Sun-Cycles' : 'Full Moon Cycle'}
+                                        {view === 'week' ? 'Last 7 Days' : '30-Day History'}
                                     </span>
                                     <div className="flex bg-gray-900/50 p-0.5 rounded-lg border border-gray-800">
                                         <button
@@ -147,9 +160,9 @@ export function MasteryLedger() {
 
                                 {view === 'week' ? (
                                     <div className="space-y-1.5">
-                                        <div className="grid grid-cols-7 gap-1 text-[8px] font-bold text-gray-700">
-                                            {TEXT_CONTENT.quests.mastery.grid.days.map((d, i) => (
-                                                <span key={i} className="text-center">{d}</span>
+                                        <div className="grid grid-cols-7 gap-1 text-[8px] font-bold text-gray-600">
+                                            {last7DaysLabels.map((d, i) => (
+                                                <span key={i} className={cn("text-center", i === 6 && "text-amber-500")}>{d}</span>
                                             ))}
                                         </div>
                                         <div className="grid grid-cols-7 gap-1">
@@ -160,25 +173,25 @@ export function MasteryLedger() {
                                                         "h-8 rounded-lg border-2 flex items-center justify-center transition-all",
                                                         done
                                                             ? "bg-amber-500/20 border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                                                            : "bg-gray-900/50 border-gray-800 text-gray-700"
+                                                            : "bg-gray-900/40 border-gray-800/60 text-gray-800",
+                                                        i === 6 && !done && "border-dash"
                                                     )}
                                                 >
-                                                    {done ? <Shield className="w-4 h-4" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
+                                                    {done ? <Shield className="w-3.5 h-3.5" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-wrap gap-0.5 h-12 items-center justify-center bg-gray-900/10 rounded-xl border border-dashed border-gray-800/50">
-                                        <div className="text-[10px] text-gray-500 font-mono mb-2">Last 30 Days</div>
-                                        <div className="grid grid-cols-10 gap-1 w-full p-2">
+                                    <div className="flex flex-col gap-1 items-center justify-center bg-gray-900/10 rounded-xl border border-dashed border-gray-800/50 p-2">
+                                        <div className="grid grid-cols-10 gap-x-1 gap-y-1 w-full">
                                             {Array.from({ length: 30 }).map((_, i) => {
                                                 const dayIndex = 29 - i;
                                                 const done = habit.completions?.some((c: any) => {
                                                     const completionDate = new Date(c.completed_at);
                                                     const targetDate = new Date();
                                                     targetDate.setDate(targetDate.getDate() - dayIndex);
-                                                    return completionDate.toDateString() === targetDate.toDateString();
+                                                    return completionDate.toISOString().slice(0, 10) === targetDate.toISOString().slice(0, 10);
                                                 });
 
                                                 return (
@@ -187,12 +200,12 @@ export function MasteryLedger() {
                                                         className={cn(
                                                             "h-6 rounded border flex items-center justify-center transition-all",
                                                             done
-                                                                ? "bg-amber-500/20 border-amber-500/50"
-                                                                : "bg-gray-900/50 border-gray-800"
+                                                                ? "bg-amber-500/30 border-amber-500/50"
+                                                                : "bg-gray-900/40 border-gray-800/40"
                                                         )}
-                                                        title={`${dayIndex} days ago`}
+                                                        title={`${dayIndex === 0 ? 'Today' : (dayIndex + ' days ago')}`}
                                                     >
-                                                        {done && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                                                        {done && <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
                                                     </div>
                                                 );
                                             })}
@@ -205,10 +218,10 @@ export function MasteryLedger() {
                             <div className="lg:w-[200px] flex flex-col gap-2">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase">{TEXT_CONTENT.quests.mastery.stats.fulfillment}</span>
-                                    <span className="text-xs font-bold text-amber-500">{habit.stats.fulfillment}%</span>
+                                    <span className={cn("text-xs font-bold", habit.stats.fulfillment >= 80 ? 'text-green-500' : 'text-amber-500')}>{habit.stats.fulfillment}%</span>
                                 </div>
                                 <Progress value={habit.stats.fulfillment} className="h-1.5 bg-gray-900">
-                                    <div className="bg-amber-500 h-full transition-all" style={{ width: `${habit.stats.fulfillment}%` }} />
+                                    <div className={cn("h-full transition-all", habit.stats.fulfillment >= 80 ? 'bg-green-500' : 'bg-amber-500')} style={{ width: `${habit.stats.fulfillment}%` }} />
                                 </Progress>
                                 <div className="flex items-center justify-between mt-1 text-[10px]">
                                     <span className="text-gray-600 font-bold uppercase">{TEXT_CONTENT.quests.mastery.stats.monthly}</span>

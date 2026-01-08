@@ -74,15 +74,18 @@ function processHabit(item: any, type: 'quest' | 'challenge', completions: any[]
         grid.push(isDone);
     }
 
+    // Filter completions for this specific habit
+    const habitCompletions = completions.filter(c => (c.quest_id === item.id || c.challenge_id === item.id) && (c.completed !== false));
+
     // Monthly stats
-    const monthCompletions = completions.filter(c => (c.quest_id === item.id || c.challenge_id === item.id) && (c.completed !== false)).length;
+    const monthCompletionsCount = habitCompletions.length;
 
     // Target calculation (estimated monthly target)
     let monthlyTarget = item.mandate_count || 1;
     if (item.mandate_period === 'daily') monthlyTarget = 30;
     else if (item.mandate_period === 'weekly') monthlyTarget = (item.mandate_count || 1) * 4;
 
-    const fulfillment = monthlyTarget > 0 ? Math.min(100, Math.round((monthCompletions / monthlyTarget) * 100)) : 0;
+    const fulfillment = monthlyTarget > 0 ? Math.min(100, Math.round((monthCompletionsCount / monthlyTarget) * 100)) : 0;
 
     return {
         id: item.id,
@@ -94,8 +97,9 @@ function processHabit(item: any, type: 'quest' | 'challenge', completions: any[]
             count: item.mandate_count || 1
         },
         grid,
+        completions: habitCompletions.map(c => ({ completed_at: c.completed_at || c.date })),
         stats: {
-            monthly: monthCompletions,
+            monthly: monthCompletionsCount,
             fulfillment
         }
     };
