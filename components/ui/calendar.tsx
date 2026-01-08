@@ -32,11 +32,12 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-base font-serif font-bold text-amber-500",
+        caption_label: "text-base font-serif font-bold text-amber-500 hidden", // Hide label when using dropdowns if dupes appear, or assume RDP handles it. RDP adds both if not styled.
         caption_dropdowns: "flex justify-center gap-1",
-        dropdown: "bg-zinc-900 border border-zinc-800 rounded-md p-1 text-sm text-zinc-300",
-        dropdown_month: "mr-1",
-        dropdown_year: "ml-1",
+        dropdown: "bg-zinc-900 border border-zinc-700 rounded-md p-1 pl-2 pr-6 text-sm text-amber-200 focus:outline-none focus:ring-1 focus:ring-amber-500 appearance-none cursor-pointer hover:bg-zinc-800",
+        dropdown_month: "mr-1 relative z-10",
+        dropdown_year: "ml-1 relative z-10",
+        // Hack: RDP v9 dropdowns are native selects. 
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
@@ -44,12 +45,12 @@ function Calendar({
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse",
-        head_row: "grid grid-cols-7 w-full",
+        table: "w-full border-collapse space-y-1",
+        head_row: "flex", // Restore standard shadcn flex row
         head_cell:
-          "text-zinc-500 rounded-md font-normal text-[0.8rem] flex justify-center items-center h-9",
-        row: "grid grid-cols-7 w-full mt-2",
-        cell: "h-9 w-full flex justify-center items-center text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+          "text-zinc-500 rounded-md w-9 font-normal text-[0.8rem]", // Restore w-9
+        row: "flex w-full mt-2",
+        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 text-zinc-300 hover:text-amber-500 hover:bg-amber-950/30"
@@ -65,6 +66,10 @@ function Calendar({
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
         ...classNames,
+      }}
+      components={{
+        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
+        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
       {...props}
     />
