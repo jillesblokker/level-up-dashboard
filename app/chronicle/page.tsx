@@ -254,6 +254,9 @@ export default function ChroniclePage() {
                                         selected={selectedDate}
                                         onSelect={handleDateSelect}
                                         className="p-3 pointer-events-auto"
+                                        captionLayout="dropdown"
+                                        fromYear={2024}
+                                        toYear={2030}
                                         formatters={{
                                             formatWeekdayName: (date) => date.toLocaleDateString("en-US", { weekday: "narrow" })
                                         }}
