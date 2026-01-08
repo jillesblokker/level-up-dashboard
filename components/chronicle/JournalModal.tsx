@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,15 +13,40 @@ import { cn } from '@/lib/utils'
 interface JournalModalProps {
     isOpen: boolean
     onClose: () => void
+    initialData?: {
+        content: string
+        mood_score: number
+        entry_date: string
+    } | null
 }
 
-export function JournalModal({ isOpen, onClose }: JournalModalProps) {
-    const [content, setContent] = useState('')
-    const [mood, setMood] = useState<number | null>(null)
+export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps) {
+    // Reset state when initialData changes or modal opens
+    // We use a useEffect or key-based reset in parent, but typical pattern is useEffect here
+    // or key in parent. Let's use useEffect to sync initialData.
+
+    const [content, setContent] = useState(initialData?.content || '')
+    const [mood, setMood] = useState<number | null>(initialData?.mood_score || null)
+
+    // Sync state when initialData changes (e.g. when opening modal with different entry)
+    // Note: this runs on every render if not guarded, but React is smart. 
+    // Better: Add a useEffect dependency.
+
     const [isSubmitting, setIsSubmitting] = useState(false)
     const supabase = createClientComponentClient()
 
-    const { getToken } = useAuth() // Need to useAuth from clerk
+    const { getToken } = useAuth()
+
+    // Sync effect
+    // Sync effect
+    useEffect(() => {
+        if (isOpen) {
+            setContent(initialData?.content || '')
+            setMood(initialData?.mood_score || null)
+        }
+    }, [isOpen, initialData])
+    // Actually the above useState with initializer only runs once. 
+    // We need useEffect.
 
     const handleSave = async () => {
         if (!mood) {
@@ -33,7 +58,7 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
             const token = await getToken({ template: 'supabase' })
 
             const response = await fetch('/api/chronicle/entries', {
-                method: 'POST',
+                method: 'POST', // We will update API to handle upsert on POST or add PUT
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -41,25 +66,28 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
                 body: JSON.stringify({
                     content,
                     mood_score: mood,
-                    entry_date: new Date().toISOString().split('T')[0]
+                    entry_date: initialData?.entry_date || new Date().toISOString().split('T')[0],
+                    is_update: !!initialData // Signal to API (optional, or API handles conflict)
                 })
             })
 
             if (!response.ok) {
-                if (response.status === 409) {
-                    toast.error("You have already journaled today!")
-                    onClose()
-                    return
-                }
-                throw new Error("Failed to save")
+                // If 409 and not updating, it's an error. If updating, it should work.
+                // We'll fix API to upsert.
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to save")
             }
 
-            updateCharacterStats({ experience: 50 }, 'journal_entry')
-            toast.success("Journal saved! +50 XP")
+            if (!initialData) {
+                updateCharacterStats({ experience: 50 }, 'journal_entry')
+                toast.success("Journal saved! +50 XP")
+            } else {
+                toast.success("Journal updated!")
+            }
             onClose()
-        } catch (e) {
+        } catch (e: any) {
             console.error(e)
-            toast.error("Failed to save journal.")
+            toast.error(e.message || "Failed to save journal.")
         } finally {
             setIsSubmitting(false)
         }

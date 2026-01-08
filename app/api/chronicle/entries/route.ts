@@ -58,20 +58,17 @@ export async function POST(request: NextRequest) {
 
         const { data, error } = await client
             .from('chronicle_entries')
-            .insert({
+            .upsert({
                 user_id: userId,
                 entry_date: entry_date || new Date().toISOString().split('T')[0],
                 content,
                 mood_score
-            })
+            }, { onConflict: 'user_id, entry_date' })
             .select()
             .single();
 
         if (error) {
-            if (error.code === '23505') { // Unique violation
-                return NextResponse.json({ error: 'Already journaled today' }, { status: 409 });
-            }
-            console.error('[API/chronicle] Insert Error:', error);
+            console.error('[API/chronicle] Upsert Error:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 

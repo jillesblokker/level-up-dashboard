@@ -20,6 +20,7 @@ export default function ChroniclePage() {
     const [isJournalOpen, setIsJournalOpen] = useState(false)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
     const [viewEntry, setViewEntry] = useState<any | null>(null)
+    const [journalEntry, setJournalEntry] = useState<any | null>(null)
     const supabase = createClientComponentClient()
 
     const { getToken } = useAuth()
@@ -104,10 +105,17 @@ export default function ChroniclePage() {
         if (date) {
             const dateStr = date.toISOString().split('T')[0]
             const entry = entries.find(e => e.entry_date === dateStr)
+
             if (entry) {
-                setViewEntry(entry)
+                setJournalEntry(entry)
+                setIsJournalOpen(true)
             } else {
-                setViewEntry(null)
+                setJournalEntry({
+                    entry_date: dateStr,
+                    content: '',
+                    mood_score: 0
+                })
+                setIsJournalOpen(true)
             }
         }
     }
@@ -115,6 +123,7 @@ export default function ChroniclePage() {
     const handleJournalSuccess = async () => {
         await loadEntries();
         setIsJournalOpen(false);
+        setJournalEntry(null); // Reset
         const today = new Date();
         setSelectedDate(today);
         setActiveTab("archives");
@@ -171,7 +180,14 @@ export default function ChroniclePage() {
                                 </p>
                                 <Button
                                     variant="outline"
-                                    onClick={() => document.getElementById('archives-tab')?.click()} // Simple hack or just use state 
+                                    onClick={() => {
+                                        const todayStr = new Date().toISOString().split('T')[0];
+                                        const entry = entries.find(e => e.entry_date === todayStr);
+                                        if (entry) {
+                                            setJournalEntry(entry);
+                                            setIsJournalOpen(true);
+                                        }
+                                    }}
                                     className="border-amber-500/30 text-amber-400 hover:bg-amber-950"
                                 >
                                     Review Your Entry
@@ -238,6 +254,9 @@ export default function ChroniclePage() {
                                         selected={selectedDate}
                                         onSelect={handleDateSelect}
                                         className="p-3 pointer-events-auto"
+                                        formatters={{
+                                            formatWeekdayName: (date) => date.toLocaleDateString("en-US", { weekday: "narrow" })
+                                        }}
                                     />
                                 </CardContent>
                             </Card>
@@ -262,24 +281,29 @@ export default function ChroniclePage() {
                                                     {viewEntry.content}
                                                 </p>
                                             </div>
+                                            <Button variant="outline" size="sm" onClick={() => { setJournalEntry(viewEntry); setIsJournalOpen(true); }} className="mt-6 w-full border-amber-900/30 hover:bg-amber-950/30 text-amber-500/70">
+                                                <PenTool className="w-4 h-4 mr-2" /> Edit Entry
+                                            </Button>
                                         </CardContent>
                                     </Card>
                                 ) : selectedDate ? (
                                     <div className="h-48 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-zinc-800 rounded-xl bg-black/20">
                                         <BookOpen className="w-10 h-10 text-zinc-700 mb-4" />
                                         <p className="text-zinc-500">No entry recorded for <span className="text-amber-500/70">{formatDate(selectedDate.toISOString())}</span>.</p>
-                                        {selectedDate.toISOString().split('T')[0] === new Date().toISOString().split('T')[0] && (
-                                            <Button
-                                                variant="link"
-                                                onClick={() => {
-                                                    setActiveTab("scribe");
-                                                    setIsJournalOpen(true);
-                                                }}
-                                                className="text-amber-500 hover:text-amber-400 mt-2"
-                                            >
-                                                Write Entry Now
-                                            </Button>
-                                        )}
+                                        <Button
+                                            variant="link"
+                                            onClick={() => {
+                                                setJournalEntry({
+                                                    entry_date: selectedDate.toISOString().split('T')[0],
+                                                    content: '',
+                                                    mood_score: 0
+                                                });
+                                                setIsJournalOpen(true);
+                                            }}
+                                            className="text-amber-500 hover:text-amber-400 mt-2"
+                                        >
+                                            Write Entry Now
+                                        </Button>
                                     </div>
                                 ) : null}
                             </div>
@@ -291,6 +315,7 @@ export default function ChroniclePage() {
             <JournalModal
                 isOpen={isJournalOpen}
                 onClose={handleJournalSuccess}
+                initialData={journalEntry}
             />
         </div>
     )
