@@ -18,37 +18,15 @@ function Calendar({
   entryDays = [],
   ...props
 }: CalendarProps) {
-
-  // Custom Day Component to render dots
-  // simplified implementation that wraps the standard day rendering if possible
-  // In v9 we can override components.Day or components.DayContent
-  // Overriding DayContent is usually safer to keep button functionality.
-  const DayContent = (dayProps: any) => {
-    // In RDP v9, props structure might vary, but date is usually available directly or via context
-    // Actually dayProps usually contains 'date', 'displayMonth', 'activeModifiers', etc.
-    const { date } = dayProps;
-
-    // Check if this date is in entryDays
-    // We compare ISO date strings to be safe
-    const dateStr = date.toISOString().split('T')[0];
-    const hasEntry = entryDays.some(d => d.toISOString().split('T')[0] === dateStr);
-
-    return (
-      <div className="relative flex items-center justify-center w-full h-full">
-        <span>{date.getDate()}</span>
-        {hasEntry && (
-          <span className="absolute bottom-1 w-1 h-1 rounded-full bg-amber-500" />
-        )}
-      </div>
-    );
-  };
-
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
-      components={{
-        DayContent: DayContent
+      modifiers={{
+        hasEntry: entryDays
+      }}
+      modifiersClassNames={{
+        hasEntry: "relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-amber-500 after:rounded-full"
       }}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
@@ -86,6 +64,7 @@ function Calendar({
       }}
       {...props}
     />
+  )
   )
 }
 Calendar.displayName = "Calendar"
