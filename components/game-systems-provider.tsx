@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "sonner"
 import LocalStorageMigrator from '@/components/local-storage-migrator'
 import { KingdomNotificationManager } from '@/components/kingdom-notification-manager'
 import { DayNightCycle } from '@/components/day-night-cycle'
@@ -36,6 +37,7 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
                 <KingdomNotificationManager />
                 <DayNightCycle />
                 <Toaster />
+                <SonnerToaster />
                 <InstallPrompt />
                 <PerformanceMonitor />
             </ParticleProvider>
