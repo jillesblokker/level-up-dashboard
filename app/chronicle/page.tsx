@@ -101,22 +101,34 @@ export default function ChroniclePage() {
     const [activeTab, setActiveTab] = useState("scribe");
 
     const handleDateSelect = (date: Date | undefined) => {
-        setSelectedDate(date)
-        if (date) {
-            const dateStr = date.toISOString().split('T')[0]
-            const entry = entries.find(e => e.entry_date === dateStr)
+        if (!date) return
 
-            if (entry) {
-                setJournalEntry(entry)
-                setIsJournalOpen(true)
-            } else {
-                setJournalEntry({
-                    entry_date: dateStr,
-                    content: '',
-                    mood_score: 0
-                })
-                setIsJournalOpen(true)
-            }
+        setSelectedDate(date)
+
+        // Adjust for timezone explicitly if needed, but simple string split usually works for local date picker
+        // const offset = date.getTimezoneOffset()
+        // const adjustedDate = new Date(date.getTime() - (offset*60*1000))
+        // const dateStr = adjustedDate.toISOString().split('T')[0]
+
+        // Simpler: rely on the date object returned by day-picker which is usually 00:00 local or UTC depending on mode.
+        // Shadcn/DayPicker typically returns 12:00PM or 00:00 local.
+        // Let's stick to safe comparison:
+        const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0')
+
+        const entry = entries.find(e => e.entry_date === dateStr)
+
+        if (entry) {
+            setViewEntry(entry)
+            setJournalEntry(entry)
+            setIsJournalOpen(true)
+        } else {
+            setViewEntry(null)
+            setJournalEntry({
+                entry_date: dateStr,
+                content: '',
+                mood_score: 0
+            })
+            setIsJournalOpen(true)
         }
     }
 
