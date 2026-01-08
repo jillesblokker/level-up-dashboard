@@ -372,8 +372,22 @@ export default function QuestsPage() {
 
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
-    const handleQuestAdded = () => {
-      console.log('[QuestsPage] Global quest added event received, refreshing...');
+    const handleQuestAdded = (event: any) => {
+      console.log('[QuestsPage] Global quest added event received, refreshing...', event.detail);
+
+      // Auto-switch to the new quest's category if provided
+      if (event.detail?.category) {
+        setQuestCategory(event.detail.category);
+        // Ensure we're viewing quests, not challenges
+        if (forgeTab !== 'quests') {
+          setForgeTab('quests');
+        }
+        // Ensure we are in the Forge view (where quests are listed)
+        if (activeView !== 'forge') {
+          setActiveView('forge');
+        }
+      }
+
       setRefreshTrigger(prev => prev + 1);
     };
 

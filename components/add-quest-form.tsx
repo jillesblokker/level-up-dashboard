@@ -107,7 +107,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             })
 
             // Dispatch event for other components to refresh
-            window.dispatchEvent(new CustomEvent('quest-added'))
+            window.dispatchEvent(new CustomEvent('quest-added', { detail: { category: newQuest.category } }))
 
             onSuccess()
         } catch (err) {
