@@ -1,0 +1,110 @@
+/* ============================================
+   SUBTLE AUTO-HIDING SCROLLBARS
+   ============================================
+   
+   Design Goals:
+   - Hidden by default
+   - Appear smoothly when scrolling
+   - Fade out after scrolling stops
+   - Subtle and non-distracting
+   - Accessible for keyboard/assistive tech
+   ============================================ */
+
+/* Firefox scrollbar styling */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.3s ease;
+}
+
+*:hover,
+*:focus,
+*:focus-within {
+    scrollbar-color: rgba(245, 158, 11, 0.3) transparent;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+/* Show scrollbar on hover, focus, or when actively scrolling */
+*:hover::-webkit-scrollbar-thumb,
+*:focus::-webkit-scrollbar-thumb,
+*:focus-within::-webkit-scrollbar-thumb,
+.scrolling::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.3);
+}
+
+*:hover::-webkit-scrollbar-thumb:hover,
+*:focus::-webkit-scrollbar-thumb:hover,
+.scrolling::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 158, 11, 0.5);
+}
+
+/* Smooth fade-out animation */
+@keyframes fadeOutScrollbar {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.scroll-fade-out::-webkit-scrollbar-thumb {
+    animation: fadeOutScrollbar 0.5s ease-out forwards;
+}
+
+/* Ensure accessibility - scrollbars always visible for keyboard navigation */
+*:focus-visible::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.4);
+}
+
+/* Special styling for specific containers */
+.mobile-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mobile-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+/* High contrast mode support for accessibility */
+@media (prefers-contrast: high) {
+    ::-webkit-scrollbar-thumb {
+        background: rgba(245, 158, 11, 0.6) !important;
+    }
+
+    * {
+        scrollbar-color: rgba(245, 158, 11, 0.6) transparent !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    ::-webkit-scrollbar-thumb {
+        transition: none;
+    }
+
+    * {
+        transition: none;
+    }
+
+    .scroll-fade-out::-webkit-scrollbar-thumb {
+        animation: none;
+    }
+}

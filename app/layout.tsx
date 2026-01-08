@@ -1,6 +1,7 @@
 import "./globals.css"
 import "@/styles/medieval-theme.css"
 import "@/app/styles/globals.css"
+import "./scrollbar-styles.css"
 import { Inter as FontSans } from "next/font/google"
 import { Gloock } from "next/font/google"
 import { Libre_Baskerville } from "next/font/google"
