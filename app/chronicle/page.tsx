@@ -97,6 +97,7 @@ export default function ChroniclePage() {
 
     // Identify days with entries for Calendar modifiers
     const daysWithEntries = entries.map(e => new Date(e.entry_date))
+    const [activeTab, setActiveTab] = useState("scribe");
 
     const handleDateSelect = (date: Date | undefined) => {
         setSelectedDate(date)
@@ -110,6 +111,14 @@ export default function ChroniclePage() {
             }
         }
     }
+
+    const handleJournalSuccess = async () => {
+        await loadEntries();
+        setIsJournalOpen(false);
+        const today = new Date();
+        setSelectedDate(today);
+        setActiveTab("archives");
+    };
 
     return (
         <div className="min-h-screen bg-black text-amber-50 relative overflow-hidden font-sans">
@@ -131,7 +140,7 @@ export default function ChroniclePage() {
                     </div>
                 </div>
 
-                <Tabs defaultValue="scribe" className="space-y-6">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                     <TabsList className="bg-zinc-900/50 border border-amber-900/20 p-1 rounded-full grid grid-cols-2 w-[240px]">
                         <TabsTrigger value="scribe" className="rounded-full data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-zinc-400">
                             <PenTool className="w-4 h-4 mr-2" />
@@ -213,47 +222,30 @@ export default function ChroniclePage() {
 
                     {/* ARCHIVES TAB - CALENDAR & READ MODE */}
                     <TabsContent value="archives" className="animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="grid md:grid-cols-[1fr_1.5fr] gap-8">
+                        <div className="flex flex-col gap-8 items-center max-w-2xl mx-auto">
                             {/* Calendar Widget */}
-                            <Card className="bg-black/40 border-amber-900/30 backdrop-blur-sm self-start">
+                            <Card className="bg-black/40 border-amber-900/30 backdrop-blur-sm w-full">
                                 <CardHeader>
-                                    <CardTitle className="text-amber-200 font-serif text-lg flex items-center gap-2">
+                                    <CardTitle className="text-amber-200 font-serif text-lg flex items-center justify-center gap-2">
                                         <CalendarIcon className="w-4 h-4 text-amber-500" />
                                         Chronicle Calendar
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="flex justify-center">
                                     <Calendar
                                         mode="single"
+                                        entryDays={daysWithEntries}
                                         selected={selectedDate}
                                         onSelect={handleDateSelect}
                                         className="p-3 pointer-events-auto"
-                                        modifiers={{
-                                            entries: daysWithEntries
-                                        }}
-                                        modifiersStyles={{
-                                            entries: {
-                                                fontWeight: 'bold',
-                                                color: '#f59e0b', // amber-500
-                                                textDecoration: 'underline decoration-amber-500/50'
-                                            }
-                                        }}
-                                        classNames={{
-                                            day_selected: "bg-amber-600 text-white hover:bg-amber-500 focus:bg-amber-600 rounded-md",
-                                            day_today: "bg-zinc-800 text-amber-200 rounded-md",
-                                        }}
                                     />
-                                    <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500 justify-center">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Recorded Entry
-                                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 ml-2" /> Empty
-                                    </div>
                                 </CardContent>
                             </Card>
 
                             {/* Reading Pane */}
-                            <div className="space-y-4">
+                            <div className="w-full">
                                 {viewEntry ? (
-                                    <Card className="bg-zinc-900/40 border-amber-900/30 h-full animate-in fade-in zoom-in-95 duration-300">
+                                    <Card className="bg-zinc-900/40 border-amber-900/30 h-full animate-in slide-in-from-bottom duration-500">
                                         <CardContent className="p-6 md:p-8">
                                             <div className="flex items-center justify-between mb-6 pb-6 border-b border-amber-900/20">
                                                 <div className="space-y-1">
@@ -273,24 +265,23 @@ export default function ChroniclePage() {
                                         </CardContent>
                                     </Card>
                                 ) : selectedDate ? (
-                                    <div className="h-64 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-zinc-800 rounded-xl bg-black/20">
+                                    <div className="h-48 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-zinc-800 rounded-xl bg-black/20">
                                         <BookOpen className="w-10 h-10 text-zinc-700 mb-4" />
                                         <p className="text-zinc-500">No entry recorded for <span className="text-amber-500/70">{formatDate(selectedDate.toISOString())}</span>.</p>
                                         {selectedDate.toISOString().split('T')[0] === new Date().toISOString().split('T')[0] && (
                                             <Button
                                                 variant="link"
-                                                onClick={() => setIsJournalOpen(true)}
+                                                onClick={() => {
+                                                    setActiveTab("scribe");
+                                                    setIsJournalOpen(true);
+                                                }}
                                                 className="text-amber-500 hover:text-amber-400 mt-2"
                                             >
                                                 Write Entry Now
                                             </Button>
                                         )}
                                     </div>
-                                ) : (
-                                    <div className="h-64 flex flex-col items-center justify-center text-center p-6 bg-black/20 rounded-xl">
-                                        <p className="text-zinc-500">Select a date to read your chronicle.</p>
-                                    </div>
-                                )}
+                                ) : null}
                             </div>
                         </div>
                     </TabsContent>
@@ -299,11 +290,7 @@ export default function ChroniclePage() {
 
             <JournalModal
                 isOpen={isJournalOpen}
-                onClose={() => {
-                    setIsJournalOpen(false);
-                    loadEntries();
-                    // If creating an entry for today, ensure state reflects it
-                }}
+                onClose={handleJournalSuccess}
             />
         </div>
     )
