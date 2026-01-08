@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useAuth } from '@clerk/nextjs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Frown, Meh, Smile, Laugh, PartyPopper, Feather, Calendar as CalendarIcon, BookOpen, PenTool } from 'lucide-react'
 import Link from 'next/link'
@@ -21,21 +22,31 @@ export default function ChroniclePage() {
     const [viewEntry, setViewEntry] = useState<any | null>(null)
     const supabase = createClientComponentClient()
 
+    const { getToken } = useAuth()
+
     const loadEntries = async () => {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
+        try {
+            const token = await getToken({ template: 'supabase' })
+            if (!token) {
+                setIsLoading(false)
+                return
+            }
+
+            const response = await fetch('/api/chronicle/entries', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                setEntries(data)
+            }
+        } catch (error) {
+            console.error('Failed to load entries', error)
+        } finally {
             setIsLoading(false)
-            return
         }
-
-        const { data } = await supabase
-            .from('chronicle_entries')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('entry_date', { ascending: false })
-
-        if (data) setEntries(data)
-        setIsLoading(false)
     }
 
     useEffect(() => {

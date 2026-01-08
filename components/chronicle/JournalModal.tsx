@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Frown, Meh, Smile, Laugh, PartyPopper, Sparkles } from 'lucide-react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useAuth } from '@clerk/nextjs'
 import { toast } from 'sonner'
 import { updateCharacterStats } from '@/lib/character-stats-service'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,8 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const supabase = createClientComponentClient()
 
+    const { getToken } = useAuth() // Need to useAuth from clerk
+
     const handleSave = async () => {
         if (!mood) {
             toast.error("Please select a mood for the day.")
@@ -27,23 +30,28 @@ export function JournalModal({ isOpen, onClose }: JournalModalProps) {
         }
         setIsSubmitting(true)
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            const token = await getToken({ template: 'supabase' })
 
-            const { error } = await supabase.from('chronicle_entries').insert({
-                user_id: user.id,
-                entry_date: new Date().toISOString().split('T')[0],
-                content,
-                mood_score: mood
+            const response = await fetch('/api/chronicle/entries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    content,
+                    mood_score: mood,
+                    entry_date: new Date().toISOString().split('T')[0]
+                })
             })
 
-            if (error) {
-                if (error.code === '23505') { // Unique violation
+            if (!response.ok) {
+                if (response.status === 409) {
                     toast.error("You have already journaled today!")
                     onClose()
                     return
                 }
-                throw error
+                throw new Error("Failed to save")
             }
 
             updateCharacterStats({ experience: 50 }, 'journal_entry')
