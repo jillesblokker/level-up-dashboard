@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { calculateRewards } from '@/lib/game-logic';
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  throw new Error('Missing Supabase URL or Service Role Key environment variables');
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export async function POST(request: NextRequest) {
   console.log('[API/quests/new] ===== REQUEST START =====');
@@ -8,6 +19,28 @@ export async function POST(request: NextRequest) {
   console.log('[API/quests/new] Headers:', Object.fromEntries(request.headers.entries()));
 
   try {
+    // Get userId from Clerk - try both methods
+    const { userId: authUserId } = await auth();
+    const authHeader = request.headers.get('authorization');
+
+    console.log('[API/quests/new] Auth check:', {
+      authUserId,
+      hasAuthHeader: !!authHeader,
+      headerValue: authHeader?.substring(0, 20) + '...'
+    });
+
+    // Use authUserId from auth() function
+    const userId = authUserId;
+
+    if (!userId) {
+      console.error('[API/quests/new] No userId found');
+      return NextResponse.json({
+        error: 'Unauthorized - No user session found'
+      }, { status: 401 });
+    }
+
+    console.log('[API/quests/new] Authenticated userId:', userId);
+
     const body = await request.json();
     console.log('[API/quests/new] Received body:', body);
 
@@ -23,48 +56,34 @@ export async function POST(request: NextRequest) {
     const xp_reward = rewards.xp;
     const gold_reward = rewards.gold;
 
-    console.log('[API/quests/new] About to call authenticatedSupabaseQuery...');
+    console.log('[API/quests/new] About to insert quest into Supabase...');
 
-    // Use authenticated Supabase query
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log('[API/quests/new] Inside query function, userId:', userId);
+    const { data, error } = await supabase
+      .from('quests')
+      .insert([
+        {
+          name,
+          description,
+          category,
+          difficulty,
+          xp_reward,
+          gold_reward,
+          is_recurring: mandate_period !== 'once',
+          mandate_period: mandate_period || 'daily',
+          mandate_count: mandate_count || 1,
+          user_id: userId,
+        },
+      ])
+      .select()
+      .single();
 
-      const { data, error } = await supabase
-        .from('quests')
-        .insert([
-          {
-            name,
-            description,
-            category,
-            difficulty,
-            xp_reward,
-            gold_reward,
-            is_recurring: mandate_period !== 'once',
-            mandate_period: mandate_period || 'daily',
-            mandate_count: mandate_count || 1,
-            user_id: userId,
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('[API/quests/new] Supabase insert error:', error);
-        throw error;
-      }
-
-      console.log('[API/quests/new] Quest created successfully:', data);
-      return data;
-    });
-
-    console.log('[API/quests/new] authenticatedSupabaseQuery result:', result);
-
-    if (!result.success) {
-      console.log('[API/quests/new] Authentication failed, error:', result.error);
-      return NextResponse.json({ error: result.error || 'Authentication failed' }, { status: 401 });
+    if (error) {
+      console.error('[API/quests/new] Supabase insert error:', error);
+      throw error;
     }
 
-    const quest: any = result.data;
+    console.log('[API/quests/new] Quest created successfully:', data);
+    const quest: any = data;
     console.log('[API/quests/new] Returning success response');
     return NextResponse.json({
       id: quest.id,
