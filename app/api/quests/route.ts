@@ -120,10 +120,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
-    // FIXED: Fetch from quests table (which has the actual quest definitions)
     // Fetching quest definitions from quests table
-    // Filter to show: user's own quests OR global quests (user_id IS NULL)
-    let { data: quests, error: questsError } = await supabase
+    // Filter to show: 
+    // 1. User's own quests (user_id = userId)
+    // 2. Global quests (user_id IS NULL AND is_active = true)
+
+    // Note: To support complex OR logic like (A) OR (B AND C), we often need .or() with proper syntax.
+    // supabase .or('user_id.eq.val, and(user_id.is.null, is_active.eq.true)') might not work directly in all clients.
+    // Simpler approach: Fetch ALL relevant quests (user's + all globals) and filter active globals in memory if needed, 
+    // OR use a raw query if we were using pg.
+    // Let's try to fetch all nulls and filter.
+
+    let { data: rawQuests, error: questsError } = await supabase
       .from('quests')
       .select('*')
       .or(`user_id.is.null,user_id.eq.${userId}`);
@@ -132,6 +140,16 @@ export async function GET(request: Request) {
       console.error('Quests fetch error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
+
+    // specific filter: if global (no user_id), must be active. If specific user quest, show it (or should we respect active there too?)
+    // Let's assume user-specific quests are always active unless stated otherwise, but global ones often have an off-switch.
+    let quests = (rawQuests || []).filter((q: any) => {
+      if (!q.user_id) {
+        // Global quest
+        return q.is_active !== false; // Default to true if undefined
+      }
+      return true;
+    });
 
     // --- AUTO-SEEDING FOR NEW USERS ---
     // If no quests are found for this user, seed the default onboarding quests

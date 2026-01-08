@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth, useUser } from '@clerk/nextjs'
 import { toast } from '@/components/ui/use-toast'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -36,7 +36,11 @@ import {
   Volume2,
   Moon,
   Zap,
-  Leaf
+  Leaf,
+  Coins,
+  Megaphone,
+  TrendingUp,
+  Package
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -70,7 +74,7 @@ export default function AdminPage() {
   const [isProcessingAction, setIsProcessingAction] = useState(false)
 
   // Danger Zone State
-  const [actionType, setActionType] = useState<'reset' | 'delete' | null>(null)
+  const [actionType, setActionType] = useState<'reset' | 'delete' | 'reset_map' | 'reset_kingdom' | null>(null)
 
   // Quest Manager State
   const [questForm, setQuestForm] = useState({
@@ -79,7 +83,8 @@ export default function AdminPage() {
     category: 'might',
     difficulty: 'medium',
     xp: 50,
-    gold: 25
+    gold: 25,
+    isGlobal: false
   })
   const [isCreatingQuest, setIsCreatingQuest] = useState(false)
 
@@ -87,10 +92,20 @@ export default function AdminPage() {
   const [tileForm, setTileForm] = useState({ tileId: '', userId: '' })
   const [isAssigningTile, setIsAssigningTile] = useState(false)
 
+  // Inventory State
+  const [userInventory, setUserInventory] = useState<any[]>([])
+  const [isLoadingInventory, setIsLoadingInventory] = useState(false)
+
+  // Economy & Announcements State
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false)
+  const [announcementForm, setAnnouncementForm] = useState({ message: '', type: 'info', expiresAt: '' })
+  const [isPostingAnnouncement, setIsPostingAnnouncement] = useState(false)
+
   // Security Check
   if (!isLoaded) return <div className="flex h-screen items-center justify-center bg-zinc-950"><Loader2 className="animate-spin text-amber-500 w-8 h-8" /></div>
 
-  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'jillesblokker@gmail.com';
+  const isAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === 'jillesblokker@gmail.com';
 
   if (!isAdmin) {
     return (
@@ -103,7 +118,55 @@ export default function AdminPage() {
     );
   }
 
-  // Seeding Function
+  // --- ANALYTICS FUNCTIONS ---
+  const fetchAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    try {
+      const res = await fetch('/api/admin/analytics');
+      const data = await res.json();
+      if (res.ok) {
+        setAnalyticsData(data);
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to fetch analytics", variant: "destructive" });
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  }
+
+  const postAnnouncement = async () => {
+    setIsPostingAnnouncement(true);
+    try {
+      const res = await fetch('/api/admin/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(announcementForm)
+      });
+      if (res.ok) {
+        toast({ title: "Announcement Posted", description: "All users will see this now." });
+        setAnnouncementForm({ message: '', type: 'info', expiresAt: '' });
+        fetchAnalytics(); // Refresh list
+      } else {
+        toast({ title: "Error", description: "Failed to post", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    } finally {
+      setIsPostingAnnouncement(false);
+    }
+  }
+
+  const deleteAnnouncement = async (id: string) => {
+    try {
+      await fetch(`/api/admin/analytics?id=${id}`, { method: 'DELETE' });
+      fetchAnalytics();
+      toast({ title: "Announcement Removed" });
+    } catch {
+      toast({ title: "Error", description: "Failed to delete" });
+    }
+  }
+
+  // --- SEEDING ---
   const seedChallenges = async () => {
     setSeedingChallenges(true)
     try {
@@ -125,7 +188,7 @@ export default function AdminPage() {
     }
   }
 
-  // User Search Function
+  // --- USER MANAGEMENT ---
   const handleSearchUsers = async () => {
     if (searchQuery.length < 3) return;
     setIsSearching(true);
@@ -150,6 +213,7 @@ export default function AdminPage() {
     setEditingUser(u);
     setFoundUsers([]); // Clear search to focus on edit
     setTileForm(prev => ({ ...prev, userId: u.user_id }));
+    setUserInventory([]); // Clear prev inventory
 
     // Fetch full details
     try {
@@ -246,6 +310,7 @@ export default function AdminPage() {
     }
   }
 
+  // --- QUESTS ---
   const createQuest = async () => {
     setIsCreatingQuest(true);
     try {
@@ -262,7 +327,8 @@ export default function AdminPage() {
           category: 'might',
           difficulty: 'medium',
           xp: 50,
-          gold: 25
+          gold: 25,
+          isGlobal: false
         });
       } else {
         const err = await res.json();
@@ -275,6 +341,7 @@ export default function AdminPage() {
     }
   }
 
+  // --- REALM & INVENTORY ---
   const assignTile = async () => {
     if (!tileForm.userId || !tileForm.tileId) {
       toast({ title: "Validation Error", description: "Please select a user and tile ID", variant: "destructive" });
@@ -289,6 +356,7 @@ export default function AdminPage() {
       });
       if (res.ok) {
         toast({ title: "Tile Assigned", description: `Gave ${tileForm.tileId} to user` });
+        fetchUserInventory(tileForm.userId); // Refresh inventory view
       } else {
         toast({ title: "Error", description: "Failed to assign", variant: "destructive" });
       }
@@ -296,6 +364,31 @@ export default function AdminPage() {
       toast({ title: "Error", description: "Network error", variant: "destructive" });
     } finally {
       setIsAssigningTile(false);
+    }
+  }
+
+  const fetchUserInventory = async (userId: string) => {
+    setIsLoadingInventory(true);
+    try {
+      const res = await fetch(`/api/admin/inventory?userId=${userId}`);
+      const data = await res.json();
+      if (res.ok) {
+        setUserInventory(data.inventory || []);
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to load inventory" });
+    } finally {
+      setIsLoadingInventory(false);
+    }
+  }
+
+  const deleteInventoryItem = async (itemId: string) => {
+    try {
+      await fetch(`/api/admin/inventory?itemId=${itemId}`, { method: 'DELETE' });
+      if (tileForm.userId) fetchUserInventory(tileForm.userId);
+      toast({ title: "Item Removed" });
+    } catch {
+      toast({ title: "Error", description: "Failed to remove item" });
     }
   }
 
@@ -311,16 +404,19 @@ export default function AdminPage() {
           </div>
           <div className="flex items-center gap-3 bg-zinc-900/50 px-4 py-2 rounded-full border border-zinc-800">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm font-medium text-zinc-300">Admin: {user.primaryEmailAddress?.emailAddress}</span>
+            <span className="text-sm font-medium text-zinc-300">Admin: {user?.primaryEmailAddress?.emailAddress}</span>
           </div>
         </header>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-8">
 
           {/* Navigation */}
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-1 bg-zinc-900/50 border border-zinc-800 rounded-lg gap-2">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto p-1 bg-zinc-900/50 border border-zinc-800 rounded-lg gap-2">
             <TabsTrigger value="stats" className="h-12 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-zinc-400 gap-2">
               <BarChart3 className="w-4 h-4" /> Player Stats
+            </TabsTrigger>
+            <TabsTrigger value="economy" className="h-12 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-zinc-400 gap-2" onClick={fetchAnalytics}>
+              <TrendingUp className="w-4 h-4" /> Economy
             </TabsTrigger>
             <TabsTrigger value="quests" className="h-12 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-zinc-400 gap-2">
               <ScrollText className="w-4 h-4" /> Quest Manager
@@ -494,11 +590,11 @@ export default function AdminPage() {
                       {/* Danger Zone */}
                       <div className="space-y-4 pt-4 border-t border-zinc-800">
                         <h4 className="text-lg font-bold flex items-center gap-2 text-red-500"><AlertTriangle className="w-5 h-5" /> Danger Zone</h4>
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 flex-wrap">
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="outline" className="border-red-900/50 bg-red-950/20 text-red-400 hover:bg-red-950 hover:text-red-300" onClick={() => setActionType('reset')}>
-                                <RefreshCw className="mr-2 w-4 h-4" /> Reset Progress
+                                <RefreshCw className="mr-2 w-4 h-4" /> Reset Stats
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
@@ -511,6 +607,46 @@ export default function AdminPage() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-white">Cancel</AlertDialogCancel>
                                 <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={performDangerAction}>I understand, reset account</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" className="border-red-900/50 bg-red-950/20 text-red-400 hover:bg-red-950 hover:text-red-300" onClick={() => setActionType('reset_map')}>
+                                <Map className="mr-2 w-4 h-4" /> Reset Map
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Reset Realm Map?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will wipe the user&apos;s map exploration and placed tiles.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-white">Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={performDangerAction}>Confirm Reset</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" className="border-red-900/50 bg-red-950/20 text-red-400 hover:bg-red-950 hover:text-red-300" onClick={() => setActionType('reset_kingdom')}>
+                                <Crown className="mr-2 w-4 h-4" /> Reset Kingdom
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Reset Kingdom Stats?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will reset kingdom expansion levels to 0.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-white">Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={performDangerAction}>Confirm Reset</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -552,6 +688,65 @@ export default function AdminPage() {
                   )}
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          {/* ECONOMY TAB */}
+          <TabsContent value="economy" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="bg-zinc-900/30 border-zinc-800">
+                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-zinc-400">Total Players</CardTitle></CardHeader>
+                  <CardContent><div className="text-3xl font-bold flex items-center gap-2 text-white"><User className="w-5 h-5" /> {analyticsData?.stats?.totalUsers || '-'}</div></CardContent>
+                </Card>
+                <Card className="bg-zinc-900/30 border-zinc-800">
+                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-amber-500">Gold Circulation</CardTitle></CardHeader>
+                  <CardContent><div className="text-3xl font-bold flex items-center gap-2 text-white"><Coins className="w-5 h-5 text-amber-500" /> {analyticsData?.stats?.totalGold?.toLocaleString() || '-'}</div></CardContent>
+                </Card>
+                <Card className="bg-zinc-900/30 border-zinc-800">
+                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-blue-500">Avg Level</CardTitle></CardHeader>
+                  <CardContent><div className="text-3xl font-bold text-white">{analyticsData?.stats?.averageLevel || '-'}</div></CardContent>
+                </Card>
+                <Card className="bg-zinc-900/30 border-zinc-800">
+                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-green-500">Quests Completed</CardTitle></CardHeader>
+                  <CardContent><div className="text-3xl font-bold text-white">{analyticsData?.stats?.totalQuestsCompleted || '-'}</div></CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-zinc-900/30 border-zinc-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Megaphone className="w-5 h-5 text-purple-500" /> System Announcements</CardTitle>
+                    <CardDescription>Broadcast messages to all active players.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Textarea
+                      placeholder="Message to broadcast..."
+                      value={announcementForm.message}
+                      onChange={e => setAnnouncementForm(p => ({ ...p, message: e.target.value }))}
+                      className="bg-zinc-950 border-zinc-700"
+                    />
+                    <div className="flex justify-end">
+                      <Button onClick={postAnnouncement} disabled={isPostingAnnouncement}>
+                        {isPostingAnnouncement ? <Loader2 className="animate-spin mr-2" /> : "Broadcast"}
+                      </Button>
+                    </div>
+
+                    <div className="space-y-2 mt-4">
+                      <h4 className="text-sm font-bold text-zinc-400">Active Announcements</h4>
+                      {analyticsData?.announcements?.map((a: any) => (
+                        <div key={a.id} className="flex justify-between items-center p-3 bg-zinc-950 rounded border border-zinc-800">
+                          <p className="text-sm">{a.message}</p>
+                          <Button variant="ghost" size="sm" onClick={() => deleteAnnouncement(a.id)} className="text-red-500 hover:text-red-400"><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      ))}
+                      {(!analyticsData?.announcements || analyticsData.announcements.length === 0) && (
+                        <p className="text-sm text-zinc-600">No active announcements.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
 
@@ -612,11 +807,18 @@ export default function AdminPage() {
                   <div className="space-y-6">
                     <div className="space-y-2 h-full flex flex-col">
                       <Label className="text-base font-medium">Description</Label>
+                      <div className="flex items-center space-x-2 pt-2 pb-2">
+                        <Switch
+                          checked={questForm.isGlobal}
+                          onCheckedChange={(checked) => setQuestForm(prev => ({ ...prev, isGlobal: checked }))}
+                        />
+                        <Label>Global Quest (Auto-assign to all players)</Label>
+                      </div>
                       <Textarea
                         value={questForm.description}
                         onChange={e => setQuestForm(p => ({ ...p, description: e.target.value }))}
                         placeholder="Describe the task in detail..."
-                        className="flex-1 min-h-[160px] bg-zinc-950 border-zinc-700 resize-none p-4"
+                        className="flex-1 min-h-[120px] bg-zinc-950 border-zinc-700 resize-none p-4 mt-2"
                       />
                     </div>
                   </div>
@@ -625,7 +827,7 @@ export default function AdminPage() {
               <CardFooter className="bg-zinc-950/50 p-6 flex justify-end border-t border-zinc-800">
                 <Button onClick={createQuest} disabled={isCreatingQuest} size="lg" className="bg-amber-600 hover:bg-amber-500 text-white font-bold w-full md:w-auto px-10">
                   {isCreatingQuest ? <Loader2 className="animate-spin mr-2" /> : <PlusCircle className="mr-2 w-5 h-5" />}
-                  Create Global Quest
+                  Create Quest
                 </Button>
               </CardFooter>
             </Card>
@@ -633,46 +835,84 @@ export default function AdminPage() {
 
           {/* REALM TAB */}
           <TabsContent value="realm" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Card className="bg-zinc-900/30 border-zinc-800 shadow-xl max-w-2xl mx-auto">
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-3"><Map className="w-6 h-6 text-green-500" /> Tile Assigner</CardTitle>
-                <CardDescription>Grant special tiles directly to a player&apos;s inventory.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-lg flex items-start gap-3">
-                  <div className="mt-1"><ShieldAlert className="w-5 h-5 text-blue-400" /></div>
-                  <p className="text-sm text-blue-200">
-                    <strong>Admin Tip:</strong> Ensure you have the correct User ID from the &quot;Player Stats&quot; tab. Tiles are added immediately to their inventory.
-                  </p>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Tile Assigner */}
+              <Card className="bg-zinc-900/30 border-zinc-800 shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl flex items-center gap-3"><Map className="w-6 h-6 text-green-500" /> Tile Assigner</CardTitle>
+                  <CardDescription>Grant special tiles directly to a player&apos;s inventory.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-lg flex items-start gap-3">
+                    <div className="mt-1"><ShieldAlert className="w-5 h-5 text-blue-400" /></div>
+                    <p className="text-sm text-blue-200">
+                      <strong>Admin Tip:</strong> Ensure you have the correct User ID. You can also paste it here.
+                    </p>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-base">Target User ID</Label>
-                  <Input value={tileForm.userId} onChange={e => setTileForm(p => ({ ...p, userId: e.target.value }))} placeholder="Paste User ID here..." className="bg-zinc-950 border-zinc-700 font-mono" />
-                </div>
+                  <div className="space-y-2">
+                    <Label className="text-base">Target User ID</Label>
+                    <div className="flex gap-2">
+                      <Input value={tileForm.userId} onChange={e => setTileForm(p => ({ ...p, userId: e.target.value }))} placeholder="Paste User ID here..." className="bg-zinc-950 border-zinc-700 font-mono" />
+                      <Button variant="secondary" onClick={() => fetchUserInventory(tileForm.userId)}><Search className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-base">Tile Type</Label>
-                  <Select value={tileForm.tileId} onValueChange={(val) => setTileForm(p => ({ ...p, tileId: val }))}>
-                    <SelectTrigger className="h-12 bg-zinc-950 border-zinc-700">
-                      <SelectValue placeholder="Select a Tile..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-700 text-zinc-200">
-                      <SelectItem value="grass-1"><div className="flex items-center gap-2"><Trees className="w-4 h-4 text-green-500" /> Grass Tile</div></SelectItem>
-                      <SelectItem value="forest-1"><div className="flex items-center gap-2"><Trees className="w-4 h-4 text-emerald-700" /> Forest Tile</div></SelectItem>
-                      <SelectItem value="water-1"><div className="flex items-center gap-2"><Waves className="w-4 h-4 text-blue-500" /> Water Tile</div></SelectItem>
-                      <SelectItem value="mountain-1"><div className="flex items-center gap-2"><Mountain className="w-4 h-4 text-zinc-500" /> Mountain Tile</div></SelectItem>
-                      <SelectItem value="zen-garden-1"><div className="flex items-center gap-2"><Flower2 className="w-4 h-4 text-pink-500" /> Zen Garden (Rare)</div></SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-              <CardFooter className="pt-6 border-t border-zinc-800">
-                <Button onClick={assignTile} disabled={isAssigningTile} size="lg" className="w-full bg-green-600 hover:bg-green-500 text-white font-bold">
-                  {isAssigningTile ? <Loader2 className="animate-spin mr-2" /> : "Grant Tile to Player"}
-                </Button>
-              </CardFooter>
-            </Card>
+                  <div className="space-y-2">
+                    <Label className="text-base">Tile Type</Label>
+                    <Select value={tileForm.tileId} onValueChange={(val) => setTileForm(p => ({ ...p, tileId: val }))}>
+                      <SelectTrigger className="h-12 bg-zinc-950 border-zinc-700">
+                        <SelectValue placeholder="Select a Tile..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-zinc-700 text-zinc-200">
+                        <SelectItem value="grass-1"><div className="flex items-center gap-2"><Trees className="w-4 h-4 text-green-500" /> Grass Tile</div></SelectItem>
+                        <SelectItem value="forest-1"><div className="flex items-center gap-2"><Trees className="w-4 h-4 text-emerald-700" /> Forest Tile</div></SelectItem>
+                        <SelectItem value="water-1"><div className="flex items-center gap-2"><Waves className="w-4 h-4 text-blue-500" /> Water Tile</div></SelectItem>
+                        <SelectItem value="mountain-1"><div className="flex items-center gap-2"><Mountain className="w-4 h-4 text-zinc-500" /> Mountain Tile</div></SelectItem>
+                        <SelectItem value="zen-garden-1"><div className="flex items-center gap-2"><Flower2 className="w-4 h-4 text-pink-500" /> Zen Garden (Rare)</div></SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-6 border-t border-zinc-800">
+                  <Button onClick={assignTile} disabled={isAssigningTile} size="lg" className="w-full bg-green-600 hover:bg-green-500 text-white font-bold">
+                    {isAssigningTile ? <Loader2 className="animate-spin mr-2" /> : "Grant Tile to Player"}
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Inventory Viewer */}
+              <Card className="bg-zinc-900/30 border-zinc-800 shadow-xl h-fit">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Package className="w-5 h-5 text-amber-500" /> Player Inventory</CardTitle>
+                  <CardDescription>View and manage {tileForm.userId ? 'selected user' : 'user'} items.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingInventory ? (
+                    <div className="flex justify-center p-8"><Loader2 className="animate-spin w-8 h-8 text-amber-500" /></div>
+                  ) : userInventory.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto p-1">
+                      {userInventory.map((item: any) => (
+                        <div key={item.id} className="p-3 bg-zinc-950 border border-zinc-800 rounded flex justify-between items-center group hover:border-zinc-600 transition-colors">
+                          <div>
+                            <p className="font-bold text-sm text-zinc-200">{item.tile_type}</p>
+                            <p className="text-xs text-zinc-500 font-mono truncate w-24">{item.id}</p>
+                          </div>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-900 hover:text-red-500 hover:bg-red-950" onClick={() => deleteInventoryItem(item.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-40 text-muted-foreground border-2 border-dashed border-zinc-800 rounded-lg">
+                      <Package className="w-8 h-8 opacity-20 mb-2" />
+                      <p className="text-sm">{tileForm.userId ? 'Inventory empty.' : 'Select a user to view items.'}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* SEEDING TAB */}

@@ -13,15 +13,25 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 async function isAdmin() {
     try {
         const user = await currentUser();
-        if (!user) return false;
+        if (!user) {
+            console.log("Admin check failed: No current user");
+            return false;
+        }
 
         const adminEmail = (process.env['ADMIN_EMAIL'] || 'jillesblokker@gmail.com').toLowerCase();
-        // Check all emails
         const userEmails = user.emailAddresses.map(e => e.emailAddress.toLowerCase());
 
-        return userEmails.includes(adminEmail);
+        const isMatch = userEmails.includes(adminEmail);
+
+        if (!isMatch) {
+            console.log(`Admin check failed. Expected: ${adminEmail}. Found: ${userEmails.join(', ')}`);
+        } else {
+            console.log("Admin access granted for:", adminEmail);
+        }
+
+        return isMatch;
     } catch (e) {
-        console.error("Admin check failed:", e);
+        console.error("Admin check failed with error:", e);
         return false;
     }
 }
@@ -29,13 +39,12 @@ async function isAdmin() {
 // Search Users
 export async function GET(req: NextRequest) {
     if (!await isAdmin()) {
-        console.error("Admin check failed for user");
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('query');
-    const targetUserId = searchParams.get('userId'); // Support getting single user details
+    const targetUserId = searchParams.get('userId');
 
     try {
         if (targetUserId) {
@@ -51,7 +60,6 @@ export async function GET(req: NextRequest) {
                 .select('*')
                 .eq('user_id', targetUserId);
 
-            // Construct preferences object
             const preferences: Record<string, any> = {};
             if (prefs) {
                 prefs.forEach((p: any) => {
@@ -71,16 +79,27 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ users: [] });
         }
 
-        // Search in character_stats (where display_name lives)
-        const { data, error } = await supabaseAdmin
+        // Search strategy: 
+        // 1. Search existing user_preferences for name matches (most reliable source of truth for display names)
+        // 2. Search character_stats as backup
+
+        // Strategy 1: Search user_preferences
+        const { data: prefMatches, error: prefError } = await supabaseAdmin
+            .from('user_preferences')
+            .select('user_id, preference_value')
+            .eq('preference_key', 'display_name'); // We can't easily ILIKE on jsonb value in this query builder without complex filters
+
+        // Easier approach: Search character_stats since we migrated display_name there specifically for this.
+        // If the migration worked, names should be there.
+        const { data: statsMatches, error: statsError } = await supabaseAdmin
             .from('character_stats')
             .select('*')
             .ilike('display_name', `%${query}%`)
             .limit(10);
 
-        if (error) throw error;
+        if (statsError) throw statsError;
 
-        return NextResponse.json({ users: data });
+        return NextResponse.json({ users: statsMatches || [] });
 
     } catch (err: any) {
         console.error("Admin Users API Error:", err);
@@ -95,11 +114,10 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, updates, type } = body; // type = 'stats' | 'preference'
+    const { userId, updates, type } = body;
 
     try {
         if (type === 'preference') {
-            // Updage single preference
             const key = Object.keys(updates)[0];
             if (!key) {
                 return NextResponse.json({ error: 'No preference key provided' }, { status: 400 });
@@ -118,7 +136,6 @@ export async function PUT(req: NextRequest) {
             if (error) throw error;
             return NextResponse.json({ success: true, preference: data });
         } else {
-            // Default to stats update
             const { data, error } = await supabaseAdmin
                 .from('character_stats')
                 .update(updates)
@@ -143,15 +160,35 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
-    const action = searchParams.get('action'); // 'reset' | 'delete'
+    const action = searchParams.get('action'); // 'reset' | 'delete' | 'reset_map' | 'reset_kingdom'
 
     if (!userId || !action) {
         return NextResponse.json({ error: "Missing userId or action" }, { status: 400 });
     }
 
     try {
+        if (action === 'reset_map') {
+            // Delete all realm data for this user to force a re-seed/fresh start
+            await supabaseAdmin.from('realm_data').delete().eq('user_id', userId);
+
+            return NextResponse.json({ success: true, message: "Realm Map reset to default." });
+        }
+
+        if (action === 'reset_kingdom') {
+            // Reset kingdom expansions
+            await supabaseAdmin.from('character_stats')
+                .update({ kingdom_expansions: 0 })
+                .eq('user_id', userId);
+
+            // If kingdom layout is stored in realm_data under specific keys, deleting all realm_data in 'reset_map' covers it.
+            // But if we want JUST kingdom, we might need a more specific query if we knew the key structure.
+            // For now, let's assume 'reset_map' is the big hammer, and 'reset_kingdom' just resets the expansion stats.
+
+            return NextResponse.json({ success: true, message: "Kingdom stats reset." });
+        }
+
         if (action === 'reset') {
-            // Reset character stats to Level 1, 0 Gold, 0 XP
+            // Reset character stats
             await supabaseAdmin.from('character_stats').update({
                 level: 1,
                 experience: 0,
@@ -163,20 +200,16 @@ export async function DELETE(req: NextRequest) {
             // Clear Inventory
             await supabaseAdmin.from('tile_inventory').delete().eq('user_id', userId);
 
-            // Clear Quests (Optional: maybe keep global quests but reset progress?)
-            // For now, let's just reset stats/inventory as that's the main "Game State"
-
-            return NextResponse.json({ success: true, message: "Account reset successfully" });
+            return NextResponse.json({ success: true, message: "Account stats reset successfully" });
         }
 
         if (action === 'delete') {
-            // Delete EVERYTHING
-            // Note: tables usually cascade but we can be explicit
             await supabaseAdmin.from('character_stats').delete().eq('user_id', userId);
             await supabaseAdmin.from('user_preferences').delete().eq('user_id', userId);
             await supabaseAdmin.from('realm_data').delete().eq('user_id', userId);
             await supabaseAdmin.from('tile_inventory').delete().eq('user_id', userId);
             await supabaseAdmin.from('streaks').delete().eq('user_id', userId);
+            await supabaseAdmin.from('user_quests').delete().eq('user_id', userId);
 
             return NextResponse.json({ success: true, message: "Account deleted data successfully" });
         }

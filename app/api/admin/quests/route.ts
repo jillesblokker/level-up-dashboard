@@ -18,12 +18,12 @@ export async function POST(req: NextRequest) {
         const user = await client.users.getUser(userId);
         const email = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
 
-        if (email !== 'jillesblokker@gmail.com') {
+        if (email?.toLowerCase() !== 'jillesblokker@gmail.com') {
             return NextResponse.json({ error: "Forbidden: Admin access only" }, { status: 403 });
         }
 
         const body = await req.json();
-        const { title, description, category, difficulty, xp, gold } = body;
+        const { title, description, category, difficulty, xp, gold, isGlobal } = body;
 
         if (!title || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
                 xp_reward: xp || 50,
                 gold_reward: gold || 25,
                 is_active: true,
-                user_id: null // Global quest
+                is_global: isGlobal || false,
+                user_id: null
             })
             .select()
             .single();
