@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
-import { clerkClient } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = 'force-dynamic';
@@ -9,41 +8,55 @@ const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
 const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY']!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-// Helper to verify admin status using proven verifyClerkJWT pattern
+// Helper to verify admin status with detailed logging
 async function isAdmin(request: Request): Promise<boolean> {
-    try {
-        // Use the same JWT verification that works for other routes
-        const authResult = await verifyClerkJWT(request);
+    console.log('[Admin Users API] isAdmin check started');
+    console.log('[Admin Users API] Request URL:', request.url);
 
-        if (!authResult.success || !authResult.userId) {
-            console.log("Admin check failed: No userId from verifyClerkJWT");
+    try {
+        // Step 1: Get userId from Clerk auth()
+        console.log('[Admin Users API] Calling auth()...');
+        const { userId } = await auth();
+        console.log('[Admin Users API] auth() returned userId:', userId);
+
+        if (!userId) {
+            console.log('[Admin Users API] FAILED: No userId from auth()');
             return false;
         }
 
+        // Step 2: Get user details from Clerk
+        console.log('[Admin Users API] Fetching user from clerkClient...');
         const client = await clerkClient();
-        const user = await client.users.getUser(authResult.userId);
+        const user = await client.users.getUser(userId);
+        console.log('[Admin Users API] User fetched, emails:', user.emailAddresses.map(e => e.emailAddress));
 
+        // Step 3: Check admin email
         const adminEmail = (process.env['ADMIN_EMAIL'] || 'jillesblokker@gmail.com').toLowerCase();
         const userEmails = user.emailAddresses.map(e => e.emailAddress.toLowerCase());
+        console.log('[Admin Users API] Checking admin email. Expected:', adminEmail, 'Found:', userEmails);
 
         const isMatch = userEmails.includes(adminEmail);
+        console.log('[Admin Users API] Email match result:', isMatch);
 
         if (!isMatch) {
-            console.log(`Admin check failed. Expected: ${adminEmail}. Found: ${userEmails.join(', ')}`);
+            console.log(`[Admin Users API] FAILED: Email mismatch`);
         } else {
-            console.log("Admin access granted for:", adminEmail);
+            console.log('[Admin Users API] SUCCESS: Admin access granted');
         }
 
         return isMatch;
     } catch (e) {
-        console.error("Admin check failed with error:", e);
+        console.error('[Admin Users API] EXCEPTION in isAdmin:', e);
         return false;
     }
 }
 
 // Search Users
 export async function GET(req: NextRequest) {
+    console.log('[Admin Users API] GET request received');
+
     if (!await isAdmin(req)) {
+        console.log('[Admin Users API] Returning 403 Forbidden');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
