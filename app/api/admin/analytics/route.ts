@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = 'force-dynamic';
@@ -10,8 +10,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 async function isAdmin() {
     try {
-        const user = await currentUser();
-        if (!user) return false;
+        const { userId } = await auth();
+        if (!userId) return false;
+
+        const client = await clerkClient();
+        const user = await client.users.getUser(userId);
+
         const adminEmail = (process.env['ADMIN_EMAIL'] || 'jillesblokker@gmail.com').toLowerCase();
         const userEmails = user.emailAddresses.map(e => e.emailAddress.toLowerCase());
         return userEmails.includes(adminEmail);
