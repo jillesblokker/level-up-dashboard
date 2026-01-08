@@ -3,16 +3,6 @@ import { calculateRewards } from '@/lib/game-logic';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase client
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
-const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error('Missing Supabase URL or Service Role Key environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
 export async function POST(request: NextRequest) {
   console.log('[API/quests/new] ===== REQUEST START =====');
   console.log('[API/quests/new] URL:', request.url);
@@ -40,6 +30,20 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[API/quests/new] Authenticated userId:', userId);
+
+    // Initialize Supabase client
+    const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+    const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      console.error('[API/quests/new] Missing Supabase environment variables');
+      return NextResponse.json({
+        error: 'Server configuration error'
+      }, { status: 500 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    console.log('[API/quests/new] Supabase client initialized');
 
     const body = await request.json();
     console.log('[API/quests/new] Received body:', body);
