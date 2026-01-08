@@ -287,11 +287,13 @@ export default function ChroniclePage() {
                                         </CardContent>
                                     </Card>
                                 ) : selectedDate ? (
-                                    <div className="h-48 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-zinc-800 rounded-xl bg-black/20">
-                                        <BookOpen className="w-10 h-10 text-zinc-700 mb-4" />
-                                        <p className="text-zinc-500">No entry recorded for <span className="text-amber-500/70">{formatDate(selectedDate.toISOString())}</span>.</p>
+                                    <div className="h-64 flex flex-col items-center justify-center text-center p-8 border border-white/5 rounded-2xl bg-gradient-to-b from-black/40 to-black/20 shadow-inner">
+                                        <div className="bg-zinc-900/50 p-4 rounded-full mb-4 border border-article-900/20">
+                                            <BookOpen className="w-8 h-8 text-amber-500/50" />
+                                        </div>
+                                        <p className="text-zinc-400 font-serif text-lg mb-1">Untold Stories</p>
+                                        <p className="text-zinc-500 text-sm mb-6">No entry recorded for <span className="text-amber-500/70">{formatDate(selectedDate.toISOString())}</span>.</p>
                                         <Button
-                                            variant="link"
                                             onClick={() => {
                                                 setJournalEntry({
                                                     entry_date: selectedDate.toISOString().split('T')[0],
@@ -300,8 +302,9 @@ export default function ChroniclePage() {
                                                 });
                                                 setIsJournalOpen(true);
                                             }}
-                                            className="text-amber-500 hover:text-amber-400 mt-2"
+                                            className="bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-600/20 px-6"
                                         >
+                                            <PenTool className="w-4 h-4 mr-2" />
                                             Write Entry Now
                                         </Button>
                                     </div>

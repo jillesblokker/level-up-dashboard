@@ -40,12 +40,12 @@ function Calendar({
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1 block sm:table", // Fallback to block? No, force table behavior or correct flex
-        head_row: "flex w-full justify-between",
+        table: "w-full border-collapse", // Removed flex/block hacks
+        head_row: "grid grid-cols-7 w-full", // Use grid for alignment
         head_cell:
-          "text-zinc-500 rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2 justify-between",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+          "text-zinc-500 rounded-md font-normal text-[0.8rem] flex justify-center items-center h-9", // removed w-9 fixed width
+        row: "grid grid-cols-7 w-full mt-2", // Use grid for dates
+        cell: "h-9 w-full flex justify-center items-center text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 text-zinc-300 hover:text-amber-500 hover:bg-amber-950/30"
