@@ -140,6 +140,7 @@ export default function QuestsPage() {
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
+  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges'>('quests'); // New toggle for Forge
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
@@ -2124,56 +2125,64 @@ export default function QuestsPage() {
                     </Button>
                   </div>
 
-                  {/* Strategic Mandates Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 border-b border-amber-900/20 pb-3">
-                      <div className="p-2 bg-orange-500/10 rounded-lg">
-                        <Flame className="w-5 h-5 text-orange-500" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-orange-400 font-serif">Strategic Mandates</h2>
-                        <p className="text-xs text-gray-500">Daily deeds and recurring habits</p>
-                      </div>
+                  {/* Simple Toggle for Daily Quests / Challenges */}
+                  <div className="space-y-6">
+                    {/* Toggle Buttons */}
+                    <div className="flex gap-2 p-1 bg-gray-900/50 rounded-lg border border-gray-800 w-fit">
+                      <button
+                        onClick={() => setForgeTab('quests')}
+                        className={cn(
+                          "px-6 py-2 rounded-md text-sm font-bold transition-all",
+                          forgeTab === 'quests'
+                            ? "bg-orange-500 text-white shadow-lg"
+                            : "text-gray-400 hover:text-gray-200"
+                        )}
+                      >
+                        Daily Quests
+                      </button>
+                      <button
+                        onClick={() => setForgeTab('challenges')}
+                        className={cn(
+                          "px-6 py-2 rounded-md text-sm font-bold transition-all",
+                          forgeTab === 'challenges'
+                            ? "bg-blue-500 text-white shadow-lg"
+                            : "text-gray-400 hover:text-gray-200"
+                        )}
+                      >
+                        Challenges
+                      </button>
                     </div>
-                    <QuestOrganization
-                      quests={quests}
-                      onQuestToggle={handleQuestToggle}
-                      onQuestFavorite={handleQuestFavorite}
-                      onQuestEdit={handleEditQuest}
-                      onQuestDelete={handleDeleteQuest}
-                      onAddQuest={() => openQuickAdd()}
-                      showCategoryFilter={true}
-                      context="quests"
-                      hideOverview={true}
-                      hideCategoryOverview={true}
-                      isLoading={loading}
-                    />
-                  </div>
 
-                  {/* Kingdom Decrees Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 border-b border-blue-900/20 pb-3">
-                      <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <Crown className="w-5 h-5 text-blue-500" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-blue-400 font-serif">Kingdom Decrees</h2>
-                        <p className="text-xs text-gray-500">Epic challenges and one-time quests</p>
-                      </div>
-                    </div>
-                    <QuestOrganization
-                      quests={challenges}
-                      onQuestToggle={handleChallengeToggle}
-                      onQuestFavorite={() => { }}
-                      onQuestEdit={handleEditChallenge}
-                      onQuestDelete={handleDeleteChallenge}
-                      onAddQuest={handleAddChallengeType}
-                      showCategoryFilter={true}
-                      context="challenges"
-                      hideOverview={true}
-                      hideCategoryOverview={true}
-                      isLoading={loading}
-                    />
+                    {/* Conditional Content */}
+                    {forgeTab === 'quests' ? (
+                      <QuestOrganization
+                        quests={quests}
+                        onQuestToggle={handleQuestToggle}
+                        onQuestFavorite={handleQuestFavorite}
+                        onQuestEdit={handleEditQuest}
+                        onQuestDelete={handleDeleteQuest}
+                        onAddQuest={() => openQuickAdd()}
+                        showCategoryFilter={true}
+                        context="quests"
+                        hideOverview={true}
+                        hideCategoryOverview={true}
+                        isLoading={loading}
+                      />
+                    ) : (
+                      <QuestOrganization
+                        quests={challenges}
+                        onQuestToggle={handleChallengeToggle}
+                        onQuestFavorite={() => { }}
+                        onQuestEdit={handleEditChallenge}
+                        onQuestDelete={handleDeleteChallenge}
+                        onAddQuest={handleAddChallengeType}
+                        showCategoryFilter={true}
+                        context="challenges"
+                        hideOverview={true}
+                        hideCategoryOverview={true}
+                        isLoading={loading}
+                      />
+                    )}
                   </div>
 
                   {/* Journey Progress Section */}

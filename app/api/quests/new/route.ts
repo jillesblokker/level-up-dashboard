@@ -3,6 +3,10 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { calculateRewards } from '@/lib/game-logic';
 
 export async function POST(request: NextRequest) {
+  console.log('[API/quests/new] ===== REQUEST START =====');
+  console.log('[API/quests/new] URL:', request.url);
+  console.log('[API/quests/new] Headers:', Object.fromEntries(request.headers.entries()));
+
   try {
     const body = await request.json();
     console.log('[API/quests/new] Received body:', body);
@@ -19,8 +23,12 @@ export async function POST(request: NextRequest) {
     const xp_reward = rewards.xp;
     const gold_reward = rewards.gold;
 
+    console.log('[API/quests/new] About to call authenticatedSupabaseQuery...');
+
     // Use authenticated Supabase query
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      console.log('[API/quests/new] Inside query function, userId:', userId);
+
       const { data, error } = await supabase
         .from('quests')
         .insert([
@@ -45,15 +53,19 @@ export async function POST(request: NextRequest) {
         throw error;
       }
 
+      console.log('[API/quests/new] Quest created successfully:', data);
       return data;
     });
 
+    console.log('[API/quests/new] authenticatedSupabaseQuery result:', result);
+
     if (!result.success) {
-      console.log('[API/quests/new] Authentication failed');
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      console.log('[API/quests/new] Authentication failed, error:', result.error);
+      return NextResponse.json({ error: result.error || 'Authentication failed' }, { status: 401 });
     }
 
     const quest: any = result.data;
+    console.log('[API/quests/new] Returning success response');
     return NextResponse.json({
       id: quest.id,
       name: quest.name,
@@ -65,6 +77,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('[API/quests/new] Internal server error:', error);
+    console.error('[API/quests/new] Error stack:', error.stack);
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
