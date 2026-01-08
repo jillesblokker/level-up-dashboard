@@ -99,7 +99,7 @@ export function isRareTileUnlocked(tile: RareTile): boolean {
   const today = new Date()
   const currentDay = today.getDate()
   const currentMonth = today.getMonth() + 1 // getMonth() returns 0-11
-  
+
   return currentDay === tile.unlockDate.day && currentMonth === tile.unlockDate.month
 }
 
@@ -108,7 +108,7 @@ export function getRareTileUnlockDate(tile: RareTile): string {
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ]
-  
+
   return `${monthNames[tile.unlockDate.month - 1]} ${tile.unlockDate.day}`
 }
 
@@ -129,7 +129,7 @@ export async function loadRareTiles(supabase: SupabaseClient, userId: string): P
     }
 
     const { data } = await response.json();
-    
+
     // Merge saved data with default tiles
     return RARE_TILES.map(tile => {
       const savedTile = data?.find((saved: any) => saved.tile_id === tile.id);
@@ -148,11 +148,7 @@ export async function loadRareTiles(supabase: SupabaseClient, userId: string): P
   }
 }
 
-export async function saveRareTiles(supabase: SupabaseClient, userId: string, tiles: RareTile[]): Promise<void> {
-  // This function is not needed for the current implementation
-  // as we're using individual unlock/clear operations
-  console.log('saveRareTiles called but not implemented');
-}
+
 
 export async function unlockRareTile(supabase: SupabaseClient, userId: string, tileId: string): Promise<void> {
   try {

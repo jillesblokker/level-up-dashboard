@@ -2,9 +2,9 @@ import { EventEmitter } from 'events';
 import { GameState } from '../types/game';
 
 // Event Types
-export type EventType = 
-  | 'mystery' 
-  | 'quest' 
+export type EventType =
+  | 'mystery'
+  | 'quest'
   | 'achievement';
 
 // Base Event Interface
@@ -114,8 +114,31 @@ export class GameEventsManager extends EventEmitter {
   }
 
   private shouldTriggerEvent(event: BaseEvent, gameState: GameState): boolean {
-    // Implement your trigger logic here
-    // This is a placeholder implementation
+    if (event.type === 'achievement') {
+      const achievementEvent = event as AchievementEvent;
+      return achievementEvent.requirements.every(req => {
+        switch (req.type) {
+          case 'level':
+            return (gameState.character?.level || 1) >= req.count;
+          case 'gold':
+            // Check gold in character stats (primary) or inventory (fallback)
+            const gold = gameState.character?.stats?.['gold'] || gameState.inventory?.['gold'] || 0;
+            return gold >= req.count;
+          case 'quest_count':
+            return (gameState.quests?.filter(q => q.completed).length || 0) >= req.count;
+          case 'exploration':
+            // Example: Check if specific tiles visited or count
+            // For now, assume a tracked stat in character or similar
+            // This is a basic implementation to start
+            return true;
+          default:
+            // Unknown requirement type, default to false to be safe
+            console.warn(`Unknown requirement type: ${req.type} for event ${event.id}`);
+            return false;
+        }
+      });
+    }
+    // Logic for other event types (mystery, quest) can be added here
     return false;
   }
 }

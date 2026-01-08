@@ -6,14 +6,14 @@ import { useEffect, useState } from "react";
 import { eventBus } from "@/app/lib/event-bus";
 
 import { smartLogger } from "@/lib/smart-logger";
-import { 
-  BookOpen, 
-  User, 
-  Settings, 
-  LogOut, 
-  Crown, 
-  BarChart3, 
-  FileText, 
+import {
+  BookOpen,
+  User,
+  Settings,
+  LogOut,
+  Crown,
+  BarChart3,
+  FileText,
   Database,
   Monitor,
   Activity,
@@ -58,7 +58,7 @@ export function AccountMenu() {
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent
     });
-    
+
     try {
       smartLogger.addGuideStep('BUTTON_CLICK', true, {
         component: 'AccountMenu',
@@ -70,7 +70,7 @@ export function AccountMenu() {
           avatarType
         }
       });
-      
+
       // Reset onboarding state to ensure it can be opened again
       smartLogger.addGuideStep('RESET_ONBOARDING', true, {
         action: 'reset_onboarding_state',
@@ -78,7 +78,7 @@ export function AccountMenu() {
         previousState: 'will_be_cleared'
       });
       console.log('Onboarding reset temporarily disabled');
-      
+
       smartLogger.addGuideStep('OPEN_ONBOARDING', true, {
         action: 'open_onboarding_modal',
         forceOpen: true,
@@ -86,20 +86,20 @@ export function AccountMenu() {
         expectedBehavior: 'modal_should_open_immediately'
       });
       console.log('Onboarding open temporarily disabled');
-      
+
       smartLogger.addGuideStep('CLOSE_DROPDOWN', true, {
         action: 'close_account_menu',
         reason: 'user_selected_guide_option'
       });
       setIsOpen(false);
-      
+
       smartLogger.addGuideStep('GUIDE_FLOW_COMPLETE', true, {
         totalSteps: 4,
         duration: 'calculated_by_smartLogger',
         success: true
       });
       smartLogger.endGuideFlow();
-      
+
     } catch (error) {
       smartLogger.error('AccountMenu', 'GUIDE_FLOW_ERROR', {
         error: error instanceof Error ? error.message : String(error),
@@ -128,11 +128,11 @@ export function AccountMenu() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-  
+
   return (
     <div className="relative account-menu-container">
-      <Button 
-        variant="ghost" 
+      <Button
+        variant="ghost"
         className="relative h-12 w-12 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
         aria-label="Account menu"
         onClick={() => setIsOpen(!isOpen)}
@@ -141,7 +141,9 @@ export function AccountMenu() {
           {avatarType === 'uploaded' && user?.imageUrl ? (
             <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
           ) : avatarType === 'default' ? (
-            <img src="/images/placeholders/item-placeholder.svg" alt="Default avatar" className="h-12 w-12 md:h-8 md:w-8 rounded-full object-contain bg-gray-800" />
+            <div className="h-12 w-12 md:h-8 md:w-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
+              <User className="h-6 w-6 md:h-4 md:w-4 text-gray-400" />
+            </div>
           ) : (
             <AvatarFallback style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}>
               {displayName?.[0]?.toUpperCase() || '?'}
@@ -164,12 +166,12 @@ export function AccountMenu() {
               </p>
             </div>
           </div>
-          
+
           <div className="border-b border-amber-800/20" />
-          
+
           {/* Enhanced Menu Items with Better Mobile Support */}
           <div className="p-2 space-y-1">
-            <Link 
+            <Link
               href="/profile"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Profile page"
@@ -181,8 +183,8 @@ export function AccountMenu() {
                 <p className="text-xs text-gray-400">Manage your profile</p>
               </div>
             </Link>
-            
-            <Link 
+
+            <Link
               href="/requirements"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Requirements page"
@@ -194,8 +196,8 @@ export function AccountMenu() {
                 <p className="text-xs text-gray-400">View system requirements</p>
               </div>
             </Link>
-            
-            <Link 
+
+            <Link
               href="/design-system"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Design System page"
@@ -207,8 +209,8 @@ export function AccountMenu() {
                 <p className="text-xs text-gray-400">View design components</p>
               </div>
             </Link>
-            
-            <Link 
+
+            <Link
               href="/admin/stored-data"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Admin page"
@@ -220,8 +222,8 @@ export function AccountMenu() {
                 <p className="text-xs text-gray-400">Manage data & settings</p>
               </div>
             </Link>
-            
-            <Link 
+
+            <Link
               href="/account/monitoring"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Monitoring page"
@@ -233,8 +235,8 @@ export function AccountMenu() {
                 <p className="text-xs text-gray-400">View performance metrics</p>
               </div>
             </Link>
-            
-            <Link 
+
+            <Link
               href="/settings"
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Settings page"
@@ -247,9 +249,9 @@ export function AccountMenu() {
               </div>
             </Link>
           </div>
-          
+
           <div className="border-b border-amber-800/20" />
-          
+
           {/* Guide Button */}
           <button
             className="w-full min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation text-left rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
@@ -263,9 +265,9 @@ export function AccountMenu() {
               <p className="text-xs text-gray-400">Open tutorial</p>
             </div>
           </button>
-          
+
           {/* Log Center Button */}
-          <Link 
+          <Link
             href="/account/log-center"
             className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
             aria-label="Log Center page"
@@ -277,9 +279,9 @@ export function AccountMenu() {
               <p className="text-xs text-gray-400">View debug logs</p>
             </div>
           </Link>
-          
+
           <div className="border-b border-amber-800/20" />
-          
+
           {/* Logout Button */}
           <button
             className="w-full min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation text-left rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 transition-all duration-200"
@@ -297,7 +299,7 @@ export function AccountMenu() {
               // Clerk sign out (if signed in)
               try {
                 await signOut();
-              } catch (e) {}
+              } catch (e) { }
               // Redirect to a public page (not protected)
               window.location.href = "/auth/signin";
             }}

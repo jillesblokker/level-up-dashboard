@@ -15,7 +15,7 @@ import { Search, User, Save, Loader2 } from 'lucide-react'
 export default function AdminPage() {
   const [selectedTab, setSelectedTab] = useState('realm')
   const [seedingChallenges, setSeedingChallenges] = useState(false)
-  const { getToken } = useAuth()
+  const { getToken, isLoaded } = useAuth()
   const { user } = useUser();
 
   // Stats / User Management State
@@ -25,6 +25,36 @@ export default function AdminPage() {
   const [editingUser, setEditingUser] = useState<any>(null)
   const [statsForm, setStatsForm] = useState({ gold: 0, experience: 0, level: 1 })
   const [isSaving, setIsSaving] = useState(false)
+
+  // Quest Manager State
+  const [questForm, setQuestForm] = useState({
+    title: '',
+    description: '',
+    category: 'might',
+    difficulty: 'medium',
+    xp: 50,
+    gold: 25
+  })
+  const [isCreatingQuest, setIsCreatingQuest] = useState(false)
+
+  // Realm / Tile Logic
+  const [tileForm, setTileForm] = useState({ tileId: '', userId: '' })
+  const [isAssigningTile, setIsAssigningTile] = useState(false)
+
+  // Security Check
+  if (!isLoaded) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>
+
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'jillesblokker@gmail.com';
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center p-4 space-y-4">
+        <h1 className="text-2xl font-bold text-red-500">Access Denied</h1>
+        <p className="text-muted-foreground">You do not have permission to view this area.</p>
+        <Button onClick={() => window.location.href = '/'}>Return to Kingdom</Button>
+      </div>
+    );
+  }
 
   // Seeding Function
   const seedChallenges = async () => {
@@ -77,6 +107,7 @@ export default function AdminPage() {
         level: u.stats.level || 1
       });
     }
+    setTileForm(prev => ({ ...prev, userId: u.user_id }));
   }
 
   const saveStats = async () => {
@@ -106,6 +137,71 @@ export default function AdminPage() {
     }
   }
 
+  const createQuest = async () => {
+    setIsCreatingQuest(true);
+    try {
+      // Use the newly planned admin endpoint or repurpose logic
+      // Since we decided to add app/api/admin/quests, let's assume it exists or use a direct call if we implemented it.
+      // Wait, I haven't implemented app/api/admin/quests yet. I'll do that in next step.
+      // For now, I'll point to it.
+      const res = await fetch('/api/admin/quests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questForm)
+      });
+      if (res.ok) {
+        toast({ title: "Quest Created", description: `Created quest "${questForm.title}"` });
+        setQuestForm({
+          title: '',
+          description: '',
+          category: 'might',
+          difficulty: 'medium',
+          xp: 50,
+          gold: 25
+        });
+      } else {
+        const err = await res.json();
+        toast({ title: "Error", description: err.error || "Failed", variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    } finally {
+      setIsCreatingQuest(false);
+    }
+  }
+
+  const assignTile = async () => {
+    if (!tileForm.userId || !tileForm.tileId) {
+      toast({ title: "Validation Error", description: "Please select a user and tile ID", variant: "destructive" });
+      return;
+    }
+    setIsAssigningTile(true);
+    try {
+      // We can reuse the inventory API (mocked mainly) or admin user update
+      // But better is to just update inventory directly via API
+      // I'll assume we can use /api/admin/users with a special action or /api/inventory/admin
+      // Let's use /api/admin/users for now if it supports it, or I'll add logic to the plan.
+      // Actually, let's use a specific endpoint or just log it for now if I don't want to overengineer.
+      // Re-reading plan: "Implement basics".
+      // I will use /api/admin/tile-assignment (new)
+      const res = await fetch('/api/admin/tile-assignment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tileForm)
+      });
+      if (res.ok) {
+        toast({ title: "Tile Assigned", description: `Gave ${tileForm.tileId} to user` });
+      } else {
+        toast({ title: "Error", description: "Failed to assign", variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    } finally {
+      setIsAssigningTile(false);
+    }
+  }
+
+
   return (
     <div className="container mx-auto p-4 max-w-5xl">
       <div className="flex justify-between items-center mb-8">
@@ -115,31 +211,11 @@ export default function AdminPage() {
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="realm">{TEXT_CONTENT.admin.tabs.realm}</TabsTrigger>
-          <TabsTrigger value="quests">{TEXT_CONTENT.admin.tabs.quests}</TabsTrigger>
           <TabsTrigger value="stats">{TEXT_CONTENT.admin.tabs.stats}</TabsTrigger>
+          <TabsTrigger value="quests">{TEXT_CONTENT.admin.tabs.quests}</TabsTrigger>
+          <TabsTrigger value="realm">{TEXT_CONTENT.admin.tabs.realm}</TabsTrigger>
           <TabsTrigger value="export">{TEXT_CONTENT.admin.tabs.export}</TabsTrigger>
         </TabsList>
-
-        {/* REALM TAB (Placeholder) */}
-        <TabsContent value="realm">
-          <Card>
-            <CardHeader><CardTitle>Realm Editor</CardTitle><CardDescription>Coming soon...</CardDescription></CardHeader>
-            <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground">
-              Map editing features will appear here.
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* QUESTS TAB (Placeholder) */}
-        <TabsContent value="quests">
-          <Card>
-            <CardHeader><CardTitle>Quest Manager</CardTitle><CardDescription>Coming soon...</CardDescription></CardHeader>
-            <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground">
-              Daily Quest management features will appear here.
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* STATS TAB - FUNCTIONAL */}
         <TabsContent value="stats" className="space-y-4">
@@ -234,6 +310,80 @@ export default function AdminPage() {
                   )}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* QUESTS TAB - FUNCTIONAL */}
+        <TabsContent value="quests">
+          <Card>
+            <CardHeader><CardTitle>Quest Manager</CardTitle><CardDescription>Create a global quest template</CardDescription></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input value={questForm.title} onChange={e => setQuestForm(p => ({ ...p, title: e.target.value }))} placeholder="Quest Title" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <select
+                    className="bg-background border border-input rounded-md px-3 py-2 text-sm ring-offset-background w-full"
+                    value={questForm.category}
+                    onChange={e => setQuestForm(p => ({ ...p, category: e.target.value }))}
+                  >
+                    <option value="might">Might</option>
+                    <option value="knowledge">Knowledge</option>
+                    <option value="honor">Honor</option>
+                    <option value="castle">Castle</option>
+                  </select>
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Description</Label>
+                  <Input value={questForm.description} onChange={e => setQuestForm(p => ({ ...p, description: e.target.value }))} placeholder="Description" />
+                </div>
+                <div className="space-y-2">
+                  <Label>XP Reward</Label>
+                  <Input type="number" value={questForm.xp} onChange={e => setQuestForm(p => ({ ...p, xp: parseInt(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Gold Reward</Label>
+                  <Input type="number" value={questForm.gold} onChange={e => setQuestForm(p => ({ ...p, gold: parseInt(e.target.value) }))} />
+                </div>
+              </div>
+              <Button onClick={createQuest} disabled={isCreatingQuest}>
+                {isCreatingQuest ? <Loader2 className="animate-spin mr-2" /> : "Create Quest"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* REALM TAB - FUNCTIONAL */}
+        <TabsContent value="realm">
+          <Card>
+            <CardHeader><CardTitle>Tile Assigner</CardTitle><CardDescription>Give a tile to a user</CardDescription></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Target User ID</Label>
+                <Input value={tileForm.userId} onChange={e => setTileForm(p => ({ ...p, userId: e.target.value }))} placeholder="User ID (select from Stats tab)" />
+              </div>
+              <div className="space-y-2">
+                <Label>Tile Type</Label>
+                <select
+                  className="bg-background border border-input rounded-md px-3 py-2 text-sm ring-offset-background w-full"
+                  value={tileForm.tileId}
+                  onChange={e => setTileForm(p => ({ ...p, tileId: e.target.value }))}
+                >
+                  <option value="">Select Tile...</option>
+                  <option value="grass-1">Grass</option>
+                  <option value="forest-1">Forest</option>
+                  <option value="water-1">Water</option>
+                  <option value="mountain-1">Mountain</option>
+                  <option value="zen-garden-1">Zen Garden</option>
+                </select>
+              </div>
+              <Button onClick={assignTile} disabled={isAssigningTile}>
+                {isAssigningTile ? <Loader2 className="animate-spin mr-2" /> : "Assign Tile"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

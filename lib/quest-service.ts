@@ -1,6 +1,6 @@
 import { supabase } from './supabase/client';
 
-// TODO: Replace Prisma logic with Supabase client logic
+
 
 const defaultQuests = {
   might: [
@@ -55,11 +55,11 @@ export async function createDefaultQuestsForUser(userId: string) {
   try {
     const results = await Promise.all(questCreations);
     const errors = results.filter((result: any) => result.error);
-    
+
     if (errors.length > 0) {
       console.error('Some quests failed to create:', errors);
     }
-    
+
     console.log(`Created ${results.length - errors.length} default quests for user ${userId}`);
   } catch (error) {
     console.error(`Failed to create default quests for user ${userId}`, error);
