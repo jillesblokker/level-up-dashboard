@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
           difficulty,
           xp_reward,
           gold_reward,
-          is_recurring: mandate_period !== 'once',
           mandate_period: mandate_period || 'daily',
           mandate_count: mandate_count || 1,
           user_id: userId,
