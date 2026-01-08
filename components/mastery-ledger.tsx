@@ -170,7 +170,33 @@ export function MasteryLedger() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-wrap gap-0.5 h-12 items-center justify-center bg-gray-900/10 rounded-xl border border-dashed border-gray-800/50">
-                                        <div className="text-[10px] text-gray-600 font-serif italic">Monthly moon-cycle history coming soon...</div>
+                                        <div className="text-[10px] text-gray-500 font-mono mb-2">Last 30 Days</div>
+                                        <div className="grid grid-cols-10 gap-1 w-full p-2">
+                                            {Array.from({ length: 30 }).map((_, i) => {
+                                                const dayIndex = 29 - i;
+                                                const done = habit.completions?.some((c: any) => {
+                                                    const completionDate = new Date(c.completed_at);
+                                                    const targetDate = new Date();
+                                                    targetDate.setDate(targetDate.getDate() - dayIndex);
+                                                    return completionDate.toDateString() === targetDate.toDateString();
+                                                });
+
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className={cn(
+                                                            "h-6 rounded border flex items-center justify-center transition-all",
+                                                            done
+                                                                ? "bg-amber-500/20 border-amber-500/50"
+                                                                : "bg-gray-900/50 border-gray-800"
+                                                        )}
+                                                        title={`${dayIndex} days ago`}
+                                                    >
+                                                        {done && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
                                 )}
                             </div>
