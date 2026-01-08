@@ -1,68 +1,60 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { calculateRewards } from '@/lib/game-logic';
 
-const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
-const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
-
-let supabase: ReturnType<typeof createClient> | null = null;
-if (supabaseUrl && supabaseServiceRoleKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-}
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Get userId from Clerk
-    const { userId } = await auth();
-    if (!userId) {
-      console.error('[API/quests/new] Unauthorized - no userId');
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-    }
-
-    if (!supabase) {
-      console.error('[API/quests/new] Supabase client not initialized');
-      return new NextResponse(JSON.stringify({ error: 'Supabase client not initialized.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
     const body = await request.json();
     console.log('[API/quests/new] Received body:', body);
 
-
     const { name, description, category, difficulty, mandate_period, mandate_count } = body;
+
+    if (!name || !category) {
+      console.error('[API/quests/new] Missing required fields:', { name, category });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
     // Calculate rewards based on difficulty
     const rewards = calculateRewards(difficulty || 'medium');
     const xp_reward = rewards.xp;
     const gold_reward = rewards.gold;
 
-    if (!name || !category) {
-      console.error('[API/quests/new] Missing required fields:', { name, category });
-      return new NextResponse(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    // Use authenticated Supabase query
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const { data, error } = await supabase
+        .from('quests')
+        .insert([
+          {
+            name,
+            description,
+            category,
+            difficulty,
+            xp_reward,
+            gold_reward,
+            is_recurring: mandate_period !== 'once',
+            mandate_period: mandate_period || 'daily',
+            mandate_count: mandate_count || 1,
+            user_id: userId,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[API/quests/new] Supabase insert error:', error);
+        throw error;
+      }
+
+      return data;
+    });
+
+    if (!result.success) {
+      console.log('[API/quests/new] Authentication failed');
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    const { data, error } = await supabase
-      .from('quests')
-      .insert([
-        {
-          name,
-          description,
-          category,
-          difficulty,
-          xp_reward,
-          gold_reward,
-          is_recurring: mandate_period !== 'once',
-          mandate_period: mandate_period || 'daily',
-          mandate_count: mandate_count || 1,
-          user_id: userId, // Assign quest to the current user
-        },
-      ])
-      .select()
-      .single();
-    if (error) {
-      console.error('[API/quests/new] Supabase insert error:', error);
-      return new NextResponse(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
-    const quest: any = data;
-    return new NextResponse(JSON.stringify({
+
+    const quest: any = result.data;
+    return NextResponse.json({
       id: quest.id,
       name: quest.name,
       description: quest.description,
@@ -70,9 +62,9 @@ export async function POST(request: Request) {
       difficulty: quest.difficulty,
       xp: quest.xp_reward,
       gold: quest.gold_reward,
-    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-  } catch (error) {
+    });
+  } catch (error: any) {
     console.error('[API/quests/new] Internal server error:', error);
-    return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
-} 
+}
