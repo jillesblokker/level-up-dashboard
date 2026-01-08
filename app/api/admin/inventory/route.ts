@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, clerkClient } from '@clerk/nextjs/server';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
+import { clerkClient } from '@clerk/nextjs/server';
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = 'force-dynamic';
@@ -8,13 +9,13 @@ const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
 const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY']!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-async function isAdmin() {
+async function isAdmin(request: Request): Promise<boolean> {
     try {
-        const { userId } = await auth();
-        if (!userId) return false;
+        const authResult = await verifyClerkJWT(request);
+        if (!authResult.success || !authResult.userId) return false;
 
         const client = await clerkClient();
-        const user = await client.users.getUser(userId);
+        const user = await client.users.getUser(authResult.userId);
 
         const adminEmail = (process.env['ADMIN_EMAIL'] || 'jillesblokker@gmail.com').toLowerCase();
         const userEmails = user.emailAddresses.map(e => e.emailAddress.toLowerCase());
@@ -23,7 +24,7 @@ async function isAdmin() {
 }
 
 export async function GET(req: NextRequest) {
-    if (!await isAdmin()) {
+    if (!await isAdmin(req)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-    if (!await isAdmin()) {
+    if (!await isAdmin(req)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
