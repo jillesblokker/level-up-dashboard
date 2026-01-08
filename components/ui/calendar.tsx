@@ -65,7 +65,6 @@ function Calendar({
       {...props}
     />
   )
-  )
 }
 Calendar.displayName = "Calendar"
 
