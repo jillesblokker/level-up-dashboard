@@ -324,33 +324,64 @@ export function DailyHubClient() {
                     transition={{ duration: 0.5, delay: 0.05 }}
                     className="relative"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide">How to Build Habits</h2>
-                    </div>
-
                     <Card className="bg-black/60 border-amber-900/40 backdrop-blur-sm overflow-hidden">
-                        <CardContent className="p-0">
-                            <div className="relative w-full aspect-square md:aspect-[2/1] bg-black/40 flex items-center justify-center p-4">
-                                <img
-                                    src="/images/gameplay-loop.png"
-                                    alt="Level Up Gameplay Loop - Improve your life by building habits"
-                                    className="max-w-full max-h-full object-contain drop-shadow-2xl rounded-lg"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                            </div>
-                            <div className="p-6 bg-gradient-to-b from-black/80 to-amber-950/20 border-t border-amber-900/30">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                                    <div className="space-y-2">
-                                        <h3 className="text-amber-400 font-bold">1. Complete Habits</h3>
-                                        <p className="text-sm text-gray-400">Finish your daily tasks to earn gold and experience for your character.</p>
+                        <CardContent className="p-6 md:p-8">
+                            <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to Build Habits</h2>
+
+                            <div className="flex flex-col md:flex-row gap-8 items-center">
+                                {/* Left Side: Steps List */}
+                                <div className="flex-1 space-y-6">
+                                    <div className="flex gap-4">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
+                                        <div>
+                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Daily Habits</h3>
+                                            <p className="text-sm text-gray-300 leading-relaxed">Completing tasks to earn resources.</p>
+                                        </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-amber-400 font-bold">2. Expand Realm</h3>
-                                        <p className="text-sm text-gray-400">Use your gold to buy new tiles and grow your personal kingdom.</p>
+
+                                    <div className="flex gap-4">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
+                                        <div>
+                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Expanding Realm</h3>
+                                            <p className="text-sm text-gray-300 leading-relaxed">Using resources to grow your map.</p>
+                                        </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-amber-400 font-bold">3. Level Up</h3>
-                                        <p className="text-sm text-gray-400">Gain experience to unlock new features, abilities, and rewards.</p>
+
+                                    <div className="flex gap-4">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
+                                        <div>
+                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Daily Kingdom</h3>
+                                            <p className="text-sm text-gray-300 leading-relaxed">Managing and maintaining your new territory.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
+                                        <div>
+                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Competitive Allies</h3>
+                                            <p className="text-sm text-gray-300 leading-relaxed">Engaging with friends and rivals.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
+                                        <div>
+                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Building Character</h3>
+                                            <p className="text-sm text-gray-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Side: Image */}
+                                <div className="flex-1 w-full max-w-md">
+                                    <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-black/40">
+                                        <img
+                                            src="/images/gameplay-loop.png"
+                                            alt="Level Up Gameplay Loop"
+                                            className="w-full h-full object-contain p-2"
+                                        />
+                                        {/* Cinematic glow effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
                                     </div>
                                 </div>
                             </div>
