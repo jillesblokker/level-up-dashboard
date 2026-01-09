@@ -317,6 +317,47 @@ export function DailyHubClient() {
                 {/* New Player Progress */}
                 <NewPlayerProgress />
 
+                {/* Gameplay Loop Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.05 }}
+                    className="relative"
+                >
+                    <div className="flex items-center gap-2 mb-4">
+                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide">How to Build Habits</h2>
+                    </div>
+
+                    <Card className="bg-black/60 border-amber-900/40 backdrop-blur-sm overflow-hidden">
+                        <CardContent className="p-0">
+                            <div className="relative w-full aspect-square md:aspect-[2/1] bg-black/40 flex items-center justify-center p-4">
+                                <img
+                                    src="/images/gameplay-loop.png"
+                                    alt="Level Up Gameplay Loop - Improve your life by building habits"
+                                    className="max-w-full max-h-full object-contain drop-shadow-2xl rounded-lg"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                            </div>
+                            <div className="p-6 bg-gradient-to-b from-black/80 to-amber-950/20 border-t border-amber-900/30">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                                    <div className="space-y-2">
+                                        <h3 className="text-amber-400 font-bold">1. Complete Habits</h3>
+                                        <p className="text-sm text-gray-400">Finish your daily tasks to earn gold and experience for your character.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="text-amber-400 font-bold">2. Expand Realm</h3>
+                                        <p className="text-sm text-gray-400">Use your gold to buy new tiles and grow your personal kingdom.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="text-amber-400 font-bold">3. Level Up</h3>
+                                        <p className="text-sm text-gray-400">Gain experience to unlock new features, abilities, and rewards.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+
                 {/* Chronicles Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

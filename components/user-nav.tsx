@@ -183,23 +183,7 @@ export function UserNav() {
                 </Link>
               </>
             )}
-            <DropdownMenuItem className="rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
-              <button
-                className="w-full text-left cursor-pointer flex items-center gap-3"
-                aria-label="Show guide"
-                role="button"
-                onClick={() => {
-                  handleGuideClick();
-                  setIsOpen(false);
-                }}
-              >
-                <BookOpen className="h-5 w-5 text-amber-400" />
-                <div className="flex-1">
-                  <span className="text-base font-medium text-white">Tutorial</span>
-                  <p className="text-xs text-gray-400">Open interactive tutorial</p>
-                </div>
-              </button>
-            </DropdownMenuItem>
+
             <KeyboardShortcutsHelp
               trigger={
                 <DropdownMenuItem
