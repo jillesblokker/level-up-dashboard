@@ -4,44 +4,52 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { 
-  User, 
-  Monitor, 
-  Database, 
-  Settings, 
-  BookOpen, 
+import {
+  User,
+  Monitor,
+  Database,
+  Settings,
+  BookOpen,
   ArrowLeft,
-  ChevronRight
+  ChevronRight,
+  Calendar
 } from "lucide-react"
 
 
 export default function AccountPage() {
   const accountMenuItems = [
-    { 
-      href: "/profile", 
-      label: "Profile", 
-      icon: User, 
+    {
+      href: "/profile",
+      label: "Profile",
+      icon: User,
       description: "Manage your profile and personal information",
       color: "from-blue-500 to-blue-600"
     },
-    { 
-      href: "/account/monitoring", 
-      label: "Monitoring", 
-      icon: Monitor, 
+    {
+      href: "/daily-hub",
+      label: "Daily Hub",
+      icon: Calendar,
+      description: "View your streaks and daily progress",
+      color: "from-orange-500 to-orange-600"
+    },
+    {
+      href: "/account/monitoring",
+      label: "Monitoring",
+      icon: Monitor,
       description: "View performance metrics and system health",
       color: "from-green-500 to-green-600"
     },
-    { 
-              href: "/admin/stored-data", 
-      label: "Stored Data", 
-      icon: Database, 
+    {
+      href: "/admin/stored-data",
+      label: "Stored Data",
+      icon: Database,
       description: "Manage your local data and preferences",
       color: "from-purple-500 to-purple-600"
     },
-    { 
-      href: "/settings", 
-      label: "Settings", 
-      icon: Settings, 
+    {
+      href: "/settings",
+      label: "Settings",
+      icon: Settings,
       description: "Configure app preferences and options",
       color: "from-amber-500 to-amber-600"
     },
@@ -91,28 +99,6 @@ export default function AccountPage() {
             </Link>
           )
         })}
-
-        {/* Guide Button */}
-        <Card className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all duration-300 cursor-pointer touch-manipulation">
-          <CardContent className="p-6">
-            <button
-              onClick={handleGuideClick}
-              className="w-full flex items-center justify-between"
-              aria-label="Show guide"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                  <BookOpen className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Guide</h3>
-                  <p className="text-sm text-gray-400">Open tutorial and learn the basics</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
-            </button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

@@ -744,16 +744,15 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <button
-                onClick={handleGuideClick}
-                className="w-full flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200 text-left"
-              >
-                <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-base font-medium text-white">Tutorial</p>
-                  <p className="text-xs text-gray-400">Open the interactive tutorial</p>
+              <Link href="/daily-hub" className="block">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                  <Settings className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-base font-medium text-white">Daily Hub</p>
+                    <p className="text-xs text-gray-400">View streaks and progress</p>
+                  </div>
                 </div>
-              </button>
+              </Link>
 
               <Link href="/requirements" className="block">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
