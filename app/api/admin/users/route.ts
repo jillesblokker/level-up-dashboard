@@ -93,80 +93,87 @@ export async function GET(req: NextRequest) {
             });
         }
 
-        if (!query || query.length < 3) {
+        if (!query || query.length < 2) {
             console.log('[Admin Users API] Query too short, returning empty');
             return NextResponse.json({ users: [] });
         }
 
         console.log('[Admin Users API] Searching for query:', query);
 
-        // Strategy 1: Search character_stats.display_name
-        const { data: statsMatches, error: statsError } = await supabaseAdmin
-            .from('character_stats')
-            .select('*')
-            .ilike('display_name', `%${query}%`)
-            .limit(10);
+        // Strategy: Search Clerk for users by name or email (source of truth for profiles)
+        try {
+            const client = await clerkClient();
 
-        console.log('[Admin Users API] character_stats search result:', {
-            count: statsMatches?.length || 0,
-            error: statsError?.message
-        });
+            // Search Clerk users - this searches username, email, first_name, last_name
+            const clerkUsers = await client.users.getUserList({
+                query: query,
+                limit: 20
+            });
 
-        if (statsMatches && statsMatches.length > 0) {
-            return NextResponse.json({ users: statsMatches });
-        }
+            console.log('[Admin Users API] Clerk search found:', clerkUsers.data.length, 'users');
 
-        // Strategy 2: Search user_preferences for display_name preference
-        const { data: prefMatches, error: prefError } = await supabaseAdmin
-            .from('user_preferences')
-            .select('user_id, preference_value')
-            .eq('preference_key', 'display_name');
+            if (clerkUsers.data.length === 0) {
+                // Also try email-specific search
+                const emailUsers = await client.users.getUserList({
+                    emailAddress: [query],
+                    limit: 10
+                });
 
-        console.log('[Admin Users API] user_preferences search result:', {
-            count: prefMatches?.length || 0,
-            error: prefError?.message
-        });
+                if (emailUsers.data.length > 0) {
+                    clerkUsers.data.push(...emailUsers.data);
+                }
+            }
 
-        // Filter preferences that match the query
-        const matchingUserIds = (prefMatches || [])
-            .filter((p: any) => {
-                const name = typeof p.preference_value === 'string'
-                    ? p.preference_value
-                    : p.preference_value?.toString() || '';
-                return name.toLowerCase().includes(query.toLowerCase());
-            })
-            .map((p: any) => p.user_id);
+            if (clerkUsers.data.length === 0) {
+                console.log('[Admin Users API] No users found in Clerk');
+                return NextResponse.json({ users: [] });
+            }
 
-        console.log('[Admin Users API] Matching user IDs from preferences:', matchingUserIds);
+            // Get user IDs from Clerk results
+            const clerkUserIds = clerkUsers.data.map(u => u.id);
 
-        if (matchingUserIds.length > 0) {
-            // Fetch full stats for these users
-            const { data: users, error: usersError } = await supabaseAdmin
+            // Fetch game data from Supabase for these users
+            const { data: gameStats, error: statsError } = await supabaseAdmin
                 .from('character_stats')
                 .select('*')
-                .in('user_id', matchingUserIds);
+                .in('user_id', clerkUserIds);
 
-            if (users && users.length > 0) {
-                // Add display_name from preferences if missing in stats
-                const enrichedUsers = users.map((u: any) => {
-                    if (!u.display_name) {
-                        const pref = prefMatches?.find((p: any) => p.user_id === u.user_id);
-                        u.display_name = pref?.preference_value || 'Unknown';
-                    }
-                    return u;
-                });
-                return NextResponse.json({ users: enrichedUsers });
-            }
+            console.log('[Admin Users API] Game stats found:', gameStats?.length || 0);
+
+            // Combine Clerk profile data with game stats
+            const enrichedUsers = clerkUsers.data.map(clerkUser => {
+                const gameStat = gameStats?.find(s => s.user_id === clerkUser.id);
+                const displayName = clerkUser.username ||
+                    `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() ||
+                    clerkUser.emailAddresses[0]?.emailAddress?.split('@')[0] ||
+                    'Unknown';
+                const email = clerkUser.emailAddresses[0]?.emailAddress || '';
+
+                return {
+                    user_id: clerkUser.id,
+                    display_name: displayName,
+                    email: email,
+                    level: gameStat?.level || 1,
+                    gold: gameStat?.gold || 0,
+                    experience: gameStat?.experience || 0,
+                    has_game_data: !!gameStat
+                };
+            });
+
+            console.log('[Admin Users API] Returning', enrichedUsers.length, 'enriched users');
+            return NextResponse.json({ users: enrichedUsers });
+
+        } catch (clerkError: any) {
+            console.error('[Admin Users API] Clerk search error:', clerkError.message);
+
+            // Fallback to database search if Clerk fails
+            const { data: fallbackUsers, error: fallbackError } = await supabaseAdmin
+                .from('character_stats')
+                .select('*')
+                .limit(20);
+
+            return NextResponse.json({ users: fallbackUsers || [] });
         }
-
-        // Strategy 3: Just return all users as a fallback for debugging
-        console.log('[Admin Users API] No matches found, fetching all users for debugging');
-        const { data: allUsers, error: allError } = await supabaseAdmin
-            .from('character_stats')
-            .select('user_id, display_name, level, gold')
-            .limit(20);
-
-        console.log('[Admin Users API] All users sample:', allUsers?.slice(0, 3));
 
         return NextResponse.json({ users: [] });
 
