@@ -94,30 +94,81 @@ export async function GET(req: NextRequest) {
         }
 
         if (!query || query.length < 3) {
+            console.log('[Admin Users API] Query too short, returning empty');
             return NextResponse.json({ users: [] });
         }
 
-        // Search strategy: 
-        // 1. Search existing user_preferences for name matches (most reliable source of truth for display names)
-        // 2. Search character_stats as backup
+        console.log('[Admin Users API] Searching for query:', query);
 
-        // Strategy 1: Search user_preferences
-        const { data: prefMatches, error: prefError } = await supabaseAdmin
-            .from('user_preferences')
-            .select('user_id, preference_value')
-            .eq('preference_key', 'display_name'); // We can't easily ILIKE on jsonb value in this query builder without complex filters
-
-        // Easier approach: Search character_stats since we migrated display_name there specifically for this.
-        // If the migration worked, names should be there.
+        // Strategy 1: Search character_stats.display_name
         const { data: statsMatches, error: statsError } = await supabaseAdmin
             .from('character_stats')
             .select('*')
             .ilike('display_name', `%${query}%`)
             .limit(10);
 
-        if (statsError) throw statsError;
+        console.log('[Admin Users API] character_stats search result:', {
+            count: statsMatches?.length || 0,
+            error: statsError?.message
+        });
 
-        return NextResponse.json({ users: statsMatches || [] });
+        if (statsMatches && statsMatches.length > 0) {
+            return NextResponse.json({ users: statsMatches });
+        }
+
+        // Strategy 2: Search user_preferences for display_name preference
+        const { data: prefMatches, error: prefError } = await supabaseAdmin
+            .from('user_preferences')
+            .select('user_id, preference_value')
+            .eq('preference_key', 'display_name');
+
+        console.log('[Admin Users API] user_preferences search result:', {
+            count: prefMatches?.length || 0,
+            error: prefError?.message
+        });
+
+        // Filter preferences that match the query
+        const matchingUserIds = (prefMatches || [])
+            .filter((p: any) => {
+                const name = typeof p.preference_value === 'string'
+                    ? p.preference_value
+                    : p.preference_value?.toString() || '';
+                return name.toLowerCase().includes(query.toLowerCase());
+            })
+            .map((p: any) => p.user_id);
+
+        console.log('[Admin Users API] Matching user IDs from preferences:', matchingUserIds);
+
+        if (matchingUserIds.length > 0) {
+            // Fetch full stats for these users
+            const { data: users, error: usersError } = await supabaseAdmin
+                .from('character_stats')
+                .select('*')
+                .in('user_id', matchingUserIds);
+
+            if (users && users.length > 0) {
+                // Add display_name from preferences if missing in stats
+                const enrichedUsers = users.map((u: any) => {
+                    if (!u.display_name) {
+                        const pref = prefMatches?.find((p: any) => p.user_id === u.user_id);
+                        u.display_name = pref?.preference_value || 'Unknown';
+                    }
+                    return u;
+                });
+                return NextResponse.json({ users: enrichedUsers });
+            }
+        }
+
+        // Strategy 3: Just return all users as a fallback for debugging
+        console.log('[Admin Users API] No matches found, fetching all users for debugging');
+        const { data: allUsers, error: allError } = await supabaseAdmin
+            .from('character_stats')
+            .select('user_id, display_name, level, gold')
+            .limit(20);
+
+        console.log('[Admin Users API] All users sample:', allUsers?.slice(0, 3));
+
+        return NextResponse.json({ users: [] });
 
     } catch (err: any) {
         console.error("Admin Users API Error:", err);
