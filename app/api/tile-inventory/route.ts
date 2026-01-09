@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { rollStarRating, calculateItemValue, getStarDisplay, shouldCelebrate } from '@/lib/star-rating';
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,22 +9,29 @@ export async function GET(req: NextRequest) {
         .from('tile_inventory')
         .select('*')
         .eq('user_id', userId);
-        
+
       if (error) {
         throw error;
       }
-      
-      return (data || []).map(row => ({
-        ...row,
-        id: row.tile_id,
-        cost: row.cost,
-        connections: row.connections || [],
-        rotation: row.rotation,
-        last_updated: row.last_updated,
-        version: row.version,
-        quantity: row.quantity,
-        type: row.tile_type,
-      }));
+
+      return (data || []).map(row => {
+        const starRating = row.star_rating ?? 0;
+        const baseValue = row.cost ?? 0;
+        return {
+          ...row,
+          id: row.tile_id,
+          cost: row.cost,
+          connections: row.connections || [],
+          rotation: row.rotation,
+          last_updated: row.last_updated,
+          version: row.version,
+          quantity: row.quantity,
+          type: row.tile_type,
+          star_rating: starRating,
+          stars_display: getStarDisplay(starRating),
+          actual_value: calculateItemValue(baseValue, starRating),
+        };
+      });
     });
 
     if (!result.success) {
@@ -53,11 +61,11 @@ export async function POST(req: NextRequest) {
         .eq('user_id', userId)
         .eq('tile_id', tile.id)
         .single();
-        
+
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;
       }
-      
+
       if (existing) {
         // Update quantity
         const { data, error } = await supabase
@@ -67,11 +75,15 @@ export async function POST(req: NextRequest) {
           .eq('tile_id', tile.id)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       } else {
-        // Insert new tile
+        // Roll star rating for new item
+        const starRating = rollStarRating();
+        const celebration = shouldCelebrate(starRating);
+
+        // Insert new tile with star rating
         const { data, error } = await supabase
           .from('tile_inventory')
           .insert({
@@ -85,12 +97,21 @@ export async function POST(req: NextRequest) {
             rotation: tile.rotation || 0,
             last_updated: new Date().toISOString(),
             version: tile.version || 1,
+            star_rating: starRating,
           })
           .select()
           .single();
-          
+
         if (error) throw error;
-        return data;
+
+        // Return with celebration info
+        return {
+          ...data,
+          star_rating: starRating,
+          stars_display: getStarDisplay(starRating),
+          actual_value: calculateItemValue(tile.cost || 0, starRating),
+          celebration: celebration.celebrate ? celebration : undefined
+        };
       }
     });
 
@@ -122,11 +143,11 @@ export async function DELETE(req: NextRequest) {
         .eq('user_id', userId)
         .eq('tile_id', tileId)
         .single();
-        
+
       if (fetchError) {
         throw fetchError;
       }
-      
+
       if (existing.quantity <= quantity) {
         // Remove completely
         const { error } = await supabase
@@ -134,7 +155,7 @@ export async function DELETE(req: NextRequest) {
           .delete()
           .eq('user_id', userId)
           .eq('tile_id', tileId);
-          
+
         if (error) throw error;
         return { removed: true };
       } else {
@@ -146,7 +167,7 @@ export async function DELETE(req: NextRequest) {
           .eq('tile_id', tileId)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       }

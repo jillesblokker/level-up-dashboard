@@ -13,6 +13,7 @@ import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync";
 import { getInventory, InventoryItem } from "@/lib/inventory-manager";
 import { InventorySkeleton } from "@/components/skeletons/inventory-skeleton";
 import { TEXT_CONTENT } from "@/lib/text-content";
+import { getStarDisplay, getStarTierInfo, calculateItemValue } from "@/lib/star-rating";
 
 const ITEM_TYPES = [
   { value: "resource", label: TEXT_CONTENT.inventory.itemTypes.resource, emoji: "🌿" },
@@ -105,61 +106,117 @@ export default function InventoryPage() {
     ? items
     : items.filter(item => item.type === activeTab);
 
-  const renderItemCard = (item: InventoryItem) => (
-    <Card key={item.id} className="bg-gray-800 border-gray-700 hover:border-amber-500 transition-colors">
-      <CardContent className="p-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex-shrink-0">
-            {item.emoji ? (
-              <div className="text-4xl">{item.emoji}</div>
-            ) : item.image ? (
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-16 h-16 object-cover rounded-lg"
-                onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                  (e.target as HTMLImageElement).src = "/images/items/placeholder.png";
-                }}
-              />
-            ) : (
-              <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📦</span>
-              </div>
-            )}
-          </div>
+  const renderItemCard = (item: InventoryItem) => {
+    // Get star rating info (default to 0 if not present)
+    const starRating = (item as any).star_rating ?? 0;
+    const tierInfo = getStarTierInfo(starRating);
+    const starsDisplay = getStarDisplay(starRating);
+    const baseValue = (item as any).cost ?? 0;
+    const actualValue = calculateItemValue(baseValue, starRating);
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-white truncate">{item.name}</h3>
-              <Badge variant={item.equipped ? "default" : "secondary"}>
-                {item.equipped ? TEXT_CONTENT.inventory.ui.equipped : item.type}
-              </Badge>
-            </div>
+    // Glow classes based on rarity
+    const glowClass = starRating === 3
+      ? 'ring-2 ring-amber-400 shadow-xl shadow-amber-500/40 animate-pulse'
+      : starRating === 2
+        ? 'ring-2 ring-amber-400/50 shadow-lg shadow-amber-500/20'
+        : starRating === 1
+          ? 'ring-1 ring-yellow-400/30'
+          : '';
 
-            {item.description && (
-              <p className="text-gray-300 text-sm mb-2 line-clamp-2">{item.description}</p>
-            )}
+    return (
+      <Card
+        key={item.id}
+        className={`bg-gray-800 border-gray-700 hover:border-amber-500 transition-colors relative ${glowClass}`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-4">
+            <div className="flex-shrink-0 relative">
+              {item.emoji ? (
+                <div className="text-4xl">{item.emoji}</div>
+              ) : item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded-lg"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                    (e.target as HTMLImageElement).src = "/images/items/placeholder.png";
+                  }}
+                />
+              ) : (
+                <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">📦</span>
+                </div>
+              )}
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-400">
-                {TEXT_CONTENT.inventory.ui.quantity} <span className="text-amber-400 font-semibold">{item.quantity}</span>
-              </div>
-
-              {item.stats && Object.keys(item.stats).length > 0 && (
-                <div className="text-xs text-gray-500">
-                  {Object.entries(item.stats).map(([key, value]) => (
-                    <span key={key} className="mr-2">
-                      {key}: {String(value)}
-                    </span>
-                  ))}
+              {/* Star Rating Badge */}
+              {starRating > 0 && (
+                <div className="absolute -top-1 -right-1 bg-black/90 rounded-full px-1.5 py-0.5 text-xs border border-amber-500/50">
+                  {starsDisplay}
                 </div>
               )}
             </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className={`text-lg font-semibold truncate ${starRating >= 2 ? 'text-amber-400' : starRating === 1 ? 'text-yellow-400' : 'text-white'}`}>
+                  {item.name}
+                </h3>
+                <div className="flex items-center gap-2">
+                  {starRating > 0 && (
+                    <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400">
+                      {tierInfo.name}
+                    </Badge>
+                  )}
+                  <Badge variant={item.equipped ? "default" : "secondary"}>
+                    {item.equipped ? TEXT_CONTENT.inventory.ui.equipped : item.type}
+                  </Badge>
+                </div>
+              </div>
+
+              {item.description && (
+                <p className="text-gray-300 text-sm mb-2 line-clamp-2">{item.description}</p>
+              )}
+
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-400">
+                  {TEXT_CONTENT.inventory.ui.quantity} <span className="text-amber-400 font-semibold">{item.quantity}</span>
+                </div>
+
+                {/* Show value with multiplier for starred items */}
+                {baseValue > 0 && (
+                  <div className="text-sm">
+                    <span className="text-amber-400 font-bold">{actualValue} 🪙</span>
+                    {starRating > 0 && (
+                      <span className="text-gray-500 ml-1 text-xs">({tierInfo.multiplier}x)</span>
+                    )}
+                  </div>
+                )}
+
+                {item.stats && Object.keys(item.stats).length > 0 && (
+                  <div className="text-xs text-gray-500">
+                    {Object.entries(item.stats).map(([key, value]) => (
+                      <span key={key} className="mr-2">
+                        {key}: {String(value)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+
+          {/* Legendary sparkle effect */}
+          {starRating === 3 && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg">
+              <div className="absolute top-2 left-2 w-1 h-1 bg-amber-300 rounded-full animate-ping" />
+              <div className="absolute bottom-4 right-4 w-1 h-1 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+              <div className="absolute top-1/2 left-1/3 w-0.5 h-0.5 bg-yellow-200 rounded-full animate-ping" style={{ animationDelay: '0.7s' }} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (isLoading || supabaseLoading) {
     return <InventorySkeleton />;
