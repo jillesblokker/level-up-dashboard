@@ -18,7 +18,8 @@ import {
   Monitor,
   Activity,
   ChevronDown,
-  Bug
+  Bug,
+  Calendar
 } from "lucide-react";
 
 export function AccountMenu() {
@@ -248,23 +249,22 @@ export function AccountMenu() {
                 <p className="text-xs text-gray-400">App preferences</p>
               </div>
             </Link>
+
+            <Link
+              href="/daily-hub"
+              className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
+              aria-label="Daily Hub page"
+              onClick={() => setIsOpen(false)}
+            >
+              <Calendar className="h-5 w-5 text-amber-400" />
+              <div className="flex-1 text-left">
+                <span className="text-base font-medium text-white">Daily Hub</span>
+                <p className="text-xs text-gray-400">View streaks and news</p>
+              </div>
+            </Link>
           </div>
 
-          <div className="border-b border-amber-800/20" />
 
-          {/* Guide Button */}
-          <button
-            className="w-full min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation text-left rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
-            aria-label="Show guide"
-            role="button"
-            onClick={handleGuideClick}
-          >
-            <BookOpen className="h-5 w-5 text-amber-400" />
-            <div className="flex-1">
-              <span className="text-base font-medium text-white">Guide</span>
-              <p className="text-xs text-gray-400">Open tutorial</p>
-            </div>
-          </button>
 
           {/* Log Center Button */}
           <Link
