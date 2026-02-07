@@ -1,11 +1,13 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal } from 'lucide-react'
+import React, { useEffect, useState, useMemo } from 'react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check } from 'lucide-react'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { Progress } from '@/components/ui/progress'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 const categoryIcons = {
     might: Sword,
@@ -29,10 +31,40 @@ const categoryColors = {
     exploration: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30',
 };
 
+// Helper for chart color based on category
+const getCategoryColorHex = (category: string) => {
+    const map: Record<string, string> = {
+        might: '#ef4444',
+        knowledge: '#3b82f6',
+        honor: '#f59e0b',
+        castle: '#10b981',
+        craft: '#f97316',
+        vitality: '#ec4899',
+        wellness: '#06b6d4',
+        exploration: '#6366f1',
+    }
+    return map[category] || '#f59e0b'; // Default amber
+}
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-zinc-950 border border-amber-900/50 p-2 rounded-lg shadow-xl text-xs">
+                <p className="text-amber-200 font-bold mb-1">{label}</p>
+                <p className="text-zinc-300">
+                    <span className="font-mono font-bold text-white">{payload[0].value}</span> completions
+                </p>
+            </div>
+        )
+    }
+    return null
+}
+
 export function MasteryLedger() {
     const [habits, setHabits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [view, setView] = useState<'week' | 'month'>('week')
+    const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
     const fetchHistory = async () => {
         try {
@@ -67,6 +99,23 @@ export function MasteryLedger() {
 
     const last7DaysLabels = getLast7Days()
 
+    // Filter habits
+    const filteredHabits = useMemo(() => {
+        if (selectedCategory === 'all') return habits
+        return habits.filter(h => h.category === selectedCategory)
+    }, [habits, selectedCategory])
+
+    // Generate Chart Data
+    const chartData = useMemo(() => {
+        return last7DaysLabels.map((label, idx) => {
+            const count = filteredHabits.reduce((acc, h) => {
+                // Safety check for grid logic
+                return acc + (h.grid && h.grid[idx] ? 1 : 0)
+            }, 0)
+            return { day: label, count }
+        })
+    }, [filteredHabits, last7DaysLabels])
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center p-12 space-y-4">
@@ -78,11 +127,13 @@ export function MasteryLedger() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-900/20 pb-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-amber-900/20 pb-6">
                 <div>
                     <h2 className="text-2xl font-bold font-serif text-amber-500 tracking-tight">Mastery Ledger</h2>
                     <p className="text-gray-500 text-sm mt-1">A historical record of your habits and mandates.</p>
                 </div>
+
+                {/* Global Stats */}
                 <div className="flex items-center gap-6">
                     <div className="text-center">
                         <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Global Prowess</div>
@@ -99,26 +150,107 @@ export function MasteryLedger() {
                 </div>
             </div>
 
-            <div className="grid gap-4">
-                {habits.map((habit, idx) => (
+            {/* Analysis Section */}
+            <div className="grid gap-6 md:grid-cols-[250px_1fr]">
+                {/* Filters */}
+                <div className="space-y-4">
+                    <Card className="p-4 bg-black/40 border-amber-900/20">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+                            Filter by Domain
+                        </label>
+                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                            <SelectTrigger className="w-full bg-zinc-900/80 border-amber-900/30 text-amber-100">
+                                <SelectValue placeholder="All Domains" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100">
+                                <SelectItem value="all">All Domains</SelectItem>
+                                {Object.keys(categoryIcons).map(cat => (
+                                    <SelectItem key={cat} value={cat} className="capitalize">
+                                        {cat}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Card>
+
+                    {/* Quick Stats for Selection */}
+                    <div className="grid grid-cols-2 gap-2">
+                        <Card className="p-3 bg-zinc-900/30 border-zinc-800 flex flex-col items-center justify-center">
+                            <span className="text-[10px] text-zinc-500 uppercase">Filtered</span>
+                            <span className="text-xl font-bold text-white">{filteredHabits.length}</span>
+                        </Card>
+                        <Card className="p-3 bg-zinc-900/30 border-zinc-800 flex flex-col items-center justify-center">
+                            <span className="text-[10px] text-zinc-500 uppercase">Avg Yield</span>
+                            <span className="text-xl font-bold text-amber-500">
+                                {filteredHabits.length > 0
+                                    ? Math.round(filteredHabits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / filteredHabits.length)
+                                    : 0}%
+                            </span>
+                        </Card>
+                    </div>
+                </div>
+
+                {/* Graph */}
+                <Card className="bg-black/20 border-zinc-800/50 p-4 relative overflow-hidden">
+                    <div className="absolute top-4 left-4 z-10">
+                        <h3 className="text-sm font-bold text-zinc-400 flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4 text-amber-500" />
+                            Weekly Momentum
+                            {selectedCategory !== 'all' && <span className="text-amber-500 capitalize">({selectedCategory})</span>}
+                        </h3>
+                    </div>
+                    <div className="h-[180px] w-full pt-6">
+                        {chartData.some(d => d.count > 0) ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData}>
+                                    <XAxis
+                                        dataKey="day"
+                                        stroke="#52525b"
+                                        fontSize={10}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                                    <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={50}>
+                                        {chartData.map((entry, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={selectedCategory === 'all' ? '#f59e0b' : getCategoryColorHex(selectedCategory)}
+                                                fillOpacity={0.8}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-zinc-600">
+                                <Ban className="w-8 h-8 opacity-20 mb-2" />
+                                <span className="text-xs">No activity recorded this week</span>
+                            </div>
+                        )}
+                    </div>
+                </Card>
+            </div>
+
+            {/* Habit List */}
+            <div className="grid gap-4 mt-6">
+                {filteredHabits.map((habit, idx) => (
                     <Card key={habit.id} className="bg-gray-950/40 border-amber-900/20 hover:border-amber-500/30 transition-all p-4 relative overflow-hidden group">
                         {/* Foil gradient for top performers */}
-                        {idx < 3 && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent pointer-events-none" />
+                        {habit.stats.fulfillment >= 80 && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent pointer-events-none" />
                         )}
 
                         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10">
                             {/* Habit Info */}
                             <div className="flex items-center gap-4 lg:w-[250px]">
-                                <div className={cn("p-2.5 rounded-xl border", categoryColors[habit.category as keyof typeof categoryColors] || 'text-gray-500 bg-gray-500/10 border-gray-500/30')}>
+                                <div className={cn("p-2.5 rounded-xl border transition-all duration-300", categoryColors[habit.category as keyof typeof categoryColors] || 'text-gray-500 bg-gray-500/10 border-gray-500/30')}>
                                     {React.createElement(categoryIcons[habit.category as keyof typeof categoryIcons] || Sword, { className: "w-5 h-5" })}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-bold text-sm text-gray-200 truncate">{habit.name}</h3>
-                                        {idx === 0 && <Medal className="w-3.5 h-3.5 text-yellow-500 shrink-0" />}
-                                        {idx === 1 && <Medal className="w-3.5 h-3.5 text-gray-400 shrink-0" />}
-                                        {idx === 2 && <Medal className="w-3.5 h-3.5 text-amber-700 shrink-0" />}
+                                        {idx === 0 && selectedCategory === 'all' && <Medal className="w-3.5 h-3.5 text-yellow-500 shrink-0" />}
                                     </div>
                                     <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter mt-0.5">
                                         {habit.mandate.count}× {habit.mandate.period} Target
@@ -170,14 +302,14 @@ export function MasteryLedger() {
                                                 <div
                                                     key={i}
                                                     className={cn(
-                                                        "h-8 rounded-lg border-2 flex items-center justify-center transition-all",
+                                                        "h-8 rounded-lg border flex items-center justify-center transition-all duration-300",
                                                         done
-                                                            ? "bg-amber-500/20 border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                                                            ? "bg-amber-500/20 border-amber-500/50 text-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.2)] scale-105"
                                                             : "bg-gray-900/40 border-gray-800/60 text-gray-800",
-                                                        i === 6 && !done && "border-dash"
+                                                        i === 6 && !done && "border-dashed border-gray-700"
                                                     )}
                                                 >
-                                                    {done ? <Shield className="w-3.5 h-3.5" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
+                                                    {done ? <CheckCircle2 className="w-4 h-4" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
                                                 </div>
                                             ))}
                                         </div>
@@ -200,12 +332,12 @@ export function MasteryLedger() {
                                                         className={cn(
                                                             "h-6 rounded border flex items-center justify-center transition-all",
                                                             done
-                                                                ? "bg-amber-500/30 border-amber-500/50"
+                                                                ? "bg-amber-500/30 border-amber-500/50 shadow-[0_0_5px_rgba(245,158,11,0.15)]"
                                                                 : "bg-gray-900/40 border-gray-800/40"
                                                         )}
                                                         title={`${dayIndex === 0 ? 'Today' : (dayIndex + ' days ago')}`}
                                                     >
-                                                        {done && <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+                                                        {done && <Check className="w-3 h-3 text-amber-200" />}
                                                     </div>
                                                 );
                                             })}
@@ -232,10 +364,12 @@ export function MasteryLedger() {
                     </Card>
                 ))}
 
-                {habits.length === 0 && (
+                {filteredHabits.length === 0 && (
                     <div className="text-center py-12 bg-gray-950/20 border-2 border-dashed border-amber-900/20 rounded-2xl">
                         <PersonStanding className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                        <h4 className="text-lg font-serif text-gray-500">No active paths discovered in the ledger</h4>
+                        <h4 className="text-lg font-serif text-gray-500">
+                            {selectedCategory !== 'all' ? `No active ${selectedCategory} paths` : 'No active paths discovered'}
+                        </h4>
                         <p className="text-sm text-gray-600 mt-1">Embark on recurring quests to track your mastery here.</p>
                     </div>
                 )}
