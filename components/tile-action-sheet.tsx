@@ -41,7 +41,7 @@ export function TileActionSheet({
             />
 
             {/* Bottom Sheet */}
-            <div className="fixed inset-x-0 bottom-0 z-50 md:hidden animate-in slide-in-from-bottom duration-300">
+            <div className="fixed inset-x-0 bottom-0 z-50 md:hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto">
                 <div className="bg-zinc-900 border-t border-amber-900/30 rounded-t-3xl shadow-2xl">
                     {/* Handle */}
                     <div className="flex justify-center pt-3 pb-2">

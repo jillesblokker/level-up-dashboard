@@ -1581,16 +1581,18 @@ export function KingdomGridWithTimers({
                 onMouseLeave={() => setHoveredTile(null)}
                 aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
                 onClick={() => {
-                  // Removed debugging log
+                  // Check if mobile (simple check based on viewport)
+                  const isMobile = window.innerWidth < 768;
 
                   if (placementMode && selectedProperty) {
-                    // Removed debugging log
                     handlePropertyPlacement(x, y)
+                  } else if (isKingdomTile && isMobile && !readOnly) {
+                    // On mobile, open the action sheet for kingdom tiles
+                    setActionSheetTile({ tile, x, y, ...(timer ? { timer } : {}) });
+                    setActionSheetOpen(true);
                   } else if (isKingdomTile && (isReady || tile.type === 'zen-garden')) {
-                    // Removed debugging log
                     handleTileClick(x, y, tile)
                   } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    // Removed debugging log
                     onTilePlace(x, y, selectedTile)
                   }
                 }}
@@ -1666,19 +1668,6 @@ export function KingdomGridWithTimers({
                         <RotateCw className="w-3 h-3" />
                       </div>
                     </div>
-
-                    {/* Mobile action button - visible on tap */}
-                    <button
-                      className="absolute top-1 right-1 z-20 md:hidden bg-zinc-900/90 text-white p-1.5 rounded-lg border border-amber-500/30 shadow-lg"
-                      aria-label="Open tile actions menu"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActionSheetTile({ tile, x, y, ...(timer ? { timer } : {}) });
-                        setActionSheetOpen(true);
-                      }}
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
                   </>
                 )}
 
