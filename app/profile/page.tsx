@@ -754,6 +754,16 @@ export default function ProfilePage() {
                 </div>
               </Link>
 
+              <Link href="/chronicle" className="block">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                  <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-base font-medium text-white">My Chronicle</p>
+                    <p className="text-xs text-gray-400">Write your daily journal</p>
+                  </div>
+                </div>
+              </Link>
+
               <Link href="/requirements" className="block">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                   <ClipboardCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />

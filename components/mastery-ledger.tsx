@@ -601,10 +601,18 @@ export function MasteryLedger() {
                                             ))}
                                         </div>
                                         <div className="grid grid-cols-7 gap-1">
-                                            {habit.grid.map((done: boolean, i: number) => {
-                                                const completionCount = getHabitDayCompletions(habit.id, i);
-                                                const hasCompletions = completionCount > 0 || done;
-                                                const typeColor = habit.habitType === 'quest' ? 'purple' : 'orange';
+                                            {Array.from({ length: 7 }).map((_, i) => {
+                                                const targetDate = new Date();
+                                                targetDate.setDate(targetDate.getDate() - (6 - i));
+                                                const dateStr = targetDate.toISOString().slice(0, 10);
+
+                                                const completionCount = completions.filter(c => {
+                                                    if (!c.date) return false;
+                                                    const matchesHabit = c.itemId === habit.id || c.quest_id === habit.id || c.challenge_id === habit.id;
+                                                    return matchesHabit && c.date.startsWith(dateStr) && c.completed !== false;
+                                                }).length;
+
+                                                const hasCompletions = completionCount > 0;
 
                                                 return (
                                                     <div
@@ -618,13 +626,14 @@ export function MasteryLedger() {
                                                                 : "bg-gray-900/40 border-gray-800/60",
                                                             i === 6 && !hasCompletions && "border-dashed border-gray-700"
                                                         )}
+                                                        title={`${dateStr === new Date().toISOString().slice(0, 10) ? 'Today' : dateStr}: ${completionCount} completions`}
                                                     >
                                                         {hasCompletions ? (
                                                             <span className={cn(
                                                                 "font-bold text-sm",
                                                                 habit.habitType === 'quest' ? "text-purple-400" : "text-orange-400"
                                                             )}>
-                                                                {completionCount || 1}
+                                                                {completionCount}
                                                             </span>
                                                         ) : (
                                                             <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />

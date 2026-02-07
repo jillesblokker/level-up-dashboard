@@ -6,7 +6,7 @@ import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
 import { KingdomPropertiesInventory } from './kingdom-properties-inventory'
 import { Button } from '@/components/ui/button'
-import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2, Check } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
@@ -1671,63 +1671,37 @@ export function KingdomGridWithTimers({
                   </>
                 )}
 
-                {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
+                {/* Timer overlay for kingdom tiles - visible on mobile, hover only on desktop */}
                 {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
-                  <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-1 left-1 right-1">
+                  <div className="group-hover:opacity-100 md:opacity-0 opacity-100 transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none">
                     <div className={cn(
-                      "text-xs px-2 py-1 rounded text-center font-mono",
+                      "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded text-center font-mono shadow-sm backdrop-blur-sm",
                       isReady
-                        ? "bg-green-500 text-white"
+                        ? "bg-green-500/90 text-white"
                         : "bg-black/80 text-white",
-                      // Mobile-specific improvements
-                      "sm:text-xs md:text-sm",
-                      "min-h-[24px] flex items-center justify-center"
+                      "min-h-[16px] md:min-h-[24px] flex items-center justify-center shrink-0"
                     )}>
                       {isReady ? (
                         <div className="flex items-center justify-center gap-1">
-                          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap">Ready!</span>
+                          <Check className="w-3 h-3 md:hidden" />
+                          <Sparkles className="hidden md:block w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="whitespace-nowrap hidden md:inline">Ready!</span>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center gap-1">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap">{formatTimeRemaining(timer.endTime)}</span>
+                        <div className="flex items-center justify-center gap-0.5 md:gap-1">
+                          <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70" />
+                          {/* Mobile Compact Timer */}
+                          <span className="whitespace-nowrap md:hidden font-bold tracking-tighter">
+                            {(timer.endTime - Date.now()) > 9 * 60 * 1000 ? '>9m' : formatTimeRemaining(timer.endTime)}
+                          </span>
+                          {/* Desktop Full Timer */}
+                          <span className="whitespace-nowrap hidden md:inline">
+                            {formatTimeRemaining(timer.endTime)}
+                          </span>
                         </div>
                       )}
                     </div>
                   </div>
-                )}
-
-                {/* Placement Hint Overlay */}
-                {placementMode && selectedProperty && (tile.type === 'vacant' || tile.type === 'grass') && (
-                  (() => {
-                    // Safe access to type property
-                    const propType = (selectedProperty as any).type || (selectedProperty as any).id;
-                    const { score, reason } = getPlacementHint(x, y, propType);
-
-                    // Show hints for ALL building types now
-                    if (true) {
-                      return (
-                        <div className={cn(
-                          "absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-80 transition-opacity z-10",
-                          score === 'good' ? "bg-green-500/30 ring-2 ring-green-400" : "bg-yellow-500/10"
-                        )}>
-                          {score === 'good' && <div className="text-xl animate-bounce">✨</div>}
-                          {hoveredTile?.x === x && hoveredTile?.y === y && (
-                            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-50 bg-black/95 text-white text-xs px-3 py-2 rounded-lg border border-amber-500 shadow-2xl min-w-[150px] text-center pointer-events-auto">
-                              <div className={`font-bold uppercase tracking-wider mb-1 ${score === 'good' ? 'text-green-400' : 'text-yellow-400'}`}>
-                                {score === 'good' ? 'Excellent' : 'Average'}
-                              </div>
-                              <div className="text-[10px] text-gray-300 leading-tight">
-                                {reason}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    }
-                    return null;
-                  })()
                 )}
               </button>
             )

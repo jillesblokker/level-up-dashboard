@@ -16,6 +16,7 @@ interface TileActionSheetProps {
     onDelete: () => void
     onRotate: () => void
     onCollect?: (() => void) | undefined
+    onMeditate?: (() => void) | undefined
 }
 
 export function TileActionSheet({
@@ -28,7 +29,8 @@ export function TileActionSheet({
     onMove,
     onDelete,
     onRotate,
-    onCollect
+    onCollect,
+    onMeditate
 }: TileActionSheetProps) {
     if (!isOpen || !tile) return null
 
@@ -36,12 +38,12 @@ export function TileActionSheet({
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] md:hidden"
                 onClick={onClose}
             />
 
             {/* Bottom Sheet */}
-            <div className="fixed inset-x-0 bottom-0 z-50 md:hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto">
+            <div className="fixed inset-x-0 bottom-0 z-[100] md:hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto">
                 <div className="bg-zinc-900 border-t border-amber-900/30 rounded-t-3xl shadow-2xl">
                     {/* Handle */}
                     <div className="flex justify-center pt-3 pb-2">
@@ -92,6 +94,25 @@ export function TileActionSheet({
 
                     {/* Actions */}
                     <div className="p-4 space-y-2">
+                        {/* Meditate action - for Zen Garden */}
+                        {onMeditate && (
+                            <button
+                                onClick={() => {
+                                    onMeditate()
+                                    onClose()
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all active:scale-[0.98]"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                                    <Sparkles className="w-6 h-6 text-white" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-white text-base">Meditate</div>
+                                    <div className="text-teal-200 text-sm">Enter the Zen Garden</div>
+                                </div>
+                            </button>
+                        )}
+
                         {/* Collect action - only if ready */}
                         {isReady && onCollect && (
                             <button
