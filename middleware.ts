@@ -14,7 +14,11 @@ const isApiRoute = createRouteMatcher(['/api(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Detect RSC (React Server Component) prefetch requests
+  // These have ?_rsc= in the URL and should NOT be redirected to external auth
+  const isRscRequest = searchParams.has('_rsc');
 
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
@@ -29,8 +33,18 @@ export default clerkMiddleware(async (auth, request) => {
     );
   }
 
-  // Protect all routes except public ones
-  if (!isPublicRoute(request)) {
+  // For RSC prefetch requests to protected pages without auth:
+  // Return 401 instead of redirecting to prevent CORS errors
+  // The client-side will handle the redirect properly
+  if (!isPublicRoute(request) && !userId && isRscRequest) {
+    return NextResponse.json(
+      { error: 'Unauthorized', redirect: '/sign-in' },
+      { status: 401 }
+    );
+  }
+
+  // Protect all non-RSC routes except public ones
+  if (!isPublicRoute(request) && !isRscRequest) {
     await auth.protect();
   }
 
@@ -38,8 +52,6 @@ export default clerkMiddleware(async (auth, request) => {
   return NextResponse.next();
 }, {
   // Use Clerk's CSP configuration with custom directives
-  // This merges with Clerk's defaults to allow Bot Protection while enabling
-  // unsafe-eval which some libraries require. Added data: scheme to img-src for SVGs.
   contentSecurityPolicy: {
     directives: {
       'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],

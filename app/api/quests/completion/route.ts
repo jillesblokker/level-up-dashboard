@@ -103,12 +103,26 @@ export async function POST(request: Request) {
 // Get quest completions for the current user
 export async function GET(request: Request) {
   try {
+    console.log('[Quests Completion API] GET request received');
+
     // Secure Clerk JWT verification
-    const userId = await getUserIdFromRequest(request);
+    let userId: string | null = null;
+    try {
+      userId = await getUserIdFromRequest(request);
+    } catch (authError) {
+      console.error('[Quests Completion API] Auth error:', authError);
+      return NextResponse.json({ error: 'Authentication error' }, { status: 401 });
+    }
+
     if (!userId) {
+      console.log('[Quests Completion API] No userId found');
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
+
+    console.log('[Quests Completion API] User authenticated:', userId);
+
     if (!supabase) {
+      console.error('[Quests Completion API] Supabase client not initialized');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
@@ -116,17 +130,21 @@ export async function GET(request: Request) {
       .from('quest_completion')
       .select('*')
       .eq('user_id', userId)
-      .order('date', { ascending: false });
+      .order('completed_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching quest completions:', error);
+      console.error('[Quests Completion API] Error fetching quest completions:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    console.log('[Quests Completion API] Found', questCompletions?.length || 0, 'completions');
     return NextResponse.json(questCompletions || []);
   } catch (error) {
-    console.error('Error fetching quest completions:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[Quests Completion API] Internal server error:', error);
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }
 
