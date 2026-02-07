@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { NextResponse, NextRequest } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
     try {
-        const { userId } = await auth();
+        const { userId } = await getAuth(request as NextRequest);
+        console.log('[Mastery History API] userId:', userId);
         if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const supabase = supabaseServer;
