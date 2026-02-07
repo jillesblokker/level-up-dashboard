@@ -6,10 +6,20 @@ class SoundManager {
   private sounds: Map<string, AudioBuffer> = new Map();
   private isEnabled: boolean = true;
   private volume: number = 0.5;
+  private initialized: boolean = false;
 
   constructor() {
-    this.initializeAudioContext();
-    this.loadSounds();
+    // Defer initialization to client-side only
+    if (typeof window !== 'undefined') {
+      this.initialize();
+    }
+  }
+
+  private async initialize() {
+    if (this.initialized) return;
+    this.initialized = true;
+    await this.initializeAudioContext();
+    await this.loadSounds();
   }
 
   private async initializeAudioContext() {
