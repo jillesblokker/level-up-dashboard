@@ -1,12 +1,12 @@
 "use client"
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check, X } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check, X, ScrollText, Target } from 'lucide-react'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { Progress } from '@/components/ui/progress'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useAuth } from '@clerk/nextjs'
 
@@ -19,6 +19,9 @@ const categoryIcons: Record<string, any> = {
     vitality: Heart,
     wellness: Sun,
     exploration: PersonStanding,
+    // Type icons
+    quest: ScrollText,
+    challenge: Target,
 };
 
 const categoryColors: Record<string, string> = {
@@ -30,9 +33,12 @@ const categoryColors: Record<string, string> = {
     vitality: 'text-pink-500 bg-pink-500/10 border-pink-500/30',
     wellness: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/30',
     exploration: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30',
+    // Type colors
+    quest: 'text-purple-500 bg-purple-500/10 border-purple-500/30',
+    challenge: 'text-orange-500 bg-orange-500/10 border-orange-500/30',
 };
 
-// Helper for chart color based on category
+// Helper for chart color based on category or type
 const getCategoryColorHex = (category: string) => {
     const map: Record<string, string> = {
         might: '#ef4444',
@@ -43,6 +49,8 @@ const getCategoryColorHex = (category: string) => {
         vitality: '#ec4899',
         wellness: '#06b6d4',
         exploration: '#6366f1',
+        quest: '#a855f7',
+        challenge: '#f97316',
     }
     return map[category?.toLowerCase()] || '#f59e0b'; // Default amber
 }
@@ -67,13 +75,16 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null
 }
 
+// Filter type: 'all' | 'type:quest' | 'type:challenge' | category name
+type FilterValue = string;
+
 export function MasteryLedger() {
     const { getToken } = useAuth()
     const [habits, setHabits] = useState<any[]>([])
     const [completions, setCompletions] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [view, setView] = useState<'week' | 'month'>('week')
-    const [selectedCategory, setSelectedCategory] = useState<string>('all')
+    const [selectedFilter, setSelectedFilter] = useState<FilterValue>('all')
 
     const fetchData = useCallback(async () => {
         try {
@@ -103,24 +114,38 @@ export function MasteryLedger() {
             const challengesData = challengesRes.ok ? await challengesRes.json() : []
 
             if (historyData.habits) {
+                // Add type info to habits based on their source
+                // Also try to enrich with quest/challenge type
+                const enrichedHabits = historyData.habits.map((h: any) => {
+                    // Try to determine if it's a quest or challenge based on the data
+                    // Usually the history API normalizes this, but let's be safe
+                    const habitType = h.type || (h.mandate?.period ? 'quest' : 'challenge');
+                    return {
+                        ...h,
+                        habitType: habitType
+                    };
+                });
+
                 // Sort by fulfillment (top performers first)
-                const sorted = historyData.habits.sort((a: any, b: any) => b.stats.fulfillment - a.stats.fulfillment)
+                const sorted = enrichedHabits.sort((a: any, b: any) => b.stats.fulfillment - a.stats.fulfillment)
                 setHabits(sorted)
             }
 
-            // Merge completions
+            // Merge completions with type info
             const allCompletions = [
                 ...(Array.isArray(questsData) ? questsData.map((c: any) => ({
                     ...c,
-                    type: 'quest',
-                    date: c.completed_at || c.date, // Normalize date
-                    itemId: c.quest_id
+                    completionType: 'quest',
+                    date: c.completed_at || c.date,
+                    itemId: c.quest_id,
+                    category: c.category
                 })) : []),
                 ...(Array.isArray(challengesData) ? challengesData.map((c: any) => ({
                     ...c,
-                    type: 'challenge',
-                    date: c.date || c.completed_at, // Normalize date
-                    itemId: c.challenge_id
+                    completionType: 'challenge',
+                    date: c.date || c.completed_at,
+                    itemId: c.challenge_id,
+                    category: c.category
                 })) : [])
             ];
 
@@ -166,55 +191,133 @@ export function MasteryLedger() {
 
     const last7DaysLabels = getLast7Days()
 
-    // Get unique categories from habits for filter dropdown
-    const uniqueCategories = useMemo(() => {
-        const cats = new Set(habits.map(h => normalizeCategory(h.category)).filter(Boolean))
-        return Array.from(cats)
-    }, [habits])
+    // Get unique categories from habits for filter dropdown, grouped by type
+    const filterOptions = useMemo(() => {
+        const questCategories = new Set<string>();
+        const challengeCategories = new Set<string>();
 
-    // Filter habits for the list - case-insensitive matching
+        habits.forEach(h => {
+            const cat = normalizeCategory(h.category);
+            if (!cat) return;
+
+            if (h.habitType === 'quest') {
+                questCategories.add(cat);
+            } else if (h.habitType === 'challenge') {
+                challengeCategories.add(cat);
+            } else {
+                // Default to quest if unknown
+                questCategories.add(cat);
+            }
+        });
+
+        // Also check completions for additional categories
+        completions.forEach(c => {
+            const cat = normalizeCategory(c.category);
+            if (!cat) return;
+
+            if (c.completionType === 'quest') {
+                questCategories.add(cat);
+            } else if (c.completionType === 'challenge') {
+                challengeCategories.add(cat);
+            }
+        });
+
+        return {
+            quests: Array.from(questCategories).sort(),
+            challenges: Array.from(challengeCategories).sort()
+        };
+    }, [habits, completions])
+
+    // Count quests and challenges
+    const typeCounts = useMemo(() => {
+        const questCount = habits.filter(h => h.habitType === 'quest').length;
+        const challengeCount = habits.filter(h => h.habitType === 'challenge').length;
+        return { quests: questCount, challenges: challengeCount };
+    }, [habits]);
+
+    // Filter habits for the list based on the selected filter
     const filteredHabits = useMemo(() => {
-        if (selectedCategory === 'all') return habits
-        return habits.filter(h => normalizeCategory(h.category) === normalizeCategory(selectedCategory))
-    }, [habits, selectedCategory])
+        if (selectedFilter === 'all') return habits;
 
-    // Generate Chart Data from Completions
+        // Type filter
+        if (selectedFilter === 'type:quest') {
+            return habits.filter(h => h.habitType === 'quest');
+        }
+        if (selectedFilter === 'type:challenge') {
+            return habits.filter(h => h.habitType === 'challenge');
+        }
+
+        // Category filter (from quests or challenges)
+        if (selectedFilter.startsWith('quest:')) {
+            const cat = selectedFilter.replace('quest:', '');
+            return habits.filter(h => h.habitType === 'quest' && normalizeCategory(h.category) === cat);
+        }
+        if (selectedFilter.startsWith('challenge:')) {
+            const cat = selectedFilter.replace('challenge:', '');
+            return habits.filter(h => h.habitType === 'challenge' && normalizeCategory(h.category) === cat);
+        }
+
+        // Legacy: plain category match
+        return habits.filter(h => normalizeCategory(h.category) === normalizeCategory(selectedFilter));
+    }, [habits, selectedFilter])
+
+    // Generate Chart Data from Completions - filtered based on selection
     const chartData = useMemo(() => {
-        // Create a map of itemId -> category from the habits list
-        // This links the completions back to their categories
-        const categoryMap = habits.reduce((acc: Record<string, string>, h: any) => {
-            if (h.id) acc[h.id] = normalizeCategory(h.category);
+        // Create a map of itemId -> info from habits
+        const habitInfo = habits.reduce((acc: Record<string, { category: string; type: string }>, h: any) => {
+            if (h.id) {
+                acc[h.id] = {
+                    category: normalizeCategory(h.category),
+                    type: h.habitType || 'quest'
+                };
+            }
             return acc;
         }, {});
 
-        // Filter completions relevant to the current view
+        // Filter completions based on current filter
         const relevantCompletions = completions.filter(c => {
-            // Check category if filtering
-            if (selectedCategory !== 'all') {
-                const cat = categoryMap[c.itemId];
-                // If not found in map or category doesn't match, exclude
-                if (!cat || cat !== normalizeCategory(selectedCategory)) return false;
+            if (selectedFilter === 'all') return true;
+
+            // Type filter
+            if (selectedFilter === 'type:quest') {
+                return c.completionType === 'quest';
             }
-            return true;
+            if (selectedFilter === 'type:challenge') {
+                return c.completionType === 'challenge';
+            }
+
+            // Category filter
+            if (selectedFilter.startsWith('quest:')) {
+                const cat = selectedFilter.replace('quest:', '');
+                return c.completionType === 'quest' && normalizeCategory(c.category) === cat;
+            }
+            if (selectedFilter.startsWith('challenge:')) {
+                const cat = selectedFilter.replace('challenge:', '');
+                return c.completionType === 'challenge' && normalizeCategory(c.category) === cat;
+            }
+
+            // Legacy category
+            const info = habitInfo[c.itemId];
+            if (info) {
+                return info.category === normalizeCategory(selectedFilter);
+            }
+            return normalizeCategory(c.category) === normalizeCategory(selectedFilter);
         });
 
         // Group by day for the last 7 days
         return last7DaysLabels.map((dayLabel, idx) => {
-            // Calculate date string for this index (0 = 6 days ago, 6 = today)
             const d = new Date();
             d.setDate(d.getDate() - (6 - idx));
-            const dateStr = d.toISOString().slice(0, 10); // YYYY-MM-DD
+            const dateStr = d.toISOString().slice(0, 10);
 
-            // Count activity for this day
             const count = relevantCompletions.filter(c => {
                 if (!c.date) return false;
-                // Handle ISO string or YYYY-MM-DD
                 return c.date.startsWith(dateStr);
             }).length;
 
             return { day: dayLabel, count }
         })
-    }, [completions, habits, selectedCategory, last7DaysLabels])
+    }, [completions, habits, selectedFilter, last7DaysLabels])
 
     // Calculate completion counts per habit per day for the grid display
     const getHabitDayCompletions = useCallback((habitId: string, dayIndex: number) => {
@@ -227,6 +330,24 @@ export function MasteryLedger() {
             return c.date.startsWith(dateStr) && c.completed !== false;
         }).length;
     }, [completions])
+
+    // Get display label for current filter
+    const getFilterLabel = (filter: string) => {
+        if (filter === 'all') return 'All Activities';
+        if (filter === 'type:quest') return 'All Quests';
+        if (filter === 'type:challenge') return 'All Challenges';
+        if (filter.startsWith('quest:')) return `Quest: ${filter.replace('quest:', '')}`;
+        if (filter.startsWith('challenge:')) return `Challenge: ${filter.replace('challenge:', '')}`;
+        return filter;
+    }
+
+    // Get color for current filter
+    const getFilterColor = () => {
+        if (selectedFilter === 'type:quest' || selectedFilter.startsWith('quest:')) return getCategoryColorHex('quest');
+        if (selectedFilter === 'type:challenge' || selectedFilter.startsWith('challenge:')) return getCategoryColorHex('challenge');
+        if (selectedFilter !== 'all') return getCategoryColorHex(selectedFilter);
+        return '#f59e0b';
+    }
 
     if (loading) {
         return (
@@ -242,22 +363,26 @@ export function MasteryLedger() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-amber-900/20 pb-6">
                 <div>
                     <h2 className="text-2xl font-bold font-serif text-amber-500 tracking-tight">Mastery Ledger</h2>
-                    <p className="text-gray-500 text-sm mt-1">A historical record of your habits and mandates.</p>
+                    <p className="text-gray-500 text-sm mt-1">A historical record of your quests and challenges.</p>
                 </div>
 
                 {/* Global Stats */}
                 <div className="flex items-center gap-6">
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Global Prowess</div>
+                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Quests</div>
+                        <div className="text-xl font-bold text-purple-400">{typeCounts.quests}</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Challenges</div>
+                        <div className="text-xl font-bold text-orange-400">{typeCounts.challenges}</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Avg Prowess</div>
                         <div className="text-xl font-bold text-white">
                             {habits.length > 0
                                 ? Math.round(habits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / habits.length)
                                 : 0}%
                         </div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Active Paths</div>
-                        <div className="text-xl font-bold text-white">{habits.length}</div>
                     </div>
                 </div>
             </div>
@@ -268,27 +393,53 @@ export function MasteryLedger() {
                 <div className="space-y-4">
                     <Card className="p-4 bg-black/40 border-amber-900/20">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
-                            Filter by Domain
+                            Filter by Type & Category
                         </label>
-                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <Select value={selectedFilter} onValueChange={setSelectedFilter}>
                             <SelectTrigger className="w-full bg-zinc-900/80 border-amber-900/30 text-amber-100">
-                                <SelectValue placeholder="All Domains" />
+                                <SelectValue placeholder="All Activities" />
                             </SelectTrigger>
-                            <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100">
-                                <SelectItem value="all">All Domains</SelectItem>
-                                {uniqueCategories.length > 0 ? (
-                                    uniqueCategories.map(cat => (
-                                        <SelectItem key={cat} value={cat} className="capitalize">
+                            <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100 max-h-[300px]">
+                                {/* All */}
+                                <SelectItem value="all">All Activities</SelectItem>
+
+                                {/* Quests Section */}
+                                <SelectGroup>
+                                    <SelectLabel className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-center gap-2 px-2 py-2 border-t border-zinc-800 mt-1">
+                                        <ScrollText className="w-3.5 h-3.5" />
+                                        Quests
+                                    </SelectLabel>
+                                    <SelectItem value="type:quest" className="pl-4">
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-purple-500" />
+                                            All Quests
+                                        </span>
+                                    </SelectItem>
+                                    {filterOptions.quests.map(cat => (
+                                        <SelectItem key={`quest:${cat}`} value={`quest:${cat}`} className="pl-6 capitalize">
                                             {cat}
                                         </SelectItem>
-                                    ))
-                                ) : (
-                                    Object.keys(categoryIcons).map(cat => (
-                                        <SelectItem key={cat} value={cat} className="capitalize">
+                                    ))}
+                                </SelectGroup>
+
+                                {/* Challenges Section */}
+                                <SelectGroup>
+                                    <SelectLabel className="text-orange-400 font-bold text-xs uppercase tracking-wider flex items-center gap-2 px-2 py-2 border-t border-zinc-800 mt-1">
+                                        <Target className="w-3.5 h-3.5" />
+                                        Challenges
+                                    </SelectLabel>
+                                    <SelectItem value="type:challenge" className="pl-4">
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-orange-500" />
+                                            All Challenges
+                                        </span>
+                                    </SelectItem>
+                                    {filterOptions.challenges.map(cat => (
+                                        <SelectItem key={`challenge:${cat}`} value={`challenge:${cat}`} className="pl-6 capitalize">
                                             {cat}
                                         </SelectItem>
-                                    ))
-                                )}
+                                    ))}
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
                     </Card>
@@ -296,7 +447,7 @@ export function MasteryLedger() {
                     {/* Quick Stats for Selection */}
                     <div className="grid grid-cols-2 gap-2">
                         <Card className="p-3 bg-zinc-900/30 border-zinc-800 flex flex-col items-center justify-center">
-                            <span className="text-[10px] text-zinc-500 uppercase">Filtered</span>
+                            <span className="text-[10px] text-zinc-500 uppercase">Shown</span>
                             <span className="text-xl font-bold text-white">{filteredHabits.length}</span>
                         </Card>
                         <Card className="p-3 bg-zinc-900/30 border-zinc-800 flex flex-col items-center justify-center">
@@ -315,8 +466,18 @@ export function MasteryLedger() {
                     <div className="absolute top-4 left-4 z-10">
                         <h3 className="text-sm font-bold text-zinc-400 flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-amber-500" />
-                            Weekly Momentum
-                            {selectedCategory !== 'all' && <span className="text-amber-500 capitalize">({selectedCategory})</span>}
+                            Weekly Activity
+                            {selectedFilter !== 'all' && (
+                                <span
+                                    className="capitalize px-2 py-0.5 rounded text-xs"
+                                    style={{
+                                        color: getFilterColor(),
+                                        backgroundColor: `${getFilterColor()}20`
+                                    }}
+                                >
+                                    {getFilterLabel(selectedFilter)}
+                                </span>
+                            )}
                         </h3>
                     </div>
                     <div className="h-[180px] w-full pt-6">
@@ -335,7 +496,7 @@ export function MasteryLedger() {
                                         {chartData.map((entry, index) => (
                                             <Cell
                                                 key={`cell-${index}`}
-                                                fill={entry.count > 0 ? (selectedCategory === 'all' ? '#f59e0b' : getCategoryColorHex(selectedCategory)) : '#333'}
+                                                fill={entry.count > 0 ? getFilterColor() : '#333'}
                                                 fillOpacity={0.8}
                                             />
                                         ))}
@@ -345,7 +506,7 @@ export function MasteryLedger() {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-zinc-600">
                                 <Ban className="w-8 h-8 opacity-20 mb-2" />
-                                <span className="text-xs">No activity recorded this week{selectedCategory !== 'all' && ` for ${selectedCategory}`}</span>
+                                <span className="text-xs">No activity recorded this week{selectedFilter !== 'all' && ` for ${getFilterLabel(selectedFilter)}`}</span>
                             </div>
                         )}
                     </div>
@@ -363,17 +524,39 @@ export function MasteryLedger() {
 
                         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10">
                             {/* Habit Info */}
-                            <div className="flex items-center gap-4 lg:w-[250px]">
-                                <div className={cn("p-2.5 rounded-xl border transition-all duration-300", categoryColors[normalizeCategory(habit.category)] || 'text-gray-500 bg-gray-500/10 border-gray-500/30')}>
-                                    {React.createElement(categoryIcons[normalizeCategory(habit.category)] || Sword, { className: "w-5 h-5" })}
+                            <div className="flex items-center gap-4 lg:w-[280px]">
+                                <div className={cn(
+                                    "p-2.5 rounded-xl border transition-all duration-300",
+                                    habit.habitType === 'quest'
+                                        ? categoryColors['quest']
+                                        : habit.habitType === 'challenge'
+                                            ? categoryColors['challenge']
+                                            : categoryColors[normalizeCategory(habit.category)] || 'text-gray-500 bg-gray-500/10 border-gray-500/30'
+                                )}>
+                                    {React.createElement(
+                                        habit.habitType === 'quest'
+                                            ? ScrollText
+                                            : habit.habitType === 'challenge'
+                                                ? Target
+                                                : categoryIcons[normalizeCategory(habit.category)] || Sword,
+                                        { className: "w-5 h-5" }
+                                    )}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-bold text-sm text-gray-200 truncate">{habit.name}</h3>
-                                        {idx === 0 && selectedCategory === 'all' && <Medal className="w-3.5 h-3.5 text-yellow-500 shrink-0" />}
+                                        {idx === 0 && selectedFilter === 'all' && <Medal className="w-3.5 h-3.5 text-yellow-500 shrink-0" />}
                                     </div>
-                                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter mt-0.5">
-                                        {habit.mandate.count}× {habit.mandate.period} Target
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className={cn(
+                                            "text-[8px] px-1.5 py-0.5 rounded font-bold uppercase",
+                                            habit.habitType === 'quest' ? "bg-purple-500/20 text-purple-400" : "bg-orange-500/20 text-orange-400"
+                                        )}>
+                                            {habit.habitType || 'quest'}
+                                        </span>
+                                        <span className="text-[10px] text-gray-500 font-bold tracking-tighter">
+                                            {habit.mandate.count}× {habit.mandate.period}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -419,9 +602,9 @@ export function MasteryLedger() {
                                         </div>
                                         <div className="grid grid-cols-7 gap-1">
                                             {habit.grid.map((done: boolean, i: number) => {
-                                                // Get actual completion count for this day
                                                 const completionCount = getHabitDayCompletions(habit.id, i);
                                                 const hasCompletions = completionCount > 0 || done;
+                                                const typeColor = habit.habitType === 'quest' ? 'purple' : 'orange';
 
                                                 return (
                                                     <div
@@ -429,13 +612,18 @@ export function MasteryLedger() {
                                                         className={cn(
                                                             "h-10 rounded-lg border flex items-center justify-center transition-all duration-300 relative",
                                                             hasCompletions
-                                                                ? "bg-gradient-to-br from-amber-500/30 to-amber-600/20 border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+                                                                ? habit.habitType === 'quest'
+                                                                    ? "bg-gradient-to-br from-purple-500/30 to-purple-600/20 border-purple-500/60 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                                                                    : "bg-gradient-to-br from-orange-500/30 to-orange-600/20 border-orange-500/60 shadow-[0_0_12px_rgba(249,115,22,0.25)]"
                                                                 : "bg-gray-900/40 border-gray-800/60",
                                                             i === 6 && !hasCompletions && "border-dashed border-gray-700"
                                                         )}
                                                     >
                                                         {hasCompletions ? (
-                                                            <span className="text-amber-400 font-bold text-sm">
+                                                            <span className={cn(
+                                                                "font-bold text-sm",
+                                                                habit.habitType === 'quest' ? "text-purple-400" : "text-orange-400"
+                                                            )}>
                                                                 {completionCount || 1}
                                                             </span>
                                                         ) : (
@@ -472,13 +660,18 @@ export function MasteryLedger() {
                                                         className={cn(
                                                             "h-6 rounded border flex items-center justify-center transition-all",
                                                             done
-                                                                ? "bg-gradient-to-br from-amber-500/40 to-amber-600/30 border-amber-500/60 shadow-[0_0_5px_rgba(245,158,11,0.2)]"
+                                                                ? habit.habitType === 'quest'
+                                                                    ? "bg-gradient-to-br from-purple-500/40 to-purple-600/30 border-purple-500/60 shadow-[0_0_5px_rgba(168,85,247,0.2)]"
+                                                                    : "bg-gradient-to-br from-orange-500/40 to-orange-600/30 border-orange-500/60 shadow-[0_0_5px_rgba(249,115,22,0.2)]"
                                                                 : "bg-gray-900/40 border-gray-800/40"
                                                         )}
                                                         title={`${dayIndex === 0 ? 'Today' : (dayIndex + ' days ago')}: ${completionCount} completion(s)`}
                                                     >
                                                         {done && (
-                                                            <span className="text-amber-300 font-bold text-[10px]">
+                                                            <span className={cn(
+                                                                "font-bold text-[10px]",
+                                                                habit.habitType === 'quest' ? "text-purple-300" : "text-orange-300"
+                                                            )}>
                                                                 {completionCount || '✓'}
                                                             </span>
                                                         )}
@@ -512,9 +705,9 @@ export function MasteryLedger() {
                     <div className="text-center py-12 bg-gray-950/20 border-2 border-dashed border-amber-900/20 rounded-2xl">
                         <PersonStanding className="w-12 h-12 text-gray-700 mx-auto mb-4" />
                         <h4 className="text-lg font-serif text-gray-500">
-                            {selectedCategory !== 'all' ? `No active ${selectedCategory} paths` : 'No active paths discovered'}
+                            {selectedFilter !== 'all' ? `No ${getFilterLabel(selectedFilter)} found` : 'No active paths discovered'}
                         </h4>
-                        <p className="text-sm text-gray-600 mt-1">Embark on recurring quests to track your mastery here.</p>
+                        <p className="text-sm text-gray-600 mt-1">Complete quests and challenges to track your mastery here.</p>
                     </div>
                 )}
             </div>
