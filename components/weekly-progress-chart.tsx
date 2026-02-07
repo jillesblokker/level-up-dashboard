@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   LineChart,
   Line,
@@ -15,6 +15,7 @@ import {
 } from "recharts"
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 
 interface ChartDataPoint {
   name: string;
@@ -25,84 +26,101 @@ interface ChartDataPoint {
 }
 
 export function WeeklyProgressChart() {
+  const { getToken } = useAuth();
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeMetric, setActiveMetric] = useState<'tasks' | 'xp' | 'gold'>('tasks');
   const router = useRouter();
 
   // Fetch data from API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch quest completions from API
-        const response = await fetch('/api/quests/completion');
-        if (!response.ok) {
-          console.error('Failed to fetch quest completions:', response.status);
-          setData([]);
-          return;
-        }
-        const questCompletions = await response.json();
-        
-        // Get character stats
-        const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{}');
-        
-        // Generate weekly data for the last 7 days
-        const weekData: ChartDataPoint[] = [];
-        const today = new Date();
-        
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const dateStr = date.toISOString().slice(0, 10);
-          
-          // Find quest completions for this date
-          const dayCompletions = questCompletions.filter((q: any) => {
-            const completionDate = q.date ? new Date(q.date).toISOString().slice(0, 10) : null;
-            return completionDate === dateStr;
-          });
-          
-          const completedQuests = dayCompletions.length;
-          const totalQuests = dayCompletions.length; // For now, assume all completions are total quests
-          
-          // Get gold and XP from character stats (simplified)
-          const dayGold = characterStats.goldEarned?.[dateStr] || 0;
-          const dayXp = characterStats.xpEarned?.[dateStr] || 0;
-          
-          weekData.push({
-            name: date.toLocaleDateString('en-US', { weekday: 'short' }),
-            tasks: totalQuests,
-            completedTasks: completedQuests,
-            gold: dayGold,
-            xp: dayXp
-          });
-        }
-        
-        setData(weekData);
-      } catch (error) {
-        console.error('Error fetching progress data:', error);
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      // Get authentication token
+      const token = await getToken({ template: 'supabase' });
+
+      if (!token) {
+        console.warn('[WeeklyProgressChart] No auth token available');
         setData([]);
-      } finally {
         setIsLoading(false);
+        return;
       }
-    };
-    
+
+      // Fetch quest completions from API with auth
+      const response = await fetch('/api/quests/completion', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch quest completions:', response.status);
+        setData([]);
+        return;
+      }
+      const questCompletions = await response.json();
+
+      // Get character stats
+      const characterStats = JSON.parse(localStorage.getItem('character-stats') || '{}');
+
+      // Generate weekly data for the last 7 days
+      const weekData: ChartDataPoint[] = [];
+      const today = new Date();
+
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().slice(0, 10);
+
+        // Find quest completions for this date
+        const dayCompletions = questCompletions.filter((q: any) => {
+          const completionDate = q.date ? new Date(q.date).toISOString().slice(0, 10) : null;
+          return completionDate === dateStr;
+        });
+
+        const completedQuests = dayCompletions.length;
+        const totalQuests = dayCompletions.length; // For now, assume all completions are total quests
+
+        // Get gold and XP from character stats (simplified)
+        const dayGold = characterStats.goldEarned?.[dateStr] || 0;
+        const dayXp = characterStats.xpEarned?.[dateStr] || 0;
+
+        weekData.push({
+          name: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          tasks: totalQuests,
+          completedTasks: completedQuests,
+          gold: dayGold,
+          xp: dayXp
+        });
+      }
+
+      setData(weekData);
+    } catch (error) {
+      console.error('Error fetching progress data:', error);
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getToken]);
+
+  useEffect(() => {
     fetchData();
-    
+
     // Listen for data updates
     const handleDataUpdate = () => {
       fetchData();
     };
-    
+
     window.addEventListener('quest-completed', handleDataUpdate);
     window.addEventListener('character-stats-update', handleDataUpdate);
-    
+
     return () => {
       window.removeEventListener('quest-completed', handleDataUpdate);
       window.removeEventListener('character-stats-update', handleDataUpdate);
     };
-  }, []);
+  }, [fetchData]);
 
   // Compute isEmpty for each metric - only show empty if there's truly no data
   const isQuestsEmpty = !isLoading && (!data || data.length === 0 || data.every(d => !d.tasks && !d.completedTasks));
@@ -118,27 +136,24 @@ export function WeeklyProgressChart() {
     <div className="space-y-4">
       <div className="flex items-center justify-end gap-2">
         <button
-          className={`text-xs px-2 py-1 rounded-md ${
-            activeMetric === "tasks" ? "bg-amber-900 text-white" : "text-muted-foreground"
-          }`}
+          className={`text-xs px-2 py-1 rounded-md ${activeMetric === "tasks" ? "bg-amber-900 text-white" : "text-muted-foreground"
+            }`}
           onClick={() => setActiveMetric("tasks")}
           aria-label="Show quest progress"
         >
           Quests
         </button>
         <button
-          className={`text-xs px-2 py-1 rounded-md ${
-            activeMetric === "gold" ? "bg-amber-900 text-white" : "text-muted-foreground"
-          }`}
+          className={`text-xs px-2 py-1 rounded-md ${activeMetric === "gold" ? "bg-amber-900 text-white" : "text-muted-foreground"
+            }`}
           onClick={() => setActiveMetric("gold")}
           aria-label="Show gold progress"
         >
           Gold
         </button>
         <button
-          className={`text-xs px-2 py-1 rounded-md ${
-            activeMetric === "xp" ? "bg-amber-900 text-white" : "text-muted-foreground"
-          }`}
+          className={`text-xs px-2 py-1 rounded-md ${activeMetric === "xp" ? "bg-amber-900 text-white" : "text-muted-foreground"
+            }`}
           onClick={() => setActiveMetric("xp")}
           aria-label="Show experience progress"
         >

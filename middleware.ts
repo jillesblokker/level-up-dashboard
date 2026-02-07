@@ -10,6 +10,8 @@ const isPublicRoute = createRouteMatcher([
   '/manifest.json',
 ]);
 
+const isApiRoute = createRouteMatcher(['/api(.*)']);
+
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
   const { pathname } = request.nextUrl;
@@ -17,6 +19,14 @@ export default clerkMiddleware(async (auth, request) => {
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
     return NextResponse.redirect(new URL('/kingdom', request.url));
+  }
+
+  // For API routes: return 401 JSON instead of redirecting (prevents CORS issues)
+  if (!isPublicRoute(request) && isApiRoute(request) && !userId) {
+    return NextResponse.json(
+      { error: 'Unauthorized', message: 'Authentication required' },
+      { status: 401 }
+    );
   }
 
   // Protect all routes except public ones
