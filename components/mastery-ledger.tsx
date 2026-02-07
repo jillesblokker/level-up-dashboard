@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check, X } from 'lucide-react'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { Progress } from '@/components/ui/progress'
 import { Card } from '@/components/ui/card'
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useAuth } from '@clerk/nextjs'
 
-const categoryIcons = {
+const categoryIcons: Record<string, any> = {
     might: Sword,
     knowledge: Brain,
     honor: Crown,
@@ -21,7 +21,7 @@ const categoryIcons = {
     exploration: PersonStanding,
 };
 
-const categoryColors = {
+const categoryColors: Record<string, string> = {
     might: 'text-red-500 bg-red-500/10 border-red-500/30',
     knowledge: 'text-blue-500 bg-blue-500/10 border-blue-500/30',
     honor: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
@@ -44,7 +44,13 @@ const getCategoryColorHex = (category: string) => {
         wellness: '#06b6d4',
         exploration: '#6366f1',
     }
-    return map[category] || '#f59e0b'; // Default amber
+    return map[category?.toLowerCase()] || '#f59e0b'; // Default amber
+}
+
+// Helper to normalize category names for matching
+const normalizeCategory = (cat: string | undefined | null): string => {
+    if (!cat) return '';
+    return cat.toLowerCase().trim();
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -160,10 +166,16 @@ export function MasteryLedger() {
 
     const last7DaysLabels = getLast7Days()
 
-    // Filter habits for the list
+    // Get unique categories from habits for filter dropdown
+    const uniqueCategories = useMemo(() => {
+        const cats = new Set(habits.map(h => normalizeCategory(h.category)).filter(Boolean))
+        return Array.from(cats)
+    }, [habits])
+
+    // Filter habits for the list - case-insensitive matching
     const filteredHabits = useMemo(() => {
         if (selectedCategory === 'all') return habits
-        return habits.filter(h => h.category === selectedCategory)
+        return habits.filter(h => normalizeCategory(h.category) === normalizeCategory(selectedCategory))
     }, [habits, selectedCategory])
 
     // Generate Chart Data from Completions
@@ -171,7 +183,7 @@ export function MasteryLedger() {
         // Create a map of itemId -> category from the habits list
         // This links the completions back to their categories
         const categoryMap = habits.reduce((acc: Record<string, string>, h: any) => {
-            if (h.id) acc[h.id] = h.category;
+            if (h.id) acc[h.id] = normalizeCategory(h.category);
             return acc;
         }, {});
 
@@ -180,9 +192,8 @@ export function MasteryLedger() {
             // Check category if filtering
             if (selectedCategory !== 'all') {
                 const cat = categoryMap[c.itemId];
-                // If not found in map, assume might match if we can't verify, 
-                // OR exclude if we want strict fitlering. Exclude is safer for "Analysis".
-                if (cat !== selectedCategory) return false;
+                // If not found in map or category doesn't match, exclude
+                if (!cat || cat !== normalizeCategory(selectedCategory)) return false;
             }
             return true;
         });
@@ -204,6 +215,18 @@ export function MasteryLedger() {
             return { day: dayLabel, count }
         })
     }, [completions, habits, selectedCategory, last7DaysLabels])
+
+    // Calculate completion counts per habit per day for the grid display
+    const getHabitDayCompletions = useCallback((habitId: string, dayIndex: number) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - dayIndex));
+        const dateStr = d.toISOString().slice(0, 10);
+
+        return completions.filter(c => {
+            if (!c.date || (c.itemId !== habitId && c.quest_id !== habitId && c.challenge_id !== habitId)) return false;
+            return c.date.startsWith(dateStr) && c.completed !== false;
+        }).length;
+    }, [completions])
 
     if (loading) {
         return (
@@ -253,11 +276,19 @@ export function MasteryLedger() {
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100">
                                 <SelectItem value="all">All Domains</SelectItem>
-                                {Object.keys(categoryIcons).map(cat => (
-                                    <SelectItem key={cat} value={cat} className="capitalize">
-                                        {cat}
-                                    </SelectItem>
-                                ))}
+                                {uniqueCategories.length > 0 ? (
+                                    uniqueCategories.map(cat => (
+                                        <SelectItem key={cat} value={cat} className="capitalize">
+                                            {cat}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    Object.keys(categoryIcons).map(cat => (
+                                        <SelectItem key={cat} value={cat} className="capitalize">
+                                            {cat}
+                                        </SelectItem>
+                                    ))
+                                )}
                             </SelectContent>
                         </Select>
                     </Card>
@@ -314,7 +345,7 @@ export function MasteryLedger() {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-zinc-600">
                                 <Ban className="w-8 h-8 opacity-20 mb-2" />
-                                <span className="text-xs">No activity recorded this week</span>
+                                <span className="text-xs">No activity recorded this week{selectedCategory !== 'all' && ` for ${selectedCategory}`}</span>
                             </div>
                         )}
                     </div>
@@ -333,8 +364,8 @@ export function MasteryLedger() {
                         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10">
                             {/* Habit Info */}
                             <div className="flex items-center gap-4 lg:w-[250px]">
-                                <div className={cn("p-2.5 rounded-xl border transition-all duration-300", categoryColors[habit.category as keyof typeof categoryColors] || 'text-gray-500 bg-gray-500/10 border-gray-500/30')}>
-                                    {React.createElement(categoryIcons[habit.category as keyof typeof categoryIcons] || Sword, { className: "w-5 h-5" })}
+                                <div className={cn("p-2.5 rounded-xl border transition-all duration-300", categoryColors[normalizeCategory(habit.category)] || 'text-gray-500 bg-gray-500/10 border-gray-500/30')}>
+                                    {React.createElement(categoryIcons[normalizeCategory(habit.category)] || Sword, { className: "w-5 h-5" })}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
@@ -387,20 +418,32 @@ export function MasteryLedger() {
                                             ))}
                                         </div>
                                         <div className="grid grid-cols-7 gap-1">
-                                            {habit.grid.map((done: boolean, i: number) => (
-                                                <div
-                                                    key={i}
-                                                    className={cn(
-                                                        "h-8 rounded-lg border flex items-center justify-center transition-all duration-300",
-                                                        done
-                                                            ? "bg-amber-500/20 border-amber-500/50 text-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.2)] scale-105"
-                                                            : "bg-gray-900/40 border-gray-800/60 text-gray-800",
-                                                        i === 6 && !done && "border-dashed border-gray-700"
-                                                    )}
-                                                >
-                                                    {done ? <CheckCircle2 className="w-4 h-4" /> : <div className="w-1 h-1 rounded-full bg-gray-800" />}
-                                                </div>
-                                            ))}
+                                            {habit.grid.map((done: boolean, i: number) => {
+                                                // Get actual completion count for this day
+                                                const completionCount = getHabitDayCompletions(habit.id, i);
+                                                const hasCompletions = completionCount > 0 || done;
+
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className={cn(
+                                                            "h-10 rounded-lg border flex items-center justify-center transition-all duration-300 relative",
+                                                            hasCompletions
+                                                                ? "bg-gradient-to-br from-amber-500/30 to-amber-600/20 border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+                                                                : "bg-gray-900/40 border-gray-800/60",
+                                                            i === 6 && !hasCompletions && "border-dashed border-gray-700"
+                                                        )}
+                                                    >
+                                                        {hasCompletions ? (
+                                                            <span className="text-amber-400 font-bold text-sm">
+                                                                {completionCount || 1}
+                                                            </span>
+                                                        ) : (
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 ) : (
@@ -408,11 +451,19 @@ export function MasteryLedger() {
                                         <div className="grid grid-cols-10 gap-x-1 gap-y-1 w-full">
                                             {Array.from({ length: 30 }).map((_, i) => {
                                                 const dayIndex = 29 - i;
-                                                const done = habit.completions?.some((c: any) => {
+                                                const targetDate = new Date();
+                                                targetDate.setDate(targetDate.getDate() - dayIndex);
+                                                const dateStr = targetDate.toISOString().slice(0, 10);
+
+                                                const completionCount = completions.filter(c => {
+                                                    if (!c.date) return false;
+                                                    const matchesHabit = c.itemId === habit.id || c.quest_id === habit.id || c.challenge_id === habit.id;
+                                                    return matchesHabit && c.date.startsWith(dateStr) && c.completed !== false;
+                                                }).length;
+
+                                                const done = completionCount > 0 || habit.completions?.some((c: any) => {
                                                     const completionDate = new Date(c.completed_at);
-                                                    const targetDate = new Date();
-                                                    targetDate.setDate(targetDate.getDate() - dayIndex);
-                                                    return completionDate.toISOString().slice(0, 10) === targetDate.toISOString().slice(0, 10);
+                                                    return completionDate.toISOString().slice(0, 10) === dateStr;
                                                 });
 
                                                 return (
@@ -421,12 +472,16 @@ export function MasteryLedger() {
                                                         className={cn(
                                                             "h-6 rounded border flex items-center justify-center transition-all",
                                                             done
-                                                                ? "bg-amber-500/30 border-amber-500/50 shadow-[0_0_5px_rgba(245,158,11,0.15)]"
+                                                                ? "bg-gradient-to-br from-amber-500/40 to-amber-600/30 border-amber-500/60 shadow-[0_0_5px_rgba(245,158,11,0.2)]"
                                                                 : "bg-gray-900/40 border-gray-800/40"
                                                         )}
-                                                        title={`${dayIndex === 0 ? 'Today' : (dayIndex + ' days ago')}`}
+                                                        title={`${dayIndex === 0 ? 'Today' : (dayIndex + ' days ago')}: ${completionCount} completion(s)`}
                                                     >
-                                                        {done && <Check className="w-3 h-3 text-amber-200" />}
+                                                        {done && (
+                                                            <span className="text-amber-300 font-bold text-[10px]">
+                                                                {completionCount || '✓'}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 );
                                             })}

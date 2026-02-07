@@ -22,6 +22,7 @@ import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { AnimatePresence } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
+import { TileActionSheet } from '@/components/tile-action-sheet'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
@@ -244,6 +245,10 @@ export function KingdomGridWithTimers({
 
   // State for lucky celebration
   const [luckyCelebrationAmount, setLuckyCelebrationAmount] = useState<number | null>(null)
+
+  // State for mobile action sheet
+  const [actionSheetOpen, setActionSheetOpen] = useState(false)
+  const [actionSheetTile, setActionSheetTile] = useState<{ tile: Tile; x: number; y: number; timer?: TileTimer } | null>(null)
 
   // Add missing state for expand functionality
   const [propertiesOpen, setPropertiesOpen] = useState(false)
@@ -1622,43 +1627,59 @@ export function KingdomGridWithTimers({
                   </div>
                 )}
 
-                {/* Move/Delete Controls on Hover */}
+                {/* Move/Delete Controls on Hover - Desktop only */}
                 {isKingdomTile && !placementMode && !readOnly && (
-                  <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div
-                      role="button"
-                      title="Move"
-                      className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
+                  <>
+                    {/* Desktop hover controls */}
+                    <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
+                      <div
+                        role="button"
+                        title="Move"
+                        className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveTile(x, y, tile);
+                        }}
+                      >
+                        <ArrowRightLeft className="w-3 h-3" />
+                      </div>
+                      <div
+                        role="button"
+                        title="Store in Inventory"
+                        className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTile(x, y, tile);
+                        }}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </div>
+                      <div
+                        role="button"
+                        title="Rotate 90°"
+                        className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRotateTile(x, y, tile);
+                        }}
+                      >
+                        <RotateCw className="w-3 h-3" />
+                      </div>
+                    </div>
+
+                    {/* Mobile action button - visible on tap */}
+                    <button
+                      className="absolute top-1 right-1 z-20 md:hidden bg-zinc-900/90 text-white p-1.5 rounded-lg border border-amber-500/30 shadow-lg"
+                      aria-label="Open tile actions menu"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleMoveTile(x, y, tile);
+                        setActionSheetTile({ tile, x, y, ...(timer ? { timer } : {}) });
+                        setActionSheetOpen(true);
                       }}
                     >
-                      <ArrowRightLeft className="w-3 h-3" />
-                    </div>
-                    <div
-                      role="button"
-                      title="Store in Inventory"
-                      className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTile(x, y, tile);
-                      }}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </div>
-                    <div
-                      role="button"
-                      title="Rotate 90°"
-                      className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRotateTile(x, y, tile);
-                      }}
-                    >
-                      <RotateCw className="w-3 h-3" />
-                    </div>
-                  </div>
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                  </>
                 )}
 
                 {/* Timer overlay for kingdom tiles - hover only to reduce clutter */}
@@ -1917,6 +1938,39 @@ export function KingdomGridWithTimers({
       <ZenMeditateModal
         isOpen={zenModalOpen}
         onClose={() => setZenModalOpen(false)}
+      />
+
+      {/* Mobile Tile Action Sheet */}
+      <TileActionSheet
+        isOpen={actionSheetOpen}
+        onClose={() => {
+          setActionSheetOpen(false);
+          setActionSheetTile(null);
+        }}
+        tile={actionSheetTile?.tile || null}
+        tileName={actionSheetTile?.tile?.name || actionSheetTile?.tile?.type || ''}
+        isReady={actionSheetTile?.timer?.isReady || false}
+        timeRemaining={actionSheetTile?.timer ? formatTimeRemaining(actionSheetTile.timer.endTime) : undefined}
+        onMove={() => {
+          if (actionSheetTile) {
+            handleMoveTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+          }
+        }}
+        onDelete={() => {
+          if (actionSheetTile) {
+            handleDeleteTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+          }
+        }}
+        onRotate={() => {
+          if (actionSheetTile) {
+            handleRotateTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+          }
+        }}
+        onCollect={actionSheetTile?.timer?.isReady ? () => {
+          if (actionSheetTile) {
+            handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+          }
+        } : undefined}
       />
     </div >
   )
