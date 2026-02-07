@@ -29,11 +29,12 @@ export default clerkMiddleware(async (auth, request) => {
 }, {
   // Use Clerk's CSP configuration with custom directives
   // This merges with Clerk's defaults to allow Bot Protection while enabling
-  // unsafe-eval which some libraries require
+  // unsafe-eval which some libraries require. Added data: scheme to img-src for SVGs.
   contentSecurityPolicy: {
     directives: {
       'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       'style-src': ["'self'", "'unsafe-inline'"],
+      'img-src': ["'self'", "https://img.clerk.com", "data:"],
     },
   },
 });

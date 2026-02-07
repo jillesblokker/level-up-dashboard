@@ -22,12 +22,12 @@ export async function POST(request: Request) {
         .select('id, xp_reward, gold_reward')
         .eq('id', questId)
         .single();
-      
+
       if (questError || !quest) {
         console.error('[API/quests/completion] Quest not found:', questError);
         throw new Error('Quest not found');
       }
-      
+
       // Use smart quest completion system
       const { data: smartResult, error: smartError } = await supabase.rpc('smart_quest_completion', {
         p_user_id: userId,
@@ -36,14 +36,14 @@ export async function POST(request: Request) {
         p_xp_reward: quest.xp_reward || 50,
         p_gold_reward: quest.gold_reward || 25
       });
-      
+
       if (smartError) {
         console.error('[API/quests/completion] Smart completion error:', smartError);
         throw smartError;
       }
-      
+
       console.log('[API/quests/completion] Smart completion result:', smartResult);
-      
+
       // Grant rewards
       if (smartResult && smartResult.record) {
         try {
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
             amount: quest.xp_reward || 50,
             context: { gold: quest.gold_reward || 25 }
           });
-          
+
           await grantReward({
             userId,
             type: 'gold',
@@ -62,19 +62,25 @@ export async function POST(request: Request) {
             amount: quest.gold_reward || 25,
             context: { xp: quest.xp_reward || 50 }
           });
-          
+
           console.log('[API/quests/completion] Rewards granted successfully');
         } catch (rewardError) {
           console.error('[API/quests/completion] Error granting rewards:', rewardError);
           // Don't fail the request if rewards fail
         }
       }
-      
+
       return smartResult;
     });
 
+
+
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      // Check if error is authentication related
+      if (result.error?.includes('Authentication failed') || result.error?.includes('Unauthorized')) {
+        return NextResponse.json({ error: result.error }, { status: 401 });
+      }
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
     return NextResponse.json(result.data);
@@ -118,7 +124,7 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     console.log('[QUESTS/COMPLETION][PUT] Request body:', body);
-    
+
     const { questId, completed } = body;
     if (!questId || typeof completed !== 'boolean') {
       console.error('[QUESTS/COMPLETION][PUT] Invalid request data:', { questId, completed });
@@ -126,27 +132,27 @@ export async function PUT(request: Request) {
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-    
+
       console.log('[QUESTS/COMPLETION][PUT] Processing quest completion:', { userId, questId, completed });
-      
+
       // First, fetch the quest to get rewards
       const { data: quest, error: questError } = await supabase
         .from('quests')
         .select('id, xp_reward, gold_reward')
         .eq('id', questId)
         .single();
-        
+
       if (questError || !quest) {
         console.error('[QUESTS/COMPLETION][PUT] Quest not found:', { questError, questId });
         throw new Error('Quest not found');
       }
-    
+
       console.log('[QUESTS/COMPLETION][PUT] Quest found:', { questId, xpReward: quest.xp_reward, goldReward: quest.gold_reward });
       console.log('[QUESTS/COMPLETION][PUT] Quest ID type:', typeof questId, 'Length:', questId?.length, 'Format:', questId);
-      
+
       // 🚀 DAILY HABIT TRACKING SYSTEM - Create new completion record for today
       console.log('[QUESTS/COMPLETION][PUT] Using daily habit tracking system...');
-      
+
       // Use Netherlands timezone (Europe/Amsterdam) for quest completion
       const now = new Date();
       // Use Intl.DateTimeFormat for reliable timezone conversion
@@ -158,7 +164,7 @@ export async function PUT(request: Request) {
       }).format(now);
       const today = netherlandsDate; // Format: YYYY-MM-DD
       let questCompletion: any;
-      
+
       if (completed) {
         // Quest is being completed - create new completion record for today
         const { data: completionData, error: completionError } = await supabase
@@ -173,13 +179,32 @@ export async function PUT(request: Request) {
           })
           .select()
           .single();
-        
+
         if (completionError) {
-          console.error('[QUESTS/COMPLETION][PUT] Error creating completion record:', completionError);
-          throw completionError;
+          // If duplicate key error, fetch existing record instead of failing
+          if (completionError.code === '23505') { // Postgres duplicate key error code
+            console.log('[QUESTS/COMPLETION][PUT] Duplicate completion detected, fetching existing record...');
+            const { data: existingData, error: existingError } = await supabase
+              .from('quest_completion')
+              .select('*')
+              .eq('user_id', userId)
+              .eq('quest_id', questId)
+              .gte('completed_at', `${today}T00:00:00.000Z`)
+              .lt('completed_at', `${today}T23:59:59.999Z`)
+              .single();
+
+            if (existingError || !existingData) {
+              console.error('[QUESTS/COMPLETION][PUT] Failed to fetch existing duplicate:', existingError);
+              throw completionError;
+            }
+            questCompletion = existingData;
+          } else {
+            console.error('[QUESTS/COMPLETION][PUT] Error creating completion record:', completionError);
+            throw completionError;
+          }
+        } else {
+          questCompletion = completionData;
         }
-        
-        questCompletion = completionData;
         console.log('[QUESTS/COMPLETION][PUT] New completion record created:', questCompletion);
       } else {
         // Quest is being unchecked - find today's completion record and set to false
@@ -191,28 +216,28 @@ export async function PUT(request: Request) {
           .gte('completed_at', `${today}T00:00:00.000Z`)
           .lt('completed_at', `${today}T23:59:59.999Z`)
           .single();
-        
+
         if (fetchError || !todayCompletion) {
           console.error('[QUESTS/COMPLETION][PUT] No completion record found for today:', fetchError);
           throw new Error('No completion record found for today');
         }
-        
+
         const { data: completionData, error: updateError } = await supabase
           .from('quest_completion')
           .update({ completed: false })
           .eq('id', todayCompletion.id)
           .select()
           .single();
-        
+
         if (updateError) {
           console.error('[QUESTS/COMPLETION][PUT] Error updating completion record:', updateError);
           throw updateError;
         }
-        
+
         questCompletion = completionData;
         console.log('[QUESTS/COMPLETION][PUT] Completion record updated:', questCompletion);
       }
-      
+
       // If quest is completed, grant rewards
       if (completed) {
         try {
@@ -226,7 +251,7 @@ export async function PUT(request: Request) {
               context: { source: 'quest-completion' }
             });
           }
-          
+
           // Grant gold reward
           if (quest.gold_reward && quest.gold_reward > 0) {
             await grantReward({
@@ -242,7 +267,7 @@ export async function PUT(request: Request) {
           // Don't fail the quest completion if rewards fail
         }
       }
-      
+
       return {
         success: true,
         questCompletion,
@@ -251,7 +276,15 @@ export async function PUT(request: Request) {
     });
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      // Check if error is authentication related
+      if (result.error?.includes('Authentication failed') || result.error?.includes('Unauthorized')) {
+        return NextResponse.json({ error: result.error }, { status: 401 });
+      }
+      // Return 409 Conflict for duplicate errors if they bubble up, or 500 otherwise
+      if (result.error?.includes('duplicate key')) {
+        return NextResponse.json({ error: result.error }, { status: 409 });
+      }
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
     return NextResponse.json(result.data);
