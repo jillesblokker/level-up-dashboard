@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check } from 'lucide-react'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { Progress } from '@/components/ui/progress'
@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             <div className="bg-zinc-950 border border-amber-900/50 p-2 rounded-lg shadow-xl text-xs">
                 <p className="text-amber-200 font-bold mb-1">{label}</p>
                 <p className="text-zinc-300">
-                    <span className="font-mono font-bold text-white">{payload[0].value}</span> completions
+                    <span className="font-mono font-bold text-white">{payload[0].value}</span> activities completed
                 </p>
             </div>
         )
@@ -62,29 +62,74 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function MasteryLedger() {
     const [habits, setHabits] = useState<any[]>([])
+    const [completions, setCompletions] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [view, setView] = useState<'week' | 'month'>('week')
     const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
-    const fetchHistory = async () => {
+    const fetchData = useCallback(async () => {
         try {
-            const res = await fetch('/api/mastery/history')
-            const data = await res.json()
-            if (data.habits) {
+            // Fetch both History (for list/categories) and Raw Completions (for accurate graph)
+            const [historyRes, questsRes, challengesRes] = await Promise.all([
+                fetch('/api/mastery/history'),
+                fetch('/api/quests/completion'),
+                fetch('/api/challenges/completion')
+            ])
+
+            const historyData = historyRes.ok ? await historyRes.json() : {}
+            const questsData = questsRes.ok ? await questsRes.json() : []
+            const challengesData = challengesRes.ok ? await challengesRes.json() : []
+
+            if (historyData.habits) {
                 // Sort by fulfillment (top performers first)
-                const sorted = data.habits.sort((a: any, b: any) => b.stats.fulfillment - a.stats.fulfillment)
+                const sorted = historyData.habits.sort((a: any, b: any) => b.stats.fulfillment - a.stats.fulfillment)
                 setHabits(sorted)
             }
+
+            // Merge completions
+            const allCompletions = [
+                ...(Array.isArray(questsData) ? questsData.map((c: any) => ({
+                    ...c,
+                    type: 'quest',
+                    date: c.completed_at || c.date, // Normalize date
+                    itemId: c.quest_id
+                })) : []),
+                ...(Array.isArray(challengesData) ? challengesData.map((c: any) => ({
+                    ...c,
+                    type: 'challenge',
+                    date: c.date || c.completed_at, // Normalize date
+                    itemId: c.challenge_id
+                })) : [])
+            ];
+
+            setCompletions(allCompletions)
+
         } catch (err) {
-            console.error('Failed to fetch mastery history:', err)
+            console.error('Failed to fetch ledger data:', err)
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
 
     useEffect(() => {
-        fetchHistory()
-    }, [])
+        fetchData()
+
+        // Listen for updates from other components
+        const handleUpdate = () => {
+            console.log('[MasteryLedger] Received update event, refreshing data...')
+            fetchData()
+        }
+
+        window.addEventListener('quest-completed', handleUpdate)
+        window.addEventListener('challenge-completed', handleUpdate)
+        window.addEventListener('character-stats-update', handleUpdate)
+
+        return () => {
+            window.removeEventListener('quest-completed', handleUpdate)
+            window.removeEventListener('challenge-completed', handleUpdate)
+            window.removeEventListener('character-stats-update', handleUpdate)
+        }
+    }, [fetchData])
 
     const getLast7Days = () => {
         const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -99,22 +144,50 @@ export function MasteryLedger() {
 
     const last7DaysLabels = getLast7Days()
 
-    // Filter habits
+    // Filter habits for the list
     const filteredHabits = useMemo(() => {
         if (selectedCategory === 'all') return habits
         return habits.filter(h => h.category === selectedCategory)
     }, [habits, selectedCategory])
 
-    // Generate Chart Data
+    // Generate Chart Data from Completions
     const chartData = useMemo(() => {
-        return last7DaysLabels.map((label, idx) => {
-            const count = filteredHabits.reduce((acc, h) => {
-                // Safety check for grid logic
-                return acc + (h.grid && h.grid[idx] ? 1 : 0)
-            }, 0)
-            return { day: label, count }
+        // Create a map of itemId -> category from the habits list
+        // This links the completions back to their categories
+        const categoryMap = habits.reduce((acc: Record<string, string>, h: any) => {
+            if (h.id) acc[h.id] = h.category;
+            return acc;
+        }, {});
+
+        // Filter completions relevant to the current view
+        const relevantCompletions = completions.filter(c => {
+            // Check category if filtering
+            if (selectedCategory !== 'all') {
+                const cat = categoryMap[c.itemId];
+                // If not found in map, assume might match if we can't verify, 
+                // OR exclude if we want strict fitlering. Exclude is safer for "Analysis".
+                if (cat !== selectedCategory) return false;
+            }
+            return true;
+        });
+
+        // Group by day for the last 7 days
+        return last7DaysLabels.map((dayLabel, idx) => {
+            // Calculate date string for this index (0 = 6 days ago, 6 = today)
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - idx));
+            const dateStr = d.toISOString().slice(0, 10); // YYYY-MM-DD
+
+            // Count activity for this day
+            const count = relevantCompletions.filter(c => {
+                if (!c.date) return false;
+                // Handle ISO string or YYYY-MM-DD
+                return c.date.startsWith(dateStr);
+            }).length;
+
+            return { day: dayLabel, count }
         })
-    }, [filteredHabits, last7DaysLabels])
+    }, [completions, habits, selectedCategory, last7DaysLabels])
 
     if (loading) {
         return (
@@ -215,7 +288,7 @@ export function MasteryLedger() {
                                         {chartData.map((entry, index) => (
                                             <Cell
                                                 key={`cell-${index}`}
-                                                fill={selectedCategory === 'all' ? '#f59e0b' : getCategoryColorHex(selectedCategory)}
+                                                fill={entry.count > 0 ? (selectedCategory === 'all' ? '#f59e0b' : getCategoryColorHex(selectedCategory)) : '#333'}
                                                 fillOpacity={0.8}
                                             />
                                         ))}
