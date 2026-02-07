@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { useAuth } from '@clerk/nextjs'
 
 const categoryIcons = {
     might: Sword,
@@ -61,6 +62,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export function MasteryLedger() {
+    const { getToken } = useAuth()
     const [habits, setHabits] = useState<any[]>([])
     const [completions, setCompletions] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
@@ -69,11 +71,25 @@ export function MasteryLedger() {
 
     const fetchData = useCallback(async () => {
         try {
+            // Get authentication token
+            const token = await getToken({ template: 'supabase' })
+
+            if (!token) {
+                console.warn('[MasteryLedger] No auth token available, skipping fetch')
+                setLoading(false)
+                return
+            }
+
+            const authHeaders = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+
             // Fetch both History (for list/categories) and Raw Completions (for accurate graph)
             const [historyRes, questsRes, challengesRes] = await Promise.all([
-                fetch('/api/mastery/history'),
-                fetch('/api/quests/completion'),
-                fetch('/api/challenges/completion')
+                fetch('/api/mastery/history', { headers: authHeaders }),
+                fetch('/api/quests/completion', { headers: authHeaders }),
+                fetch('/api/challenges/completion', { headers: authHeaders })
             ])
 
             const historyData = historyRes.ok ? await historyRes.json() : {}
@@ -109,7 +125,7 @@ export function MasteryLedger() {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [getToken])
 
     useEffect(() => {
         fetchData()
