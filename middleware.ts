@@ -26,6 +26,16 @@ export default clerkMiddleware(async (auth, request) => {
 
   // Allow the request to continue
   return NextResponse.next();
+}, {
+  // Use Clerk's CSP configuration with custom directives
+  // This merges with Clerk's defaults to allow Bot Protection while enabling
+  // unsafe-eval which some libraries require
+  contentSecurityPolicy: {
+    directives: {
+      'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      'style-src': ["'self'", "'unsafe-inline'"],
+    },
+  },
 });
 
 export const config = {
@@ -36,5 +46,3 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
-
-
