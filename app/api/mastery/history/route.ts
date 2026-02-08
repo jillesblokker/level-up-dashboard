@@ -13,11 +13,15 @@ export async function GET(request: Request) {
         const supabase = supabaseServer;
 
         // 1. Fetch all habits (Quests and Challenges)
+        // 1. Fetch all habits (Quests and Challenges)
+        // Fetch User Quests OR Global Quests (user_id is null)
         const { data: quests } = await supabase
             .from('quests')
             .select('*')
-            .eq('user_id', userId)
-            .eq('is_active', true);
+            .or(`user_id.eq.${userId},user_id.is.null`);
+        // removed .eq('is_active', true) to show historical ones too, or filter in frontend
+        // but for now let's just show all relevant ones
+
 
         const { data: challenges } = await supabase
             .from('challenges')

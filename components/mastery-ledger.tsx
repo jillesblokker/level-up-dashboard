@@ -516,194 +516,104 @@ export function MasteryLedger() {
             {/* Habit List */}
             <div className="grid gap-4 mt-6">
                 {filteredHabits.map((habit, idx) => (
-                    <Card key={habit.id} className="bg-gray-950/40 border-amber-900/20 hover:border-amber-500/30 transition-all p-4 relative overflow-hidden group">
-                        {/* Foil gradient for top performers */}
+                    <Card key={habit.id} className="bg-zinc-950/40 border-amber-900/10 hover:bg-zinc-900/60 hover:border-amber-500/20 transition-all p-3 group relative overflow-hidden">
+                        {/* Subtle highlight for high performers */}
                         {habit.stats.fulfillment >= 80 && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent pointer-events-none" />
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-green-500 to-green-600" />
                         )}
 
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10">
-                            {/* Habit Info */}
-                            <div className="flex items-center gap-4 lg:w-[280px]">
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 pl-2">
+                            {/* 1. Identity Section */}
+                            <div className="flex items-center gap-3 md:w-[250px] min-w-0">
                                 <div className={cn(
-                                    "p-2.5 rounded-xl border transition-all duration-300",
+                                    "p-2 rounded-lg border shrink-0",
                                     habit.habitType === 'quest'
-                                        ? categoryColors['quest']
-                                        : habit.habitType === 'challenge'
-                                            ? categoryColors['challenge']
-                                            : categoryColors[normalizeCategory(habit.category)] || 'text-gray-500 bg-gray-500/10 border-gray-500/30'
+                                        ? "bg-purple-500/10 border-purple-500/20 text-purple-400"
+                                        : "bg-orange-500/10 border-orange-500/20 text-orange-400"
                                 )}>
                                     {React.createElement(
-                                        habit.habitType === 'quest'
-                                            ? ScrollText
-                                            : habit.habitType === 'challenge'
-                                                ? Target
-                                                : categoryIcons[normalizeCategory(habit.category)] || Sword,
-                                        { className: "w-5 h-5" }
+                                        habit.habitType === 'quest' ? ScrollText : Target,
+                                        { className: "w-4 h-4" }
                                     )}
                                 </div>
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-bold text-sm text-gray-200 truncate">{habit.name}</h3>
-                                        {idx === 0 && selectedFilter === 'all' && <Medal className="w-3.5 h-3.5 text-yellow-500 shrink-0" />}
-                                    </div>
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="font-bold text-sm text-zinc-200 truncate pr-2" title={habit.name}>
+                                        {habit.name}
+                                    </h3>
                                     <div className="flex items-center gap-2 mt-0.5">
-                                        <span className={cn(
-                                            "text-[8px] px-1.5 py-0.5 rounded font-bold uppercase",
-                                            habit.habitType === 'quest' ? "bg-purple-500/20 text-purple-400" : "bg-orange-500/20 text-orange-400"
-                                        )}>
-                                            {habit.habitType || 'quest'}
-                                        </span>
-                                        <span className="text-[10px] text-gray-500 font-bold tracking-tighter">
-                                            {habit.mandate.count}× {habit.mandate.period}
-                                        </span>
+                                        <span className="text-[10px] text-zinc-500 capitalize">{normalizeCategory(habit.category) || 'General'}</span>
+                                        <span className="text-[10px] text-zinc-600">•</span>
+                                        <span className="text-[10px] text-zinc-500">{habit.mandate.count}× {habit.mandate.period}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Mastery Cycle Grid */}
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest px-1">
-                                        {view === 'week' ? 'Last 7 Days' : '30-Day History'}
+                            {/* 2. Trend Section (Last 7 Days) */}
+                            <div className="flex-1 flex flex-col justify-center">
+                                <span className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold mb-1.5 md:hidden">Recent Activity</span>
+                                <div className="grid grid-cols-7 gap-1 max-w-[280px]">
+                                    {Array.from({ length: 7 }).map((_, i) => {
+                                        const targetDate = new Date();
+                                        targetDate.setDate(targetDate.getDate() - (6 - i));
+                                        const dateStr = targetDate.toISOString().slice(0, 10);
+                                        const isToday = i === 6;
+
+                                        const completionCount = completions.filter(c => {
+                                            if (!c.date) return false;
+                                            const matchesHabit = c.itemId === habit.id || c.quest_id === habit.id || c.challenge_id === habit.id;
+                                            return matchesHabit && c.date.startsWith(dateStr) && c.completed !== false;
+                                        }).length;
+
+                                        const hasCompletions = completionCount > 0;
+
+                                        return (
+                                            <div
+                                                key={i}
+                                                className={cn(
+                                                    "h-8 rounded-sm flex items-center justify-center transition-all relative group/day",
+                                                    hasCompletions
+                                                        ? habit.habitType === 'quest'
+                                                            ? "bg-purple-500/20 border border-purple-500/30 text-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.1)]"
+                                                            : "bg-orange-500/20 border border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.1)]"
+                                                        : "bg-zinc-900/50 border border-zinc-800/50",
+                                                    isToday && !hasCompletions && "border-zinc-700"
+                                                )}
+                                                title={`${isToday ? 'Today' : dateStr}: ${completionCount}`}
+                                            >
+                                                {hasCompletions ? (
+                                                    <span className="font-bold text-xs">{completionCount}</span>
+                                                ) : (
+                                                    <div className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
+                                                )}
+                                                {/* Tooltip on hover */}
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-zinc-900 text-[9px] text-zinc-300 rounded border border-zinc-700 whitespace-nowrap opacity-0 group-hover/day:opacity-100 pointer-events-none z-20">
+                                                    {last7DaysLabels[i]}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* 3. Stats Section */}
+                            <div className="flex items-center gap-6 md:w-[180px] md:justify-end border-t md:border-t-0 border-zinc-800/50 pt-3 md:pt-0 mt-1 md:mt-0">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-xl font-bold text-zinc-200">{habit.stats.monthly}</span>
+                                    <span className="text-[9px] uppercase text-zinc-600 font-bold">Month</span>
+                                </div>
+                                <div className="flex flex-col items-end min-w-[60px]">
+                                    <span className={cn(
+                                        "text-sm font-bold",
+                                        habit.stats.fulfillment >= 80 ? "text-green-500" : "text-amber-500"
+                                    )}>
+                                        {habit.stats.fulfillment}%
                                     </span>
-                                    <div className="flex bg-gray-900/50 p-0.5 rounded-lg border border-gray-800">
-                                        <button
-                                            onClick={() => setView('week')}
-                                            className={cn(
-                                                "px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all",
-                                                view === 'week'
-                                                    ? "bg-amber-500/20 text-amber-500 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.1)]"
-                                                    : "text-gray-600 hover:text-gray-400"
-                                            )}
-                                        >
-                                            Week
-                                        </button>
-                                        <button
-                                            onClick={() => setView('month')}
-                                            className={cn(
-                                                "px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all",
-                                                view === 'month'
-                                                    ? "bg-amber-500/20 text-amber-500 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.1)]"
-                                                    : "text-gray-600 hover:text-gray-400"
-                                            )}
-                                        >
-                                            Month
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {view === 'week' ? (
-                                    <div className="space-y-1.5">
-                                        <div className="grid grid-cols-7 gap-1 text-[8px] font-bold text-gray-600">
-                                            {last7DaysLabels.map((d, i) => (
-                                                <span key={i} className={cn("text-center", i === 6 && "text-amber-500")}>{d}</span>
-                                            ))}
-                                        </div>
-                                        <div className="grid grid-cols-7 gap-1">
-                                            {Array.from({ length: 7 }).map((_, i) => {
-                                                const targetDate = new Date();
-                                                targetDate.setDate(targetDate.getDate() - (6 - i));
-                                                const dateStr = targetDate.toISOString().slice(0, 10);
-
-                                                const completionCount = completions.filter(c => {
-                                                    if (!c.date) return false;
-                                                    const matchesHabit = c.itemId === habit.id || c.quest_id === habit.id || c.challenge_id === habit.id;
-                                                    return matchesHabit && c.date.startsWith(dateStr) && c.completed !== false;
-                                                }).length;
-
-                                                const hasCompletions = completionCount > 0;
-
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className={cn(
-                                                            "h-10 rounded-lg border flex items-center justify-center transition-all duration-300 relative",
-                                                            hasCompletions
-                                                                ? habit.habitType === 'quest'
-                                                                    ? "bg-gradient-to-br from-purple-500/30 to-purple-600/20 border-purple-500/60 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
-                                                                    : "bg-gradient-to-br from-orange-500/30 to-orange-600/20 border-orange-500/60 shadow-[0_0_12px_rgba(249,115,22,0.25)]"
-                                                                : "bg-gray-900/40 border-gray-800/60",
-                                                            i === 6 && !hasCompletions && "border-dashed border-gray-700"
-                                                        )}
-                                                        title={`${dateStr === new Date().toISOString().slice(0, 10) ? 'Today' : dateStr}: ${completionCount} completions`}
-                                                    >
-                                                        {hasCompletions ? (
-                                                            <span className={cn(
-                                                                "font-bold text-sm",
-                                                                habit.habitType === 'quest' ? "text-purple-400" : "text-orange-400"
-                                                            )}>
-                                                                {completionCount}
-                                                            </span>
-                                                        ) : (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col gap-1 items-center justify-center bg-gray-900/10 rounded-xl border border-dashed border-gray-800/50 p-2">
-                                        <div className="grid grid-cols-10 gap-x-1 gap-y-1 w-full">
-                                            {Array.from({ length: 30 }).map((_, i) => {
-                                                const dayIndex = 29 - i;
-                                                const targetDate = new Date();
-                                                targetDate.setDate(targetDate.getDate() - dayIndex);
-                                                const dateStr = targetDate.toISOString().slice(0, 10);
-
-                                                const completionCount = completions.filter(c => {
-                                                    if (!c.date) return false;
-                                                    const matchesHabit = c.itemId === habit.id || c.quest_id === habit.id || c.challenge_id === habit.id;
-                                                    return matchesHabit && c.date.startsWith(dateStr) && c.completed !== false;
-                                                }).length;
-
-                                                const done = completionCount > 0 || habit.completions?.some((c: any) => {
-                                                    const completionDate = new Date(c.completed_at);
-                                                    return completionDate.toISOString().slice(0, 10) === dateStr;
-                                                });
-
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className={cn(
-                                                            "h-6 rounded border flex items-center justify-center transition-all",
-                                                            done
-                                                                ? habit.habitType === 'quest'
-                                                                    ? "bg-gradient-to-br from-purple-500/40 to-purple-600/30 border-purple-500/60 shadow-[0_0_5px_rgba(168,85,247,0.2)]"
-                                                                    : "bg-gradient-to-br from-orange-500/40 to-orange-600/30 border-orange-500/60 shadow-[0_0_5px_rgba(249,115,22,0.2)]"
-                                                                : "bg-gray-900/40 border-gray-800/40"
-                                                        )}
-                                                        title={`${dayIndex === 0 ? 'Today' : (dayIndex + ' days ago')}: ${completionCount} completion(s)`}
-                                                    >
-                                                        {done && (
-                                                            <span className={cn(
-                                                                "font-bold text-[10px]",
-                                                                habit.habitType === 'quest' ? "text-purple-300" : "text-orange-300"
-                                                            )}>
-                                                                {completionCount || '✓'}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Mastery Stats */}
-                            <div className="lg:w-[200px] flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-gray-500 uppercase">{TEXT_CONTENT.quests.mastery.stats.fulfillment}</span>
-                                    <span className={cn("text-xs font-bold", habit.stats.fulfillment >= 80 ? 'text-green-500' : 'text-amber-500')}>{habit.stats.fulfillment}%</span>
-                                </div>
-                                <Progress value={habit.stats.fulfillment} className="h-1.5 bg-gray-900">
-                                    <div className={cn("h-full transition-all", habit.stats.fulfillment >= 80 ? 'bg-green-500' : 'bg-amber-500')} style={{ width: `${habit.stats.fulfillment}%` }} />
-                                </Progress>
-                                <div className="flex items-center justify-between mt-1 text-[10px]">
-                                    <span className="text-gray-600 font-bold uppercase">{TEXT_CONTENT.quests.mastery.stats.monthly}</span>
-                                    <span className="text-gray-300 font-bold">{habit.stats.monthly} Deeds</span>
+                                    <Progress value={habit.stats.fulfillment} className="h-1 w-16 bg-zinc-800 mt-1">
+                                        <div
+                                            className={cn("h-full", habit.stats.fulfillment >= 80 ? "bg-green-500" : "bg-amber-500")}
+                                            style={{ width: `${habit.stats.fulfillment}%` }}
+                                        />
+                                    </Progress>
                                 </div>
                             </div>
                         </div>
