@@ -113,10 +113,14 @@ export function useSupabase() {
                             auth: {
                                 // Use safe storage adapter to prevent iOS Safari crashes
                                 storage: createSafeStorageAdapter(),
-                                // Disable automatic session persistence to avoid storage issues
-                                persistSession: true,
-                                autoRefreshToken: true,
+                                // Disable session persistence - we use Clerk for auth
+                                persistSession: false,
+                                autoRefreshToken: false,
                                 detectSessionInUrl: false,
+                            },
+                            realtime: {
+                                // Add timeout and error handling for realtime connections
+                                timeout: 10000,
                             },
                         }
                     );
