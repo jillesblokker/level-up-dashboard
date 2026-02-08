@@ -240,7 +240,7 @@ export function EconomyTransparency() {
             </h3>
             <div className="h-[200px] w-full min-h-[200px]">
               {chartData.length > 0 && mounted ? (
-                <ResponsiveContainer width="99%" height="100%" className="min-h-[200px]" debounce={200}>
+                <ResponsiveContainer width="99%" height={200} className="min-h-[200px]" debounce={200}>
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">

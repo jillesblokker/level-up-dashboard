@@ -37,8 +37,11 @@ export class WidgetErrorBoundary extends React.Component<WrapperProps, State> {
                     <div className="text-red-300 font-bold mb-1">
                         {this.props.fallbackTitle || 'Component Unavailable'}
                     </div>
-                    <p className="text-xs text-red-400/60 mb-4 max-w-[200px]">
-                        We encountered a problem displaying this section correctly.
+                    <p className="text-xs text-red-400/60 mb-2 max-w-[200px] break-words">
+                        {this.state.error?.message || 'Unknown error occurred'}
+                    </p>
+                    <p className="text-[10px] text-red-500/40 mb-4 font-mono">
+                        {this.props.fallbackTitle}
                     </p>
                     <button
                         onClick={() => this.setState({ hasError: false })}
