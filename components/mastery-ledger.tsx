@@ -1,12 +1,13 @@
 "use client"
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check, X, ScrollText, Target } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check, X, ScrollText, Target, ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { Progress } from '@/components/ui/progress'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useAuth } from '@clerk/nextjs'
 
@@ -85,6 +86,23 @@ export function MasteryLedger() {
     const [loading, setLoading] = useState(true)
     const [view, setView] = useState<'week' | 'month'>('week')
     const [selectedFilter, setSelectedFilter] = useState<FilterValue>('all')
+    const [selectedDate, setSelectedDate] = useState(new Date())
+
+    // Calculate the week range (Mon-Sun) for the selected date
+    const weekDays = useMemo(() => {
+        const d = new Date(selectedDate);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+        const start = new Date(d.setDate(diff));
+
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+            const current = new Date(start);
+            current.setDate(current.getDate() + i);
+            days.push(current);
+        }
+        return days;
+    }, [selectedDate]);
 
     const fetchData = useCallback(async () => {
         try {
@@ -102,9 +120,12 @@ export function MasteryLedger() {
                 'Content-Type': 'application/json'
             }
 
+            // Use the selected date to determine the month context for history
+            const dateStr = selectedDate.toISOString().split('T')[0];
+
             // Fetch both History (for list/categories) and Raw Completions (for accurate graph)
             const [historyRes, questsRes, challengesRes] = await Promise.all([
-                fetch('/api/mastery/history', { headers: authHeaders }),
+                fetch(`/api/mastery/history?date=${dateStr}`, { headers: authHeaders }),
                 fetch('/api/quests/completion', { headers: authHeaders }),
                 fetch('/api/challenges/completion', { headers: authHeaders })
             ])
@@ -115,10 +136,7 @@ export function MasteryLedger() {
 
             if (historyData.habits) {
                 // Add type info to habits based on their source
-                // Also try to enrich with quest/challenge type
                 const enrichedHabits = historyData.habits.map((h: any) => {
-                    // Try to determine if it's a quest or challenge based on the data
-                    // Usually the history API normalizes this, but let's be safe
                     const habitType = h.type || (h.mandate?.period ? 'quest' : 'challenge');
                     return {
                         ...h,
@@ -156,7 +174,7 @@ export function MasteryLedger() {
         } finally {
             setLoading(false)
         }
-    }, [getToken])
+    }, [getToken, selectedDate])
 
     useEffect(() => {
         fetchData()
@@ -178,19 +196,6 @@ export function MasteryLedger() {
         }
     }, [fetchData])
 
-    const getLast7Days = () => {
-        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-        const result = []
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date()
-            d.setDate(d.getDate() - i)
-            result.push(days[d.getDay()])
-        }
-        return result
-    }
-
-    const last7DaysLabels = getLast7Days()
-
     // Get unique categories from habits for filter dropdown, grouped by type
     const filterOptions = useMemo(() => {
         const questCategories = new Set<string>();
@@ -205,7 +210,6 @@ export function MasteryLedger() {
             } else if (h.habitType === 'challenge') {
                 challengeCategories.add(cat);
             } else {
-                // Default to quest if unknown
                 questCategories.add(cat);
             }
         });
@@ -257,11 +261,10 @@ export function MasteryLedger() {
             return habits.filter(h => h.habitType === 'challenge' && normalizeCategory(h.category) === cat);
         }
 
-        // Legacy: plain category match
         return habits.filter(h => normalizeCategory(h.category) === normalizeCategory(selectedFilter));
     }, [habits, selectedFilter])
 
-    // Generate Chart Data from Completions - filtered based on selection
+    // Generate Chart Data from Completions - filtered based on selection and week
     const chartData = useMemo(() => {
         // Create a map of itemId -> info from habits
         const habitInfo = habits.reduce((acc: Record<string, { category: string; type: string }>, h: any) => {
@@ -277,16 +280,8 @@ export function MasteryLedger() {
         // Filter completions based on current filter
         const relevantCompletions = completions.filter(c => {
             if (selectedFilter === 'all') return true;
-
-            // Type filter
-            if (selectedFilter === 'type:quest') {
-                return c.completionType === 'quest';
-            }
-            if (selectedFilter === 'type:challenge') {
-                return c.completionType === 'challenge';
-            }
-
-            // Category filter
+            if (selectedFilter === 'type:quest') return c.completionType === 'quest';
+            if (selectedFilter === 'type:challenge') return c.completionType === 'challenge';
             if (selectedFilter.startsWith('quest:')) {
                 const cat = selectedFilter.replace('quest:', '');
                 return c.completionType === 'quest' && normalizeCategory(c.category) === cat;
@@ -296,28 +291,25 @@ export function MasteryLedger() {
                 return c.completionType === 'challenge' && normalizeCategory(c.category) === cat;
             }
 
-            // Legacy category
             const info = habitInfo[c.itemId];
-            if (info) {
-                return info.category === normalizeCategory(selectedFilter);
-            }
+            if (info) return info.category === normalizeCategory(selectedFilter);
             return normalizeCategory(c.category) === normalizeCategory(selectedFilter);
         });
 
-        // Group by day for the last 7 days
-        return last7DaysLabels.map((dayLabel, idx) => {
-            const d = new Date();
-            d.setDate(d.getDate() - (6 - idx));
+        // Group by day for the selected week
+        return weekDays.map((d) => {
             const dateStr = d.toISOString().slice(0, 10);
+            // Format label (Mon, Tue)
+            const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
 
             const count = relevantCompletions.filter(c => {
                 if (!c.date) return false;
                 return c.date.startsWith(dateStr);
             }).length;
 
-            return { day: dayLabel, count }
+            return { day: dayLabel, count, fullDate: dateStr, isFuture: d > new Date() }
         })
-    }, [completions, habits, selectedFilter, last7DaysLabels])
+    }, [completions, habits, selectedFilter, weekDays])
 
     // Calculate completion counts per habit per day for the grid display
     const getHabitDayCompletions = useCallback((habitId: string, dayIndex: number) => {
@@ -361,9 +353,46 @@ export function MasteryLedger() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-amber-900/20 pb-6">
-                <div>
+                <div className="flex-1">
                     <h2 className="text-2xl font-bold font-serif text-amber-500 tracking-tight">Mastery Ledger</h2>
                     <p className="text-gray-500 text-sm mt-1">A historical record of your quests and challenges.</p>
+
+                    {/* Date Navigation Toolbar */}
+                    <div className="flex items-center gap-2 mt-4">
+                        <Button variant="outline" size="icon" className="h-8 w-8 bg-zinc-900 border-zinc-700 hover:bg-zinc-800 hover:text-amber-500" onClick={() => {
+                            const d = new Date(selectedDate);
+                            d.setDate(d.getDate() - 7);
+                            setSelectedDate(d);
+                        }}>
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+
+                        <div className="flex items-center gap-2 px-3 h-8 border border-zinc-700 rounded-md bg-zinc-900 min-w-[180px] justify-center text-sm font-medium text-zinc-300">
+                            <Calendar className="h-3.5 w-3.5 text-amber-500/70" />
+                            <span>
+                                {weekDays[0].toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                {' - '}
+                                {weekDays[6].toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </span>
+                        </div>
+
+                        <Button variant="outline" size="icon" className="h-8 w-8 bg-zinc-900 border-zinc-700 hover:bg-zinc-800 hover:text-amber-500" onClick={() => {
+                            const d = new Date(selectedDate);
+                            d.setDate(d.getDate() + 7);
+                            setSelectedDate(d);
+                        }}>
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs bg-zinc-900 border-zinc-700 hover:bg-zinc-800 hover:text-amber-500 ml-2"
+                            onClick={() => setSelectedDate(new Date())}
+                        >
+                            Today
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Global Stats */}
@@ -400,115 +429,93 @@ export function MasteryLedger() {
                                 <SelectValue placeholder="All Activities" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100 max-h-[300px]">
-                                {/* All */}
                                 <SelectItem value="all">All Activities</SelectItem>
-
-                                {/* Quests Section */}
                                 <SelectGroup>
-                                    <SelectLabel className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-center gap-2 px-2 py-2 border-t border-zinc-800 mt-1">
-                                        <ScrollText className="w-3.5 h-3.5" />
-                                        Quests
-                                    </SelectLabel>
-                                    <SelectItem value="type:quest" className="pl-4">
-                                        <span className="flex items-center gap-2">
-                                            <span className="w-2 h-2 rounded-full bg-purple-500" />
-                                            All Quests
-                                        </span>
-                                    </SelectItem>
-                                    {filterOptions.quests.map(cat => (
-                                        <SelectItem key={`quest:${cat}`} value={`quest:${cat}`} className="pl-6 capitalize">
-                                            {cat}
-                                        </SelectItem>
-                                    ))}
+                                    <SelectLabel className="text-xs text-amber-500/70 font-bold uppercase mt-2">Types</SelectLabel>
+                                    <SelectItem value="type:quest" className="pl-6">All Quests</SelectItem>
+                                    <SelectItem value="type:challenge" className="pl-6">All Challenges</SelectItem>
                                 </SelectGroup>
-
-                                {/* Challenges Section */}
-                                <SelectGroup>
-                                    <SelectLabel className="text-orange-400 font-bold text-xs uppercase tracking-wider flex items-center gap-2 px-2 py-2 border-t border-zinc-800 mt-1">
-                                        <Target className="w-3.5 h-3.5" />
-                                        Challenges
-                                    </SelectLabel>
-                                    <SelectItem value="type:challenge" className="pl-4">
-                                        <span className="flex items-center gap-2">
-                                            <span className="w-2 h-2 rounded-full bg-orange-500" />
-                                            All Challenges
-                                        </span>
-                                    </SelectItem>
-                                    {filterOptions.challenges.map(cat => (
-                                        <SelectItem key={`challenge:${cat}`} value={`challenge:${cat}`} className="pl-6 capitalize">
-                                            {cat}
-                                        </SelectItem>
-                                    ))}
-                                </SelectGroup>
+                                {filterOptions.quests.length > 0 && ((selectedFilter === 'all' || selectedFilter.includes('quest')) || true) && (
+                                    <SelectGroup>
+                                        <SelectLabel className="text-xs text-purple-500/70 font-bold uppercase mt-2">Quest Categories</SelectLabel>
+                                        {filterOptions.quests.map(cat => (
+                                            <SelectItem key={`quest:${cat}`} value={`quest:${cat}`} className="pl-6 capitalize">
+                                                {cat}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                )}
+                                {filterOptions.challenges.length > 0 && ((selectedFilter === 'all' || selectedFilter.includes('challenge')) || true) && (
+                                    <SelectGroup>
+                                        <SelectLabel className="text-xs text-orange-500/70 font-bold uppercase mt-2">Challenge Categories</SelectLabel>
+                                        {filterOptions.challenges.map(cat => (
+                                            <SelectItem key={`challenge:${cat}`} value={`challenge:${cat}`} className="pl-6 capitalize">
+                                                {cat}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                )}
                             </SelectContent>
                         </Select>
-                    </Card>
 
-                    {/* Quick Stats for Selection */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <Card className="p-3 bg-zinc-900/30 border-zinc-800 flex flex-col items-center justify-center">
-                            <span className="text-[10px] text-zinc-500 uppercase">Shown</span>
-                            <span className="text-xl font-bold text-white">{filteredHabits.length}</span>
-                        </Card>
-                        <Card className="p-3 bg-zinc-900/30 border-zinc-800 flex flex-col items-center justify-center">
-                            <span className="text-[10px] text-zinc-500 uppercase">Avg Yield</span>
-                            <span className="text-xl font-bold text-amber-500">
-                                {filteredHabits.length > 0
-                                    ? Math.round(filteredHabits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / filteredHabits.length)
-                                    : 0}%
-                            </span>
-                        </Card>
-                    </div>
+                        <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-500 uppercase font-bold tracking-wider">Shown</span>
+                                <span className="font-mono text-white text-lg font-bold">{filteredHabits.length}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-500 uppercase font-bold tracking-wider">Avg Yield</span>
+                                <span style={{ color: getFilterColor() }} className="font-mono text-lg font-bold">
+                                    {filteredHabits.length > 0
+                                        ? Math.round(filteredHabits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / filteredHabits.length)
+                                        : 0}%
+                                </span>
+                            </div>
+                        </div>
+                    </Card>
                 </div>
 
                 {/* Graph */}
-                <Card className="bg-black/20 border-zinc-800/50 p-4 relative overflow-hidden">
-                    <div className="absolute top-4 left-4 z-10">
-                        <h3 className="text-sm font-bold text-zinc-400 flex items-center gap-2">
+                <Card className="bg-black/40 border-amber-900/10 p-6 min-h-[300px] flex flex-col">
+                    <div className="mb-6 flex justify-between items-center">
+                        <div className="flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-amber-500" />
-                            Weekly Activity
-                            {selectedFilter !== 'all' && (
-                                <span
-                                    className="capitalize px-2 py-0.5 rounded text-xs"
-                                    style={{
-                                        color: getFilterColor(),
-                                        backgroundColor: `${getFilterColor()}20`
-                                    }}
-                                >
-                                    {getFilterLabel(selectedFilter)}
-                                </span>
-                            )}
-                        </h3>
+                            <h3 className="text-sm font-bold text-gray-300">Weekly Activity</h3>
+                        </div>
                     </div>
-                    <div className="h-[180px] w-full pt-6">
-                        {chartData.some(d => d.count > 0) ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData}>
-                                    <XAxis
-                                        dataKey="day"
-                                        stroke="#52525b"
-                                        fontSize={10}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-                                    <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={50}>
-                                        {chartData.map((entry, index) => (
-                                            <Cell
-                                                key={`cell-${index}`}
-                                                fill={entry.count > 0 ? getFilterColor() : '#333'}
-                                                fillOpacity={0.8}
-                                            />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-zinc-600">
-                                <Ban className="w-8 h-8 opacity-20 mb-2" />
-                                <span className="text-xs">No activity recorded this week{selectedFilter !== 'all' && ` for ${getFilterLabel(selectedFilter)}`}</span>
-                            </div>
-                        )}
+
+                    <div className="flex-1 w-full min-h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <XAxis
+                                    dataKey="day"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 600 }}
+                                    dy={10}
+                                />
+                                <Tooltip
+                                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                    contentStyle={{
+                                        backgroundColor: '#09090b',
+                                        border: '1px solid rgba(245,158,11,0.2)',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                    }}
+                                    itemStyle={{ color: '#fbbf24' }}
+                                />
+                                <Bar
+                                    dataKey="count"
+                                    radius={[4, 4, 0, 0]}
+                                    maxBarSize={40}
+                                >
+                                    {chartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={getFilterColor()} fillOpacity={0.9} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </Card>
             </div>
@@ -548,15 +555,13 @@ export function MasteryLedger() {
                                 </div>
                             </div>
 
-                            {/* 2. Trend Section (Last 7 Days) */}
+                            {/* 2. Trend Section (Selected Week) */}
                             <div className="flex-1 flex flex-col justify-center">
-                                <span className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold mb-1.5 md:hidden">Recent Activity</span>
+                                <span className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold mb-1.5 md:hidden">Weekly Activity</span>
                                 <div className="grid grid-cols-7 gap-1 max-w-[280px]">
-                                    {Array.from({ length: 7 }).map((_, i) => {
-                                        const targetDate = new Date();
-                                        targetDate.setDate(targetDate.getDate() - (6 - i));
-                                        const dateStr = targetDate.toISOString().slice(0, 10);
-                                        const isToday = i === 6;
+                                    {weekDays.map((d, i) => {
+                                        const dateStr = d.toISOString().slice(0, 10);
+                                        const isToday = d.toDateString() === new Date().toDateString();
 
                                         const completionCount = completions.filter(c => {
                                             if (!c.date) return false;
@@ -576,9 +581,8 @@ export function MasteryLedger() {
                                                             ? "bg-purple-500/20 border border-purple-500/30 text-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.1)]"
                                                             : "bg-orange-500/20 border border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.1)]"
                                                         : "bg-zinc-900/50 border border-zinc-800/50",
-                                                    isToday && !hasCompletions && "border-zinc-700"
+                                                    isToday && !hasCompletions && "border-zinc-700 ring-1 ring-zinc-700"
                                                 )}
-                                                title={`${isToday ? 'Today' : dateStr}: ${completionCount}`}
                                             >
                                                 {hasCompletions ? (
                                                     <span className="font-bold text-xs">{completionCount}</span>
@@ -587,7 +591,7 @@ export function MasteryLedger() {
                                                 )}
                                                 {/* Tooltip on hover */}
                                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-zinc-900 text-[9px] text-zinc-300 rounded border border-zinc-700 whitespace-nowrap opacity-0 group-hover/day:opacity-100 pointer-events-none z-20">
-                                                    {last7DaysLabels[i]}
+                                                    {d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                                 </div>
                                             </div>
                                         );
@@ -623,10 +627,10 @@ export function MasteryLedger() {
                 {filteredHabits.length === 0 && (
                     <div className="text-center py-12 bg-gray-950/20 border-2 border-dashed border-amber-900/20 rounded-2xl">
                         <PersonStanding className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                        <h4 className="text-lg font-serif text-gray-500">
-                            {selectedFilter !== 'all' ? `No ${getFilterLabel(selectedFilter)} found` : 'No active paths discovered'}
-                        </h4>
-                        <p className="text-sm text-gray-600 mt-1">Complete quests and challenges to track your mastery here.</p>
+                        <h3 className="text-lg font-bold text-gray-400 mb-2">The Ledger is Empty</h3>
+                        <p className="text-gray-600 max-w-md mx-auto">
+                            No active quests or challenges found for this category. Adjust the filters or begin a new journey.
+                        </p>
                     </div>
                 )}
             </div>
