@@ -48,6 +48,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { updateCharacterStats, getCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
 import ErrorBoundary from '@/components/error-boundary';
+import { WidgetErrorBoundary } from '@/components/widget-error-boundary';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import {
   saveKingdomGrid,
@@ -1513,24 +1514,32 @@ export function KingdomClient() {
               {/* Kingdom Stats and Gains - Most Important for Kingdom Page */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <KingdomStatsBlock userId={visitUserId || user?.id || null} />
+                  <WidgetErrorBoundary fallbackTitle="Kingdom Stats">
+                    <KingdomStatsBlock userId={visitUserId || user?.id || null} />
+                  </WidgetErrorBoundary>
                 </div>
                 <div className="w-full" aria-label="king-stats-block-container">
-                  <KingStatsBlock userId={visitUserId || user?.id || null} />
+                  <WidgetErrorBoundary fallbackTitle="King Stats">
+                    <KingStatsBlock userId={visitUserId || user?.id || null} />
+                  </WidgetErrorBoundary>
                 </div>
               </div>
 
               {/* Progression Visualization */}
               {!isVisiting && (
                 <div className="mb-6">
-                  <ProgressionVisualization />
+                  <WidgetErrorBoundary fallbackTitle="Progression">
+                    <ProgressionVisualization />
+                  </WidgetErrorBoundary>
                 </div>
               )}
 
               {/* Economy Transparency */}
               {!isVisiting && (
                 <div className="mb-6">
-                  <EconomyTransparency />
+                  <WidgetErrorBoundary fallbackTitle="Treasury Ledger">
+                    <EconomyTransparency />
+                  </WidgetErrorBoundary>
                 </div>
               )}
             </div>
