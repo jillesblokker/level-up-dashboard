@@ -370,9 +370,9 @@ export function MasteryLedger() {
                         <div className="flex items-center gap-2 px-3 h-8 border border-zinc-700 rounded-md bg-zinc-900 min-w-[180px] justify-center text-sm font-medium text-zinc-300">
                             <Calendar className="h-3.5 w-3.5 text-amber-500/70" />
                             <span>
-                                {weekDays[0].toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                {weekDays[0]?.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                 {' - '}
-                                {weekDays[6].toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                {weekDays[6]?.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </span>
                         </div>
 
