@@ -1943,6 +1943,9 @@ export function KingdomGridWithTimers({
             handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         } : undefined}
+        onMeditate={actionSheetTile?.tile?.type === 'zen-garden' ? () => {
+          setZenModalOpen(true);
+        } : undefined}
       />
     </div >
   )

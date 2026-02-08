@@ -1,6 +1,7 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowRightLeft, RotateCw, Trash2, X, Sparkles, Clock, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tile } from '@/types/tiles'
@@ -32,18 +33,24 @@ export function TileActionSheet({
     onCollect,
     onMeditate
 }: TileActionSheetProps) {
-    if (!isOpen || !tile) return null
+    const [mounted, setMounted] = useState(false)
 
-    return (
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!isOpen || !tile || !mounted) return null
+
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] md:hidden"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] md:hidden"
                 onClick={onClose}
             />
 
             {/* Bottom Sheet */}
-            <div className="fixed inset-x-0 bottom-0 z-[100] md:hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto">
+            <div className="fixed inset-x-0 bottom-0 z-[9999] md:hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto">
                 <div className="bg-zinc-900 border-t border-amber-900/30 rounded-t-3xl shadow-2xl">
                     {/* Handle */}
                     <div className="flex justify-center pt-3 pb-2">
@@ -189,5 +196,5 @@ export function TileActionSheet({
                 </div>
             </div>
         </>
-    )
+        , document.body)
 }
