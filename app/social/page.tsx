@@ -382,21 +382,21 @@ export default function AlliesPage() {
                 <div className="h-8"></div> {/* Spacer to prevent overlap */}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto mb-8">
-                        <TabsTrigger value="allies" className="flex items-center gap-2 py-3">
+                    <TabsList className="w-full flex overflow-x-auto no-scrollbar md:grid md:grid-cols-4 h-auto mb-8 gap-2 px-1 pb-1 md:gap-0 md:px-0">
+                        <TabsTrigger value="allies" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
                             <Users className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.allies}
                             {friends.length > 0 && <Badge variant="secondary" className="ml-1">{friends.length}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3">
+                        <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
                             <Scroll className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.chronicles}
                         </TabsTrigger>
-                        <TabsTrigger value="add" className="flex items-center gap-2 py-3">
+                        <TabsTrigger value="add" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
                             <UserPlus className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.addFriend}
                         </TabsTrigger>
-                        <TabsTrigger value="requests" className="flex items-center gap-2 py-3">
+                        <TabsTrigger value="requests" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
                             <Mail className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.requests}
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}

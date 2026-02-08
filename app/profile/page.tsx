@@ -412,22 +412,22 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="avatar" className="w-full space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-amber-800/20">
-          <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
-            <Camera className="w-4 h-4 mr-2" />
-            {TEXT_CONTENT.profile.tabs.avatar}
+        <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-amber-800/20 h-auto p-1">
+          <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+            <Camera className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.avatar}</span>
           </TabsTrigger>
-          <TabsTrigger value="profile" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
-            <User className="w-4 h-4 mr-2" />
-            {TEXT_CONTENT.profile.tabs.profile}
+          <TabsTrigger value="profile" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+            <User className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.profile}</span>
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
-            <Palette className="w-4 h-4 mr-2" />
-            {TEXT_CONTENT.profile.tabs.colors}
+          <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+            <Palette className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.colors}</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400">
-            <Settings className="w-4 h-4 mr-2" />
-            {TEXT_CONTENT.profile.tabs.settings}
+          <TabsTrigger value="settings" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+            <Settings className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
         </TabsList>
 

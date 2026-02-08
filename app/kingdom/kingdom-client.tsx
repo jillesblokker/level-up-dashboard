@@ -1469,11 +1469,11 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-6 w-full grid grid-cols-4">
-            <TabsTrigger value="thrivehaven">{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</TabsTrigger>
-            <TabsTrigger value="journey">{TEXT_CONTENT.kingdom.ui.tabs.journey}</TabsTrigger>
-            {!isVisiting && <TabsTrigger value="inventory">{TEXT_CONTENT.kingdom.ui.tabs.inventory}</TabsTrigger>}
-            {!isVisiting && <TabsTrigger value="rewards">{TEXT_CONTENT.kingdom.ui.tabs.rewards}</TabsTrigger>}
+          <TabsList className="mb-6 w-full flex h-auto overflow-x-auto no-scrollbar md:grid md:grid-cols-4 md:overflow-visible gap-2 px-1 pb-1 md:gap-0 md:px-0">
+            <TabsTrigger value="thrivehaven" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</TabsTrigger>
+            <TabsTrigger value="journey" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.journey}</TabsTrigger>
+            {!isVisiting && <TabsTrigger value="inventory" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.inventory}</TabsTrigger>}
+            {!isVisiting && <TabsTrigger value="rewards" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.rewards}</TabsTrigger>}
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">

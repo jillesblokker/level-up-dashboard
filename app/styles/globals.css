@@ -11,44 +11,47 @@
     /* Card Colors */
     --card: 0 0% 4%;
     --card-foreground: 0 0% 100%;
- 
+
     /* Popover Colors */
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 100%;
- 
+
     /* Primary Colors (Amber Theme) */
-    --primary: 38 92% 50%; /* amber-500 */
+    --primary: 38 92% 50%;
+    /* amber-500 */
     --primary-foreground: 0 0% 0%;
- 
+
     /* Secondary Colors */
     --secondary: 0 0% 9%;
     --secondary-foreground: 0 0% 100%;
- 
+
     /* Muted Colors */
     --muted: 0 0% 9%;
     --muted-foreground: 215 20.2% 65.1%;
- 
+
     /* Accent Colors */
     --accent: 0 0% 9%;
     --accent-foreground: 0 0% 100%;
- 
+
     /* Destructive Colors */
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
- 
+
     /* Border and Input Colors */
-    --border: 38 50% 20%; /* amber-800/20 */
+    --border: 38 50% 20%;
+    /* amber-800/20 */
     --input: 0 0% 9%;
-    --ring: 38 92% 50%; /* amber-500 */
- 
+    --ring: 38 92% 50%;
+    /* amber-500 */
+
     /* Radius */
     --radius: 0.5rem;
-    
+
     /* Custom Background Colors */
     --background-start: #000000;
     --background-end: #000000;
     --card-background: #100c08;
-    
+
     /* Amber Theme Specific Colors */
     --amber-50: 48 96% 89%;
     --amber-100: 48 96% 89%;
@@ -79,32 +82,32 @@
     --shadow-amber: 0 0 20px rgba(245, 158, 11, 0.3);
     --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.2);
   }
- 
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
- 
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
- 
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
- 
+
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
- 
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
- 
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
- 
+
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
- 
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
@@ -132,12 +135,35 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  * {
-    box-sizing: border-box;
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+    /* Prevent iOS zoom */
   }
 
+  /* Utility to hide scrollbars for horizontal scrolling areas */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  /* Enhanced bottom padding for fixed nav */
+  .pb-nav-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 96px) !important;
+  }
+
+
   /* Main Layout Structure */
-  main, .main-content, [role="main"] {
+  main,
+  .main-content,
+  [role="main"] {
     min-height: 100vh;
     width: 100%;
     position: relative;
@@ -234,8 +260,13 @@
   }
 
   @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
   }
 
   /* Enhanced Badge Styling */
@@ -275,8 +306,15 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
   }
 
   /* Enhanced Typography */
@@ -326,9 +364,22 @@
   }
 
   @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-3px); }
-    60% { transform: translateY(-1px); }
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+
+    40% {
+      transform: translateY(-3px);
+    }
+
+    60% {
+      transform: translateY(-1px);
+    }
   }
 
   /* Enhanced Settings Menu */
@@ -367,6 +418,7 @@
       opacity: 0;
       transform: translateY(-10px) scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -578,10 +630,12 @@
       opacity: 0;
       transform: translateY(0) scale(0);
     }
+
     50% {
       opacity: 1;
       transform: translateY(-20px) scale(1);
     }
+
     100% {
       opacity: 0;
       transform: translateY(-40px) scale(0);
@@ -593,10 +647,12 @@
       opacity: 0;
       transform: translateY(0) scale(0);
     }
+
     50% {
       opacity: 1;
       transform: translateY(-15px) scale(1);
     }
+
     100% {
       opacity: 0;
       transform: translateY(-30px) scale(0);
@@ -607,6 +663,7 @@
     from {
       box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
     }
+
     to {
       box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
     }
@@ -692,10 +749,13 @@
   }
 
   @keyframes lightPulse {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.3;
       transform: scaleY(0.8);
     }
+
     50% {
       opacity: 1;
       transform: scaleY(1);
@@ -717,14 +777,17 @@
       opacity: 0;
       transform: translateY(0) scale(0);
     }
+
     25% {
       opacity: 1;
       transform: translateY(-10px) scale(1);
     }
+
     75% {
       opacity: 1;
       transform: translateY(-20px) scale(1);
     }
+
     100% {
       opacity: 0;
       transform: translateY(-30px) scale(0);
@@ -789,11 +852,11 @@
     gap: 1rem;
   }
 
-  .flex-row-container > * {
+  .flex-row-container>* {
     flex: 1;
   }
 
-  .flex-row-container > .flex-fill {
+  .flex-row-container>.flex-fill {
     flex: 2;
   }
 
@@ -807,7 +870,7 @@
     gap: 0.5rem;
   }
 
-  .button-group > * {
+  .button-group>* {
     flex: 1;
   }
 
@@ -823,11 +886,11 @@
     gap: 0.5rem;
   }
 
-  .list-item > * {
+  .list-item>* {
     flex: 1;
   }
 
-  .list-item > .flex-fill {
+  .list-item>.flex-fill {
     flex: 2;
   }
 
@@ -872,8 +935,10 @@
 
   /* Mobile-First Responsive Design */
   @media (max-width: 768px) {
+
     /* Mobile-specific overrides */
-    html, body {
+    html,
+    body {
       height: 100%;
       width: 100%;
       overflow-x: hidden;
@@ -882,13 +947,16 @@
     }
 
     /* Safe area handling */
-    main, .main-content, [role="main"] {
+    main,
+    .main-content,
+    [role="main"] {
       padding-top: env(safe-area-inset-top, 0);
       padding-bottom: env(safe-area-inset-bottom, 0);
       padding-left: env(safe-area-inset-left, 0);
       padding-right: env(safe-area-inset-right, 0);
       min-height: 100vh;
-      min-height: 100dvh; /* Dynamic viewport height */
+      min-height: 100dvh;
+      /* Dynamic viewport height */
     }
 
     /* Touch-friendly sizing */
@@ -898,7 +966,8 @@
     }
 
     .btn-primary {
-      min-height: 44px; /* iOS touch target minimum */
+      min-height: 44px;
+      /* iOS touch target minimum */
       padding: 12px 16px;
     }
 
@@ -915,7 +984,9 @@
     }
 
     /* Prevent zoom on input focus */
-    input, textarea, select {
+    input,
+    textarea,
+    select {
       font-size: 16px;
     }
 
@@ -936,7 +1007,7 @@
       gap: 0.5rem;
     }
 
-    .button-group > * {
+    .button-group>* {
       width: 100%;
     }
   }
@@ -956,7 +1027,8 @@
   }
 
   /* High DPI displays */
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  @media (-webkit-min-device-pixel-ratio: 2),
+  (min-resolution: 192dpi) {
     .card {
       border-width: 0.5px;
     }
@@ -970,4 +1042,4 @@
       transition-duration: 0.01ms !important;
     }
   }
-} 
+}
