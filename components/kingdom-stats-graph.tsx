@@ -431,10 +431,14 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
   };
 
   // Chart rendering
+  if (!mounted) {
+    return <div className="h-[300px] w-full min-h-[250px] bg-white/5 rounded-lg animate-pulse" />;
+  }
+
   return (
     <div className="space-y-2">
       <div className="h-[300px] w-full min-h-[250px] bg-white/5 rounded-lg" aria-label={ariaLabel} tabIndex={0} ref={chartRef}>
-        <ResponsiveContainer width="99%" height="100%" className="min-h-[250px]">
+        <ResponsiveContainer width="99%" height="100%" className="min-h-[250px]" debounce={200}>
           {chartType === 'bar' ? (
             <RechartsBarChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap={"20%"}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
