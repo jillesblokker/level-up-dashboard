@@ -102,9 +102,10 @@ export default function ProfilePage() {
 
     // Sync from Supabase
     getUserPreference("day-night-cycle-enabled").then(val => {
-      if (val !== null) {
-        setDayNightEnabled(!!val);
-        localStorage.setItem("day-night-cycle-enabled", val.toString());
+      if (val !== null && val !== undefined) {
+        const isEnabled = Boolean(val);
+        setDayNightEnabled(isEnabled);
+        localStorage.setItem("day-night-cycle-enabled", String(isEnabled));
       }
     });
 
@@ -116,10 +117,11 @@ export default function ProfilePage() {
       if (isZen) document.body.classList.add('zen-mode');
     }
     getUserPreference("zen-mode").then(val => {
-      if (val !== null) {
-        setZenMode(!!val);
-        localStorage.setItem("zen-mode", val.toString());
-        if (val) document.body.classList.add('zen-mode');
+      if (val !== null && val !== undefined) {
+        const isZen = Boolean(val);
+        setZenMode(isZen);
+        localStorage.setItem("zen-mode", String(isZen));
+        if (isZen) document.body.classList.add('zen-mode');
         else document.body.classList.remove('zen-mode');
       }
     });
@@ -131,10 +133,11 @@ export default function ProfilePage() {
       if (savedAnim === 'low') document.body.classList.add('fx-low');
     }
     getUserPreference("animation-quality").then(val => {
-      if (val !== null) {
-        setAnimationQuality(val as 'high' | 'low');
-        localStorage.setItem("animation-quality", val.toString());
-        if (val === 'low') document.body.classList.add('fx-low');
+      if (typeof val === 'string' && (val === 'high' || val === 'low')) {
+        const quality = val as 'high' | 'low';
+        setAnimationQuality(quality);
+        localStorage.setItem("animation-quality", quality);
+        if (quality === 'low') document.body.classList.add('fx-low');
         else document.body.classList.remove('fx-low');
       }
     });

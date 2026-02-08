@@ -1,167 +1,221 @@
-"use client"
-// Logger utility for the Level Up Dashboard
-// Provides consistent logging across the application with different log levels
+/**
+ * Centralized Logger Utility
+ * 
+ * This module provides a structured logging system with log levels that can be
+ * configured based on environment. In production, DEBUG and INFO logs are suppressed.
+ * 
+ * Usage:
+ *   import { logger } from '@/lib/logger'
+ *   logger.debug('Detailed debugging info', { context: 'example' })
+ *   logger.info('General information')
+ *   logger.warn('Warning message')
+ *   logger.error('Error occurred', error)
+ */
 
-export interface LogEntry {
-  timestamp: Date;
-  level: 'info' | 'warning' | 'error';
-  message: string;
-  source: string;
-  image?: string | undefined;
+type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
+interface LoggerConfig {
+  minLevel: LogLevel
+  enableTimestamps: boolean
+  enableColors: boolean
 }
 
-interface StoredLogEntry {
-  timestamp: string;
-  level: 'info' | 'warning' | 'error';
-  message: string;
-  source: string;
-  image?: string | undefined;
+// Log level hierarchy (lower number = more verbose)
+const LOG_LEVELS: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3
+}
+
+// Console colors for different log levels
+const LOG_COLORS: Record<LogLevel, string> = {
+  debug: '\x1b[36m', // Cyan
+  info: '\x1b[32m',  // Green
+  warn: '\x1b[33m',  // Yellow
+  error: '\x1b[31m'  // Red
+}
+
+const RESET_COLOR = '\x1b[0m'
+
+// Determine if we're in production
+const isProduction = process.env.NODE_ENV === 'production'
+const isServer = typeof window === 'undefined'
+
+// Default configuration based on environment
+const defaultConfig: LoggerConfig = {
+  minLevel: isProduction ? 'warn' : 'debug',
+  enableTimestamps: true,
+  enableColors: isServer // Colors work better in Node.js terminal
 }
 
 class Logger {
-  private logs: LogEntry[] = [];
-  private maxLogs = 1000; // Keep last 1000 logs in memory
+  private config: LoggerConfig
+  private context: string | undefined
 
-  // Log an informational message
-  public info(message: string, source: string = 'Unknown', image?: string): void {
-    this.addLog('info', message, source, image);
+  constructor(config: Partial<LoggerConfig> = {}, context?: string) {
+    this.config = { ...defaultConfig, ...config }
+    this.context = context
   }
 
-  // Log a warning message
-  public warning(message: string, source: string = 'Unknown', image?: string): void {
-    this.addLog('warning', message, source, image);
+  /**
+   * Create a child logger with a specific context
+   */
+  withContext(context: string): Logger {
+    return new Logger(this.config, context)
   }
 
-  // Alias for warning
-  public warn(message: string, source: string = 'Unknown', image?: string): void {
-    this.warning(message, source, image);
+  /**
+   * Check if a log level should be output
+   */
+  private shouldLog(level: LogLevel): boolean {
+    return LOG_LEVELS[level] >= LOG_LEVELS[this.config.minLevel]
   }
 
-  // Log an error message
-  public error(message: string, source: string = 'Unknown', image?: string): void {
-    this.addLog('error', message, source, image);
+  /**
+   * Format the log message
+   */
+  private formatMessage(level: LogLevel, message: string): string {
+    const parts: string[] = []
+
+    if (this.config.enableTimestamps) {
+      const timestamp = new Date().toISOString()
+      parts.push(`[${timestamp}]`)
+    }
+
+    const levelLabel = level.toUpperCase().padEnd(5)
+    if (this.config.enableColors && isServer) {
+      parts.push(`${LOG_COLORS[level]}${levelLabel}${RESET_COLOR}`)
+    } else {
+      parts.push(levelLabel)
+    }
+
+    if (this.context) {
+      parts.push(`[${this.context}]`)
+    }
+
+    parts.push(message)
+
+    return parts.join(' ')
   }
 
-  // Generic log method
-  public log(level: 'info' | 'warning' | 'error', message: string, source: string = 'Unknown', image?: string): void {
+  /**
+   * Internal log method
+   */
+  private log(level: LogLevel, message: string, ...args: unknown[]): void {
+    if (!this.shouldLog(level)) return
+
+    const formattedMessage = this.formatMessage(level, message)
+
     switch (level) {
+      case 'debug':
+        console.debug(formattedMessage, ...args)
+        break
       case 'info':
-        this.info(message, source, image);
-        break;
-      case 'warning':
-        this.warning(message, source, image);
-        break;
+        console.info(formattedMessage, ...args)
+        break
+      case 'warn':
+        console.warn(formattedMessage, ...args)
+        break
       case 'error':
-        this.error(message, source, image);
-        break;
-      default:
-        this.info(message, source, image);
+        console.error(formattedMessage, ...args)
+        break
     }
   }
 
-  // Add log entry to memory
-  private addLog(level: 'info' | 'warning' | 'error', message: string, source: string, image?: string): void {
-    const logEntry: LogEntry = {
-      timestamp: new Date(),
-      level,
-      message,
-      source,
-      ...(image !== undefined ? { image } : {})
-    };
-
-    this.logs.push(logEntry);
-
-    // Keep only the most recent logs
-    if (this.logs.length > this.maxLogs) {
-      this.logs = this.logs.slice(-this.maxLogs);
-    }
-
-    // Also persist to localStorage for the log center
-    this.persistToStorage(logEntry);
+  /**
+   * Log debug message (suppressed in production)
+   */
+  debug(message: string, ...args: unknown[]): void {
+    this.log('debug', message, ...args)
   }
 
-  // Persist logs to localStorage for the log center
-  private persistToStorage(logEntry: LogEntry): void {
-    try {
-      const existingLogs = this.getStoredLogs();
-      existingLogs.push(logEntry);
-
-      // Keep only last 500 logs in localStorage
-      const logsToStore = existingLogs.slice(-500);
-      
-      localStorage.setItem('app-logs', JSON.stringify(logsToStore));
-    } catch (error) {
-      // intentionally empty: localStorage failure is non-fatal
-    }
+  /**
+   * Log info message (suppressed in production)
+   */
+  info(message: string, ...args: unknown[]): void {
+    this.log('info', message, ...args)
   }
 
-  // Get logs from localStorage
-  private getStoredLogs(): LogEntry[] {
-    try {
-      const stored = localStorage.getItem('app-logs');
-      if (stored) {
-        const parsed = JSON.parse(stored) as StoredLogEntry[];
-        return parsed.map((log) => ({
-          ...log,
-          timestamp: new Date(log.timestamp)
-        }));
+  /**
+   * Log warning message
+   */
+  warn(message: string, ...args: unknown[]): void {
+    this.log('warn', message, ...args)
+  }
+
+  /**
+   * Log error message
+   */
+  error(message: string, ...args: unknown[]): void {
+    this.log('error', message, ...args)
+  }
+
+  /**
+   * Log an error with stack trace
+   */
+  errorWithStack(message: string, error: Error | unknown, ...args: unknown[]): void {
+    if (error instanceof Error) {
+      this.log('error', `${message}: ${error.message}`, ...args)
+      if (error.stack && !isProduction) {
+        console.error(error.stack)
       }
-    } catch (error) {
-      // intentionally empty: localStorage failure is non-fatal
+    } else {
+      this.log('error', message, error, ...args)
     }
-    return [];
   }
 
-  // Get all logs (memory + storage)
-  public getAllLogs(): LogEntry[] {
-    const storedLogs = this.getStoredLogs();
-    const allLogs = [...storedLogs, ...this.logs];
-    
-    // Remove duplicates and sort by timestamp
-    const uniqueLogs = allLogs.filter((log, index, self) => 
-      index === self.findIndex(l => 
-        l.timestamp.getTime() === log.timestamp.getTime() && 
-        l.message === log.message && 
-        l.source === log.source
-      )
-    );
-
-    return uniqueLogs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }
-
-  // Get logs by level
-  public getLogsByLevel(level: 'info' | 'warning' | 'error'): LogEntry[] {
-    return this.getAllLogs().filter(log => log.level === level);
-  }
-
-  // Get logs by source
-  public getLogsBySource(source: string): LogEntry[] {
-    return this.getAllLogs().filter(log => log.source === source);
-  }
-
-  // Clear all logs
-  public clear(): void {
-    this.logs = [];
+  /**
+   * Measure and log execution time
+   */
+  time<T>(label: string, fn: () => T): T {
+    const start = performance.now()
     try {
-      localStorage.removeItem('app-logs');
+      const result = fn()
+      const duration = performance.now() - start
+      this.debug(`${label} completed in ${duration.toFixed(2)}ms`)
+      return result
     } catch (error) {
-      // intentionally empty: localStorage failure is non-fatal
+      const duration = performance.now() - start
+      this.error(`${label} failed after ${duration.toFixed(2)}ms`, error)
+      throw error
     }
   }
 
-  // Get recent logs (last N entries)
-  public getRecentLogs(count: number = 50): LogEntry[] {
-    return this.getAllLogs().slice(0, count);
-  }
-
-  // Export logs as JSON
-  public exportLogs(): string {
-    return JSON.stringify(this.getAllLogs(), null, 2);
+  /**
+   * Measure and log async execution time
+   */
+  async timeAsync<T>(label: string, fn: () => Promise<T>): Promise<T> {
+    const start = performance.now()
+    try {
+      const result = await fn()
+      const duration = performance.now() - start
+      this.debug(`${label} completed in ${duration.toFixed(2)}ms`)
+      return result
+    } catch (error) {
+      const duration = performance.now() - start
+      this.error(`${label} failed after ${duration.toFixed(2)}ms`, error)
+      throw error
+    }
   }
 }
 
-// Create singleton logger instance
-const logger = new Logger();
+// Export singleton logger instance
+export const logger = new Logger()
 
-// Export logger instance as default
-export default logger;
+// Default export for backwards compatibility
+export default logger
+
+// Export Logger class for custom instances
+export { Logger }
+
+// Export type for use in other modules
+export type { LogLevel, LoggerConfig }
+
+// Convenience exports for common contexts
+export const apiLogger = logger.withContext('API')
+export const dbLogger = logger.withContext('DB')
+export const authLogger = logger.withContext('Auth')
+export const uiLogger = logger.withContext('UI')
+export const syncLogger = logger.withContext('Sync')
+

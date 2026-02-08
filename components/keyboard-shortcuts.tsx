@@ -62,11 +62,13 @@ export function KeyboardShortcutsProvider({
   onBuyTile,
   onShowHelp
 }: Omit<KeyboardShortcutsProps, 'onNavigate' | 'onAddQuest'>) {
-  const [shortcuts] = useState(() => new KeyboardShortcuts())
   const router = useRouter()
   const { openQuickAdd } = useQuickAdd()
 
   useEffect(() => {
+    // Create shortcuts instance in useEffect to avoid SSR issues
+    const shortcuts = new KeyboardShortcuts()
+
     // Register shortcuts
     shortcuts.register('q', () => router.push('/quests'))
     shortcuts.register('c', () => router.push('/quests?tab=challenges'))
@@ -85,7 +87,7 @@ export function KeyboardShortcutsProvider({
     return () => {
       shortcuts.disable()
     }
-  }, [shortcuts, router, openQuickAdd, onAddChallenge, onAddMilestone, onBuyTile, onShowHelp])
+  }, [router, openQuickAdd, onAddChallenge, onAddMilestone, onBuyTile, onShowHelp])
 
   return null
 }

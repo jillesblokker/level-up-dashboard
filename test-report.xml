@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/lib/inventory-logic.test.ts">
-    <testCase name="Quantity Utils safeDecrement should decrement normally when result is positive" duration="4"/>
-    <testCase name="Quantity Utils safeDecrement should return 0 when decrement exceeds current" duration="0"/>
-    <testCase name="Quantity Utils safeDecrement should handle undefined/null current values" duration="0"/>
-    <testCase name="Quantity Utils safeDecrement should default to decrement of 1" duration="1"/>
-    <testCase name="Quantity Utils safeIncrement should increment normally" duration="5"/>
-    <testCase name="Quantity Utils safeIncrement should default to increment of 1" duration="1"/>
-    <testCase name="Quantity Utils canDecrement should return true when sufficient quantity exists" duration="1"/>
-    <testCase name="Quantity Utils canDecrement should return false when insufficient quantity" duration="0"/>
-    <testCase name="Quantity Utils formatQuantity should format positive numbers correctly" duration="0"/>
-    <testCase name="Quantity Utils formatQuantity should handle zero and negative" duration="1"/>
-    <testCase name="Quantity Utils formatQuantity should handle undefined/null" duration="1"/>
-    <testCase name="Quantity Utils isValidQuantity should validate positive numbers" duration="0"/>
-    <testCase name="Quantity Utils isValidQuantity should reject negative numbers" duration="1"/>
-    <testCase name="Quantity Utils isValidQuantity should reject non-numbers" duration="1"/>
-    <testCase name="Inventory Count Merge Logic should merge by exact ID match" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should merge by case-insensitive ID match" duration="1"/>
-    <testCase name="Inventory Count Merge Logic should merge by name match when IDs differ" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should NOT create separate entries for the same item" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should handle multiple placements correctly" duration="0"/>
+  <file path="/Users/jillesblokker/Downloads/level-up/__tests__/lib/character-stats.test.ts">
+    <testCase name="Character Stats Service getExperienceForLevel should return 0 for level 1" duration="2"/>
+    <testCase name="Character Stats Service getExperienceForLevel should return 100 for level 2" duration="0"/>
+    <testCase name="Character Stats Service getExperienceForLevel should return progressively more XP for higher levels" duration="0"/>
+    <testCase name="Character Stats Service shouldLevelUp should return false when experience is below threshold" duration="0"/>
+    <testCase name="Character Stats Service shouldLevelUp should return true when experience meets threshold" duration="1"/>
+    <testCase name="Character Stats Service shouldLevelUp should return true when experience exceeds threshold" duration="0"/>
+    <testCase name="Character Stats Service calculateLevel should return level 1 for 0 experience" duration="0"/>
+    <testCase name="Character Stats Service calculateLevel should return level 2 for 100 experience" duration="1"/>
+    <testCase name="Character Stats Service calculateLevel should return level 3 for 300 experience" duration="1"/>
+    <testCase name="Character Stats Service calculateLevel should handle experience in between levels" duration="0"/>
+    <testCase name="Character Stats Service applyExperience should add experience without level up" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should trigger level up when threshold reached" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should handle multiple level ups at once" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should increase max health on level up" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should heal to full on level up" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should not heal if no level up" duration="0"/>
+    <testCase name="Character Stats Service applyGold should add gold correctly" duration="0"/>
+    <testCase name="Character Stats Service applyGold should subtract gold correctly" duration="1"/>
+    <testCase name="Character Stats Service applyGold should prevent negative gold" duration="1"/>
+    <testCase name="Character Stats Service applyGold should allow spending all gold" duration="0"/>
+    <testCase name="Quest Reward Calculations should apply easy difficulty multiplier" duration="0"/>
+    <testCase name="Quest Reward Calculations should apply hard difficulty multiplier" duration="1"/>
+    <testCase name="Quest Reward Calculations should apply streak bonus" duration="1"/>
+    <testCase name="Quest Reward Calculations should combine difficulty and streak multipliers" duration="0"/>
   </file>
 </testExecutions>

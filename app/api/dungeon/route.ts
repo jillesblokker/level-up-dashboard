@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { apiLogger } from '@/lib/logger';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
-interface DungeonState {
-    hp: number;
-    maxHp: number;
-    room: number;
-    status: string;
-    encounter: any;
-    loot: any[];
+interface Encounter {
+    type: 'monster' | 'treasure';
+    name: string;
+    hp?: number;
+    maxHp?: number;
+}
+
+interface Loot {
+    type: string;
+    amount: number;
+    name: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -17,10 +23,14 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { action, runId, choice } = body;
 
+        apiLogger.debug(`Dungeon API Request: action=${action}, runId=${runId}, choice=${choice}`);
+
         const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
 
             // --- ACTION: START NEW RUN ---
             if (action === 'start') {
+                apiLogger.info(`Starting new dungeon run for user ${userId}`);
+
                 // 1. Check Gold (Entry Fee 50G)
                 const { data: stats } = await supabase
                     .from('character_stats')
@@ -29,6 +39,7 @@ export async function POST(req: NextRequest) {
                     .single();
 
                 if (!stats || stats.gold < 50) {
+                    apiLogger.warn(`Insufficient gold for dungeon run: ${stats?.gold || 0}`);
                     throw new Error('Insufficient Gold (50G required)');
                 }
 
@@ -52,7 +63,12 @@ export async function POST(req: NextRequest) {
                     .select()
                     .single();
 
-                if (error) throw error;
+                if (error) {
+                    apiLogger.error('Error creating dungeon run:', error);
+                    throw error;
+                }
+
+                apiLogger.info(`Dungeon run created: ${newRun.id}`);
                 return newRun;
             }
 
@@ -68,6 +84,7 @@ export async function POST(req: NextRequest) {
                     .single();
 
                 if (!run || run.status !== 'in_progress') {
+                    apiLogger.warn(`Attempted to play inactive run: ${runId}`);
                     throw new Error('Run not active');
                 }
 
@@ -75,7 +92,7 @@ export async function POST(req: NextRequest) {
                 const encounter = run.current_encounter;
                 let resultMessage = '';
                 let damageTaken = 0;
-                let lootFound: any = null;
+                let lootFound: Loot | null = null;
                 let isRoomCleared = false;
 
                 if (encounter.type === 'monster') {
@@ -115,7 +132,7 @@ export async function POST(req: NextRequest) {
                 let newStatus = run.status;
                 let newRoom = run.current_room;
                 let newEncounter = encounter;
-                let newLoot = run.loot_collected || [];
+                const newLoot = run.loot_collected || [];
 
                 if (lootFound) newLoot.push(lootFound);
 
@@ -148,10 +165,14 @@ export async function POST(req: NextRequest) {
                     .select()
                     .single();
 
-                if (error) throw error;
+                if (error) {
+                    apiLogger.error('Error updating dungeon run:', error);
+                    throw error;
+                }
 
                 if (newStatus !== 'in_progress') {
                     await processEndRun(supabase, userId, newLoot);
+                    apiLogger.info(`Dungeon run ${runId} finished with status: ${newStatus}`);
                 }
 
                 return { ...updatedRun, message: resultMessage, actionResult: { damageTaken, lootFound } };
@@ -167,13 +188,15 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json(result.data);
 
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
+        apiLogger.error('Dungeon API Error:', errorMessage);
+        return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 }
 
 // Helpers
-function generateEncounter(roomLevel: number) {
+function generateEncounter(roomLevel: number): Encounter {
     const type = Math.random() > 0.3 ? 'monster' : 'treasure';
     if (type === 'treasure') {
         return { type: 'treasure', name: 'Old Chest' };
@@ -186,14 +209,15 @@ function generateEncounter(roomLevel: number) {
     };
 }
 
-function generateLoot(roomLevel: number) {
+function generateLoot(roomLevel: number): Loot {
     const gold = Math.floor(Math.random() * 50) + (roomLevel * 10);
     return { type: 'gold', amount: gold, name: `${gold} Gold Coins` };
 }
 
-async function processEndRun(supabase: any, userId: string, loot: any[]) {
+async function processEndRun(supabase: SupabaseClient, userId: string, loot: Loot[]) {
     const totalGold = loot.reduce((acc, item) => acc + (item.type === 'gold' ? item.amount : 0), 0);
     if (totalGold > 0) {
+        apiLogger.info(`Awarding ${totalGold} gold for dungeon run completion`);
         await supabase.rpc('add_gold', { p_user_id: userId, p_amount: totalGold });
     }
 }

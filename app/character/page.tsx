@@ -157,11 +157,17 @@ export default function CharacterPage() {
         // Try Supabase user preference
         try {
           const { getUserPreference } = await import('@/lib/user-preferences-manager')
-          const uid = (window as any).__clerk?.user?.id
+          const clerk = (window as any).__clerk
+          const uid = clerk?.user?.id
+
           if (uid) {
             const pref = await getUserPreference('character-perks')
             if (pref) {
-              setPerks(JSON.parse(pref))
+              if (typeof pref === 'string') {
+                setPerks(JSON.parse(pref))
+              } else if (Array.isArray(pref)) {
+                setPerks(pref as Perk[])
+              }
               return
             }
           }
@@ -263,7 +269,7 @@ export default function CharacterPage() {
     if (!userId) return;
 
     // Disable polling to prevent infinite loops and page reloads
-    console.log('[Character Page] Polling disabled to prevent infinite loops');
+    // console.log('[Character Page] Polling disabled to prevent infinite loops');
 
     // Only load data once on mount
     // Data will be updated via event listeners instead

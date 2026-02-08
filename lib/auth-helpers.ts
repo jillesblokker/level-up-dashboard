@@ -1,7 +1,24 @@
-// Shared authentication helpers for API calls
-// This prevents infinite loops when 401 errors occur
+/**
+ * Shared authentication helpers for API calls
+ * This prevents infinite loops when 401 errors occur
+ */
 
-import { useAuth } from '@clerk/nextjs';
+import { authLogger } from './logger';
+
+// Type for clerk instance from window
+interface ClerkInstance {
+  user: { id: string } | null;
+  session: {
+    getToken(): Promise<string | null>;
+  } | null;
+}
+
+// Type for window with clerk
+interface WindowWithClerk extends Window {
+  __clerk?: ClerkInstance;
+  Clerk?: ClerkInstance;
+  clerk?: ClerkInstance;
+}
 
 // Circuit breaker to prevent infinite auth error loops
 const authErrorTimestamps: Map<string, number> = new Map();
@@ -28,38 +45,28 @@ export function isAuthError(response: Response): boolean {
   return response.status === 401 || response.status === 403;
 }
 
-// FIXED: Proper Clerk token retrieval using the official Clerk hooks
+/**
+ * Get Clerk authentication token
+ * Uses retry logic to wait for Clerk to be available
+ */
 export async function getClerkToken(): Promise<string> {
   if (typeof window === 'undefined') {
-    console.warn('[Clerk Token] Not in browser environment');
+    authLogger.warn('Not in browser environment');
     return '';
   }
 
   // Wait for Clerk to be available with retry logic
   let attempts = 0;
   const maxAttempts = 10;
+  const typedWindow = window as WindowWithClerk;
 
   while (attempts < maxAttempts) {
     try {
       // Try multiple possible Clerk properties on window
-      const clerkInstance = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
+      const clerkInstance = typedWindow.__clerk || typedWindow.Clerk || typedWindow.clerk;
 
       if (!clerkInstance) {
-        console.log(`[Clerk Token] Clerk instance not found on window, attempt ${attempts + 1}/${maxAttempts}`);
-        console.log('[Clerk Token] Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('clerk')));
-
-        // Try alternative approach: check if we're in a Clerk context
-        if (attempts === 0) {
-          console.log('[Clerk Token] Trying to check if Clerk context is available...');
-          // This will help debug what's available
-          const availableProps = Object.keys(window).filter(key =>
-            key.toLowerCase().includes('clerk') ||
-            key.toLowerCase().includes('auth') ||
-            key.toLowerCase().includes('user')
-          );
-          console.log('[Clerk Token] Potentially relevant window properties:', availableProps);
-        }
-
+        authLogger.debug(`Clerk instance not found, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -67,7 +74,7 @@ export async function getClerkToken(): Promise<string> {
 
       // Check if user is signed in
       if (!clerkInstance.user) {
-        console.log(`[Clerk Token] No user signed in, attempt ${attempts + 1}/${maxAttempts}`);
+        authLogger.debug(`No user signed in, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -76,7 +83,7 @@ export async function getClerkToken(): Promise<string> {
       // Get the current session
       const session = clerkInstance.session;
       if (!session) {
-        console.log(`[Clerk Token] No active session, attempt ${attempts + 1}/${maxAttempts}`);
+        authLogger.debug(`No active session, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -86,27 +93,28 @@ export async function getClerkToken(): Promise<string> {
       const token = await session.getToken();
 
       if (!token) {
-        console.log(`[Clerk Token] Failed to get token from session, attempt ${attempts + 1}/${maxAttempts}`);
+        authLogger.debug(`Failed to get token from session, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
       }
 
       // Successfully retrieved token
-      // console.log('[Clerk Token] Successfully retrieved token');
       return token;
     } catch (error) {
-      // console.error(`[Clerk Token] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      authLogger.debug(`Error getting Clerk token (attempt ${attempts + 1}):`, error);
       await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
   }
 
-  console.error('[Clerk Token] Failed to get Clerk token after all attempts');
+  authLogger.error('Failed to get Clerk token after all attempts');
   return '';
 }
 
-// Shared fetch wrapper with authentication and circuit breaker
+/**
+ * Shared fetch wrapper with authentication and circuit breaker
+ */
 export async function authenticatedFetch(
   endpoint: string,
   options: RequestInit = {},
@@ -115,18 +123,16 @@ export async function authenticatedFetch(
   // Check circuit breaker
   const circuitKey = `${endpoint}_${options.method || 'GET'}`;
   if (hasRecentAuthError(circuitKey)) {
-    console.warn(`[${contextName}] Skipping request to ${endpoint} due to recent auth error (circuit breaker active)`);
+    authLogger.warn(`Skipping request to ${endpoint} due to circuit breaker`);
     return null;
   }
 
   // Get authentication token
   const token = await getClerkToken();
   if (!token) {
-    console.warn(`[${contextName}] No authentication token available, skipping request to ${endpoint}`);
+    authLogger.warn(`No authentication token available for ${endpoint}`);
     return null;
   }
-
-  // Making authenticated request
 
   // Make authenticated request
   const response = await fetch(endpoint, {
@@ -138,11 +144,9 @@ export async function authenticatedFetch(
     },
   });
 
-  // Response received
-
   // Check for auth error and mark circuit breaker
   if (isAuthError(response)) {
-    console.error(`[${contextName}] Authentication failed for ${endpoint} (${response.status}), marking endpoint for circuit breaker`);
+    authLogger.error(`Authentication failed for ${endpoint} (${response.status})`);
     markAuthError(circuitKey);
     return null;
   }
@@ -151,4 +155,4 @@ export async function authenticatedFetch(
   authErrorTimestamps.delete(circuitKey);
 
   return response;
-} 
+}

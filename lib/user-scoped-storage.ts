@@ -5,10 +5,20 @@
  * preventing data conflicts when multiple users use the same browser.
  */
 
-import { auth } from '@clerk/nextjs/server';
+import { logger } from './logger';
 
 // Client-side user ID cache
 let cachedUserId: string | null = null;
+
+// Type for window with clerk
+interface WindowWithClerk extends Window {
+    __clerk_loaded?: boolean;
+    Clerk?: {
+        user?: {
+            id: string;
+        };
+    };
+}
 
 /**
  * Gets the current user ID (client-side only)
@@ -21,16 +31,16 @@ export function getCurrentUserId(): string | null {
 
     // Try to get from Clerk's client-side state
     try {
+        const win = window as WindowWithClerk;
         // Check if Clerk is loaded
-        const clerkLoaded = (window as any).__clerk_loaded;
-        if (clerkLoaded) {
-            const userId = (window as any).Clerk?.user?.id;
+        if (win.__clerk_loaded) {
+            const userId = win.Clerk?.user?.id;
             if (userId) {
                 cachedUserId = userId;
                 return userId;
             }
         }
-    } catch (e) {
+    } catch {
         // Clerk not available yet
     }
 
@@ -42,7 +52,7 @@ export function getCurrentUserId(): string | null {
             return storedUserId;
         }
     } catch (e) {
-        console.warn('[User-Scoped Storage] Failed to get stored user ID:', e);
+        logger.warn('[User-Scoped Storage] Failed to get stored user ID:', e);
     }
 
     return null;
@@ -60,13 +70,13 @@ export function setCurrentUserId(userId: string | null): void {
         try {
             localStorage.setItem('__current_user_id', userId);
         } catch (e) {
-            console.warn('[User-Scoped Storage] Failed to store user ID:', e);
+            logger.warn('[User-Scoped Storage] Failed to store user ID:', e);
         }
     } else {
         try {
             localStorage.removeItem('__current_user_id');
         } catch (e) {
-            console.warn('[User-Scoped Storage] Failed to remove user ID:', e);
+            logger.warn('[User-Scoped Storage] Failed to remove user ID:', e);
         }
     }
 }
@@ -100,13 +110,9 @@ export function getUserScopedItem(baseKey: string): string | null {
             return scopedValue;
         }
 
-        // REMOVED: Lazy migration fallback. 
-        // We now rely solely on UserStorageInitializer to handle migration.
-        // This prevents data leaking from one user to another via global keys.
-
         return null;
     } catch (e) {
-        console.warn(`[User-Scoped Storage] Failed to get ${baseKey}:`, e);
+        logger.warn(`[User-Scoped Storage] Failed to get ${baseKey}:`, e);
         return null;
     }
 }
@@ -122,7 +128,7 @@ export function setUserScopedItem(baseKey: string, value: string): void {
     try {
         localStorage.setItem(scopedKey, value);
     } catch (e) {
-        console.warn(`[User-Scoped Storage] Failed to set ${baseKey}:`, e);
+        logger.warn(`[User-Scoped Storage] Failed to set ${baseKey}:`, e);
     }
 }
 
@@ -137,7 +143,7 @@ export function removeUserScopedItem(baseKey: string): void {
     try {
         localStorage.removeItem(scopedKey);
     } catch (e) {
-        console.warn(`[User-Scoped Storage] Failed to remove ${baseKey}:`, e);
+        logger.warn(`[User-Scoped Storage] Failed to remove ${baseKey}:`, e);
     }
 }
 
@@ -165,9 +171,9 @@ export function clearUserScopedData(): void {
         // Remove them
         keysToRemove.forEach(key => localStorage.removeItem(key));
 
-        console.log(`[User-Scoped Storage] Cleared ${keysToRemove.length} items for user ${userId}`);
+        logger.debug(`[User-Scoped Storage] Cleared ${keysToRemove.length} items for user ${userId}`);
     } catch (e) {
-        console.warn('[User-Scoped Storage] Failed to clear user data:', e);
+        logger.warn('[User-Scoped Storage] Failed to clear user data:', e);
     }
 }
 
@@ -180,7 +186,7 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
 
     const userId = getCurrentUserId();
     if (!userId) {
-        console.log('[User-Scoped Storage] No user ID, skipping migration');
+        logger.debug('[User-Scoped Storage] No user ID, skipping migration');
         return;
     }
 
@@ -191,7 +197,7 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
         return;
     }
 
-    console.log('[User-Scoped Storage] Starting legacy data migration...');
+    logger.debug('[User-Scoped Storage] Starting legacy data migration...');
 
     let migratedCount = 0;
 
@@ -205,7 +211,7 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
                 if (!localStorage.getItem(scopedKey)) {
                     localStorage.setItem(scopedKey, legacyValue);
                     migratedCount++;
-                    console.log(`[User-Scoped Storage] Migrated: ${baseKey} → ${scopedKey}`);
+                    logger.debug(`[User-Scoped Storage] Migrated: ${baseKey} → ${scopedKey}`);
 
                     // IMPORTANT: Remove the legacy key to prevent it from leaking to other users
                     // This ensures "Clean Slate" for subsequent users
@@ -213,14 +219,14 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
                 }
             }
         } catch (e) {
-            console.warn(`[User-Scoped Storage] Failed to migrate ${baseKey}:`, e);
+            logger.warn(`[User-Scoped Storage] Failed to migrate ${baseKey}:`, e);
         }
     });
 
     // Mark migration as complete
     localStorage.setItem(migrationKey, 'true');
 
-    console.log(`[User-Scoped Storage] Migration complete. Migrated ${migratedCount} items.`);
+    logger.debug(`[User-Scoped Storage] Migration complete. Migrated ${migratedCount} items.`);
 }
 
 /**
@@ -229,7 +235,7 @@ export function migrateLegacyData(keysToMigrate: string[]): void {
 export function cleanupLegacyData(keysToClean: string[]): void {
     if (typeof window === 'undefined') return;
 
-    console.log('[User-Scoped Storage] Cleaning up legacy global keys...');
+    logger.debug('[User-Scoped Storage] Cleaning up legacy global keys...');
     let cleanedCount = 0;
 
     keysToClean.forEach(key => {
@@ -239,5 +245,5 @@ export function cleanupLegacyData(keysToClean: string[]): void {
         }
     });
 
-    console.log(`[User-Scoped Storage] Cleanup complete. Removed ${cleanedCount} legacy items.`);
+    logger.debug(`[User-Scoped Storage] Cleanup complete. Removed ${cleanedCount} legacy items.`);
 }

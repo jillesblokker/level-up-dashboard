@@ -24,7 +24,7 @@ class SupabaseMonitor {
   private readonly MAX_METRICS = 1000;
   private readonly MAX_EVENTS = 1000;
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): SupabaseMonitor {
     if (!SupabaseMonitor.instance) {
@@ -47,7 +47,7 @@ class SupabaseMonitor {
 
     // Alert on slow operations
     if (metric.duration > 1000) {
-      logger.warning(
+      logger.warn(
         `Slow operation detected: ${metric.operation} on ${metric.table} took ${metric.duration}ms`,
         'Performance'
       );
@@ -106,7 +106,7 @@ export async function measureOperation<T>(
   try {
     const result = await fn();
     const duration = performance.now() - start;
-    
+
     supabaseMonitor.trackOperation({
       operation,
       table,
@@ -118,7 +118,7 @@ export async function measureOperation<T>(
     return result;
   } catch (error) {
     const duration = performance.now() - start;
-    
+
     supabaseMonitor.trackOperation({
       operation,
       table,

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from './server-client';
+import { apiLogger } from '@/lib/logger';
 
 /**
  * JWT Verification following the authentication flow:
@@ -26,7 +27,7 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
     const { userId } = await auth();
 
     if (userId) {
-      console.log('[JWT Verification] Success via Clerk auth(), userId:', userId);
+      apiLogger.debug(`[JWT Verification] Success via Clerk auth(), userId: ${userId}`);
       return { success: true, userId };
     }
 
@@ -34,15 +35,15 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
     // but relying on auth() is the primary source of truth
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
-      console.log('[JWT Verification] No Authorization header found');
+      apiLogger.debug('[JWT Verification] No Authorization header found');
     } else {
-      console.log('[JWT Verification] Authorization header present but auth() returned null');
+      apiLogger.debug('[JWT Verification] Authorization header present but auth() returned null');
     }
 
-    console.log('[JWT Verification] Authentication failed');
+    apiLogger.warn('[JWT Verification] Authentication failed');
     return { success: false, error: 'Authentication failed: No valid session.' };
   } catch (error) {
-    console.error('[JWT Verification] Clerk auth() failed:', error);
+    apiLogger.error('[JWT Verification] Clerk auth() failed:', error);
     return { success: false, error: 'Internal authentication error' };
   }
 }
@@ -67,10 +68,8 @@ export async function querySupabaseWithServiceKey<T>(
       // SECURITY UPGRADE ENABLED
       // Row Level Security (RLS) policies now enforce access control via this context
       await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-
-      // console.log('[Supabase Query] Skipping set user context for debugging, userId:', userId);
     } catch (contextError) {
-      console.warn('[Supabase Query] Failed to set user context (continuing anyway):', contextError);
+      apiLogger.warn('[Supabase Query] Failed to set user context (continuing anyway):', contextError);
     }
 
     // Execute query with service key privileges and RLS enforcement
@@ -78,7 +77,7 @@ export async function querySupabaseWithServiceKey<T>(
 
     return { success: true, data };
   } catch (error) {
-    console.error('[Supabase Query] Error:', error);
+    apiLogger.error('[Supabase Query] Error:', error);
     return {
       success: false,
       error: error && typeof error === 'object' && 'message' in error
@@ -97,14 +96,14 @@ export async function authenticatedSupabaseQuery<T>(
   request: Request,
   queryFn: (supabase: typeof supabaseServer, userId: string) => Promise<T>
 ): Promise<{ success: boolean; data?: T; error?: string; userId?: string }> {
-  console.log('[AuthenticatedSupabaseQuery] Starting authentication for:', request.url);
+  apiLogger.debug(`[AuthenticatedSupabaseQuery] Starting authentication for: ${request.url}`);
 
   // Step 1: Verify Clerk JWT
   const authResult = await verifyClerkJWT(request);
-  console.log('[AuthenticatedSupabaseQuery] Auth result:', authResult);
+  apiLogger.debug(`[AuthenticatedSupabaseQuery] Auth result: ${JSON.stringify(authResult)}`);
 
   if (!authResult.success || !authResult.userId) {
-    console.log('[AuthenticatedSupabaseQuery] Authentication failed:', authResult.error);
+    apiLogger.warn(`[AuthenticatedSupabaseQuery] Authentication failed: ${authResult.error}`);
     return {
       success: false,
       error: authResult.error || 'Authentication failed'
@@ -112,9 +111,9 @@ export async function authenticatedSupabaseQuery<T>(
   }
 
   // Step 2: Query Supabase with service key
-  console.log('[AuthenticatedSupabaseQuery] Proceeding to Supabase query with userId:', authResult.userId);
+  apiLogger.debug(`[AuthenticatedSupabaseQuery] Proceeding to Supabase query with userId: ${authResult.userId}`);
   const queryResult = await querySupabaseWithServiceKey(authResult.userId, queryFn);
-  console.log('[AuthenticatedSupabaseQuery] Query result:', queryResult);
+  apiLogger.debug(`[AuthenticatedSupabaseQuery] Query result success: ${queryResult.success}`);
 
   return {
     success: queryResult.success,
@@ -153,7 +152,7 @@ export async function authenticatedFriendQuery<T>(
   targetUserId: string,
   queryFn: (supabase: typeof supabaseServer, targetId: string) => Promise<T>
 ): Promise<{ success: boolean; data?: T; error?: string; userId?: string }> {
-  console.log(`[AuthenticatedFriendQuery] Requesting data for ${targetUserId} by ${request.url}`);
+  apiLogger.debug(`[AuthenticatedFriendQuery] Requesting data for ${targetUserId} by ${request.url}`);
 
   // Step 1: Verify requester's JWT
   const authResult = await verifyClerkJWT(request);
@@ -177,7 +176,7 @@ export async function authenticatedFriendQuery<T>(
       .single();
 
     if (error || !friendship || friendship.status !== 'accepted') {
-      console.log(`[AuthenticatedFriendQuery] Forbidden: Users ${currentUserId} and ${targetUserId} are not allies.`);
+      apiLogger.warn(`[AuthenticatedFriendQuery] Forbidden: Users ${currentUserId} and ${targetUserId} are not allies.`);
       return { success: false, error: 'Forbidden: You are not allies with this player.' };
     }
 
@@ -185,7 +184,7 @@ export async function authenticatedFriendQuery<T>(
     const queryResult = await querySupabaseWithServiceKey(targetUserId, queryFn);
     return { ...queryResult, userId: currentUserId };
   } catch (err) {
-    console.error('[AuthenticatedFriendQuery] Friendship check failed:', err);
+    apiLogger.error('[AuthenticatedFriendQuery] Friendship check failed:', err);
     return { success: false, error: 'Internal server error during friendship verification' };
   }
 }

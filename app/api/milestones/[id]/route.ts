@@ -1,15 +1,21 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import logger from '@/lib/logger';
+import { apiLogger } from '@/lib/logger';
 
-export async function PATCH(request: NextRequest, context: any) {
+// Using any for context to avoid Next.js type conflicts across versions
+// In Next.js 15, params is a Promise. In 14, it's an object.
+export async function PATCH(
+  request: NextRequest,
+  context: any
+) {
   try {
-    const id = context.params?.id;
+    const params = context.params;
+    const id = params?.id;
     const body = await request.json();
 
     // Use authenticated Supabase query with proper Clerk JWT verification
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const result = await authenticatedSupabaseQuery(request, async (supabase) => {
       const { error } = await supabase
         .from('milestones')
         .update(body)
@@ -25,18 +31,23 @@ export async function PATCH(request: NextRequest, context: any) {
     }
 
     return NextResponse.json(result.data);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Internal server error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: any
+) {
   try {
-    const id = context.params?.id;
+    const params = context.params;
+    const id = params?.id;
 
-    logger.info(`Attempting to delete milestone: ${id}`, 'Milestones DELETE');
+    apiLogger.debug(`Attempting to delete milestone: ${id}`);
 
-    // TEMPORARY: Use service role directly to bypass RLS for testing
+    // Use service role directly to bypass RLS
     const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
     const supabaseServiceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
@@ -47,39 +58,34 @@ export async function DELETE(request: NextRequest, context: any) {
     const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    logger.info('Using service role to delete milestone', 'Milestones DELETE');
-
     // First, delete related milestone_completion records
-    logger.info('Deleting related milestone_completion records...', 'Milestones DELETE');
     const { error: completionDeleteError } = await supabase
       .from('milestone_completion')
       .delete()
       .eq('milestone_id', id);
 
     if (completionDeleteError) {
-      logger.error(`Error deleting milestone_completion records: ${completionDeleteError.message || JSON.stringify(completionDeleteError)}`, 'Milestones DELETE');
+      apiLogger.error('Error deleting milestone_completion records:', completionDeleteError.message);
       throw completionDeleteError;
     }
 
-    logger.info('Successfully deleted milestone_completion records', 'Milestones DELETE');
-
     // Then, delete the milestone
-    logger.info('Deleting milestone...', 'Milestones DELETE');
     const { error } = await supabase
       .from('milestones')
       .delete()
       .eq('id', id);
 
     if (error) {
-      logger.error(`Service role delete error: ${error.message || JSON.stringify(error)}`, 'Milestones DELETE');
+      apiLogger.error('Service role delete error:', error.message);
       throw error;
     }
 
-    logger.info('Successfully deleted milestone with service role', 'Milestones DELETE');
+    apiLogger.debug('Successfully deleted milestone');
     return NextResponse.json({ success: true });
 
-  } catch (err: any) {
-    logger.error(`Error: ${err.message || err}`, 'Milestones DELETE');
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Internal server error';
+    apiLogger.error('Milestone delete error:', errorMessage);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
-} 
+}

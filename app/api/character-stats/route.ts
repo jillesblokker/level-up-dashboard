@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import { apiLogger } from '@/lib/logger';
 
 // GET: Return character stats for the user
 export async function GET() {
@@ -17,7 +18,7 @@ export async function GET() {
       .single();
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('[Character Stats] Fetch error:', error);
+      apiLogger.error('Character stats fetch error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -39,7 +40,7 @@ export async function GET() {
       }
     } catch (streakErr) {
       // Streaks table might not exist - ignore the error
-      console.warn('[Character Stats] Streak fetch failed (might be missing table):', streakErr);
+      apiLogger.warn('Streak fetch failed (might be missing table):', streakErr);
     }
 
     // Return the individual columns as stats object
@@ -75,7 +76,7 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('[Character Stats] Unexpected GET error:', error);
+    apiLogger.error('Unexpected GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -89,11 +90,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    console.log('[Character Stats] Received update for user:', userId);
+    apiLogger.debug('Received stats update for user:', userId);
 
     const { stats } = body;
     if (!stats || typeof stats !== 'object') {
-      console.warn('[Character Stats] Invalid stats data:', stats);
+      apiLogger.warn('Invalid stats data received');
       return NextResponse.json({ error: 'Invalid stats data' }, { status: 400 });
     }
 
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
 
     // Extract individual fields from stats object - match your actual table schema
     // We use a partial object to avoid sending undefined values for columns that might not exist
-    const statsData: any = {
+    const statsData: Record<string, unknown> = {
       user_id: userId,
       gold: stats.gold || 0,
       experience: stats.experience || 0,
@@ -125,7 +126,7 @@ export async function POST(request: Request) {
     // because we found it might be missing in the schema. 
     // It is saved in stats_data instead.
 
-    console.log('[Character Stats] Saving stats...');
+    apiLogger.debug('Saving stats...');
 
     try {
       // Fetch existing stats to prevent regression
@@ -137,15 +138,14 @@ export async function POST(request: Request) {
 
       // Handle fetch errors (but not "no rows" which is expected for new users)
       if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('[Character Stats] Error fetching existing stats:', fetchError);
+        apiLogger.error('Error fetching existing stats:', fetchError);
         // Continue anyway, treat as new user
       }
 
-      console.log('[Character Stats] Existing data:', {
+      apiLogger.debug('Existing data check:', {
         hasData: !!existingData,
         level: existingData?.level,
-        experience: existingData?.experience,
-        statsDataType: typeof existingData?.stats_data
+        experience: existingData?.experience
       });
 
       const existingJson = existingData?.stats_data || {};
@@ -155,16 +155,8 @@ export async function POST(request: Request) {
       const existingXP = existingData?.experience ?? existingJson.experience ?? 0;
       const existingExpansions = existingData?.kingdom_expansions ?? existingJson.kingdom_expansions ?? 0;
 
-      console.log('[Character Stats] Extracted existing values:', {
-        existingLevel,
-        existingXP,
-        existingExpansions,
-        incomingLevel: stats.level,
-        incomingXP: stats.experience
-      });
-
       // Helper to ensure value is a valid number
-      const ensureNumber = (val: any, fallback: number = 0) => {
+      const ensureNumber = (val: unknown, fallback: number = 0) => {
         const num = Number(val);
         return isNaN(num) ? fallback : num;
       };
@@ -197,7 +189,7 @@ export async function POST(request: Request) {
         }
       };
 
-      console.log('[Character Stats] Saving stats (merged):', {
+      apiLogger.debug('Saving merged stats:', {
         newLevel: mergedStats['level'],
         oldLevel: existingLevel,
         newXP: mergedStats['experience'],
@@ -212,21 +204,21 @@ export async function POST(request: Request) {
         });
 
       if (error) {
-        console.error('[Character Stats] Supabase upsert error:', error);
+        apiLogger.error('Supabase upsert error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
     } catch (mergeError) {
-      console.error('[Character Stats] Error in merge logic:', mergeError);
+      apiLogger.error('Error in merge logic:', mergeError);
       return NextResponse.json({
         error: 'Error processing stats merge',
         details: mergeError instanceof Error ? mergeError.message : String(mergeError)
       }, { status: 500 });
     }
 
-    console.log('[Character Stats] Saved successfully');
+    apiLogger.debug('Saved successfully');
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Character Stats] Unexpected POST error:', error);
+    apiLogger.error('Unexpected POST error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

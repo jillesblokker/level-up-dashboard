@@ -70,11 +70,12 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         // 2. Sync from Supabase if user is logged in
         if (isUserLoaded && user) {
             getUserPreference('onboarding-state').then(dbState => {
-                if (dbState) {
-                    setOnboardingState(dbState)
+                if (dbState && typeof dbState === 'object') {
+                    const typedState = dbState as OnboardingState
+                    setOnboardingState(typedState)
                     // Update local storage to match DB
-                    setUserScopedItem('onboarding-state', JSON.stringify(dbState))
-                    smartLogger.info('useOnboarding', 'SYNC_FROM_DB_COMPLETE', { dbState })
+                    setUserScopedItem('onboarding-state', JSON.stringify(typedState))
+                    smartLogger.info('useOnboarding', 'SYNC_FROM_DB_COMPLETE', { dbState: typedState })
                 }
             })
         }

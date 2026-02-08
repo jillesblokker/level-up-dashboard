@@ -1,31 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
-import logger from '@/lib/logger';
+import { apiLogger } from '@/lib/logger';
+
+interface MonsterSpawn {
+  user_id: string;
+  x: number;
+  y: number;
+  monster_type: string;
+  spawned_at: string;
+}
+
+interface UpdateMonsterBody {
+  id: string;
+  defeated?: boolean;
+  reward_claimed?: boolean;
+  [key: string]: unknown;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    logger.info('Monster spawn API called', 'Monster Spawn');
-
-    const { userId } = getAuth(request as NextRequest);
-    logger.info(`User ID: ${userId}`, 'Monster Spawn');
+    const { userId } = getAuth(request);
 
     if (!userId) {
-      logger.warn('No user ID found', 'Monster Spawn');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
-    logger.info(`Request body: ${JSON.stringify(body)}`, 'Monster Spawn');
-
     const { x, y, monsterType } = body;
 
     if (typeof x !== 'number' || typeof y !== 'number' || typeof monsterType !== 'string') {
-      logger.error(`Invalid data types: ${JSON.stringify({ x: typeof x, y: typeof y, monsterType: typeof monsterType })}`, 'Monster Spawn');
+      apiLogger.warn(`Invalid data types for monster spawn: x=${typeof x}, y=${typeof y}, type=${typeof monsterType}`);
       return NextResponse.json({ error: 'Invalid data types' }, { status: 400 });
     }
 
-    const spawnData = {
+    const spawnData: MonsterSpawn = {
       user_id: userId,
       x: x,
       y: y,
@@ -33,15 +42,17 @@ export async function POST(request: NextRequest) {
       spawned_at: new Date().toISOString()
     };
 
-    logger.info(`Attempting to insert spawn data: ${JSON.stringify(spawnData)}`, 'Monster Spawn');
+    apiLogger.debug(`Attempting to insert spawn data for user ${userId}`);
 
     // Save monster spawn to Supabase
     const { data, error } = await supabaseServer
       .from('monster_spawns')
-      .insert(spawnData);
+      .insert(spawnData)
+      .select()
+      .single();
 
     if (error) {
-      logger.error(`Error saving monster spawn: ${error instanceof Error ? error.message : error}`, 'Monster Spawn');
+      apiLogger.error('Error saving monster spawn:', error);
       return NextResponse.json({
         error: 'Failed to save monster spawn',
         details: error.message,
@@ -49,34 +60,38 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    logger.info(`Monster spawn saved successfully: ${JSON.stringify(data)}`, 'Monster Spawn');
+    apiLogger.info(`Monster spawn saved successfully: ${data.id}`);
     return NextResponse.json({ success: true, data });
+
   } catch (error) {
-    logger.error(`Unexpected error in monster spawn API: ${error instanceof Error ? error.message : error}`, 'Monster Spawn');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    apiLogger.error('Unexpected error in monster spawn API:', errorMessage);
     return NextResponse.json({
       error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: errorMessage
     }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = getAuth(request as NextRequest);
+    const { userId } = getAuth(request);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await request.json() as UpdateMonsterBody;
     const { id, defeated, reward_claimed } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Missing monster ID' }, { status: 400 });
     }
 
-    const updates: any = {};
-    if (defeated !== undefined) updates.defeated = defeated;
-    if (reward_claimed !== undefined) updates.reward_claimed = reward_claimed;
+    const updates: Record<string, boolean> = {};
+    if (defeated !== undefined) updates['defeated'] = defeated;
+    if (reward_claimed !== undefined) updates['reward_claimed'] = reward_claimed;
+
+    apiLogger.debug(`Updating monster spawn ${id} for user ${userId}: ${JSON.stringify(updates)}`);
 
     const { data, error } = await supabaseServer
       .from('monster_spawns')
@@ -86,13 +101,14 @@ export async function PUT(request: NextRequest) {
       .select();
 
     if (error) {
-      console.error('Error updating monster spawn:', error);
+      apiLogger.error('Error updating monster spawn:', error);
       return NextResponse.json({ error: 'Failed to update monster' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error('Error in monster spawn PUT:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    apiLogger.error('Error in monster spawn PUT:', errorMessage);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

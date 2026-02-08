@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { createClient } from "@supabase/supabase-js";
+import { apiLogger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,55 +9,52 @@ const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
 const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY']!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-// Helper to verify admin status with detailed logging
-async function isAdmin(request: Request): Promise<boolean> {
-    console.log('[Admin Users API] isAdmin check started');
-    console.log('[Admin Users API] Request URL:', request.url);
+// Types
+interface UserPreference {
+    preference_key: string;
+    preference_value: unknown;
+}
 
+interface GameStats {
+    user_id: string;
+    level?: number;
+    gold?: number;
+    experience?: number;
+    [key: string]: unknown;
+}
+
+// Helper to verify admin status
+async function isAdmin(request: Request): Promise<boolean> {
     try {
-        // Step 1: Get userId from Clerk auth()
-        console.log('[Admin Users API] Calling auth()...');
         const { userId } = await auth();
-        console.log('[Admin Users API] auth() returned userId:', userId);
 
         if (!userId) {
-            console.log('[Admin Users API] FAILED: No userId from auth()');
+            apiLogger.debug('Admin check failed: No userId from auth()');
             return false;
         }
 
-        // Step 2: Get user details from Clerk
-        console.log('[Admin Users API] Fetching user from clerkClient...');
         const client = await clerkClient();
         const user = await client.users.getUser(userId);
-        console.log('[Admin Users API] User fetched, emails:', user.emailAddresses.map(e => e.emailAddress));
 
-        // Step 3: Check admin email
         const adminEmail = (process.env['ADMIN_EMAIL'] || 'jillesblokker@gmail.com').toLowerCase();
         const userEmails = user.emailAddresses.map(e => e.emailAddress.toLowerCase());
-        console.log('[Admin Users API] Checking admin email. Expected:', adminEmail, 'Found:', userEmails);
 
         const isMatch = userEmails.includes(adminEmail);
-        console.log('[Admin Users API] Email match result:', isMatch);
 
         if (!isMatch) {
-            console.log(`[Admin Users API] FAILED: Email mismatch`);
-        } else {
-            console.log('[Admin Users API] SUCCESS: Admin access granted');
+            apiLogger.warn('Admin check failed: Email mismatch');
         }
 
         return isMatch;
     } catch (e) {
-        console.error('[Admin Users API] EXCEPTION in isAdmin:', e);
+        apiLogger.error('Exception in admin check:', e);
         return false;
     }
 }
 
 // Search Users
 export async function GET(req: NextRequest) {
-    console.log('[Admin Users API] GET request received');
-
     if (!await isAdmin(req)) {
-        console.log('[Admin Users API] Returning 403 Forbidden');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -67,20 +65,20 @@ export async function GET(req: NextRequest) {
     try {
         if (targetUserId) {
             // Fetch single user details + preferences
-            const { data: stats, error: statsError } = await supabaseAdmin
+            const { data: stats } = await supabaseAdmin
                 .from('character_stats')
                 .select('*')
                 .eq('user_id', targetUserId)
                 .single();
 
-            const { data: prefs, error: prefsError } = await supabaseAdmin
+            const { data: prefs } = await supabaseAdmin
                 .from('user_preferences')
                 .select('*')
                 .eq('user_id', targetUserId);
 
-            const preferences: Record<string, any> = {};
+            const preferences: Record<string, unknown> = {};
             if (prefs) {
-                prefs.forEach((p: any) => {
+                (prefs as UserPreference[]).forEach((p) => {
                     preferences[p.preference_key] = p.preference_value;
                 });
             }
@@ -94,26 +92,22 @@ export async function GET(req: NextRequest) {
         }
 
         if (!query || query.length < 2) {
-            console.log('[Admin Users API] Query too short, returning empty');
             return NextResponse.json({ users: [] });
         }
 
-        console.log('[Admin Users API] Searching for query:', query);
+        apiLogger.debug(`Admin search query: ${query}`);
 
-        // Strategy: Search Clerk for users by name or email (source of truth for profiles)
         try {
             const client = await clerkClient();
 
-            // Search Clerk users - this searches username, email, first_name, last_name
+            // Search Clerk users
             const clerkUsers = await client.users.getUserList({
                 query: query,
                 limit: 20
             });
 
-            console.log('[Admin Users API] Clerk search found:', clerkUsers.data.length, 'users');
-
             if (clerkUsers.data.length === 0) {
-                // Also try email-specific search
+                // Try email-specific search
                 const emailUsers = await client.users.getUserList({
                     emailAddress: [query],
                     limit: 10
@@ -125,7 +119,6 @@ export async function GET(req: NextRequest) {
             }
 
             if (clerkUsers.data.length === 0) {
-                console.log('[Admin Users API] No users found in Clerk');
                 return NextResponse.json({ users: [] });
             }
 
@@ -133,16 +126,14 @@ export async function GET(req: NextRequest) {
             const clerkUserIds = clerkUsers.data.map(u => u.id);
 
             // Fetch game data from Supabase for these users
-            const { data: gameStats, error: statsError } = await supabaseAdmin
+            const { data: gameStats } = await supabaseAdmin
                 .from('character_stats')
                 .select('*')
                 .in('user_id', clerkUserIds);
 
-            console.log('[Admin Users API] Game stats found:', gameStats?.length || 0);
-
             // Combine Clerk profile data with game stats
             const enrichedUsers = clerkUsers.data.map(clerkUser => {
-                const gameStat = gameStats?.find(s => s.user_id === clerkUser.id);
+                const gameStat = (gameStats as GameStats[] | null)?.find(s => s.user_id === clerkUser.id);
                 const displayName = clerkUser.username ||
                     `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() ||
                     clerkUser.emailAddresses[0]?.emailAddress?.split('@')[0] ||
@@ -160,14 +151,13 @@ export async function GET(req: NextRequest) {
                 };
             });
 
-            console.log('[Admin Users API] Returning', enrichedUsers.length, 'enriched users');
             return NextResponse.json({ users: enrichedUsers });
 
-        } catch (clerkError: any) {
-            console.error('[Admin Users API] Clerk search error:', clerkError.message);
+        } catch (clerkError) {
+            apiLogger.error('Clerk search error:', clerkError);
 
             // Fallback to database search if Clerk fails
-            const { data: fallbackUsers, error: fallbackError } = await supabaseAdmin
+            const { data: fallbackUsers } = await supabaseAdmin
                 .from('character_stats')
                 .select('*')
                 .limit(20);
@@ -175,11 +165,10 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ users: fallbackUsers || [] });
         }
 
-        return NextResponse.json({ users: [] });
-
-    } catch (err: any) {
-        console.error("Admin Users API Error:", err);
-        return NextResponse.json({ error: err.message || "Internal Error" }, { status: 500 });
+    } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Internal Error';
+        apiLogger.error('Admin Users API Error:', errorMessage);
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
 
@@ -222,9 +211,10 @@ export async function PUT(req: NextRequest) {
             if (error) throw error;
             return NextResponse.json({ success: true, stats: data });
         }
-    } catch (err: any) {
-        console.error("Admin Update Error:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Update error';
+        apiLogger.error('Admin Update Error:', errorMessage);
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
 
@@ -244,27 +234,18 @@ export async function DELETE(req: NextRequest) {
 
     try {
         if (action === 'reset_map') {
-            // Delete all realm data for this user to force a re-seed/fresh start
             await supabaseAdmin.from('realm_data').delete().eq('user_id', userId);
-
             return NextResponse.json({ success: true, message: "Realm Map reset to default." });
         }
 
         if (action === 'reset_kingdom') {
-            // Reset kingdom expansions
             await supabaseAdmin.from('character_stats')
                 .update({ kingdom_expansions: 0 })
                 .eq('user_id', userId);
-
-            // If kingdom layout is stored in realm_data under specific keys, deleting all realm_data in 'reset_map' covers it.
-            // But if we want JUST kingdom, we might need a more specific query if we knew the key structure.
-            // For now, let's assume 'reset_map' is the big hammer, and 'reset_kingdom' just resets the expansion stats.
-
             return NextResponse.json({ success: true, message: "Kingdom stats reset." });
         }
 
         if (action === 'reset') {
-            // Reset character stats
             await supabaseAdmin.from('character_stats').update({
                 level: 1,
                 experience: 0,
@@ -273,7 +254,6 @@ export async function DELETE(req: NextRequest) {
                 kingdom_expansions: 0
             }).eq('user_id', userId);
 
-            // Clear Inventory
             await supabaseAdmin.from('tile_inventory').delete().eq('user_id', userId);
 
             return NextResponse.json({ success: true, message: "Account stats reset successfully" });
@@ -292,8 +272,9 @@ export async function DELETE(req: NextRequest) {
 
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 
-    } catch (err: any) {
-        console.error("Admin Delete Error:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Delete error';
+        apiLogger.error('Admin Delete Error:', errorMessage);
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

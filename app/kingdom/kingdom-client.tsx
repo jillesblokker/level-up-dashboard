@@ -1203,7 +1203,7 @@ export function KingdomClient() {
     setCoverImageLoading(true);
     const loadCoverImage = async () => {
       const pref = await getUserPreference('kingdom-header-image');
-      if (pref) {
+      if (typeof pref === 'string') {
         setCoverImage(pref);
       } else {
         // Set default kingdom header image

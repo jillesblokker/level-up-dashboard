@@ -74,9 +74,10 @@ export default function SettingsPage() {
 
       // Sync from Supabase
       getUserPreference("day-night-cycle-enabled").then(val => {
-        if (val !== null) {
-          setDayNightEnabled(!!val)
-          localStorage.setItem("day-night-cycle-enabled", val.toString())
+        if (val !== null && val !== undefined) {
+          const isEnabled = Boolean(val)
+          setDayNightEnabled(isEnabled)
+          localStorage.setItem("day-night-cycle-enabled", String(isEnabled))
         }
       })
     } catch (error) {

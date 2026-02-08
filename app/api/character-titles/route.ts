@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import logger from '@/lib/logger';
+import { apiLogger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -10,7 +10,7 @@ export async function GET() {
     }
 
     // Simple test response
-    logger.info(`Test call: userId=${userId}`, 'Character Titles');
+    apiLogger.debug(`Character Titles: userId=${userId}`);
 
     return NextResponse.json({
       success: true,
@@ -18,7 +18,8 @@ export async function GET() {
       message: 'Character titles API connected'
     });
   } catch (err) {
-    logger.error(`Error: ${err}`, 'Character Titles');
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    const errorMessage = err instanceof Error ? err.message : 'Internal server error';
+    apiLogger.error('Character Titles Error:', errorMessage);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
-} 
+}

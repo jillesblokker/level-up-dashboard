@@ -1,6 +1,5 @@
 import { supabase } from './supabase/client';
-
-
+import { logger } from './logger';
 
 const defaultQuests = {
   might: [
@@ -54,15 +53,15 @@ export async function createDefaultQuestsForUser(userId: string) {
 
   try {
     const results = await Promise.all(questCreations);
-    const errors = results.filter((result: any) => result.error);
+    const errors = results.filter((result: { error?: unknown }) => result.error);
 
     if (errors.length > 0) {
-      console.error('Some quests failed to create:', errors);
+      logger.error('Some quests failed to create:', errors);
     }
 
-    console.log(`Created ${results.length - errors.length} default quests for user ${userId}`);
+    logger.info(`Created ${results.length - errors.length} default quests for user ${userId}`);
   } catch (error) {
-    console.error(`Failed to create default quests for user ${userId}`, error);
+    logger.error(`Failed to create default quests for user ${userId}`, error);
     // Even if quest creation fails, we shouldn't block user creation.
     // The error is logged for debugging.
   }

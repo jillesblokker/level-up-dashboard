@@ -1,15 +1,17 @@
+import { logger } from './logger';
+
 // User Preferences Manager - Replaces localStorage usage with Supabase persistence
 // This ensures all user preferences are saved across devices
 
 export interface UserPreference {
   key: string;
-  value: any;
+  value: unknown;
 }
 
 /**
  * Gets a user preference from Supabase
  */
-export async function getUserPreference(key: string): Promise<any> {
+export async function getUserPreference(key: string): Promise<unknown> {
   try {
     const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`);
     if (response.ok) {
@@ -18,7 +20,7 @@ export async function getUserPreference(key: string): Promise<any> {
     }
     return null;
   } catch (error) {
-    console.error(`[User Preferences] Error getting preference ${key}:`, error);
+    logger.error(`[User Preferences] Error getting preference ${key}:`, error);
     return null;
   }
 }
@@ -26,7 +28,7 @@ export async function getUserPreference(key: string): Promise<any> {
 /**
  * Sets a user preference in Supabase
  */
-export async function setUserPreference(key: string, value: any): Promise<boolean> {
+export async function setUserPreference(key: string, value: unknown): Promise<boolean> {
   try {
     const response = await fetch('/api/user-preferences', {
       method: 'POST',
@@ -37,14 +39,14 @@ export async function setUserPreference(key: string, value: any): Promise<boolea
     });
 
     if (response.ok) {
-      console.log(`[User Preferences] ✅ Saved preference: ${key}`);
+      logger.debug(`[User Preferences] Saved preference: ${key}`);
       return true;
     } else {
-      console.error(`[User Preferences] ❌ Failed to save preference: ${key}`);
+      logger.error(`[User Preferences] Failed to save preference: ${key}`);
       return false;
     }
   } catch (error) {
-    console.error(`[User Preferences] Error setting preference ${key}:`, error);
+    logger.error(`[User Preferences] Error setting preference ${key}:`, error);
     return false;
   }
 }
@@ -59,14 +61,14 @@ export async function deleteUserPreference(key: string): Promise<boolean> {
     });
 
     if (response.ok) {
-      console.log(`[User Preferences] ✅ Deleted preference: ${key}`);
+      logger.debug(`[User Preferences] Deleted preference: ${key}`);
       return true;
     } else {
-      console.error(`[User Preferences] ❌ Failed to delete preference: ${key}`);
+      logger.error(`[User Preferences] Failed to delete preference: ${key}`);
       return false;
     }
   } catch (error) {
-    console.error(`[User Preferences] Error deleting preference ${key}:`, error);
+    logger.error(`[User Preferences] Error deleting preference ${key}:`, error);
     return false;
   }
 }
@@ -74,7 +76,7 @@ export async function deleteUserPreference(key: string): Promise<boolean> {
 /**
  * Gets all user preferences from Supabase
  */
-export async function getAllUserPreferences(): Promise<Record<string, any>> {
+export async function getAllUserPreferences(): Promise<Record<string, unknown>> {
   try {
     const response = await fetch('/api/user-preferences');
     if (response.ok) {
@@ -83,7 +85,7 @@ export async function getAllUserPreferences(): Promise<Record<string, any>> {
     }
     return {};
   } catch (error) {
-    console.error('[User Preferences] Error getting all preferences:', error);
+    logger.error('[User Preferences] Error getting all preferences:', error);
     return {};
   }
 }
@@ -93,7 +95,7 @@ export async function getAllUserPreferences(): Promise<Record<string, any>> {
  */
 export async function migrateLocalStorageToSupabase(): Promise<void> {
   try {
-    console.log('[User Preferences] 🚀 Starting localStorage migration to Supabase...');
+    logger.info('[User Preferences] Starting localStorage migration to Supabase...');
 
     // List of localStorage keys to migrate
     const keysToMigrate = [
@@ -128,27 +130,27 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
           const success = await setUserPreference(key, parsedValue);
           if (success) {
             migratedCount++;
-            console.log(`[User Preferences] ✅ Migrated: ${key}`);
+            logger.debug(`[User Preferences] Migrated: ${key}`);
           } else {
             failedCount++;
-            console.log(`[User Preferences] ❌ Failed to migrate: ${key}`);
+            logger.warn(`[User Preferences] Failed to migrate: ${key}`);
           }
         }
       } catch (error) {
         failedCount++;
-        console.error(`[User Preferences] Error migrating ${key}:`, error);
+        logger.error(`[User Preferences] Error migrating ${key}:`, error);
       }
     }
 
-    console.log(`[User Preferences] 🎉 Migration complete! Migrated: ${migratedCount}, Failed: ${failedCount}`);
+    logger.info(`[User Preferences] Migration complete! Migrated: ${migratedCount}, Failed: ${failedCount}`);
 
     if (failedCount === 0) {
-      console.log('[User Preferences] 🧹 Clearing migrated localStorage data...');
+      logger.debug('[User Preferences] Clearing migrated localStorage data...');
       keysToMigrate.forEach(key => localStorage.removeItem(key));
-      console.log('[User Preferences] ✅ localStorage cleared');
+      logger.debug('[User Preferences] localStorage cleared');
     }
   } catch (error) {
-    console.error('[User Preferences] Migration error:', error);
+    logger.error('[User Preferences] Migration error:', error);
   }
 }
 
@@ -157,15 +159,14 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
  */
 export async function syncPreferencesToLocalStorage(): Promise<void> {
   try {
-    console.log('[User Preferences] 🔄 Syncing preferences to localStorage...');
+    logger.info('[User Preferences] Syncing preferences to localStorage...');
 
     const preferences = await getAllUserPreferences();
     let syncedCount = 0;
 
     for (const [key, value] of Object.entries(preferences)) {
       try {
-        const oldValue = localStorage.getItem(key);
-        // Note: localStorage stores strings, but value might be any type. 
+        // localStorage stores strings, but value might be any type. 
         // JSON.stringify handles booleans correctly ("true"/"false")
         const newValue = typeof value === 'string' ? value : JSON.stringify(value);
 
@@ -180,12 +181,12 @@ export async function syncPreferencesToLocalStorage(): Promise<void> {
           window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: isEnabled } }));
         }
       } catch (error) {
-        console.error(`[User Preferences] Error syncing ${key} to localStorage:`, error);
+        logger.error(`[User Preferences] Error syncing ${key} to localStorage:`, error);
       }
     }
 
-    console.log(`[User Preferences] ✅ Synced ${syncedCount} preferences to localStorage`);
+    logger.info(`[User Preferences] Synced ${syncedCount} preferences to localStorage`);
   } catch (error) {
-    console.error('[User Preferences] Sync error:', error);
+    logger.error('[User Preferences] Sync error:', error);
   }
-} 
+}

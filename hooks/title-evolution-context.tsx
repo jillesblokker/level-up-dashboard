@@ -101,8 +101,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
 
         if (userId) {
           const pref = await getUserPreference('title-evolution-last-processed');
-          if (pref) {
-            const parsed = parseInt(pref, 10);
+          if (pref !== null) {
+            const parsed = parseInt(String(pref), 10);
             if (!Number.isNaN(parsed)) initialLevel = parsed;
           }
         } else if (typeof window !== 'undefined') {
