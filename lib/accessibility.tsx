@@ -215,3 +215,55 @@ export const ARIA_LABELS = {
         `Place ${tileType} tile at position ${x}, ${y}`,
     selectTile: (tileType: string) => `Select ${tileType} tile`,
 } as const
+
+/**
+ * Keyboard Shortcuts Manager
+ * Handles registration and execution of global keyboard shortcuts
+ */
+export class KeyboardShortcuts {
+    private shortcuts: Map<string, () => void> = new Map()
+    private isEnabled: boolean = false
+    private handler: (e: globalThis.KeyboardEvent) => void
+
+    constructor() {
+        this.handler = this.handleKeyDown.bind(this)
+    }
+
+    register(key: string, callback: () => void) {
+        this.shortcuts.set(key.toLowerCase(), callback)
+    }
+
+    enable() {
+        if (this.isEnabled) return
+        if (typeof window !== 'undefined') {
+            window.addEventListener('keydown', this.handler)
+            this.isEnabled = true
+        }
+    }
+
+    disable() {
+        if (!this.isEnabled) return
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('keydown', this.handler)
+            this.isEnabled = false
+        }
+    }
+
+    private handleKeyDown(e: globalThis.KeyboardEvent) {
+        // Ignore if user is typing in an input, textarea, or contenteditable
+        const target = e.target as HTMLElement
+        if (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.tagName === 'SELECT' ||
+            target.isContentEditable
+        ) {
+            return
+        }
+
+        const key = e.key.toLowerCase()
+        if (this.shortcuts.has(key)) {
+            this.shortcuts.get(key)?.()
+        }
+    }
+}
