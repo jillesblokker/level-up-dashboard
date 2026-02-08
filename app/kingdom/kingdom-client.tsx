@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dialog"
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { EmptyState } from "@/components/ui/empty-state"
-import { Backpack, Sword } from "lucide-react";
+import { Backpack, Sword, LayoutGrid, Compass, Gift } from "lucide-react";
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
@@ -1469,11 +1469,39 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="mb-6 w-full flex h-auto overflow-x-auto no-scrollbar md:grid md:grid-cols-4 md:overflow-visible gap-2 px-1 pb-1 md:gap-0 md:px-0">
-            <TabsTrigger value="thrivehaven" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</TabsTrigger>
-            <TabsTrigger value="journey" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.journey}</TabsTrigger>
-            {!isVisiting && <TabsTrigger value="inventory" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.inventory}</TabsTrigger>}
-            {!isVisiting && <TabsTrigger value="rewards" className="flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">{TEXT_CONTENT.kingdom.ui.tabs.rewards}</TabsTrigger>}
+          <TabsList className="flex bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto justify-start h-auto no-scrollbar">
+            <TabsTrigger
+              value="thrivehaven"
+              className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/20 border-0"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="journey"
+              className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-amber-600 to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 border-0"
+            >
+              <Compass className="w-4 h-4" />
+              <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
+            </TabsTrigger>
+            {!isVisiting && (
+              <TabsTrigger
+                value="inventory"
+                className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-blue-600 to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/20 border-0"
+              >
+                <Backpack className="w-4 h-4" />
+                <span>{TEXT_CONTENT.kingdom.ui.tabs.inventory}</span>
+              </TabsTrigger>
+            )}
+            {!isVisiting && (
+              <TabsTrigger
+                value="rewards"
+                className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-green-600 to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/20 border-0"
+              >
+                <Gift className="w-4 h-4" />
+                <span>{TEXT_CONTENT.kingdom.ui.tabs.rewards}</span>
+              </TabsTrigger>
+            )}
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
