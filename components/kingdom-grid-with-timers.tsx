@@ -1514,8 +1514,13 @@ export function KingdomGridWithTimers({
 
     if (timeLeft <= 0) return 'Ready!'
 
-    const minutes = Math.floor(timeLeft / 60000)
+    const hours = Math.floor(timeLeft / 3600000)
+    const minutes = Math.floor((timeLeft % 3600000) / 60000)
     const seconds = Math.floor((timeLeft % 60000) / 1000)
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
 
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
@@ -1671,9 +1676,13 @@ export function KingdomGridWithTimers({
                   </>
                 )}
 
-                {/* Timer overlay for kingdom tiles - visible on mobile, hover only on desktop */}
+                {/* Timer overlay for kingdom tiles - visible on mobile if < 3m, hover only on desktop */}
                 {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
-                  <div className="group-hover:opacity-100 md:opacity-0 opacity-100 transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none">
+                  <div className={cn(
+                    "transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none group-hover:opacity-100",
+                    // Hide by default on mobile if > 3m remaining and not ready
+                    (timer.endTime - Date.now() > 3 * 60 * 1000 && !isReady) ? "opacity-0 md:opacity-0" : "opacity-100 md:opacity-0"
+                  )}>
                     <div className={cn(
                       "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded text-center font-mono shadow-sm backdrop-blur-sm",
                       isReady
@@ -1692,7 +1701,7 @@ export function KingdomGridWithTimers({
                           <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70" />
                           {/* Mobile Compact Timer */}
                           <span className="whitespace-nowrap md:hidden font-bold tracking-tighter">
-                            {(timer.endTime - Date.now()) > 9 * 60 * 1000 ? '>9m' : formatTimeRemaining(timer.endTime)}
+                            {formatTimeRemaining(timer.endTime)}
                           </span>
                           {/* Desktop Full Timer */}
                           <span className="whitespace-nowrap hidden md:inline">
