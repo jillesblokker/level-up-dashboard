@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Swords, Skull, Shield, Zap, Gem, Heart, FlaskConical } from "lucide-react"
 import { getInventoryByType } from "@/lib/inventory-manager"
-import { useUser } from "@clerk/nextjs"
+import { useUser, useAuth } from "@clerk/nextjs"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -36,6 +36,7 @@ export default function DungeonPage() {
   const [goldBalance, setGoldBalance] = useState(0);
   const [potions, setPotions] = useState<any[]>([]);
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const fetchPotions = async () => {
     if (!user?.id) return;
@@ -62,9 +63,13 @@ export default function DungeonPage() {
   const startRun = async () => {
     setLoading(true);
     try {
+      const token = await getToken();
       const res = await fetch('/api/dungeon', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action: 'start' })
       });
       const data = await res.json();
@@ -91,9 +96,13 @@ export default function DungeonPage() {
     setActionResult(null);
 
     try {
+      const token = await getToken();
       const res = await fetch('/api/dungeon', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action: 'play', runId: activeRun.id, choice, itemId })
       });
       const data = await res.json();
