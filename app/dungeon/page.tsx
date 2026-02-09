@@ -61,6 +61,7 @@ export default function DungeonPage() {
       const res = await fetch('/api/dungeon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ action: 'start' })
       });
       const data = await res.json();
@@ -87,6 +88,7 @@ export default function DungeonPage() {
       const res = await fetch('/api/dungeon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ action: 'play', runId: activeRun.id, choice, itemId })
       });
       const data = await res.json();
