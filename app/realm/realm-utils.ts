@@ -13,6 +13,13 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
     if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.png';
     if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.png';
+    // Navigation Hub Overrides
+    if (type === 'quest-board') image = '/images/kingdom-tiles/QuestBoard.png';
+    if (type === 'monument') image = '/images/kingdom-tiles/Monument.png';
+    if (type === 'training-grounds') image = '/images/kingdom-tiles/TrainingGrounds.png';
+    if (type === 'tavern') image = '/images/kingdom-tiles/Inn.png';
+    if (type === 'market') image = '/images/kingdom-tiles/MarketStalls.png';
+    if (type === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.png';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -97,6 +104,10 @@ export const initialInventory: Record<TileType, Tile> = {
     crystal_cavern: { ...defaultTile('crystal_cavern'), cost: 200, owned: 2 },
     floating_island: { ...defaultTile('floating_island'), cost: 500, owned: 1 },
     'zen-garden': { ...defaultTile('zen-garden'), cost: 350, owned: 1 },
+    'quest-board': { ...defaultTile('quest-board'), cost: 50, owned: 1 },
+    monument: { ...defaultTile('monument'), cost: 500, owned: 1 },
+    'training-grounds': { ...defaultTile('training-grounds'), cost: 200, owned: 1 },
+    tavern: { ...defaultTile('tavern'), cost: 200, owned: 1 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -108,6 +119,12 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'straightroad') return '/images/kingdom-tiles/Straightroad.png';
     if (type === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.png';
     if (type === 'tsplitroad') return '/images/kingdom-tiles/Tsplitroad.png';
+    if (type === 'quest-board') return '/images/kingdom-tiles/QuestBoard.png';
+    if (type === 'monument') return '/images/kingdom-tiles/Monument.png';
+    if (type === 'training-grounds') return '/images/kingdom-tiles/TrainingGrounds.png';
+    if (type === 'tavern') return '/images/kingdom-tiles/Inn.png';
+    if (type === 'market') return '/images/kingdom-tiles/MarketStalls.png';
+    if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.png';
     return `/images/tiles/${type}-tile.png`;
 };
 
