@@ -150,7 +150,7 @@ export default function DungeonPage() {
                   Monsters lurk in the shadows. Defeat them to claim the treasure.
                 </p>
                 <div className="text-sm font-medium text-amber-500">
-                  Entry Cost: <span className="text-amber-400 font-bold">50 Gold</span>
+                  Entry Cost: <span className="text-green-400 font-bold">Free</span>
                 </div>
               </div>
 

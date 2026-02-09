@@ -67,13 +67,10 @@ export async function POST(req: NextRequest) {
 
             const bonuses = calculateKingdomBonuses(kingdomGrid?.grid_data || []);
 
-            if (!stats || stats.gold < 50) {
-                apiLogger.warn(`Insufficient gold for dungeon run: ${stats?.gold || 0}`);
-                throw new Error('Insufficient Gold (50G required)');
-            }
 
-            // 2. Deduct Gold
-            await supabaseServer.rpc('deduct_gold', { p_user_id: userId, p_amount: 50 });
+            // 2. No Gold Deduction (Free Entry)
+            // previously deducted 50 gold here
+
 
             // 3. Create Run
             // Base HP = 100 + ((Vitality + Bonus) * 10)
@@ -90,7 +87,7 @@ export async function POST(req: NextRequest) {
                 equipHealth += Math.floor((i.stats?.health || 0) * multiplier);
             });
 
-            const totalVitality = (stats.vitality || 1) + bonuses.vitality;
+            const totalVitality = (stats?.vitality || 1) + bonuses.vitality;
             const maxHp = 100 + (totalVitality * 10) + equipHealth;
 
             const firstEncounter = generateEncounter(1);
