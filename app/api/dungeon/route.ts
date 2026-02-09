@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { action, runId, choice, itemId } = body; // itemId added for usage
 
-        return await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+        const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
             // --- ACTION: START RUN ---
             if (action === 'start') {
                 // 1. Check Gold & Fetch Stats + Kingdom Grid
@@ -295,6 +295,12 @@ export async function POST(req: NextRequest) {
 
             throw new Error('Invalid action');
         });
+
+        if (!result.success) {
+            return NextResponse.json({ error: result.error }, { status: 401 });
+        }
+
+        return NextResponse.json(result.data);
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
         apiLogger.error('Dungeon API Error:', errorMessage);
@@ -327,7 +333,7 @@ function generateLoot(roomLevel: number): Loot | null {
     }).filter(i => i.type === 'weapon' || i.type === 'potion' || i.type === 'armor' || i.type === 'shield' || i.type === 'material');
 
     if (possibleItems.length > 0) {
-        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)]!;
 
         // Roll for Star Rating
         const roll = Math.random();
