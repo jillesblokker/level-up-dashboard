@@ -1181,17 +1181,17 @@ export function KingdomGridWithTimers({
     }
 
     // Handle Functional Buildings (Hub Navigation)
-    if (tile.type === 'archery' || tile.type === 'training-grounds') {
+    if (tile.type === 'archery' || tile.type === 'jousting') {
       toast({ title: "Entering Barracks...", description: "Redirecting to Quests." });
       router.push('/quests');
       return;
     }
-    if (tile.type === 'market-stalls') {
+    if (tile.type === 'market') {
       toast({ title: "Entering Market...", description: "Redirecting to Market." });
       router.push('/market');
       return;
     }
-    if (tile.type === 'wizard') {
+    if (tile.type === 'dungeon' || tile.hasMonster === 'wizard') {
       toast({ title: "Approaching Wizard Tower...", description: "Teleporting to Dungeon." });
       router.push('/dungeon');
       return;
