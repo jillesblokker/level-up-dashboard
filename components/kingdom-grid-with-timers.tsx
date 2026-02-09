@@ -1221,9 +1221,9 @@ export function KingdomGridWithTimers({
     // Note: archery, jousting, market, dungeon are navigation tiles handled above
     if (tile.type && (tile.type === 'blacksmith' || tile.type === 'sawmill' ||
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
-      tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
+      tile.type === 'well' || tile.type === 'windmill' ||
       tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
-      tile.type === 'mansion' || tile.type === 'mayor')) {
+      tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower')) {
 
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
