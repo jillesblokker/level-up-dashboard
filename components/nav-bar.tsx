@@ -169,7 +169,7 @@ export function NavBar({ session }: NavBarProps) {
                   {characterStats.ascension_level}
                 </span>
               )}
-              Level {characterStats.level}
+              Lvl {characterStats.level}
             </div>
             <Progress value={levelProgress} className="w-32 h-2" />
             <div

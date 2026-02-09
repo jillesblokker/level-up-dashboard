@@ -257,7 +257,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
           <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative">
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -281,7 +281,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
               </div>
 
               {unreadCount > 0 && (
-                <div className="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg flex-shrink-0">
+                <div className="bg-green-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg flex-shrink-0">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </div>
               )}
