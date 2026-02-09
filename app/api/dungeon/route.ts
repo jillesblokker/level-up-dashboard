@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { auth } from '@clerk/nextjs/server';
+import { supabaseServer } from '@/lib/supabase/server-client';
 import { apiLogger } from '@/lib/logger';
 import { calculateKingdomBonuses, KingdomBonuses } from '@/lib/kingdom-utils';
 import { calculateLevelFromExperience } from '@/types/character';
@@ -40,11 +41,15 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
     try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const body = await req.json();
         const { action, runId, choice, itemId } = body; // itemId added for usage
 
-        const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
-            // --- ACTION: START RUN ---
+        // --- ACTION: START RUN ---
             if (action === 'start') {
                 // 1. Check Gold & Fetch Stats + Kingdom Grid
                 const { data: stats } = await supabase
@@ -67,7 +72,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 // 2. Deduct Gold
-                await supabase.rpc('deduct_gold', { p_user_id: userId, p_amount: 50 });
+                await supabaseServer.rpc('deduct_gold', { p_user_id: userId, p_amount: 50 });
 
                 // 3. Create Run
                 // Base HP = 100 + ((Vitality + Bonus) * 10)
@@ -195,9 +200,9 @@ export async function POST(req: NextRequest) {
 
                         // Consume
                         if (itemToUse.quantity > 1) {
-                            await supabase.from('inventory_items').update({ quantity: itemToUse.quantity - 1 }).eq('id', itemToUse.id);
+                            await supabaseServer.from('inventory_items').update({ quantity: itemToUse.quantity - 1 }).eq('id', itemToUse.id);
                         } else {
-                            await supabase.from('inventory_items').delete().eq('id', itemToUse.id);
+                            await supabaseServer.from('inventory_items').delete().eq('id', itemToUse.id);
                         }
 
                         resultMessage = `Used ${itemToUse.name} (+${healAmount} HP).`;
@@ -283,7 +288,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 if (newStatus !== 'in_progress') {
-                    const { data: kingdomGrid } = await supabase.from('kingdom_grid').select('grid_data').eq('user_id', userId).single();
+                    const { data: kingdomGrid } = await supabaseServer.from('kingdom_grid').select('grid_data').eq('user_id', userId).single();
                     const endBonuses = calculateKingdomBonuses(kingdomGrid?.grid_data || []);
 
                     await processEndRun(supabase, userId, newLoot, endBonuses);
@@ -376,7 +381,7 @@ async function processEndRun(supabase: SupabaseClient, userId: string, loot: Loo
     }
 
     if (totalGold > 0) {
-        await supabase.rpc('add_gold', { p_user_id: userId, p_amount: totalGold });
+        await supabaseServer.rpc('add_gold', { p_user_id: userId, p_amount: totalGold });
     }
 
     if (totalXp > 0) {
