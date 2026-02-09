@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
             if (error) throw error;
 
             apiLogger.info(`Started dungeon run ${newRun.id} for user ${userId}`);
-            return newRun;
+            return NextResponse.json(newRun);
         }
 
         // --- ACTION: PLAY TURN (FIGHT/FLEE/OPEN/USE_ITEM) ---
