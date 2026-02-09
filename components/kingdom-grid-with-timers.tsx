@@ -1197,12 +1197,13 @@ export function KingdomGridWithTimers({
       return;
     }
 
-    // Handle property tiles (archery, blacksmith, etc.)
-    if (tile.type && (tile.type === 'archery' || tile.type === 'blacksmith' || tile.type === 'sawmill' ||
+    // Handle property tiles (blacksmith, sawmill, etc.) - Collectible production buildings
+    // Note: archery, jousting, market, dungeon are navigation tiles handled above
+    if (tile.type && (tile.type === 'blacksmith' || tile.type === 'sawmill' ||
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
       tile.type === 'well' || tile.type === 'windmill' || tile.type === 'castle' ||
       tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
-      tile.type === 'jousting' || tile.type === 'mansion' || tile.type === 'mayor')) {
+      tile.type === 'mansion' || tile.type === 'mayor')) {
 
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
