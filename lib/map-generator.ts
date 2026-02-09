@@ -207,7 +207,11 @@ export class MapGenerator {
       coral_reef: 'Coral Reef',
       crystal_cavern: 'Crystal Cavern',
       floating_island: 'Floating Island',
-      'zen-garden': 'Zen Garden'
+      'zen-garden': 'Zen Garden',
+      'quest-board': 'Quest Board',
+      monument: 'Monument',
+      'training-grounds': 'Training Grounds',
+      tavern: 'Tavern'
     };
 
     const tileDescriptions = {
@@ -269,7 +273,11 @@ export class MapGenerator {
       coral_reef: 'A vibrant coral reef',
       crystal_cavern: 'A cave filled with glowing crystals',
       floating_island: 'A magical island floating in the sky',
-      'zen-garden': 'A peaceful sanctuary for meditation'
+      'zen-garden': 'A peaceful sanctuary for meditation',
+      'quest-board': 'A board listing the kingdom\'s tasks and quests',
+      monument: 'A monument honoring the kingdom\'s achievements',
+      'training-grounds': 'A place where heroes train and improve their skills',
+      tavern: 'A lively place to socialize and meet other adventurers'
     };
 
     const tileImages = {
@@ -331,7 +339,11 @@ export class MapGenerator {
       coral_reef: '/images/tiles/coral_reef-tile.png',
       crystal_cavern: '/images/tiles/crystal_cavern-tile.png',
       floating_island: '/images/tiles/floating_island-tile.png',
-      'zen-garden': '/images/kingdom-tiles/ZenGarden.png'
+      'zen-garden': '/images/kingdom-tiles/ZenGarden.png',
+      'quest-board': '/images/kingdom-tiles/QuestBoard.png',
+      monument: '/images/kingdom-tiles/Monument.png',
+      'training-grounds': '/images/kingdom-tiles/TrainingGrounds.png',
+      tavern: '/images/kingdom-tiles/Inn.png'
     };
 
     return {

@@ -60,6 +60,10 @@ export function getTileName(type: TileType): string {
     crystal_cavern: 'Crystal Cavern',
     floating_island: 'Floating Island',
     'zen-garden': 'Zen Garden',
+    'quest-board': 'Quest Board',
+    monument: 'Monument',
+    'training-grounds': 'Training Grounds',
+    tavern: 'Tavern',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -124,6 +128,10 @@ export function getDefaultConnections(type: TileType): string[] {
     crystal_cavern: ['mountain', 'cave'],
     floating_island: [],
     'zen-garden': ['grass', 'forest'],
+    'quest-board': ['grass'],
+    monument: ['grass'],
+    'training-grounds': ['grass'],
+    tavern: ['grass'],
   };
   return defaultConnections[type] || [];
 } 
