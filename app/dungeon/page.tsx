@@ -11,7 +11,6 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { fetchFreshCharacterStats, updateCharacterStats } from "@/lib/character-stats-service"
-import { fetchWithAuth } from "@/lib/fetchWithAuth"
 
 interface DungeonState {
   id: string;
@@ -59,8 +58,9 @@ export default function DungeonPage() {
   const startRun = async () => {
     setLoading(true);
     try {
-      const res = await fetchWithAuth('/api/dungeon', {
+      const res = await fetch('/api/dungeon', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'start' })
       });
       const data = await res.json();
@@ -84,8 +84,9 @@ export default function DungeonPage() {
     setActionResult(null);
 
     try {
-      const res = await fetchWithAuth('/api/dungeon', {
+      const res = await fetch('/api/dungeon', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'play', runId: activeRun.id, choice, itemId })
       });
       const data = await res.json();
