@@ -356,7 +356,7 @@ function generateLoot(roomLevel: number): Loot | null {
 }
 
 // Helpers
-import { SupabaseClient } from '@supabase/supabase-js';
+
 
 async function processEndRun(supabase: SupabaseClient, userId: string, loot: Loot[], bonuses: any) {
     let totalGold = loot.reduce((acc, item) => acc + (item.type === 'gold' ? (item.amount || 0) : 0), 0);
