@@ -257,93 +257,91 @@ export default function DungeonPage() {
                     <Progress value={(activeRun.current_hp / activeRun.max_hp) * 100} className="h-3 bg-gray-800" indicatorClassName="bg-green-600" />
                   </div>
 
-                </div>
+                  {/* POTIONS */}
+                  <div className="pt-4 border-t border-gray-800">
+                    <h4 className="text-sm font-bold text-gray-400 mb-2 flex items-center gap-2">
+                      <FlaskConical className="w-4 h-4" /> Potions
+                    </h4>
+                    {potions.length === 0 ? (
+                      <p className="text-xs text-gray-600">No potions available.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {potions.map((potion) => (
+                          <Button
+                            key={potion.id}
+                            size="sm"
+                            variant="outline"
+                            className="w-full justify-between border-gray-700 bg-gray-900/50 hover:bg-gray-800 h-8 text-xs"
+                            onClick={() => handleAction('use_item', potion.id)}
+                            disabled={loading || activeRun.current_hp >= activeRun.max_hp}
+                          >
+                            <span className="text-amber-500">{potion.name}</span>
+                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-gray-800">{potion.quantity}</Badge>
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                {/* POTIONS */}
-                <div className="pt-4 border-t border-gray-800">
-                  <h4 className="text-sm font-bold text-gray-400 mb-2 flex items-center gap-2">
-                    <FlaskConical className="w-4 h-4" /> Potions
-                  </h4>
-                  {potions.length === 0 ? (
-                    <p className="text-xs text-gray-600">No potions available.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {potions.map((potion) => (
-                        <Button
-                          key={potion.id}
-                          size="sm"
-                          variant="outline"
-                          className="w-full justify-between border-gray-700 bg-gray-900/50 hover:bg-gray-800 h-8 text-xs"
-                          onClick={() => handleAction('use_item', potion.id)}
-                          disabled={loading || activeRun.current_hp >= activeRun.max_hp}
-                        >
-                          <span className="text-amber-500">{potion.name}</span>
-                          <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-gray-800">{potion.quantity}</Badge>
-                        </Button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  <div className="pt-4 border-t border-gray-800">
+                    <h4 className="text-sm font-bold text-gray-400 mb-2">Loot Found</h4>
+                    {activeRun.loot_collected.length === 0 ? (
+                      <p className="text-xs text-gray-600">Nothing yet...</p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {activeRun.loot_collected.map((item, i) => (
+                          <li key={i} className="text-xs flex justify-between text-yellow-500">
+                            <span>{item.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )
+        }
 
-                <div className="pt-4 border-t border-gray-800">
-                  <h4 className="text-sm font-bold text-gray-400 mb-2">Loot Found</h4>
+        {/* END SCREEN */}
+        {
+          activeRun && activeRun.status !== 'in_progress' && (
+            <Card className="bg-gray-900 border-gray-800 text-center py-12">
+              <CardContent className="space-y-6">
+                <div className="text-6xl mb-4">
+                  {activeRun.status === 'completed' ? '🏆' : '💀'}
+                </div>
+                <h2 className={`text-4xl font-medieval ${activeRun.status === 'completed' ? 'text-yellow-500' : 'text-red-600'}`}>
+                  {activeRun.status === 'completed' ? 'VICTORY' : 'DEFEATED'}
+                </h2>
+
+                <div className="bg-black/30 p-6 rounded-lg max-w-sm mx-auto border border-gray-700">
+                  <h3 className="font-bold text-gray-300 mb-4">Rewards Collected</h3>
                   {activeRun.loot_collected.length === 0 ? (
-                    <p className="text-xs text-gray-600">Nothing yet...</p>
+                    <p className="text-gray-500 italic">No loot recovered.</p>
                   ) : (
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                       {activeRun.loot_collected.map((item, i) => (
-                        <li key={i} className="text-xs flex justify-between text-yellow-500">
+                        <li key={i} className="text-yellow-400 font-bold flex justify-between">
                           <span>{item.name}</span>
                         </li>
                       ))}
+                      <li className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-bold text-white">
+                        <span>Total Value</span>
+                        <span>{activeRun.loot_collected.reduce((acc, i) => acc + (i.amount || 0), 0)} G</span>
+                      </li>
                     </ul>
                   )}
                 </div>
+
+                <Button size="lg" onClick={() => setActiveRun(null)} className="w-[200px]">
+                  Return to Entrance
+                </Button>
               </CardContent>
             </Card>
-          </div>
-          </div>
-  )
-}
-
-{/* END SCREEN */ }
-{
-  activeRun && activeRun.status !== 'in_progress' && (
-    <Card className="bg-gray-900 border-gray-800 text-center py-12">
-      <CardContent className="space-y-6">
-        <div className="text-6xl mb-4">
-          {activeRun.status === 'completed' ? '🏆' : '💀'}
-        </div>
-        <h2 className={`text-4xl font-medieval ${activeRun.status === 'completed' ? 'text-yellow-500' : 'text-red-600'}`}>
-          {activeRun.status === 'completed' ? 'VICTORY' : 'DEFEATED'}
-        </h2>
-
-        <div className="bg-black/30 p-6 rounded-lg max-w-sm mx-auto border border-gray-700">
-          <h3 className="font-bold text-gray-300 mb-4">Rewards Collected</h3>
-          {activeRun.loot_collected.length === 0 ? (
-            <p className="text-gray-500 italic">No loot recovered.</p>
-          ) : (
-            <ul className="space-y-2">
-              {activeRun.loot_collected.map((item, i) => (
-                <li key={i} className="text-yellow-400 font-bold flex justify-between">
-                  <span>{item.name}</span>
-                </li>
-              ))}
-              <li className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-bold text-white">
-                <span>Total Value</span>
-                <span>{activeRun.loot_collected.reduce((acc, i) => acc + (i.amount || 0), 0)} G</span>
-              </li>
-            </ul>
-          )}
-        </div>
-
-        <Button size="lg" onClick={() => setActiveRun(null)} className="w-[200px]">
-          Return to Entrance
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
+          )
+        }
 
       </main >
     </div >
