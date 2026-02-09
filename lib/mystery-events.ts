@@ -1,10 +1,11 @@
-import { getRandomElement, getRandomInt } from '@/lib/utils'
+import { getRandomElement, getRandomInt, shuffleArray } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
 import { addToInventory, InventoryItem } from "@/lib/inventory-manager"
 import { createEventNotification } from "@/lib/notifications"
 import { gainGold } from "@/lib/gold-manager"
 import { gainExperience } from "@/lib/experience-manager"
 
+import { RIDDLE_DATA } from "@/lib/riddle-data"
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
 export interface ScrollItem {
@@ -242,140 +243,30 @@ const artifactEvents: MysteryEvent[] = [
   }
 ]
 
-const riddleEvents: MysteryEvent[] = [
-  {
-    id: 'ancient-riddle-1',
-    type: 'riddle',
-    title: 'Ancient Riddle',
-    description: 'A mysterious voice echoes: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. I have roads, but no cars. What am I?"',
-    choices: [
-      'A Map',
-      'A Globe',
-      'A Painting',
-      'A Book'
-    ],
-    outcomes: {
-      'A Map': {
-        message: 'Correct! The answer is "A Map". You are rewarded for your wisdom!',
-        reward: {
-          type: 'gold',
-          amount: getRandomInt(30, 50),
-          message: 'You gained gold and experience!'
-        }
-      },
-      'A Globe': {
-        message: 'Incorrect. The answer was "A Map". You lose some gold for your mistake.',
-        reward: {
-          type: 'gold',
-          amount: -10,
-          message: 'You lost 10 gold.'
-        }
-      },
-      'A Painting': {
-        message: 'Incorrect. The answer was "A Map". You lose some gold for your mistake.',
-        reward: {
-          type: 'gold',
-          amount: -10,
-          message: 'You lost 10 gold.'
-        }
-      },
-      'A Book': {
-        message: 'Incorrect. The answer was "A Map". You lose some gold for your mistake.',
-        reward: {
-          type: 'gold',
-          amount: -10,
-          message: 'You lost 10 gold.'
-        }
+const riddleEvents: MysteryEvent[] = RIDDLE_DATA.map(riddle => ({
+  id: riddle.id,
+  type: 'riddle',
+  title: 'Ancient Riddle',
+  description: `A mysterious voice echoes: "${riddle.question}"`,
+  choices: shuffleArray(riddle.options),
+  outcomes: riddle.options.reduce((acc, option) => {
+    const isCorrect = option === riddle.correctAnswer;
+    acc[option] = {
+      message: isCorrect
+        ? `Correct! The answer is "${riddle.correctAnswer}". You are rewarded for your wisdom!`
+        : `Incorrect. The answer was "${riddle.correctAnswer}".`,
+      reward: isCorrect ? {
+        type: 'gold',
+        amount: getRandomInt(30, 50),
+        message: 'You gained gold and experience!'
+      } : {
+        type: 'nothing',
+        message: 'Better luck next time...'
       }
-    }
-  },
-  {
-    id: 'ancient-riddle-2',
-    type: 'riddle',
-    title: 'Ancient Riddle',
-    description: 'The ancient stone whispers: "What has keys, but no locks; space, but no room; and you can enter, but not go in?"',
-    choices: [
-      'A Piano',
-      'A Keyboard',
-      'A Computer',
-      'A Phone'
-    ],
-    outcomes: {
-      'A Piano': {
-        message: 'That is incorrect. The answer was "A Keyboard".',
-        reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
-        }
-      },
-      'A Keyboard': {
-        message: 'Correct! The answer is "A Keyboard".',
-        reward: {
-          type: 'gold',
-          amount: getRandomInt(30, 50),
-          message: 'Your wisdom has earned you gold!'
-        }
-      },
-      'A Computer': {
-        message: 'That is incorrect. The answer was "A Keyboard".',
-        reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
-        }
-      },
-      'A Phone': {
-        message: 'That is incorrect. The answer was "A Keyboard".',
-        reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
-        }
-      }
-    }
-  },
-  {
-    id: 'ancient-riddle-3',
-    type: 'riddle',
-    title: 'Ancient Riddle',
-    description: 'A mystical inscription reads: "I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by everyone. What am I?"',
-    choices: [
-      'Gold',
-      'Diamond',
-      'A Pencil Lead',
-      'Coal'
-    ],
-    outcomes: {
-      'Gold': {
-        message: 'That is incorrect. The answer was "A Pencil Lead".',
-        reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
-        }
-      },
-      'Diamond': {
-        message: 'That is incorrect. The answer was "A Pencil Lead".',
-        reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
-        }
-      },
-      'A Pencil Lead': {
-        message: 'Correct! The answer is "A Pencil Lead".',
-        reward: {
-          type: 'gold',
-          amount: getRandomInt(30, 50),
-          message: 'Your wisdom has earned you gold!'
-        }
-      },
-      'Coal': {
-        message: 'That is incorrect. The answer was "A Pencil Lead".',
-        reward: {
-          type: 'nothing',
-          message: 'Better luck next time...'
-        }
-      }
-    }
-  }
-]
+    };
+    return acc;
+  }, {} as Record<string, MysteryEventOutcome>)
+}));
 
 export function generateMysteryEvent(): MysteryEvent {
   // Only allow treasure or riddle events for mystery tiles
@@ -423,12 +314,12 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
     gainGold(reward.amount, 'mystery-events');
     createEventNotification('🔮 Treasure Discovered!', `You found a hidden treasure chest containing ${reward.amount} gold!`);
   }
-  
+
   if (reward.type === 'item' && reward.item && reward.item.length > 0) {
     // Always give experience for finding items
     experienceGained = 25;
     gainExperience(experienceGained, 'mystery-events', 'general');
-    
+
     if (userId) {
       reward.item.forEach(item => addToInventory(userId, item));
     }
@@ -443,12 +334,12 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
       createEventNotification('🔮 Mystical Discovery!', `You found a mysterious artifact and gained ${experienceGained} experience through ancient knowledge!`);
     }
   }
-  
+
   if (reward.type === 'scroll' && reward.scroll) {
     // Always give experience for finding scrolls
     experienceGained = 25;
     gainExperience(experienceGained, 'mystery-events', 'general');
-    
+
     if (userId) {
       addToInventory(userId, {
         type: 'scroll',
@@ -459,7 +350,7 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
         category: reward.scroll.category
       });
     }
-    
+
     toast({
       title: "Scroll Discovered!",
       description: `You found ${reward.scroll.name} and gained ${experienceGained} XP!`,
