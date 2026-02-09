@@ -60,7 +60,11 @@ export type TileType =
   | 'coral_reef'
   | 'crystal_cavern'
   | 'floating_island'
-  | 'zen-garden';
+  | 'zen-garden'
+  | 'quest-board'
+  | 'monument'
+  | 'training-grounds'
+  | 'tavern';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 

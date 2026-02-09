@@ -291,10 +291,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'castle',
     name: TEXT_CONTENT.kingdomTiles.castle.name,
-    timerMinutes: 480, // Reduced from 720 to 480 minutes (8 hours)
-    normalGoldRange: [200, 400], // Massively increased (was 30-60) - legendary rewards!
-    luckyGoldAmount: 1000, // Jackpot! (was 300)
-    luckyChance: 0.10, // Increased (was 0.05) - legendary should feel rewarding
+    timerMinutes: 0, // Converted to Navigation Hub (Realm)
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles.castle.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.png',
@@ -674,10 +674,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'training-grounds',
     name: TEXT_CONTENT.kingdomTiles['training-grounds'].name,
-    timerMinutes: 180,
-    normalGoldRange: [10, 25],
-    luckyGoldAmount: 90,
-    luckyChance: 0.14,
+    timerMinutes: 0, // Converted to Navigation Hub (Character)
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles['training-grounds'].clickMessage,
     possibleItems: [
       '/images/items/sword/sword-twig.png',
@@ -835,17 +835,17 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'crystal_cavern',
     name: TEXT_CONTENT.kingdomTiles.crystal_cavern.name,
-    timerMinutes: 600,
-    normalGoldRange: [30, 80],
-    luckyGoldAmount: 250,
-    luckyChance: 0.10,
+    timerMinutes: 0, // Converted to Navigation Hub (Dungeon)
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles.crystal_cavern.clickMessage,
     possibleItems: [
       '/images/items/scroll/scroll-perkamento.png'
     ],
     itemType: 'scroll',
     rarity: 'legendary',
-    image: '/images/tiles/crystal_cavern-tile.png',
+    image: '/images/kingdom-tiles/CrystalCavern.png',
     levelRequired: 15,
     cost: 800
   },
@@ -865,6 +865,63 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/tiles/floating_island-tile.png',
     levelRequired: 20,
     cost: 2000
+  },
+  // Hub Tiles (Navigation)
+  {
+    id: 'quest-board',
+    name: 'Quest Board',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Check available quests!',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/QuestBoard.png',
+    cost: 50
+  },
+  {
+    id: 'monument',
+    name: 'Hall of Fame',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'View achievements and glory.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/Monument.png',
+    cost: 500
+  },
+  {
+    id: 'tavern',
+    name: 'Tavern',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Socialize with other players.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/Inn.png',
+    cost: 200
+  },
+  {
+    id: 'market',
+    name: 'Market',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Trade items and resources.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/MarketStalls.png',
+    cost: 400
   }
 ]
 

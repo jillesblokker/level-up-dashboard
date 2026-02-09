@@ -254,19 +254,19 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 3, y: 1, type: 'fisherman' as TileType },
     { x: 4, y: 1, type: 'sawmill' as TileType },
     { x: 5, y: 1, type: 'windmill' as TileType },
-    { x: 1, y: 2, type: 'grocery' as TileType },
-    { x: 2, y: 2, type: 'castle' as TileType },
-    { x: 3, y: 2, type: 'temple' as TileType },
-    { x: 4, y: 2, type: 'fountain' as TileType },
+    { x: 1, y: 2, type: 'market' as TileType }, // Market Hub
+    { x: 2, y: 2, type: 'castle' as TileType }, // Realm Hub (Central)
+    { x: 3, y: 2, type: 'quest-board' as TileType }, // Quest Hub
+    { x: 4, y: 2, type: 'monument' as TileType }, // Achievements Hub (Hall of Fame)
     { x: 5, y: 2, type: 'pond' as TileType },
     { x: 1, y: 3, type: 'foodcourt' as TileType },
     { x: 2, y: 3, type: 'vegetables' as TileType },
-    { x: 3, y: 3, type: 'wizard' as TileType },
+    { x: 3, y: 3, type: 'crystal_cavern' as TileType }, // Dungeon Hub
     { x: 4, y: 3, type: 'mayor' as TileType },
-    { x: 5, y: 3, type: 'inn' as TileType },
-    { x: 1, y: 4, type: 'library' as TileType }, // Fixed: replaced 'house' with 'library'
+    { x: 5, y: 3, type: 'tavern' as TileType }, // Social Hub
+    { x: 1, y: 4, type: 'library' as TileType },
     { x: 2, y: 4, type: 'mansion' as TileType },
-    { x: 3, y: 4, type: 'jousting' as TileType },
+    { x: 3, y: 4, type: 'training-grounds' as TileType }, // Character Hub
     { x: 4, y: 4, type: 'archery' as TileType },
     { x: 5, y: 4, type: 'watchtower' as TileType },
   ];

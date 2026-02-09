@@ -1181,19 +1181,39 @@ export function KingdomGridWithTimers({
     }
 
     // Handle Functional Buildings (Hub Navigation)
-    if (tile.type === 'archery' || tile.type === 'jousting') {
-      toast({ title: "Entering Barracks...", description: "Redirecting to Quests." });
+    if (tile.type === 'quest-board') {
+      toast({ title: "Checking Quest Board...", description: "Going to Quests." });
       router.push('/quests');
       return;
     }
     if (tile.type === 'market') {
-      toast({ title: "Entering Market...", description: "Redirecting to Market." });
+      toast({ title: "Entering Market...", description: "Going to Market." });
       router.push('/market');
       return;
     }
-    if (tile.type === 'dungeon' || tile.hasMonster === 'wizard') {
-      toast({ title: "Approaching Wizard Tower...", description: "Teleporting to Dungeon." });
+    if (tile.type === 'crystal_cavern' || tile.type === 'dungeon') {
+      toast({ title: "Entering Dungeon...", description: "Teleporting to Dungeon." });
       router.push('/dungeon');
+      return;
+    }
+    if (tile.type === 'monument') {
+      toast({ title: "Viewing Hall of Fame...", description: "Going to Achievements." });
+      router.push('/achievements');
+      return;
+    }
+    if (tile.type === 'training-grounds') {
+      toast({ title: "Entering Training Grounds...", description: "Going to Character." });
+      router.push('/character');
+      return;
+    }
+    if (tile.type === 'tavern') {
+      toast({ title: "Entering Tavern...", description: "Going to Social." });
+      router.push('/social');
+      return;
+    }
+    if (tile.type === 'castle') {
+      toast({ title: "Entering Castle...", description: "Going to Realm." });
+      router.push('/realm');
       return;
     }
 
@@ -1610,8 +1630,14 @@ export function KingdomGridWithTimers({
                   const isMobile = window.innerWidth < 768;
 
                   // Navigation tiles should always be clickable (no timer requirement)
-                  const isNavigationTile = tile.type === 'archery' || tile.type === 'jousting' ||
-                    tile.type === 'market' || tile.type === 'dungeon';
+                  const isNavigationTile = tile.type === 'quest-board' ||
+                    tile.type === 'market' ||
+                    tile.type === 'crystal_cavern' ||
+                    tile.type === 'dungeon' ||
+                    tile.type === 'monument' ||
+                    tile.type === 'training-grounds' ||
+                    tile.type === 'tavern' ||
+                    tile.type === 'castle';
 
                   if (placementMode && selectedProperty) {
                     handlePropertyPlacement(x, y)
@@ -1652,15 +1678,23 @@ export function KingdomGridWithTimers({
                   </div>
                 )}
 
-                {/* Navigation Hub Tiles - Always Clickable (Archery→Quests, Market→Market, Dungeon→Dungeon) */}
-                {(tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'market' || tile.type === 'dungeon') && (
-                  <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
-                    <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
-                      {tile.type === 'archery' || tile.type === 'jousting' ? 'Quests' :
-                        tile.type === 'market' ? 'Market' : 'Dungeon'}
+                {/* Navigation Hub Tiles - Always Clickable */}
+                {(tile.type === 'quest-board' || tile.type === 'market' ||
+                  tile.type === 'crystal_cavern' || tile.type === 'dungeon' ||
+                  tile.type === 'monument' || tile.type === 'training-grounds' ||
+                  tile.type === 'tavern' || tile.type === 'castle') && (
+                    <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
+                      <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                        {tile.type === 'quest-board' ? 'Quests' :
+                          tile.type === 'market' ? 'Market' :
+                            tile.type === 'crystal_cavern' || tile.type === 'dungeon' ? 'Dungeon' :
+                              tile.type === 'monument' ? 'Achievements' :
+                                tile.type === 'training-grounds' ? 'Character' :
+                                  tile.type === 'tavern' ? 'Social' :
+                                    tile.type === 'castle' ? 'Realm' : ''}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Placement mode indicator for vacant tiles */}
                 {placementMode && tile.type === 'vacant' && (
