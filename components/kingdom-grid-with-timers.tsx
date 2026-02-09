@@ -1609,8 +1609,15 @@ export function KingdomGridWithTimers({
                   // Check if mobile (simple check based on viewport)
                   const isMobile = window.innerWidth < 768;
 
+                  // Navigation tiles should always be clickable (no timer requirement)
+                  const isNavigationTile = tile.type === 'archery' || tile.type === 'jousting' ||
+                    tile.type === 'market' || tile.type === 'dungeon';
+
                   if (placementMode && selectedProperty) {
                     handlePropertyPlacement(x, y)
+                  } else if (isNavigationTile) {
+                    // Navigation tiles always navigate immediately
+                    handleTileClick(x, y, tile)
                   } else if (isKingdomTile && isMobile && !readOnly) {
                     // On mobile, open the action sheet for kingdom tiles
                     setActionSheetTile({ tile, x, y, ...(timer ? { timer } : {}) });
@@ -1642,6 +1649,16 @@ export function KingdomGridWithTimers({
                     <span className="text-[8px] font-bold text-teal-200 tracking-[0.2em] uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-black drop-shadow-lg">
                       Zen
                     </span>
+                  </div>
+                )}
+
+                {/* Navigation Hub Tiles - Always Clickable (Archery→Quests, Market→Market, Dungeon→Dungeon) */}
+                {(tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'market' || tile.type === 'dungeon') && (
+                  <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
+                    <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                      {tile.type === 'archery' || tile.type === 'jousting' ? 'Quests' :
+                        tile.type === 'market' ? 'Market' : 'Dungeon'}
+                    </div>
                   </div>
                 )}
 
