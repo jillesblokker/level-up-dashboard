@@ -64,6 +64,7 @@ export function getTileName(type: TileType): string {
     monument: 'Monument',
     'training-grounds': 'Training Grounds',
     tavern: 'Tavern',
+    watchtower: 'Watchtower',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -132,6 +133,7 @@ export function getDefaultConnections(type: TileType): string[] {
     monument: ['grass'],
     'training-grounds': ['grass'],
     tavern: ['grass'],
+    watchtower: ['grass'],
   };
   return defaultConnections[type] || [];
 } 

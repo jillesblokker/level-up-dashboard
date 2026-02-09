@@ -211,7 +211,8 @@ export class MapGenerator {
       'quest-board': 'Quest Board',
       monument: 'Monument',
       'training-grounds': 'Training Grounds',
-      tavern: 'Tavern'
+      tavern: 'Tavern',
+      watchtower: 'Watchtower'
     };
 
     const tileDescriptions = {
@@ -277,7 +278,8 @@ export class MapGenerator {
       'quest-board': 'A board listing the kingdom\'s tasks and quests',
       monument: 'A monument honoring the kingdom\'s achievements',
       'training-grounds': 'A place where heroes train and improve their skills',
-      tavern: 'A lively place to socialize and meet other adventurers'
+      tavern: 'A lively place to socialize and meet other adventurers',
+      watchtower: 'A tall tower to keep watch over the kingdom'
     };
 
     const tileImages = {
@@ -343,7 +345,8 @@ export class MapGenerator {
       'quest-board': '/images/kingdom-tiles/QuestBoard.png',
       monument: '/images/kingdom-tiles/Monument.png',
       'training-grounds': '/images/kingdom-tiles/TrainingGrounds.png',
-      tavern: '/images/kingdom-tiles/Inn.png'
+      tavern: '/images/kingdom-tiles/Inn.png',
+      watchtower: '/images/kingdom-tiles/Watchtower.png'
     };
 
     return {

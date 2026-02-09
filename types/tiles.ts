@@ -64,7 +64,8 @@ export type TileType =
   | 'quest-board'
   | 'monument'
   | 'training-grounds'
-  | 'tavern';
+  | 'tavern'
+  | 'watchtower';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
