@@ -122,6 +122,91 @@ export default function DungeonPage() {
     }
   }
 
+  if (!activeRun) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-black/95">
+        <div className="w-full max-w-md relative">
+          {/* Background Glow */}
+          <div className="absolute inset-0 bg-red-500/10 blur-[100px] pointer-events-none" />
+
+          <Card className="relative bg-zinc-950 border-zinc-900 text-zinc-100 overflow-hidden shadow-2xl">
+            {/* Inner Card Glow */}
+            <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 to-transparent pointer-events-none" />
+
+            <CardContent className="relative z-10 p-8 flex flex-col items-center text-center space-y-8">
+
+              {/* Header Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest shadow-lg shadow-red-900/20">
+                <Skull className="w-3 h-3" />
+                Dungeon
+              </div>
+
+              {/* Title & Description */}
+              <div className="space-y-4">
+                <h1 className="text-4xl font-serif text-white tracking-tight">
+                  Enter if you dare
+                </h1>
+                <p className="text-zinc-400 leading-relaxed max-w-[280px] mx-auto">
+                  Monsters lurk in the shadows. Defeat them to claim the treasure.
+                </p>
+                <div className="text-sm font-medium text-amber-500">
+                  Entry Cost: <span className="text-amber-400 font-bold">50 Gold</span>
+                </div>
+              </div>
+
+              {/* Central Visual */}
+              <div className="relative py-4">
+                <div className="relative group">
+                  {/* Pulsing Outer Glow */}
+                  <div className="absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 bg-red-500" />
+
+                  {/* Rotating Decorative Border */}
+                  <div className="absolute -inset-6 border border-dashed border-red-500/30 rounded-full animate-[spin_10s_linear_infinite]" />
+                  <div className="absolute -inset-6 border border-dashed border-red-500/30 rounded-full animate-[spin_15s_linear_infinite_reverse] opacity-50" />
+
+                  {/* Main Icon Container */}
+                  <div className="relative w-32 h-32 rounded-full border-4 border-zinc-900 shadow-2xl overflow-hidden bg-zinc-900 flex items-center justify-center ring-1 ring-red-500/20">
+                    <div className="absolute inset-0 bg-gradient-to-t from-red-900/40 via-transparent to-transparent" />
+                    <Skull className="w-16 h-16 text-red-500 drop-shadow-lg" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="w-full space-y-3 pt-4">
+                <Button
+                  size="lg"
+                  className="w-full h-14 text-lg font-medium tracking-wide bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                  onClick={startRun}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                      Entering...
+                    </span>
+                  ) : (
+                    "Enter Dungeon"
+                  )}
+                </Button>
+
+                <Link href="/kingdom" className="block w-full">
+                  <Button
+                    variant="ghost"
+                    className="w-full h-12 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50 rounded-xl transition-colors"
+                  >
+                    Return to Kingdom
+                  </Button>
+                </Link>
+              </div>
+
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
 
@@ -139,30 +224,6 @@ export default function DungeonPage() {
           </Link>
         </div>
       </div>
-
-      {/* START SCREEN */}
-      {!activeRun && (
-        <Card className="bg-gray-900 border-red-900/30 text-center py-12">
-          <CardContent className="space-y-6">
-            <div className="w-24 h-24 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-red-900/50">
-              <Skull className="w-12 h-12 text-red-500" />
-            </div>
-            <h2 className="text-2xl font-bold">Enter if you dare</h2>
-            <p className="text-gray-400 max-w-md mx-auto">
-              Monsters lurk in the shadows. Defeat them to claim the treasure.
-              <br />Entry Cost: <span className="text-yellow-500 font-bold">50 Gold</span>
-            </p>
-            <Button
-              size="lg"
-              className="bg-red-700 hover:bg-red-800 text-white font-medieval text-lg px-8"
-              onClick={startRun}
-              disabled={loading}
-            >
-              {loading ? "Preparing..." : "Enter Dungeon"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
 
       {/* GAMEPLAY SCREEN */}
       {activeRun && activeRun.status === 'in_progress' && (
@@ -300,39 +361,67 @@ export default function DungeonPage() {
       {/* END SCREEN */}
       {
         activeRun && activeRun.status !== 'in_progress' && (
-          <Card className="bg-gray-900 border-gray-800 text-center py-12">
-            <CardContent className="space-y-6">
-              <div className="text-6xl mb-4">
-                {activeRun.status === 'completed' ? '🏆' : '💀'}
-              </div>
-              <h2 className={`text-4xl font-medieval ${activeRun.status === 'completed' ? 'text-yellow-500' : 'text-red-600'}`}>
-                {activeRun.status === 'completed' ? 'VICTORY' : 'DEFEATED'}
-              </h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="w-full max-w-md relative animate-in fade-in zoom-in duration-300">
+              {/* Background Glow */}
+              <div className={`absolute inset-0 blur-[100px] pointer-events-none ${activeRun.status === 'completed' ? 'bg-amber-500/20' : 'bg-red-500/20'}`} />
 
-              <div className="bg-black/30 p-6 rounded-lg max-w-sm mx-auto border border-gray-700">
-                <h3 className="font-bold text-gray-300 mb-4">Rewards Collected</h3>
-                {activeRun.loot_collected.length === 0 ? (
-                  <p className="text-gray-500 italic">No loot recovered.</p>
-                ) : (
-                  <ul className="space-y-2">
-                    {activeRun.loot_collected.map((item, i) => (
-                      <li key={i} className="text-yellow-400 font-bold flex justify-between">
-                        <span>{item.name}</span>
-                      </li>
-                    ))}
-                    <li className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-bold text-white">
-                      <span>Total Value</span>
-                      <span>{activeRun.loot_collected.reduce((acc, i) => acc + (i.amount || 0), 0)} G</span>
-                    </li>
-                  </ul>
-                )}
-              </div>
+              <Card className="relative bg-zinc-950 border-zinc-900 text-zinc-100 overflow-hidden shadow-2xl">
+                <CardContent className="relative z-10 p-8 flex flex-col items-center text-center space-y-6">
 
-              <Button size="lg" onClick={() => setActiveRun(null)} className="w-[200px]">
-                Return to Entrance
-              </Button>
-            </CardContent>
-          </Card>
+                  {/* Status Icon */}
+                  <div className="relative group">
+                    <div className={`absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 ${activeRun.status === 'completed' ? 'bg-amber-500' : 'bg-red-500'}`} />
+                    <div className={`relative w-24 h-24 rounded-full border-4 shadow-xl flex items-center justify-center text-5xl bg-zinc-900 ${activeRun.status === 'completed' ? 'border-amber-500/30 text-amber-500' : 'border-red-500/30 text-red-500'}`}>
+                      {activeRun.status === 'completed' ? '🏆' : '💀'}
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <div className="space-y-2">
+                    <h2 className={`text-4xl font-serif tracking-tight ${activeRun.status === 'completed' ? 'text-amber-400' : 'text-red-500'}`}>
+                      {activeRun.status === 'completed' ? 'Victory!' : 'Defeated'}
+                    </h2>
+                    <p className="text-zinc-400">
+                      {activeRun.status === 'completed' ? 'You have conquered the depths.' : 'Your journey ends here.'}
+                    </p>
+                  </div>
+
+                  {/* Rewards Panel */}
+                  <div className="w-full bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+                    <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-3">Rewards Recovered</h3>
+
+                    {!activeRun.loot_collected || activeRun.loot_collected.length === 0 ? (
+                      <p className="text-zinc-600 text-sm italic py-2">No loot recovered.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {activeRun.loot_collected.map((item, i) => (
+                          <div key={i} className="flex justify-between items-center text-sm">
+                            <span className="text-zinc-300">{item.name}</span>
+                            {item.amount && <span className="text-amber-400 font-mono">+{item.amount} G</span>}
+                          </div>
+                        ))}
+                        <div className="border-t border-zinc-800 mt-2 pt-2 flex justify-between items-center font-bold text-white">
+                          <span>Total Value</span>
+                          <span className="text-amber-400">{activeRun.loot_collected.reduce((acc, i) => acc + (i.amount || 0), 0)} G</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action */}
+                  <Button
+                    size="lg"
+                    onClick={() => setActiveRun(null)}
+                    className={`w-full h-12 text-lg font-medium tracking-wide text-white shadow-lg transition-all duration-300 rounded-xl ${activeRun.status === 'completed' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-900/20' : 'bg-red-600 hover:bg-red-500 shadow-red-900/20'}`}
+                  >
+                    Return to Entrance
+                  </Button>
+
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         )
       }
 
