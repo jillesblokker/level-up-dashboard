@@ -52,6 +52,7 @@ export interface InventoryItem {
     defense?: number
   }
   equipped?: boolean
+  star_rating?: number
 }
 
 // Zod Schema for robust runtime validation

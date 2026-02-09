@@ -9,6 +9,7 @@ import { useUser } from "@clerk/nextjs"
 import { setUserPreference } from "@/lib/user-preferences-manager"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { comprehensiveItems } from "@/app/lib/comprehensive-items"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -225,6 +226,33 @@ export default function MarketPage() {
     toast({ title: TEXT_CONTENT.market.toasts.success.title, description: "Purchase successful!" })
   }
 
+  const handleBuyNpcItem = async (item: any) => {
+    if (goldBalance < item.cost) {
+      toast({ title: "Insufficient Gold", description: `You need ${item.cost} gold.`, variant: "destructive" });
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/market/buy-npc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: item.id, quantity: 1 })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        toast({ title: "Purchase Successful", description: `Bought ${item.name}!` });
+        setGoldBalance(prev => prev - item.cost);
+        // Refresh stats globally
+        fetchFreshCharacterStats();
+      } else {
+        toast({ title: "Error", description: data.error, variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Network Error", description: "Failed to contact merchant.", variant: "destructive" });
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
       <main className="flex-1 p-4 md:p-6 space-y-6">
@@ -248,8 +276,9 @@ export default function MarketPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-            <TabsTrigger value="system-shop" className="gap-2"><Store className="w-4 h-4" /> System Shop</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+            <TabsTrigger value="system-shop" className="gap-2"><Store className="w-4 h-4" /> Architect</TabsTrigger>
+            <TabsTrigger value="merchant" className="gap-2"><ShoppingCart className="w-4 h-4" /> General Store</TabsTrigger>
             <TabsTrigger value="player-market" className="gap-2"><Gavel className="w-4 h-4" /> Player Market</TabsTrigger>
           </TabsList>
 
@@ -307,6 +336,38 @@ export default function MarketPage() {
                   </Card>
                 ))}
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="merchant" className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {comprehensiveItems.filter(i => !i.isDefault && i.cost > 0).map(item => (
+                <Card key={item.id} className="bg-black border-amber-800/20 hover:border-amber-500/50 transition-colors">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex justify-between items-start">
+                      <span className="flex items-center gap-2 text-amber-100">{item.emoji} {item.name}</span>
+                      <Badge variant={item.rarity === 'common' ? 'secondary' : 'outline'} className="capitalize border-amber-500/30">{item.rarity}</Badge>
+                    </CardTitle>
+                    <CardDescription className="text-amber-500/60 capitalize">{item.type} • {item.category}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <p className="text-sm text-gray-400 min-h-[40px] line-clamp-2">{item.description}</p>
+                    {item.stats && Object.keys(item.stats).length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {Object.entries(item.stats).map(([key, val]) => (
+                          <Badge key={key} variant="secondary" className="text-xs bg-amber-900/20 text-amber-500/80 border-none capitalize">{key}: +{val}</Badge>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center bg-gray-900/30 p-4">
+                    <div className="flex items-center gap-1 font-bold text-yellow-500">
+                      <Coins className="w-4 h-4" /> {item.cost}
+                    </div>
+                    <Button size="sm" onClick={() => handleBuyNpcItem(item)} className="bg-amber-600 hover:bg-amber-700">Buy</Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </TabsContent>
 

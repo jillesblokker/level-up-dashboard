@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     // Read the migration file
     const fs = require('fs');
     const path = require('path');
-    const migrationPath = path.join(process.cwd(), 'migrations', 'ensure_streaks_table_final.sql');
+    const migrationPath = path.join(process.cwd(), 'migrations', 'create_kingdom_bonuses.sql');
 
     if (!fs.existsSync(migrationPath)) {
       return NextResponse.json({ error: 'Migration file not found' }, { status: 500 });

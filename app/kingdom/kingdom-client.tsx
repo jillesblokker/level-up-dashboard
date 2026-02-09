@@ -73,7 +73,8 @@ import { TEXT_CONTENT } from "@/lib/text-content";
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number>,
   description?: string,
-  category?: string
+  category?: string,
+  star_rating?: number
 }
 
 interface WindowWithHeaderImages extends Window {
@@ -927,8 +928,13 @@ export function KingdomClient() {
         <CardHeader className="p-4 pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-amber-500 text-lg font-semibold mb-1">
-                {getItemDisplayName(item)}
+              <CardTitle className="text-amber-500 text-lg font-semibold mb-1 flex justify-between items-center w-full">
+                <span>{getItemDisplayName(item)}</span>
+                {item.star_rating && item.star_rating > 0 && (
+                  <span className="text-yellow-400 text-sm ml-2 drop-shadow-md" title={`Star Rating: ${item.star_rating}`}>
+                    {'★'.repeat(item.star_rating)}
+                  </span>
+                )}
               </CardTitle>
               {item.type && (
                 <Badge className="text-xs bg-gray-700 text-gray-300 mb-2">

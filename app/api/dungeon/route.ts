@@ -1,42 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { apiLogger } from '@/lib/logger';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { calculateKingdomBonuses, KingdomBonuses } from '@/lib/kingdom-utils';
+import { calculateLevelFromExperience } from '@/types/character';
+import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 
-export const dynamic = 'force-dynamic';
+// Types
+interface Loot {
+    type: string;
+    amount?: number;
+    name: string;
+    itemId?: string;
+    itemStats?: any;
+    starRating?: number;
+}
 
 interface Encounter {
     type: 'monster' | 'treasure';
-    name: string;
-    hp?: number;
+    hp?: number; // for monster
     maxHp?: number;
+    difficulty?: number;
+    loot?: Loot[];
 }
 
-interface Loot {
-    type: string;
-    amount: number;
-    name: string;
+interface DungeonRun {
+    id: string;
+    user_id: string;
+    current_room: number;
+    current_hp: number;
+    max_hp: number;
+    status: 'in_progress' | 'completed' | 'defeated';
+    current_encounter: Encounter;
+    loot_collected: Loot[];
+    created_at: string;
+    max_rooms: number;
 }
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { action, runId, choice } = body;
+        const { action, runId, choice, itemId } = body; // itemId added for usage
 
-        apiLogger.debug(`Dungeon API Request: action=${action}, runId=${runId}, choice=${choice}`);
-
-        const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
-
-            // --- ACTION: START NEW RUN ---
+        return await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+            // --- ACTION: START RUN ---
             if (action === 'start') {
-                apiLogger.info(`Starting new dungeon run for user ${userId}`);
-
-                // 1. Check Gold (Entry Fee 50G)
+                // 1. Check Gold & Fetch Stats + Kingdom Grid
                 const { data: stats } = await supabase
                     .from('character_stats')
                     .select('gold, vitality, strength, intelligence')
                     .eq('user_id', userId)
                     .single();
+
+                const { data: kingdomGrid } = await supabase
+                    .from('kingdom_grid')
+                    .select('grid_data')
+                    .eq('user_id', userId)
+                    .single();
+
+                const bonuses = calculateKingdomBonuses(kingdomGrid?.grid_data || []);
 
                 if (!stats || stats.gold < 50) {
                     apiLogger.warn(`Insufficient gold for dungeon run: ${stats?.gold || 0}`);
@@ -47,32 +70,47 @@ export async function POST(req: NextRequest) {
                 await supabase.rpc('deduct_gold', { p_user_id: userId, p_amount: 50 });
 
                 // 3. Create Run
-                // Base HP = 100 + (Vitality * 10)
-                const maxHp = 100 + ((stats.vitality || 1) * 10);
+                // Base HP = 100 + ((Vitality + Bonus) * 10)
+                const { data: equippedItems } = await supabase
+                    .from('inventory_items')
+                    .select('stats, star_rating')
+                    .eq('user_id', userId)
+                    .eq('equipped', true);
+
+                let equipHealth = 0;
+                equippedItems?.forEach((i: any) => {
+                    const stars = i.star_rating || 0;
+                    const multiplier = 1 + (stars === 1 ? 0.1 : stars === 2 ? 0.25 : stars === 3 ? 0.5 : 0);
+                    equipHealth += Math.floor((i.stats?.health || 0) * multiplier);
+                });
+
+                const totalVitality = (stats.vitality || 1) + bonuses.vitality;
+                const maxHp = 100 + (totalVitality * 10) + equipHealth;
+
+                const firstEncounter = generateEncounter(1);
 
                 const { data: newRun, error } = await supabase
                     .from('dungeon_runs')
                     .insert({
                         user_id: userId,
+                        current_room: 1,
                         current_hp: maxHp,
                         max_hp: maxHp,
-                        current_room: 1,
                         status: 'in_progress',
-                        current_encounter: generateEncounter(1) // Initial encounter
+                        current_encounter: firstEncounter,
+                        loot_collected: [],
+                        max_rooms: 5 // Default run length
                     })
                     .select()
                     .single();
 
-                if (error) {
-                    apiLogger.error('Error creating dungeon run:', error);
-                    throw error;
-                }
+                if (error) throw error;
 
-                apiLogger.info(`Dungeon run created: ${newRun.id}`);
+                apiLogger.info(`Started dungeon run ${newRun.id} for user ${userId}`);
                 return newRun;
             }
 
-            // --- ACTION: PLAY TURN (FIGHT/FLEE/OPEN) ---
+            // --- ACTION: PLAY TURN (FIGHT/FLEE/OPEN/USE_ITEM) ---
             if (action === 'play') {
                 if (!runId) throw new Error('Missing runId');
 
@@ -96,15 +134,86 @@ export async function POST(req: NextRequest) {
                 let isRoomCleared = false;
 
                 if (encounter.type === 'monster') {
-                    if (choice === 'fight') {
-                        // Simple combat logic in API for now
-                        const userDmg = Math.floor(Math.random() * 10) + 10;
-                        const monsterDmg = Math.floor(Math.random() * 10) + 5;
+                    // Fetch Stats for Combat/Effects
+                    const { data: currentStats } = await supabase
+                        .from('character_stats')
+                        .select('strength, intelligence')
+                        .eq('user_id', userId)
+                        .single();
+
+                    const { data: kingdomGrid } = await supabase
+                        .from('kingdom_grid')
+                        .select('grid_data')
+                        .eq('user_id', userId)
+                        .single();
+
+                    const bonuses = calculateKingdomBonuses(kingdomGrid?.grid_data || []);
+                    const strength = (currentStats?.strength || 1) + bonuses.strength;
+
+                    const { data: equippedItems } = await supabase
+                        .from('inventory_items')
+                        .select('stats, star_rating')
+                        .eq('user_id', userId)
+                        .eq('equipped', true);
+
+                    let equipAttack = 0;
+                    let equipDefense = 0;
+                    equippedItems?.forEach((i: any) => {
+                        const stars = i.star_rating || 0;
+                        const multiplier = 1 + (stars === 1 ? 0.1 : stars === 2 ? 0.25 : stars === 3 ? 0.5 : 0);
+                        equipAttack += Math.floor((i.stats?.attack || 0) * multiplier);
+                        equipDefense += Math.floor((i.stats?.defense || 0) * multiplier);
+                    });
+
+                    // Monster Params
+                    const roomDifficulty = run.current_room || 1;
+                    const monsterDmg = Math.floor(2 + (roomDifficulty * 1.5) + (Math.random() * 5));
+
+                    // Decision Branch
+                    if (choice === 'use_item' && itemId) {
+                        // --- Use Potion ---
+                        const { data: itemToUse } = await supabase
+                            .from('inventory_items')
+                            .select('*')
+                            .eq('user_id', userId)
+                            .eq('item_id', itemId)
+                            .single();
+
+                        if (!itemToUse || (itemToUse.quantity || 0) <= 0) {
+                            throw new Error('Item not found or empty');
+                        }
+
+                        const healBase = itemToUse.stats?.health || 0;
+                        if (healBase <= 0) throw new Error('Item has no healing effect');
+
+                        const iStars = itemToUse.star_rating || 0;
+                        const iMult = 1 + (iStars === 1 ? 0.1 : iStars === 2 ? 0.25 : iStars === 3 ? 0.5 : 0);
+                        const healAmount = Math.floor(healBase * iMult);
+
+                        // Apply
+                        run.current_hp = Math.min(run.max_hp, run.current_hp + healAmount);
+
+                        // Consume
+                        if (itemToUse.quantity > 1) {
+                            await supabase.from('inventory_items').update({ quantity: itemToUse.quantity - 1 }).eq('id', itemToUse.id);
+                        } else {
+                            await supabase.from('inventory_items').delete().eq('id', itemToUse.id);
+                        }
+
+                        resultMessage = `Used ${itemToUse.name} (+${healAmount} HP).`;
+
+                        // Monster Attack (Turn Cost)
+                        damageTaken = Math.max(1, monsterDmg - equipDefense);
+                        resultMessage += ` Monster hit you for ${damageTaken} damage.`;
+
+                    } else if (choice === 'fight') {
+                        // --- Fight ---
+                        const userDmg = Math.floor(5 + (strength * 0.5) + equipAttack + (Math.random() * 5));
 
                         encounter.hp = (encounter.hp || 30) - userDmg;
-                        damageTaken = monsterDmg;
+                        damageTaken = Math.max(1, monsterDmg - equipDefense);
 
-                        resultMessage = `You hit for ${userDmg} dmg! Monster hit back for ${monsterDmg} dmg.`;
+                        resultMessage = `You hit for ${userDmg} dmg! Monster hit back for ${damageTaken} dmg.`;
 
                         if (encounter.hp <= 0) {
                             isRoomCleared = true;
@@ -112,6 +221,7 @@ export async function POST(req: NextRequest) {
                             lootFound = generateLoot(run.current_room);
                         }
                     } else if (choice === 'flee') {
+                        // --- Flee ---
                         if (Math.random() > 0.5) {
                             isRoomCleared = true;
                             resultMessage = 'You fled successfully!';
@@ -119,9 +229,11 @@ export async function POST(req: NextRequest) {
                             damageTaken = 10;
                             resultMessage = 'Failed to flee! Took 10 damage.';
                         }
+                    } else {
+                        throw new Error('Invalid combat action');
                     }
-                }
-                else if (encounter.type === 'treasure') {
+
+                } else if (encounter.type === 'treasure') {
                     isRoomCleared = true;
                     lootFound = generateLoot(run.current_room);
                     resultMessage = 'You found treasure!';
@@ -171,7 +283,10 @@ export async function POST(req: NextRequest) {
                 }
 
                 if (newStatus !== 'in_progress') {
-                    await processEndRun(supabase, userId, newLoot);
+                    const { data: kingdomGrid } = await supabase.from('kingdom_grid').select('grid_data').eq('user_id', userId).single();
+                    const endBonuses = calculateKingdomBonuses(kingdomGrid?.grid_data || []);
+
+                    await processEndRun(supabase, userId, newLoot, endBonuses);
                     apiLogger.info(`Dungeon run ${runId} finished with status: ${newStatus}`);
                 }
 
@@ -180,44 +295,154 @@ export async function POST(req: NextRequest) {
 
             throw new Error('Invalid action');
         });
-
-        if (!result.success) {
-            // If the error was thrown manually (e.g. Insufficient Gold), return 400
-            return NextResponse.json({ error: result.error }, { status: 400 });
-        }
-
-        return NextResponse.json(result.data);
-
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
         apiLogger.error('Dungeon API Error:', errorMessage);
-        return NextResponse.json({ error: errorMessage }, { status: 400 });
+        return NextResponse.json({ error: errorMessage }, { status: 500 }); // Status 500 for API errors
     }
 }
 
-// Helpers
 function generateEncounter(roomLevel: number): Encounter {
-    const type = Math.random() > 0.3 ? 'monster' : 'treasure';
-    if (type === 'treasure') {
-        return { type: 'treasure', name: 'Old Chest' };
+    const isTreasure = Math.random() < 0.2; // 20% chance of treasure
+    if (isTreasure) {
+        return { type: 'treasure' };
     }
+    // Monster scaling
     return {
         type: 'monster',
-        name: `Dungeon Monster Lvl ${roomLevel}`,
-        hp: 20 + (roomLevel * 10),
-        maxHp: 20 + (roomLevel * 10)
+        hp: 20 + (roomLevel * 5),
+        maxHp: 20 + (roomLevel * 5),
+        difficulty: roomLevel
     };
 }
 
-function generateLoot(roomLevel: number): Loot {
-    const gold = Math.floor(Math.random() * 50) + (roomLevel * 10);
-    return { type: 'gold', amount: gold, name: `${gold} Gold Coins` };
+function generateLoot(roomLevel: number): Loot | null {
+    if (Math.random() > 0.3) return null; // 30% chance of loot
+
+    // Generate Items instead of just gold
+    const possibleItems = comprehensiveItems.filter(i => {
+        if (roomLevel < 3) return i.rarity === 'common' || i.rarity === 'uncommon';
+        if (roomLevel < 7) return i.rarity === 'rare' || i.rarity === 'epic';
+        return i.rarity === 'legendary';
+    }).filter(i => i.type === 'weapon' || i.type === 'potion' || i.type === 'armor' || i.type === 'shield' || i.type === 'material');
+
+    if (possibleItems.length > 0) {
+        const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+
+        // Roll for Star Rating
+        const roll = Math.random();
+        let stars = 0;
+        if (roll < 0.01) stars = 3;      // 1% Radiant
+        else if (roll < 0.05) stars = 2; // 4% Gleaming
+        else if (roll < 0.15) stars = 1; // 10% Polished
+
+        const starPrefix = stars === 3 ? 'Radiant ' : stars === 2 ? 'Gleaming ' : stars === 1 ? 'Polished ' : '';
+
+        return {
+            type: 'item',
+            name: `${starPrefix}${item.name}`,
+            itemId: item.id,
+            itemStats: item.stats,
+            starRating: stars
+        };
+    }
+
+    return { type: 'gold', amount: 50 + (roomLevel * 10), name: 'Gold Coins' };
 }
 
-async function processEndRun(supabase: SupabaseClient, userId: string, loot: Loot[]) {
-    const totalGold = loot.reduce((acc, item) => acc + (item.type === 'gold' ? item.amount : 0), 0);
+// Helpers
+import { SupabaseClient } from '@supabase/supabase-js';
+
+async function processEndRun(supabase: SupabaseClient, userId: string, loot: Loot[], bonuses: any) {
+    let totalGold = loot.reduce((acc, item) => acc + (item.type === 'gold' ? (item.amount || 0) : 0), 0);
+
+    // Apply Gold Bonus
+    if (bonuses && bonuses.goldBonusPercent) {
+        totalGold = Math.floor(totalGold * (1 + (bonuses.goldBonusPercent / 100)));
+    }
+
+    // Calculate XP
+    let totalXp = Math.floor(totalGold * 0.5);
+
+    // Apply XP Bonus
+    if (bonuses && bonuses.xpBonusPercent) {
+        totalXp = Math.floor(totalXp * (1 + (bonuses.xpBonusPercent / 100)));
+    }
+
     if (totalGold > 0) {
-        apiLogger.info(`Awarding ${totalGold} gold for dungeon run completion`);
         await supabase.rpc('add_gold', { p_user_id: userId, p_amount: totalGold });
+    }
+
+    if (totalXp > 0) {
+        const { data: currentStats } = await supabase
+            .from('character_stats')
+            .select('experience')
+            .eq('user_id', userId)
+            .single();
+
+        if (currentStats) {
+            const newExperience = (currentStats.experience || 0) + totalXp;
+            const newLevel = calculateLevelFromExperience(newExperience);
+
+            await supabase
+                .from('character_stats')
+                .update({
+                    experience: newExperience,
+                    level: newLevel
+                })
+                .eq('user_id', userId);
+        }
+    }
+
+    // Award Items
+    const itemDrops = loot.filter(l => l.type === 'item' && l.itemId);
+    if (itemDrops.length > 0) {
+        for (const drop of itemDrops) {
+            if (!drop.itemId) continue;
+
+            const referenceItem = comprehensiveItems.find(i => i.id === drop.itemId);
+            if (!referenceItem) continue;
+
+            // Check if user already has item
+            const { data: existing } = await supabase
+                .from('inventory_items')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('item_id', drop.itemId)
+                .single();
+
+            if (existing) {
+                // Upgrade Rating if new is better
+                const currentStars = existing.star_rating || 0;
+                const newStars = drop.starRating || 0;
+                const bestStars = Math.max(currentStars, newStars);
+
+                await supabase
+                    .from('inventory_items')
+                    .update({
+                        quantity: existing.quantity + 1,
+                        star_rating: bestStars
+                    })
+                    .eq('id', existing.id);
+            } else {
+                await supabase
+                    .from('inventory_items')
+                    .insert({
+                        user_id: userId,
+                        item_id: referenceItem.id,
+                        name: drop.name,
+                        type: referenceItem.type,
+                        category: referenceItem.category,
+                        description: referenceItem.description,
+                        emoji: referenceItem.emoji,
+                        image: referenceItem.image,
+                        stats: referenceItem.stats || {},
+                        quantity: 1,
+                        equipped: false,
+                        is_default: false,
+                        star_rating: drop.starRating || 0
+                    });
+            }
+        }
     }
 }

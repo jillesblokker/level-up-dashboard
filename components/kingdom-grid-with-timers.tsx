@@ -8,6 +8,7 @@ import { KingdomPropertiesInventory } from './kingdom-properties-inventory'
 import { Button } from '@/components/ui/button'
 import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2, Check } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
@@ -81,6 +82,7 @@ export function KingdomGridWithTimers({
   onInventoryUpdate
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
+  const router = useRouter()
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
@@ -1175,6 +1177,23 @@ export function KingdomGridWithTimers({
     // Handle Zen Garden interaction
     if (tile.type === 'zen-garden') {
       setZenModalOpen(true);
+      return;
+    }
+
+    // Handle Functional Buildings (Hub Navigation)
+    if (tile.type === 'archery' || tile.type === 'training-grounds') {
+      toast({ title: "Entering Barracks...", description: "Redirecting to Quests." });
+      router.push('/quests');
+      return;
+    }
+    if (tile.type === 'market-stalls') {
+      toast({ title: "Entering Market...", description: "Redirecting to Market." });
+      router.push('/market');
+      return;
+    }
+    if (tile.type === 'wizard') {
+      toast({ title: "Approaching Wizard Tower...", description: "Teleporting to Dungeon." });
+      router.push('/dungeon');
       return;
     }
 

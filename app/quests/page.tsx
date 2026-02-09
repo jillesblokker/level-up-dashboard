@@ -2053,23 +2053,27 @@ export default function QuestsPage() {
               </button>
               <button
                 onClick={() => setActiveView('ledger')}
+                disabled={stats.level < 10}
                 className={cn(
                   "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
                   activeView === 'ledger'
                     ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-lg shadow-amber-500/20"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50",
+                  stats.level < 10 && "opacity-50 cursor-not-allowed"
                 )}
               >
                 <Flame className="w-4 h-4" />
-                <span>The Ledger</span>
+                <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
               </button>
               <button
                 onClick={() => setActiveView('sanctuary')}
+                disabled={stats.level < 20}
                 className={cn(
                   "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
                   activeView === 'sanctuary'
                     ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50",
+                  stats.level < 20 && "opacity-50 cursor-not-allowed"
                 )}
               >
                 <Trophy className="w-4 h-4" />
