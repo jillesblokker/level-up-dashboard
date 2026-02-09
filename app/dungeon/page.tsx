@@ -34,7 +34,6 @@ export default function DungeonPage() {
   const [loading, setLoading] = useState(false);
   const [log, setLog] = useState<string[]>([]);
   const [actionResult, setActionResult] = useState<any>(null); // { damageTaken: 5, lootFound: ... }
-  const [goldBalance, setGoldBalance] = useState(0);
   const [potions, setPotions] = useState<any[]>([]);
   const { user } = useUser();
 
@@ -55,9 +54,6 @@ export default function DungeonPage() {
   useEffect(() => {
     // Force a sync of local stats to server to ensure gold balance is consistent
     updateCharacterStats({});
-
-    // Fetch stats to display
-    fetchFreshCharacterStats().then(s => s && setGoldBalance(s.gold));
   }, []);
 
   const startRun = async () => {
@@ -72,9 +68,6 @@ export default function DungeonPage() {
       if (res.ok) {
         setActiveRun(data);
         setLog(["You entered the dungeon...", `Encountered: ${data.current_encounter.name}`]);
-        // Update gold locally
-        setGoldBalance(prev => prev - 50);
-        updateCharacterStats({ gold: goldBalance - 50 }, 'dungeon-start');
       } else {
         toast({ title: "Failed to enter", description: data.error, variant: "destructive" });
       }
@@ -113,7 +106,7 @@ export default function DungeonPage() {
 
         // If completed or died, refresh stats (gold might have changed)
         if (data.status !== 'in_progress') {
-          fetchFreshCharacterStats().then(s => s && setGoldBalance(s.gold));
+          fetchFreshCharacterStats();
         }
 
       } else {
@@ -136,9 +129,6 @@ export default function DungeonPage() {
           <p className="text-gray-400">Brave the depths for gold and glory.</p>
         </div>
         <div className="flex items-center gap-4">
-          <Badge variant="outline" className="text-yellow-500 border-yellow-500/50 px-3 py-1">
-            {goldBalance} Gold
-          </Badge>
           <Link href="/kingdom">
             <Button variant="outline" className="border-gray-800 hover:bg-gray-900">
               <ArrowLeft className="mr-2 h-4 w-4" /> Exit
@@ -163,11 +153,10 @@ export default function DungeonPage() {
               size="lg"
               className="bg-red-700 hover:bg-red-800 text-white font-medieval text-lg px-8"
               onClick={startRun}
-              disabled={loading || goldBalance < 50}
+              disabled={loading}
             >
               {loading ? "Preparing..." : "Enter Dungeon"}
             </Button>
-            {goldBalance < 50 && <p className="text-red-500 text-sm">Not enough gold.</p>}
           </CardContent>
         </Card>
       )}
