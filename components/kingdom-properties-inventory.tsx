@@ -255,7 +255,7 @@ function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getM
   return (
     <Card
       className={cn(
-        "relative overflow-hidden transition-all duration-300 border-2 bg-[#0f1115]",
+        "relative overflow-hidden transition-all duration-300 border-2 bg-[#0f1115] flex flex-col h-full",
         isPlaceMode
           ? "border-amber-500/30 hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
           : isLocked
@@ -264,8 +264,9 @@ function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getM
       )}
       onClick={isPlaceMode ? onSelect : undefined}
     >
+      {/* ... (image section remains same, but let's just make sure we don't break it) ... */}
       {/* Card Header Illustration */}
-      <div className={cn("w-full aspect-[4/3] relative bg-[#1a1d24] p-4 flex items-center justify-center", isPlaceMode ? "bg-amber-900/10" : "")}>
+      <div className={cn("w-full aspect-[4/3] relative bg-[#1a1d24] p-4 flex items-center justify-center shrink-0", isPlaceMode ? "bg-amber-900/10" : "")}>
         <Image
           src={tile.image}
           alt={tile.name}
@@ -303,7 +304,7 @@ function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getM
         )}
       </div>
 
-      <CardContent className="p-3">
+      <CardContent className="p-3 flex-1 flex flex-col">
         {/* Title */}
         <h3 className={cn("font-bold text-lg leading-tight mb-2 truncate font-medieval tracking-wide text-center", isLocked ? "text-gray-500" : "text-amber-100")}>
           {tile.name}
@@ -311,7 +312,7 @@ function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getM
 
         {/* Place Mode Visuals */}
         {isPlaceMode && (
-          <div className="text-center">
+          <div className="text-center mt-auto">
             <Button
               size="sm"
               className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold"
@@ -323,7 +324,7 @@ function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getM
 
         {/* Buy Mode Requirements */}
         {!isPlaceMode && (
-          <div className="space-y-3">
+          <div className="space-y-3 mt-auto">
 
             {/* Option 1: Construction (Gold + Materials) */}
             <div className={cn("bg-black/40 rounded-lg p-2 border border-white/5", isLocked && "opacity-50")}>
