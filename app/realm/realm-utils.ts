@@ -22,6 +22,9 @@ export const defaultTile = (type: TileType): Tile => {
 
     if (type === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.png';
     if (type === 'watchtower') image = '/images/kingdom-tiles/Watchtower.png';
+    if (type === 'library') image = '/images/kingdom-tiles/Library.png';
+    if (type === 'wizard') image = '/images/kingdom-tiles/Wizard.png';
+    if (type === 'temple') image = '/images/kingdom-tiles/Temple.png';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -111,6 +114,9 @@ export const initialInventory: Record<TileType, Tile> = {
     'training-grounds': { ...defaultTile('training-grounds'), cost: 200, owned: 1 },
     tavern: { ...defaultTile('tavern'), cost: 200, owned: 1 },
     watchtower: { ...defaultTile('watchtower'), cost: 300, owned: 0 },
+    library: { ...defaultTile('library'), cost: 300, owned: 0 },
+    wizard: { ...defaultTile('wizard'), cost: 400, owned: 0 },
+    temple: { ...defaultTile('temple'), cost: 400, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -129,6 +135,9 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'market') return '/images/kingdom-tiles/MarketStalls.png';
     if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.png';
     if (type === 'watchtower') return '/images/kingdom-tiles/Watchtower.png';
+    if (type === 'library') return '/images/kingdom-tiles/Library.png';
+    if (type === 'wizard') return '/images/kingdom-tiles/Wizard.png';
+    if (type === 'temple') return '/images/kingdom-tiles/Temple.png';
     return `/images/tiles/${type}-tile.png`;
 };
 
