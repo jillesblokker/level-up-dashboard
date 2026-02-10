@@ -1708,8 +1708,8 @@ export function KingdomGridWithTimers({
                                       tile.type?.toLowerCase() === 'library' ? 'My Chronicle' :
                                         tile.type?.toLowerCase() === 'house' ? 'Character' :
                                           tile.type?.toLowerCase() === 'zen-garden' ? 'Meditation' :
-                                            (tile.type?.toLowerCase() === 'inn' || tile.type?.toLowerCase() === 'tavern') ? 'Social' :
-                                              (tile.type?.toLowerCase() === 'market-stalls' || tile.type === 'market') ? 'Market' : ''}
+                                            tile.type?.toLowerCase() === 'inn' ? 'Social' :
+                                              tile.type?.toLowerCase() === 'market-stalls' ? 'Market' : ''}
                       </div>
                     </div>
                   )}
