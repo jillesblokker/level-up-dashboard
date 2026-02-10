@@ -65,6 +65,9 @@ export function getTileName(type: TileType): string {
     'training-grounds': 'Training Grounds',
     tavern: 'Tavern',
     watchtower: 'Watchtower',
+    library: 'Library',
+    wizard: 'Wizard',
+    temple: 'Temple',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -134,6 +137,9 @@ export function getDefaultConnections(type: TileType): string[] {
     'training-grounds': ['grass'],
     tavern: ['grass'],
     watchtower: ['grass'],
+    library: ['grass', 'city', 'town'],
+    wizard: ['grass', 'forest', 'mountain'],
+    temple: ['grass', 'forest', 'mountain'],
   };
   return defaultConnections[type] || [];
 } 
