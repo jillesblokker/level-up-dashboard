@@ -164,7 +164,7 @@ export default function MarketPage() {
           <TabsContent value="buy">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {MATERIALS.map((material) => (
-                <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group">
+                <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
                   <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                       <Package className="w-16 h-16 text-amber-500" />
@@ -179,7 +179,7 @@ export default function MarketPage() {
                       </div>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-4">
+                  <CardContent className="pt-6 space-y-4 flex-1">
                     <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
                       <span>In Inventory:</span>
                       <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
@@ -223,7 +223,7 @@ export default function MarketPage() {
           <TabsContent value="sell">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {MATERIALS.map((material) => (
-                <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group">
+                <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
                   <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                       <TrendingUp className="w-16 h-16 text-green-500" />
@@ -238,7 +238,7 @@ export default function MarketPage() {
                       </div>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-4">
+                  <CardContent className="pt-6 space-y-4 flex-1">
                     <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
                       <span>Available for Sale:</span>
                       <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>

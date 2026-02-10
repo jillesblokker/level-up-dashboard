@@ -445,7 +445,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                             <TooltipTrigger asChild>
                               <Card
                                 className={cn(
-                                  "relative overflow-hidden transition-all duration-200",
+                                  "relative overflow-hidden transition-all duration-200 h-full flex flex-col",
                                   selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
                                   (tile.quantity === 0 || userLevelValue < category.minLevel) && "opacity-50",
                                   userLevelValue >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
@@ -495,7 +495,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-4 bg-background/95 backdrop-blur-sm">
+                                <div className="p-4 bg-background/95 backdrop-blur-sm flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center">
                                     <span className="text-amber-500 font-medium">{tile.cost} gold</span>
@@ -509,7 +509,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      className="w-full mt-3 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300"
+                                      className="w-full mt-auto bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setActiveTab('buy');
@@ -613,7 +613,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                             <TooltipTrigger asChild>
                               <Card
                                 className={cn(
-                                  "relative overflow-hidden transition-all duration-200",
+                                  "relative overflow-hidden transition-all duration-200 h-full flex flex-col",
                                   (tile.quantity === 0 || userLevelValue < category.minLevel) && "opacity-50",
                                   userLevelValue >= category.minLevel && "hover:scale-105",
                                   tile.quantity === 0 && userLevelValue >= category.minLevel && "border-2 border-amber-500 shadow-lg"
@@ -649,12 +649,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-4 bg-background/95 backdrop-blur-sm">
+                                <div className="p-4 bg-background/95 backdrop-blur-sm flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center mb-3">
                                     <span className="text-amber-500 font-medium">{tile.cost} gold</span>
                                   </div>
-                                  <div className="flex gap-2 items-center justify-center">
+                                  <div className="flex gap-2 items-center justify-center mt-auto">
                                     <Input
                                       type="number"
                                       min="1"
