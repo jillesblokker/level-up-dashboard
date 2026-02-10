@@ -233,8 +233,11 @@ export default function DungeonPage() {
     for (let i = 0; i < draftSize; i++) {
       if (pool.length === 0) break;
       const randomIndex = Math.floor(Math.random() * pool.length);
-      party.push(pool[randomIndex]);
-      pool.splice(randomIndex, 1);
+      const creature = pool[randomIndex];
+      if (creature) {
+        party.push(creature);
+        pool.splice(randomIndex, 1);
+      }
     }
 
     // Fallback
