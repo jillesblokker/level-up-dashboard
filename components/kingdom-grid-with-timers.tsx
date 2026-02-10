@@ -1701,7 +1701,9 @@ export function KingdomGridWithTimers({
                               tile.type === 'monument' ? 'Achievements' :
                                 tile.type === 'training-grounds' ? 'Character' :
                                   tile.type === 'tavern' ? 'Social' :
-                                    tile.type === 'castle' ? 'Realm' : ''}
+                                    tile.type === 'castle' ? 'Realm' :
+                                      tile.type === 'library' ? 'My Chronicle' :
+                                        tile.type === 'house' ? 'Character' : ''}
                       </div>
                     </div>
                   )}

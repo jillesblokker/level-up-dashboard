@@ -730,108 +730,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     cost: 100
   },
   // --- New Realm Tiles (High Level) ---
-  {
-    id: 'farmland',
-    name: TEXT_CONTENT.kingdomTiles.farmland.name,
-    timerMinutes: 120,
-    normalGoldRange: [5, 15],
-    luckyGoldAmount: 50,
-    luckyChance: 0.15,
-    clickMessage: TEXT_CONTENT.kingdomTiles.farmland.clickMessage,
-    possibleItems: [
-      '/images/items/food/fish-red.png'
-    ],
-    itemType: 'food',
-    rarity: 'common',
-    image: '/images/tiles/farmland-tile.png',
-    levelRequired: 2,
-    cost: 80
-  },
-  {
-    id: 'jungle',
-    name: TEXT_CONTENT.kingdomTiles.jungle.name,
-    timerMinutes: 180,
-    normalGoldRange: [10, 25],
-    luckyGoldAmount: 85,
-    luckyChance: 0.18,
-    clickMessage: TEXT_CONTENT.kingdomTiles.jungle.clickMessage,
-    possibleItems: [
-      '/images/items/materials/material-logs.png'
-    ],
-    itemType: 'material',
-    rarity: 'uncommon',
-    image: '/images/tiles/jungle-tile.png',
-    levelRequired: 8,
-    cost: 300
-  },
-  {
-    id: 'graveyard',
-    name: TEXT_CONTENT.kingdomTiles.graveyard.name,
-    timerMinutes: 360,
-    normalGoldRange: [15, 30],
-    luckyGoldAmount: 100,
-    luckyChance: 0.10,
-    clickMessage: TEXT_CONTENT.kingdomTiles.graveyard.clickMessage,
-    possibleItems: [
-      '/images/items/artifact/ring/artifact-ringo.png'
-    ],
-    itemType: 'artifact',
-    rarity: 'rare',
-    image: '/images/tiles/graveyard-tile.png',
-    levelRequired: 10,
-    cost: 400
-  },
-  {
-    id: 'oasis',
-    name: TEXT_CONTENT.kingdomTiles.oasis.name,
-    timerMinutes: 120,
-    normalGoldRange: [8, 20],
-    luckyGoldAmount: 70,
-    luckyChance: 0.20,
-    clickMessage: TEXT_CONTENT.kingdomTiles.oasis.clickMessage,
-    possibleItems: [
-      '/images/items/materials/material-water.png'
-    ],
-    itemType: 'material',
-    rarity: 'rare',
-    image: '/images/tiles/oasis-tile.png',
-    levelRequired: 10,
-    cost: 450
-  },
-  {
-    id: 'ruins',
-    name: TEXT_CONTENT.kingdomTiles.ruins.name,
-    timerMinutes: 480,
-    normalGoldRange: [20, 50],
-    luckyGoldAmount: 150,
-    luckyChance: 0.12,
-    clickMessage: TEXT_CONTENT.kingdomTiles.ruins.clickMessage,
-    possibleItems: [
-      '/images/items/artifact/crown/artifact-crowny.png'
-    ],
-    itemType: 'artifact',
-    rarity: 'epic',
-    image: '/images/tiles/ruins-tile.png',
-    levelRequired: 12,
-    cost: 500
-  },
-  {
-    id: 'coral_reef',
-    name: TEXT_CONTENT.kingdomTiles.coral_reef.name,
-    timerMinutes: 240,
-    normalGoldRange: [15, 40],
-    luckyGoldAmount: 120,
-    luckyChance: 0.15,
-    clickMessage: TEXT_CONTENT.kingdomTiles.coral_reef.clickMessage,
-    possibleItems: [
-      '/images/items/food/fish-rainbow.png'
-    ],
-    itemType: 'food',
-    rarity: 'epic',
-    image: '/images/tiles/coral_reef-tile.png',
-    levelRequired: 12,
-    cost: 550
-  },
+  // (Removed Realm tiles: farmland, jungle, graveyard, oasis, ruins, coral_reef)
   {
     id: 'crystal_cavern',
     name: TEXT_CONTENT.kingdomTiles.crystal_cavern.name,
@@ -849,23 +748,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     levelRequired: 15,
     cost: 800
   },
-  {
-    id: 'floating_island',
-    name: TEXT_CONTENT.kingdomTiles.floating_island.name,
-    timerMinutes: 720,
-    normalGoldRange: [50, 150],
-    luckyGoldAmount: 500,
-    luckyChance: 0.05,
-    clickMessage: TEXT_CONTENT.kingdomTiles.floating_island.clickMessage,
-    possibleItems: [
-      '/images/items/artifact/scepter/artifact-staffy.png'
-    ],
-    itemType: 'artifact',
-    rarity: 'legendary',
-    image: '/images/tiles/floating_island-tile.png',
-    levelRequired: 20,
-    cost: 2000
-  },
+  // (Removed floating_island)
   // Hub Tiles (Navigation)
   {
     id: 'quest-board',
