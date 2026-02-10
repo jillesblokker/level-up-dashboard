@@ -254,7 +254,7 @@ export default function DungeonPage() {
     const newPlayerHp = run.currentHp - monsterDamage;
 
     // Log the turn
-    const logEntries = [];
+    const logEntries: string[] = [];
     logEntries.push(`You hit ${enemyDef.name} for ${damage} damage! ${playerMult > 1 ? '🔥' : ''}`);
 
     if (newMonsterHp > 0) {
