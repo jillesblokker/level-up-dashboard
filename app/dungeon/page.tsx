@@ -127,6 +127,7 @@ export default function DungeonPage() {
   const [run, setRun] = useState<DungeonRun | null>(null);
   const [message, setMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [dailyCount, setDailyCount] = useState<number>(0); // Track daily entries
   const [unlockedCreatures, setUnlockedCreatures] = useState<CreatureDef[]>([]);
   const [selectedCreature, setSelectedCreature] = useState<CreatureDef | null>(null);
   const [battlePhase, setBattlePhase] = useState<'select' | 'fight' | 'result'>('select');
@@ -199,6 +200,18 @@ export default function DungeonPage() {
       localStorage.removeItem('dungeon_run');
     }
   }, [run]);
+
+  // Load Daily Limit
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const storageKey = 'dungeon_daily_limit';
+    const storage = localStorage.getItem(storageKey);
+    let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+    if (data.date !== today) {
+      data = { date: today, count: 0 };
+    }
+    setDailyCount(data.count);
+  }, [run]); // Re-check when run state changes (e.g. after a run)
 
   // Reset phase when new monster appears
   useEffect(() => {
@@ -555,12 +568,19 @@ export default function DungeonPage() {
           </div>
 
           <div className="bg-stone-900/50 p-6 rounded-2xl border border-stone-800 backdrop-blur-sm">
-            <div className="text-sm font-medium text-stone-500 mb-1">ENTRY COST</div>
-            <div className="text-3xl font-bold text-green-400">FREE</div>
+            <div className="text-sm font-medium text-stone-500 mb-1">DAILY ENTRIES</div>
+            <div className={`text-3xl font-bold ${dailyCount >= 3 ? 'text-red-500' : 'text-green-400'}`}>
+              {Math.max(0, 3 - dailyCount)} / 3 LEFT
+            </div>
           </div>
 
-          <Button onClick={startRun} size="lg" className="w-full h-16 text-xl bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 font-bold tracking-wide transition-all hover:scale-105">
-            ⚔️ ENTER DUNGEON
+          <Button
+            onClick={startRun}
+            disabled={dailyCount >= 3}
+            size="lg"
+            className={`w-full h-16 text-xl font-bold tracking-wide transition-all ${dailyCount >= 3 ? 'bg-stone-800 text-stone-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 hover:scale-105'}`}
+          >
+            {dailyCount >= 3 ? '🔒 LOCKED UNTIL TOMORROW' : '⚔️ ENTER DUNGEON'}
           </Button>
 
           <div className="text-stone-500 text-sm">

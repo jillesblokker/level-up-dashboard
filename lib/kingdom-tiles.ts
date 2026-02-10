@@ -845,7 +845,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     ],
     itemType: 'scroll',
     rarity: 'legendary',
-    image: '/images/kingdom-tiles/CrystalCavern.png',
+    image: '/images/tiles/crystal_cavern-tile.png',
     levelRequired: 15,
     cost: 800
   },
