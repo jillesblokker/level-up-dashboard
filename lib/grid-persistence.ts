@@ -68,6 +68,9 @@ const tileTypeToNumeric: Record<TileType, number> = {
   'training-grounds': 59,
   tavern: 60,
   watchtower: 61,
+  library: 62,
+  wizard: 63,
+  temple: 64,
 };
 
 // Convert numeric value back to tile type
