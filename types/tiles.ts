@@ -47,6 +47,7 @@ export type TileType =
   | 'farm'
   | 'lumber_mill'
   | 'market'
+  | 'market-stalls'
   | 'cottage'
   | 'crossroad'
   | 'straightroad'

@@ -215,7 +215,8 @@ export class MapGenerator {
       watchtower: 'Watchtower',
       library: 'Grand Library',
       wizard: 'Wizard Tower',
-      temple: 'Ancient Temple'
+      temple: 'Ancient Temple',
+      'market-stalls': 'Market Stalls'
     };
 
     const tileDescriptions = {
@@ -285,7 +286,8 @@ export class MapGenerator {
       watchtower: 'A tall tower to keep watch over the kingdom',
       library: 'A vast collection of knowledge and ancient texts',
       wizard: 'A mysterious tower where wizards practice arcane arts',
-      temple: 'A sacred place for meditation and worship'
+      temple: 'A sacred place for meditation and worship',
+      'market-stalls': 'A busy marketplace with many trading stalls'
     };
 
     const tileImages = {
@@ -355,7 +357,8 @@ export class MapGenerator {
       watchtower: '/images/kingdom-tiles/Watchtower.png',
       library: '/images/kingdom-tiles/Library.png',
       wizard: '/images/kingdom-tiles/Wizard.png',
-      temple: '/images/kingdom-tiles/Temple.png'
+      temple: '/images/kingdom-tiles/Temple.png',
+      'market-stalls': '/images/kingdom-tiles/MarketStalls.png'
     };
 
     return {
