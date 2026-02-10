@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2 } from 'lucide-react';
 
 interface Loot {
   type: string;
@@ -43,6 +44,7 @@ interface DungeonRun {
   currentEncounter: Encounter;
   lootCollected: Loot[];
   maxRooms: number;
+  party: CreatureDef[]; // NEW: The drafted team of 6
 }
 
 interface GameResult {
@@ -74,12 +76,13 @@ function generateEncounter(roomLevel: number): Encounter {
 
   // Pick random creature
   const randomId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)] || '001';
-  const creature = CREATURE_DATA[randomId];
+  // Increase stats based on room level for scaling difficulty
+  // We don't modify the base CREATURE_DATA definition, but the encounter stats below
 
   return {
     type: 'monster',
-    hp: 20 + (roomLevel * 5),
-    maxHp: 20 + (roomLevel * 5),
+    hp: 20 + (roomLevel * 8), // Slightly increased HP scaling
+    maxHp: 20 + (roomLevel * 8),
     difficulty: roomLevel,
     creatureId: randomId
   };
@@ -171,7 +174,16 @@ export default function DungeonPage() {
           parsed.currentEncounter.creatureId = '001';
           localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
+        // Legacy support: if no party, generate one from unlocked (or defaults if loading fails)
+        if (!parsed.party) {
+          parsed.party = [DEFAULT_CREATURE];
+        }
         setRun(parsed);
+        // Automatically re-select the previous creature if available
+        if (parsed.status === 'in_progress' && parsed.party.length > 0) {
+          // Keep selection null to force choice, or restore? 
+          // Better to force choice if phase is select
+        }
       } catch (e) {
         console.error("Failed to parse dungeon run", e);
         localStorage.removeItem('dungeon_run');
@@ -191,19 +203,43 @@ export default function DungeonPage() {
   useEffect(() => {
     if (run?.currentEncounter.type === 'monster') {
       if (battlePhase !== 'select' && battlePhase !== 'fight') {
-        setBattlePhase('select');
-        setSelectedCreature(null);
-        setMessage('A wild creature appeared! Choose your fighter!');
-        setBattleLog([]);
+        // Auto-select previous creature if it's still valid, or go to select
+        if (selectedCreature) {
+          setBattlePhase('fight');
+          setMessage(`Encounter started! ${selectedCreature.name} is ready!`);
+        } else {
+          setBattlePhase('select');
+          setMessage('A wild creature appeared! Choose your fighter!');
+        }
+
+        if (battleLog.length > 0 && battlePhase === 'result') {
+          setBattleLog([]);
+        }
       }
     } else if (run?.currentEncounter.type === 'treasure') {
       setMessage('You found a treasure chest!');
     }
-  }, [run?.currentRoom, run?.currentEncounter.type]);
+  }, [run?.currentRoom, run?.currentEncounter.type]); // Removed selectedCreature from deps to avoid cycle
 
   const startRun = () => {
     const maxHp = 150;
     const firstEncounter = generateEncounter(1);
+
+    // DRAFTING PHASE: Pick 6 random creatures
+    const pool = [...unlockedCreatures];
+    const party: CreatureDef[] = [];
+    const draftSize = Math.min(6, pool.length);
+
+    for (let i = 0; i < draftSize; i++) {
+      if (pool.length === 0) break;
+      const randomIndex = Math.floor(Math.random() * pool.length);
+      party.push(pool[randomIndex]);
+      pool.splice(randomIndex, 1);
+    }
+
+    // Fallback
+    if (party.length === 0) party.push(DEFAULT_CREATURE);
+
     const newRun: DungeonRun = {
       currentRoom: 1,
       currentHp: maxHp,
@@ -211,12 +247,17 @@ export default function DungeonPage() {
       status: 'in_progress',
       currentEncounter: firstEncounter,
       lootCollected: [],
-      maxRooms: 5
+      maxRooms: 5,
+      party: party
     };
+
     setRun(newRun);
-    setGameResult(null); // Clear previous result
+    setGameResult(null);
     setBattlePhase('select');
-    setBattleLog(['Dungeon started! Good luck.']);
+    setBattleLog([
+      `Dungeon started!`,
+      `Drafted Team: ${party.map(c => c.name).join(', ')}`
+    ]);
   };
 
   const selectFighter = (creature: CreatureDef) => {
@@ -244,30 +285,72 @@ export default function DungeonPage() {
 
     if (!enemyDef) return;
 
-    // Multipliers
-    const playerMult = getMatchupMultiplier(selectedCreature.type, enemyDef.type);
-    const enemyMult = getMatchupMultiplier(enemyDef.type, selectedCreature.type);
-
-    // Damage Calc
-    const playerBaseDmg = Math.floor(Math.random() * 5) + selectedCreature.stats.atk;
-    const damage = Math.floor(playerBaseDmg * playerMult);
-
-    const enemyBaseDmg = Math.floor(Math.random() * 5) + enemyDef.stats.atk;
-    const monsterDamage = Math.floor(enemyBaseDmg * enemyMult);
-
-    const newMonsterHp = (run.currentEncounter.hp || 0) - damage;
-    const newPlayerHp = run.currentHp - monsterDamage;
-
-    // Log the turn
     const logEntries: string[] = [];
-    logEntries.push(`You hit ${enemyDef.name} for ${damage} damage! ${playerMult > 1 ? '🔥' : ''}`);
 
-    if (newMonsterHp > 0) {
-      logEntries.push(`${enemyDef.name} hit you for ${monsterDamage} damage! ${enemyMult > 1 ? '⚠️' : ''}`);
-    } else {
-      logEntries.push(`${enemyDef.name} fainted! Victory! 🏆`);
+    // --- REVISED COMBAT LOGIC ---
+
+    // 1. Calculate Stats
+    // Player
+    const playerSpd = selectedCreature.stats.spd;
+    const playerDef = selectedCreature.stats.def;
+    const playerAtk = selectedCreature.stats.atk + (Math.floor(Math.random() * 5)); // Variance
+    // Enemy
+    const enemySpd = enemyDef.stats.spd;
+    const enemyDefStat = enemyDef.stats.def;
+    const enemyAtk = enemyDef.stats.atk + (Math.floor(Math.random() * 5));
+
+    // 2. Type Multipliers
+    const playerTypeMult = getMatchupMultiplier(selectedCreature.type, enemyDef.type);
+    const enemyTypeMult = getMatchupMultiplier(enemyDef.type, selectedCreature.type);
+
+    // 3. Crit & Dodge Checks
+    // Player Crit Chance: 3% per speed point variance, max 50%
+    const playerCritChance = Math.max(0, Math.min(0.5, (playerSpd - enemySpd) * 0.03));
+    const isPlayerCrit = Math.random() < playerCritChance;
+
+    // Player Dodge Chance: 2% per speed point advantage
+    const playerDodgeChance = Math.max(0, Math.min(0.4, (playerSpd - enemySpd) * 0.02));
+    const isPlayerDodge = Math.random() < playerDodgeChance;
+
+    // Enemy Crit/Dodge (simpler logic for enemy)
+    const isEnemyCrit = Math.random() < 0.05; // Fixed 5% chance for enemy
+
+    // 4. Damage Calculation
+    // Player vs Enemy
+    let playerFinalDmg = 0;
+    const playerCritMult = isPlayerCrit ? 1.5 : 1.0;
+    // Defense mitigation: Damage - (Def * 0.5)
+    // Ensure at least 1 damage
+    playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * playerCritMult) - (enemyDefStat * 0.4)));
+
+    // Enemy vs Player
+    let enemyFinalDmg = 0;
+    if (!isPlayerDodge) {
+      const enemyCritMult = isEnemyCrit ? 1.5 : 1.0;
+      enemyFinalDmg = Math.max(1, Math.floor((enemyAtk * enemyTypeMult * enemyCritMult) - (playerDef * 0.4)));
     }
 
+    // 5. Apply Results
+
+    // Player Attack Log
+    if (isPlayerCrit) logEntries.push(`🎯 CRITICAL HIT! You hit for ${playerFinalDmg}!`);
+    else logEntries.push(`You hit ${enemyDef.name} for ${playerFinalDmg} damage. ${playerTypeMult > 1 ? '🔥' : ''}`);
+
+    const newMonsterHp = (run.currentEncounter.hp || 0) - playerFinalDmg;
+
+    // Enemy Attack Log
+    if (newMonsterHp > 0) {
+      if (isPlayerDodge) {
+        logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
+      } else {
+        if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT for ${enemyFinalDmg}!`);
+        else logEntries.push(`${enemyDef.name} hit you for ${enemyFinalDmg} damage. ${enemyTypeMult > 1 ? '💔' : ''}`);
+      }
+    } else {
+      logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
+    }
+
+    const newPlayerHp = run.currentHp - enemyFinalDmg;
     setBattleLog(prev => [...prev, ...logEntries]);
 
     if (newMonsterHp <= 0) {
@@ -275,7 +358,7 @@ export default function DungeonPage() {
       const loot = generateLoot(run.currentRoom);
       const newLoot = loot ? [...run.lootCollected, loot] : run.lootCollected;
 
-      if (loot) logEntries.push(`Loot found: ${loot.name}`);
+      if (loot) logEntries.push(`✨ Loot found: ${loot.name}`);
 
       if (run.currentRoom >= run.maxRooms) {
         completeRun({ ...run, lootCollected: newLoot, status: 'completed' });
@@ -287,12 +370,12 @@ export default function DungeonPage() {
             lootCollected: newLoot,
             currentEncounter: generateEncounter(run.currentRoom + 1)
           });
-          setBattlePhase('select');
-          setBattleLog([]);
+          // Note: We keep the selected creature by default unless they change it
+          setMessage('Victorious! Continue or swap team member?');
         }, 1500);
       }
     } else if (newPlayerHp <= 0) {
-      setBattleLog(prev => [...prev, 'You were defeated... 💀']);
+      setBattleLog(prev => [...prev, '💀 You were defeated...']);
       completeRun({ ...run, currentHp: 0, status: 'defeated' });
     } else {
       setRun({
@@ -322,7 +405,6 @@ export default function DungeonPage() {
           lootCollected: newLoot,
           currentEncounter: generateEncounter(run.currentRoom + 1)
         });
-        setBattlePhase('select');
       }, 1500);
     }
   };
@@ -584,7 +666,7 @@ export default function DungeonPage() {
                 <div className="space-y-2 text-sm font-mono">
                   {battleLog.length === 0 && <span className="text-slate-600 italic">...waiting for action...</span>}
                   {battleLog.map((log, i) => (
-                    <div key={i} className={`p-2 rounded border-l-2 ${log.includes('victory') ? 'border-yellow-500 bg-yellow-900/10' : log.includes('hit you') ? 'border-red-500 bg-red-900/10' : 'border-blue-500 bg-blue-900/10'} border-opacity-50`}>
+                    <div key={i} className={`p-2 rounded border-l-2 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/10' : log.includes('hit you') ? 'border-red-500 bg-red-900/10' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/10' : 'border-blue-500 bg-blue-900/10'} border-opacity-50`}>
                       {log}
                     </div>
                   ))}
@@ -599,23 +681,26 @@ export default function DungeonPage() {
                 {battlePhase === 'select' ? (
                   <>
                     <h4 className="text-sm font-bold text-slate-300 mb-3 flex justify-between items-center">
-                      <span>Select Fighter</span>
-                      <span className="text-xs font-normal text-slate-500">{unlockedCreatures.length} available</span>
+                      <span>Select from Battle Party</span>
+                      <span className="text-xs font-normal text-slate-500">
+                        {run.party ? run.party.length : 0} / 6 Drafted
+                      </span>
                     </h4>
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 max-h-[240px] overflow-y-auto pr-1">
-                      {unlockedCreatures.map(creature => (
+                      {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => (
                         <button
-                          key={creature.id}
+                          key={`${creature.id}-${idx}`}
                           onClick={() => selectFighter(creature)}
-                          className={`p-2 rounded border text-left transition-all hover:brightness-110 hover:shadow-lg active:scale-95 ${getTypeColor(creature.type)}`}
+                          className={`p-2 rounded border text-left transition-all hover:brightness-110 hover:shadow-lg active:scale-95 ${getTypeColor(creature.type)} ${selectedCreature?.id === creature.id ? 'ring-2 ring-white' : ''}`}
                         >
                           <div className="flex justify-between items-center mb-1">
                             <span className="font-bold text-sm truncate">{creature.name}</span>
                             <span className="text-lg">{getTypeEmoji(creature.type)}</span>
                           </div>
                           <div className="text-[10px] opacity-70 flex gap-1">
-                            <span>A:{creature.stats.atk}</span>
-                            <span>D:{creature.stats.def}</span>
+                            <span>⚔️{creature.stats.atk}</span>
+                            <span>🛡️{creature.stats.def}</span>
+                            <span>💨{creature.stats.spd}</span>
                           </div>
                         </button>
                       ))}
@@ -628,10 +713,10 @@ export default function DungeonPage() {
                         <span className="text-2xl">{getTypeEmoji(selectedCreature!.type)}</span>
                         <div>
                           <div className="font-bold text-sm">{selectedCreature!.name}</div>
-                          <div className="text-xs text-slate-400">Your Fighter</div>
+                          <div className="text-xs text-slate-400">Active Fighter</div>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs h-7">Change</Button>
+                      <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs h-7">Swap</Button>
                     </div>
 
                     <div className="flex gap-3">
