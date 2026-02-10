@@ -272,7 +272,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'zen-garden',
     name: 'Zen Garden',
-    timerMinutes: 120,
+    timerMinutes: 0,
     normalGoldRange: [10, 25],
     luckyGoldAmount: 80,
     luckyChance: 0.20,
@@ -371,7 +371,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'inn',
     name: TEXT_CONTENT.kingdomTiles.inn.name,
-    timerMinutes: 120,
+    timerMinutes: 0,
     normalGoldRange: [5, 20],
     luckyGoldAmount: 60,
     luckyChance: 0.18,
@@ -637,7 +637,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'market-stalls',
     name: TEXT_CONTENT.kingdomTiles['market-stalls'].name,
-    timerMinutes: 45,
+    timerMinutes: 0,
     normalGoldRange: [5, 15],
     luckyGoldAmount: 60,
     luckyChance: 0.20,

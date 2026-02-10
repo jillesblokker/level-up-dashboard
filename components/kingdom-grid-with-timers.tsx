@@ -1186,7 +1186,7 @@ export function KingdomGridWithTimers({
       router.push('/quests');
       return;
     }
-    if (tile.type === 'market') {
+    if (tile.type === 'market' || tile.type === 'market-stalls') {
       toast({ title: "Entering Market...", description: "Going to Market." });
       router.push('/market');
       return;
@@ -1206,7 +1206,7 @@ export function KingdomGridWithTimers({
       router.push('/character');
       return;
     }
-    if (tile.type === 'tavern') {
+    if (tile.type === 'tavern' || tile.type === 'inn') {
       toast({ title: "Entering Tavern...", description: "Going to Social." });
       router.push('/social');
       return;
@@ -1233,7 +1233,7 @@ export function KingdomGridWithTimers({
     if (tile.type && (tile.type === 'blacksmith' || tile.type === 'sawmill' ||
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
       tile.type === 'well' || tile.type === 'windmill' ||
-      tile.type === 'fountain' || tile.type === 'inn' ||
+      tile.type === 'fountain' ||
       tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower')) {
 
       // Check if tile is ready
@@ -1694,7 +1694,8 @@ export function KingdomGridWithTimers({
                   tile.type === 'crystal_cavern' || tile.type === 'dungeon' ||
                   tile.type === 'monument' || tile.type === 'training-grounds' ||
                   tile.type === 'tavern' || tile.type === 'castle' ||
-                  tile.type?.toLowerCase() === 'library' || tile.type?.toLowerCase() === 'house') && (
+                  tile.type?.toLowerCase() === 'library' || tile.type?.toLowerCase() === 'house' ||
+                  tile.type?.toLowerCase() === 'zen-garden' || tile.type?.toLowerCase() === 'inn' || tile.type?.toLowerCase() === 'market-stalls') && (
                     <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
                       <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                         {tile.type === 'quest-board' ? 'Quests' :
@@ -1705,7 +1706,10 @@ export function KingdomGridWithTimers({
                                   tile.type?.toLowerCase() === 'tavern' ? 'Social' :
                                     tile.type?.toLowerCase() === 'castle' ? 'Realm' :
                                       tile.type?.toLowerCase() === 'library' ? 'My Chronicle' :
-                                        tile.type?.toLowerCase() === 'house' ? 'Character' : ''}
+                                        tile.type?.toLowerCase() === 'house' ? 'Character' :
+                                          tile.type?.toLowerCase() === 'zen-garden' ? 'Meditation' :
+                                            (tile.type?.toLowerCase() === 'inn' || tile.type?.toLowerCase() === 'tavern') ? 'Social' :
+                                              (tile.type?.toLowerCase() === 'market-stalls' || tile.type === 'market') ? 'Market' : ''}
                       </div>
                     </div>
                   )}
