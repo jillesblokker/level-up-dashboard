@@ -62,7 +62,7 @@ function generateEncounter(roomLevel: number): Encounter {
   }
 
   // Pick random creature
-  const randomId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)];
+  const randomId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)] || '001';
 
   return {
     type: 'monster',
