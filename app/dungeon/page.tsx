@@ -66,7 +66,8 @@ const DEFAULT_CREATURE: CreatureDef = {
 };
 
 function generateEncounter(roomLevel: number): Encounter {
-  const isTreasure = Math.random() < 0.2;
+  // Treasure rooms removed as per request
+  const isTreasure = false;
   if (isTreasure) {
     return {
       type: 'treasure',
@@ -222,6 +223,25 @@ export default function DungeonPage() {
   }, [run?.currentRoom, run?.currentEncounter.type]); // Removed selectedCreature from deps to avoid cycle
 
   const startRun = () => {
+    // Check Daily Limit (3 times per day)
+    const today = new Date().toISOString().split('T')[0];
+    const storageKey = 'dungeon_daily_limit';
+    const storage = localStorage.getItem(storageKey);
+    let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+
+    if (data.date !== today) {
+      data = { date: today, count: 0 };
+    }
+
+    if (data.count >= 3) {
+      setMessage('🛑 Daily limit reached (3/3)! The dungeon is closed until tomorrow.');
+      return;
+    }
+
+    // Increment count
+    data.count++;
+    localStorage.setItem(storageKey, JSON.stringify(data));
+
     const maxHp = 150;
     const firstEncounter = generateEncounter(1);
 
@@ -659,11 +679,9 @@ export default function DungeonPage() {
             )}
           </div>
 
-          {/* RIGHT: Player Controls / Combat Log */}
-          <div className="flex flex-col gap-6">
-
+          <div className="flex flex-col gap-6 order-1 md:order-2">
             {/* Combat Log - Fixed Height with Scroll */}
-            <div className="flex-none bg-black/40 rounded-xl border border-slate-800 p-4 h-[250px] flex flex-col shadow-inner relative z-10">
+            <div className="flex-none bg-black/40 rounded-xl border border-slate-800 p-4 h-[250px] flex flex-col shadow-inner relative z-10 w-full">
               <div className="flex justify-between items-center mb-2 flex-none">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battle Log</h4>
                 <div className="flex gap-1">
@@ -694,7 +712,7 @@ export default function DungeonPage() {
 
             {/* Controls */}
             {run.currentEncounter.type === 'monster' && (
-              <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm shadow-xl flex-1 flex flex-col justify-center">
+              <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm shadow-xl flex-1 flex flex-col justify-center w-full">
                 {battlePhase === 'select' ? (
                   <>
                     <div className="flex justify-between items-end mb-4">
