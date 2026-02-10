@@ -1647,7 +1647,11 @@ export function KingdomGridWithTimers({
                     tile.type === 'monument' ||
                     tile.type === 'training-grounds' ||
                     tile.type === 'tavern' ||
-                    tile.type === 'castle';
+                    tile.type === 'castle' ||
+                    tile.type?.toLowerCase() === 'library' ||
+                    tile.type?.toLowerCase() === 'house' ||
+                    tile.type?.toLowerCase() === 'inn' ||
+                    tile.type?.toLowerCase() === 'market-stalls';
 
                   if (placementMode && selectedProperty) {
                     handlePropertyPlacement(x, y)
