@@ -16,13 +16,13 @@ import { TileType } from "@/types/tiles"
 
 // Define available materials for trade
 const MATERIALS = [
-  { id: 'material-logs', name: 'Logs', icon: '🪵', buyPrice: 10, sellPrice: 5, description: 'Raw wood for construction.' },
-  { id: 'material-stone', name: 'Stone', icon: '🪨', buyPrice: 15, sellPrice: 7, description: 'Heavy stone for foundations.' },
-  { id: 'material-water', name: 'Water', icon: '💧', buyPrice: 5, sellPrice: 2, description: 'Essential for life and growth.' },
-  { id: 'material-planks', name: 'Planks', icon: '🪚', buyPrice: 25, sellPrice: 12, description: 'Refined wood for structures.' },
-  { id: 'material-stone-block', name: 'Blocks', icon: '🧱', buyPrice: 30, sellPrice: 15, description: 'Cut stone for walls.' },
-  { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 100, sellPrice: 50, description: 'Rare magical resource.' },
-  { id: 'material-steel', name: 'Steel', icon: '⚔️', buyPrice: 50, sellPrice: 25, description: 'Strong metal for reinforcements.' },
+  { id: 'material-water', name: 'Water', icon: '💧', buyPrice: 200, sellPrice: 100, description: 'Essential for life and growth.' },
+  { id: 'material-logs', name: 'Logs', icon: '🪵', buyPrice: 300, sellPrice: 150, description: 'Raw wood for construction.' },
+  { id: 'material-stone', name: 'Stone', icon: '🪨', buyPrice: 400, sellPrice: 200, description: 'Heavy stone for foundations.' },
+  { id: 'material-planks', name: 'Planks', icon: '🪚', buyPrice: 550, sellPrice: 275, description: 'Refined wood for structures.' },
+  { id: 'material-stone-block', name: 'Blocks', icon: '🧱', buyPrice: 700, sellPrice: 350, description: 'Cut stone for walls.' },
+  { id: 'material-steel', name: 'Steel', icon: '⚔️', buyPrice: 850, sellPrice: 425, description: 'Strong metal for reinforcements.' },
+  { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
 ]
 
 export default function MarketPage() {
@@ -141,13 +141,6 @@ export default function MarketPage() {
             <p className="text-slate-400 mt-1">Trade standard construction materials and resources.</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center bg-black/40 px-6 py-3 rounded-full border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-              <Coins className="w-6 h-6 text-amber-400 mr-3" />
-              <div className="flex flex-col">
-                <span className="text-xs text-amber-500/80 uppercase font-bold tracking-wider">Treasury</span>
-                <span className="text-xl font-bold text-white leading-none">{goldBalance.toLocaleString()} G</span>
-              </div>
-            </div>
             <Link href="/">
               <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -158,7 +151,7 @@ export default function MarketPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+          <TabsList className="grid w-full h-auto max-w-xl mx-auto grid-cols-2 bg-slate-900 border border-slate-800 p-2 rounded-xl">
             <TabsTrigger value="buy" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
               <ShoppingBag className="w-5 h-5 mr-2" /> Buy Materials
             </TabsTrigger>

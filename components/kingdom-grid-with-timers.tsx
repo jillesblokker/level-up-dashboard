@@ -1693,7 +1693,8 @@ export function KingdomGridWithTimers({
                 {(tile.type === 'quest-board' || tile.type === 'market' ||
                   tile.type === 'crystal_cavern' || tile.type === 'dungeon' ||
                   tile.type === 'monument' || tile.type === 'training-grounds' ||
-                  tile.type === 'tavern' || tile.type === 'castle') && (
+                  tile.type === 'tavern' || tile.type === 'castle' ||
+                  tile.type?.toLowerCase() === 'library' || tile.type?.toLowerCase() === 'house') && (
                     <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
                       <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                         {tile.type === 'quest-board' ? 'Quests' :
