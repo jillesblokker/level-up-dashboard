@@ -216,7 +216,7 @@ export default function MarketPage() {
                     <Button
                       className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold h-12 shadow-lg shadow-amber-900/20"
                       onClick={() => handleBuy(material)}
-                      disabled={!quantities[material.id] || quantities[material.id] <= 0 || goldBalance < ((quantities[material.id] || 0) * material.buyPrice)}
+                      disabled={(quantities[material.id] || 0) <= 0 || goldBalance < ((quantities[material.id] || 0) * material.buyPrice)}
                     >
                       Buy for {material.buyPrice} G / unit
                     </Button>
@@ -276,7 +276,7 @@ export default function MarketPage() {
                     <Button
                       className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 text-white font-bold h-12 shadow-lg shadow-green-900/20"
                       onClick={() => handleSell(material)}
-                      disabled={!quantities[material.id] || quantities[material.id] <= 0 || getInventoryQuantity(material.id) < quantities[material.id]}
+                      disabled={(quantities[material.id] || 0) <= 0 || getInventoryQuantity(material.id) < (quantities[material.id] || 0)}
                     >
                       Sell for {material.sellPrice} G / unit
                     </Button>
