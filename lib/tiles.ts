@@ -68,6 +68,7 @@ export function getTileName(type: TileType): string {
     library: 'Library',
     wizard: 'Wizard',
     temple: 'Temple',
+    'market-stalls': 'Market Stalls',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -140,6 +141,7 @@ export function getDefaultConnections(type: TileType): string[] {
     library: ['grass', 'city', 'town'],
     wizard: ['grass', 'forest', 'mountain'],
     temple: ['grass', 'forest', 'mountain'],
+    'market-stalls': ['grass', 'city', 'town'],
   };
   return defaultConnections[type] || [];
 } 
