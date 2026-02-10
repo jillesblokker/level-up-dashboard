@@ -654,7 +654,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'library',
     name: TEXT_CONTENT.kingdomTiles.library.name,
-    timerMinutes: 240,
+    timerMinutes: 0, // Converted to Navigation Hub (Chronicle)
     normalGoldRange: [12, 30],
     luckyGoldAmount: 110,
     luckyChance: 0.12,
@@ -712,7 +712,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'house',
     name: TEXT_CONTENT.kingdomTiles.house.name,
-    timerMinutes: 60,
+    timerMinutes: 0, // Converted to Navigation Hub (Character)
     normalGoldRange: [8, 20],
     luckyGoldAmount: 80,
     luckyChance: 0.15,

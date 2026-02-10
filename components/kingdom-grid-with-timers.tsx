@@ -1216,13 +1216,23 @@ export function KingdomGridWithTimers({
       router.push('/realm');
       return;
     }
+    if (tile.type === 'library') {
+      toast({ title: "Entering Library...", description: "Opening Chronicle." });
+      router.push('/chronicle');
+      return;
+    }
+    if (tile.type === 'house') {
+      toast({ title: "Entering House...", description: "Going to Character." });
+      router.push('/character');
+      return;
+    }
 
     // Handle property tiles (blacksmith, sawmill, etc.) - Collectible production buildings
     // Note: archery, jousting, market, dungeon are navigation tiles handled above
     if (tile.type && (tile.type === 'blacksmith' || tile.type === 'sawmill' ||
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
       tile.type === 'well' || tile.type === 'windmill' ||
-      tile.type === 'fountain' || tile.type === 'house' || tile.type === 'inn' ||
+      tile.type === 'fountain' || tile.type === 'inn' ||
       tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower')) {
 
       // Check if tile is ready

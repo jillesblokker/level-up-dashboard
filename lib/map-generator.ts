@@ -212,7 +212,10 @@ export class MapGenerator {
       monument: 'Monument',
       'training-grounds': 'Training Grounds',
       tavern: 'Tavern',
-      watchtower: 'Watchtower'
+      watchtower: 'Watchtower',
+      library: 'Grand Library',
+      wizard: 'Wizard Tower',
+      temple: 'Ancient Temple'
     };
 
     const tileDescriptions = {
@@ -279,7 +282,10 @@ export class MapGenerator {
       monument: 'A monument honoring the kingdom\'s achievements',
       'training-grounds': 'A place where heroes train and improve their skills',
       tavern: 'A lively place to socialize and meet other adventurers',
-      watchtower: 'A tall tower to keep watch over the kingdom'
+      watchtower: 'A tall tower to keep watch over the kingdom',
+      library: 'A vast collection of knowledge and ancient texts',
+      wizard: 'A mysterious tower where wizards practice arcane arts',
+      temple: 'A sacred place for meditation and worship'
     };
 
     const tileImages = {
@@ -346,7 +352,10 @@ export class MapGenerator {
       monument: '/images/kingdom-tiles/Monument.png',
       'training-grounds': '/images/kingdom-tiles/TrainingGrounds.png',
       tavern: '/images/kingdom-tiles/Inn.png',
-      watchtower: '/images/kingdom-tiles/Watchtower.png'
+      watchtower: '/images/kingdom-tiles/Watchtower.png',
+      library: '/images/kingdom-tiles/Library.png',
+      wizard: '/images/kingdom-tiles/Wizard.png',
+      temple: '/images/kingdom-tiles/Temple.png'
     };
 
     return {

@@ -41,7 +41,7 @@ export function MainNav() {
             >
               {TEXT_CONTENT.navigation.kingdom}
               {readyCount > 0 && (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-[10px] font-bold text-white animate-pulse">
                   {readyCount}
                 </span>
               )}

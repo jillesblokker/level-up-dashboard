@@ -65,7 +65,10 @@ export type TileType =
   | 'monument'
   | 'training-grounds'
   | 'tavern'
-  | 'watchtower';
+  | 'watchtower'
+  | 'library'
+  | 'wizard'
+  | 'temple';
 
 export type ConnectionDirection = 'north' | 'east' | 'south' | 'west';
 
