@@ -660,73 +660,120 @@ export default function DungeonPage() {
           </div>
 
           {/* RIGHT: Player Controls / Combat Log */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
 
-            {/* Combat Log */}
-            <div className="flex-1 bg-black/40 rounded-xl border border-slate-800 p-4 min-h-[200px] flex flex-col">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Combat Log</h4>
-              <ScrollArea className="flex-1 h-[200px] w-full">
-                <div className="space-y-2 text-sm font-mono">
-                  {battleLog.length === 0 && <span className="text-slate-600 italic">...waiting for action...</span>}
+            {/* Combat Log - Fixed Height with Scroll */}
+            <div className="flex-none bg-black/40 rounded-xl border border-slate-800 p-4 h-[250px] flex flex-col shadow-inner relative z-10">
+              <div className="flex justify-between items-center mb-2 flex-none">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battle Log</h4>
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-red-500/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-blue-500/20"></span>
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1 w-full rounded-md bg-black/20 border border-white/5 mx-[-4px] sm:mx-0">
+                <div className="p-3 space-y-2 text-sm font-mono">
+                  {battleLog.length === 0 && (
+                    <div className="text-slate-600 italic text-center text-xs py-8 opacity-50">
+                      Waiting for combat to begin...
+                    </div>
+                  )}
                   {battleLog.map((log, i) => (
-                    <div key={i} className={`p-2 rounded border-l-2 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/10' : log.includes('hit you') ? 'border-red-500 bg-red-900/10' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/10' : 'border-blue-500 bg-blue-900/10'} border-opacity-50`}>
+                    <div key={i} className={`p-2 rounded text-xs md:text-sm border-l-2 shadow-sm animate-in slide-in-from-left-2 duration-300 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/20 text-yellow-200' : log.includes('hit you') ? 'border-red-500 bg-red-900/20 text-red-200' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/20 text-cyan-200' : 'border-blue-500 bg-blue-900/10 text-slate-300'} border-opacity-60`}>
                       {log}
                     </div>
                   ))}
-                  <div ref={logEndRef} />
+                  <div ref={logEndRef} className="h-2" />
                 </div>
               </ScrollArea>
+
+              {/* Fade at bottom of log to indicate more content if scrolling? CSS Mask better but simple for now */}
             </div>
 
             {/* Controls */}
             {run.currentEncounter.type === 'monster' && (
-              <div className="bg-slate-800/30 p-4 rounded-xl border border-slate-700">
+              <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm shadow-xl flex-1 flex flex-col justify-center">
                 {battlePhase === 'select' ? (
                   <>
-                    <h4 className="text-sm font-bold text-slate-300 mb-3 flex justify-between items-center">
-                      <span>Select from Battle Party</span>
-                      <span className="text-xs font-normal text-slate-500">
-                        {run.party ? run.party.length : 0} / 6 Drafted
-                      </span>
-                    </h4>
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 max-h-[240px] overflow-y-auto pr-1">
-                      {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => (
-                        <button
-                          key={`${creature.id}-${idx}`}
-                          onClick={() => selectFighter(creature)}
-                          className={`p-2 rounded border text-left transition-all hover:brightness-110 hover:shadow-lg active:scale-95 ${getTypeColor(creature.type)} ${selectedCreature?.id === creature.id ? 'ring-2 ring-white' : ''}`}
-                        >
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-sm truncate">{creature.name}</span>
-                            <span className="text-lg">{getTypeEmoji(creature.type)}</span>
-                          </div>
-                          <div className="text-[10px] opacity-70 flex gap-1">
-                            <span>⚔️{creature.stats.atk}</span>
-                            <span>🛡️{creature.stats.def}</span>
-                            <span>💨{creature.stats.spd}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between bg-slate-900/80 p-3 rounded-lg border border-slate-600">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{getTypeEmoji(selectedCreature!.type)}</span>
-                        <div>
-                          <div className="font-bold text-sm">{selectedCreature!.name}</div>
-                          <div className="text-xs text-slate-400">Active Fighter</div>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs h-7">Swap</Button>
+                    <div className="flex justify-between items-end mb-4">
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        <span>🛡️ Deploy Fighter</span>
+                      </h4>
+                      <Badge variant="outline" className="text-xs font-mono bg-slate-900/50">
+                        {run.party ? run.party.length : 0}/6 Ready
+                      </Badge>
                     </div>
 
-                    <div className="flex gap-3">
-                      <Button onClick={fight} className="flex-1 h-12 text-lg bg-red-600 hover:bg-red-700 font-bold shadow-lg shadow-red-900/20 active:translate-y-0.5 transition-all">
+                    <ScrollArea className="h-[240px] pr-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+                        {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
+                          // Calculate matchup for improved UX
+                          let matchupText = "";
+                          let matchupColor = "text-slate-500";
+                          const enemyDef = run.currentEncounter.creatureId ? CREATURE_DATA[run.currentEncounter.creatureId] : null;
+
+                          if (enemyDef) {
+                            const mult = getMatchupMultiplier(creature.type, enemyDef.type);
+                            if (mult > 1) { matchupText = "Strong"; matchupColor = "text-green-400 font-bold"; }
+                            else if (mult < 1) { matchupText = "Weak"; matchupColor = "text-red-400"; }
+                          }
+
+                          return (
+                            <button
+                              key={`${creature.id}-${idx}`}
+                              onClick={() => selectFighter(creature)}
+                              className={`group relative p-3 rounded-lg border-2 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-95 ${getTypeColor(creature.type)} ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
+                            >
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="font-black text-sm uppercase tracking-wide truncate">{creature.name}</span>
+                                <span className="text-xl filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-1 text-[10px] opacity-80 font-mono mb-2">
+                                <span className="flex items-center gap-0.5"><span className="text-red-300">⚔️</span>{creature.stats.atk}</span>
+                                <span className="flex items-center gap-0.5"><span className="text-blue-300">🛡️</span>{creature.stats.def}</span>
+                                <span className="flex items-center gap-0.5"><span className="text-green-300">💨</span>{creature.stats.spd}</span>
+                              </div>
+
+                              {matchupText && (
+                                <div className={`text-[10px] text-right uppercase tracking-widest ${matchupColor}`}>
+                                  {matchupText}
+                                </div>
+                              )}
+
+                              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  </>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/10 shadow-inner">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-slate-800 p-2 rounded-lg text-3xl shadow-lg border border-slate-700">
+                          {getTypeEmoji(selectedCreature!.type)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-lg text-white">{selectedCreature!.name}</div>
+                          <div className={`text-xs font-bold uppercase tracking-wider ${getTypeColor(selectedCreature!.type).split(' ')[0]}`}>
+                            {selectedCreature!.type} Type
+                          </div>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs hover:bg-white/10 text-slate-400 hover:text-white">
+                        Change Fighter
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3">
+                      <Button onClick={fight} className="col-span-2 h-14 text-xl bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400">
                         ⚔️ Attack
                       </Button>
-                      <Button onClick={flee} variant="secondary" className="h-12 px-6">
+                      <Button onClick={flee} variant="secondary" className="col-span-1 h-14 bg-slate-700 hover:bg-slate-600 font-bold border-t border-slate-500 text-slate-200">
                         🏃 Flee
                       </Button>
                     </div>
