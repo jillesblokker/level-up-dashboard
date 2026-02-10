@@ -1216,13 +1216,12 @@ export function KingdomGridWithTimers({
       router.push('/realm');
       return;
     }
-    const normalizedType = tile.type?.toLowerCase();
-    if (normalizedType === 'library') {
+    if (tile.type?.toLowerCase() === 'library') {
       toast({ title: "Entering Library...", description: "Opening Chronicle." });
       router.push('/chronicle');
       return;
     }
-    if (normalizedType === 'house') {
+    if (tile.type?.toLowerCase() === 'house') {
       toast({ title: "Entering House...", description: "Going to Character." });
       router.push('/character');
       return;
