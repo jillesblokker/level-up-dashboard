@@ -131,7 +131,7 @@ export default function DungeonPage() {
           if (Array.isArray(achievements)) {
             const unlocked = achievements
               .map((a: any) => CREATURE_DATA[a.achievement_id]) // Assuming a.achievement_id matches
-              .filter(Boolean);
+              .filter(Boolean) as CreatureDef[];
 
             if (unlocked.length > 0) {
               setUnlockedCreatures(unlocked);
