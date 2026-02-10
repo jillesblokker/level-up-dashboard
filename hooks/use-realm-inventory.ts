@@ -105,12 +105,34 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
 
     const updateTileQuantity = useCallback(async (tileType: TileType, delta: number) => {
         setInventoryAsItems(prev => {
+            let found = false;
             const newItems = prev.map(item => {
-                if (item.type === tileType) {
+                if (item.type === tileType || item.id === tileType) {
+                    found = true;
                     return { ...item, quantity: Math.max(0, (item.quantity || 0) + delta) };
                 }
                 return item;
             });
+
+            if (!found && delta > 0) {
+                // Create new item if not found
+                newItems.push({
+                    id: tileType,
+                    type: tileType,
+                    name: tileType, // Fallback name
+                    quantity: delta,
+                    cost: 0,
+                    connections: [],
+                    description: 'Material',
+                    rotation: 0,
+                    revealed: true,
+                    isVisited: false,
+                    x: 0,
+                    y: 0,
+                    ariaLabel: tileType,
+                    image: '', // No image for pure materials
+                } as TileInventoryItem);
+            }
 
             // Sync with backend
             if (userId) {
@@ -126,7 +148,31 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
 
         // Sync legacy inventory
         setInventory(prev => {
+            if (!prev[tileType] && delta > 0) {
+                // Add to legacy inventory if missing
+                return {
+                    ...prev,
+                    [tileType]: {
+                        id: tileType,
+                        type: tileType,
+                        name: tileType,
+                        quantity: delta,
+                        owned: delta,
+                        // Default props
+                        connections: [],
+                        rotation: 0,
+                        revealed: true,
+                        isVisited: false,
+                        x: 0,
+                        y: 0,
+                        ariaLabel: tileType,
+                        image: '',
+                        description: ''
+                    } as Tile
+                };
+            }
             if (!prev[tileType]) return prev;
+
             const newQuantity = Math.max(0, (prev[tileType].quantity || 0) + delta);
             return {
                 ...prev,

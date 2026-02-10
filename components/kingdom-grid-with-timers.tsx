@@ -1216,12 +1216,13 @@ export function KingdomGridWithTimers({
       router.push('/realm');
       return;
     }
-    if (tile.type === 'library') {
+    const normalizedType = tile.type?.toLowerCase();
+    if (normalizedType === 'library') {
       toast({ title: "Entering Library...", description: "Opening Chronicle." });
       router.push('/chronicle');
       return;
     }
-    if (tile.type === 'house') {
+    if (normalizedType === 'house') {
       toast({ title: "Entering House...", description: "Going to Character." });
       router.push('/character');
       return;
@@ -1697,13 +1698,13 @@ export function KingdomGridWithTimers({
                       <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                         {tile.type === 'quest-board' ? 'Quests' :
                           tile.type === 'market' ? 'Market' :
-                            tile.type === 'crystal_cavern' || tile.type === 'dungeon' ? 'Dungeon' :
-                              tile.type === 'monument' ? 'Achievements' :
-                                tile.type === 'training-grounds' ? 'Character' :
-                                  tile.type === 'tavern' ? 'Social' :
-                                    tile.type === 'castle' ? 'Realm' :
-                                      tile.type === 'library' ? 'My Chronicle' :
-                                        tile.type === 'house' ? 'Character' : ''}
+                            (tile.type?.toLowerCase() === 'crystal_cavern' || tile.type?.toLowerCase() === 'dungeon') ? 'Dungeon' :
+                              tile.type?.toLowerCase() === 'monument' ? 'Achievements' :
+                                tile.type?.toLowerCase() === 'training-grounds' ? 'Character' :
+                                  tile.type?.toLowerCase() === 'tavern' ? 'Social' :
+                                    tile.type?.toLowerCase() === 'castle' ? 'Realm' :
+                                      tile.type?.toLowerCase() === 'library' ? 'My Chronicle' :
+                                        tile.type?.toLowerCase() === 'house' ? 'Character' : ''}
                       </div>
                     </div>
                   )}
