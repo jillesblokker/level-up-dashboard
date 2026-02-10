@@ -19,6 +19,7 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'training-grounds') image = '/images/kingdom-tiles/TrainingGrounds.png';
     if (type === 'tavern') image = '/images/kingdom-tiles/Inn.png';
     if (type === 'market') image = '/images/kingdom-tiles/MarketStalls.png';
+    if (type === 'market-stalls') image = '/images/kingdom-tiles/MarketStalls.png';
 
     if (type === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.png';
     if (type === 'watchtower') image = '/images/kingdom-tiles/Watchtower.png';
@@ -117,6 +118,7 @@ export const initialInventory: Record<TileType, Tile> = {
     library: { ...defaultTile('library'), cost: 300, owned: 0 },
     wizard: { ...defaultTile('wizard'), cost: 400, owned: 0 },
     temple: { ...defaultTile('temple'), cost: 400, owned: 0 },
+    'market-stalls': { ...defaultTile('market-stalls'), cost: 400, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -133,6 +135,7 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'training-grounds') return '/images/kingdom-tiles/TrainingGrounds.png';
     if (type === 'tavern') return '/images/kingdom-tiles/Inn.png';
     if (type === 'market') return '/images/kingdom-tiles/MarketStalls.png';
+    if (type === 'market-stalls') return '/images/kingdom-tiles/MarketStalls.png';
     if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.png';
     if (type === 'watchtower') return '/images/kingdom-tiles/Watchtower.png';
     if (type === 'library') return '/images/kingdom-tiles/Library.png';
