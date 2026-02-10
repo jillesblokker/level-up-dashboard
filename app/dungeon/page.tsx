@@ -426,7 +426,7 @@ export default function DungeonPage() {
             {run.currentEncounter.type === 'monster' && enemyDef ? (
               <div className="flex flex-col items-center animate-in zoom-in-95 duration-500">
                 <div className="relative group">
-                  <div className={`absolute inset-0 bg-gradient-to-tr ${getTypeColor(enemyDef.type).split(' ')[0].replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
+                  <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-gray-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
                   <Card className={`w-64 border-2 ${getTypeColor(enemyDef.type)} bg-slate-900/80 backdrop-blur-sm relative overflow-visible shadow-2xl`}>
                     <div className="absolute -top-5 -right-5 text-6xl filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                       {getTypeEmoji(enemyDef.type)}
