@@ -45,6 +45,16 @@ interface DungeonRun {
   maxRooms: number;
 }
 
+interface GameResult {
+  success: boolean;
+  rewards?: {
+    gold: number;
+    xp: number;
+    items: number;
+  };
+  loot?: Loot[];
+}
+
 const DEFAULT_CREATURE: CreatureDef = {
   id: 'starter',
   name: 'Wanderer',
@@ -117,6 +127,7 @@ export default function DungeonPage() {
   const [selectedCreature, setSelectedCreature] = useState<CreatureDef | null>(null);
   const [battlePhase, setBattlePhase] = useState<'select' | 'fight' | 'result'>('select');
   const [battleLog, setBattleLog] = useState<string[]>([]);
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll log
@@ -136,11 +147,7 @@ export default function DungeonPage() {
               .map((a: any) => CREATURE_DATA[a.achievement_id])
               .filter((c: CreatureDef | undefined): c is CreatureDef => !!c);
 
-            if (unlocked.length > 0) {
-              setUnlockedCreatures(unlocked);
-            } else {
-              setUnlockedCreatures([DEFAULT_CREATURE]);
-            }
+            setUnlockedCreatures(unlocked.length > 0 ? unlocked : [DEFAULT_CREATURE]);
           }
         } else {
           setUnlockedCreatures([DEFAULT_CREATURE]);
@@ -159,10 +166,9 @@ export default function DungeonPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // FIX LEGACY DATA: If monster encounter is missing creatureId
         if (parsed.currentEncounter && parsed.currentEncounter.type === 'monster' && !parsed.currentEncounter.creatureId) {
           console.warn('Fixing legacy dungeon run data...');
-          parsed.currentEncounter.creatureId = '001'; // Default to Flamio
+          parsed.currentEncounter.creatureId = '001';
           localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
         setRun(parsed);
@@ -208,6 +214,7 @@ export default function DungeonPage() {
       maxRooms: 5
     };
     setRun(newRun);
+    setGameResult(null); // Clear previous result
     setBattlePhase('select');
     setBattleLog(['Dungeon started! Good luck.']);
   };
@@ -216,7 +223,6 @@ export default function DungeonPage() {
     setSelectedCreature(creature);
     setBattlePhase('fight');
 
-    // Calculate initial matchup hint
     if (run?.currentEncounter.creatureId) {
       const enemyDef = CREATURE_DATA[run.currentEncounter.creatureId];
       if (enemyDef) {
@@ -233,7 +239,6 @@ export default function DungeonPage() {
   const fight = () => {
     if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
 
-    // Fallback if ID missing (should be fixed by useEffect, but safe guard)
     const enemyId = run.currentEncounter.creatureId || '001';
     const enemyDef = CREATURE_DATA[enemyId];
 
@@ -241,7 +246,7 @@ export default function DungeonPage() {
 
     // Multipliers
     const playerMult = getMatchupMultiplier(selectedCreature.type, enemyDef.type);
-    const enemyMult = getMatchupMultiplier(enemyDef.type, selectedCreature.type); // Enemy attacking player
+    const enemyMult = getMatchupMultiplier(enemyDef.type, selectedCreature.type);
 
     // Damage Calc
     const playerBaseDmg = Math.floor(Math.random() * 5) + selectedCreature.stats.atk;
@@ -284,7 +289,7 @@ export default function DungeonPage() {
           });
           setBattlePhase('select');
           setBattleLog([]);
-        }, 1500); // Delay to read log
+        }, 1500);
       }
     } else if (newPlayerHp <= 0) {
       setBattleLog(prev => [...prev, 'You were defeated... 💀']);
@@ -339,14 +344,22 @@ export default function DungeonPage() {
 
       if (!response.ok) throw new Error('Failed to save rewards');
       const data = await response.json();
-      setMessage(finalRun.status === 'completed'
-        ? `🎉 Dungeon cleared! Rewards: ${data.rewards.gold}g, ${data.rewards.xp}xp, ${data.rewards.items} items!`
-        : '💀 You were defeated...');
-      setRun(null);
-      setTimeout(() => router.push('/kingdom'), 3000);
+
+      // Set result state instead of immediate redirect
+      setGameResult({
+        success: finalRun.status === 'completed',
+        rewards: data.rewards,
+        loot: finalRun.lootCollected
+      });
+      setRun(null); // Clear active run to show result
     } catch (error) {
-      setMessage('Error saving rewards: ' + (error instanceof Error ? error.message : 'Unknown error'));
-      setTimeout(() => router.push('/kingdom'), 3000);
+      console.error("Dungeon completion error:", error);
+      // Create a fallback result state for error but still show defeated/completed
+      setGameResult({
+        success: finalRun.status === 'completed',
+        loot: finalRun.lootCollected
+      });
+      setRun(null);
     } finally {
       setIsProcessing(false);
     }
@@ -354,6 +367,79 @@ export default function DungeonPage() {
 
   // --- RENDERING ---
 
+  // 1. RESULT SCREEN
+  if (gameResult) {
+    return (
+      <div className={`min-h-screen p-8 flex items-center justify-center ${gameResult.success ? 'bg-gradient-to-br from-green-950 via-green-900 to-black' : 'bg-gradient-to-br from-red-950 via-red-900 to-black'} text-white animate-in fade-in duration-1000`}>
+        <div className="max-w-xl w-full text-center space-y-8">
+
+          <div className="space-y-4">
+            <div className="text-8xl mb-4 animate-bounce">
+              {gameResult.success ? '🏆' : '💀'}
+            </div>
+            <h1 className={`text-6xl font-black uppercase tracking-tighter ${gameResult.success ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]'}`}>
+              {gameResult.success ? 'VICTORY!' : 'DEFEATED'}
+            </h1>
+            <p className="text-xl text-stone-300 font-medium">
+              {gameResult.success ? 'You have cleared the dungeon and returned with your spoils.' : 'You fell in battle and were forced to retreat.'}
+            </p>
+          </div>
+
+          {gameResult.success && gameResult.rewards && (
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-6 shadow-xl">
+              <h3 className="text-sm font-bold text-stone-500 uppercase tracking-widest">REWARDS COLLECTED</h3>
+
+              {/* Rewards Grid */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20">
+                  <div className="text-2xl font-black text-yellow-400">{gameResult.rewards.gold}</div>
+                  <div className="text-xs text-yellow-600 font-bold uppercase">Gold</div>
+                </div>
+                <div className="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
+                  <div className="text-2xl font-black text-blue-400">{gameResult.rewards.xp}</div>
+                  <div className="text-xs text-blue-600 font-bold uppercase">XP</div>
+                </div>
+                <div className="bg-purple-500/10 p-4 rounded-xl border border-purple-500/20">
+                  <div className="text-2xl font-black text-purple-400">{gameResult.rewards.items}</div>
+                  <div className="text-xs text-purple-600 font-bold uppercase">Items</div>
+                </div>
+              </div>
+
+              {/* Loot List */}
+              {gameResult.loot && gameResult.loot.length > 0 && (
+                <div className="pt-4 border-t border-white/5">
+                  <h4 className="text-xs text-stone-500 mb-3 text-left">Detailed Loot Log</h4>
+                  <ScrollArea className="h-32 w-full pr-4">
+                    <div className="space-y-2 text-left">
+                      {gameResult.loot.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-sm text-stone-300 bg-white/5 p-2 rounded">
+                          <span className={item.type === 'item' ? 'text-purple-300' : 'text-amber-200'}>{item.name}</span>
+                          {item.amount && <span className="text-stone-500">x{item.amount}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-4 justify-center pt-4">
+            <Button onClick={() => router.push('/kingdom')} size="lg" className="w-full max-w-xs bg-slate-700 hover:bg-slate-600 text-white font-bold h-14">
+              Return to Kingdom
+            </Button>
+            {!gameResult.success && (
+              <Button onClick={startRun} size="lg" className="w-full max-w-xs bg-red-600 hover:bg-red-500 text-white font-bold h-14">
+                Try Again
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. START SCREEN
   if (!run) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-red-950 via-black to-black p-8 text-white flex items-center justify-center">
@@ -371,12 +457,18 @@ export default function DungeonPage() {
           <Button onClick={startRun} size="lg" className="w-full h-16 text-xl bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 font-bold tracking-wide transition-all hover:scale-105">
             ⚔️ ENTER DUNGEON
           </Button>
+
+          <div className="text-stone-500 text-sm">
+            <Button variant="link" onClick={() => router.push('/kingdom')} className="text-stone-500 hover:text-stone-300">
+              &larr; Back to Kingdom
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Ensure we have a valid enemy definition, even if data is slightly malformed (fallback to 001 if needed)
+  // 3. MAIN GAME SCREEN
   const enemyId = run.currentEncounter.creatureId || '001';
   const enemyDef = CREATURE_DATA[enemyId];
 
@@ -426,6 +518,7 @@ export default function DungeonPage() {
             {run.currentEncounter.type === 'monster' && enemyDef ? (
               <div className="flex flex-col items-center animate-in zoom-in-95 duration-500">
                 <div className="relative group">
+                  {/* Safe fallbacks for color strings to avoid undefined errors */}
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-gray-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
                   <Card className={`w-64 border-2 ${getTypeColor(enemyDef.type)} bg-slate-900/80 backdrop-blur-sm relative overflow-visible shadow-2xl`}>
                     <div className="absolute -top-5 -right-5 text-6xl filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">
