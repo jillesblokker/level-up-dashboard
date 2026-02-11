@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2 } from "lucide-react"
+import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { calculateLevelProgress, CharacterStats, calculateLevelFromExperience, calculateExperienceForLevel } from "@/types/character"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { storageService } from '@/lib/storage-service'
@@ -88,16 +99,20 @@ export default function CharacterPage() {
     experience: 0,
     experienceToNextLevel: 100,
     gold: 1000,
+    ascension_level: 0,
     titles: {
       equipped: "Novice Adventurer",
-      unlocked: 1,
-      total: 6
+      unlocked: 0,
+      total: 0
     },
     perks: {
       active: 0,
       total: 6
     }
   });
+
+  const [titlesList, setTitlesList] = useState<any[]>([]);
+
 
   const [isHovering, setIsHovering] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
@@ -154,6 +169,7 @@ export default function CharacterPage() {
           experience: stats.experience,
           experienceToNextLevel: calculateExperienceForLevel(calculatedLevel),
           gold: stats.gold,
+          ascension_level: stats.ascension_level || 0,
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
         })
@@ -236,24 +252,73 @@ export default function CharacterPage() {
       }
     }
 
-    // Load active potion perks
-    const loadActivePotionPerks = () => {
+    const loadActivePotionPerks = async () => {
       try {
-        const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
-        const now = new Date()
-        const perksArr = Object.entries(perksObj)
-          .map(([name, value]) => {
-            if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
-              const { effect, expiresAt } = value as { effect: string, expiresAt: string }
-              return { name, effect, expiresAt }
-            }
-            return null
-          })
-          .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
-        setActivePotionPerks(perksArr)
+        const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+        const response = await fetchWithAuth('/api/active-modifiers');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.modifiers) {
+            const mapped = data.modifiers.map((m: any) => ({
+              name: m.name,
+              effect: m.effect || "Active Potion",
+              expiresAt: m.expires_at
+            }));
+            setActivePotionPerks(mapped);
+
+            // Sync to local storage for offline/fallback
+            const localMap: Record<string, any> = {};
+            mapped.forEach((m: any) => localMap[m.name] = { effect: m.effect, expiresAt: m.expiresAt });
+            localStorage.setItem('active-potion-perks', JSON.stringify(localMap));
+          }
+        }
       } catch (e) {
-        console.error('Error loading active potion perks:', e)
-        setActivePotionPerks([])
+        console.error('Error loading active potion perks from API, falling back to local:', e)
+        try {
+          const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
+          const now = new Date()
+          const perksArr = Object.entries(perksObj)
+            .map(([name, value]) => {
+              if (typeof value === 'object' && value !== null && 'effect' in value && 'expiresAt' in value) {
+                const { effect, expiresAt } = value as { effect: string, expiresAt: string }
+                return { name, effect, expiresAt }
+              }
+              return null
+            })
+            .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
+          setActivePotionPerks(perksArr)
+        } catch (localErr) { console.error(localErr) }
+      }
+    }
+
+    const loadTitles = async () => {
+      try {
+        const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+        const response = await fetchWithAuth('/api/titles');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.titles) {
+            const mapped = data.titles.map((t: any) => ({
+              ...t,
+              level: t.required_level // Map for compatibility
+            }));
+            setTitlesList(mapped);
+
+            const unlockedCount = mapped.filter((t: any) => t.is_unlocked).length;
+            const equippedTitle = mapped.find((t: any) => t.is_equipped);
+
+            setCharacterStats(prev => ({
+              ...prev,
+              titles: {
+                equipped: equippedTitle ? equippedTitle.name : (prev.titles.equipped || "Novice Adventurer"),
+                unlocked: unlockedCount,
+                total: mapped.length
+              }
+            }));
+          }
+        }
+      } catch (e) {
+        console.error("Error loading titles", e);
       }
     }
 
@@ -265,6 +330,7 @@ export default function CharacterPage() {
         loadCharacterStats()
         await loadPerks() // Wait for perks
         await loadStrengths() // Wait for strengths
+        await loadTitles() // SQL-based titles
         loadActivePotionPerks()
 
       } catch (error) {
@@ -302,6 +368,116 @@ export default function CharacterPage() {
     // Only load data once on mount
     // Data will be updated via event listeners instead
   }, []);
+
+  // Auto-unlock titles when level changes
+  useEffect(() => {
+    const unlockTitles = async () => {
+      if (characterStats.level > 0) {
+        try {
+          const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+          await fetchWithAuth('/api/titles/unlock', {
+            method: 'POST',
+            body: JSON.stringify({ level: characterStats.level })
+          });
+
+          const response = await fetchWithAuth('/api/titles');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.titles) {
+              const mapped = data.titles.map((t: any) => ({ ...t, level: t.required_level }));
+              setTitlesList(mapped);
+
+              const unlockedCount = mapped.filter((t: any) => t.is_unlocked).length;
+              const equippedTitle = mapped.find((t: any) => t.is_equipped);
+
+              setCharacterStats(prev => ({
+                ...prev,
+                titles: {
+                  equipped: equippedTitle ? equippedTitle.name : (prev.titles.equipped || "Novice Adventurer"),
+                  unlocked: unlockedCount,
+                  total: mapped.length
+                }
+              }));
+            }
+          }
+        } catch (e) {
+          console.error("Error auto-unlocking titles:", e);
+        }
+      }
+    };
+
+    const timer = setTimeout(unlockTitles, 1000);
+    return () => clearTimeout(timer);
+  }, [characterStats.level]);
+
+  const equipTitle = async (titleId: string) => {
+    // Optimistic Update
+    const newTitles = titlesList.map(t => ({
+      ...t,
+      is_equipped: t.id === titleId
+    }));
+    setTitlesList(newTitles);
+
+    const equipped = newTitles.find(t => t.is_equipped);
+    if (equipped) {
+      setCharacterStats(prev => ({
+        ...prev,
+        titles: { ...prev.titles, equipped: equipped.name }
+      }));
+
+      toast({
+        title: "Title Equipped",
+        description: `You are now known as ${equipped.name}`,
+      });
+    }
+
+    try {
+      const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+      await fetchWithAuth('/api/titles', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'equip', titleId })
+      });
+    } catch (e) {
+      console.error("Error equipping title:", e);
+      toast({
+        title: "Error",
+        description: "Failed to save title selection.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAscension = async () => {
+    try {
+      const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+      const response = await fetchWithAuth('/api/ascension', { method: 'POST' });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Ascension Successful!",
+          description: "You have been reborn with new power. Level reset to 1.",
+        });
+
+        // Reload page to reflect deep changes
+        window.location.reload();
+      } else {
+        toast({
+          title: "Ascension Failed",
+          description: data.error || "Could not process ascension.",
+          variant: "destructive"
+        });
+      }
+    } catch (e) {
+      console.error("Ascension error:", e);
+      toast({
+        title: "Error",
+        description: "Network error occurred.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Helper function to check if perk can be activated (weekly cooldown)
   const canActivatePerk = (perk: Perk): boolean => {
@@ -637,16 +813,65 @@ export default function CharacterPage() {
                 {/* Left: Level, XP, Title */}
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}</h3>
-                    <Progress value={calculateLevelProgress(characterStats.experience) * 100} className="h-2" />
-                    <p className="text-sm text-muted-foreground">
-                      <AnimatedCounter value={Math.floor(characterStats.experience)} duration={800} /> / {TEXT_CONTENT.character.ui.overview.xpProgress.replace("{current}", "").replace("{next}", String(characterStats.experienceToNextLevel)).replace("{nextLevel}", String(characterStats.level + 1))}
-                    </p>
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}</h3>
+                      {(characterStats.ascension_level || 0) > 0 && (
+                        <Badge variant="outline" className="text-amber-400 border-amber-400 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Ascension {characterStats.ascension_level}
+                        </Badge>
+                      )}
+                    </div>
+                    <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2" />
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <p>
+                        <AnimatedCounter value={Math.floor(characterStats.experience)} duration={800} /> / {TEXT_CONTENT.character.ui.overview.xpProgress.replace("{current}", "").replace("{next}", String(characterStats.experienceToNextLevel)).replace("{nextLevel}", String(characterStats.level + 1))}
+                      </p>
+
+                      {characterStats.level >= 100 && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="destructive" className="h-6 text-xs bg-amber-600 hover:bg-amber-700 text-white border-amber-800">
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              Ascend
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-zinc-900 border-amber-700 text-white">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-amber-500 font-serif text-xl flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5" />
+                                Perform Ascension?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription className="text-zinc-300">
+                                This action will reset your Level to 1 and Experience to 0.
+                                You will keep your items, gold, and titles.
+                                <br /><br />
+                                Ascending grants you a permanent <strong>Ascension Level</strong> which boosts your prestige.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600">Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleAscension} className="bg-amber-600 text-white hover:bg-amber-700 border-amber-800">
+                                Confirm Ascension
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.titleHeader}</h3>
                     {(() => {
+                      // Use equipped title for visual, fall back to level-based calculation if nothing found
+                      const currentTitleName = characterStats.titles.equipped;
+                      // Determine image from ID (we need to find the ID corresponding to the name or use the equipped Item)
+                      const equippedItem = titlesList.find(t => t.is_equipped);
+                      const titleId = equippedItem ? equippedItem.id : TITLES.find(t => t.name === currentTitleName)?.id || 'squire';
+
+                      // Calculate next title progress based on level still (level progression logic remains valid)
                       const titleInfo = getTitleProgress(characterStats.level);
+
                       return (
                         <>
                           {/* Current title character image and info side by side */}
@@ -672,8 +897,8 @@ export default function CharacterPage() {
                             </div>
                             {/* Title info on the right */}
                             <div className="flex-1 space-y-2">
-                              <p className="text-lg font-bold text-amber-600">{titleInfo.current.name}</p>
-                              <p className="text-sm text-muted-foreground">{titleInfo.current.description}</p>
+                              <p className="text-lg font-bold text-amber-600">{currentTitleName}</p>
+                              <p className="text-sm text-muted-foreground">{equippedItem ? equippedItem.description : titleInfo.current.description}</p>
                               {titleInfo.next && (
                                 <div className="mt-2">
                                   <p className="text-xs text-muted-foreground">{TEXT_CONTENT.character.ui.overview.nextTitle.replace("{name}", titleInfo.next.name).replace("{level}", String(titleInfo.next.level))}</p>
@@ -811,92 +1036,100 @@ export default function CharacterPage() {
               <TabsContent value="titles" className="mt-6">
                 <div className="max-w-6xl mx-auto w-full">
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {TITLES.map((title) => {
-                      const isUnlocked = characterStats.level >= title.level;
-                      const isCurrent = characterStats.level === title.level;
-                      const rarity = title.level <= 20 ? "common" :
-                        title.level <= 40 ? "uncommon" :
-                          title.level <= 60 ? "rare" :
-                            title.level <= 80 ? "epic" :
-                              title.level <= 90 ? "legendary" : "mythic";
+                    {titlesList.length > 0 ? (
+                      titlesList.map((title) => {
+                        const isUnlocked = title.is_unlocked;
+                        const isEquipped = title.is_equipped;
+                        const rarity = title.level <= 20 ? "common" :
+                          title.level <= 40 ? "uncommon" :
+                            title.level <= 60 ? "rare" :
+                              title.level <= 80 ? "epic" :
+                                title.level <= 90 ? "legendary" : "mythic";
 
-                      return (
-                        <Card
-                          key={title.id}
-                          className={`h-full flex flex-col ${!isUnlocked
-                            ? "medieval-card-undiscovered"
-                            : isCurrent
-                              ? "medieval-card border-amber-500 shadow-amber-500/20 shadow-lg"
-                              : "medieval-card"
-                            }`}
-                        >
-                          <CardHeader className="pb-2">
-                            <div className="flex justify-between items-start">
-                              <div className="flex items-center gap-3">
-                                {/* Character image */}
-                                <div className="relative w-16 h-16 flex-shrink-0">
-                                  <Image
-                                    src={`/images/character/${title.id}.png`}
-                                    alt={`${title.name} character`}
-                                    fill
-                                    className="object-contain"
-                                    onError={(e) => {
-                                      // Fallback to squire image if specific image not found
-                                      const target = e.target as HTMLImageElement;
-                                      target.src = '/images/character/squire.png';
-                                    }}
-                                  />
+                        return (
+                          <Card
+                            key={title.id}
+                            className={`h-full flex flex-col ${!isUnlocked
+                              ? "medieval-card-undiscovered"
+                              : isEquipped
+                                ? "medieval-card border-amber-500 shadow-amber-500/20 shadow-lg"
+                                : "medieval-card"
+                              }`}
+                          >
+                            <CardHeader className="pb-2">
+                              <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                  {/* Character image */}
+                                  <div className="relative w-16 h-16 flex-shrink-0">
+                                    <Image
+                                      src={`/images/character/${title.id}.png`}
+                                      alt={`${title.name} character`}
+                                      fill
+                                      className="object-contain"
+                                      onError={(e) => {
+                                        // Fallback to squire image if specific image not found
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = '/images/character/squire.png';
+                                      }}
+                                    />
+                                  </div>
+                                  <CardTitle className="font-serif">{title.name}</CardTitle>
                                 </div>
-                                <CardTitle className="font-serif">{title.name}</CardTitle>
+                                <Badge
+                                  className={
+                                    rarity === "common"
+                                      ? "bg-gray-500 h-fit"
+                                      : rarity === "uncommon"
+                                        ? "bg-green-500 h-fit"
+                                        : rarity === "rare"
+                                          ? "bg-blue-500 h-fit"
+                                          : rarity === "epic"
+                                            ? "bg-purple-500 h-fit"
+                                            : rarity === "legendary"
+                                              ? "bg-amber-500 h-fit"
+                                              : "bg-red-500 h-fit"
+                                  }
+                                >
+                                  {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
+                                </Badge>
                               </div>
-                              <Badge
-                                className={
-                                  rarity === "common"
-                                    ? "bg-gray-500 h-fit"
-                                    : rarity === "uncommon"
-                                      ? "bg-green-500 h-fit"
-                                      : rarity === "rare"
-                                        ? "bg-blue-500 h-fit"
-                                        : rarity === "epic"
-                                          ? "bg-purple-500 h-fit"
-                                          : rarity === "legendary"
-                                            ? "bg-amber-500 h-fit"
-                                            : "bg-red-500 h-fit"
-                                }
-                              >
-                                {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
-                              </Badge>
-                            </div>
-                            <CardDescription className="min-h-[3rem] line-clamp-2">{title.description}</CardDescription>
-                          </CardHeader>
-                          <CardContent className="pb-2 flex-grow">
-                            <div className="flex items-center text-sm text-muted-foreground">
-                              <Badge variant="outline" className="mr-2">
-                                {TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(title.level))}
-                              </Badge>
-                              <span>{isUnlocked ? TEXT_CONTENT.character.titles.unlocked : TEXT_CONTENT.character.titles.requires.replace("{level}", String(title.level))}</span>
-                            </div>
-                          </CardContent>
-                          <CardFooter className="mt-auto pt-0">
-                            {isUnlocked ? (
-                              <Button
-                                className={`w-full ${isCurrent
-                                  ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
-                                  : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
-                                  }`}
-                                disabled={isCurrent}
-                              >
-                                {isCurrent ? TEXT_CONTENT.character.titles.current : TEXT_CONTENT.character.titles.achieved}
-                              </Button>
-                            ) : (
-                              <Button className="w-full" variant="outline" disabled>
-                                {TEXT_CONTENT.character.titles.locked}
-                              </Button>
-                            )}
-                          </CardFooter>
-                        </Card>
-                      );
-                    })}
+                              <CardDescription className="min-h-[3rem] line-clamp-2">{title.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pb-2 flex-grow">
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                <Badge variant="outline" className="mr-2">
+                                  {TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(title.level))}
+                                </Badge>
+                                <span>{isUnlocked ? TEXT_CONTENT.character.titles.unlocked : TEXT_CONTENT.character.titles.requires.replace("{level}", String(title.level))}</span>
+                              </div>
+                            </CardContent>
+                            <CardFooter className="mt-auto pt-0">
+                              {isUnlocked ? (
+                                <Button
+                                  className={`w-full ${isEquipped
+                                    ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
+                                    : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
+                                    }`}
+                                  disabled={isEquipped}
+                                  onClick={() => equipTitle(title.id)}
+                                >
+                                  {isEquipped ? TEXT_CONTENT.character.titles.current : "Equip Title"}
+                                </Button>
+                              ) : (
+                                <Button className="w-full" variant="outline" disabled>
+                                  {TEXT_CONTENT.character.titles.locked}
+                                </Button>
+                              )}
+                            </CardFooter>
+                          </Card>
+                        );
+                      })
+                    ) : (
+                      <div className="col-span-full text-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto text-amber-500 mb-2" />
+                        <p className="text-gray-400">Loading titles...</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>

@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dialog"
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { EmptyState } from "@/components/ui/empty-state"
-import { Backpack, Sword, LayoutGrid, Compass, Gift } from "lucide-react";
+import { Backpack, Sword, LayoutGrid, Compass, Gift, BookOpen, Flame, Skull } from "lucide-react";
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
@@ -127,7 +127,7 @@ function mergeGrids(defaultGrid: Tile[][], userGrid: Tile[][]): Tile[][] {
   return mergedGrid;
 }
 
-const getConsumableEffect = (item: KingdomInventoryItem) => {
+const getConsumableEffect = async (item: KingdomInventoryItem) => {
   // Artifacts: 60, 80, or 100 gold
   if (item.type === 'artifact') {
     const gold = getRandomFromArray([60, 80, 100])
@@ -143,7 +143,7 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
     return TEXT_CONTENT.kingdom.consumables.scroll.replace('{gold}', gold.toString())
   }
   // Potions: handle each potion type explicitly
-  if (item.type === 'item' && item.name) {
+  if ((item.type === 'item' || item.type === 'potion') && item.name) {
     const key = item.name.toLowerCase();
     if (key === 'health potion') {
       // Restore health via unified service
@@ -165,11 +165,32 @@ const getConsumableEffect = (item: KingdomInventoryItem) => {
     // Other potions: use perk logic
     if (potionPerkMap[key]) {
       const perk = getRandomFromArray(potionPerkMap[key].perks)
-      const now = new Date()
-      const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-      const activePerks = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
-      activePerks[perk.name] = { effect: perk.effect, expiresAt: expiresAt.toISOString() }
-      localStorage.setItem('active-potion-perks', JSON.stringify(activePerks))
+
+      try {
+        const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+        await fetchWithAuth('/api/active-modifiers', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: perk.name,
+            effect: perk.effect,
+            durationHours: 24,
+            source: 'potion'
+          })
+        });
+        // Dispatch event to update UI immediately
+        window.dispatchEvent(new Event('character-inventory-update'));
+
+        // Also keep localStorage as a temporary fallback/cache
+        const now = new Date()
+        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+        const activePerks = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
+        activePerks[perk.name] = { effect: perk.effect, expiresAt: expiresAt.toISOString() }
+        localStorage.setItem('active-potion-perks', JSON.stringify(activePerks))
+
+      } catch (e) {
+        console.error("Error saving potion perk:", e);
+      }
+
       return TEXT_CONTENT.kingdom.consumables.perkActive
         .replace('{item}', getItemDisplayName(item))
         .replace('{perkName}', perk.name)
@@ -421,6 +442,22 @@ export function KingdomClient() {
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
   const [userTokens, setUserTokens] = useState(0);
   const [challenges, setChallenges] = useState<any[]>([]);
+  const [journeyStats, setJourneyStats] = useState<{
+    dungeonRuns: any[];
+    dungeonWins: number;
+    journalCount: number;
+    meditationCount: number;
+  }>({ dungeonRuns: [], dungeonWins: 0, journalCount: 0, meditationCount: 0 });
+
+  useEffect(() => {
+    if (activeTab === 'journey' || kingdomTab === 'journey') {
+      fetch('/api/kingdom/journey-stats')
+        .then(res => res.json())
+        .then(data => setJourneyStats(data))
+        .catch(err => console.error('Failed to load journey stats', err));
+    }
+  }, [activeTab, kingdomTab]);
+
   const isInventoryLoadingRef = useRef(false);
 
   // Debug: Log kingdom tiles configuration
@@ -656,15 +693,16 @@ export function KingdomClient() {
 
   // Helper to determine if an item is consumable
   const isConsumable = (item: KingdomInventoryItem) => {
-    return item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category);
+    return item.type === 'artifact' || item.type === 'scroll' || item.type === 'potion' || (item.type === 'item' && !item.category);
   };
 
   // Handler for equipping items
-  const handleEquip = (item: KingdomInventoryItem) => {
+  const handleEquip = async (item: KingdomInventoryItem) => {
     // For consumables, show modal
-    if (item.type === 'artifact' || item.type === 'scroll' || (item.type === 'item' && !item.category)) {
-      setModalText(getConsumableEffect(item));
+    if (isConsumable(item)) {
+      setModalText(await getConsumableEffect(item));
       setModalOpen(true);
+      return;
     }
     if (user?.id) equipItem(user.id, item.id);
   };
@@ -1537,6 +1575,76 @@ export function KingdomClient() {
           </TabsContent>
           <TabsContent value="journey">
             <div className="space-y-6">
+              {/* Journey Overview Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="bg-zinc-900 border-amber-900/30">
+                  <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                    <Sword className="w-8 h-8 text-amber-500 mb-2" />
+                    <div className="text-2xl font-bold text-white">{journeyStats.dungeonWins}</div>
+                    <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Dungeon Wins</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-zinc-900 border-amber-900/30">
+                  <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                    <BookOpen className="w-8 h-8 text-amber-500 mb-2" />
+                    <div className="text-2xl font-bold text-white">{journeyStats.journalCount}</div>
+                    <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Journals Scribed</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-zinc-900 border-amber-900/30">
+                  <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                    <LayoutGrid className="w-8 h-8 text-amber-500 mb-2" />
+                    <div className="text-2xl font-bold text-white">{journeyStats.meditationCount}</div>
+                    <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Meditations</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-zinc-900 border-amber-900/30">
+                  <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                    <Flame className="w-8 h-8 text-amber-500 mb-2" />
+                    <div className="text-2xl font-bold text-white">{userTokens}</div>
+                    <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Streak Tokens</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Dungeon History */}
+              <Card className="bg-black/40 border-amber-900/30">
+                <CardHeader>
+                  <CardTitle className="text-lg text-amber-500 flex items-center gap-2">
+                    <Skull className="w-5 h-5" /> Recent Dungeon History
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {journeyStats.dungeonRuns.length > 0 ? (
+                    <div className="space-y-4">
+                      {journeyStats.dungeonRuns.map((run: any) => (
+                        <div key={run.id} className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg border border-amber-900/10">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-amber-900/20 rounded-full flex items-center justify-center border border-amber-900/30">
+                              <Sword className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-amber-200 capitalize">{run.dungeon_id?.replace(/-/g, ' ') || 'Unknown Dungeon'}</div>
+                              <div className="text-xs text-zinc-500">{new Date(run.completed_at).toLocaleDateString()} at {new Date(run.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <Badge variant="outline" className="text-green-400 border-green-900/30 bg-green-900/10">Victory</Badge>
+                            <div className="flex gap-2 text-xs">
+                              <span className="text-yellow-500">+{run.gold_earned}g</span>
+                              <span className="text-blue-400">+{run.xp_earned}xp</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-zinc-500">
+                      <p>No dungeon conquests recorded yet.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
               {/* Kingdom Stats and Gains - Most Important for Kingdom Page */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="w-full" aria-label="kingdom-stats-block-container">

@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { loot, status } = body; // loot array and final status (completed/defeated)
+        const { loot, status, dungeonId } = body; // loot array and final status (completed/defeated)
 
         if (!loot || !Array.isArray(loot)) {
             return NextResponse.json({ error: 'Invalid loot data' }, { status: 400 });
@@ -36,6 +36,24 @@ export async function POST(req: NextRequest) {
         let totalGold = loot.reduce((acc: number, item: LootItem) =>
             acc + (item.type === 'gold' ? (item.amount || 0) : 0), 0);
         let totalXp = Math.floor(totalGold * 0.5);
+
+        // Record Dungeon Run
+        if (status === 'completed' || status === 'victory') {
+            const { error: runError } = await supabaseServer
+                .from('dungeon_runs')
+                .insert({
+                    user_id: userId,
+                    dungeon_id: dungeonId || 'unknown',
+                    loot_obtained: loot,
+                    gold_earned: totalGold,
+                    xp_earned: totalXp,
+                    completed_at: new Date().toISOString()
+                });
+
+            if (runError) {
+                apiLogger.error("Failed to record dungeon run", runError);
+            }
+        }
 
         // Grant gold
         if (totalGold > 0) {
