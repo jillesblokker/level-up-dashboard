@@ -115,10 +115,19 @@ export default function CharacterPage() {
   // Check and unlock perks based on character level
   const checkAndUnlockPerks = useCallback((level: number) => {
     setPerks(prevPerks => {
-      const updatedPerks = prevPerks.map(perk => ({
-        ...perk,
-        unlocked: perk.requiredLevel ? level >= perk.requiredLevel : perk.unlocked
-      }));
+      let hasChanges = false;
+
+      const updatedPerks = prevPerks.map(perk => {
+        const shouldBeUnlocked = perk.requiredLevel ? level >= perk.requiredLevel : perk.unlocked;
+
+        if (shouldBeUnlocked !== perk.unlocked) {
+          hasChanges = true;
+          return { ...perk, unlocked: shouldBeUnlocked };
+        }
+        return perk;
+      });
+
+      if (!hasChanges) return prevPerks;
 
       // Save updated perks to localStorage for database
       localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
@@ -127,10 +136,10 @@ export default function CharacterPage() {
     });
   }, []);
 
-  // Check for perk unlocks when character level changes
+  // Check for perk unlocks when character level changes or perks are loaded
   useEffect(() => {
     checkAndUnlockPerks(characterStats.level);
-  }, [characterStats.level, checkAndUnlockPerks]);
+  }, [characterStats.level, perks, checkAndUnlockPerks]);
 
   // Load character stats and perks (Supabase first, then localStorage)
   useEffect(() => {
@@ -185,8 +194,26 @@ export default function CharacterPage() {
       }
     }
 
-    const loadStrengths = () => {
+    const loadStrengths = async () => {
       try {
+        // Try to fetch from server API first (Source of Truth)
+        try {
+          const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+          const response = await fetchWithAuth('/api/character-strengths');
+          if (response.ok) {
+            const result = await response.json();
+            if (result.strengths && Array.isArray(result.strengths)) {
+              setStrengths(result.strengths);
+              // Also save to local storage for offline fallback correctness
+              localStorage.setItem('character-strengths', JSON.stringify(result.strengths));
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Failed to fetch strengths from API', err);
+        }
+
+        // Fallback to local storage logic
         const strengths = getStrengths();
         // Ensure all 8 categories are present (including wellness and exploration)
         const defaultStrengths = TEXT_CONTENT.character.data.strengths.map(s => ({
@@ -236,8 +263,8 @@ export default function CharacterPage() {
         setError(null);
 
         loadCharacterStats()
-        loadPerks()
-        loadStrengths()
+        await loadPerks() // Wait for perks
+        await loadStrengths() // Wait for strengths
         loadActivePotionPerks()
 
       } catch (error) {

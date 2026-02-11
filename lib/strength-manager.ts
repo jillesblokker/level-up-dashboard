@@ -34,7 +34,7 @@ export interface Strength {
 const STRENGTHS_KEY = 'character-strengths'
 
 // Default strengths for each category
-const defaultStrengths: Strength[] = [
+export const defaultStrengths: Strength[] = [
   {
     id: "might",
     name: "Might",
@@ -49,7 +49,7 @@ const defaultStrengths: Strength[] = [
   {
     id: "knowledge",
     name: "Knowledge",
-    category: "knowledge", 
+    category: "knowledge",
     level: 1,
     experience: 0,
     experienceToNextLevel: 100,
@@ -127,10 +127,10 @@ const defaultStrengths: Strength[] = [
 
 export function getStrengths(): Strength[] {
   if (typeof window === 'undefined') return defaultStrengths
-  
+
   const savedStrengths = localStorage.getItem(STRENGTHS_KEY)
   if (!savedStrengths) return defaultStrengths
-  
+
   try {
     return JSON.parse(savedStrengths)
   } catch (err) {
@@ -142,16 +142,38 @@ export function getStrengths(): Strength[] {
 
 export function saveStrengths(strengths: Strength[]) {
   if (typeof window === 'undefined') return
-  
+
   localStorage.setItem(STRENGTHS_KEY, JSON.stringify(strengths))
   window.dispatchEvent(new Event('character-strengths-update'))
 }
 
+export function calculateStrengthFromXp(strength: Strength, totalExperience: number): Strength {
+  let level = 1
+  let currentXp = totalExperience
+  let xpToNext = 100
+
+  // Iterate to find level
+  while (currentXp >= xpToNext) {
+    currentXp -= xpToNext
+    level += 1
+    xpToNext = Math.floor(xpToNext * 1.2)
+  }
+
+  return {
+    ...strength,
+    level,
+    experience: currentXp,
+    experienceToNextLevel: xpToNext
+  }
+}
+
 export function gainStrengthExperience(category: string, amount: number): Strength[] {
   const strengths = getStrengths()
-  
+
   const updatedStrengths = strengths.map(strength => {
     if (strength.category === category) {
+      // Logic duplicated for client-side optimistic update if needed, 
+      // but ideally we rely on totalXP from server
       let newExperience = strength.experience + amount
       let newLevel = strength.level
       let newExperienceToNextLevel = strength.experienceToNextLevel
@@ -206,6 +228,6 @@ export function gainStrengthFromQuest(questCategory: string, questLevel: number 
   const experienceGain = baseExperience * questLevel
 
   gainStrengthExperience(strengthCategory, experienceGain)
-  
+
   console.log(`Gained ${experienceGain} ${strengthCategory} experience from ${questCategory} quest`)
 } 
