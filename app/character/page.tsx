@@ -5,6 +5,7 @@ import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hamme
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
+import { useUser } from "@clerk/nextjs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -61,6 +62,7 @@ const categoryMeta = {
 };
 
 export default function CharacterPage() {
+  const { user } = useUser()
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -157,8 +159,7 @@ export default function CharacterPage() {
         // Try Supabase user preference
         try {
           const { getUserPreference } = await import('@/lib/user-preferences-manager')
-          const clerk = (window as any).__clerk
-          const uid = clerk?.user?.id
+          const uid = user?.id
 
           if (uid) {
             const pref = await getUserPreference('character-perks')
@@ -261,7 +262,7 @@ export default function CharacterPage() {
       window.removeEventListener('character-strengths-update', loadStrengths)
       window.removeEventListener('character-inventory-update', loadActivePotionPerks)
     }
-  }, [])
+  }, [user?.id])
 
   // Polling for character data changes instead of real-time sync - DISABLED TO PREVENT INFINITE LOOPS
   useEffect(() => {
@@ -368,7 +369,7 @@ export default function CharacterPage() {
     // Persist perks to Supabase; fallback local
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
-      const uid = (window as any).__clerk?.user?.id
+      const uid = user?.id
       if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
     } catch { }
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks))
@@ -390,7 +391,7 @@ export default function CharacterPage() {
     setPerks(updatedPerks);
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
-      const uid = (window as any).__clerk?.user?.id
+      const uid = user?.id
       if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
     } catch { }
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));
@@ -454,7 +455,7 @@ export default function CharacterPage() {
     // Persist perks to Supabase; fallback local
     try {
       const { setUserPreference } = await import('@/lib/user-preferences-manager')
-      const uid = (window as any).__clerk?.user?.id
+      const uid = user?.id
       if (uid) await setUserPreference('character-perks', JSON.stringify(updatedPerks))
     } catch { }
     localStorage.setItem('character-perks', JSON.stringify(updatedPerks));

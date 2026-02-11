@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { ArrowUp, ArrowDown, Coins, ShoppingCart, TrendingUp, ScrollText, Filter, Ban } from 'lucide-react'
+import { ArrowUp, ArrowDown, Coins, TrendingUp, ScrollText, Filter, Ban } from 'lucide-react'
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
@@ -19,12 +17,7 @@ interface EconomyTransaction {
   description: string
 }
 
-interface TileCost {
-  name: string
-  cost: number
-  category: string
-  description: string
-}
+
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -48,7 +41,7 @@ export function EconomyTransparency() {
     netFlow: 0
   })
   const [allTransactions, setAllTransactions] = useState<EconomyTransaction[]>([])
-  const [tileCosts, setTileCosts] = useState<TileCost[]>([])
+
   const [isLoading, setIsLoading] = useState(true)
   const [filterType, setFilterType] = useState('all') // 'all', 'earned', 'spent'
   const [mounted, setMounted] = useState(false)
@@ -93,19 +86,7 @@ export function EconomyTransparency() {
           })))
         }
 
-        // Load dynamic tile costs
-        const highlightedTiles = KINGDOM_TILES
-          .filter(t => t.cost && t.cost > 0)
-          .sort((a, b) => (a.cost || 0) - (b.cost || 0))
-          .slice(0, 6)
-          .map(t => ({
-            name: t.name,
-            cost: t.cost || 0,
-            category: t.itemType === 'none' ? 'Architecture' : 'Industry',
-            description: t.clickMessage || 'A kingdom structure'
-          }))
 
-        setTileCosts(highlightedTiles)
 
       } catch (error) {
         console.error('[Ledger] Error loading economy data:', error)
@@ -125,9 +106,7 @@ export function EconomyTransparency() {
     }
   }, [])
 
-  // Find next affordable goal
-  const nextGoal = tileCosts.find(t => t.cost > stats.gold) || tileCosts[tileCosts.length - 1]
-  const progressToGoal = nextGoal ? Math.min((stats.gold / nextGoal.cost) * 100, 100) : 100
+
 
   // Filter Transactions
   const filteredData = useMemo(() => {
@@ -282,81 +261,7 @@ export function EconomyTransparency() {
             </div>
           </div>
 
-          {/* Financial Goals */}
-          {nextGoal && (
-            <div className="bg-zinc-900/50 rounded-xl p-5 border border-zinc-800">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-amber-500" />
-                  <span className="text-sm font-medium text-zinc-300">Next Goal: <span className="text-amber-200">{nextGoal.name}</span></span>
-                </div>
-                <span className="text-xs text-zinc-500 uppercase tracking-widest">{Math.round(progressToGoal)}% Funded</span>
-              </div>
-              <Progress value={progressToGoal} className="h-2 bg-zinc-800" indicatorClassName="bg-amber-600" />
-              <p className="text-xs text-zinc-500 mt-2 text-right">
-                {Math.max(0, nextGoal.cost - stats.gold).toLocaleString()} gold needed
-              </p>
-            </div>
-          )}
 
-          {/* Recent Ledger Entries */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-serif text-amber-200 flex items-center gap-2">
-              <ScrollText className="h-4 w-4" />
-              Ledger Entries
-              {filterType !== 'all' && (
-                <Badge variant="outline" className="ml-2 border-amber-500/30 text-amber-500 text-[10px] uppercase">
-                  {filterType}
-                </Badge>
-              )}
-            </h3>
-            <div className="space-y-1 rounded-xl overflow-hidden border border-zinc-800/50">
-              {isLoading ? (
-                <div className="p-8 text-center text-zinc-500">Retrieving records...</div>
-              ) : filteredData.length > 0 ? (
-                filteredData.slice(0, 15).map((transaction, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-zinc-900/30 hover:bg-zinc-900/50 transition-colors border-b border-zinc-900 last:border-0">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-1.5 rounded-full ${transaction.type === 'earned' ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-                        {transaction.type === 'earned' ? (
-                          <ArrowUp className="h-3 w-3 text-green-400" />
-                        ) : (
-                          <ArrowDown className="h-3 w-3 text-red-400" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm text-zinc-200 font-medium capitalize">{transaction.description || transaction.source}</p>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{format(transaction.timestamp, 'MMM dd, yyyy')}</p>
-                      </div>
-                    </div>
-                    <div className={`font-mono font-bold ${transaction.type === 'earned' ? 'text-green-400' : 'text-red-400'}`}>
-                      {transaction.type === 'earned' ? '+' : '-'}{transaction.amount}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-8 text-center text-zinc-500 italic">No {filterType === 'all' ? '' : filterType} records found in the ledger.</div>
-              )}
-            </div>
-          </div>
-
-          {/* Market Reference */}
-          <div className="pt-6 border-t border-amber-900/10">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-4 flex items-center gap-2 mb-4">
-              <ShoppingCart className="h-4 w-4" />
-              Standard Market Rates
-            </h3>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {tileCosts.map((tile) => (
-                <div key={tile.name} className="flex items-center justify-between p-3 rounded-lg bg-zinc-900/30 border border-zinc-800">
-                  <span className="text-sm text-zinc-300">{tile.name}</span>
-                  <Badge variant="outline" className="text-amber-500 border-amber-900/30 bg-amber-950/10">
-                    {tile.cost} G
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </div>
 
         </CardContent>
       </Card>
