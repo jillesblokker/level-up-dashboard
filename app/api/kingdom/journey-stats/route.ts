@@ -62,9 +62,15 @@ export async function GET(req: NextRequest) {
         // 4. Character Stats (Streak)
         const { data: charStats } = await supabase
             .from('character_stats')
-            .select('streak_tokens')
+            .select('streak_tokens, streak_days')
             .eq('user_id', userId)
             .single();
+
+        console.log(`[JourneyStats] User: ${userId}`);
+        console.log(`[JourneyStats] MedQuests Found: ${medQuests?.length || 0}`);
+        console.log(`[JourneyStats] Meditation Count: ${finalMeditationCount}`);
+        console.log(`[JourneyStats] Dungeon Wins: ${totalWins}`);
+        console.log(`[JourneyStats] Streak Tokens: ${charStats?.streak_tokens}`);
 
         return NextResponse.json({
             dungeonRuns: runs || [],

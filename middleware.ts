@@ -57,6 +57,17 @@ export default clerkMiddleware(async (auth, request) => {
       'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       'style-src': ["'self'", "'unsafe-inline'"],
       'img-src': ["'self'", "https://img.clerk.com", "data:"],
+      'connect-src': [
+        "'self'",
+        "https://clerk-telemetry.com",
+        "https://*.clerk-telemetry.com",
+        "https://api.stripe.com",
+        "https://maps.googleapis.com",
+        "https://*.supabase.co",
+        "wss://*.supabase.co",
+        "https://*.clerk.com",
+        "https://clerk.jillesblokker.com"
+      ],
     },
   },
 });

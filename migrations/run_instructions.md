@@ -12,6 +12,7 @@ To fully connect the game systems, please execute the following SQL scripts in y
 
 3. **Dungeon History**
     * File: `migrations/create_dungeon_history.sql`
+    * **Fix**: Also run `migrations/fix_dungeon_runs_schema.sql` to ensure all columns (status, hp, room info) are present for the complex dungeon system.
     * Purpose: Creates a table to record completed dungeon runs for history tracking.
 
 4. **Ascension System**
