@@ -132,7 +132,45 @@ export async function POST(req: NextRequest) {
                 p_xp: rewards.xp
             });
 
-            return { success: true, completed: true, rewards };
+            // 5. Productivity Milestones & Encouraging Messages
+            let milestoneMessage = null;
+            try {
+                const todayStr = new Date().toISOString().split('T')[0];
+
+                // Today's Quest Count
+                const { count: questsToday } = await supabase
+                    .from('quest_completion')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', userId)
+                    .eq('completed', true)
+                    .gte('completed_at', `${todayStr}T00:00:00`)
+                    .lte('completed_at', `${todayStr}T23:59:59`);
+
+                // Current Streak
+                const { data: charStats } = await supabase
+                    .from('character_stats')
+                    .select('streak_days')
+                    .eq('user_id', userId)
+                    .single();
+
+                const { getMilestoneMessage } = await import('@/lib/encouraging-messages');
+
+                if (charStats?.streak_days === 7) {
+                    milestoneMessage = getMilestoneMessage('streak_7');
+                } else if (charStats?.streak_days === 3) {
+                    milestoneMessage = getMilestoneMessage('streak_3');
+                } else if (questsToday === 10) {
+                    milestoneMessage = getMilestoneMessage('quests_10');
+                } else if (questsToday === 5) {
+                    milestoneMessage = getMilestoneMessage('quests_5');
+                } else if (questsToday === 3) {
+                    milestoneMessage = getMilestoneMessage('quests_3');
+                }
+            } catch (milestoneErr) {
+                console.warn('[Smart Completion] Error checking milestones:', milestoneErr);
+            }
+
+            return { success: true, completed: true, rewards, milestoneMessage };
         });
 
         if (!result.success) {

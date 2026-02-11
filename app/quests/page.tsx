@@ -1027,7 +1027,17 @@ export default function QuestsPage() {
         throw new Error(`Failed to update quest: ${response.status} ${errorData.error || ''}`);
       }
 
-      console.log('[QUEST-TOGGLE] Quest persisted to backend successfully');
+      const responseData = await response.json();
+      console.log('[QUEST-TOGGLE] Quest persisted to backend successfully', responseData);
+
+      // 🎯 Display character-based milestone message if received
+      if (responseData.milestoneMessage) {
+        toast({
+          title: responseData.milestoneMessage.character,
+          description: responseData.milestoneMessage.message,
+          duration: 6000,
+        });
+      }
     } catch (error) {
       console.error('[QUEST-TOGGLE] Error persisting quest:', error);
       // Don't show error toast as rewards were already applied

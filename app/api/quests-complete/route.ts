@@ -136,6 +136,48 @@ export async function PUT(request: Request) {
 
     apiLogger.debug('Smart completion successful');
 
+    // --- Productivity Milestones & Encouraging Messages ---
+    let milestoneMessage = null;
+    if (completed) {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+
+        // 1. Check Today's Quest Count
+        const { count: questsToday } = await supabase
+          .from('quest_completion')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('completed', true)
+          .gte('completed_at', `${today}T00:00:00`)
+          .lte('completed_at', `${today}T23:59:59`);
+
+        // 2. Check Streak
+        const { data: charStats } = await supabase
+          .from('character_stats')
+          .select('streak_days')
+          .eq('user_id', userId)
+          .single();
+
+        const { getMilestoneMessage } = await import('@/lib/encouraging-messages');
+
+        // Priority to streak milestones if they align, otherwise quest counts
+        if (charStats?.streak_days === 7) {
+          milestoneMessage = getMilestoneMessage('streak_7');
+        } else if (charStats?.streak_days === 3) {
+          milestoneMessage = getMilestoneMessage('streak_3');
+        } else if (questsToday === 10) {
+          milestoneMessage = getMilestoneMessage('quests_10');
+        } else if (questsToday === 5) {
+          milestoneMessage = getMilestoneMessage('quests_5');
+        } else if (questsToday === 3) {
+          milestoneMessage = getMilestoneMessage('quests_3');
+        }
+      } catch (err) {
+        apiLogger.warn('Error checking milestones:', err);
+      }
+    }
+    // --- End Milestones ---
+
     // SOCIAL NOTIFICATION LOGIC:
     // Check if this quest was sent by a friend
     if (completed && quest.sender_id && quest.sender_id !== userId) {
@@ -165,7 +207,8 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Quest ${completed ? 'completed' : 'uncompleted'} successfully`
+      message: `Quest ${completed ? 'completed' : 'uncompleted'} successfully`,
+      milestoneMessage: milestoneMessage
     });
   } catch (error) {
     apiLogger.error('Error updating quest completion:', error);
