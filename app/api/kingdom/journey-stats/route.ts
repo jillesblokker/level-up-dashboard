@@ -21,13 +21,15 @@ export async function GET(req: NextRequest) {
             .from('dungeon_runs')
             .select('*')
             .eq('user_id', userId)
+            .in('status', ['completed', 'victory'])
             .order('completed_at', { ascending: false })
             .limit(5); // Last 5 runs
 
         const { count: totalWins, error: winCountError } = await supabase
             .from('dungeon_runs')
             .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId);
+            .eq('user_id', userId)
+            .in('status', ['completed', 'victory']);
 
         if (runsError) console.error('Error fetching runs:', runsError);
 
@@ -40,11 +42,11 @@ export async function GET(req: NextRequest) {
         if (journalError) console.error('Error counting journals:', journalError);
 
         // 3. Meditation Count
-        // Query quests with "Meditat" in title (case insensitive)
+        // Query quests with "Meditat" in title OR category "mindfulness"
         const { data: medQuests } = await supabase
             .from('quests')
             .select('id')
-            .ilike('name', '%meditat%');
+            .or('category.eq.mindfulness,name.ilike.%meditat%');
 
         let finalMeditationCount = 0;
         if (medQuests && medQuests.length > 0) {
@@ -57,11 +59,19 @@ export async function GET(req: NextRequest) {
             finalMeditationCount = count || 0;
         }
 
+        // 4. Character Stats (Streak)
+        const { data: charStats } = await supabase
+            .from('character_stats')
+            .select('streak_tokens')
+            .eq('user_id', userId)
+            .single();
+
         return NextResponse.json({
             dungeonRuns: runs || [],
             dungeonWins: totalWins || 0,
             journalCount: journalCount || 0,
-            meditationCount: finalMeditationCount
+            meditationCount: finalMeditationCount,
+            streakTokens: charStats?.streak_tokens || 0
         });
 
     } catch (error) {

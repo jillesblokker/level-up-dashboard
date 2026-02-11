@@ -447,7 +447,8 @@ export function KingdomClient() {
     dungeonWins: number;
     journalCount: number;
     meditationCount: number;
-  }>({ dungeonRuns: [], dungeonWins: 0, journalCount: 0, meditationCount: 0 });
+    streakTokens: number;
+  }>({ dungeonRuns: [], dungeonWins: 0, journalCount: 0, meditationCount: 0, streakTokens: 0 });
 
   useEffect(() => {
     if (activeTab === 'journey' || kingdomTab === 'journey') {
@@ -1601,7 +1602,7 @@ export function KingdomClient() {
                 <Card className="bg-zinc-900 border-amber-900/30">
                   <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                     <Flame className="w-8 h-8 text-amber-500 mb-2" />
-                    <div className="text-2xl font-bold text-white">{userTokens}</div>
+                    <div className="text-2xl font-bold text-white">{journeyStats.streakTokens}</div>
                     <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Streak Tokens</div>
                   </CardContent>
                 </Card>
