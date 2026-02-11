@@ -169,6 +169,76 @@ export async function PUT(request: Request) {
       }, { onConflict: 'user_id,challenge_id,date' }).select().single();
 
       if (error) throw error;
+
+      // --- Category Streak Logic ---
+      try {
+        // 1. Get the category of the challenge just completed
+        const { data: challenge } = await serviceClient
+          .from('challenges')
+          .select('category')
+          .eq('id', challengeId)
+          .single();
+
+        if (challenge && challenge.category) {
+          const category = challenge.category;
+
+          // 2. Fetch all challenges in this category
+          const { data: catChallenges } = await serviceClient
+            .from('challenges')
+            .select('id')
+            .eq('category', category);
+
+          if (catChallenges && catChallenges.length > 0) {
+            const challengeIds = catChallenges.map(c => c.id);
+
+            // 3. Count completions for these challenges today
+            const { count } = await serviceClient
+              .from('challenge_completion')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', userId)
+              .eq('date', today)
+              .eq('completed', true)
+              .in('challenge_id', challengeIds);
+
+            // 4. If all are completed, update the streaks table
+            if (count === catChallenges.length) {
+              console.log(`[Streak] Category ${category} completed for user ${userId}`);
+
+              const { data: existingStreak } = await serviceClient
+                .from('streaks')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('category', category)
+                .single();
+
+              const yesterday = formatNetherlandsDate(new Date(Date.now() - 86400000));
+              let newStreak = 1;
+
+              if (existingStreak) {
+                const lastCheckIn = formatNetherlandsDate(existingStreak.last_check_in);
+                if (lastCheckIn === yesterday) {
+                  newStreak = (existingStreak.current_streak || 0) + 1;
+                } else if (lastCheckIn === today) {
+                  newStreak = existingStreak.current_streak || 1;
+                }
+              }
+
+              await serviceClient
+                .from('streaks')
+                .upsert({
+                  user_id: userId,
+                  category: category,
+                  current_streak: newStreak,
+                  last_check_in: new Date().toISOString()
+                }, { onConflict: 'user_id,category' });
+            }
+          }
+        }
+      } catch (streakErr) {
+        console.error('[Streak Error] Failed to update category streak:', streakErr);
+      }
+      // --- End Category Streak Logic ---
+
       return NextResponse.json(data);
     } else {
       const { error } = await serviceClient.from('challenge_completion').delete()

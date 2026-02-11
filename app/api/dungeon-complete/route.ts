@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
                     loot_obtained: loot,
                     gold_earned: totalGold,
                     xp_earned: totalXp,
+                    status: 'completed',
                     completed_at: new Date().toISOString()
                 });
 

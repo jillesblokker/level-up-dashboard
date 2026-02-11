@@ -42,42 +42,33 @@ export async function GET(req: NextRequest) {
         if (journalError) console.error('Error counting journals:', journalError);
 
         // 3. Meditation Count
-        // Query quests with "Meditat" in title OR category "mindfulness"
-        const { data: medQuests } = await supabase
-            .from('quests')
-            .select('id')
-            .or('category.eq.mindfulness,name.ilike.%meditat%');
+        // Count from the dedicated meditations table (recorded via ZenMeditateModal)
+        const { count: finalMeditationCount, error: medError } = await supabase
+            .from('meditations')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
 
-        let finalMeditationCount = 0;
-        if (medQuests && medQuests.length > 0) {
-            const medQuestIds = medQuests.map(q => q.id);
-            const { count } = await supabase
-                .from('quest_completion')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .in('quest_id', medQuestIds);
-            finalMeditationCount = count || 0;
-        }
+        if (medError) console.error('Error counting meditations:', medError);
 
-        // 4. Character Stats (Streak)
-        const { data: charStats } = await supabase
-            .from('character_stats')
-            .select('streak_tokens, streak_days')
-            .eq('user_id', userId)
-            .single();
+        // 4. Category Streaks (User's "gains a streak by doing all challenges" requirement)
+        const { data: streaks } = await supabase
+            .from('streaks')
+            .select('current_streak')
+            .eq('user_id', userId);
+
+        const totalCategoryStreaks = streaks?.reduce((acc, s) => acc + (s.current_streak || 0), 0) || 0;
 
         console.log(`[JourneyStats] User: ${userId}`);
-        console.log(`[JourneyStats] MedQuests Found: ${medQuests?.length || 0}`);
         console.log(`[JourneyStats] Meditation Count: ${finalMeditationCount}`);
         console.log(`[JourneyStats] Dungeon Wins: ${totalWins}`);
-        console.log(`[JourneyStats] Streak Tokens: ${charStats?.streak_tokens}`);
+        console.log(`[JourneyStats] Streak Tokens (Category Streaks): ${totalCategoryStreaks}`);
 
         return NextResponse.json({
             dungeonRuns: runs || [],
             dungeonWins: totalWins || 0,
             journalCount: journalCount || 0,
-            meditationCount: finalMeditationCount,
-            streakTokens: charStats?.streak_tokens || 0
+            meditationCount: finalMeditationCount || 0,
+            streakTokens: totalCategoryStreaks
         });
 
     } catch (error) {

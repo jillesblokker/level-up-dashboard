@@ -56,9 +56,18 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
     }, [seconds])
 
     const handleMeditate = async () => {
-        await updateCharacterStats({ experience: 30 }) // Increased reward to 30 XP
-        toast.success("You feel deeply centered.", { description: "+30 XP" })
-        onClose()
+        try {
+            // Record meditation in database for Journey stats
+            await fetch('/api/meditations', { method: 'POST' });
+
+            await updateCharacterStats({ experience: 30 }) // Increased reward to 30 XP
+            toast.success("You feel deeply centered.", { description: "+30 XP" })
+            onClose()
+        } catch (error) {
+            console.error("Failed to record meditation:", error);
+            // Still close and show success since XP was likely updated or we want to avoid blocking
+            onClose();
+        }
     }
 
     return (
