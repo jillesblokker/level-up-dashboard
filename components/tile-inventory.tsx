@@ -718,7 +718,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-100 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/farm-tile.png" alt="Farm" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/farm-tile.png" alt="Farm" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Farm</h4>
@@ -737,7 +737,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-800 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/lumber_mill-tile.png" alt="Lumber Mill" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/lumber_mill-tile.png" alt="Lumber Mill" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Lumber Mill</h4>
@@ -756,7 +756,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-red-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/market-tile.png" alt="Market" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/market-tile.png" alt="Market" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Market</h4>
@@ -775,7 +775,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-gray-700 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/castle-tile.png" alt="Castle" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/castle-tile.png" alt="Castle" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Castle</h4>
@@ -794,7 +794,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/fountain-tile.png" alt="Fountain" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/fountain-tile.png" alt="Fountain" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Water Buildings</h4>

@@ -11,7 +11,7 @@ import { KingdomTile, getRandomItem, getRandomGold, isLucky, getRarityColor } fr
 // Helper function to get proper item names from image paths
 function getItemNameFromImage(imagePath: string, itemType: string): string {
   const fileName = imagePath.split('/').pop()?.replace('.png', '') || ''
-  
+
   // Map image filenames to proper item names
   switch (fileName) {
     case 'scroll-scrolly':
@@ -52,7 +52,7 @@ function getItemNameFromImage(imagePath: string, itemType: string): string {
       return 'Wood Planks'
     default:
       // Fallback: convert filename to readable name
-      return fileName.split('-').map(word => 
+      return fileName.split('-').map(word =>
         word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' ')
   }
@@ -95,42 +95,44 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
   }, [state, tile.id])
 
   // Timer logic - use passed timer if available, otherwise use local state
+  // Updates every 10 seconds (timers are minutes-long, no need for 1s precision)
   useEffect(() => {
-    const interval = setInterval(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    const tick = () => {
       if (timer) {
-        // Use timer from kingdom grid
         const now = Date.now()
         const timeRemaining = Math.max(0, timer.endTime - now)
         const isReady = timeRemaining === 0
-        
-        setState(prev => ({
-          ...prev,
-          isReady,
-          timeRemaining
-        }))
+        setState(prev => ({ ...prev, isReady, timeRemaining }))
       } else if (state.lastClicked) {
-        // Use local state timer
         const now = Date.now()
         const timeSinceLastClick = now - state.lastClicked
         const timerMs = tile.timerMinutes * 60 * 1000
         const timeRemaining = Math.max(0, timerMs - timeSinceLastClick)
-        
-        setState(prev => ({
-          ...prev,
-          isReady: timeRemaining === 0,
-          timeRemaining
-        }))
+        setState(prev => ({ ...prev, isReady: timeRemaining === 0, timeRemaining }))
       }
-    }, 1000)
+    };
 
-    return () => clearInterval(interval)
+    const start = () => { if (interval) clearInterval(interval); interval = setInterval(tick, 10000); };
+    const stop = () => { if (interval) clearInterval(interval); interval = null; };
+    const onVisibility = () => document.hidden ? stop() : start();
+
+    document.addEventListener('visibilitychange', onVisibility);
+    tick(); // run immediately
+    start();
+
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [timer, state.lastClicked, tile.timerMinutes])
 
   const formatTime = (ms: number) => {
     const hours = Math.floor(ms / (1000 * 60 * 60))
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
     const seconds = Math.floor((ms % (1000 * 60)) / 1000)
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
     } else {
@@ -181,12 +183,11 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
 
   return (
     <>
-      <Card 
-        className={`group relative cursor-pointer transition-all duration-200 hover:scale-105 ${
-          state.isReady 
-            ? 'ring-2 ring-amber-400 shadow-lg' 
+      <Card
+        className={`group relative cursor-pointer transition-all duration-200 hover:scale-105 ${state.isReady
+            ? 'ring-2 ring-amber-400 shadow-lg'
             : 'opacity-75'
-        }`}
+          }`}
         onClick={handleTileClick}
       >
         <CardContent className="p-4">

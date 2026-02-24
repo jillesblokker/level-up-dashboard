@@ -35,9 +35,25 @@ export function ActivityFeed() {
 
         fetchActivity();
 
-        // Optional: Poll every 30 seconds for live feeling
-        const interval = setInterval(fetchActivity, 30000);
-        return () => clearInterval(interval);
+        let interval: NodeJS.Timeout | null = null;
+
+        const start = () => {
+            if (interval) clearInterval(interval);
+            interval = setInterval(fetchActivity, 120000); // 2 minutes
+        };
+        const stop = () => {
+            if (interval) clearInterval(interval);
+            interval = null;
+        };
+
+        const onVisibility = () => document.hidden ? stop() : start();
+        document.addEventListener('visibilitychange', onVisibility);
+        start();
+
+        return () => {
+            stop();
+            document.removeEventListener('visibilitychange', onVisibility);
+        };
     }, []);
 
     if (loading && activities.length === 0) {

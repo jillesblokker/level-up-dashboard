@@ -133,11 +133,40 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        apiLogger.info(`Dungeon completion processed: ${totalGold}g, ${totalXp}xp, ${itemDrops.length} items`);
+        // --- Milestone Check ---
+        let milestoneMessage = null;
+        try {
+            const { getMilestoneMessage } = await import('@/lib/milestone-manager');
+
+            if (status === 'completed' || status === 'victory') {
+                // Check total victories
+                const { count } = await supabaseServer
+                    .from('dungeon_runs')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', userId)
+                    .eq('status', 'completed');
+
+                if (count === 1) {
+                    milestoneMessage = await getMilestoneMessage('dungeon_victory');
+                } else if (count === 5) {
+                    milestoneMessage = await getMilestoneMessage('dungeon_victory_5');
+                } else if (count === 10) {
+                    milestoneMessage = await getMilestoneMessage('dungeon_victory_10');
+                } else {
+                    // Just a general victory message if no specific count milestone
+                    milestoneMessage = await getMilestoneMessage('dungeon_victory');
+                }
+            } else if (status === 'defeated') {
+                milestoneMessage = await getMilestoneMessage('dungeon_defeat');
+            }
+        } catch (mErr) {
+            apiLogger.warn('Milestone check error:', mErr);
+        }
 
         return NextResponse.json({
             success: true,
-            rewards: { gold: totalGold, xp: totalXp, items: itemDrops.length }
+            rewards: { gold: totalGold, xp: totalXp, items: itemDrops.length },
+            milestoneMessage
         });
 
     } catch (error) {

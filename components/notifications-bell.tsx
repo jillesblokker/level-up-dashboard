@@ -36,9 +36,23 @@ export function NotificationsBell() {
 
     useEffect(() => {
         fetchNotifications();
-        // Poll every minute
-        const interval = setInterval(fetchNotifications, 60000);
-        return () => clearInterval(interval);
+
+        let interval: NodeJS.Timeout | null = null;
+        const start = () => {
+            if (interval) clearInterval(interval);
+            interval = setInterval(fetchNotifications, 60000);
+        };
+        const stop = () => {
+            if (interval) clearInterval(interval);
+            interval = null;
+        };
+        const onVisibility = () => document.hidden ? stop() : start();
+        document.addEventListener('visibilitychange', onVisibility);
+        start();
+        return () => {
+            stop();
+            document.removeEventListener('visibilitychange', onVisibility);
+        };
     }, []);
 
     const markAsRead = async (ids: string[]) => {

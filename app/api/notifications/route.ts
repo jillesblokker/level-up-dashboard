@@ -21,7 +21,11 @@ export async function GET(req: NextRequest) {
   }
 
   // Normalize data to array if it's not already
-  return NextResponse.json(result.data || []);
+  return NextResponse.json(result.data || [], {
+    headers: {
+      'Cache-Control': 'private, s-maxage=0, max-age=10, must-revalidate',
+    }
+  });
 }
 
 // Mark notifications as read

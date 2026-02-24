@@ -28,11 +28,11 @@ export function HealthCheck() {
 
   const checkHealth = async () => {
     setIsChecking(true)
-    
+
     try {
       // Check online status
       const online = navigator.onLine
-      
+
       // Check localStorage
       const localStorageAvailable = (() => {
         try {
@@ -43,7 +43,7 @@ export function HealthCheck() {
           return false
         }
       })()
-      
+
       // Check Supabase
       const supabase = (() => {
         try {
@@ -54,7 +54,7 @@ export function HealthCheck() {
           return false
         }
       })()
-      
+
       // Check Clerk
       const clerk = (() => {
         try {
@@ -63,7 +63,7 @@ export function HealthCheck() {
           return false
         }
       })()
-      
+
       setStatus({
         online,
         supabase,
@@ -80,19 +80,16 @@ export function HealthCheck() {
 
   useEffect(() => {
     checkHealth()
-    
-    // Check health every 30 seconds
-    const interval = setInterval(checkHealth, 30000)
-    
-    // Check when online status changes
+
+    // Only re-check on network state changes; no need for a timer
+    // since all checks here are client-side only (no API calls)
     const handleOnline = () => checkHealth()
     const handleOffline = () => checkHealth()
-    
+
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-    
+
     return () => {
-      clearInterval(interval)
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
@@ -185,8 +182,8 @@ export function HealthCheck() {
         )}
 
         {/* Manual Check Button */}
-        <Button 
-          onClick={checkHealth} 
+        <Button
+          onClick={checkHealth}
           disabled={isChecking}
           variant="outline"
           className="w-full"

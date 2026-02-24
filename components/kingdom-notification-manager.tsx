@@ -19,7 +19,13 @@ export function KingdomNotificationManager() {
     useEffect(() => {
         if (!isLoaded || !isSignedIn) return
 
+        let timerInterval: NodeJS.Timeout | null = null;
+        let notifInterval: NodeJS.Timeout | null = null;
+
         const checkTimers = async () => {
+            // Don't poll if the tab is hidden to save Vercel limits
+            if (document.hidden) return;
+
             try {
                 // Fetch timers from API
                 const res = await fetchWithAuth('/api/property-timers', { method: 'GET' })
@@ -72,6 +78,9 @@ export function KingdomNotificationManager() {
         }
 
         const checkSocialNotifications = async () => {
+            // Don't poll if the tab is hidden to save Vercel limits
+            if (document.hidden) return;
+
             try {
                 const res = await fetchWithAuth('/api/notifications', { method: 'GET' })
                 if (res && res.ok) {
@@ -118,13 +127,35 @@ export function KingdomNotificationManager() {
             }
         }
 
-        // Check immediately
-        checkTimers()
-        checkSocialNotifications()
+        const startPolling = () => {
+            stopPolling();
+            // Check immediately when starting
+            checkTimers();
+            checkSocialNotifications();
+            // Check timers every 60 seconds (was 10s), notifications every 120 seconds (was 30s)
+            timerInterval = setInterval(checkTimers, 60000);
+            notifInterval = setInterval(checkSocialNotifications, 120000);
+        };
 
-        // Check timers every 10 seconds, notifications every 30 seconds
-        const timerInterval = setInterval(checkTimers, 10000)
-        const notifInterval = setInterval(checkSocialNotifications, 30000)
+        const stopPolling = () => {
+            if (timerInterval) clearInterval(timerInterval);
+            if (notifInterval) clearInterval(notifInterval);
+            timerInterval = null;
+            notifInterval = null;
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                stopPolling();
+            } else {
+                startPolling();
+            }
+        };
+
+        // Initial start
+        startPolling();
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // Listen for collection events to update immediately
         const handleCollection = () => {
@@ -134,8 +165,8 @@ export function KingdomNotificationManager() {
         window.addEventListener('kingdom-building-collected', handleCollection)
 
         return () => {
-            clearInterval(timerInterval)
-            clearInterval(notifInterval)
+            stopPolling();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('kingdom-building-collected', handleCollection)
         }
     }, [isLoaded, isSignedIn, toast, permission, sendNotification])

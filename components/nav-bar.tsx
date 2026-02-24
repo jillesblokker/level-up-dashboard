@@ -108,15 +108,27 @@ export function NavBar({ session }: NavBarProps) {
     // Load stats immediately (full sync)
     loadStats(true)
 
-    // Set up periodic refresh every 30 seconds (full sync)
-    const refreshInterval = setInterval(() => loadStats(true), 30000)
+    // Set up periodic refresh every 5 minutes (was 30s) 
+    let refreshInterval: NodeJS.Timeout | null = null;
+    const startRefresh = () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+      refreshInterval = setInterval(() => loadStats(true), 5 * 60 * 1000);
+    };
+    const stopRefresh = () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+      refreshInterval = null;
+    };
+    const onVisibility = () => document.hidden ? stopRefresh() : startRefresh();
+    document.addEventListener('visibilitychange', onVisibility);
+    startRefresh();
 
     // Listen for character stats updates (local only)
     const handleStatsUpdate = () => loadStats(false)
     window.addEventListener("character-stats-update", handleStatsUpdate)
 
     return () => {
-      clearInterval(refreshInterval)
+      stopRefresh()
+      document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener("character-stats-update", handleStatsUpdate)
     }
   }, [isLoaded, isSignedIn])

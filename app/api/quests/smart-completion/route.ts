@@ -146,25 +146,32 @@ export async function POST(req: NextRequest) {
                     .gte('completed_at', `${todayStr}T00:00:00`)
                     .lte('completed_at', `${todayStr}T23:59:59`);
 
-                // Current Streak
+                // Current Stats (Level/Gold)
                 const { data: charStats } = await supabase
                     .from('character_stats')
-                    .select('streak_days')
+                    .select('streak_days, level, gold')
                     .eq('user_id', userId)
                     .single();
 
-                const { getMilestoneMessage } = await import('@/lib/encouraging-messages');
+                const { getMilestoneMessage } = await import('@/lib/milestone-manager');
 
-                if (charStats?.streak_days === 7) {
-                    milestoneMessage = getMilestoneMessage('streak_7');
+                // Priority: Level > Gold > Streak > Today's Quests
+                if (charStats?.level === 10 || charStats?.level === 20) {
+                    milestoneMessage = await getMilestoneMessage(`level_${charStats.level}`);
+                } else if (charStats?.gold >= 5000 && charStats?.gold < 5100) { // Approx check for "hitting" it
+                    milestoneMessage = await getMilestoneMessage('gold_5000');
+                } else if (charStats?.gold >= 1000 && charStats?.gold < 1100) {
+                    milestoneMessage = await getMilestoneMessage('gold_1000');
+                } else if (charStats?.streak_days === 7) {
+                    milestoneMessage = await getMilestoneMessage('streak_7');
                 } else if (charStats?.streak_days === 3) {
-                    milestoneMessage = getMilestoneMessage('streak_3');
+                    milestoneMessage = await getMilestoneMessage('streak_3');
                 } else if (questsToday === 10) {
-                    milestoneMessage = getMilestoneMessage('quests_10');
+                    milestoneMessage = await getMilestoneMessage('quests_10');
                 } else if (questsToday === 5) {
-                    milestoneMessage = getMilestoneMessage('quests_5');
+                    milestoneMessage = await getMilestoneMessage('quests_5');
                 } else if (questsToday === 3) {
-                    milestoneMessage = getMilestoneMessage('quests_3');
+                    milestoneMessage = await getMilestoneMessage('quests_3');
                 }
             } catch (milestoneErr) {
                 console.warn('[Smart Completion] Error checking milestones:', milestoneErr);

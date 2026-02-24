@@ -22,15 +22,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      data: result.data 
+    return NextResponse.json({
+      success: true,
+      data: result.data
+    }, {
+      headers: {
+        'Cache-Control': 'private, s-maxage=0, max-age=10, must-revalidate',
+      }
     });
 
   } catch (error) {
     console.error('[Property Timers API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -42,8 +46,8 @@ export async function POST(request: NextRequest) {
     const { tileId, x, y, tileType, endTime, isReady } = body;
 
     if (!tileId || x === undefined || y === undefined || !tileType || !endTime) {
-      return NextResponse.json({ 
-        error: 'Missing required fields: tileId, x, y, tileType, endTime' 
+      return NextResponse.json({
+        error: 'Missing required fields: tileId, x, y, tileType, endTime'
       }, { status: 400 });
     }
 
@@ -56,16 +60,16 @@ export async function POST(request: NextRequest) {
         .eq('x', x)
         .eq('y', y)
         .single();
-        
+
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;
       }
-      
+
       if (existing) {
         // Update existing timer
         const { data, error } = await supabase
           .from('property_timers')
-          .update({ 
+          .update({
             tile_id: tileId,
             tile_type: tileType,
             end_time: endTime,
@@ -77,7 +81,7 @@ export async function POST(request: NextRequest) {
           .eq('y', y)
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       } else {
@@ -95,7 +99,7 @@ export async function POST(request: NextRequest) {
           })
           .select()
           .single();
-          
+
         if (error) throw error;
         return data;
       }
@@ -105,15 +109,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      data: result.data 
+    return NextResponse.json({
+      success: true,
+      data: result.data
     });
 
   } catch (error) {
     console.error('[Property Timers API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -125,13 +129,13 @@ export async function PUT(request: NextRequest) {
     const { x, y, isReady, endTime } = body;
 
     if (x === undefined || y === undefined || isReady === undefined) {
-      return NextResponse.json({ 
-        error: 'Missing required fields: x, y, isReady' 
+      return NextResponse.json({
+        error: 'Missing required fields: x, y, isReady'
       }, { status: 400 });
     }
 
     const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      const updateData: any = { 
+      const updateData: any = {
         is_ready: isReady,
         updated_at: new Date().toISOString()
       };
@@ -161,15 +165,15 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      data: result.data 
+    return NextResponse.json({
+      success: true,
+      data: result.data
     });
 
   } catch (error) {
     console.error('[Property Timers API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -182,8 +186,8 @@ export async function DELETE(request: NextRequest) {
     const y = searchParams.get('y');
 
     if (!x || !y) {
-      return NextResponse.json({ 
-        error: 'Missing required query parameters: x, y' 
+      return NextResponse.json({
+        error: 'Missing required query parameters: x, y'
       }, { status: 400 });
     }
 
@@ -207,15 +211,15 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Timer deleted successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Timer deleted successfully'
     });
 
   } catch (error) {
     console.error('[Property Timers API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -25,7 +25,26 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true });
+        // --- Milestone Check ---
+        let milestoneMessage = null;
+        try {
+            const { count } = await supabase
+                .from('meditations')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
+
+            if (count === 10 || count === 25 || count === 50) {
+                const { getMilestoneMessage } = await import('@/lib/milestone-manager');
+                milestoneMessage = await getMilestoneMessage(`meditation_${count}`);
+            }
+        } catch (mErr) {
+            console.warn("Milestone check error:", mErr);
+        }
+
+        return NextResponse.json({
+            success: true,
+            milestoneMessage
+        });
     } catch (error) {
         console.error("Meditation API error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

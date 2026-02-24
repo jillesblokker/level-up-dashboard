@@ -8,6 +8,7 @@ import { KingdomTileComponent } from './kingdom-tile'
 import { KINGDOM_TILES, getRarityColor } from '@/lib/kingdom-tiles'
 import { useToast } from '@/components/ui/use-toast'
 import { Coins, Package, Crown } from 'lucide-react'
+import NextImage from 'next/image'
 
 interface KingdomTileGridProps {
   onGoldEarned: (amount: number) => void
@@ -211,11 +212,13 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
               {itemsFound.slice(-6).map((item, index) => (
                 <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <div className="relative w-10 h-10 flex-shrink-0">
-                    <img
+                    <NextImage
                       src={item.image}
                       alt={item.name}
-                      className="object-contain w-full h-full"
-                      onError={(e) => {
+                      fill
+                      className="object-contain"
+                      sizes="40px"
+                      onError={(e: any) => {
                         e.currentTarget.src = '/images/placeholders/item-placeholder.svg'
                       }}
                     />
@@ -233,11 +236,13 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
               {itemsFound.slice(-6).map((item, index) => (
                 <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                   <div className="relative w-8 h-8">
-                    <img
+                    <NextImage
                       src={item.image}
                       alt={item.name}
-                      className="object-contain w-full h-full"
-                      onError={(e) => {
+                      fill
+                      className="object-contain"
+                      sizes="32px"
+                      onError={(e: any) => {
                         e.currentTarget.src = '/images/placeholders/item-placeholder.svg'
                       }}
                     />

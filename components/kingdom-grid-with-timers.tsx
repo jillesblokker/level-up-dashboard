@@ -1092,19 +1092,24 @@ export function KingdomGridWithTimers({
     localStorage.setItem('kingdom-tile-timers', JSON.stringify(tileTimers))
   }, [tileTimers])
 
-  // Update timers every second
+  // Update timer readiness every 10 seconds (visual only, was 1s)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTileTimers(prev =>
-        prev.map(timer => {
-          const now = Date.now()
-          const isReady = now >= timer.endTime
-          return { ...timer, isReady }
-        })
-      )
-    }, 1000)
+    let interval: NodeJS.Timeout | null = null;
 
-    return () => clearInterval(interval)
+    const tick = () => setTileTimers(prev =>
+      prev.map(timer => ({ ...timer, isReady: Date.now() >= timer.endTime }))
+    );
+
+    const start = () => { if (interval) clearInterval(interval); interval = setInterval(tick, 10000); };
+    const stop = () => { if (interval) clearInterval(interval); interval = null; };
+    const onVisibility = () => document.hidden ? stop() : start();
+
+    document.addEventListener('visibilitychange', onVisibility);
+    start();
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [])
 
   // Initialize timers for existing kingdom tiles on mount

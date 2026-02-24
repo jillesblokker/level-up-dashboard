@@ -158,19 +158,19 @@ export async function PUT(request: Request) {
           .eq('user_id', userId)
           .single();
 
-        const { getMilestoneMessage } = await import('@/lib/encouraging-messages');
+        const { getMilestoneMessage } = await import('@/lib/milestone-manager');
 
         // Priority to streak milestones if they align, otherwise quest counts
         if (charStats?.streak_days === 7) {
-          milestoneMessage = getMilestoneMessage('streak_7');
+          milestoneMessage = await getMilestoneMessage('streak_7');
         } else if (charStats?.streak_days === 3) {
-          milestoneMessage = getMilestoneMessage('streak_3');
+          milestoneMessage = await getMilestoneMessage('streak_3');
         } else if (questsToday === 10) {
-          milestoneMessage = getMilestoneMessage('quests_10');
+          milestoneMessage = await getMilestoneMessage('quests_10');
         } else if (questsToday === 5) {
-          milestoneMessage = getMilestoneMessage('quests_5');
+          milestoneMessage = await getMilestoneMessage('quests_5');
         } else if (questsToday === 3) {
-          milestoneMessage = getMilestoneMessage('quests_3');
+          milestoneMessage = await getMilestoneMessage('quests_3');
         }
       } catch (err) {
         apiLogger.warn('Error checking milestones:', err);

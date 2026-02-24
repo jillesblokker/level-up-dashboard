@@ -13,6 +13,7 @@ import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { getCharacterStats } from '@/lib/character-stats-service'
 import { calculateLevelFromExperience } from '@/types/character'
 import { Tile, TileType } from '@/types/tiles'
+import Image from 'next/image'
 
 interface KingdomGridProps {
   grid: Tile[][]
@@ -297,11 +298,15 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                 tabIndex={0}
               >
                 {tile && tile.type !== 'empty' ? (
-                  <img
-                    src={tile.image || `/images/kingdom-tiles/${tile.type}.png`}
-                    alt={tile.type}
-                    className="w-12 h-12 object-contain"
-                  />
+                  <div className="relative w-12 h-12">
+                    <Image
+                      src={tile.image || `/images/kingdom-tiles/${tile.type}.png`}
+                      alt={tile.type}
+                      fill
+                      className="object-contain"
+                      sizes="48px"
+                    />
+                  </div>
                 ) : (
                   <div className="w-8 h-8 bg-gray-700 rounded opacity-50" />
                 )}
@@ -343,11 +348,15 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                         className="p-3 border border-gray-700 rounded-lg text-center"
                         aria-label={`${tile.name} property tile`}
                       >
-                        <img
-                          src={tile.image}
-                          alt={tile.name}
-                          className="w-16 h-16 mx-auto mb-2 object-contain"
-                        />
+                        <div className="relative w-16 h-16 mx-auto mb-2">
+                          <Image
+                            src={tile.image}
+                            alt={tile.name}
+                            fill
+                            className="object-contain"
+                            sizes="64px"
+                          />
+                        </div>
                         <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
                         <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
                         <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>

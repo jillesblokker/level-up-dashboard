@@ -56,13 +56,36 @@ export function DayNightCycle() {
             }
         }
 
-        window.addEventListener('settings:dayNightChanged', handleSettingsChange)
+        let interval: NodeJS.Timeout | null = null;
 
-        checkTime()
-        const interval = setInterval(checkTime, 60000) // Check every minute
+        const startInterval = () => {
+            stopInterval();
+            checkTime();
+            interval = setInterval(checkTime, 60000); // Check every minute
+        }
+
+        const stopInterval = () => {
+            if (interval) clearInterval(interval);
+            interval = null;
+        }
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                stopInterval();
+            } else {
+                startInterval();
+            }
+        };
+
+        window.addEventListener('settings:dayNightChanged', handleSettingsChange)
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        startInterval();
+
         return () => {
-            clearInterval(interval)
+            stopInterval();
             window.removeEventListener('settings:dayNightChanged', handleSettingsChange)
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         }
     }, [])
 
