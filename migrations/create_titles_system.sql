@@ -9,13 +9,13 @@ CREATE TABLE IF NOT EXISTS titles (
 -- Create user_titles table
 CREATE TABLE IF NOT EXISTS user_titles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
     title_id TEXT REFERENCES titles(id) ON DELETE CASCADE,
     unlocked_at TIMESTAMPTZ DEFAULT NOW(),
     is_equipped BOOLEAN DEFAULT FALSE,
     UNIQUE(user_id, title_id)
 );
--- Insert default titles
+ALTER TABLE user_titles DISABLE ROW LEVEL SECURITY;
 INSERT INTO titles (id, name, description, required_level)
 VALUES (
         'squire',
