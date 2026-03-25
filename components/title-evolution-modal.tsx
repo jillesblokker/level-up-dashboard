@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { MedievalModal } from '@/components/medieval-modal';
 
 interface TitleEvolutionModalProps {
   isOpen: boolean;
@@ -27,40 +27,34 @@ export function TitleEvolutionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div
-        className="relative z-10 flex flex-col items-start p-6 gap-4 w-[539px] h-[440px] max-h-[662.4px] overflow-auto bg-[#111827] border border-[#92400E] shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] backdrop-blur-[2px] rounded-lg"
-        style={{
-          boxSizing: 'border-box',
-          isolation: 'isolate'
-        }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-white text-lg font-semibold">New title earned</h2>
+    <MedievalModal
+      open={isOpen}
+      onOpenChange={(val: boolean) => !val && onClose()}
+      title="New title earned"
+      className="max-h-[85vh]"
+      footer={
+        <div className="flex w-full justify-end gap-3 mt-4">
           <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-white hover:text-gray-300"
+            variant="outline"
+            className="border-amber-700/30 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20"
             onClick={onClose}
-            aria-label="Close modal"
           >
-            <X className="h-4 w-4" />
+            Cancel
+          </Button>
+          <Button
+            className="bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20"
+            onClick={onClose}
+          >
+            Enter Realm
           </Button>
         </div>
-
-        {/* Character Evolution Section */}
-        <div className="flex items-center justify-center gap-8 w-full flex-1">
+      }
+    >
+      <div className="flex flex-col items-center gap-6 py-2">
+        <div className="flex items-center justify-center gap-8 w-full">
           {/* Old Character */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="relative w-32 h-32">
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32">
               <Image
                 src={oldTitleImage}
                 alt={`${oldTitle} character`}
@@ -72,17 +66,17 @@ export function TitleEvolutionModal({
                 }}
               />
             </div>
-            <span className="text-white text-sm font-medium">{oldTitle}</span>
+            <span className="text-zinc-400 text-sm font-medium">{oldTitle}</span>
           </div>
 
           {/* Evolution Arrows */}
           <div className="flex items-center justify-center">
-            <span className="text-[#92400E] text-4xl font-bold transform scale-150">»»</span>
+            <span className="text-amber-600 text-3xl font-bold animate-pulse">»»</span>
           </div>
 
           {/* New Character */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="relative w-32 h-32">
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32">
               <Image
                 src={newTitleImage}
                 alt={`${newTitle} character`}
@@ -94,35 +88,18 @@ export function TitleEvolutionModal({
                 }}
               />
             </div>
-            <span className="text-white text-sm font-medium">{newTitle}</span>
+            <span className="text-amber-300 text-sm font-bold">{newTitle}</span>
           </div>
         </div>
 
         {/* Text Content */}
-        <div className="flex flex-col items-center gap-2 w-full">
-          <h3 className="text-[#92400E] text-xl font-bold">You gained a new rank</h3>
-          <p className="text-white text-center text-sm leading-relaxed">
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <h3 className="text-amber-500 text-xl font-serif">You gained a new rank</h3>
+          <p className="text-zinc-400 text-center text-sm leading-relaxed max-w-sm">
             You are moving up in the world. Keep this up. Your character has evolved.
           </p>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 w-full">
-          <Button
-            variant="outline"
-            className="border-[#92400E] text-white hover:bg-[#92400E]/20"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            className="bg-[#92400E] text-white hover:bg-[#92400E]/90"
-            onClick={onClose}
-          >
-            Enter Realm
-          </Button>
-        </div>
       </div>
-    </div>
+    </MedievalModal>
   );
 }

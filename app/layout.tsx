@@ -146,7 +146,7 @@ export default function RootLayout({
           />
         </head>
         <body className={cn(
-          "h-full font-sans antialiased bg-black text-white",
+          "h-full font-sans antialiased bg-black text-white overflow-x-hidden",
           fontSans.variable,
           fontGloock.variable,
           fontLibreBaskerville.variable

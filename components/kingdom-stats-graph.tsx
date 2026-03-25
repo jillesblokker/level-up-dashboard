@@ -58,137 +58,43 @@ interface GraphData {
 
 // Empty state component
 interface EmptyStateProps {
-  tab: 'challenges' | 'quests' | 'gold' | 'experience';
+  title: string;
+  description: string;
+  href: string;
+  buttonText: string;
 }
 
-function EmptyState({ tab }: EmptyStateProps) {
-  const isChallenge = tab === 'challenges';
+function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
   return (
     <section
       className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
       aria-label="kingdom-stats-empty-state-section"
     >
-      {/* Placeholder image */}
       <Image
         src="/images/quests-header.jpg"
-        alt="Empty kingdom stats placeholder"
+        alt="Empty stats placeholder"
         className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
         width={400}
         height={300}
         aria-hidden="true"
       />
-      {/* Overlay for readability */}
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-stats-empty-title">
-          No data yet
+          {title}
         </div>
         <div className="text-gray-100 text-base" aria-label="kingdom-stats-empty-desc">
-          Start habit building now to see your kingdom flourish!
+          {description}
         </div>
-        <Link href={"/quests?tab=quests"} passHref legacyBehavior>
+        <Link href={href} passHref legacyBehavior>
           <a
             className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
-            aria-label="Start your first quest"
+            aria-label={buttonText}
             tabIndex={0}
             role="button"
           >
-            Embark on Your First Quest
+            {buttonText}
           </a>
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-// --- Empty State Components for Each Tab ---
-function QuestsEmptyState() {
-  return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
-      <Image src="/images/quests-header.jpg" alt="Empty quests placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No quests yet</div>
-        <div className="text-gray-100 text-base">Start habit building now to see your kingdom flourish!</div>
-        <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
-        </Link>
-      </div>
-    </section>
-  );
-}
-function ChallengesEmptyState() {
-  return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
-      <Image src="/images/quests-header.jpg" alt="Empty challenges placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No challenges yet</div>
-        <div className="text-gray-100 text-base">Start a challenge to see your kingdom grow!</div>
-        <Link href="/quests?tab=challenges" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first challenge" tabIndex={0} role="button">Start Your First Challenge</a>
-        </Link>
-      </div>
-    </section>
-  );
-}
-function MilestonesEmptyState() {
-  return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
-      <Image src="/images/quests-header.jpg" alt="Empty milestones placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No milestones yet</div>
-        <div className="text-gray-100 text-base">Start a milestone to see your kingdom flourish!</div>
-        <Link href="/quests?tab=milestones" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first milestone" tabIndex={0} role="button">Start Your First Milestone</a>
-        </Link>
-      </div>
-    </section>
-  );
-}
-function GoldEmptyState() {
-  return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="king-stats-empty-state-section">
-      <Image src="/images/quests-header.jpg" alt="Empty gold placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No gold earned yet</div>
-        <div className="text-gray-100 text-base">Complete quests to earn gold!</div>
-        <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
-        </Link>
-      </div>
-    </section>
-  );
-}
-function ExperienceEmptyState() {
-  return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
-      <Image src="/images/quests-header.jpg" alt="Empty experience placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No experience gained yet</div>
-        <div className="text-gray-100 text-base">Complete quests and challenges to start leveling up!</div>
-        <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-function LevelEmptyState() {
-  return (
-    <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
-      <Image src="/images/quests-header.jpg" alt="Empty level placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md">No level progression yet</div>
-        <div className="text-gray-100 text-base">Gain experience to see your character level up over time!</div>
-        <Link href="/quests?tab=quests" passHref legacyBehavior>
-          <a className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md" aria-label="Start your first quest" tabIndex={0} role="button">Embark on Your First Quest</a>
         </Link>
       </div>
     </section>
@@ -964,7 +870,13 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
           ) : !hasData ? (
-            activeTab === 'quests' ? <QuestsEmptyState /> : activeTab === 'challenges' ? <ChallengesEmptyState /> : <MilestonesEmptyState />
+            activeTab === 'quests' ? (
+              <EmptyState title="No quests yet" description="Start habit building now to see your kingdom flourish!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+            ) : activeTab === 'challenges' ? (
+              <EmptyState title="No challenges yet" description="Start a challenge to see your kingdom grow!" href="/quests?tab=challenges" buttonText="Start Your First Challenge" />
+            ) : (
+              <EmptyState title="No milestones yet" description="Start a milestone to see your kingdom flourish!" href="/quests?tab=milestones" buttonText="Start Your First Milestone" />
+            )
           ) : (
             <ChartBlock
               graphData={graphData}
@@ -1344,9 +1256,13 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           {isLoading ? (
             <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
           ) : !hasData ? (
-            activeTab === 'gold-gained' || activeTab === 'gold-spent' ? <GoldEmptyState /> :
-              activeTab === 'experience' ? <ExperienceEmptyState /> :
-                <LevelEmptyState />
+            activeTab === 'gold-gained' || activeTab === 'gold-spent' ? (
+              <EmptyState title="No gold earned yet" description="Complete quests to earn gold!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+            ) : activeTab === 'experience' ? (
+              <EmptyState title="No experience gained yet" description="Complete quests and challenges to start leveling up!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+            ) : (
+              <EmptyState title="No level progression yet" description="Gain experience to see your character level up over time!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+            )
           ) : (
             <ChartBlock
               graphData={graphData}

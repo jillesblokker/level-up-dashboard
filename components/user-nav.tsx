@@ -94,7 +94,7 @@ export function UserNav() {
           </DropdownMenuTrigger>
         </div>
         <DropdownMenuContent
-          className="w-screen h-screen md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:relative z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
+          className="w-full h-[100dvh] md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:relative z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
           align="end"
           sideOffset={8}
           onInteractOutside={(e) => {
