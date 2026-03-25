@@ -38,6 +38,7 @@ import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId } from '
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
 import { PageGuide } from '@/components/page-guide';
+import { LoadingScreen } from '@/components/loading-screen';
 
 // Import realm utilities and constants
 import {
@@ -1144,18 +1145,18 @@ function RealmPageContent() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white p-8">
-                <div className="bg-black/70 border border-amber-800 rounded-lg p-6 max-w-lg text-center text-amber-100 text-lg shadow-lg">
-                    <h2 className="text-2xl font-bold text-white mb-4">{TEXT_CONTENT.realm.loadingStory.title}</h2>
-                    <p>
+            <LoadingScreen
+                title={TEXT_CONTENT.realm.loadingStory.title}
+                content={
+                    <>
                         {TEXT_CONTENT.realm.loadingStory.p1}<br />
                         {TEXT_CONTENT.realm.loadingStory.p2}<br />
                         {TEXT_CONTENT.realm.loadingStory.p3}<br />
                         {TEXT_CONTENT.realm.loadingStory.p4}<br />
                         {TEXT_CONTENT.realm.loadingStory.p5}
-                    </p>
-                </div>
-            </div>
+                    </>
+                }
+            />
         );
     }
 
