@@ -1,3 +1,5 @@
+"use client";
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Shield, Sword } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,6 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  fallbackTitle?: string;
+  fallbackDescription?: string;
+  componentName?: string;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   showDetails?: boolean;
   medieval?: boolean;
@@ -105,13 +110,13 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                   <Shield className="h-8 w-8 text-red-400" />
                 </div>
                 <CardTitle className="text-2xl text-amber-100 font-serif">
-                  ⚔️ Kingdom Under Siege! ⚔️
+                  {this.props.fallbackTitle || '⚔️ Kingdom Under Siege! ⚔️'}
                 </CardTitle>
                 <CardDescription className="text-amber-200 font-medium">
-                  A dark force has disrupted our realm. Fear not, brave adventurer - your progress remains safe in our vaults.
+                  {this.props.fallbackDescription || (this.props.componentName ? `A dark force has disrupted ${this.props.componentName}.` : "A dark force has disrupted our realm. Fear not, brave adventurer - your progress remains safe in our vaults.")}
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <div className="bg-amber-800/20 border border-amber-700/30 rounded-lg p-3">
                   <p className="text-amber-100 text-sm text-center">
@@ -126,12 +131,12 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                     className="w-full bg-amber-600 hover:bg-amber-700 text-amber-50 border border-amber-500/30"
                   >
                     <Sword className="h-4 w-4 mr-2" />
-                    {this.state.retryCount >= this.maxRetries 
-                      ? '⚔️ All attempts exhausted' 
+                    {this.state.retryCount >= this.maxRetries
+                      ? '⚔️ All attempts exhausted'
                       : `⚔️ Rally the troops (${this.maxRetries - this.state.retryCount} left)`
                     }
                   </Button>
-                  
+
                   <Button
                     onClick={this.handleReload}
                     variant="outline"
@@ -140,7 +145,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                     <RefreshCw className="h-4 w-4 mr-2" />
                     🔄 Summon reinforcements
                   </Button>
-                  
+
                   <Button
                     onClick={this.handleGoHome}
                     variant="outline"
@@ -204,7 +209,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                 We encountered an unexpected error. Don&apos;t worry, your progress is safe.
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <div className="flex flex-col gap-2">
                 <Button
@@ -213,12 +218,12 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                   className="w-full bg-amber-500 hover:bg-amber-600 text-black"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  {this.state.retryCount >= this.maxRetries 
-                    ? 'Max retries reached' 
+                  {this.state.retryCount >= this.maxRetries
+                    ? 'Max retries reached'
                     : `Try Again (${this.maxRetries - this.state.retryCount} left)`
                   }
                 </Button>
-                
+
                 <Button
                   onClick={this.handleReload}
                   variant="outline"
@@ -227,7 +232,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Reload Page
                 </Button>
-                
+
                 <Button
                   onClick={this.handleGoHome}
                   variant="outline"

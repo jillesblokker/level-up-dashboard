@@ -76,7 +76,7 @@ const MonsterBattle = dynamic(() => import('@/components/monster-battle').then(m
     loading: () => null
 });
 // Import the ErrorBoundary component
-import { ErrorBoundary } from "@/components/error-boundary-component";
+import { MedievalErrorBoundary } from "@/components/medieval-error-boundary";
 
 
 const EnterLocationModal = dynamic(() => import('@/components/enter-location-modal').then(mod => ({ default: mod.EnterLocationModal })), {
@@ -1419,7 +1419,7 @@ function RealmPageContent() {
                             </SheetDescription>
                         </SheetHeader>
                         <div className="flex-1 overflow-hidden p-0 relative min-h-0">
-                            <ErrorBoundary componentName="TileInventory">
+                            <MedievalErrorBoundary componentName="TileInventory">
                                 <TileInventory
                                     tiles={Array.isArray(inventoryAsItems) ? inventoryAsItems : []}
                                     selectedTile={selectedTile}
@@ -1429,7 +1429,7 @@ function RealmPageContent() {
                                     setActiveTab={setInventoryTab}
                                     onOutOfTiles={(tile) => setInventoryTab('buy')}
                                 />
-                            </ErrorBoundary>
+                            </MedievalErrorBoundary>
                         </div>
                     </SheetContent>
                 </Sheet>

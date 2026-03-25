@@ -14,7 +14,7 @@ import { AuthContent } from '@/components/auth-content'
 import AuthGate from "@/app/components/AuthGate"
 import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/theme-provider'
-import { GlobalErrorBoundary } from '@/components/global-error-boundary'
+import { MedievalErrorBoundary as GlobalErrorBoundary } from '@/components/medieval-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { BottomNav } from '@/components/bottom-nav'

@@ -47,8 +47,7 @@ import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { updateCharacterStats, getCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
-import ErrorBoundary from '@/components/error-boundary';
-import { WidgetErrorBoundary } from '@/components/widget-error-boundary';
+import { MedievalErrorBoundary } from '@/components/medieval-error-boundary';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import {
   saveKingdomGrid,
@@ -1553,7 +1552,7 @@ export function KingdomClient() {
                 </div>
               ) : (
                 <div className="flex items-center justify-center w-full">
-                  <ErrorBoundary>
+                  <MedievalErrorBoundary>
                     <KingdomGridWithTimers
                       grid={kingdomGrid}
                       onTilePlace={isVisiting ? () => { } : handlePlaceKingdomTile}
@@ -1569,7 +1568,7 @@ export function KingdomClient() {
                       userId={user?.id || null}
                       onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}
                     />
-                  </ErrorBoundary>
+                  </MedievalErrorBoundary>
                 </div>
               )}
             </div>
@@ -1649,32 +1648,32 @@ export function KingdomClient() {
               {/* Kingdom Stats and Gains - Most Important for Kingdom Page */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="w-full" aria-label="kingdom-stats-block-container">
-                  <WidgetErrorBoundary fallbackTitle="Kingdom Stats">
+                  <MedievalErrorBoundary fallbackTitle="Kingdom Stats">
                     <KingdomStatsBlock userId={visitUserId || user?.id || null} />
-                  </WidgetErrorBoundary>
+                  </MedievalErrorBoundary>
                 </div>
                 <div className="w-full" aria-label="king-stats-block-container">
-                  <WidgetErrorBoundary fallbackTitle="King Stats">
+                  <MedievalErrorBoundary fallbackTitle="King Stats">
                     <KingStatsBlock userId={visitUserId || user?.id || null} />
-                  </WidgetErrorBoundary>
+                  </MedievalErrorBoundary>
                 </div>
               </div>
 
               {/* Progression Visualization */}
               {!isVisiting && (
                 <div className="mb-6">
-                  <WidgetErrorBoundary fallbackTitle="Progression">
+                  <MedievalErrorBoundary fallbackTitle="Progression">
                     <ProgressionVisualization />
-                  </WidgetErrorBoundary>
+                  </MedievalErrorBoundary>
                 </div>
               )}
 
               {/* Economy Transparency */}
               {!isVisiting && (
                 <div className="mb-6">
-                  <WidgetErrorBoundary fallbackTitle="Treasury Ledger">
+                  <MedievalErrorBoundary fallbackTitle="Treasury Ledger">
                     <EconomyTransparency />
-                  </WidgetErrorBoundary>
+                  </MedievalErrorBoundary>
                 </div>
               )}
             </div>
