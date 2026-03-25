@@ -1095,7 +1095,9 @@ export default function CharacterPage() {
                                   {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
                                 </Badge>
                               </div>
-                              <CardDescription className="min-h-[3rem] line-clamp-2">{title.description}</CardDescription>
+                              <CardDescription className="min-h-[4.5rem] text-sm leading-relaxed">
+                                {title.description}
+                              </CardDescription>
                             </CardHeader>
                             <CardContent className="pb-2 flex-grow">
                               <div className="flex items-center text-sm text-muted-foreground">
