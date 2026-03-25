@@ -80,7 +80,7 @@ function EmptyState({ tab }: EmptyStateProps) {
       {/* Overlay for readability */}
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-stats-empty-title">
           No data yet
         </div>
@@ -108,7 +108,7 @@ function QuestsEmptyState() {
     <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty quests placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No quests yet</div>
         <div className="text-gray-100 text-base">Start habit building now to see your kingdom flourish!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
@@ -123,7 +123,7 @@ function ChallengesEmptyState() {
     <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty challenges placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No challenges yet</div>
         <div className="text-gray-100 text-base">Start a challenge to see your kingdom grow!</div>
         <Link href="/quests?tab=challenges" passHref legacyBehavior>
@@ -138,7 +138,7 @@ function MilestonesEmptyState() {
     <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty milestones placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No milestones yet</div>
         <div className="text-gray-100 text-base">Start a milestone to see your kingdom flourish!</div>
         <Link href="/quests?tab=milestones" passHref legacyBehavior>
@@ -153,7 +153,7 @@ function GoldEmptyState() {
     <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="king-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty gold placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No gold earned yet</div>
         <div className="text-gray-100 text-base">Complete quests to earn gold!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
@@ -168,7 +168,7 @@ function ExperienceEmptyState() {
     <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty experience placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No experience gained yet</div>
         <div className="text-gray-100 text-base">Complete quests and challenges to start leveling up!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>
@@ -184,7 +184,7 @@ function LevelEmptyState() {
     <section className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden" aria-label="kingdom-stats-empty-state-section">
       <Image src="/images/quests-header.jpg" alt="Empty level placeholder" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" width={400} height={300} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md">No level progression yet</div>
         <div className="text-gray-100 text-base">Gain experience to see your character level up over time!</div>
         <Link href="/quests?tab=quests" passHref legacyBehavior>

@@ -367,7 +367,7 @@ export function MasteryLedger() {
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
 
-                        <div className="flex items-center gap-2 px-3 h-8 border border-zinc-700 rounded-md bg-zinc-900 min-w-[180px] justify-center text-sm font-medium text-zinc-300">
+                        <div className="flex items-center gap-2 px-2 sm:px-3 py-1 min-h-[32px] border border-zinc-700 rounded-md bg-zinc-900 min-w-[180px] justify-center text-xs sm:text-sm font-medium text-zinc-300 text-center flex-wrap">
                             <Calendar className="h-3.5 w-3.5 text-amber-500/70" />
                             <span>
                                 {weekDays[0]?.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
