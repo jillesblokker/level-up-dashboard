@@ -221,10 +221,9 @@ function RealmPageContent() {
     const [gameMode, setGameMode] = useState<'build' | 'move' | 'destroy'>('move');
     const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [shouldRevealImage, setShouldRevealImage] = useState(false);
+    const [shouldRevealImage, setShouldRevealImage] = useState(true);
 
-    const [isIntroPlaying, setIsIntroPlaying] = useState(true);
+    const [isIntroPlaying, setIsIntroPlaying] = useState(false);
 
     // Monster battle state
     const [battleOpen, setBattleOpen] = useState(false);
@@ -1191,12 +1190,6 @@ function RealmPageContent() {
                 subtitle={isVisiting ? TEXT_CONTENT.realm.header.envoySubtitle : TEXT_CONTENT.realm.header.subtitle}
                 imageSrc="/images/realm-header.webp"
                 defaultBgColor="bg-blue-900"
-                onAnimationStart={() => setIsAnimating(true)}
-                onAnimationEnd={() => {
-                    setIsAnimating(false);
-                    // Unlock interactions only after header is fully revealed (1.5s duration)
-                    setTimeout(() => setIsIntroPlaying(false), 1500);
-                }}
                 shouldRevealImage={true}
                 guideComponent={
                     <PageGuide
@@ -1223,7 +1216,7 @@ function RealmPageContent() {
                 }
             />
             <RealmAnimationWrapper
-                isAnimating={isAnimating}
+                isAnimating={false}
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Top Toolbar */}
