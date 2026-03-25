@@ -28,7 +28,7 @@ export interface SeasonalEvent {
 export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   easter: {
     name: "Easter Egg Hunt",
-    image: "/images/egg.png",
+    image: "/images/egg.webp",
     startDate: { month: 3, day: 20 }, // March 20
     endDate: { month: 4, day: 30 },   // April 30
     goldReward: 100,
@@ -36,7 +36,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   christmas: {
     name: "Christmas Present Hunt",
-    image: "/images/present.png",
+    image: "/images/present.webp",
     startDate: { month: 12, day: 20 }, // December 20
     endDate: { month: 12, day: 27 },   // December 27
     goldReward: 150,
@@ -44,7 +44,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   halloween: {
     name: "Halloween Pumpkin Hunt",
-    image: "/images/pumpkin.png",
+    image: "/images/pumpkin.webp",
     startDate: { month: 10, day: 20 }, // October 20
     endDate: { month: 10, day: 31 },   // October 31
     goldReward: 120,

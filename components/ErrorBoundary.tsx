@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React from 'react';
 
 interface ErrorBoundaryProps {
@@ -13,13 +15,13 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
 
   React.useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      console.error('Error caught by boundary:', event.error);
+      logger.error('Error caught by boundary:', event.error);
       setError(event.error);
       setHasError(true);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('Unhandled promise rejection:', event.reason);
+      logger.error('Unhandled promise rejection:', event.reason);
       setError(new Error(event.reason?.message || 'Promise rejected'));
       setHasError(true);
     };

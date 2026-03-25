@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useRef } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
@@ -101,7 +103,7 @@ export function NavBar({ session }: NavBarProps) {
           }
         }
       } catch (error) {
-        console.error("Error loading character stats:", error)
+        logger.error("Error loading character stats:", error)
       }
     }
 
@@ -199,7 +201,7 @@ export function NavBar({ session }: NavBarProps) {
               size="icon"
               className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full"
               onClick={() => {
-                console.log('[NavBar] Quick Add clicked')
+                logger.debug('[NavBar] Quick Add clicked')
                 openQuickAdd()
               }}
               title="Quick Add Quest (N)"

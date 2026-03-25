@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * Alliance Manager
  * Handles logic for alliance streaks and social interactions.
@@ -26,7 +27,7 @@ export async function checkInToAlliance(allianceId: string): Promise<{ success: 
 
         return { success: true, streak: data.current_streak };
     } catch (err) {
-        console.error("Error checking in to alliance:", err);
+        logger.error("Error checking in to alliance:", err);
         return { success: false, message: 'Network error' };
     }
 }
@@ -39,7 +40,7 @@ export async function getUserAlliances(userId?: string): Promise<Alliance[]> {
         if (res.ok) return data || [];
         return [];
     } catch (err) {
-        console.error("Error fetching alliances:", err);
+        logger.error("Error fetching alliances:", err);
         return [];
     }
 }

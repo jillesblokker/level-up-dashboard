@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -17,8 +18,8 @@ export async function GET(request: Request) {
             .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
 
         if (error) {
-            console.error('Error fetching friends:', error);
-            console.error('Error details:', JSON.stringify(error, null, 2));
+            logger.error('Error fetching friends:', error);
+            logger.error('Error details:', JSON.stringify(error, null, 2));
             return NextResponse.json({
                 error: 'Failed to fetch friends',
                 details: error.message,
@@ -168,7 +169,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ friends, requests });
 
     } catch (error) {
-        console.error('Unexpected error fetching friends:', error);
+        logger.error('Unexpected error fetching friends:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -210,8 +211,8 @@ export async function POST(request: Request) {
             .single();
 
         if (error) {
-            console.error('Error creating friend request:', error);
-            console.error('Error details:', JSON.stringify(error, null, 2));
+            logger.error('Error creating friend request:', error);
+            logger.error('Error details:', JSON.stringify(error, null, 2));
             return NextResponse.json({
                 error: 'Failed to send friend request',
                 details: error.message,
@@ -241,7 +242,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, friendship });
 
     } catch (error) {
-        console.error('Unexpected error sending friend request:', error);
+        logger.error('Unexpected error sending friend request:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

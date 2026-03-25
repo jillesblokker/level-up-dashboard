@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -35,13 +36,13 @@ export async function GET(request: NextRequest) {
     const result = await Promise.race([queryPromise, timeoutPromise]) as any;
 
     if (result.error) {
-      console.error(`[Game Settings API] Database error:`, result.error);
+      logger.error(`[Game Settings API] Database error:`, result.error);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ data: result.data });
   } catch (error) {
-    console.error(`[Game Settings API] Unexpected error:`, error);
+    logger.error(`[Game Settings API] Unexpected error:`, error);
     
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {
@@ -83,13 +84,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error(`[Game Settings API] Database error:`, error);
+      logger.error(`[Game Settings API] Database error:`, error);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error(`[Game Settings API] Unexpected error:`, error);
+    logger.error(`[Game Settings API] Unexpected error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -114,13 +115,13 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[Game Settings API] Error deleting setting:', error);
+      logger.error('[Game Settings API] Error deleting setting:', error);
       return NextResponse.json({ error: 'Failed to delete game setting' }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[Game Settings API] Unexpected error:', error);
+    logger.error('[Game Settings API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

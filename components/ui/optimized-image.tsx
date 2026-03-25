@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import Image, { ImageProps } from 'next/image'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -33,7 +34,7 @@ export function OptimizedImage({
 
   const handleError = () => {
     if (!hasError && imageSrc !== fallbackSrc) {
-      console.warn(`Image failed to load: ${src}, using fallback`)
+      logger.warn(`Image failed to load: ${src}, using fallback`)
       setImageSrc(fallbackSrc)
       setHasError(true)
     }

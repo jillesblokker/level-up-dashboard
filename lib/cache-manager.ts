@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback } from 'react';
 
 // Cache configuration
@@ -41,7 +42,7 @@ class CacheManager {
           : sessionStorage;
         storage.setItem(`cache_${key}`, JSON.stringify(item));
       } catch (error) {
-        console.warn('Failed to store cache item:', error);
+        logger.warn('Failed to store cache item:', error);
       }
     }
 
@@ -69,7 +70,7 @@ class CacheManager {
           }
         }
       } catch (error) {
-        console.warn('Failed to retrieve cache item:', error);
+        logger.warn('Failed to retrieve cache item:', error);
       }
     }
 
@@ -95,7 +96,7 @@ class CacheManager {
           : sessionStorage;
         storage.removeItem(`cache_${key}`);
       } catch (error) {
-        console.warn('Failed to delete cache item:', error);
+        logger.warn('Failed to delete cache item:', error);
       }
     }
   }
@@ -113,7 +114,7 @@ class CacheManager {
         const keys = Object.keys(storage).filter(key => key.startsWith('cache_'));
         keys.forEach(key => storage.removeItem(key));
       } catch (error) {
-        console.warn('Failed to clear cache:', error);
+        logger.warn('Failed to clear cache:', error);
       }
     }
   }

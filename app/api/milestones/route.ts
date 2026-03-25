@@ -13,7 +13,7 @@ export async function GET(request: Request) {
         .select('*')
         .or(`user_id.is.null,user_id.eq.${userId}`);
       if (milestonesError) {
-        console.error('[Milestones] Error fetching milestones:', milestonesError);
+        logger.error('[Milestones] Error fetching milestones:', milestonesError);
         throw milestonesError;
       }
 
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         .select('*')
         .eq('user_id', userId);
       if (completionError) {
-        console.error('[Milestones] Error fetching completions:', completionError);
+        logger.error('[Milestones] Error fetching completions:', completionError);
         throw completionError;
       }
 
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
-    console.error('[Milestones Error]', error);
+    logger.error('[Milestones Error]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         .single();
 
       if (error) {
-        console.error('[Milestones POST] Error:', error);
+        logger.error('[Milestones POST] Error:', error);
         throw error;
       }
 
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Milestones POST] Error:', error);
+    logger.error('[Milestones POST] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -125,7 +125,7 @@ export async function DELETE(request: Request) {
         .eq('id', id);
 
       if (error) {
-        console.error('[Milestones DELETE] Error:', error);
+        logger.error('[Milestones DELETE] Error:', error);
         throw error;
       }
 
@@ -138,7 +138,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Milestones DELETE] Error:', error);
+    logger.error('[Milestones DELETE] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -167,7 +167,7 @@ export async function PUT(request: Request) {
           .single();
 
         if (error) {
-          console.error("[Milestones PUT] Error upserting completion:", error);
+          logger.error("[Milestones PUT] Error upserting completion:", error);
           throw error;
         }
 
@@ -181,7 +181,7 @@ export async function PUT(request: Request) {
           .eq("milestone_id", milestoneId);
 
         if (error) {
-          console.error("[Milestones PUT] Error deleting completion:", error);
+          logger.error("[Milestones PUT] Error deleting completion:", error);
           throw error;
         }
 
@@ -201,7 +201,7 @@ export async function PUT(request: Request) {
       }
     });
   } catch (error) {
-    console.error("[Milestones PUT] Error:", error);
+    logger.error("[Milestones PUT] Error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -238,7 +238,7 @@ export async function PATCH(request: Request) {
         .single();
 
       if (error) {
-        console.error('[Milestones PATCH] Database error:', error);
+        logger.error('[Milestones PATCH] Database error:', error);
         throw error;
       }
 
@@ -252,7 +252,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Milestones PATCH] Error:', error);
+    logger.error('[Milestones PATCH] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

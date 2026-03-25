@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Data recovery utility
 // This helps restore lost game data
 
@@ -67,7 +68,7 @@ export function attemptDataRecovery(): GameData | null {
     }
     
   } catch (error) {
-    console.error('[Data Recovery] Error during recovery:', error);
+    logger.error('[Data Recovery] Error during recovery:', error);
   }
   
   return null;
@@ -121,7 +122,7 @@ export function createDataBackup(): void {
     // Removed debugging log
     
   } catch (error) {
-    console.error('[Data Recovery] Error creating backup:', error);
+    logger.error('[Data Recovery] Error creating backup:', error);
   }
 }
 
@@ -169,7 +170,7 @@ export function restoreDataFromBackup(): boolean {
     return true;
     
   } catch (error) {
-    console.error('[Data Recovery] Error restoring data:', error);
+    logger.error('[Data Recovery] Error restoring data:', error);
     return false;
   }
 } 

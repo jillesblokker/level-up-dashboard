@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // TROUBLESHOOTING: If you get a 500 error, check the following:
 // 1. Are NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY set in your environment? (Check .env and restart server)
 // 2. Do the tables 'quests', 'quest_completion', and 'character_stats' exist in your Supabase database, with the expected columns?
@@ -39,18 +40,18 @@ const questUpdateSchema = z.object({
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
     const { userId } = await getAuth(request as NextRequest);
-    console.log('[Quests API] getUserIdFromRequest - Clerk userId:', userId);
+    logger.debug('[Quests API] getUserIdFromRequest - Clerk userId:', userId);
     return userId || null;
   } catch (e) {
-    console.error('[Clerk] JWT verification failed:', e);
+    logger.error('[Clerk] JWT verification failed:', e);
     return null;
   }
 }
 
 // Health check endpoint
 export async function GET(request: Request) {
-  console.log('[Quests API] GET request received at:', new Date().toISOString());
-  console.log('[Quests API] Request URL:', request.url);
+  logger.debug('[Quests API] GET request received at:', new Date().toISOString());
+  logger.debug('[Quests API] Request URL:', request.url);
   try {
     const { searchParams } = new URL(request.url);
     if (searchParams.get('health') === '1') {
@@ -112,11 +113,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized (Clerk JWT invalid or missing)' }, { status: 401 });
     }
     if (!process.env['NEXT_PUBLIC_SUPABASE_URL'] || !process.env['SUPABASE_SERVICE_ROLE_KEY']) {
-      console.error('[QUESTS][GET] Supabase env vars missing:', { supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'], supabaseServiceRoleKey: process.env['SUPABASE_SERVICE_ROLE_KEY'] });
+      logger.error('[QUESTS][GET] Supabase env vars missing:', { supabaseUrl: process.env['NEXT_PUBLIC_SUPABASE_URL'], supabaseServiceRoleKey: process.env['SUPABASE_SERVICE_ROLE_KEY'] });
       return NextResponse.json({ error: 'Supabase environment variables missing.' }, { status: 500 });
     }
     if (!supabase) {
-      console.error('[QUESTS][GET] Supabase client not initialized.');
+      logger.error('[QUESTS][GET] Supabase client not initialized.');
       return NextResponse.json({ error: 'Supabase client not initialized.' }, { status: 500 });
     }
 
@@ -137,7 +138,7 @@ export async function GET(request: Request) {
       .or(`user_id.is.null,user_id.eq.${userId}`);
 
     if (questsError) {
-      console.error('Quests fetch error:', questsError);
+      logger.error('Quests fetch error:', questsError);
       return NextResponse.json({ error: questsError.message }, { status: 500 });
     }
 
@@ -154,7 +155,7 @@ export async function GET(request: Request) {
     // --- AUTO-SEEDING FOR NEW USERS ---
     // If no quests are found for this user, seed the default onboarding quests
     if (quests && quests.length === 0) {
-      console.log(`[Quests API] No quests found for user ${userId}. Seeding defaults...`);
+      logger.debug(`[Quests API] No quests found for user ${userId}. Seeding defaults...`);
       try {
         const { defaultQuests } = await import('@/lib/quest-sample-data');
         const seededQuests = defaultQuests.map(q => ({
@@ -174,13 +175,13 @@ export async function GET(request: Request) {
           .select();
 
         if (seedError) {
-          console.error('[Quests API] Seeding error:', seedError);
+          logger.error('[Quests API] Seeding error:', seedError);
         } else if (newQuests) {
-          console.log(`[Quests API] Successfully seeded ${newQuests.length} quests`);
+          logger.debug(`[Quests API] Successfully seeded ${newQuests.length} quests`);
           quests = newQuests;
         }
       } catch (seedCatch) {
-        console.error('[Quests API] Unexpected seeding catch:', seedCatch);
+        logger.error('[Quests API] Unexpected seeding catch:', seedCatch);
       }
     }
 
@@ -199,14 +200,14 @@ export async function GET(request: Request) {
             }
           });
         } catch (e) {
-          console.error("Error fetching sender names:", e);
+          logger.error("Error fetching sender names:", e);
         }
       }
     }
 
-    console.log('[Quests API] Quests fetched:', quests?.length || 0);
+    logger.debug('[Quests API] Quests fetched:', quests?.length || 0);
     if (quests && quests.length > 0) {
-      console.log('[Quests API] First few quests:', quests.slice(0, 3).map(q => ({
+      logger.debug('[Quests API] First few quests:', quests.slice(0, 3).map(q => ({
         id: q.id,
         name: q.name,
         category: q.category,
@@ -219,7 +220,7 @@ export async function GET(request: Request) {
 
     // FIXED: Use the simple, working approach that directly fetches quest completion data
     // This bypasses all the complex logic and uses the proven method
-    console.log('[Quests API] Using proven simple approach...');
+    logger.debug('[Quests API] Using proven simple approach...');
 
     // Get user's quest completions from quest_completion table
     const { data: questCompletions, error: completionsError } = await supabase
@@ -227,7 +228,7 @@ export async function GET(request: Request) {
       .select('*')
       .eq('user_id', userId);
 
-    console.log('[Quests API] Quest completions fetched:', {
+    logger.debug('[Quests API] Quest completions fetched:', {
       count: questCompletions?.length || 0,
       error: completionsError,
       sample: questCompletions?.[0],
@@ -239,7 +240,7 @@ export async function GET(request: Request) {
     });
 
     if (completionsError) {
-      console.error('[Quests API] Quest completions fetch error:', completionsError);
+      logger.error('[Quests API] Quest completions fetch error:', completionsError);
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
@@ -257,7 +258,7 @@ export async function GET(request: Request) {
     const today = netherlandsDate; // Format: YYYY-MM-DD
 
     if (questCompletions) {
-      console.log('[Quests API] Processing quest completions for daily habit tracking:', {
+      logger.debug('[Quests API] Processing quest completions for daily habit tracking:', {
         totalRecords: questCompletions.length,
         today: today,
         sampleRecords: questCompletions.slice(0, 3).map(c => ({
@@ -294,7 +295,7 @@ export async function GET(request: Request) {
           return netherlandsDate === today;
         });
 
-        console.log('[Quests API] Processing quest for today:', {
+        logger.debug('[Quests API] Processing quest for today:', {
           quest_id: questId,
           total_completions: completions.length,
           today_completion: todayCompletion ? {
@@ -318,9 +319,9 @@ export async function GET(request: Request) {
       });
     }
 
-    console.log('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
-    console.log('[Quests API] Sample quest completion keys:', Array.from(completedQuests.keys()).slice(0, 5));
-    console.log('[Quests API] Sample quest names:', quests?.slice(0, 5).map(q => q.name));
+    logger.debug('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
+    logger.debug('[Quests API] Sample quest completion keys:', Array.from(completedQuests.keys()).slice(0, 5));
+    logger.debug('[Quests API] Sample quest names:', quests?.slice(0, 5).map(q => q.name));
 
     // Convert quests to quest format with completion status
     const questsWithCompletions = (quests || []).map((quest: any) => {
@@ -329,7 +330,7 @@ export async function GET(request: Request) {
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
 
-      console.log('[Quests API] Mapping quest:', {
+      logger.debug('[Quests API] Mapping quest:', {
         questId: quest.id,
         questName: quest.name,
         questCategory: quest.category,
@@ -395,9 +396,9 @@ export async function GET(request: Request) {
     const finalCompletedCount = questsWithCompletions.filter(q => q.completed).length;
     const finalIncompleteCount = questsWithCompletions.filter(q => !q.completed).length;
     const completedQuestsList = questsWithCompletions.filter(q => q.completed).map(q => ({ id: q.id, name: q.name }));
-    console.log('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
-    console.log('[Quests API] Completed quests:', completedQuestsList);
-    console.log('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
+    logger.debug('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
+    logger.debug('[Quests API] Completed quests:', completedQuestsList);
+    logger.debug('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
 
     // Add cache-busting headers to prevent Next.js from caching the response
     const response = NextResponse.json(questsWithCompletions);
@@ -407,7 +408,7 @@ export async function GET(request: Request) {
     response.headers.set('Surrogate-Control', 'no-store');
     return response;
   } catch (error) {
-    console.error('Error fetching quests:', error instanceof Error ? error.stack : error);
+    logger.error('Error fetching quests:', error instanceof Error ? error.stack : error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
   // Safety net
@@ -471,7 +472,7 @@ export async function POST(request: Request) {
     };
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error creating quest completion:', String(error));
+    logger.error('Error creating quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
   // Safety net
@@ -585,12 +586,12 @@ export async function PUT(request: Request) {
             })
             .eq('id', String(questCompletion['id']));
         } catch (updateError) {
-          console.warn('[Quest API] Could not update quest_completion with XP/gold (columns may not exist):', updateError);
+          logger.warn('[Quest API] Could not update quest_completion with XP/gold (columns may not exist):', updateError);
           // Try to add the missing columns if they don't exist
           try {
             await supabase.rpc('add_quest_completion_columns');
           } catch (rpcError) {
-            console.warn('[Quest API] Could not add missing columns:', rpcError);
+            logger.warn('[Quest API] Could not add missing columns:', rpcError);
           }
         }
 
@@ -619,7 +620,7 @@ export async function PUT(request: Request) {
     };
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error updating quest completion:', String(error));
+    logger.error('Error updating quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
   // Safety net
@@ -657,7 +658,7 @@ export async function PATCH(request: Request) {
       }
     });
   } catch (error) {
-    console.error('Error exporting quests:', String(error));
+    logger.error('Error exporting quests:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -686,7 +687,7 @@ export async function DELETE(request: Request) {
     }
     return NextResponse.json({ success: true, message: 'Quest completion deleted' });
   } catch (error) {
-    console.error('Error deleting quest completion:', String(error));
+    logger.error('Error deleting quest completion:', String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

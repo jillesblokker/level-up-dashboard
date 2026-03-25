@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
@@ -28,13 +29,13 @@ export async function GET(request: NextRequest) {
             .order('entry_date', { ascending: false });
 
         if (error) {
-            console.error('[API/chronicle] Select Error:', error);
+            logger.error('[API/chronicle] Select Error:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json(data);
     } catch (error) {
-        console.error('[API/chronicle] Internal Error:', error);
+        logger.error('[API/chronicle] Internal Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
@@ -68,14 +69,14 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (error) {
-            console.error('[API/chronicle] Upsert Error:', error);
+            logger.error('[API/chronicle] Upsert Error:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json(data);
 
     } catch (error) {
-        console.error('[API/chronicle] Internal Error:', error);
+        logger.error('[API/chronicle] Internal Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

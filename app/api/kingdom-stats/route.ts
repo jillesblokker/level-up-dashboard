@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error('[Kingdom Stats] API error:', error);
+    logger.error('[Kingdom Stats] API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

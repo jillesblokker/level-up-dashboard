@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,7 +26,7 @@ interface KingdomGridProps {
 }
 
 export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, onGridExpand }: KingdomGridProps) {
-  const wallImage = '/images/kingdom-tiles/Wall.png';
+  const wallImage = '/images/kingdom-tiles/Wall.webp';
   const wallTile = {
     id: 'wall',
     name: 'Wall',
@@ -100,7 +102,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         // Debug logging
         // Removed debugging logs
       } catch (error) {
-        console.error('[Kingdom Grid] Error loading stats:', error);
+        logger.error('[Kingdom Grid] Error loading stats:', error);
         setPlayerLevel(1);
         setBuildTokens(0);
         setKingdomExpansions(0);
@@ -113,7 +115,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   // Listen for character stats updates
   useEffect(() => {
     const handleStatsUpdate = () => {
-      console.log('[Kingdom Grid] Stats update event received');
+      logger.debug('[Kingdom Grid] Stats update event received');
       const stats = getCharacterStats();
       const currentLevel = calculateLevelFromExperience(stats.experience || 0);
       setPlayerLevel(currentLevel);
@@ -207,12 +209,12 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       });
 
       if (!response.ok) {
-        console.warn('[Kingdom Grid] Failed to save grid to database');
+        logger.warn('[Kingdom Grid] Failed to save grid to database');
       } else {
         // Removed debugging log
       }
     } catch (error) {
-      console.error('[Kingdom Grid] Error saving grid:', error);
+      logger.error('[Kingdom Grid] Error saving grid:', error);
     } finally {
       setIsLoading(false);
     }
@@ -300,7 +302,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                 {tile && tile.type !== 'empty' ? (
                   <div className="relative w-12 h-12">
                     <Image
-                      src={tile.image || `/images/kingdom-tiles/${tile.type}.png`}
+                      src={tile.image || `/images/kingdom-tiles/${tile.type}.webp`}
                       alt={tile.type}
                       fill
                       className="object-contain"

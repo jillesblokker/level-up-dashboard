@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Client-side only Supabase persistence functions
 // This version works with existing API endpoints without server-side imports
 
@@ -26,12 +27,12 @@ export async function saveToSupabaseClient<T>(
     });
 
     if (response.ok) {
-      // console.log(`[Supabase Persistence Client] ✅ Data saved to Supabase successfully: ${endpoint}`);
+      // logger.debug(`[Supabase Persistence Client] ✅ Data saved to Supabase successfully: ${endpoint}`);
       setUserScopedItem(localStorageKey, JSON.stringify(data));
       return true;
     } else {
       const errorText = await response.text();
-      // console.warn(`[Supabase Persistence Client] ⚠️ Failed to save to Supabase, falling back to localStorage: ${endpoint}`, {
+      // logger.warn(`[Supabase Persistence Client] ⚠️ Failed to save to Supabase, falling back to localStorage: ${endpoint}`, {
       //   status: response.status,
       //   statusText: response.statusText,
       //   error: errorText
@@ -40,7 +41,7 @@ export async function saveToSupabaseClient<T>(
       return false;
     }
   } catch (error) {
-    // console.error(`[Supabase Persistence Client] Error saving to Supabase: ${endpoint}`, error);
+    // logger.error(`[Supabase Persistence Client] Error saving to Supabase: ${endpoint}`, error);
     setUserScopedItem(localStorageKey, JSON.stringify(data));
     return false;
   }
@@ -67,7 +68,7 @@ export async function loadFromSupabaseClient<T>(
     if (response.ok) {
       const result = await response.json();
       if (result.stats || result.progress || result.grid || result.timers || result.items || result.states || result.tiles) {
-        // console.log(`[Supabase Persistence Client] ✅ Data loaded from Supabase: ${endpoint}`);
+        // logger.debug(`[Supabase Persistence Client] ✅ Data loaded from Supabase: ${endpoint}`);
         const data = result.stats || result.progress || result.grid || result.timers || result.items || result.states || result.tiles;
         const isVisit = endpoint.includes('userId=');
         if (!isVisit) {
@@ -77,11 +78,11 @@ export async function loadFromSupabaseClient<T>(
       }
     }
 
-    console.log(`[Supabase Persistence Client] ⚠️ Failed to load from Supabase, using localStorage: ${endpoint}`);
+    logger.debug(`[Supabase Persistence Client] ⚠️ Failed to load from Supabase, using localStorage: ${endpoint}`);
     const stored = getUserScopedItem(localStorageKey);
     return stored ? JSON.parse(stored) : defaultValue;
   } catch (error) {
-    // console.error(`[Supabase Persistence Client] Error loading from Supabase: ${endpoint}`, error);
+    // logger.error(`[Supabase Persistence Client] Error loading from Supabase: ${endpoint}`, error);
     const stored = getUserScopedItem(localStorageKey);
     return stored ? JSON.parse(stored) : defaultValue;
   }

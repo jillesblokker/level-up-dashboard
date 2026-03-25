@@ -576,15 +576,15 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
 
     const getImageForType = (type: string) => {
         switch (type) {
-            case 'coral_reef': case 'mermaid': return '/images/tiles/coral_reef-tile.png'
-            case 'floating_island': case 'island': return '/images/tiles/floating_island-tile.png'
-            case 'crystal_cavern': return '/images/tiles/crystal_cavern-tile.png'
-            case 'jungle': return '/images/tiles/jungle-tile.png'
-            case 'ruins': return '/images/tiles/ruins-tile.png'
-            case 'graveyard': return '/images/tiles/graveyard-tile.png'
-            case 'oasis': return '/images/tiles/oasis-tile.png'
-            case 'farmland': return '/images/tiles/farmland-tile.png'
-            default: return '/images/tiles/grass-tile.png'
+            case 'coral_reef': case 'mermaid': return '/images/tiles/coral_reef-tile.webp'
+            case 'floating_island': case 'island': return '/images/tiles/floating_island-tile.webp'
+            case 'crystal_cavern': return '/images/tiles/crystal_cavern-tile.webp'
+            case 'jungle': return '/images/tiles/jungle-tile.webp'
+            case 'ruins': return '/images/tiles/ruins-tile.webp'
+            case 'graveyard': return '/images/tiles/graveyard-tile.webp'
+            case 'oasis': return '/images/tiles/oasis-tile.webp'
+            case 'farmland': return '/images/tiles/farmland-tile.webp'
+            default: return '/images/tiles/grass-tile.webp'
         }
     }
 

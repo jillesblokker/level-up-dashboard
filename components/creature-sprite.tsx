@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from 'react';
 import { CreatureDefinition } from '@/lib/creature-mapping';
 import { cn } from '@/lib/utils';
@@ -70,10 +71,10 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                     animation: isJumping ? undefined : 'waddle 2s ease-in-out infinite',
                 }}
                 onLoad={() => {
-                    // console.log('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
+                    // logger.debug('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
                 }}
                 onError={(e) => {
-                    console.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);
+                    logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);
                     // Fallback if image fails to load
                     e.currentTarget.style.display = 'none';
                 }}

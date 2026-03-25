@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -56,7 +58,7 @@ export default function AccountPage() {
   ]
 
   const handleGuideClick = () => {
-    console.log('Onboarding guide temporarily disabled');
+    logger.debug('Onboarding guide temporarily disabled');
   }
 
   return (

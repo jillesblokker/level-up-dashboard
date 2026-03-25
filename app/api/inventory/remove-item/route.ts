@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification'
 
@@ -39,7 +40,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error removing item:', error)
+    logger.error('Error removing item:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

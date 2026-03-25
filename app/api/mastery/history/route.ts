@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
         const dateParam = url.searchParams.get('date');
         const referenceDate = dateParam ? new Date(dateParam) : new Date();
 
-        console.log('[Mastery History API] userId:', userId, 'Date:', referenceDate.toISOString());
+        logger.debug('[Mastery History API] userId:', userId, 'Date:', referenceDate.toISOString());
 
         if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ habits });
 
     } catch (error) {
-        console.error('[Mastery API] Error:', error);
+        logger.error('[Mastery API] Error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

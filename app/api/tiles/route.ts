@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -95,7 +96,7 @@ export async function GET() {
 
     if (error) {
       // handle error (e.g., log or return error response)
-      console.error('Error fetching tile placements:', error);
+      logger.error('Error fetching tile placements:', error);
       // You might want to return or throw here
     }
 

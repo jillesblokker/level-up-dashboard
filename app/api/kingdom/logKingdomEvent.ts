@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { supabaseServer } from '../../../lib/supabase/server-client';
 
 type KingdomEventType = 'quest' | 'challenge' | 'gold' | 'exp' | 'reward';
@@ -15,7 +16,7 @@ export async function logKingdomEvent({
   amount?: number,
   context?: any
 }) {
-  console.log('[logKingdomEvent] Inserting event:', { userId, eventType, relatedId, amount, context });
+  logger.debug('[logKingdomEvent] Inserting event:', { userId, eventType, relatedId, amount, context });
   const { data, error } = await supabaseServer.from('kingdom_event_log').insert([{
     user_id: userId,
     event_type: eventType,
@@ -25,8 +26,8 @@ export async function logKingdomEvent({
     created_at: new Date().toISOString()
   }]);
   if (error) {
-    console.error('[logKingdomEvent] Insert error:', error);
+    logger.error('[logKingdomEvent] Insert error:', error);
   } else {
-    console.log('[logKingdomEvent] Inserted event:', data);
+    logger.debug('[logKingdomEvent] Inserted event:', data);
   }
 } 

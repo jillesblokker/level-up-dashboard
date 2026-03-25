@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -76,7 +78,7 @@ export function DailyHubClient() {
                 })
             }
         } catch (error) {
-            console.error('Failed to load character stats:', error)
+            logger.error('Failed to load character stats:', error)
         }
     }
 
@@ -103,48 +105,48 @@ export function DailyHubClient() {
                 setWeeklyGoldEarned(weeklyGold)
             }
         } catch (error) {
-            console.error('Failed to load weekly gold stats:', error)
+            logger.error('Failed to load weekly gold stats:', error)
         }
     }
 
     const loadFavoritedQuests = async () => {
         try {
-            console.log(`[Daily Hub] ${TEXT_CONTENT.dailyHub.log.loading}`)
+            logger.debug(`[Daily Hub] ${TEXT_CONTENT.dailyHub.log.loading}`)
 
             // First, get favorited quest IDs
             const favoritesResponse = await fetch('/api/quests/favorites')
-            console.log('[Daily Hub] Favorites response status:', favoritesResponse.status)
+            logger.debug('[Daily Hub] Favorites response status:', favoritesResponse.status)
 
             if (!favoritesResponse.ok) {
-                console.error('[Daily Hub] Failed to fetch favorites')
+                logger.error('[Daily Hub] Failed to fetch favorites')
                 setFavoritedQuests([])
                 return
             }
 
             const favoritesData = await favoritesResponse.json()
-            console.log('[Daily Hub] Favorites data:', favoritesData)
+            logger.debug('[Daily Hub] Favorites data:', favoritesData)
             const favoriteIds = favoritesData.favorites || []
-            console.log('[Daily Hub] Favorite IDs:', favoriteIds)
+            logger.debug('[Daily Hub] Favorite IDs:', favoriteIds)
 
             if (favoriteIds.length === 0) {
-                console.log('[Daily Hub] No favorite IDs found')
+                logger.debug('[Daily Hub] No favorite IDs found')
                 setFavoritedQuests([])
                 return
             }
 
             // Then, get ALL quests (not just daily) and filter for favorites
             const questsResponse = await fetch('/api/quests')
-            console.log('[Daily Hub] Quests response status:', questsResponse.status)
+            logger.debug('[Daily Hub] Quests response status:', questsResponse.status)
 
             if (questsResponse.ok) {
                 const allQuests = await questsResponse.json()
-                console.log('[Daily Hub] All quests count:', allQuests.length)
-                console.log('[Daily Hub] All quests:', allQuests)
+                logger.debug('[Daily Hub] All quests count:', allQuests.length)
+                logger.debug('[Daily Hub] All quests:', allQuests)
 
                 const favoriteQuests = allQuests
                     .filter((q: any) => {
                         const isFavorite = favoriteIds.includes(q.id)
-                        console.log(`[Daily Hub] Quest ${q.id} (${q.name}) is favorite:`, isFavorite)
+                        logger.debug(`[Daily Hub] Quest ${q.id} (${q.name}) is favorite:`, isFavorite)
                         return isFavorite
                     })
                     .slice(0, 6)
@@ -153,7 +155,7 @@ export function DailyHubClient() {
                         difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
                     }))
 
-                console.log('[Daily Hub] Filtered favorite quests:', favoriteQuests)
+                logger.debug('[Daily Hub] Filtered favorite quests:', favoriteQuests)
                 setFavoritedQuests(favoriteQuests)
 
                 // Initialize completed set
@@ -164,7 +166,7 @@ export function DailyHubClient() {
                 setCompletedQuestIds(completed)
             }
         } catch (error) {
-            console.error('[Daily Hub] Error loading favorited quests:', error)
+            logger.error('[Daily Hub] Error loading favorited quests:', error)
             setFavoritedQuests([])
         } finally {
             setLoading(false)
@@ -196,7 +198,7 @@ export function DailyHubClient() {
                 }, 1500)
             }
         } catch (error) {
-            console.error('Failed to complete quest:', error)
+            logger.error('Failed to complete quest:', error)
         }
     }
 
@@ -217,7 +219,7 @@ export function DailyHubClient() {
             <HeaderSection
                 title={TEXT_CONTENT.dailyHub.header.title.replace('{name}', user?.firstName || TEXT_CONTENT.dailyHub.header.defaultName)}
                 subtitle={TEXT_CONTENT.dailyHub.header.subtitle}
-                imageSrc="/images/daily-hub-hero.jpg"
+                imageSrc="/images/daily-hub-hero.webp"
                 defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
                 className="h-[300px] md:h-[400px]"
                 shouldRevealImage={true}
@@ -376,7 +378,7 @@ export function DailyHubClient() {
                                 <div className="flex-1 w-full max-w-md">
                                     <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-black/40">
                                         <img
-                                            src="/images/gameplay-loop.png"
+                                            src="/images/gameplay-loop.webp"
                                             alt="Level Up Gameplay Loop"
                                             className="w-full h-full object-contain p-2"
                                         />

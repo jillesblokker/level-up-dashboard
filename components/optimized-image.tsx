@@ -29,7 +29,7 @@ export function OptimizedImage({
   placeholder = 'empty',
   blurDataURL,
   medieval = false,
-  fallback = '/images/placeholder.png',
+  fallback = '/images/placeholder.webp',
   onLoad,
   onError,
 }: OptimizedImageProps) {

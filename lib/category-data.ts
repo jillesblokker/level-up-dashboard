@@ -36,21 +36,21 @@ const fitnessItems: CategoryItem[] = [
     name: "Daily Strength Training",
     subtitle: "Build your physical might",
     description: "Complete a full-body workout focusing on strength and endurance.",
-    image: "/images/categories/fitness/strength.jpg",
+    image: "/images/categories/fitness/strength.webp",
   },
   {
     id: "workout-2",
     name: "Cardio Challenge",
     subtitle: "Test your stamina",
     description: "A high-intensity cardio workout to improve your endurance.",
-    image: "/images/categories/fitness/cardio.jpg",
+    image: "/images/categories/fitness/cardio.webp",
   },
   {
     id: "workout-3",
     name: "Flexibility Training",
     subtitle: "Enhance your mobility",
     description: "Stretching and mobility exercises to improve flexibility.",
-    image: "/images/categories/fitness/flexibility.jpg",
+    image: "/images/categories/fitness/flexibility.webp",
   },
 ];
 
@@ -60,21 +60,21 @@ const learningItems: CategoryItem[] = [
     name: "Language Studies",
     subtitle: "Expand your linguistic abilities",
     description: "Daily practice in your chosen language to build proficiency.",
-    image: "/images/categories/learning/language.jpg",
+    image: "/images/categories/learning/language.webp",
   },
   {
     id: "learning-2",
     name: "Programming Challenge",
     subtitle: "Sharpen your coding skills",
     description: "Solve programming problems to enhance your technical abilities.",
-    image: "/images/categories/learning/coding.jpg",
+    image: "/images/categories/learning/coding.webp",
   },
   {
     id: "learning-3",
     name: "Book Club",
     subtitle: "Explore new worlds through reading",
     description: "Read and discuss books to expand your knowledge and perspective.",
-    image: "/images/categories/learning/books.jpg",
+    image: "/images/categories/learning/books.webp",
   },
 ];
 

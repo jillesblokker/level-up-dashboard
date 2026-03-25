@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useEffect, useRef, useState, memo } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
@@ -31,53 +32,53 @@ interface MapGridProps {
 
 const getTileImage = (tileType: string) => {
   switch (tileType) {
-    case 'grass': return '/images/tiles/grass-tile.png';
-    case 'forest': return '/images/tiles/forest-tile.png';
-    case 'water': return '/images/tiles/water-tile.png';
-    case 'mountain': return '/images/tiles/mountain-tile.png';
-    case 'desert': return '/images/tiles/desert-tile.png';
-    case 'ice': return '/images/tiles/ice-tile.png';
-    case 'city': return '/images/tiles/city-tile.png';
-    case 'town': return '/images/tiles/town-tile.png';
-    case 'mystery': return '/images/tiles/mystery-tile.png';
-    case 'portal-entrance': return '/images/tiles/portal-entrance-tile.png';
-    case 'portal-exit': return '/images/tiles/portal-exit-tile.png';
-    case 'cave': return '/images/tiles/cave-tile.png';
-    case 'dungeon': return '/images/tiles/dungeon-tile.png';
-    case 'castle': return '/images/tiles/castle-tile.png';
-    case 'crossroad': return '/images/kingdom-tiles/Crossroad.png';
-    case 'straightroad': return '/images/kingdom-tiles/Straightroad.png';
-    case 'cornerroad': return '/images/kingdom-tiles/Cornerroad.png';
-    case 'tsplitroad': return '/images/kingdom-tiles/Tsplitroad.png';
-    default: return '/images/tiles/empty-tile.png';
+    case 'grass': return '/images/tiles/grass-tile.webp';
+    case 'forest': return '/images/tiles/forest-tile.webp';
+    case 'water': return '/images/tiles/water-tile.webp';
+    case 'mountain': return '/images/tiles/mountain-tile.webp';
+    case 'desert': return '/images/tiles/desert-tile.webp';
+    case 'ice': return '/images/tiles/ice-tile.webp';
+    case 'city': return '/images/tiles/city-tile.webp';
+    case 'town': return '/images/tiles/town-tile.webp';
+    case 'mystery': return '/images/tiles/mystery-tile.webp';
+    case 'portal-entrance': return '/images/tiles/portal-entrance-tile.webp';
+    case 'portal-exit': return '/images/tiles/portal-exit-tile.webp';
+    case 'cave': return '/images/tiles/cave-tile.webp';
+    case 'dungeon': return '/images/tiles/dungeon-tile.webp';
+    case 'castle': return '/images/tiles/castle-tile.webp';
+    case 'crossroad': return '/images/kingdom-tiles/Crossroad.webp';
+    case 'straightroad': return '/images/kingdom-tiles/Straightroad.webp';
+    case 'cornerroad': return '/images/kingdom-tiles/Cornerroad.webp';
+    case 'tsplitroad': return '/images/kingdom-tiles/Tsplitroad.webp';
+    default: return '/images/tiles/empty-tile.webp';
   }
 };
 
 const getMonsterImageUrl = (monsterType: string) => {
   const type = monsterType.toLowerCase();
   switch (type) {
-    case 'dragon': return '/images/Monsters/Dragoni.png';
-    case 'goblin': return '/images/Monsters/Orci.png';
-    case 'troll': return '/images/Monsters/Trollie.png';
-    case 'wizard': return '/images/Monsters/Sorceror.png';
-    case 'pegasus': return '/images/Monsters/Peggie.png';
-    case 'fairy': return '/images/Monsters/Fairiel.png';
-    default: return '/images/Monsters/Dragoni.png';
+    case 'dragon': return '/images/Monsters/Dragoni.webp';
+    case 'goblin': return '/images/Monsters/Orci.webp';
+    case 'troll': return '/images/Monsters/Trollie.webp';
+    case 'wizard': return '/images/Monsters/Sorceror.webp';
+    case 'pegasus': return '/images/Monsters/Peggie.webp';
+    case 'fairy': return '/images/Monsters/Fairiel.webp';
+    default: return '/images/Monsters/Dragoni.webp';
   }
 };
 
 const getCharacterImage = (level: number) => {
-  if (level >= 100) return '/images/character/god.png';
-  if (level >= 90) return '/images/character/emperor.png';
-  if (level >= 80) return '/images/character/king.png';
-  if (level >= 70) return '/images/character/prince.png';
-  if (level >= 60) return '/images/character/duke.png';
-  if (level >= 50) return '/images/character/marquis.png';
-  if (level >= 40) return '/images/character/count.png';
-  if (level >= 30) return '/images/character/viscount.png';
-  if (level >= 20) return '/images/character/baron.png';
-  if (level >= 10) return '/images/character/knight.png';
-  return '/images/character/squire.png';
+  if (level >= 100) return '/images/character/god.webp';
+  if (level >= 90) return '/images/character/emperor.webp';
+  if (level >= 80) return '/images/character/king.webp';
+  if (level >= 70) return '/images/character/prince.webp';
+  if (level >= 60) return '/images/character/duke.webp';
+  if (level >= 50) return '/images/character/marquis.webp';
+  if (level >= 40) return '/images/character/count.webp';
+  if (level >= 30) return '/images/character/viscount.webp';
+  if (level >= 20) return '/images/character/baron.webp';
+  if (level >= 10) return '/images/character/knight.webp';
+  return '/images/character/squire.webp';
 };
 
 // Optimized Tile Component
@@ -137,8 +138,8 @@ const MapTile = memo(({
         height={tileSize}
         className="tile-image"
         onError={(e) => {
-          console.warn(`Failed to load tile image for ${tile.type}, using fallback`);
-          e.currentTarget.src = '/images/tiles/empty-tile.png';
+          logger.warn(`Failed to load tile image for ${tile.type}, using fallback`);
+          e.currentTarget.src = '/images/tiles/empty-tile.webp';
         }}
         style={{
           objectFit: 'cover',
@@ -182,7 +183,7 @@ const MapTile = memo(({
         <div className="absolute inset-0 flex items-center justify-center">
           {tile.type === 'water' && playerLevel >= 25 && (
             <Image
-              src="/images/tiles/pirate-ship.png"
+              src="/images/tiles/pirate-ship.webp"
               alt="Pirate Ship"
               width={Math.floor(tileSize * 0.9)}
               height={Math.floor(tileSize * 0.9)}
@@ -200,8 +201,8 @@ const MapTile = memo(({
             className="character-image relative z-10"
             priority
             onError={(e) => {
-              console.warn('Failed to load character image, using fallback');
-              e.currentTarget.src = '/images/character/squire.png';
+              logger.warn('Failed to load character image, using fallback');
+              e.currentTarget.src = '/images/character/squire.webp';
             }}
           />
         </div>
@@ -215,7 +216,7 @@ const MapTile = memo(({
             height={Math.floor(tileSize * 0.6)}
             className="monster-image"
             onError={(e) => {
-              console.warn(`Failed to load monster image for ${tile.hasMonster}`);
+              logger.warn(`Failed to load monster image for ${tile.hasMonster}`);
               e.currentTarget.style.display = 'none';
             }}
           />
@@ -408,7 +409,7 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/penguin.png" alt="Penguin" className="object-contain w-full h-full" />
+            <img src="/images/Animals/penguin.webp" alt="Penguin" className="object-contain w-full h-full" />
           </div>
         )}
 
@@ -423,7 +424,7 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/horse.png" alt="Horse" className="object-contain w-full h-full" />
+            <img src="/images/Animals/horse.webp" alt="Horse" className="object-contain w-full h-full" />
           </div>
         )}
 
@@ -438,7 +439,7 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/sheep.png" alt="Sheep" className="object-contain w-full h-full" />
+            <img src="/images/Animals/sheep.webp" alt="Sheep" className="object-contain w-full h-full" />
           </div>
         )}
 
@@ -468,7 +469,7 @@ export function MapGrid({
                 className="relative z-10 object-contain w-full h-full drop-shadow-md"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/images/creatures/Drakon.png';
+                  e.currentTarget.src = '/images/creatures/Drakon.webp';
                 }}
               />
 
@@ -487,7 +488,7 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/eagle.png" alt="Eagle" className="object-contain w-full h-full" />
+            <img src="/images/Animals/eagle.webp" alt="Eagle" className="object-contain w-full h-full" />
           </div>
         )}
       </div>

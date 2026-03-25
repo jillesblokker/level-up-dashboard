@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { questId } = body;
 
-        console.log('[Smart Completion v2] Processing request for quest:', questId);
+        logger.debug('[Smart Completion v2] Processing request for quest:', questId);
 
         if (!questId) {
             return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
@@ -174,7 +175,7 @@ export async function POST(req: NextRequest) {
                     milestoneMessage = await getMilestoneMessage('quests_3');
                 }
             } catch (milestoneErr) {
-                console.warn('[Smart Completion] Error checking milestones:', milestoneErr);
+                logger.warn('[Smart Completion] Error checking milestones:', milestoneErr);
             }
 
             return { success: true, completed: true, rewards, milestoneMessage };
@@ -187,7 +188,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(result.data);
 
     } catch (error: any) {
-        console.error('[Smart Completion] Error:', error);
+        logger.error('[Smart Completion] Error:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }

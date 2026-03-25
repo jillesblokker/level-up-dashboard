@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from "@/lib/logger";
+
 import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 import { useEffect } from 'react'
 
@@ -13,15 +15,15 @@ export function SupabaseSyncProvider({ children }: SupabaseSyncProviderProps) {
   // Log sync status for debugging
   useEffect(() => {
     if (isSignedIn) {
-      console.log('Supabase sync enabled for user')
+      logger.debug('Supabase sync enabled for user')
       if (isSyncing) {
-        console.log('Syncing data...')
+        logger.debug('Syncing data...')
       }
       if (lastSync) {
-        console.log('Last sync:', lastSync.toLocaleString())
+        logger.debug('Last sync:', lastSync.toLocaleString())
       }
     } else {
-      console.log('Supabase sync disabled - user not signed in')
+      logger.debug('Supabase sync disabled - user not signed in')
     }
   }, [isSignedIn, isSyncing, lastSync])
 

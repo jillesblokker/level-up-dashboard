@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useCallback } from 'react';
 import { cachedFetch, invalidateCache, CACHE_KEYS } from './fetch-cache';
 import { fetchWithAuth } from './fetchWithAuth';
@@ -68,7 +70,7 @@ export function useCachedCharacterStats() {
         } catch (err) {
             const error = err instanceof Error ? err : new Error('Unknown error');
             setError(error);
-            console.error('[useCachedCharacterStats] Error:', error);
+            logger.error('[useCachedCharacterStats] Error:', error);
             return null;
         } finally {
             setIsLoading(false);

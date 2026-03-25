@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@clerk/nextjs/server';
@@ -47,9 +48,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, preferences: formattedPreferences });
     }
   } catch (error) {
-    console.error('[Realm Data API] Error:', error);
+    logger.error('[Realm Data API] Error:', error);
     if (error instanceof Error) {
-      console.error('[Realm Data API] Error details:', error.message, error.stack);
+      logger.error('[Realm Data API] Error details:', error.message, error.stack);
     }
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
@@ -80,9 +81,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message: 'Realm data saved successfully' });
   } catch (error) {
-    console.error('[Realm Data API] Error:', error);
+    logger.error('[Realm Data API] Error:', error);
     if (error instanceof Error) {
-      console.error('[Realm Data API] Error details:', error.message, error.stack);
+      logger.error('[Realm Data API] Error details:', error.message, error.stack);
     }
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
@@ -112,9 +113,9 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, message: 'Realm data deleted successfully' });
   } catch (error) {
-    console.error('[Realm Data API] Error:', error);
+    logger.error('[Realm Data API] Error:', error);
     if (error instanceof Error) {
-      console.error('[Realm Data API] Error details:', error.message, error.stack);
+      logger.error('[Realm Data API] Error details:', error.message, error.stack);
     }
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }

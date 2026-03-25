@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -89,7 +91,7 @@ export function EconomyTransparency() {
 
 
       } catch (error) {
-        console.error('[Ledger] Error loading economy data:', error)
+        logger.error('[Ledger] Error loading economy data:', error)
       } finally {
         setIsLoading(false)
       }

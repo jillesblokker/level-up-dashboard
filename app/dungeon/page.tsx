@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -158,7 +161,7 @@ export default function DungeonPage() {
           setUnlockedCreatures([DEFAULT_CREATURE]);
         }
       } catch (e) {
-        console.error('Failed to load unlocked creatures', e);
+        logger.error('Failed to load unlocked creatures', e);
         setUnlockedCreatures([DEFAULT_CREATURE]);
       }
     }
@@ -172,7 +175,7 @@ export default function DungeonPage() {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.currentEncounter && parsed.currentEncounter.type === 'monster' && !parsed.currentEncounter.creatureId) {
-          console.warn('Fixing legacy dungeon run data...');
+          logger.warn('Fixing legacy dungeon run data...');
           parsed.currentEncounter.creatureId = '001';
           localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
@@ -187,7 +190,7 @@ export default function DungeonPage() {
           // Better to force choice if phase is select
         }
       } catch (e) {
-        console.error("Failed to parse dungeon run", e);
+        logger.error("Failed to parse dungeon run", e);
         localStorage.removeItem('dungeon_run');
       }
     }
@@ -471,7 +474,7 @@ export default function DungeonPage() {
       });
       setRun(null); // Clear active run to show result
     } catch (error) {
-      console.error("Dungeon completion error:", error);
+      logger.error("Dungeon completion error:", error);
       // Create a fallback result state for error but still show defeated/completed
       setGameResult({
         success: finalRun.status === 'completed',

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
             .single();
 
         if (questError) {
-            console.error('Error creating friend quest:', questError);
+            logger.error('Error creating friend quest:', questError);
             return NextResponse.json({ error: 'Failed to send quest' }, { status: 500 });
         }
 
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
                 await achievementManager.checkAndUnlock(userId, 'ten_quests_sent', sentCount);
             }
         } catch (achError) {
-            console.error('Error checking achievements:', achError);
+            logger.error('Error checking achievements:', achError);
         }
 
         // Update alliance streak for sending quest
@@ -103,14 +104,14 @@ export async function POST(request: Request) {
             const streakManager = new AllianceStreakManager(supabaseServer);
             await streakManager.updateStreak(userId);
         } catch (streakError) {
-            console.error('Error updating alliance streak:', streakError);
+            logger.error('Error updating alliance streak:', streakError);
         }
 
         return NextResponse.json({ success: true, quest });
 
 
     } catch (error) {
-        console.error('Unexpected error sending friend quest:', error);
+        logger.error('Unexpected error sending friend quest:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

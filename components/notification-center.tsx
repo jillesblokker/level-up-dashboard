@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Bell, Mail, Trophy, MessageSquare, CheckCheck } from "lucide-react"
@@ -45,7 +47,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         setServerNotifications(data.notifications || []);
       }
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      logger.error("Error fetching notifications:", error);
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +90,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         });
         fetchServerNotifications();
       } catch (error) {
-        console.error("Error marking as read:", error);
+        logger.error("Error marking as read:", error);
       }
     } else {
       notificationService.markAsRead(id)
@@ -110,7 +112,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       notificationService.markAllAsRead();
       setNotifications(notificationService.getNotifications());
     } catch (error) {
-      console.error("Error marking all as read:", error);
+      logger.error("Error marking all as read:", error);
     }
   };
 
@@ -132,7 +134,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         window.dispatchEvent(new Event('friend-update'));
       }
     } catch (error) {
-      console.error("Error responding to friend request:", error);
+      logger.error("Error responding to friend request:", error);
     }
   };
 
@@ -153,7 +155,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         window.dispatchEvent(new Event('quest-update'));
       }
     } catch (error) {
-      console.error("Error responding to quest:", error);
+      logger.error("Error responding to quest:", error);
     }
   };
 
@@ -220,7 +222,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         {/* Original image */}
         <div className="relative mb-8 h-[200px] w-full">
           <Image
-            src="/images/Notifications/no-mail.png"
+            src="/images/Notifications/no-mail.webp"
             alt="No mail"
             fill
             className="object-contain"

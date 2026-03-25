@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabase/server-client";
@@ -20,13 +21,13 @@ export async function GET(req: NextRequest) {
             .gt('expires_at', now);
 
         if (error) {
-            console.error("Error fetching modifiers:", error);
+            logger.error("Error fetching modifiers:", error);
             return NextResponse.json({ error: "Failed to fetch modifiers" }, { status: 500 });
         }
 
         return NextResponse.json({ modifiers });
     } catch (error) {
-        console.error("API Error:", error);
+        logger.error("API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -68,14 +69,14 @@ export async function POST(req: NextRequest) {
             });
 
         if (error) {
-            console.error("Error adding modifier:", error);
+            logger.error("Error adding modifier:", error);
             throw error;
         }
 
         return NextResponse.json({ success: true, expiresAt: expiresAt.toISOString() });
 
     } catch (error) {
-        console.error("API Error:", error);
+        logger.error("API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

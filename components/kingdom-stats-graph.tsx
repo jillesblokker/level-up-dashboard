@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -71,7 +73,7 @@ function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
       aria-label="kingdom-stats-empty-state-section"
     >
       <Image
-        src="/images/quests-header.jpg"
+        src="/images/quests-header.webp"
         alt="Empty stats placeholder"
         className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
         width={400}
@@ -142,7 +144,7 @@ function formatXAxisLabel(dateString: string, timePeriod: TimePeriod): { day: st
       };
     }
   } catch (error) {
-    console.error('Error formatting date:', dateString, error);
+    logger.error('Error formatting date:', dateString, error);
     return { day: '?', date: '??' };
   }
 }
@@ -544,16 +546,16 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   };
 
   const fetchData = useCallback(async () => {
-    console.log('[Kingdom Stats Component] fetchData called with:', { authUserId, isLoaded, activeTab, timePeriod });
+    logger.debug('[Kingdom Stats Component] fetchData called with:', { authUserId, isLoaded, activeTab, timePeriod });
 
     if (!authUserId || !isLoaded) {
-      console.log('[Kingdom Stats Component] Not ready to fetch data:', { authUserId, isLoaded });
+      logger.debug('[Kingdom Stats Component] Not ready to fetch data:', { authUserId, isLoaded });
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log('[Kingdom Stats Component] 🚀 Fetching data from API...');
+      logger.debug('[Kingdom Stats Component] 🚀 Fetching data from API...');
 
       // Add cache-busting parameter to force fresh API call and see backend debugging
       const timestamp = Date.now();
@@ -568,11 +570,11 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         apiUrl += `&date=${dateParam}`;
       }
 
-      console.log('[Kingdom Stats Component] 🔗 API URL:', apiUrl);
-      console.log('[Kingdom Stats Component] 🔑 Auth token present:', !!getToken);
+      logger.debug('[Kingdom Stats Component] 🔗 API URL:', apiUrl);
+      logger.debug('[Kingdom Stats Component] 🔑 Auth token present:', !!getToken);
 
       const token = await getToken({ template: 'supabase' });
-      console.log('[Kingdom Stats Component] 🔑 Token retrieved, length:', token?.length || 0);
+      logger.debug('[Kingdom Stats Component] 🔑 Token retrieved, length:', token?.length || 0);
 
       const res = await fetch(apiUrl, {
         headers: {
@@ -580,9 +582,9 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         },
       });
 
-      console.log('[Kingdom Stats Component] 📡 Response status:', res.status);
-      console.log('[Kingdom Stats Component] 📡 Response headers:', Object.fromEntries(res.headers.entries()));
-      console.log('[Kingdom Stats Component] 📡 Response URL:', res.url);
+      logger.debug('[Kingdom Stats Component] 📡 Response status:', res.status);
+      logger.debug('[Kingdom Stats Component] 📡 Response headers:', Object.fromEntries(res.headers.entries()));
+      logger.debug('[Kingdom Stats Component] 📡 Response URL:', res.url);
 
       if (!res.ok) {
         let errorDetail = '';
@@ -596,8 +598,8 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
       }
 
       const data = await res.json();
-      console.log('[Kingdom Stats Component] ✅ API response:', data);
-      console.log('[Kingdom Stats Component] 📋 Response structure:', {
+      logger.debug('[Kingdom Stats Component] ✅ API response:', data);
+      logger.debug('[Kingdom Stats Component] 📋 Response structure:', {
         hasData: !!data.data,
         dataType: typeof data.data,
         isArray: Array.isArray(data.data),
@@ -609,10 +611,10 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
 
       // Check if we have data in the response
       if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log('[Kingdom Stats Component] 📊 Setting graph data:', data.data);
-        console.log('[Kingdom Stats Component] 🔍 Week view data sample:', data.data.slice(0, 3));
-        console.log('[Kingdom Stats Component] 🔍 FULL Week view data:', data.data);
-        console.log('[Kingdom Stats Component] 🔍 Week view data details:', data.data.map((item: any) => ({
+        logger.debug('[Kingdom Stats Component] 📊 Setting graph data:', data.data);
+        logger.debug('[Kingdom Stats Component] 🔍 Week view data sample:', data.data.slice(0, 3));
+        logger.debug('[Kingdom Stats Component] 🔍 FULL Week view data:', data.data);
+        logger.debug('[Kingdom Stats Component] 🔍 Week view data details:', data.data.map((item: any) => ({
           day: item.day,
           value: item.value,
           valueType: typeof item.value,
@@ -621,14 +623,14 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
         setGraphData(data.data);
       } else if (data.data && Array.isArray(data.data)) {
         // Success but empty or zero-value data
-        console.log('[Kingdom Stats Component] 📊 Setting graph data (empty or all-zero):', data.data);
+        logger.debug('[Kingdom Stats Component] 📊 Setting graph data (empty or all-zero):', data.data);
         setGraphData(data.data);
       } else {
-        console.log('[Kingdom Stats Component] ⚠️ API returned no valid data structure:', data);
+        logger.debug('[Kingdom Stats Component] ⚠️ API returned no valid data structure:', data);
         setGraphData([]);
       }
     } catch (err) {
-      console.error('[Kingdom Stats Component] Error fetching data:', err);
+      logger.error('[Kingdom Stats Component] Error fetching data:', err);
       setGraphData([]);
     } finally {
       setIsLoading(false);
@@ -952,12 +954,12 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
 
   const fetchData = useCallback(async () => {
     if (!authUserId) {
-      console.log('[Gains Component] No authUserId');
+      logger.debug('[Gains Component] No authUserId');
       return;
     }
 
     if (!isLoaded) {
-      console.log('[Gains Component] Not loaded yet');
+      logger.debug('[Gains Component] Not loaded yet');
       return;
     }
 
@@ -965,7 +967,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
     try {
       const token = await getToken({ template: 'supabase' });
       if (!token) {
-        console.log('[Gains Component] No token available');
+        logger.debug('[Gains Component] No token available');
         return;
       }
 
@@ -982,8 +984,8 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
         apiUrl += `&date=${dateParam}`;
       }
 
-      console.log('[Gains Component] 🔗 API URL:', apiUrl);
-      console.log('[Gains Component] 🔑 Token length:', token.length);
+      logger.debug('[Gains Component] 🔗 API URL:', apiUrl);
+      logger.debug('[Gains Component] 🔑 Token length:', token.length);
 
       const res = await fetch(apiUrl, {
         headers: {
@@ -992,9 +994,9 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
         },
       });
 
-      console.log('[Gains Component] 📡 Response status:', res.status);
-      console.log('[Gains Component] 📡 Response headers:', Object.fromEntries(res.headers.entries()));
-      console.log('[Gains Component] 📡 Response URL:', res.url);
+      logger.debug('[Gains Component] 📡 Response status:', res.status);
+      logger.debug('[Gains Component] 📡 Response headers:', Object.fromEntries(res.headers.entries()));
+      logger.debug('[Gains Component] 📡 Response URL:', res.url);
 
       if (!res.ok) {
         let errorDetail = '';
@@ -1008,10 +1010,10 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
       }
 
       const { data } = await res.json();
-      console.log('[Gains Component] ✅ API response data:', data);
+      logger.debug('[Gains Component] ✅ API response data:', data);
       setGraphData(data || []);
     } catch (err) {
-      console.error('[Gains Component] Error fetching king stats:', err);
+      logger.error('[Gains Component] Error fetching king stats:', err);
     } finally {
       setIsLoading(false);
     }

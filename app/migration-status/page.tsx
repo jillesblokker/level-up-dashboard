@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useEffect } from 'react';
 import { getAllUserPreferences } from '@/lib/user-preferences-manager';
@@ -60,7 +63,7 @@ export default function MigrationStatusPage() {
           migrationComplete
         });
       } catch (error) {
-        console.error('Error loading migration status:', error);
+        logger.error('Error loading migration status:', error);
       } finally {
         setLoading(false);
       }

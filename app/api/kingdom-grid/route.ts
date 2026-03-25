@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Kingdom Grid GET] Error:', error);
+    logger.error('[Kingdom Grid GET] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

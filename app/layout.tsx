@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import "./globals.css"
 import "@/styles/medieval-theme.css"
 import "@/app/styles/globals.css"
@@ -134,10 +135,10 @@ export default function RootLayout({
                   window.addEventListener('load', function() {
                     navigator.serviceWorker.register('/sw.js')
                       .then(function(registration) {
-                        console.log('SW registered: ', registration);
+                        logger.debug('SW registered: ', registration);
                       })
                       .catch(function(registrationError) {
-                        console.log('SW registration failed: ', registrationError);
+                        logger.debug('SW registration failed: ', registrationError);
                       });
                   });
                 }

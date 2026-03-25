@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -16,7 +17,7 @@ export async function GET() {
       .eq('defeated', false);
 
     if (error) {
-      console.error('[monster-spawns] Error fetching monsters:', error);
+      logger.error('[monster-spawns] Error fetching monsters:', error);
       return NextResponse.json({ error: 'Failed to fetch monsters' }, { status: 500 });
     }
 
@@ -25,7 +26,7 @@ export async function GET() {
       data: monsters || []
     });
   } catch (err) {
-    console.error('[monster-spawns] Error:', err);
+    logger.error('[monster-spawns] Error:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 }

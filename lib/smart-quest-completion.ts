@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * Smart Quest Completion System
  * 
@@ -64,7 +65,7 @@ export async function smartQuestCompletion(
     return result.data;
 
   } catch (error) {
-    console.error('[Smart Quest Completion] Error:', error);
+    logger.error('[Smart Quest Completion] Error:', error);
     return {
       success: false,
       action: 'no_action',
@@ -104,7 +105,7 @@ export async function getQuestCompletionStatus(
     };
 
   } catch (error) {
-    console.error('[Smart Quest Completion] Error fetching status:', error);
+    logger.error('[Smart Quest Completion] Error fetching status:', error);
     return {
       completed: false,
       completion: null
@@ -142,7 +143,7 @@ export async function getAllQuestCompletions(
     };
 
   } catch (error) {
-    console.error('[Smart Quest Completion] Error fetching completions:', error);
+    logger.error('[Smart Quest Completion] Error fetching completions:', error);
     return {
       completions: [],
       count: 0
@@ -198,7 +199,7 @@ export async function batchQuestCompletions(
     return results;
 
   } catch (error) {
-    console.error('[Smart Quest Completion] Batch processing error:', error);
+    logger.error('[Smart Quest Completion] Batch processing error:', error);
     return [{
       success: false,
       action: 'no_action',

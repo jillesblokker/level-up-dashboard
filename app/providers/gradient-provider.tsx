@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 import { useUser } from '@clerk/nextjs'
@@ -32,7 +34,7 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
             return
           }
         } catch (error) {
-          console.warn('[Gradient Provider] Failed to load from Supabase:', error)
+          logger.warn('[Gradient Provider] Failed to load from Supabase:', error)
         }
       }
 
@@ -45,7 +47,7 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
           setEndColor(end)
         }
       } catch (error) {
-        console.warn('[Gradient Provider] Failed to load from localStorage:', error)
+        logger.warn('[Gradient Provider] Failed to load from localStorage:', error)
       }
     }
 
@@ -67,7 +69,7 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
       try {
         await setUserPreference('app-gradient', { start, end })
       } catch (error) {
-        console.warn('[Gradient Provider] Failed to save to Supabase:', error)
+        logger.warn('[Gradient Provider] Failed to save to Supabase:', error)
       }
     }
     
@@ -75,7 +77,7 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem('app-gradient', JSON.stringify({ start, end }))
     } catch (error) {
-      console.warn('[Gradient Provider] Failed to save to localStorage:', error)
+      logger.warn('[Gradient Provider] Failed to save to localStorage:', error)
     }
   }
 

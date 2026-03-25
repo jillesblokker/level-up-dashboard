@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
@@ -30,7 +33,7 @@ export function UserProfile({ userId, userName, userEmail, userImage, isAdmin }:
         setExperience(0);
         setNextLevelXp(100);
       } catch (error) {
-        console.error("Failed to fetch user stats:", error);
+        logger.error("Failed to fetch user stats:", error);
       }
     }
 
@@ -46,7 +49,7 @@ export function UserProfile({ userId, userName, userEmail, userImage, isAdmin }:
         variant: "default",
       });
     } catch (error) {
-      console.error("Sign out error:", error);
+      logger.error("Sign out error:", error);
       toast({
         title: "Error signing out",
         description: "There was a problem signing out. Please try again.",

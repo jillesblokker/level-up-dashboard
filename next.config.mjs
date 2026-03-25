@@ -24,8 +24,8 @@ const nextConfig = {
     ],
     dangerouslyAllowSVG: true,
     unoptimized: false,
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
+    formats: ['image/avif', 'image/webp'], // AVIF first — better compression
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days — static art assets don't change
   },
   experimental: {
     serverActions: {

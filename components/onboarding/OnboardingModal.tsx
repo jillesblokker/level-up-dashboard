@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -215,7 +217,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   // Debug render
-  console.error('OnboardingModal render:', { isOpen, isMounted, currentStep })
+  logger.error('OnboardingModal render:', { isOpen, isMounted, currentStep })
 
   // Create portal content with aggressive debugging styles
   const modalContent = (

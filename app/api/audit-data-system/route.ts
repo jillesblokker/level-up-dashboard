@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
 
 async function runAudit(request: NextRequest) {
   try {
-    console.log('[Data System Audit] Starting comprehensive audit...');
+    logger.debug('[Data System Audit] Starting comprehensive audit...');
     
     const { userId } = await auth();
     if (!userId) {
@@ -485,12 +486,12 @@ async function runAudit(request: NextRequest) {
       summary: `${passedTests}/${totalTests} tests passed (${successRate}% success rate)`
     };
 
-    console.log('[Data System Audit] Audit completed:', auditResults.summary);
+    logger.debug('[Data System Audit] Audit completed:', auditResults.summary);
 
     return NextResponse.json(auditResults);
 
   } catch (error) {
-    console.error('[Data System Audit] Audit failed:', error);
+    logger.error('[Data System Audit] Audit failed:', error);
     return NextResponse.json({ 
       error: 'Audit failed', 
       details: error instanceof Error ? error.message : String(error) 

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -27,13 +28,13 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.rpc('exec_sql', { sql: migrationSQL });
 
     if (error) {
-      console.error('[Migration API] Error applying migration:', error);
+      logger.error('[Migration API] Error applying migration:', error);
       return NextResponse.json({ error: 'Failed to apply migration', details: error }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'Migration applied successfully' });
   } catch (error) {
-    console.error('[Migration API] Unexpected error:', error);
+    logger.error('[Migration API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

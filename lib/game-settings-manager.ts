@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { getUserPreference, setUserPreference, getAllUserPreferences } from './user-preferences-manager';
 
 export interface GameSetting {
@@ -40,11 +41,11 @@ export async function loadGameSettings(): Promise<Record<string, any>> {
     });
 
     if (Object.keys(gameSettings).length > 0) {
-      console.log('[Game Settings Manager] Loaded from Supabase:', gameSettings);
+      logger.debug('[Game Settings Manager] Loaded from Supabase:', gameSettings);
       return gameSettings;
     }
   } catch (error) {
-    console.warn('[Game Settings Manager] Failed to load from Supabase:', error);
+    logger.warn('[Game Settings Manager] Failed to load from Supabase:', error);
   }
 
   // Fallback to localStorage
@@ -78,10 +79,10 @@ export async function loadGameSettings(): Promise<Record<string, any>> {
       }
     });
 
-    console.log('[Game Settings Manager] Loaded from localStorage:', settings);
+    logger.debug('[Game Settings Manager] Loaded from localStorage:', settings);
     return settings;
   } catch (error) {
-    console.warn('[Game Settings Manager] Failed to load from localStorage:', error);
+    logger.warn('[Game Settings Manager] Failed to load from localStorage:', error);
   }
 
   return {};
@@ -100,14 +101,14 @@ export async function saveGameSettings(settings: Record<string, any>): Promise<{
     for (const [key, value] of Object.entries(settings)) {
       const success = await setUserPreference(key, value);
       if (!success) {
-        console.warn('[Game Settings Manager] Failed to save setting to Supabase:', key);
+        logger.warn('[Game Settings Manager] Failed to save setting to Supabase:', key);
         break;
       }
     }
     supabaseSuccess = true;
-    console.log('[Game Settings Manager] Saved to Supabase:', settings);
+    logger.debug('[Game Settings Manager] Saved to Supabase:', settings);
   } catch (error) {
-    console.warn('[Game Settings Manager] Supabase save error:', error);
+    logger.warn('[Game Settings Manager] Supabase save error:', error);
   }
 
   // Save to localStorage as backup
@@ -120,9 +121,9 @@ export async function saveGameSettings(settings: Record<string, any>): Promise<{
       }
     }
     localStorageSuccess = true;
-    console.log('[Game Settings Manager] Saved to localStorage:', settings);
+    logger.debug('[Game Settings Manager] Saved to localStorage:', settings);
   } catch (error) {
-    console.warn('[Game Settings Manager] localStorage save error:', error);
+    logger.warn('[Game Settings Manager] localStorage save error:', error);
   }
 
   const result: { success: boolean; error?: string } = {
@@ -147,7 +148,7 @@ export async function getGameSetting(key: string): Promise<any> {
       return value;
     }
   } catch (error) {
-    console.warn('[Game Settings Manager] Failed to get setting from Supabase:', key, error);
+    logger.warn('[Game Settings Manager] Failed to get setting from Supabase:', key, error);
   }
 
   // Fallback to localStorage
@@ -161,7 +162,7 @@ export async function getGameSetting(key: string): Promise<any> {
       }
     }
   } catch (error) {
-    console.warn('[Game Settings Manager] Failed to get setting from localStorage:', key, error);
+    logger.warn('[Game Settings Manager] Failed to get setting from localStorage:', key, error);
   }
 
   return null;
@@ -183,12 +184,12 @@ export async function setGameSetting(key: string, value: any): Promise<{ success
         localStorage.setItem(key, String(value));
       }
     } catch (error) {
-      console.warn('[Game Settings Manager] localStorage backup save error:', error);
+      logger.warn('[Game Settings Manager] localStorage backup save error:', error);
     }
 
     return { success: supabaseSuccess };
   } catch (error) {
-    console.warn('[Game Settings Manager] Error setting game setting:', error);
+    logger.warn('[Game Settings Manager] Error setting game setting:', error);
     return { success: false, error: String(error) };
   }
 }
@@ -229,7 +230,7 @@ export function getGameSettings(): Record<string, any> {
 
     return settings;
   } catch (error) {
-    console.warn('[Game Settings Manager] Error getting settings:', error);
+    logger.warn('[Game Settings Manager] Error getting settings:', error);
     return {};
   }
 }
@@ -246,9 +247,9 @@ export function setGameSettings(settings: Record<string, any>): void {
         localStorage.setItem(key, String(value));
       }
     }
-    console.log('[Game Settings Manager] Set settings:', settings);
+    logger.debug('[Game Settings Manager] Set settings:', settings);
   } catch (error) {
-    console.warn('[Game Settings Manager] Error setting settings:', error);
+    logger.warn('[Game Settings Manager] Error setting settings:', error);
   }
 }
 
@@ -266,7 +267,7 @@ export function getGameSettingSync(key: string): any {
       }
     }
   } catch (error) {
-    console.warn('[Game Settings Manager] Error getting setting:', error);
+    logger.warn('[Game Settings Manager] Error getting setting:', error);
   }
   return null;
 }
@@ -281,8 +282,8 @@ export function setGameSettingSync(key: string, value: any): void {
     } else {
       localStorage.setItem(key, String(value));
     }
-    console.log('[Game Settings Manager] Set setting:', key, value);
+    logger.debug('[Game Settings Manager] Set setting:', key, value);
   } catch (error) {
-    console.warn('[Game Settings Manager] Error setting setting:', error);
+    logger.warn('[Game Settings Manager] Error setting setting:', error);
   }
 } 

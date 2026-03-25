@@ -31,7 +31,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Crossroad.png',
+    image: '/images/kingdom-tiles/Crossroad.webp',
     cost: 10
   },
   {
@@ -45,7 +45,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Straightroad.png',
+    image: '/images/kingdom-tiles/Straightroad.webp',
     cost: 10
   },
   {
@@ -59,7 +59,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Cornerroad.png',
+    image: '/images/kingdom-tiles/Cornerroad.webp',
     cost: 10
   },
   {
@@ -73,7 +73,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Tsplitroad.png',
+    image: '/images/kingdom-tiles/Tsplitroad.webp',
     cost: 10
   },
   {
@@ -85,11 +85,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.well.clickMessage,
     possibleItems: [
-      '/images/items/materials/material-water.png'
+      '/images/items/materials/material-water.webp'
     ],
     itemType: 'material',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Well.png',
+    image: '/images/kingdom-tiles/Well.webp',
     materialCost: [{ itemId: 'material-stone', quantity: 3 }],
     tokenCost: 1,
     cost: 100
@@ -103,16 +103,16 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.10,
     clickMessage: TEXT_CONTENT.kingdomTiles.blacksmith.clickMessage,
     possibleItems: [
-      '/images/items/sword/sword-twig.png',
-      '/images/items/sword/sword-sunblade.png',
-      '/images/items/sword/sword-irony.png',
-      '/images/items/armor/armor-normalo.png',
-      '/images/items/armor/armor-darko.png',
-      '/images/items/armor/armor-blanko.png'
+      '/images/items/sword/sword-twig.webp',
+      '/images/items/sword/sword-sunblade.webp',
+      '/images/items/sword/sword-irony.webp',
+      '/images/items/armor/armor-normalo.webp',
+      '/images/items/armor/armor-darko.webp',
+      '/images/items/armor/armor-blanko.webp'
     ],
     itemType: 'weapon',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Blacksmith.png',
+    image: '/images/kingdom-tiles/Blacksmith.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 5 }, { itemId: 'material-stone', quantity: 5 }],
     tokenCost: 2,
     cost: 200
@@ -126,12 +126,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.sawmill.clickMessage,
     possibleItems: [
-      '/images/items/materials/material-logs.png',
-      '/images/items/materials/material-planks.png'
+      '/images/items/materials/material-logs.webp',
+      '/images/items/materials/material-planks.webp'
     ],
     itemType: 'material',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Sawmill.png',
+    image: '/images/kingdom-tiles/Sawmill.webp',
     cost: 120
   },
   {
@@ -143,12 +143,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: 'You quarried stone!',
     possibleItems: [
-      '/images/items/materials/material-stone.png',
-      '/images/items/materials/material-stone-block.png'
+      '/images/items/materials/material-stone.webp',
+      '/images/items/materials/material-stone-block.webp'
     ],
     itemType: 'material',
     rarity: 'common',
-    image: '/images/kingdom-tiles/StoneQuarry.png',
+    image: '/images/kingdom-tiles/StoneQuarry.webp',
     cost: 200
   },
   {
@@ -160,15 +160,15 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.18,
     clickMessage: TEXT_CONTENT.kingdomTiles.fisherman.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png',
-      '/images/items/food/fish-golden.png',
-      '/images/items/food/fish-rainbow.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp',
+      '/images/items/food/fish-golden.webp',
+      '/images/items/food/fish-rainbow.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Fisherman.png',
+    image: '/images/kingdom-tiles/Fisherman.webp',
     cost: 120
   },
   {
@@ -180,13 +180,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: TEXT_CONTENT.kingdomTiles.grocery.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Grocery.png',
+    image: '/images/kingdom-tiles/Grocery.webp',
     cost: 200
   },
   {
@@ -198,13 +198,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.16,
     clickMessage: TEXT_CONTENT.kingdomTiles.foodcourt.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp'
     ],
     itemType: 'food',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Foodcourt.png',
+    image: '/images/kingdom-tiles/Foodcourt.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 8 }],
     tokenCost: 2,
     cost: 250
@@ -218,13 +218,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: TEXT_CONTENT.kingdomTiles.vegetables.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Vegetables.png',
+    image: '/images/kingdom-tiles/Vegetables.webp',
     cost: 150
   },
 
@@ -238,13 +238,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.12, // Increased (was 0.08)
     clickMessage: TEXT_CONTENT.kingdomTiles.wizard.clickMessage,
     possibleItems: [
-      '/images/items/scroll/scroll-scrolly.png',
-      '/images/items/scroll/scroll-perkamento.png',
-      '/images/items/scroll/scroll-memento.png'
+      '/images/items/scroll/scroll-scrolly.webp',
+      '/images/items/scroll/scroll-perkamento.webp',
+      '/images/items/scroll/scroll-memento.webp'
     ],
     itemType: 'scroll',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Wizard.png',
+    image: '/images/kingdom-tiles/Wizard.webp',
     materialCost: [{ itemId: 'material-stone-block', quantity: 15 }, { itemId: 'material-crystal', quantity: 5 }],
     tokenCost: 3,
     cost: 2000
@@ -258,13 +258,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.12,
     clickMessage: TEXT_CONTENT.kingdomTiles.temple.clickMessage,
     possibleItems: [
-      '/images/items/potion/potion-health.png',
-      '/images/items/potion/potion-gold.png',
-      '/images/items/potion/potion-exp.png'
+      '/images/items/potion/potion-health.webp',
+      '/images/items/potion/potion-gold.webp',
+      '/images/items/potion/potion-exp.webp'
     ],
     itemType: 'potion',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Temple.png',
+    image: '/images/kingdom-tiles/Temple.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 10 }],
     tokenCost: 2,
     cost: 300
@@ -278,12 +278,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: 'You found peace in the garden.',
     possibleItems: [
-      '/images/items/scroll/scroll-scrolly.png',
-      '/images/items/potion/potion-exp.png'
+      '/images/items/scroll/scroll-scrolly.webp',
+      '/images/items/potion/potion-exp.webp'
     ],
     itemType: 'scroll',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/ZenGarden.png',
+    image: '/images/kingdom-tiles/ZenGarden.webp',
     materialCost: [{ itemId: 'material-stone', quantity: 5 }, { itemId: 'material-logs', quantity: 5 }],
     tokenCost: 2,
     cost: 350
@@ -297,13 +297,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles.castle.clickMessage,
     possibleItems: [
-      '/images/items/artifact/crown/artifact-crowny.png',
-      '/images/items/artifact/ring/artifact-ringo.png',
-      '/images/items/artifact/scepter/artifact-staffy.png'
+      '/images/items/artifact/crown/artifact-crowny.webp',
+      '/images/items/artifact/ring/artifact-ringo.webp',
+      '/images/items/artifact/scepter/artifact-staffy.webp'
     ],
     itemType: 'artifact',
     rarity: 'legendary',
-    image: '/images/kingdom-tiles/Castle.png',
+    image: '/images/kingdom-tiles/Castle.webp',
     materialCost: [{ itemId: 'material-stone-block', quantity: 20 }, { itemId: 'material-steel', quantity: 10 }],
     tokenCost: 3,
     cost: 5000
@@ -317,13 +317,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.12, // Increased (was 0.10)
     clickMessage: TEXT_CONTENT.kingdomTiles.mansion.clickMessage,
     possibleItems: [
-      '/images/items/artifact/crown/artifact-crowny.png',
-      '/images/items/artifact/ring/artifact-ringo.png',
-      '/images/items/artifact/scepter/artifact-staffy.png'
+      '/images/items/artifact/crown/artifact-crowny.webp',
+      '/images/items/artifact/ring/artifact-ringo.webp',
+      '/images/items/artifact/scepter/artifact-staffy.webp'
     ],
     itemType: 'artifact',
     rarity: 'epic',
-    image: '/images/kingdom-tiles/Mansion.png',
+    image: '/images/kingdom-tiles/Mansion.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 15 }, { itemId: 'material-stone-block', quantity: 8 }],
     tokenCost: 3,
     cost: 1500
@@ -337,13 +337,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.fountain.clickMessage,
     possibleItems: [
-      '/images/items/potion/potion-health.png',
-      '/images/items/potion/potion-gold.png',
-      '/images/items/potion/potion-exp.png'
+      '/images/items/potion/potion-health.webp',
+      '/images/items/potion/potion-gold.webp',
+      '/images/items/potion/potion-exp.webp'
     ],
     itemType: 'potion',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Fountain.png',
+    image: '/images/kingdom-tiles/Fountain.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 5 }],
     tokenCost: 1,
     cost: 100
@@ -357,13 +357,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.08,
     clickMessage: TEXT_CONTENT.kingdomTiles.mayor.clickMessage,
     possibleItems: [
-      '/images/items/artifact/crown/artifact-crowny.png',
-      '/images/items/artifact/ring/artifact-ringo.png',
-      '/images/items/artifact/scepter/artifact-staffy.png'
+      '/images/items/artifact/crown/artifact-crowny.webp',
+      '/images/items/artifact/ring/artifact-ringo.webp',
+      '/images/items/artifact/scepter/artifact-staffy.webp'
     ],
     itemType: 'artifact',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Mayor.png',
+    image: '/images/kingdom-tiles/Mayor.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 12 }, { itemId: 'material-stone-block', quantity: 5 }],
     tokenCost: 3,
     cost: 800
@@ -377,13 +377,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.18,
     clickMessage: TEXT_CONTENT.kingdomTiles.inn.clickMessage,
     possibleItems: [
-      '/images/items/artifact/crown/artifact-crowny.png',
-      '/images/items/artifact/ring/artifact-ringo.png',
-      '/images/items/artifact/scepter/artifact-staffy.png'
+      '/images/items/artifact/crown/artifact-crowny.webp',
+      '/images/items/artifact/ring/artifact-ringo.webp',
+      '/images/items/artifact/scepter/artifact-staffy.webp'
     ],
     itemType: 'artifact',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Inn.png',
+    image: '/images/kingdom-tiles/Inn.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 40 }],
     tokenCost: 1,
     cost: 220
@@ -399,16 +399,16 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.10,
     clickMessage: TEXT_CONTENT.kingdomTiles.jousting.clickMessage,
     possibleItems: [
-      '/images/items/sword/sword-twig.png',
-      '/images/items/sword/sword-sunblade.png',
-      '/images/items/sword/sword-irony.png',
-      '/images/items/armor/armor-normalo.png',
-      '/images/items/armor/armor-darko.png',
-      '/images/items/armor/armor-blanko.png'
+      '/images/items/sword/sword-twig.webp',
+      '/images/items/sword/sword-sunblade.webp',
+      '/images/items/sword/sword-irony.webp',
+      '/images/items/armor/armor-normalo.webp',
+      '/images/items/armor/armor-darko.webp',
+      '/images/items/armor/armor-blanko.webp'
     ],
     itemType: 'weapon',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Jousting.png',
+    image: '/images/kingdom-tiles/Jousting.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 12 }],
     tokenCost: 2,
     cost: 400
@@ -422,13 +422,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.archery.clickMessage,
     possibleItems: [
-      '/images/items/sword/sword-twig.png',
-      '/images/items/sword/sword-sunblade.png',
-      '/images/items/sword/sword-irony.png'
+      '/images/items/sword/sword-twig.webp',
+      '/images/items/sword/sword-sunblade.webp',
+      '/images/items/sword/sword-irony.webp'
     ],
     itemType: 'weapon',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Archery.png',
+    image: '/images/kingdom-tiles/Archery.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 40 }],
     tokenCost: 2,
     cost: 150
@@ -442,13 +442,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.12,
     clickMessage: TEXT_CONTENT.kingdomTiles.watchtower.clickMessage,
     possibleItems: [
-      '/images/items/artifact/crown/artifact-crowny.png',
-      '/images/items/artifact/ring/artifact-ringo.png',
-      '/images/items/artifact/scepter/artifact-staffy.png'
+      '/images/items/artifact/crown/artifact-crowny.webp',
+      '/images/items/artifact/ring/artifact-ringo.webp',
+      '/images/items/artifact/scepter/artifact-staffy.webp'
     ],
     itemType: 'artifact',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Watchtower.png',
+    image: '/images/kingdom-tiles/Watchtower.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 6 }],
     tokenCost: 2,
     cost: 300
@@ -462,13 +462,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: TEXT_CONTENT.kingdomTiles.pond.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Pond.png',
+    image: '/images/kingdom-tiles/Pond.webp',
     materialCost: [],
     tokenCost: 1,
     cost: 100
@@ -482,13 +482,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: TEXT_CONTENT.kingdomTiles.windmill.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp'
     ],
     itemType: 'food',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Windmill.png',
+    image: '/images/kingdom-tiles/Windmill.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 6 }],
     tokenCost: 1,
     cost: 180
@@ -503,13 +503,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.18,
     clickMessage: TEXT_CONTENT.kingdomTiles['winter-fountain'].clickMessage,
     possibleItems: [
-      '/images/items/potion/potion-health.png',
-      '/images/items/potion/potion-gold.png',
-      '/images/items/potion/potion-exp.png'
+      '/images/items/potion/potion-health.webp',
+      '/images/items/potion/potion-gold.webp',
+      '/images/items/potion/potion-exp.webp'
     ],
     itemType: 'potion',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/WinterFountain.png',
+    image: '/images/kingdom-tiles/WinterFountain.webp',
     cost: 500
   },
   {
@@ -521,13 +521,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.18,
     clickMessage: TEXT_CONTENT.kingdomTiles['snowy-inn'].clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/food/fish-silver.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/food/fish-silver.webp'
     ],
     itemType: 'food',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/SnowyInn.png',
+    image: '/images/kingdom-tiles/SnowyInn.webp',
     cost: 400
   },
   {
@@ -539,13 +539,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.16,
     clickMessage: TEXT_CONTENT.kingdomTiles['ice-sculpture'].clickMessage,
     possibleItems: [
-      '/images/items/potion/potion-health.png',
-      '/images/items/potion/potion-gold.png',
-      '/images/items/potion/potion-exp.png'
+      '/images/items/potion/potion-health.webp',
+      '/images/items/potion/potion-gold.webp',
+      '/images/items/potion/potion-exp.webp'
     ],
     itemType: 'potion',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/IceSculpture.png',
+    image: '/images/kingdom-tiles/IceSculpture.webp',
     cost: 300
   },
   {
@@ -557,13 +557,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: TEXT_CONTENT.kingdomTiles['fireworks-stand'].clickMessage,
     possibleItems: [
-      '/images/items/scroll/scroll-scrolly.png',
-      '/images/items/scroll/scroll-perkamento.png',
-      '/images/items/scroll/scroll-memento.png'
+      '/images/items/scroll/scroll-scrolly.webp',
+      '/images/items/scroll/scroll-perkamento.webp',
+      '/images/items/scroll/scroll-memento.webp'
     ],
     itemType: 'scroll',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/FireworksStand.png',
+    image: '/images/kingdom-tiles/FireworksStand.webp',
     cost: 350
   },
   {
@@ -575,12 +575,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles['pumpkin-patch'].clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/PumpkinPatch.png',
+    image: '/images/kingdom-tiles/PumpkinPatch.webp',
     cost: 200
   },
   {
@@ -592,12 +592,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.14,
     clickMessage: TEXT_CONTENT.kingdomTiles['harvest-barn'].clickMessage,
     possibleItems: [
-      '/images/items/materials/material-logs.png',
-      '/images/items/materials/material-planks.png'
+      '/images/items/materials/material-logs.webp',
+      '/images/items/materials/material-planks.webp'
     ],
     itemType: 'material',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/HarvestBarn.png',
+    image: '/images/kingdom-tiles/HarvestBarn.webp',
     cost: 400
   },
   {
@@ -609,12 +609,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.16,
     clickMessage: TEXT_CONTENT.kingdomTiles.bakery.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-silver.png',
-      '/images/items/food/fish-red.png'
+      '/images/items/food/fish-silver.webp',
+      '/images/items/food/fish-red.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Bakery.png',
+    image: '/images/kingdom-tiles/Bakery.webp',
     cost: 250
   },
   {
@@ -626,12 +626,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.brewery.clickMessage,
     possibleItems: [
-      '/images/items/potion/potion-gold.png',
-      '/images/items/potion/potion-exp.png'
+      '/images/items/potion/potion-gold.webp',
+      '/images/items/potion/potion-exp.webp'
     ],
     itemType: 'potion',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Brewery.png',
+    image: '/images/kingdom-tiles/Brewery.webp',
     cost: 300
   },
   {
@@ -643,12 +643,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.20,
     clickMessage: TEXT_CONTENT.kingdomTiles['market-stalls'].clickMessage,
     possibleItems: [
-      '/images/items/materials/material-logs.png',
-      '/images/items/materials/material-planks.png'
+      '/images/items/materials/material-logs.webp',
+      '/images/items/materials/material-planks.webp'
     ],
     itemType: 'material',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/MarketStalls.png',
+    image: '/images/kingdom-tiles/MarketStalls.webp',
     cost: 400
   },
   {
@@ -660,13 +660,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.12,
     clickMessage: TEXT_CONTENT.kingdomTiles.library.clickMessage,
     possibleItems: [
-      '/images/items/scroll/scroll-scrolly.png',
-      '/images/items/scroll/scroll-perkamento.png',
-      '/images/items/scroll/scroll-memento.png'
+      '/images/items/scroll/scroll-scrolly.webp',
+      '/images/items/scroll/scroll-perkamento.webp',
+      '/images/items/scroll/scroll-memento.webp'
     ],
     itemType: 'scroll',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Library.png',
+    image: '/images/kingdom-tiles/Library.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 12 }],
     tokenCost: 2,
     cost: 240
@@ -680,13 +680,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles['training-grounds'].clickMessage,
     possibleItems: [
-      '/images/items/sword/sword-twig.png',
-      '/images/items/sword/sword-sunblade.png',
-      '/images/items/sword/sword-irony.png'
+      '/images/items/sword/sword-twig.webp',
+      '/images/items/sword/sword-sunblade.webp',
+      '/images/items/sword/sword-irony.webp'
     ],
     itemType: 'weapon',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/TrainingGrounds.png',
+    image: '/images/kingdom-tiles/TrainingGrounds.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 10 }],
     tokenCost: 2,
     cost: 200
@@ -700,11 +700,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.16,
     clickMessage: TEXT_CONTENT.kingdomTiles.stable.clickMessage,
     possibleItems: [
-      '/images/items/materials/material-logs.png'
+      '/images/items/materials/material-logs.webp'
     ],
     itemType: 'material',
     rarity: 'common',
-    image: '/images/kingdom-tiles/Stable.png',
+    image: '/images/kingdom-tiles/Stable.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 8 }],
     tokenCost: 1,
     cost: 120
@@ -718,13 +718,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.15,
     clickMessage: TEXT_CONTENT.kingdomTiles.house.clickMessage,
     possibleItems: [
-      '/images/items/food/fish-red.png',
-      '/images/items/food/fish-blue.png',
-      '/images/items/materials/material-logs.png'
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-blue.webp',
+      '/images/items/materials/material-logs.webp'
     ],
     itemType: 'food',
     rarity: 'common',
-    image: '/images/kingdom-tiles/House.png',
+    image: '/images/kingdom-tiles/House.webp',
     materialCost: [{ itemId: 'material-logs', quantity: 4 }],
     tokenCost: 1,
     cost: 100
@@ -740,11 +740,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles.crystal_cavern.clickMessage,
     possibleItems: [
-      '/images/items/scroll/scroll-perkamento.png'
+      '/images/items/scroll/scroll-perkamento.webp'
     ],
     itemType: 'scroll',
     rarity: 'legendary',
-    image: '/images/tiles/crystal_cavern-tile.png',
+    image: '/images/tiles/crystal_cavern-tile.webp',
     levelRequired: 15,
     cost: 800
   },
@@ -761,7 +761,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/QuestBoard.png',
+    image: '/images/kingdom-tiles/QuestBoard.webp',
     cost: 50
   },
   {
@@ -775,7 +775,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Monument.png',
+    image: '/images/kingdom-tiles/Monument.webp',
     cost: 500
   },
   {
@@ -789,7 +789,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'uncommon',
-    image: '/images/kingdom-tiles/Inn.png',
+    image: '/images/kingdom-tiles/Inn.webp',
     cost: 200
   },
   {
@@ -803,7 +803,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'common',
-    image: '/images/kingdom-tiles/MarketStalls.png',
+    image: '/images/kingdom-tiles/MarketStalls.webp',
     cost: 400
   }
 ]

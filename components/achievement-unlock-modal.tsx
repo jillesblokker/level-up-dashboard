@@ -71,7 +71,7 @@ export function AchievementUnlockModal({
                 <div className="relative w-52 h-52 rounded-full bg-zinc-900 border-4 border-amber-500/40 p-1.5 shadow-2xl shadow-amber-500/20 overflow-hidden group-hover:scale-105 transition-transform duration-500">
                   <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-900/20 to-zinc-950">
                     <Image
-                      src={`/images/creatures/${creatureId}_front.png`}
+                      src={`/images/creatures/${creatureId}_front.webp`}
                       alt={creatureName}
                       fill
                       className="object-contain p-6 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"

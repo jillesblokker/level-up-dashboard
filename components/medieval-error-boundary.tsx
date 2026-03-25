@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Shield, Sword } from 'lucide-react';
@@ -51,7 +54,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
 
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('Medieval Error Boundary caught an error:', error, errorInfo);
+      logger.error('Medieval Error Boundary caught an error:', error, errorInfo);
     }
 
     // Call custom error handler
@@ -65,7 +68,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
 
   private logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
     // In a real app, you'd send this to your error tracking service
-    console.error('Production error:', {
+    logger.error('Production error:', {
       message: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,

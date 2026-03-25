@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle } from "lucide-react"
 import Image from "next/image"
@@ -118,9 +120,9 @@ export default function CharacterPage() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [coverImage, setCoverImage] = useState(() => {
     if (typeof window !== 'undefined' && window.headerImages) {
-      return window.headerImages.character || "/images/character-header.jpg"
+      return window.headerImages.character || "/images/character-header.webp"
     }
-    return "/images/character-header.jpg"
+    return "/images/character-header.webp"
   })
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -174,7 +176,7 @@ export default function CharacterPage() {
           perks: { active: 0, total: 0 }
         })
       } catch (error) {
-        console.error('Error loading character stats:', error)
+        logger.error('Error loading character stats:', error)
         throw new Error('Failed to load character stats');
       }
     }
@@ -205,7 +207,7 @@ export default function CharacterPage() {
           setPerks(parsedPerks)
         }
       } catch (error) {
-        console.error('Error loading perks:', error)
+        logger.error('Error loading perks:', error)
         throw new Error('Failed to load perks');
       }
     }
@@ -226,7 +228,7 @@ export default function CharacterPage() {
             }
           }
         } catch (err) {
-          console.error('Failed to fetch strengths from API', err);
+          logger.error('Failed to fetch strengths from API', err);
         }
 
         // Fallback to local storage logic
@@ -247,7 +249,7 @@ export default function CharacterPage() {
 
         setStrengths(mergedStrengths);
       } catch (error) {
-        console.error('Error loading strengths:', error)
+        logger.error('Error loading strengths:', error)
         throw new Error('Failed to load strengths');
       }
     }
@@ -273,7 +275,7 @@ export default function CharacterPage() {
           }
         }
       } catch (e) {
-        console.error('Error loading active potion perks from API, falling back to local:', e)
+        logger.error('Error loading active potion perks from API, falling back to local:', e)
         try {
           const perksObj = JSON.parse(localStorage.getItem('active-potion-perks') || '{}')
           const now = new Date()
@@ -287,7 +289,7 @@ export default function CharacterPage() {
             })
             .filter((perk): perk is { name: string, effect: string, expiresAt: string } => !!perk && new Date(perk.expiresAt) > now)
           setActivePotionPerks(perksArr)
-        } catch (localErr) { console.error(localErr) }
+        } catch (localErr) { logger.error(localErr) }
       }
     }
 
@@ -318,7 +320,7 @@ export default function CharacterPage() {
           }
         }
       } catch (e) {
-        console.error("Error loading titles", e);
+        logger.error("Error loading titles", e);
       }
     }
 
@@ -334,7 +336,7 @@ export default function CharacterPage() {
         loadActivePotionPerks()
 
       } catch (error) {
-        console.error('Character page error:', error);
+        logger.error('Character page error:', error);
         setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       } finally {
         setIsLoading(false);
@@ -363,7 +365,7 @@ export default function CharacterPage() {
     if (!userId) return;
 
     // Disable polling to prevent infinite loops and page reloads
-    // console.log('[Character Page] Polling disabled to prevent infinite loops');
+    // logger.debug('[Character Page] Polling disabled to prevent infinite loops');
 
     // Only load data once on mount
     // Data will be updated via event listeners instead
@@ -401,7 +403,7 @@ export default function CharacterPage() {
             }
           }
         } catch (e) {
-          console.error("Error auto-unlocking titles:", e);
+          logger.error("Error auto-unlocking titles:", e);
         }
       }
     };
@@ -438,7 +440,7 @@ export default function CharacterPage() {
         body: JSON.stringify({ action: 'equip', titleId })
       });
     } catch (e) {
-      console.error("Error equipping title:", e);
+      logger.error("Error equipping title:", e);
       toast({
         title: "Error",
         description: "Failed to save title selection.",
@@ -470,7 +472,7 @@ export default function CharacterPage() {
         });
       }
     } catch (e) {
-      console.error("Ascension error:", e);
+      logger.error("Ascension error:", e);
       toast({
         title: "Error",
         description: "Network error occurred.",
@@ -707,17 +709,17 @@ export default function CharacterPage() {
           setIsUploading(false)
           setShowUploadModal(false)
         } catch (err) {
-          console.error("Error processing file:", err)
+          logger.error("Error processing file:", err)
           setIsUploading(false)
         }
       }
       reader.onerror = () => {
-        console.error("Error reading file")
+        logger.error("Error reading file")
         setIsUploading(false)
       }
       reader.readAsDataURL(file)
     } catch (err) {
-      console.error("Error initiating file read:", err)
+      logger.error("Error initiating file read:", err)
       setIsUploading(false)
     }
   }
@@ -882,14 +884,14 @@ export default function CharacterPage() {
                               <div className="relative w-full h-full rounded-full border-2 border-amber-500/20 bg-zinc-900/80 p-2 overflow-hidden shadow-lg transition-all duration-500 group-hover:border-amber-500/40">
                                 <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-500/5 to-transparent">
                                   <Image
-                                    src={`/images/character/${titleInfo.current.id}.png`}
+                                    src={`/images/character/${titleInfo.current.id}.webp`}
                                     alt={`${titleInfo.current.name} character`}
                                     fill
                                     className="object-contain p-2"
                                     onError={(e) => {
                                       // Fallback to squire image if specific image not found
                                       const target = e.target as HTMLImageElement;
-                                      target.src = '/images/character/squire.png';
+                                      target.src = '/images/character/squire.webp';
                                     }}
                                   />
                                 </div>
@@ -923,7 +925,7 @@ export default function CharacterPage() {
                             {/* Blessing image */}
                             <div className="relative w-32 h-32 flex-shrink-0">
                               <Image
-                                src="/images/blessing.png"
+                                src="/images/blessing.webp"
                                 alt={TEXT_CONTENT.character.ui.overview.noBonuses}
                                 fill
                                 className="object-contain opacity-50 rounded"
@@ -1062,14 +1064,14 @@ export default function CharacterPage() {
                                   {/* Character image */}
                                   <div className="relative w-16 h-16 flex-shrink-0">
                                     <Image
-                                      src={`/images/character/${title.id}.png`}
+                                      src={`/images/character/${title.id}.webp`}
                                       alt={`${title.name} character`}
                                       fill
                                       className="object-contain"
                                       onError={(e) => {
                                         // Fallback to squire image if specific image not found
                                         const target = e.target as HTMLImageElement;
-                                        target.src = '/images/character/squire.png';
+                                        target.src = '/images/character/squire.webp';
                                       }}
                                     />
                                   </div>

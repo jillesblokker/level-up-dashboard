@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState, useRef } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { fetchWithAuth } from "@/lib/fetchWithAuth"
@@ -73,7 +75,7 @@ export function KingdomNotificationManager() {
                     lastReadyCountRef.current = currentReadyCount
                 }
             } catch (error) {
-                console.error("[KingdomNotifications] Error checking kingdom timers:", error)
+                logger.error("[KingdomNotifications] Error checking kingdom timers:", error)
             }
         }
 
@@ -123,7 +125,7 @@ export function KingdomNotificationManager() {
                     })
                 }
             } catch (error) {
-                console.error("[KingdomNotifications] Error checking social notifications:", error)
+                logger.error("[KingdomNotifications] Error checking social notifications:", error)
             }
         }
 

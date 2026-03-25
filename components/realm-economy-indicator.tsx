@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -76,7 +78,7 @@ export function RealmEconomyIndicator() {
         setTotalTiles(costs.length)
         
       } catch (error) {
-        console.error('Error loading economy data:', error)
+        logger.error('Error loading economy data:', error)
       }
     }
 

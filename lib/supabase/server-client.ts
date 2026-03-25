@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createClient } from '@supabase/supabase-js';
 
 // This client should be used ONLY in backend API routes
@@ -21,13 +22,13 @@ export async function testSupabaseConnection() {
   try {
     const { data, error } = await supabaseServer.from('challenges').select('count').limit(1);
     if (error) {
-      console.error('[Supabase] Connection test failed:', error);
+      logger.error('[Supabase] Connection test failed:', error);
       return false;
     }
-    console.log('[Supabase] Connection test successful');
+    logger.debug('[Supabase] Connection test successful');
     return true;
   } catch (error) {
-    console.error('[Supabase] Connection test error:', error);
+    logger.error('[Supabase] Connection test error:', error);
     return false;
   }
 }

@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
@@ -63,7 +65,7 @@ const mockTile = {
   ariaLabel: 'Empty tile',
   x: 0,
   y: 0,
-  image: '/images/tiles/empty-tile.png'
+  image: '/images/tiles/empty-tile.webp'
 };
 
 export default function DesignSystemPage() {
@@ -1263,7 +1265,7 @@ export default function DesignSystemPage() {
                               <HeaderSection
                                 title="KINGDOM"
                                 subtitle="Your realm overview and progress"
-                                imageSrc="/images/kingdom-header.jpg"
+                                imageSrc="/images/kingdom-header.webp"
                                 canEdit={false}
                               />
                             </CardContent>
@@ -1292,7 +1294,7 @@ export default function DesignSystemPage() {
                                     ariaLabel: 'Forest tile',
                                     x: 0,
                                     y: 0,
-                                    image: '/images/tiles/forest-tile.png'
+                                    image: '/images/tiles/forest-tile.webp'
                                   }}
                                   isSelected={false}
                                   isHovered={false}
@@ -1314,7 +1316,7 @@ export default function DesignSystemPage() {
                                     ariaLabel: 'Water tile',
                                     x: 0,
                                     y: 0,
-                                    image: '/images/tiles/water-tile.png'
+                                    image: '/images/tiles/water-tile.webp'
                                   }}
                                   isSelected={true}
                                   isHovered={false}
@@ -1343,7 +1345,7 @@ export default function DesignSystemPage() {
                                     number: '#001',
                                     name: 'Flamio',
                                     description: 'A fiery creature awakened by the destruction of forests.',
-                                    image: '/images/creatures/001.png',
+                                    image: '/images/creatures/001.webp',
                                     category: 'fire',
                                     discovered: true,
                                     stats: { hp: 64, attack: 16, defense: 8, speed: 12, type: 'Fire' },
@@ -1379,10 +1381,10 @@ export default function DesignSystemPage() {
                                 }}
                                 status="in-progress"
                                 onClick={() => {
-                                  console.log('Quest card clicked');
+                                  logger.debug('Quest card clicked');
                                 }}
                                 onComplete={() => {
-                                  console.log('Quest completed');
+                                  logger.debug('Quest completed');
                                   toast({
                                     title: "Quest Completed!",
                                     description: "You have defeated the dragon!",

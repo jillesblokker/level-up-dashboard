@@ -375,7 +375,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
           <div className="relative w-36 h-36 rounded-full border-2 border-purple-500/40 p-1 bg-zinc-900 shadow-2xl">
             <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
               <Image
-                src="/images/riddle-sage.png"
+                src="/images/riddle-sage.webp"
                 alt="Celestial Sage"
                 fill
                 className="object-cover"

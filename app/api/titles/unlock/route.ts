@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabase/server-client";
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
                 .insert(newUnlocks);
 
             if (error) {
-                console.error("Error unlocking titles:", error);
+                logger.error("Error unlocking titles:", error);
                 throw error;
             }
         }
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ unlockedCount: newUnlocks.length, newTitles: newUnlocks.map(u => u.title_id) });
 
     } catch (error) {
-        console.error("API Error:", error);
+        logger.error("API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

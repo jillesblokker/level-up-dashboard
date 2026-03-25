@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import { ArrowLeft, Save, User, Shield, Play, Palette } from "lucide-react"
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager"
@@ -81,7 +83,7 @@ export default function SettingsPage() {
         }
       })
     } catch (error) {
-      console.error("Error loading user data:", error)
+      logger.error("Error loading user data:", error)
     }
   }, [])
 
@@ -111,7 +113,7 @@ export default function SettingsPage() {
         description: TEXT_CONTENT.settings.toasts.profileUpdated.desc,
       })
     } catch (error) {
-      console.error("Error saving profile:", error)
+      logger.error("Error saving profile:", error)
       toast({
         title: TEXT_CONTENT.settings.toasts.saveError.title,
         description: TEXT_CONTENT.settings.toasts.saveError.desc,

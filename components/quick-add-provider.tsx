@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 import { ResponsiveModal } from './ui/responsive-modal'
 import { AddQuestForm } from './add-quest-form'
@@ -16,12 +18,12 @@ export function QuickAddProvider({ children }: { children: ReactNode }) {
     const [initialData, setInitialData] = useState<any>(undefined)
 
     const openQuickAdd = (data?: any) => {
-        console.log('[QuickAddProvider] Opening modal', data ? 'with data' : '')
+        logger.debug('[QuickAddProvider] Opening modal', data ? 'with data' : '')
         setInitialData(data)
         setIsOpen(true)
     }
     const closeQuickAdd = () => {
-        console.log('[QuickAddProvider] Closing modal')
+        logger.debug('[QuickAddProvider] Closing modal')
         setIsOpen(false)
         setInitialData(undefined) // Reset data on close
     }

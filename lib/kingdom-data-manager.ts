@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Kingdom Data Manager - Handles kingdom-specific data migration from localStorage to Supabase
 
 export interface KingdomData {
@@ -48,14 +49,14 @@ export async function saveKingdomData(key: string, value: any): Promise<boolean>
     });
 
     if (response.ok) {
-      console.log(`[Kingdom Data Manager] ✅ Saved kingdom data: ${key} to ${endpoint}`);
+      logger.debug(`[Kingdom Data Manager] ✅ Saved kingdom data: ${key} to ${endpoint}`);
       return true;
     } else {
-      console.error(`[Kingdom Data Manager] ❌ Failed to save kingdom data: ${key} to ${endpoint}`, response.status, response.statusText);
+      logger.error(`[Kingdom Data Manager] ❌ Failed to save kingdom data: ${key} to ${endpoint}`, response.status, response.statusText);
       return false;
     }
   } catch (error) {
-    console.error(`[Kingdom Data Manager] Error saving kingdom data ${key}:`, error);
+    logger.error(`[Kingdom Data Manager] Error saving kingdom data ${key}:`, error);
     return false;
   }
 }
@@ -110,15 +111,15 @@ export async function getKingdomData(key: string): Promise<any | null> {
       }
       
       if (value !== null) {
-        console.log(`[Kingdom Data Manager] ✅ Retrieved kingdom data: ${key} from ${endpoint}`);
+        logger.debug(`[Kingdom Data Manager] ✅ Retrieved kingdom data: ${key} from ${endpoint}`);
         return value;
       }
     }
     
-    console.log(`[Kingdom Data Manager] ℹ️ No kingdom data found for: ${key} from ${endpoint}`);
+    logger.debug(`[Kingdom Data Manager] ℹ️ No kingdom data found for: ${key} from ${endpoint}`);
     return null;
   } catch (error) {
-    console.error(`[Kingdom Data Manager] Error retrieving kingdom data ${key}:`, error);
+    logger.error(`[Kingdom Data Manager] Error retrieving kingdom data ${key}:`, error);
     return null;
   }
 }
@@ -126,10 +127,10 @@ export async function getKingdomData(key: string): Promise<any | null> {
 // Migrate kingdom data from localStorage to Supabase
 export async function migrateKingdomDataToSupabase(): Promise<boolean> {
   try {
-    console.log('[Kingdom Data Manager] 🚀 Starting kingdom data migration...');
+    logger.debug('[Kingdom Data Manager] 🚀 Starting kingdom data migration...');
     
     if (typeof window === 'undefined') {
-      console.log('[Kingdom Data Manager] Skipping migration - not in browser');
+      logger.debug('[Kingdom Data Manager] Skipping migration - not in browser');
       return true;
     }
 
@@ -137,7 +138,7 @@ export async function migrateKingdomDataToSupabase(): Promise<boolean> {
     const migrationDone = localStorage.getItem(migrationKey);
     
     if (migrationDone) {
-      console.log('[Kingdom Data Manager] Migration already completed');
+      logger.debug('[Kingdom Data Manager] Migration already completed');
       return true;
     }
 
@@ -180,7 +181,7 @@ export async function migrateKingdomDataToSupabase(): Promise<boolean> {
     }
 
     if (!hasData) {
-      console.log('[Kingdom Data Manager] No kingdom data to migrate');
+      logger.debug('[Kingdom Data Manager] No kingdom data to migrate');
       localStorage.setItem(migrationKey, 'true');
       return true;
     }
@@ -213,7 +214,7 @@ export async function migrateKingdomDataToSupabase(): Promise<boolean> {
     const allSuccessful = results.every(result => result);
 
     if (allSuccessful) {
-      console.log('[Kingdom Data Manager] ✅ Kingdom data migration completed successfully');
+      logger.debug('[Kingdom Data Manager] ✅ Kingdom data migration completed successfully');
       localStorage.setItem(migrationKey, 'true');
       
       // Clean up localStorage after successful migration
@@ -226,17 +227,17 @@ export async function migrateKingdomDataToSupabase(): Promise<boolean> {
         try {
           localStorage.removeItem(key);
         } catch (error) {
-          console.warn(`[Kingdom Data Manager] Could not remove localStorage key: ${key}`, error);
+          logger.warn(`[Kingdom Data Manager] Could not remove localStorage key: ${key}`, error);
         }
       });
       
       return true;
     } else {
-      console.error('[Kingdom Data Manager] ❌ Some kingdom data failed to migrate');
+      logger.error('[Kingdom Data Manager] ❌ Some kingdom data failed to migrate');
       return false;
     }
   } catch (error) {
-    console.error('[Kingdom Data Manager] ❌ Kingdom data migration failed:', error);
+    logger.error('[Kingdom Data Manager] ❌ Kingdom data migration failed:', error);
     return false;
   }
 }
@@ -244,7 +245,7 @@ export async function migrateKingdomDataToSupabase(): Promise<boolean> {
 // Sync kingdom data to localStorage as backup
 export async function syncKingdomDataToLocalStorage(): Promise<void> {
   try {
-    console.log('[Kingdom Data Manager] 🔄 Syncing kingdom data to localStorage...');
+    logger.debug('[Kingdom Data Manager] 🔄 Syncing kingdom data to localStorage...');
     
     const kingdomKeys = [
       'kingdom-tile-timers', 'kingdom-grid', 'kingdom-tile-items', 
@@ -258,12 +259,12 @@ export async function syncKingdomDataToLocalStorage(): Promise<void> {
           localStorage.setItem(key, JSON.stringify(value));
         }
       } catch (error) {
-        console.warn(`[Kingdom Data Manager] Could not sync key to localStorage: ${key}`, error);
+        logger.warn(`[Kingdom Data Manager] Could not sync key to localStorage: ${key}`, error);
       }
     }
     
-    console.log('[Kingdom Data Manager] ✅ Kingdom data synced to localStorage');
+    logger.debug('[Kingdom Data Manager] ✅ Kingdom data synced to localStorage');
   } catch (error) {
-    console.error('[Kingdom Data Manager] Error syncing kingdom data to localStorage:', error);
+    logger.error('[Kingdom Data Manager] Error syncing kingdom data to localStorage:', error);
   }
 }

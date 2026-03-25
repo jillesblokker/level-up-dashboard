@@ -14,6 +14,7 @@ import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
 import { TEXT_CONTENT } from '@/lib/text-content'
 
 import LoadingAchievements from './loading'
+import { logger } from '@/lib/logger'
 
 interface AchievementDefinition {
   id: string;
@@ -64,7 +65,7 @@ export default function Page() {
           const missingAlliance = allianceIds.some(id => !data.find(a => a.id === id));
 
           if (missingAlliance) {
-            console.log('Missing alliance achievements in DB, merging fallback definitions');
+            logger.debug('Missing alliance achievements in DB, merging fallback definitions');
             // Hardcoded alliance achievements to merge
             const allianceAchievements: AchievementDefinition[] = [
               {
@@ -75,7 +76,7 @@ export default function Page() {
                 difficulty: 'easy',
                 xp_reward: 50,
                 gold_reward: 10,
-                image_url: '/images/achievements/107.png',
+                image_url: '/images/achievements/107.webp',
                 is_hidden: false,
                 unlock_condition: 'Add your first friend'
               },
@@ -87,7 +88,7 @@ export default function Page() {
                 difficulty: 'medium',
                 xp_reward: 100,
                 gold_reward: 50,
-                image_url: '/images/achievements/108.png',
+                image_url: '/images/achievements/108.webp',
                 is_hidden: false,
                 unlock_condition: 'Add 5 friends'
               },
@@ -99,7 +100,7 @@ export default function Page() {
                 difficulty: 'hard',
                 xp_reward: 200,
                 gold_reward: 100,
-                image_url: '/images/achievements/109.png',
+                image_url: '/images/achievements/109.webp',
                 is_hidden: false,
                 unlock_condition: 'Add 10 friends'
               },
@@ -111,7 +112,7 @@ export default function Page() {
                 difficulty: 'easy',
                 xp_reward: 50,
                 gold_reward: 10,
-                image_url: '/images/achievements/110.png',
+                image_url: '/images/achievements/110.webp',
                 is_hidden: false,
                 unlock_condition: 'Send your first quest to a friend'
               },
@@ -123,7 +124,7 @@ export default function Page() {
                 difficulty: 'hard',
                 xp_reward: 150,
                 gold_reward: 75,
-                image_url: '/images/achievements/111.png',
+                image_url: '/images/achievements/111.webp',
                 is_hidden: false,
                 unlock_condition: 'Send 5 quests to friends'
               },
@@ -135,7 +136,7 @@ export default function Page() {
                 difficulty: 'hard',
                 xp_reward: 500,
                 gold_reward: 100,
-                image_url: '/images/achievements/112.png',
+                image_url: '/images/achievements/112.webp',
                 is_hidden: false,
                 unlock_condition: 'Send 10 quests to friends'
               }
@@ -153,7 +154,7 @@ export default function Page() {
           // Fetched achievement definitions
           setAchievementDefinitions(uniqueData);
         } else {
-          console.error('Failed to fetch achievement definitions:', response.status);
+          logger.error('Failed to fetch achievement definitions:', response.status);
           // Fallback to hardcoded definitions if API fails
           const fallbackDefinitions: AchievementDefinition[] = [
             // New monster achievements (201-206)
@@ -165,7 +166,7 @@ export default function Page() {
               difficulty: 'hard',
               xp_reward: 100,
               gold_reward: 100,
-              image_url: '/images/achievements/201.png',
+              image_url: '/images/achievements/201.webp',
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Dragon'
             },
@@ -177,7 +178,7 @@ export default function Page() {
               difficulty: 'easy',
               xp_reward: 100,
               gold_reward: 100,
-              image_url: '/images/achievements/202.png',
+              image_url: '/images/achievements/202.webp',
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Goblin'
             },
@@ -189,7 +190,7 @@ export default function Page() {
               difficulty: 'medium',
               xp_reward: 100,
               gold_reward: 100,
-              image_url: '/images/achievements/203.png',
+              image_url: '/images/achievements/203.webp',
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Troll'
             },
@@ -201,7 +202,7 @@ export default function Page() {
               difficulty: 'hard',
               xp_reward: 100,
               gold_reward: 100,
-              image_url: '/images/achievements/204.png',
+              image_url: '/images/achievements/204.webp',
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Wizard'
             },
@@ -213,7 +214,7 @@ export default function Page() {
               difficulty: 'medium',
               xp_reward: 100,
               gold_reward: 100,
-              image_url: '/images/achievements/205.png',
+              image_url: '/images/achievements/205.webp',
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Pegasus'
             },
@@ -225,7 +226,7 @@ export default function Page() {
               difficulty: 'easy',
               xp_reward: 100,
               gold_reward: 100,
-              image_url: '/images/achievements/206.png',
+              image_url: '/images/achievements/206.webp',
               is_hidden: false,
               unlock_condition: 'Complete Simon Says battle against Fairy'
             },
@@ -238,7 +239,7 @@ export default function Page() {
               difficulty: 'easy',
               xp_reward: 50,
               gold_reward: 10,
-              image_url: '/images/achievements/107.png',
+              image_url: '/images/achievements/107.webp',
               is_hidden: false,
               unlock_condition: 'Add your first friend'
             },
@@ -250,7 +251,7 @@ export default function Page() {
               difficulty: 'medium',
               xp_reward: 100,
               gold_reward: 50,
-              image_url: '/images/achievements/108.png',
+              image_url: '/images/achievements/108.webp',
               is_hidden: false,
               unlock_condition: 'Add 5 friends'
             },
@@ -262,7 +263,7 @@ export default function Page() {
               difficulty: 'hard',
               xp_reward: 200,
               gold_reward: 100,
-              image_url: '/images/achievements/109.png',
+              image_url: '/images/achievements/109.webp',
               is_hidden: false,
               unlock_condition: 'Add 10 friends'
             },
@@ -274,7 +275,7 @@ export default function Page() {
               difficulty: 'easy',
               xp_reward: 50,
               gold_reward: 10,
-              image_url: '/images/achievements/110.png',
+              image_url: '/images/achievements/110.webp',
               is_hidden: false,
               unlock_condition: 'Send your first quest to a friend'
             },
@@ -286,7 +287,7 @@ export default function Page() {
               difficulty: 'hard',
               xp_reward: 150,
               gold_reward: 75,
-              image_url: '/images/achievements/111.png',
+              image_url: '/images/achievements/111.webp',
               is_hidden: false,
               unlock_condition: 'Send 5 quests to friends'
             },
@@ -298,7 +299,7 @@ export default function Page() {
               difficulty: 'hard',
               xp_reward: 500,
               gold_reward: 100,
-              image_url: '/images/achievements/112.png',
+              image_url: '/images/achievements/112.webp',
               is_hidden: false,
               unlock_condition: 'Send 10 quests to friends'
             },
@@ -306,7 +307,7 @@ export default function Page() {
           setAchievementDefinitions(fallbackDefinitions);
         }
       } catch (error) {
-        console.error('Error fetching achievement definitions:', error);
+        logger.error('Error fetching achievement definitions:', error);
         // Use fallback definitions on error too
         const fallbackDefinitions: AchievementDefinition[] = [
           // New monster achievements (201-206)
@@ -318,7 +319,7 @@ export default function Page() {
             difficulty: 'hard',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/201.png',
+            image_url: '/images/achievements/201.webp',
             is_hidden: false,
             unlock_condition: 'Complete Simon Says battle against Dragon'
           },
@@ -330,7 +331,7 @@ export default function Page() {
             difficulty: 'easy',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/202.png',
+            image_url: '/images/achievements/202.webp',
             is_hidden: false,
             unlock_condition: 'Complete Simon Says battle against Goblin'
           },
@@ -342,7 +343,7 @@ export default function Page() {
             difficulty: 'medium',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/203.png',
+            image_url: '/images/achievements/203.webp',
             is_hidden: false,
             unlock_condition: 'Complete Simon Says battle against Troll'
           },
@@ -354,7 +355,7 @@ export default function Page() {
             difficulty: 'hard',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/204.png',
+            image_url: '/images/achievements/204.webp',
             is_hidden: false,
             unlock_condition: 'Complete Simon Says battle against Wizard'
           },
@@ -366,7 +367,7 @@ export default function Page() {
             difficulty: 'medium',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/205.png',
+            image_url: '/images/achievements/205.webp',
             is_hidden: false,
             unlock_condition: 'Complete Simon Says battle against Pegasus'
           },
@@ -378,7 +379,7 @@ export default function Page() {
             difficulty: 'easy',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/206.png',
+            image_url: '/images/achievements/206.webp',
             is_hidden: false,
             unlock_condition: 'Complete Simon Says battle against Fairy'
           },
@@ -391,7 +392,7 @@ export default function Page() {
             difficulty: 'easy',
             xp_reward: 100,
             gold_reward: 50,
-            image_url: '/images/achievements/301.png',
+            image_url: '/images/achievements/301.webp',
             is_hidden: false,
             unlock_condition: 'Complete 10 quests'
           },
@@ -403,7 +404,7 @@ export default function Page() {
             difficulty: 'medium',
             xp_reward: 250,
             gold_reward: 125,
-            image_url: '/images/achievements/302.png',
+            image_url: '/images/achievements/302.webp',
             is_hidden: false,
             unlock_condition: 'Complete 25 quests'
           },
@@ -415,7 +416,7 @@ export default function Page() {
             difficulty: 'hard',
             xp_reward: 500,
             gold_reward: 250,
-            image_url: '/images/achievements/303.png',
+            image_url: '/images/achievements/303.webp',
             is_hidden: false,
             unlock_condition: 'Complete 50 quests'
           },
@@ -427,7 +428,7 @@ export default function Page() {
             difficulty: 'easy',
             xp_reward: 150,
             gold_reward: 75,
-            image_url: '/images/achievements/304.png',
+            image_url: '/images/achievements/304.webp',
             is_hidden: false,
             unlock_condition: 'Reach level 5'
           },
@@ -439,7 +440,7 @@ export default function Page() {
             difficulty: 'medium',
             xp_reward: 300,
             gold_reward: 150,
-            image_url: '/images/achievements/305.png',
+            image_url: '/images/achievements/305.webp',
             is_hidden: false,
             unlock_condition: 'Reach level 10'
           },
@@ -451,7 +452,7 @@ export default function Page() {
             difficulty: 'hard',
             xp_reward: 750,
             gold_reward: 400,
-            image_url: '/images/achievements/306.png',
+            image_url: '/images/achievements/306.webp',
             is_hidden: false,
             unlock_condition: 'Reach level 25'
           },
@@ -463,7 +464,7 @@ export default function Page() {
             difficulty: 'easy',
             xp_reward: 100,
             gold_reward: 50,
-            image_url: '/images/achievements/307.png',
+            image_url: '/images/achievements/307.webp',
             is_hidden: false,
             unlock_condition: 'Complete 5 challenges'
           },
@@ -475,7 +476,7 @@ export default function Page() {
             difficulty: 'medium',
             xp_reward: 250,
             gold_reward: 125,
-            image_url: '/images/achievements/308.png',
+            image_url: '/images/achievements/308.webp',
             is_hidden: false,
             unlock_condition: 'Complete 15 challenges'
           },
@@ -487,7 +488,7 @@ export default function Page() {
             difficulty: 'hard',
             xp_reward: 500,
             gold_reward: 250,
-            image_url: '/images/achievements/309.png',
+            image_url: '/images/achievements/309.webp',
             is_hidden: false,
             unlock_condition: 'Complete 30 challenges'
           },
@@ -499,7 +500,7 @@ export default function Page() {
             difficulty: 'easy',
             xp_reward: 100,
             gold_reward: 100,
-            image_url: '/images/achievements/310.png',
+            image_url: '/images/achievements/310.webp',
             is_hidden: false,
             unlock_condition: 'Accumulate 1000 gold'
           },
@@ -511,7 +512,7 @@ export default function Page() {
             difficulty: 'medium',
             xp_reward: 250,
             gold_reward: 250,
-            image_url: '/images/achievements/311.png',
+            image_url: '/images/achievements/311.webp',
             is_hidden: false,
             unlock_condition: 'Accumulate 5000 gold'
           },
@@ -523,7 +524,7 @@ export default function Page() {
             difficulty: 'hard',
             xp_reward: 500,
             gold_reward: 500,
-            image_url: '/images/achievements/312.png',
+            image_url: '/images/achievements/312.webp',
             is_hidden: false,
             unlock_condition: 'Accumulate 10000 gold'
           }
@@ -546,38 +547,27 @@ export default function Page() {
       setIsLoading(true);
       setError(null);
 
-      // First, run catch-up to unlock any achievements based on current state
-      try {
-        console.log('[Achievements Page] Running catch-up...');
-        const catchUpResponse = await fetch('/api/achievements/catch-up', { method: 'POST' });
-        if (catchUpResponse.ok) {
-          const catchUpResult = await catchUpResponse.json();
-          console.log('[Achievements Page] Catch-up result:', catchUpResult);
-        } else {
-          console.warn('[Achievements Page] Catch-up failed:', catchUpResponse.status);
-        }
-      } catch (catchUpError) {
-        console.error('[Achievements Page] Catch-up error:', catchUpError);
+      // Run catch-up and fetch achievements IN PARALLEL — halves load time
+      const [catchUpResponse, achievementsResponse] = await Promise.all([
+        fetch('/api/achievements/catch-up', { method: 'POST' }).catch(() => null),
+        fetch(`/api/achievements?userId=${userId}`),
+      ]);
+
+      if (catchUpResponse && !catchUpResponse.ok) {
+        logger.warn('[Achievements Page] Catch-up failed:', catchUpResponse.status);
       }
 
-      // Then fetch all achievements (including newly unlocked ones)
       try {
-        const response = await fetch(`/api/achievements?userId=${userId}`);
-        if (response.ok) {
-          const data: DbAchievement[] = await response.json();
-          // Map by both achievementId and achievement_id for compatibility
+        if (achievementsResponse.ok) {
+          const data: DbAchievement[] = await achievementsResponse.json();
           const achievementMap = new Map<string, DbAchievement>();
           data.filter(Boolean).forEach(ach => {
             if (ach.achievementId) achievementMap.set(ach.achievementId, ach);
             if (ach.achievement_id) achievementMap.set(ach.achievement_id, ach);
           });
-
-          // Fetched achievements
-          console.log("Unlocked Achievement IDs:", Array.from(achievementMap.keys()));
-
           setUnlockedAchievements(achievementMap);
         } else {
-          setError(TEXT_CONTENT.achievements.ui.error.replace('{status}', String(response.status)));
+          setError(TEXT_CONTENT.achievements.ui.error.replace('{status}', String(achievementsResponse.status)));
           setUnlockedAchievements(new Map());
         }
       } catch (error) {
@@ -658,7 +648,7 @@ export default function Page() {
       <SignedIn>
         <HeaderSection
           title={TEXT_CONTENT.achievements.header.title}
-          imageSrc="/images/achievements-header.jpg"
+          imageSrc="/images/achievements-header.webp"
           canEdit={true}
           shouldRevealImage={true}
           guideComponent={
@@ -740,7 +730,7 @@ export default function Page() {
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
-                              src={unlocked ? creature.image : '/images/undiscovered.png'}
+                              src={unlocked ? creature.image : '/images/undiscovered.webp'}
                               alt={creature.name}
                               fill
                               className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
@@ -864,7 +854,7 @@ export default function Page() {
                           <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
-                                src={unlocked ? achievement.image_url : '/images/undiscovered.png'}
+                                src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                                 alt={achievement.name}
                                 fill
                                 className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
@@ -989,7 +979,7 @@ export default function Page() {
                           <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
-                                src={unlocked ? achievement.image_url : '/images/undiscovered.png'}
+                                src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                                 alt={monsterName}
                                 fill
                                 className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
@@ -1097,7 +1087,7 @@ export default function Page() {
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
-                              src={unlocked ? achievement.image_url : '/images/undiscovered.png'}
+                              src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                               alt={achievement.name}
                               fill
                               className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}

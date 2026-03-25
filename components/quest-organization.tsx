@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -647,7 +649,7 @@ export function QuestOrganization({
                             useCustomToggle={context === 'challenges' || context === 'milestones'}
                             category={quest.category}
                             onToggle={(questId, completed) => {
-                              console.log('[QuestOrganization] Toggle called:', { questId, completed, context });
+                              logger.debug('[QuestOrganization] Toggle called:', { questId, completed, context });
                               onQuestToggle(questId, completed);
                             }}
                             variant="checkbox"

@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -27,15 +30,15 @@ export function MigrationTest() {
     try {
       // Collect localStorage data
       const localStorageData = collectLocalStorageData();
-      console.log('LocalStorage data collected:', localStorageData);
+      logger.debug('LocalStorage data collected:', localStorageData);
 
       // Test migration
       const migrationResult = await migrateLocalStorageToSupabase(user.id);
-      console.log('Migration result:', migrationResult);
+      logger.debug('Migration result:', migrationResult);
 
       setResult(migrationResult);
     } catch (err) {
-      console.error('Migration test error:', err);
+      logger.error('Migration test error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setIsLoading(false);
@@ -66,7 +69,7 @@ export function MigrationTest() {
         inventory: inventory ? 'Loaded' : 'Not found'
       });
     } catch (err) {
-      console.error('Data loader test error:', err);
+      logger.error('Data loader test error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setIsLoading(false);

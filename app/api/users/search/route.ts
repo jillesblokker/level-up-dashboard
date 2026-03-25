@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ users: safeUsers });
     } catch (error) {
-        console.error('Error searching users:', error);
+        logger.error('Error searching users:', error);
         return NextResponse.json({ error: 'Failed to search users' }, { status: 500 });
     }
 }

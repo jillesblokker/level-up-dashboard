@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
@@ -84,7 +85,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[Comeback Challenges] Error:', err);
+    logger.error('[Comeback Challenges] Error:', err);
     return NextResponse.json({ 
       error: err.message || 'Unknown error' 
     }, { status: 500 });
@@ -160,7 +161,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (err: any) {
-    console.error('[Comeback Challenges POST] Error:', err);
+    logger.error('[Comeback Challenges POST] Error:', err);
     return NextResponse.json({ 
       error: err.message || 'Unknown error' 
     }, { status: 500 });

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 declare global {
   interface Window {
     workbox: any;
@@ -10,10 +11,10 @@ export function registerServiceWorker() {
     navigator.serviceWorker
       .register('/service-worker.js')
       .then((registration) => {
-        console.log('Service Worker registered with scope:', registration.scope);
+        logger.debug('Service Worker registered with scope:', registration.scope);
       })
       .catch((err) => {
-        console.error('Service Worker registration failed:', err);
+        logger.error('Service Worker registration failed:', err);
       });
   }
 }

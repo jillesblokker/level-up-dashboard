@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useCallback } from "react"
 import {
   LineChart,
@@ -41,7 +43,7 @@ export function WeeklyProgressChart() {
       const token = await getToken({ template: 'supabase' });
 
       if (!token) {
-        console.warn('[WeeklyProgressChart] No auth token available');
+        logger.warn('[WeeklyProgressChart] No auth token available');
         setData([]);
         setIsLoading(false);
         return;
@@ -56,7 +58,7 @@ export function WeeklyProgressChart() {
       });
 
       if (!response.ok) {
-        console.error('Failed to fetch quest completions:', response.status);
+        logger.error('Failed to fetch quest completions:', response.status);
         setData([]);
         return;
       }
@@ -98,7 +100,7 @@ export function WeeklyProgressChart() {
 
       setData(weekData);
     } catch (error) {
-      console.error('Error fetching progress data:', error);
+      logger.error('Error fetching progress data:', error);
       setData([]);
     } finally {
       setIsLoading(false);
@@ -169,7 +171,7 @@ export function WeeklyProgressChart() {
         ) : isEmpty ? (
           <>
             <Image
-              src="/images/quests-header.jpg"
+              src="/images/quests-header.webp"
               alt="No data yet"
               fill
               className="object-cover rounded-lg z-0"

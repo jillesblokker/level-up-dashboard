@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Centralized error handling utility
 // Provides consistent error handling patterns across the application
 
@@ -118,7 +119,7 @@ export class ErrorHandler {
       this.errorLog = this.errorLog.slice(-this.maxLogSize);
     }
 
-    console.error('[ErrorHandler]', {
+    logger.error('[ErrorHandler]', {
       message: error.message,
       code: error.code,
       status: error.status,

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -82,7 +83,7 @@ export function QuestToggleButton({
       trigger(HapticPatterns.soft);
     }
 
-    console.log('[QuestToggleButton] Debug:', {
+    logger.debug('[QuestToggleButton] Debug:', {
       questId,
       questName,
       useCustomToggle,
@@ -91,7 +92,7 @@ export function QuestToggleButton({
 
     if (useCustomToggle) {
       // Use the custom toggle function (for challenges, milestones, etc.)
-      console.log('[QuestToggleButton] Using custom toggle for:', questName);
+      logger.debug('[QuestToggleButton] Using custom toggle for:', questName);
       onToggle(questId, !completed);
     } else {
       // Use the quest completion system (for regular quests)
@@ -105,14 +106,14 @@ export function QuestToggleButton({
         },
         (error) => {
           // Error callback - parent can handle if needed
-          console.error('[Quest Toggle Button] Error:', error);
+          logger.error('[Quest Toggle Button] Error:', error);
         }
       );
 
       // If the API call failed, don't update the parent state
       // The optimistic update will be reverted by the hook
       if (!result.success) {
-        console.error('[Quest Toggle Button] Failed to toggle quest:', result.error);
+        logger.error('[Quest Toggle Button] Failed to toggle quest:', result.error);
       }
     }
   };

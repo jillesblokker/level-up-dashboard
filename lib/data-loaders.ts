@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { loadDataWithFallback, saveDataWithRedundancy } from '@/lib/migration-utils';
 
 // Helper function to get auth token with retry logic
@@ -13,7 +14,7 @@ async function getAuthToken(): Promise<string | null> {
       // Try to access Clerk from window
       const clerk = (window as any).__clerk;
       if (!clerk) {
-        console.log(`[Data Loaders] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
+        logger.debug(`[Data Loaders] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -21,7 +22,7 @@ async function getAuthToken(): Promise<string | null> {
 
       const session = clerk.session;
       if (!session) {
-        console.log(`[Data Loaders] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
+        logger.debug(`[Data Loaders] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -29,22 +30,22 @@ async function getAuthToken(): Promise<string | null> {
 
       // Try to get token with supabase template
       const token = await session.getToken({ template: 'supabase' });
-      console.log('[Data Loaders] Got Clerk token:', token ? 'present' : 'null');
+      logger.debug('[Data Loaders] Got Clerk token:', token ? 'present' : 'null');
       return token;
     } catch (error) {
-      console.error(`[Data Loaders] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      logger.error(`[Data Loaders] Error getting Clerk token (attempt ${attempts + 1}):`, error);
       await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
   }
   
-  console.error('[Data Loaders] Failed to get Clerk token after all attempts');
+  logger.error('[Data Loaders] Failed to get Clerk token after all attempts');
   return null;
 }
 
 // Helper function to make authenticated API calls
 async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
-  console.log('[Data Loaders] Making API call to:', `/api/data${endpoint}`);
+  logger.debug('[Data Loaders] Making API call to:', `/api/data${endpoint}`);
   const token = await getAuthToken();
   
   const response = await fetch(`/api/data${endpoint}`, {
@@ -56,7 +57,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any
     },
   });
 
-  console.log('[Data Loaders] API response status:', response.status);
+  logger.debug('[Data Loaders] API response status:', response.status);
   if (!response.ok) {
     throw new Error(`API call failed: ${response.status}`);
   }
@@ -69,15 +70,15 @@ async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any
 // =====================================================
 
 export async function loadGridData(userId: string): Promise<any> {
-  console.log('[Data Loaders] loadGridData called for userId:', userId);
+  logger.debug('[Data Loaders] loadGridData called for userId:', userId);
   return loadDataWithFallback(
     async () => {
       try {
         const result = await apiCall(`?type=grid&userId=${userId}`);
-        console.log('[Data Loaders] loadGridData result:', result);
+        logger.debug('[Data Loaders] loadGridData result:', result);
         return { data: result.data, error: null };
       } catch (error) {
-        console.error('[Data Loaders] loadGridData error:', error);
+        logger.error('[Data Loaders] loadGridData error:', error);
         return { data: null, error };
       }
     },

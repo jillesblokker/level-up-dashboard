@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -89,7 +90,7 @@ export async function PUT(
         return NextResponse.json({ success: true });
 
     } catch (error) {
-        console.error('Error claiming gift:', error);
+        logger.error('Error claiming gift:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

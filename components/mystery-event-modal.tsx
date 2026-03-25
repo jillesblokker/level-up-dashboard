@@ -41,7 +41,7 @@ export function MysteryEventModal({
                     border: 'border-amber-500/30',
                     button: 'bg-amber-600 hover:bg-amber-500',
                     icon: Coins,
-                    image: '/images/riddle-sphinx.png' // Sphinx for ruins/treasure mystery
+                    image: '/images/riddle-sphinx.webp' // Sphinx for ruins/treasure mystery
                 }
             case 'riddle':
                 return {
@@ -50,7 +50,7 @@ export function MysteryEventModal({
                     border: 'border-purple-500/30',
                     button: 'bg-purple-600 hover:bg-purple-500',
                     icon: Brain,
-                    image: '/images/riddle-sage.png'
+                    image: '/images/riddle-sage.webp'
                 }
             case 'blessing':
                 return {
@@ -59,7 +59,7 @@ export function MysteryEventModal({
                     border: 'border-teal-500/30',
                     button: 'bg-teal-600 hover:bg-teal-500',
                     icon: Sparkles,
-                    image: '/images/tiles/temple-tile.png'
+                    image: '/images/tiles/temple-tile.webp'
                 }
             case 'curse':
                 return {
@@ -68,7 +68,7 @@ export function MysteryEventModal({
                     border: 'border-red-500/30',
                     button: 'bg-red-600 hover:bg-red-500',
                     icon: Skull,
-                    image: '/images/tiles/volcano-tile.png'
+                    image: '/images/tiles/volcano-tile.webp'
                 }
             case 'quest':
                 return {
@@ -77,7 +77,7 @@ export function MysteryEventModal({
                     border: 'border-blue-500/30',
                     button: 'bg-blue-600 hover:bg-blue-500',
                     icon: Scroll,
-                    image: '/images/tiles/mystery-tile.png'
+                    image: '/images/tiles/mystery-tile.webp'
                 }
             default:
                 return {
@@ -86,7 +86,7 @@ export function MysteryEventModal({
                     border: 'border-zinc-500/30',
                     button: 'bg-zinc-600 hover:bg-zinc-500',
                     icon: Heart,
-                    image: '/images/tiles/mystery-tile.png'
+                    image: '/images/tiles/mystery-tile.webp'
                 }
         }
     }
@@ -95,7 +95,7 @@ export function MysteryEventModal({
     const Icon = style.icon
 
     // Try to use ruins icon specifically for ruins event
-    const displayImage = event.id.includes('ruins') ? '/images/tiles/ruins-tile.png' : style.image
+    const displayImage = event.id.includes('ruins') ? '/images/tiles/ruins-tile.webp' : style.image
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>

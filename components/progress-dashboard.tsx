@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -107,7 +109,7 @@ export function ProgressDashboard() {
 
       setProgressData(progress)
     } catch (error) {
-      console.error('Error fetching progress data:', error)
+      logger.error('Error fetching progress data:', error)
       toast({
         title: "Error",
         description: "Failed to load progress data",

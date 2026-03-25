@@ -67,7 +67,7 @@ export default function HintsPage() {
                 <TableCell>
                   <div className="relative w-16 h-16">
                     <Image
-                      src={`/images/creatures/${creature.id}.png`}
+                      src={`/images/creatures/${creature.id}.webp`}
                       alt={creature.name}
                       fill
                       className="object-contain"

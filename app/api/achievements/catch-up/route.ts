@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        console.log(`[ACHIEVEMENTS][CATCH-UP] Starting catch-up check for user: ${userId}`);
+        logger.debug(`[ACHIEVEMENTS][CATCH-UP] Starting catch-up check for user: ${userId}`);
 
         const unlockedAchievements: string[] = [];
         const errors: string[] = [];
@@ -53,12 +54,12 @@ export async function POST(request: Request) {
                     });
 
                     if (insertError) {
-                        console.error(`[ACHIEVEMENTS][CATCH-UP] Error inserting ${name}:`, insertError);
+                        logger.error(`[ACHIEVEMENTS][CATCH-UP] Error inserting ${name}:`, insertError);
                         errors.push(`Failed to insert ${name}: ${insertError.message}`);
                         return false;
                     }
 
-                    console.log(`[ACHIEVEMENTS][CATCH-UP] ✅ Unlocked: ${name} (${achievementId})`);
+                    logger.debug(`[ACHIEVEMENTS][CATCH-UP] ✅ Unlocked: ${name} (${achievementId})`);
                     unlockedAchievements.push(name);
 
                     // Also insert into alliance_achievements if it's a social achievement
@@ -98,20 +99,20 @@ export async function POST(request: Request) {
                                         updated_at: new Date().toISOString()
                                     })
                                     .eq('user_id', userId);
-                                console.log(`[ACHIEVEMENTS][CATCH-UP] ✅ Awarded ${goldReward} gold, ${xpReward} XP`);
+                                logger.debug(`[ACHIEVEMENTS][CATCH-UP] ✅ Awarded ${goldReward} gold, ${xpReward} XP`);
                             }
                         } catch (rewardErr) {
-                            console.error('[ACHIEVEMENTS][CATCH-UP] Error awarding rewards:', rewardErr);
+                            logger.error('[ACHIEVEMENTS][CATCH-UP] Error awarding rewards:', rewardErr);
                         }
                     }
 
                     return true;
                 } else {
-                    console.log(`[ACHIEVEMENTS][CATCH-UP] Already unlocked: ${name}`);
+                    logger.debug(`[ACHIEVEMENTS][CATCH-UP] Already unlocked: ${name}`);
                     return false;
                 }
             } catch (err) {
-                console.error(`[ACHIEVEMENTS][CATCH-UP] Error unlocking ${name}:`, err);
+                logger.error(`[ACHIEVEMENTS][CATCH-UP] Error unlocking ${name}:`, err);
                 errors.push(`Exception unlocking ${name}`);
                 return false;
             }
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
         // ============================================
         // 1. Check FRIEND achievements
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking friend count...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking friend count...');
 
         const { count: friendCount, error: friendError } = await supabaseServer
             .from('friends')
@@ -129,10 +130,10 @@ export async function POST(request: Request) {
             .eq('status', 'accepted');
 
         if (friendError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting friends:', friendError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error counting friends:', friendError);
             errors.push(`Friend count error: ${friendError.message}`);
         } else {
-            console.log(`[ACHIEVEMENTS][CATCH-UP] User has ${friendCount || 0} accepted friends`);
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] User has ${friendCount || 0} accepted friends`);
 
             if (friendCount && friendCount >= 1) {
                 await unlockAchievement('107', 'first_friend', 'First Alliance', 'Add your first ally to your fellowship', 50, 10);
@@ -148,7 +149,7 @@ export async function POST(request: Request) {
         // ============================================
         // 2. Check QUEST SENDING achievements
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking quests sent...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking quests sent...');
 
         const { count: sentQuestCount, error: questError } = await supabaseServer
             .from('quests')
@@ -157,10 +158,10 @@ export async function POST(request: Request) {
             .eq('is_friend_quest', true);
 
         if (questError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting quests:', questError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error counting quests:', questError);
             errors.push(`Quest count error: ${questError.message}`);
         } else {
-            console.log(`[ACHIEVEMENTS][CATCH-UP] User has sent ${sentQuestCount || 0} friend quests`);
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] User has sent ${sentQuestCount || 0} friend quests`);
 
             if (sentQuestCount && sentQuestCount >= 1) {
                 await unlockAchievement('110', 'first_quest_sent', 'Quest Giver', 'Send your first quest to a friend', 50, 10);
@@ -176,7 +177,7 @@ export async function POST(request: Request) {
         // ============================================
         // 3. Check TILE achievements based on realm_tiles table
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking tile counts...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking tile counts...');
 
         const { data: tileCounts, error: tileError } = await supabaseServer
             .from('realm_tiles')
@@ -184,7 +185,7 @@ export async function POST(request: Request) {
             .eq('user_id', userId);
 
         if (tileError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting tiles:', tileError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error counting tiles:', tileError);
             errors.push(`Tile count error: ${tileError.message}`);
         } else if (tileCounts) {
             // Count tiles by type
@@ -193,7 +194,7 @@ export async function POST(request: Request) {
                 tileTypeCounts[tile.tile_type] = (tileTypeCounts[tile.tile_type] || 0) + 1;
             });
 
-            console.log(`[ACHIEVEMENTS][CATCH-UP] Tile type counts:`, tileTypeCounts);
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] Tile type counts:`, tileTypeCounts);
 
             // Tile type mappings:
             // 1 = grass, 2 = forest, 3 = mountain, 4 = water, 5 = lava, 6 = snow/ice
@@ -221,7 +222,7 @@ export async function POST(request: Request) {
         // 4. Check MONSTER BATTLE achievements (201-206)
         // Based on defeated monsters in monster_spawns table
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking defeated monsters...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking defeated monsters...');
 
         const { data: defeatedMonsters, error: monsterError } = await supabaseServer
             .from('monster_spawns')
@@ -230,12 +231,12 @@ export async function POST(request: Request) {
             .eq('defeated', true);
 
         if (monsterError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error fetching monsters:', monsterError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error fetching monsters:', monsterError);
             errors.push(`Monster fetch error: ${monsterError.message}`);
         } else if (defeatedMonsters && defeatedMonsters.length > 0) {
             // Get unique monster types defeated
             const defeatedTypes = new Set(defeatedMonsters.map(m => m.monster_type?.toLowerCase()));
-            console.log(`[ACHIEVEMENTS][CATCH-UP] Defeated monster types:`, Array.from(defeatedTypes));
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] Defeated monster types:`, Array.from(defeatedTypes));
 
             // Monster type to achievement mapping
             const monsterAchievements: Record<string, { id: string; name: string; desc: string }> = {
@@ -265,7 +266,7 @@ export async function POST(request: Request) {
         // 5. Check QUEST COMPLETION achievements
         // Based on completed quests count
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking completed quests...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking completed quests...');
 
         const { count: completedQuestCount, error: questCompleteError } = await supabaseServer
             .from('quests')
@@ -274,10 +275,10 @@ export async function POST(request: Request) {
             .eq('completed', true);
 
         if (questCompleteError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting completed quests:', questCompleteError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error counting completed quests:', questCompleteError);
             errors.push(`Quest completion count error: ${questCompleteError.message}`);
         } else {
-            console.log(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedQuestCount || 0} quests`);
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedQuestCount || 0} quests`);
 
             // Quest Completion Achievements (301-303)
             if (completedQuestCount && completedQuestCount >= 10) {
@@ -294,7 +295,7 @@ export async function POST(request: Request) {
         // ============================================
         // 6. Check CHARACTER LEVEL achievements (304-306)
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking character level...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking character level...');
 
         const { data: characterStats, error: statsError } = await supabaseServer
             .from('character_stats')
@@ -303,12 +304,12 @@ export async function POST(request: Request) {
             .single();
 
         if (statsError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error fetching character stats:', statsError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error fetching character stats:', statsError);
             errors.push(`Character stats error: ${statsError.message}`);
         } else if (characterStats) {
             const level = characterStats.level || 1;
             const gold = characterStats.gold || 0;
-            console.log(`[ACHIEVEMENTS][CATCH-UP] User is level ${level} with ${gold} gold`);
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] User is level ${level} with ${gold} gold`);
 
             // Level Achievements (304-306)
             if (level >= 5) {
@@ -336,7 +337,7 @@ export async function POST(request: Request) {
         // ============================================
         // 7. Check CHALLENGE COMPLETION achievements (307-309)
         // ============================================
-        console.log('[ACHIEVEMENTS][CATCH-UP] Checking completed challenges...');
+        logger.debug('[ACHIEVEMENTS][CATCH-UP] Checking completed challenges...');
 
         const { count: completedChallengeCount, error: challengeError } = await supabaseServer
             .from('challenges')
@@ -345,10 +346,10 @@ export async function POST(request: Request) {
             .eq('completed', true);
 
         if (challengeError) {
-            console.error('[ACHIEVEMENTS][CATCH-UP] Error counting challenges:', challengeError);
+            logger.error('[ACHIEVEMENTS][CATCH-UP] Error counting challenges:', challengeError);
             errors.push(`Challenge count error: ${challengeError.message}`);
         } else {
-            console.log(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedChallengeCount || 0} challenges`);
+            logger.debug(`[ACHIEVEMENTS][CATCH-UP] User has completed ${completedChallengeCount || 0} challenges`);
 
             // Challenge Achievements (307-309)
             if (completedChallengeCount && completedChallengeCount >= 5) {
@@ -362,7 +363,7 @@ export async function POST(request: Request) {
             }
         }
 
-        console.log(`[ACHIEVEMENTS][CATCH-UP] Completed. Newly unlocked: ${unlockedAchievements.length}`);
+        logger.debug(`[ACHIEVEMENTS][CATCH-UP] Completed. Newly unlocked: ${unlockedAchievements.length}`);
 
         return NextResponse.json({
             success: true,
@@ -383,7 +384,7 @@ export async function POST(request: Request) {
         });
 
     } catch (error) {
-        console.error('[ACHIEVEMENTS][CATCH-UP] Error:', error);
+        logger.error('[ACHIEVEMENTS][CATCH-UP] Error:', error);
         return NextResponse.json({
             error: 'Internal server error',
             message: error instanceof Error ? error.message : 'Unknown error',

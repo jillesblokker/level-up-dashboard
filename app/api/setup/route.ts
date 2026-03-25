@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -52,7 +53,7 @@ export async function POST() {
 
         // If RPC doesn't work, try using the SQL editor approach
         if (prefError || realmError) {
-            console.log('RPC failed, tables might already exist or need manual creation');
+            logger.debug('RPC failed, tables might already exist or need manual creation');
         }
 
         return NextResponse.json({
@@ -65,7 +66,7 @@ export async function POST() {
         });
 
     } catch (error) {
-        console.error('Setup error:', error);
+        logger.error('Setup error:', error);
         return NextResponse.json(
             {
                 error: 'Setup failed',

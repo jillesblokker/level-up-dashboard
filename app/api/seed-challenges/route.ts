@@ -1,9 +1,10 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '../../../lib/supabase/server-client';
 
 export async function GET(request: Request) {
   try {
-    console.log('[Seed Challenges] Starting database seeding...');
+    logger.debug('[Seed Challenges] Starting database seeding...');
 
     // Simple key protection for seeding
     const { searchParams } = new URL(request.url);
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
       .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
 
     if (deleteError && deleteError.code !== 'PGRST116') { // PGRST116 = no rows to delete
-      console.error('[Seed Challenges] Error clearing existing challenges:', deleteError);
+      logger.error('[Seed Challenges] Error clearing existing challenges:', deleteError);
     }
 
     // Define challenge data
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
       { name: 'Push-up (your choice of board color)', description: 'Choose board color to target chest/triceps/shoulders (3x12)', category: 'HIIT & Full Body', difficulty: 'medium', xp: 50, gold: 25 }
     ];
 
-    console.log('[Seed Challenges] Inserting', challenges.length, 'challenges...');
+    logger.debug('[Seed Challenges] Inserting', challenges.length, 'challenges...');
 
     // Insert challenges into database
     const { data, error } = await supabaseServer
@@ -74,11 +75,11 @@ export async function GET(request: Request) {
       .select();
 
     if (error) {
-      console.error('[Seed Challenges] Error inserting challenges:', error);
+      logger.error('[Seed Challenges] Error inserting challenges:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log('[Seed Challenges] Successfully seeded', data.length, 'challenges');
+    logger.debug('[Seed Challenges] Successfully seeded', data.length, 'challenges');
 
     return NextResponse.json({
       message: `Successfully seeded ${data.length} challenges`,
@@ -86,7 +87,7 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    console.error('[Seed Challenges] Unexpected error:', error);
+    logger.error('[Seed Challenges] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

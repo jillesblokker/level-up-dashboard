@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -100,14 +102,14 @@ export default function StoredDataPage() {
             })
           }
         } catch (e) {
-          console.error(`Error processing localStorage key: ${key}`, e)
+          logger.error(`Error processing localStorage key: ${key}`, e)
         }
       })
 
       setStorageItems(items)
       calculateStats(items)
     } catch (error) {
-      console.error('Error loading storage data:', error)
+      logger.error('Error loading storage data:', error)
       toast({
         title: "Error",
         description: "Failed to load storage data",

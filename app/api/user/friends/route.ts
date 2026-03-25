@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -29,8 +30,8 @@ export async function GET(req: NextRequest) {
 
             if ((error1 && error1.code !== '42P01') || (error2 && error2.code !== '42P01')) {
                 // Log real errors, ignore "table doesn't exist" (42P01)
-                if (error1 && error1.code !== '42P01') console.error("Error/Friends1:", error1);
-                if (error2 && error2.code !== '42P01') console.error("Error/Friends2:", error2);
+                if (error1 && error1.code !== '42P01') logger.error("Error/Friends1:", error1);
+                if (error2 && error2.code !== '42P01') logger.error("Error/Friends2:", error2);
             }
 
             const list1 = friends1 || [];

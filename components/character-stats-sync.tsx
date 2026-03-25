@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect } from 'react'
 import { fetchFreshCharacterStats } from '@/lib/character-stats-service'
 import { useAuth } from '@clerk/nextjs'
@@ -9,14 +11,14 @@ export function CharacterStatsSync() {
 
     useEffect(() => {
         if (isLoaded && isSignedIn) {
-            console.log('[CharacterStatsSync] Fetching fresh stats on mount...')
+            logger.debug('[CharacterStatsSync] Fetching fresh stats on mount...')
             fetchFreshCharacterStats()
                 .then(stats => {
                     if (stats) {
-                        console.log('[CharacterStatsSync] Stats synced successfully:', stats.level)
+                        logger.debug('[CharacterStatsSync] Stats synced successfully:', stats.level)
                     }
                 })
-                .catch(err => console.error('[CharacterStatsSync] Failed to sync stats:', err))
+                .catch(err => logger.error('[CharacterStatsSync] Failed to sync stats:', err))
         }
     }, [isLoaded, isSignedIn])
 

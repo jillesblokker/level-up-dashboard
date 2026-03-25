@@ -81,7 +81,7 @@ export default function StablesPage() {
                 strength: 9
               },
               price: "500 gold",
-              image: "/images/horses/warhorse.png"
+              image: "/images/horses/warhorse.webp"
             },
             {
               id: "traveler",
@@ -93,7 +93,7 @@ export default function StablesPage() {
                 strength: 6
               },
               price: "300 gold",
-              image: "/images/horses/traveler.png"
+              image: "/images/horses/traveler.webp"
             },
             {
               id: "royal",
@@ -105,7 +105,7 @@ export default function StablesPage() {
                 strength: 7
               },
               price: "800 gold",
-              image: "/images/horses/royal.png"
+              image: "/images/horses/royal.webp"
             }
           ].map((horse) => (
             <Card key={horse.id} className="overflow-hidden" aria-label={`${horse.name}-card`}>

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../lib/supabase/server-client';
@@ -19,7 +20,7 @@ export async function GET() {
     }
     return NextResponse.json({ grid: data?.grid ?? null });
   } catch (error) {
-    console.error('[REALM][GET] Internal server error:', error);
+    logger.error('[REALM][GET] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[REALM][POST] Internal server error:', error);
+    logger.error('[REALM][POST] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

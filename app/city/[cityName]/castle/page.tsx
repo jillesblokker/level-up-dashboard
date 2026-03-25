@@ -75,25 +75,25 @@ export default function CastlePage() {
               id: "throne-room",
               name: "Throne Room",
               description: "The grand hall where the king holds court",
-              image: "/images/castle/throne-room.png"
+              image: "/images/castle/throne-room.webp"
             },
             {
               id: "royal-chambers",
               name: "Royal Chambers",
               description: "Private quarters of the royal family",
-              image: "/images/castle/royal-chambers.png"
+              image: "/images/castle/royal-chambers.webp"
             },
             {
               id: "great-hall",
               name: "Great Hall",
               description: "Where feasts and celebrations are held",
-              image: "/images/castle/great-hall.png"
+              image: "/images/castle/great-hall.webp"
             },
             {
               id: "royal-garden",
               name: "Royal Garden",
               description: "A beautiful garden with rare plants and fountains",
-              image: "/images/castle/royal-garden.png"
+              image: "/images/castle/royal-garden.webp"
             }
           ].map((room) => (
             <Card key={room.id} className="overflow-hidden" aria-label={`${room.name}-card`}>

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -151,7 +152,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, message: `Purchased ${tile.name}` });
 
     } catch (error: any) {
-        console.error('Purchase error:', error);
+        logger.error('Purchase error:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }

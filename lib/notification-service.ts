@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { toast } from "@/components/ui/use-toast"
 
 export interface NotificationData {
@@ -25,7 +26,7 @@ class NotificationService {
         try {
           this.notifications = JSON.parse(storedNotifications)
         } catch (error) {
-          console.error('[NotificationService] Failed to parse notifications from localStorage:', error)
+          logger.error('[NotificationService] Failed to parse notifications from localStorage:', error)
           this.notifications = []
         }
       }

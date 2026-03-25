@@ -1,4 +1,6 @@
 "use client"
+
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -86,7 +88,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
             }
             onClose()
         } catch (e: any) {
-            console.error(e)
+            logger.error(e)
             toast.error(e.message || "Failed to save journal.")
         } finally {
             setIsSubmitting(false)

@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Tile } from '@/types/tiles'
 
@@ -16,7 +18,7 @@ function createInitialTile(x: number, y: number): Tile {
     x,
     y,
     ariaLabel: 'Grass tile',
-    image: '/images/tiles/grass-tile.png'
+    image: '/images/tiles/grass-tile.webp'
   }
 }
 
@@ -46,7 +48,7 @@ export function useRealmMap() {
           setGrid(data.realmMap.grid)
         }
       } catch (error) {
-        console.error('Error loading realm map:', error)
+        logger.error('Error loading realm map:', error)
       } finally {
         if (isMounted) {
           setIsLoading(false)
@@ -82,7 +84,7 @@ export function useRealmMap() {
           throw new Error('Failed to save realm map')
         }
       } catch (error) {
-        console.error('Error saving realm map:', error)
+        logger.error('Error saving realm map:', error)
       }
     }, 500) // Debounce saves to prevent too many requests
 

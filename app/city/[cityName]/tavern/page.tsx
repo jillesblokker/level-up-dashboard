@@ -76,21 +76,21 @@ export default function TavernPage() {
               name: "Health Potion",
               description: "Restores 50 health points",
               price: "10 gold",
-              image: "/images/items/health-potion.png"
+              image: "/images/items/health-potion.webp"
             },
             {
               id: "mana-potion",
               name: "Mana Potion",
               description: "Restores 50 mana points",
               price: "15 gold",
-              image: "/images/items/mana-potion.png"
+              image: "/images/items/mana-potion.webp"
             },
             {
               id: "stamina-potion",
               name: "Stamina Potion",
               description: "Restores 50 stamina points",
               price: "12 gold",
-              image: "/images/items/stamina-potion.png"
+              image: "/images/items/stamina-potion.webp"
             }
           ].map((item) => (
             <Card key={item.id} className="overflow-hidden" aria-label={`${item.name}-card`}>

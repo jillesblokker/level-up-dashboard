@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
             .gt('occurred_at', fiveDaysAgo.toISOString());
 
         if (error) {
-            console.error('Error fetching creature interactions:', error);
+            logger.error('Error fetching creature interactions:', error);
             return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
 
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ cooldowns });
 
     } catch (error) {
-        console.error('Unexpected error fetching interactions:', error);
+        logger.error('Unexpected error fetching interactions:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

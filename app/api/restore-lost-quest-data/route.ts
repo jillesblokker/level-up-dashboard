@@ -1,18 +1,19 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Restore Lost Quest Data] Starting data restoration process');
+    logger.debug('[Restore Lost Quest Data] Starting data restoration process');
     
     const { userId } = await auth();
     if (!userId) {
-      console.error('[Restore Lost Quest Data] Unauthorized');
+      logger.error('[Restore Lost Quest Data] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[Restore Lost Quest Data] Authenticated user:', userId);
+    logger.debug('[Restore Lost Quest Data] Authenticated user:', userId);
     
     // Get all favorited quests for the user
     const { data: favoritedQuests, error: favoritesError } = await supabaseServer
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', userId);
 
     if (favoritesError) {
-      console.error('[Restore Lost Quest Data] Error fetching favorited quests:', favoritesError);
+      logger.error('[Restore Lost Quest Data] Error fetching favorited quests:', favoritesError);
       return NextResponse.json({ error: 'Failed to fetch favorited quests' }, { status: 500 });
     }
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('[Restore Lost Quest Data] Found favorited quests:', favoritedQuests.length);
+    logger.debug('[Restore Lost Quest Data] Found favorited quests:', favoritedQuests.length);
 
     // Get quest details for favorited quests
     const questIds = favoritedQuests.map(f => f.quest_id);
@@ -43,11 +44,11 @@ export async function POST(request: NextRequest) {
       .in('id', questIds);
 
     if (questsError) {
-      console.error('[Restore Lost Quest Data] Error fetching quest details:', questsError);
+      logger.error('[Restore Lost Quest Data] Error fetching quest details:', questsError);
       return NextResponse.json({ error: 'Failed to fetch quest details' }, { status: 500 });
     }
 
-    console.log('[Restore Lost Quest Data] Found quest details:', questDetails?.length || 0);
+    logger.debug('[Restore Lost Quest Data] Found quest details:', questDetails?.length || 0);
 
     // Restore completion data for the last 14 days (starting from yesterday to avoid future dates)
     const datesToRestore: string[] = [];
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     const attempts: Array<{date: string; questId: string; inserted: boolean; error?: string}> = [];
 
     for (const date of datesToRestore) {
-      console.log(`[Restore Lost Quest Data] Restoring data for ${date}`);
+      logger.debug(`[Restore Lost Quest Data] Restoring data for ${date}`);
       
       for (const quest of questDetails || []) {
         try {
@@ -96,24 +97,24 @@ export async function POST(request: NextRequest) {
 
             if (insertError) {
               attempts.push({ date, questId: quest.id, inserted: false, error: insertError.message || String(insertError) });
-              console.error(`[Restore Lost Quest Data] Error inserting ${quest.name} for ${date}:`, insertError);
+              logger.error(`[Restore Lost Quest Data] Error inserting ${quest.name} for ${date}:`, insertError);
             } else {
               attempts.push({ date, questId: quest.id, inserted: true });
               totalRestored++;
               totalXP += quest.xp_reward || 50;
               totalGold += quest.gold_reward || 25;
-              console.log(`[Restore Lost Quest Data] ✅ Restored ${quest.name} for ${date}`);
+              logger.debug(`[Restore Lost Quest Data] ✅ Restored ${quest.name} for ${date}`);
             }
           } else {
             attempts.push({ date, questId: quest.id, inserted: false, error: 'exists' });
           }
         } catch (error) {
-          console.error(`[Restore Lost Quest Data] Error processing ${quest.name} for ${date}:`, error);
+          logger.error(`[Restore Lost Quest Data] Error processing ${quest.name} for ${date}:`, error);
         }
       }
     }
 
-    console.log(`[Restore Lost Quest Data] Restoration complete: ${totalRestored} records restored`);
+    logger.debug(`[Restore Lost Quest Data] Restoration complete: ${totalRestored} records restored`);
 
     return NextResponse.json({ 
       success: true,
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Restore Lost Quest Data] Internal server error:', error);
+    logger.error('[Restore Lost Quest Data] Internal server error:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ error: 'Internal server error', details: errorMessage }, { status: 500 });
   }

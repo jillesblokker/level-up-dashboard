@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
@@ -11,15 +12,15 @@ const supabaseAdmin = createClient(
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
-    console.log('[API] POST /rare-tiles - userId:', userId);
+    logger.debug('[API] POST /rare-tiles - userId:', userId);
     
     if (!userId) {
-      console.log('[API] POST /rare-tiles - Unauthorized: no userId');
+      logger.debug('[API] POST /rare-tiles - Unauthorized: no userId');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { action, tileId } = await request.json();
-    console.log('[API] POST /rare-tiles - action:', action, 'tileId:', tileId);
+    logger.debug('[API] POST /rare-tiles - action:', action, 'tileId:', tileId);
 
     if (action === 'unlock') {
       // First check if the record exists
@@ -31,11 +32,11 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (selectError && selectError.code !== 'PGRST116') {
-        console.error('[API] Error checking existing rare tile:', selectError);
+        logger.error('[API] Error checking existing rare tile:', selectError);
       }
 
       if (existingData) {
-        console.log('[API] Updating existing rare tile record');
+        logger.debug('[API] Updating existing rare tile record');
         // Update existing record
         const { error } = await supabaseAdmin
           .from('rare_tiles')
@@ -48,11 +49,11 @@ export async function POST(request: NextRequest) {
           .eq('tile_id', tileId);
 
         if (error) {
-          console.error('[API] Error updating rare tile:', error);
+          logger.error('[API] Error updating rare tile:', error);
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
       } else {
-        console.log('[API] Inserting new rare tile record');
+        logger.debug('[API] Inserting new rare tile record');
         // Insert new record without relying on auto-increment
         const { error } = await supabaseAdmin
           .from('rare_tiles')
@@ -66,17 +67,17 @@ export async function POST(request: NextRequest) {
           });
 
         if (error) {
-          console.error('[API] Error inserting rare tile:', error);
+          logger.error('[API] Error inserting rare tile:', error);
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
       }
 
-      console.log('[API] Successfully unlocked rare tile:', tileId);
+      logger.debug('[API] Successfully unlocked rare tile:', tileId);
       return NextResponse.json({ success: true });
     }
 
     if (action === 'clear') {
-      console.log('[API] Clearing rare tile:', tileId);
+      logger.debug('[API] Clearing rare tile:', tileId);
       const { error } = await supabaseAdmin
         .from('rare_tiles')
         .delete()
@@ -84,18 +85,18 @@ export async function POST(request: NextRequest) {
         .eq('tile_id', tileId);
 
       if (error) {
-        console.error('[API] Error clearing rare tile:', error);
+        logger.error('[API] Error clearing rare tile:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log('[API] Successfully cleared rare tile:', tileId);
+      logger.debug('[API] Successfully cleared rare tile:', tileId);
       return NextResponse.json({ success: true });
     }
 
-    console.log('[API] Invalid action:', action);
+    logger.debug('[API] Invalid action:', action);
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('[API] POST /rare-tiles error:', error);
+    logger.error('[API] POST /rare-tiles error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -103,14 +104,14 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
-    console.log('[API] GET /rare-tiles - userId:', userId);
+    logger.debug('[API] GET /rare-tiles - userId:', userId);
     
     if (!userId) {
-      console.log('[API] GET /rare-tiles - Unauthorized: no userId');
+      logger.debug('[API] GET /rare-tiles - Unauthorized: no userId');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-                    console.log('[API] Loading rare tiles for user:', userId);
+                    logger.debug('[API] Loading rare tiles for user:', userId);
                 
                 // First, let's check if there are any records in the table at all
                 const { data: allData, error: allError } = await supabaseAdmin
@@ -118,10 +119,10 @@ export async function GET(request: NextRequest) {
                   .select('*');
                 
                 if (allError) {
-                  console.error('[API] Error checking all rare tiles:', allError);
+                  logger.error('[API] Error checking all rare tiles:', allError);
                 } else {
-                  console.log('[API] Total records in rare_tiles table:', allData?.length || 0);
-                  console.log('[API] All rare tiles records:', allData);
+                  logger.debug('[API] Total records in rare_tiles table:', allData?.length || 0);
+                  logger.debug('[API] All rare tiles records:', allData);
                 }
                 
                 const { data, error } = await supabaseAdmin
@@ -130,17 +131,17 @@ export async function GET(request: NextRequest) {
                   .eq('user_id', userId);
 
                     if (error) {
-                  console.error('[API] Error loading rare tiles:', error);
+                  logger.error('[API] Error loading rare tiles:', error);
                   return NextResponse.json({ error: error.message }, { status: 500 });
                 }
 
                 // Add new log to inspect the data before returning
-                console.log('[API] Raw data from Supabase for rare tiles:', data);
+                logger.debug('[API] Raw data from Supabase for rare tiles:', data);
 
-                console.log('[API] Successfully loaded rare tiles:', data);
+                logger.debug('[API] Successfully loaded rare tiles:', data);
                 return NextResponse.json({ data });
   } catch (error) {
-    console.error('[API] GET /rare-tiles error:', error);
+    logger.error('[API] GET /rare-tiles error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

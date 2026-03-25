@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Realm Data Manager - Handles realm-specific data migration from localStorage to Supabase
 
 export interface RealmData {
@@ -29,14 +30,14 @@ export async function saveRealmData(key: string, value: any): Promise<boolean> {
     });
 
     if (response.ok) {
-      console.log(`[Realm Data Manager] ✅ Saved realm data: ${key}`);
+      logger.debug(`[Realm Data Manager] ✅ Saved realm data: ${key}`);
       return true;
     } else {
-      console.error(`[Realm Data Manager] ❌ Failed to save realm data: ${key}`);
+      logger.error(`[Realm Data Manager] ❌ Failed to save realm data: ${key}`);
       return false;
     }
   } catch (error) {
-    console.error(`[Realm Data Manager] Error saving realm data ${key}:`, error);
+    logger.error(`[Realm Data Manager] Error saving realm data ${key}:`, error);
     return false;
   }
 }
@@ -49,15 +50,15 @@ export async function getRealmData(key: string): Promise<any | null> {
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.value !== null) {
-        console.log(`[Realm Data Manager] ✅ Retrieved realm data: ${key}`);
+        logger.debug(`[Realm Data Manager] ✅ Retrieved realm data: ${key}`);
         return data.value;
       }
     }
     
-    console.log(`[Realm Data Manager] ℹ️ No realm data found for: ${key}`);
+    logger.debug(`[Realm Data Manager] ℹ️ No realm data found for: ${key}`);
     return null;
   } catch (error) {
-    console.error(`[Realm Data Manager] Error retrieving realm data ${key}:`, error);
+    logger.error(`[Realm Data Manager] Error retrieving realm data ${key}:`, error);
     return null;
   }
 }
@@ -70,15 +71,15 @@ export async function getAllRealmData(): Promise<Record<string, any>> {
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.preferences) {
-        console.log(`[Realm Data Manager] ✅ Retrieved all realm data`);
+        logger.debug(`[Realm Data Manager] ✅ Retrieved all realm data`);
         return data.preferences;
       }
     }
     
-    console.log(`[Realm Data Manager] ℹ️ No realm data found`);
+    logger.debug(`[Realm Data Manager] ℹ️ No realm data found`);
     return {};
   } catch (error) {
-    console.error(`[Realm Data Manager] Error retrieving all realm data:`, error);
+    logger.error(`[Realm Data Manager] Error retrieving all realm data:`, error);
     return {};
   }
 }
@@ -86,10 +87,10 @@ export async function getAllRealmData(): Promise<Record<string, any>> {
 // Migrate realm data from localStorage to Supabase
 export async function migrateRealmDataToSupabase(): Promise<boolean> {
   try {
-    console.log('[Realm Data Manager] 🚀 Starting realm data migration...');
+    logger.debug('[Realm Data Manager] 🚀 Starting realm data migration...');
     
     if (typeof window === 'undefined') {
-      console.log('[Realm Data Manager] Skipping migration - not in browser');
+      logger.debug('[Realm Data Manager] Skipping migration - not in browser');
       return true;
     }
 
@@ -97,7 +98,7 @@ export async function migrateRealmDataToSupabase(): Promise<boolean> {
     const migrationDone = localStorage.getItem(migrationKey);
     
     if (migrationDone) {
-      console.log('[Realm Data Manager] Migration already completed');
+      logger.debug('[Realm Data Manager] Migration already completed');
       return true;
     }
 
@@ -146,7 +147,7 @@ export async function migrateRealmDataToSupabase(): Promise<boolean> {
     }
 
     if (!hasData) {
-      console.log('[Realm Data Manager] No realm data to migrate');
+      logger.debug('[Realm Data Manager] No realm data to migrate');
       localStorage.setItem(migrationKey, 'true');
       return true;
     }
@@ -187,7 +188,7 @@ export async function migrateRealmDataToSupabase(): Promise<boolean> {
     const allSuccessful = results.every(result => result);
 
     if (allSuccessful) {
-      console.log('[Realm Data Manager] ✅ Realm data migration completed successfully');
+      logger.debug('[Realm Data Manager] ✅ Realm data migration completed successfully');
       localStorage.setItem(migrationKey, 'true');
       
       // Clean up localStorage after successful migration
@@ -200,17 +201,17 @@ export async function migrateRealmDataToSupabase(): Promise<boolean> {
         try {
           localStorage.removeItem(key);
         } catch (error) {
-          console.warn(`[Realm Data Manager] Could not remove localStorage key: ${key}`, error);
+          logger.warn(`[Realm Data Manager] Could not remove localStorage key: ${key}`, error);
         }
       });
       
       return true;
     } else {
-      console.error('[Realm Data Manager] ❌ Some realm data failed to migrate');
+      logger.error('[Realm Data Manager] ❌ Some realm data failed to migrate');
       return false;
     }
   } catch (error) {
-    console.error('[Realm Data Manager] ❌ Realm data migration failed:', error);
+    logger.error('[Realm Data Manager] ❌ Realm data migration failed:', error);
     return false;
   }
 }
@@ -218,7 +219,7 @@ export async function migrateRealmDataToSupabase(): Promise<boolean> {
 // Sync realm data to localStorage as backup
 export async function syncRealmDataToLocalStorage(): Promise<void> {
   try {
-    console.log('[Realm Data Manager] 🔄 Syncing realm data to localStorage...');
+    logger.debug('[Realm Data Manager] 🔄 Syncing realm data to localStorage...');
     
     const realmData = await getAllRealmData();
     
@@ -226,12 +227,12 @@ export async function syncRealmDataToLocalStorage(): Promise<void> {
       try {
         localStorage.setItem(key, JSON.stringify(value));
       } catch (error) {
-        console.warn(`[Realm Data Manager] Could not sync key to localStorage: ${key}`, error);
+        logger.warn(`[Realm Data Manager] Could not sync key to localStorage: ${key}`, error);
       }
     });
     
-    console.log('[Realm Data Manager] ✅ Realm data synced to localStorage');
+    logger.debug('[Realm Data Manager] ✅ Realm data synced to localStorage');
   } catch (error) {
-    console.error('[Realm Data Manager] Error syncing realm data to localStorage:', error);
+    logger.error('[Realm Data Manager] Error syncing realm data to localStorage:', error);
   }
 }

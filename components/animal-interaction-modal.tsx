@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -37,7 +40,7 @@ export function AnimalInteractionModal({
       await onInteract();
       onClose();
     } catch (error) {
-      console.error('Animal interaction failed:', error);
+      logger.error('Animal interaction failed:', error);
     } finally {
       setIsInteracting(false);
     }
@@ -51,15 +54,15 @@ export function AnimalInteractionModal({
     // Use specific horse images from the horse folder
     if (animalType === 'horse') {
       const horseImages: string[] = [
-        '/images/items/horse/horse-stelony.png',
-        '/images/items/horse/horse-perony.png',
-        '/images/items/horse/horse-felony.png'
+        '/images/items/horse/horse-stelony.webp',
+        '/images/items/horse/horse-perony.webp',
+        '/images/items/horse/horse-felony.webp'
       ];
       // Randomly select one of the horse images
       const randomIndex = Math.floor(Math.random() * horseImages.length);
       return horseImages[randomIndex]!; // Use non-null assertion since we know the array has elements
     }
-    return `/images/Animals/${animalType}.png`;
+    return `/images/Animals/${animalType}.webp`;
   };
 
   const getAnimalDescription = () => {

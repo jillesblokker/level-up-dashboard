@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent
   } catch (err) {
-    console.error('Error verifying webhook:', err);
+    logger.error('Error verifying webhook:', err);
     return new Response('Error occured', {
       status: 400
     })
@@ -53,12 +54,12 @@ export async function POST(req: Request) {
         .from('users')
         .insert([{ id, email }]);
       if (error) {
-        console.error('Error inserting user into Supabase:', error);
+        logger.error('Error inserting user into Supabase:', error);
         return NextResponse.json({ message: 'Error creating user in database', details: error.message }, { status: 500 });
       }
       return NextResponse.json({ message: 'User and default quests created' }, { status: 201 });
     } catch (error) {
-        console.error('Error creating user or quests in database:', error);
+        logger.error('Error creating user or quests in database:', error);
         return NextResponse.json({ message: 'Error creating user or quests' }, { status: 500 });
     }
   }

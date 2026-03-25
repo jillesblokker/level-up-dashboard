@@ -1,10 +1,11 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Streak Recovery Migration] Starting migration...');
+    logger.debug('[Streak Recovery Migration] Starting migration...');
     
     // Check authentication
     const { userId } = await getAuth(request);
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[Streak Recovery Migration] Authenticated user:', userId);
+    logger.debug('[Streak Recovery Migration] Authenticated user:', userId);
 
     // Use service role key for admin operations
     const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'];
@@ -25,14 +26,14 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // First, let's check if the columns already exist
-    console.log('[Streak Recovery Migration] Checking if columns already exist...');
+    logger.debug('[Streak Recovery Migration] Checking if columns already exist...');
     const { data: existingColumns, error: checkError } = await supabase
       .from('streaks')
       .select('resilience_points, safety_net_used, missed_days_this_week, last_missed_date, consecutive_weeks_completed, streak_broken_date, max_streak_achieved')
       .limit(1);
 
     if (!checkError && existingColumns) {
-      console.log('[Streak Recovery Migration] Columns already exist! Migration not needed.');
+      logger.debug('[Streak Recovery Migration] Columns already exist! Migration not needed.');
       return NextResponse.json({ 
         success: true, 
         message: 'Streak recovery features are already enabled! 🎉',
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('[Streak Recovery Migration] Columns do not exist, attempting migration...');
+    logger.debug('[Streak Recovery Migration] Columns do not exist, attempting migration...');
 
     // Try to create a custom RPC function for the migration
     const migrationSQL = `
@@ -66,24 +67,24 @@ export async function POST(request: NextRequest) {
 
     // Approach 1: Try exec_sql RPC
     try {
-      console.log('[Streak Recovery Migration] Attempting exec_sql RPC...');
+      logger.debug('[Streak Recovery Migration] Attempting exec_sql RPC...');
       const { error } = await supabase.rpc('exec_sql', { sql: migrationSQL });
       if (!error) {
         migrationSuccess = true;
-        console.log('[Streak Recovery Migration] exec_sql RPC succeeded!');
+        logger.debug('[Streak Recovery Migration] exec_sql RPC succeeded!');
       } else {
         migrationError = error.message;
-        console.log('[Streak Recovery Migration] exec_sql RPC failed:', error.message);
+        logger.debug('[Streak Recovery Migration] exec_sql RPC failed:', error.message);
       }
     } catch (err: any) {
       migrationError = err.message;
-      console.log('[Streak Recovery Migration] exec_sql RPC exception:', err.message);
+      logger.debug('[Streak Recovery Migration] exec_sql RPC exception:', err.message);
     }
 
     // Approach 2: Try creating a temporary function
     if (!migrationSuccess) {
       try {
-        console.log('[Streak Recovery Migration] Attempting temporary function approach...');
+        logger.debug('[Streak Recovery Migration] Attempting temporary function approach...');
         
         // Create a temporary function to execute the migration
         const createFunctionSQL = `
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
           const { data: result, error: execError } = await supabase.rpc('temp_migrate_streak_recovery');
           if (!execError) {
             migrationSuccess = true;
-            console.log('[Streak Recovery Migration] Temporary function approach succeeded!');
+            logger.debug('[Streak Recovery Migration] Temporary function approach succeeded!');
             
             // Clean up the temporary function
             await supabase.rpc('exec_sql', { sql: 'DROP FUNCTION IF EXISTS temp_migrate_streak_recovery();' });
@@ -125,12 +126,12 @@ export async function POST(request: NextRequest) {
         }
       } catch (err: any) {
         migrationError = err.message;
-        console.log('[Streak Recovery Migration] Temporary function approach failed:', err.message);
+        logger.debug('[Streak Recovery Migration] Temporary function approach failed:', err.message);
       }
     }
 
     if (!migrationSuccess) {
-      console.log('[Streak Recovery Migration] All automated approaches failed, providing manual instructions');
+      logger.debug('[Streak Recovery Migration] All automated approaches failed, providing manual instructions');
       
       // Provide manual migration instructions
       return NextResponse.json({ 
@@ -154,21 +155,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the migration was successful
-    console.log('[Streak Recovery Migration] Verifying migration...');
+    logger.debug('[Streak Recovery Migration] Verifying migration...');
     const { data: columnCheck, error: verifyError } = await supabase
       .from('streaks')
       .select('resilience_points, safety_net_used, missed_days_this_week, last_missed_date, consecutive_weeks_completed, streak_broken_date, max_streak_achieved')
       .limit(1);
 
     if (verifyError) {
-      console.error('[Streak Recovery Migration] Verification failed:', verifyError);
+      logger.error('[Streak Recovery Migration] Verification failed:', verifyError);
       return NextResponse.json({ 
         error: 'Migration completed but verification failed', 
         details: verifyError.message 
       }, { status: 500 });
     }
 
-    console.log('[Streak Recovery Migration] Migration completed successfully!');
+    logger.debug('[Streak Recovery Migration] Migration completed successfully!');
 
     return NextResponse.json({ 
       success: true, 
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('[Streak Recovery Migration] Unexpected error:', error);
+    logger.error('[Streak Recovery Migration] Unexpected error:', error);
     return NextResponse.json({ 
       error: 'Internal server error', 
       details: error.message 

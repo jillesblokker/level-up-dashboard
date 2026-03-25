@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +54,7 @@ export default function InventoryPage() {
         setItems(inventoryItems || []);
       }
     } catch (error) {
-      console.error("Error loading inventory items:", error);
+      logger.error("Error loading inventory items:", error);
       toast({
         title: TEXT_CONTENT.inventory.ui.loadingError,
         description: TEXT_CONTENT.inventory.ui.loadingErrorDesc,
@@ -139,7 +141,7 @@ export default function InventoryPage() {
                   alt={item.name}
                   className="w-16 h-16 object-cover rounded-lg"
                   onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                    (e.target as HTMLImageElement).src = "/images/items/placeholder.png";
+                    (e.target as HTMLImageElement).src = "/images/items/placeholder.webp";
                   }}
                 />
               ) : (

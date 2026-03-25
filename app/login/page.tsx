@@ -13,7 +13,7 @@ export default function LoginPage() {
       {/* Medieval Cover Image Section */}
       <div className="relative flex-1 hidden lg:flex flex-col justify-between bg-black border-r-2 border-amber-800/40">
         <Image
-          src="/images/realm-header.jpg"
+          src="/images/realm-header.webp"
           alt="Realm Cover"
           fill
           className="object-cover object-center opacity-90"

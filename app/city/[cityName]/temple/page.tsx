@@ -77,7 +77,7 @@ export default function TemplePage() {
               description: "Restore your health and remove negative effects",
               duration: "24 hours",
               price: "50 gold",
-              image: "/images/blessings/healing.png"
+              image: "/images/blessings/healing.webp"
             },
             {
               id: "protection-blessing",
@@ -85,7 +85,7 @@ export default function TemplePage() {
               description: "Gain divine protection against harm",
               duration: "12 hours",
               price: "75 gold",
-              image: "/images/blessings/protection.png"
+              image: "/images/blessings/protection.webp"
             },
             {
               id: "wisdom-blessing",
@@ -93,7 +93,7 @@ export default function TemplePage() {
               description: "Enhance your knowledge and understanding",
               duration: "48 hours",
               price: "100 gold",
-              image: "/images/blessings/wisdom.png"
+              image: "/images/blessings/wisdom.webp"
             }
           ].map((blessing) => (
             <Card key={blessing.id} className="overflow-hidden" aria-label={`${blessing.name}-card`}>

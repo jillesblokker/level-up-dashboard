@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -14,13 +15,13 @@ export async function GET(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[Active Perks API] Error fetching perks:', error);
+      logger.error('[Active Perks API] Error fetching perks:', error);
       return NextResponse.json({ error: 'Failed to fetch active perks' }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[Active Perks API] Unexpected error:', error);
+    logger.error('[Active Perks API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -48,13 +49,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[Active Perks API] Error updating perks:', error);
+      logger.error('[Active Perks API] Error updating perks:', error);
       return NextResponse.json({ error: 'Failed to update active perks' }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[Active Perks API] Unexpected error:', error);
+    logger.error('[Active Perks API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -79,13 +80,13 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[Active Perks API] Error deleting perk:', error);
+      logger.error('[Active Perks API] Error deleting perk:', error);
       return NextResponse.json({ error: 'Failed to delete perk' }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[Active Perks API] Unexpected error:', error);
+    logger.error('[Active Perks API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

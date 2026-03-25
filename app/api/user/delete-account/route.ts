@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -19,7 +20,7 @@ export async function DELETE() {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        console.log('[Delete Account] Starting deletion for user:', userId);
+        logger.debug('[Delete Account] Starting deletion for user:', userId);
 
         // List of all tables that contain user data
         const tablesToClean = [
@@ -58,14 +59,14 @@ export async function DELETE() {
                     .eq('user_id', userId);
 
                 if (error) {
-                    console.error(`[Delete Account] Error deleting from ${table}:`, error);
+                    logger.error(`[Delete Account] Error deleting from ${table}:`, error);
                     deletionResults.push({ table, success: false, error: error.message });
                 } else {
-                    console.log(`[Delete Account] Deleted ${count || 0} rows from ${table}`);
+                    logger.debug(`[Delete Account] Deleted ${count || 0} rows from ${table}`);
                     deletionResults.push({ table, success: true, count: count || 0 });
                 }
             } catch (err) {
-                console.error(`[Delete Account] Exception deleting from ${table}:`, err);
+                logger.error(`[Delete Account] Exception deleting from ${table}:`, err);
                 deletionResults.push({
                     table,
                     success: false,
@@ -78,9 +79,9 @@ export async function DELETE() {
         try {
             const clerk = await clerkClient();
             await clerk.users.deleteUser(userId);
-            console.log('[Delete Account] User deleted from Clerk');
+            logger.debug('[Delete Account] User deleted from Clerk');
         } catch (clerkError) {
-            console.error('[Delete Account] Error deleting from Clerk:', clerkError);
+            logger.error('[Delete Account] Error deleting from Clerk:', clerkError);
             return NextResponse.json({
                 error: 'Failed to delete user from authentication system',
                 details: clerkError instanceof Error ? clerkError.message : 'Unknown error',
@@ -88,7 +89,7 @@ export async function DELETE() {
             }, { status: 500 });
         }
 
-        console.log('[Delete Account] Account deletion complete');
+        logger.debug('[Delete Account] Account deletion complete');
 
         return NextResponse.json({
             success: true,
@@ -97,7 +98,7 @@ export async function DELETE() {
         });
 
     } catch (error) {
-        console.error('[Delete Account] Unexpected error:', error);
+        logger.error('[Delete Account] Unexpected error:', error);
         return NextResponse.json({
             error: 'Internal server error',
             details: error instanceof Error ? error.message : 'Unknown error'

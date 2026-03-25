@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { supabase } from '@/lib/supabase/client';
 
 export interface MigrationData {
@@ -38,7 +39,7 @@ export function collectLocalStorageData(): MigrationData {
 
   // Check if we're on the client side
   if (typeof window === 'undefined') {
-    console.warn('localStorage is not available on server side');
+    logger.warn('localStorage is not available on server side');
     return data;
   }
 
@@ -69,7 +70,7 @@ export function collectLocalStorageData(): MigrationData {
         try {
           userPreferences[key] = JSON.parse(localStorage.getItem(key) || '');
         } catch (e) {
-          console.warn(`Failed to parse preference ${key}:`, e);
+          logger.warn(`Failed to parse preference ${key}:`, e);
         }
       }
     }
@@ -126,7 +127,7 @@ export function collectLocalStorageData(): MigrationData {
           kingdom_expansions: parseInt(localStorage.getItem('kingdom-grid-expansions') || '0', 10)
         };
       } catch (e) {
-        console.warn('Failed to parse character stats:', e);
+        logger.warn('Failed to parse character stats:', e);
       }
     }
 
@@ -141,12 +142,12 @@ export function collectLocalStorageData(): MigrationData {
           expires_at: perk.expiresAt
         }));
       } catch (e) {
-        console.warn('Failed to parse active perks:', e);
+        logger.warn('Failed to parse active perks:', e);
       }
     }
 
   } catch (error) {
-    console.error('Error collecting localStorage data:', error);
+    logger.error('Error collecting localStorage data:', error);
   }
 
   return data;
@@ -296,9 +297,9 @@ export function clearMigratedLocalStorageData(): void {
       }
     }
 
-    console.log('Cleared migrated localStorage data');
+    logger.debug('Cleared migrated localStorage data');
   } catch (error) {
-    console.error('Error clearing localStorage data:', error);
+    logger.error('Error clearing localStorage data:', error);
   }
 }
 
@@ -318,7 +319,7 @@ export async function loadDataWithFallback<T>(
       return data;
     }
   } catch (error) {
-    console.warn(`Failed to load from Supabase for ${localStorageKey}:`, error);
+    logger.warn(`Failed to load from Supabase for ${localStorageKey}:`, error);
   }
 
   // Fallback to localStorage
@@ -328,7 +329,7 @@ export async function loadDataWithFallback<T>(
       return JSON.parse(stored);
     }
   } catch (error) {
-    console.warn(`Failed to load from localStorage for ${localStorageKey}:`, error);
+    logger.warn(`Failed to load from localStorage for ${localStorageKey}:`, error);
   }
 
   return defaultValue;
@@ -351,10 +352,10 @@ export async function saveDataWithRedundancy<T>(
     if (!error) {
       supabaseSuccess = true;
     } else {
-      console.warn('Supabase save failed:', error);
+      logger.warn('Supabase save failed:', error);
     }
   } catch (error) {
-    console.warn('Supabase save error:', error);
+    logger.warn('Supabase save error:', error);
   }
 
   // Save to localStorage as backup
@@ -362,7 +363,7 @@ export async function saveDataWithRedundancy<T>(
     localStorage.setItem(localStorageKey, JSON.stringify(data));
     localStorageSuccess = true;
   } catch (error) {
-    console.warn('localStorage save error:', error);
+    logger.warn('localStorage save error:', error);
   }
 
   const result: { success: boolean; error?: string } = {
@@ -407,7 +408,7 @@ export async function checkMigrationStatus(userId: string): Promise<{
     // Migration status will be determined by localStorage data presence
 
   } catch (error) {
-    console.error('Error checking migration status:', error);
+    logger.error('Error checking migration status:', error);
   }
 
   return result;

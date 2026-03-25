@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback } from 'react';
 
 // Sound Manager for Medieval Habit Tracker
@@ -26,7 +27,7 @@ class SoundManager {
     try {
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     } catch (error) {
-      console.warn('Web Audio API not supported:', error);
+      logger.warn('Web Audio API not supported:', error);
     }
   }
 
@@ -56,7 +57,7 @@ class SoundManager {
         const audioBuffer = await this.audioContext!.decodeAudioData(arrayBuffer);
         this.sounds.set(key, audioBuffer);
       } catch (e) {
-        console.warn(`Failed to lead sound ${key}, falling back to generated`, e);
+        logger.warn(`Failed to lead sound ${key}, falling back to generated`, e);
       }
     });
 
@@ -290,7 +291,7 @@ class SoundManager {
 
       source.start();
     } catch (error) {
-      console.warn('Failed to play sound:', error);
+      logger.warn('Failed to play sound:', error);
     }
   }
 

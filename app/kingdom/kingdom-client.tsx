@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import { useUser, useAuth } from "@clerk/nextjs";
@@ -40,8 +42,7 @@ import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-mana
 import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
 import { KingdomGridWithTimers } from '@/components/kingdom-grid-with-timers';
 import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
-import { ProgressionVisualization } from '@/components/progression-visualization';
-import { EconomyTransparency } from '@/components/economy-transparency';
+
 import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
@@ -65,6 +66,14 @@ const RevealOverlay = dynamic(() => import('../reveal/page'), {
   ssr: false,
   loading: () => null
 });
+const ProgressionVisualization = dynamic(
+  () => import('@/components/progression-visualization').then(m => ({ default: m.ProgressionVisualization })),
+  { loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />, ssr: false }
+);
+const EconomyTransparency = dynamic(
+  () => import('@/components/economy-transparency').then(m => ({ default: m.EconomyTransparency })),
+  { loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />, ssr: false }
+);
 import { Users, Crown, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from "@/lib/text-content";
@@ -187,7 +196,7 @@ const getConsumableEffect = async (item: KingdomInventoryItem) => {
         localStorage.setItem('active-potion-perks', JSON.stringify(activePerks))
 
       } catch (e) {
-        console.error("Error saving potion perk:", e);
+        logger.error("Error saving potion perk:", e);
       }
 
       return TEXT_CONTENT.kingdom.consumables.perkActive
@@ -242,11 +251,11 @@ function isEquippable(item: KingdomInventoryItem): boolean {
 
 // Helper to create an empty kingdom grid
 function createEmptyKingdomGrid(): Tile[][] {
-  console.log('[Kingdom] createEmptyKingdomGrid called');
+  logger.debug('[Kingdom] createEmptyKingdomGrid called');
 
   const KINGDOM_GRID_ROWS = 12; // Doubled from 6 to 12 rows
   const KINGDOM_GRID_COLS = 6;
-  const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
+  const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.webp';
 
   const grid = Array.from({ length: KINGDOM_GRID_ROWS }, (_, y) =>
     Array.from({ length: KINGDOM_GRID_COLS }, (_, x) => ({
@@ -265,7 +274,7 @@ function createEmptyKingdomGrid(): Tile[][] {
     }))
   );
 
-  console.log('[Kingdom] Base grid created with dimensions:', { rows: KINGDOM_GRID_ROWS, cols: KINGDOM_GRID_COLS });
+  logger.debug('[Kingdom] Base grid created with dimensions:', { rows: KINGDOM_GRID_ROWS, cols: KINGDOM_GRID_COLS });
 
   // Add some default kingdom tiles to make the grid interesting
   const defaultKingdomTiles = [
@@ -291,7 +300,7 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 5, y: 4, type: 'watchtower' as TileType },
   ];
 
-  console.log('[Kingdom] Adding default kingdom tiles:', defaultKingdomTiles.length);
+  logger.debug('[Kingdom] Adding default kingdom tiles:', defaultKingdomTiles.length);
 
   defaultKingdomTiles.forEach(({ x, y, type }) => {
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === type);
@@ -309,19 +318,19 @@ function createEmptyKingdomGrid(): Tile[][] {
           x,
           y,
           ariaLabel: `${kingdomTile.name || 'Unknown Tile'} at ${x},${y}`,
-          image: kingdomTile.image || '/images/kingdom-tiles/default.png',
+          image: kingdomTile.image || '/images/kingdom-tiles/default.webp',
         };
-        console.log(`[Kingdom] Added ${type} tile at position (${x}, ${y})`);
+        logger.debug(`[Kingdom] Added ${type} tile at position (${x}, ${y})`);
       } catch (error) {
-        console.error(`[Kingdom] Error creating tile ${type} at position (${x}, ${y}):`, error);
+        logger.error(`[Kingdom] Error creating tile ${type} at position (${x}, ${y}):`, error);
       }
     } else {
-      console.warn(`[Kingdom] Failed to add ${type} tile at position (${x}, ${y}) - kingdomTile:`, kingdomTile, 'grid[y]:', grid[y], 'grid[y][x]:', grid[y]?.[x]);
+      logger.warn(`[Kingdom] Failed to add ${type} tile at position (${x}, ${y}) - kingdomTile:`, kingdomTile, 'grid[y]:', grid[y], 'grid[y][x]:', grid[y]?.[x]);
     }
   });
 
   const finalTileCount = grid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length;
-  console.log('[Kingdom] Final grid created with', finalTileCount, 'non-empty tiles');
+  logger.debug('[Kingdom] Final grid created with', finalTileCount, 'non-empty tiles');
 
   return grid;
 }
@@ -343,13 +352,13 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
     // Fallback logic to ensure visibility
     if (!kingdomTileConfig) {
       if (tileName === 'Crossroad') {
-        kingdomTileConfig = { id: 'crossroad', name: 'Crossroad', clickMessage: 'A Crossroad tile', image: '/images/kingdom-tiles/Crossroad.png' } as any;
+        kingdomTileConfig = { id: 'crossroad', name: 'Crossroad', clickMessage: 'A Crossroad tile', image: '/images/kingdom-tiles/Crossroad.webp' } as any;
       } else if (tileName === 'Straightroad') {
-        kingdomTileConfig = { id: 'straightroad', name: 'Straight Road', clickMessage: 'A Straight Road tile', image: '/images/kingdom-tiles/Straightroad.png' } as any;
+        kingdomTileConfig = { id: 'straightroad', name: 'Straight Road', clickMessage: 'A Straight Road tile', image: '/images/kingdom-tiles/Straightroad.webp' } as any;
       } else if (tileName === 'Cornerroad') {
-        kingdomTileConfig = { id: 'cornerroad', name: 'Corner Road', clickMessage: 'A Corner Road tile', image: '/images/kingdom-tiles/Cornerroad.png' } as any;
+        kingdomTileConfig = { id: 'cornerroad', name: 'Corner Road', clickMessage: 'A Corner Road tile', image: '/images/kingdom-tiles/Cornerroad.webp' } as any;
       } else if (tileName === 'Tsplitroad') {
-        kingdomTileConfig = { id: 'tsplitroad', name: 'T-Split Road', clickMessage: 'A T-Split Road tile', image: '/images/kingdom-tiles/Tsplitroad.png' } as any;
+        kingdomTileConfig = { id: 'tsplitroad', name: 'T-Split Road', clickMessage: 'A T-Split Road tile', image: '/images/kingdom-tiles/Tsplitroad.webp' } as any;
       }
     }
 
@@ -454,7 +463,7 @@ export function KingdomClient() {
       fetch('/api/kingdom/journey-stats')
         .then(res => res.json())
         .then(data => setJourneyStats(data))
-        .catch(err => console.error('Failed to load journey stats', err));
+        .catch(err => logger.error('Failed to load journey stats', err));
     }
   }, [activeTab, kingdomTab]);
 
@@ -469,7 +478,7 @@ export function KingdomClient() {
   useEffect(() => {
     if (!user) return; // Wait for user to be loaded
 
-    // console.log('[Kingdom] Initializing kingdom grid and timers for user:', user.id);
+    // logger.debug('[Kingdom] Initializing kingdom grid and timers for user:', user.id);
 
     const initializeKingdomData = async () => {
       try {
@@ -479,7 +488,7 @@ export function KingdomClient() {
         if (!isVisiting) {
           const savedTimers = await loadKingdomTimers(token);
           if (!savedTimers || Object.keys(savedTimers).length === 0) {
-            // console.log('[Kingdom] Creating default timers...');
+            // logger.debug('[Kingdom] Creating default timers...');
 
             const defaultTimers = {
               '1,1': { x: 1, y: 1, tileId: 'well', endTime: Date.now() + (10 * 60 * 1000), isReady: false }, // 10 min
@@ -506,9 +515,9 @@ export function KingdomClient() {
 
             // Save default timers to Supabase
             await saveKingdomTimers(defaultTimers, token);
-            // console.log('[Kingdom] Default timers created and saved to Supabase');
+            // logger.debug('[Kingdom] Default timers created and saved to Supabase');
           } else {
-            // console.log('[Kingdom] Using existing timers from Supabase');
+            // logger.debug('[Kingdom] Using existing timers from Supabase');
           }
         }
 
@@ -520,10 +529,10 @@ export function KingdomClient() {
         const savedGrid = await loadKingdomGrid(token, targetId);
         if (savedGrid && savedGrid.length > 0) {
           try {
-            // console.log('[Kingdom] Loading existing grid from Supabase...');
+            // logger.debug('[Kingdom] Loading existing grid from Supabase...');
 
             // Use the existing grid directly instead of recreating and merging
-            // console.log('[Kingdom] Using existing grid from Supabase:', {
+            // logger.debug('[Kingdom] Using existing grid from Supabase:', {
             //   gridLength: savedGrid.length,
             //   hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
             //   vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
@@ -532,9 +541,9 @@ export function KingdomClient() {
 
             setKingdomGrid(savedGrid);
           } catch (error) {
-            // console.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
+            // logger.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
             const newGrid = createEmptyKingdomGrid();
-            // console.log('[Kingdom] Created new grid:', {
+            // logger.debug('[Kingdom] Created new grid:', {
             //   gridLength: newGrid.length,
             //   hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
             // });
@@ -543,9 +552,9 @@ export function KingdomClient() {
             await saveKingdomGrid(newGrid, token);
           }
         } else {
-          // console.log('[Kingdom] No existing grid found, creating new one...');
+          // logger.debug('[Kingdom] No existing grid found, creating new one...');
           const newGrid = createEmptyKingdomGrid();
-          // console.log('[Kingdom] Created new grid:', {
+          // logger.debug('[Kingdom] Created new grid:', {
           //   gridLength: newGrid.length,
           //   hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
           // });
@@ -555,10 +564,10 @@ export function KingdomClient() {
         }
 
         // Mark initialization as complete
-        // console.log('[Kingdom] Kingdom initialization complete');
+        // logger.debug('[Kingdom] Kingdom initialization complete');
         setGridLoading(false);
       } catch (error) {
-        console.error('[Kingdom] Error initializing kingdom data:', error);
+        logger.error('[Kingdom] Error initializing kingdom data:', error);
         // Fallback to localStorage if Supabase fails
         const existingTimers = localStorage.getItem('kingdom-tile-timers');
         if (!existingTimers) {
@@ -619,7 +628,7 @@ export function KingdomClient() {
           // Removed debugging log
         }
       } catch (error) {
-        console.error('[Kingdom] Error loading timers:', error);
+        logger.error('[Kingdom] Error loading timers:', error);
         // Fallback to localStorage
         const savedTimers = localStorage.getItem('kingdom-tile-timers');
         if (savedTimers) {
@@ -634,7 +643,7 @@ export function KingdomClient() {
 
   // Debug: Log kingdom grid state changes
   useEffect(() => {
-    // console.log('[Kingdom] kingdomGrid updated:', {
+    // logger.debug('[Kingdom] kingdomGrid updated:', {
     //   gridLength: kingdomGrid.length,
     //   hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
     //   tileTypes: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').map(cell => cell.type)
@@ -646,7 +655,7 @@ export function KingdomClient() {
     try {
       const token = await getToken();
       if (!token) {
-        // console.log('[Kingdom] No token available, falling back to localStorage');
+        // logger.debug('[Kingdom] No token available, falling back to localStorage');
         localStorage.setItem('kingdom-grid', JSON.stringify(grid));
         return;
       }
@@ -661,14 +670,14 @@ export function KingdomClient() {
       });
 
       if (response.ok) {
-        // console.log('[Kingdom] ✅ Grid saved to Supabase successfully');
+        // logger.debug('[Kingdom] ✅ Grid saved to Supabase successfully');
       } else {
-        console.log('[Kingdom] ⚠️ Failed to save to Supabase, falling back to localStorage');
+        logger.debug('[Kingdom] ⚠️ Failed to save to Supabase, falling back to localStorage');
         localStorage.setItem('kingdom-grid', JSON.stringify(grid));
       }
     } catch (error) {
-      console.error('[Kingdom] Error saving to Supabase:', error);
-      // console.log('[Kingdom] Falling back to localStorage');
+      logger.error('[Kingdom] Error saving to Supabase:', error);
+      // logger.debug('[Kingdom] Falling back to localStorage');
       localStorage.setItem('kingdom-grid', JSON.stringify(grid));
     }
   }, [getToken]);
@@ -678,11 +687,11 @@ export function KingdomClient() {
     if (kingdomGrid && kingdomGrid.length > 0) {
       if (isInitialSaveRef.current) {
         isInitialSaveRef.current = false;
-        // console.log('[Kingdom] Skipping initial grid save as it was just loaded');
+        // logger.debug('[Kingdom] Skipping initial grid save as it was just loaded');
         return;
       }
 
-      // console.log('[Kingdom] Saving kingdomGrid to Supabase:', {
+      // logger.debug('[Kingdom] Saving kingdomGrid to Supabase:', {
       //   gridLength: kingdomGrid.length,
       //   hasTiles: kingdomGrid.some(row => row.some(cell => cell && cell.type && cell.type !== 'empty')),
       //   tileCount: kingdomGrid.flat().filter(cell => cell && cell.type && cell.type !== 'empty').length
@@ -796,7 +805,7 @@ export function KingdomClient() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[Sell] Response error:', errorText);
+        logger.error('[Sell] Response error:', errorText);
         throw new Error(`Failed to remove item from inventory: ${response.status} ${response.statusText}`);
       }
 
@@ -815,7 +824,7 @@ export function KingdomClient() {
       // Clear local optimistic offsets since server data is now the source of truth
       setLocalItems([]);
     } catch (error) {
-      console.error('Failed to sell item:', error);
+      logger.error('Failed to sell item:', error);
       toast({
         title: TEXT_CONTENT.kingdom.ui.inventory.sellError.title,
         description: TEXT_CONTENT.kingdom.ui.inventory.sellError.failed.replace('{error}', error instanceof Error ? error.message : 'Unknown error'),
@@ -854,7 +863,7 @@ export function KingdomClient() {
     try {
       await removeFromKingdomInventory(user.id, itemId, quantity);
     } catch (e) {
-      console.error('Failed to spend material', e);
+      logger.error('Failed to spend material', e);
     }
   };
 
@@ -870,7 +879,7 @@ export function KingdomClient() {
 
     // 2. Decrease inventory count in database (the tile.type is the item ID like 'crossroad', 'well', etc.)
     const tileId = tile.type || tile.id?.split('-')[0] || tile.id;
-    console.log('[Kingdom] placing tile, decrementing inventory for:', tileId);
+    logger.debug('[Kingdom] placing tile, decrementing inventory for:', tileId);
 
     if (user?.id && tileId) {
       try {
@@ -898,7 +907,7 @@ export function KingdomClient() {
           } else {
             // Item not in localItems, but likely in storedItems.
             // Add a negative entry to offset storedItems in mergedItems
-            console.log('[Kingdom] Adding local offset for:', tileId);
+            logger.debug('[Kingdom] Adding local offset for:', tileId);
             return [...prev, {
               id: tileId,
               name: tile.name,
@@ -913,7 +922,7 @@ export function KingdomClient() {
         // storedItems represents the server's truth and will be updated on next fetch.
         // localItems holds the optimistic offset (-1) that mergedItems uses.
       } catch (error) {
-        console.error('[Kingdom] Failed to decrease inventory after placing tile:', error);
+        logger.error('[Kingdom] Failed to decrease inventory after placing tile:', error);
         // Notify user of the issue
         toast({
           title: "Sync Issue",
@@ -1121,7 +1130,7 @@ export function KingdomClient() {
           }
         }
       } catch (error) {
-        console.error('Failed to load kingdom grid:', error);
+        logger.error('Failed to load kingdom grid:', error);
       }
     };
 
@@ -1194,7 +1203,7 @@ export function KingdomClient() {
       setTotalStats(stats || { movement: 0, attack: 0, defense: 0 });
 
     } catch (error) {
-      console.error('[Kingdom] Inventory load failed:', error);
+      logger.error('[Kingdom] Inventory load failed:', error);
     } finally {
       setInventoryLoading(false);
       isInventoryLoadingRef.current = false;
@@ -1251,7 +1260,7 @@ export function KingdomClient() {
         setCoverImage(pref);
       } else {
         // Set default kingdom header image
-        setCoverImage('/images/kingdom-header.jpg');
+        setCoverImage('/images/kingdom-header.webp');
       }
       setCoverImageLoading(false);
     };
@@ -1422,7 +1431,7 @@ export function KingdomClient() {
       >
         <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
           <Image
-            src="/images/kingdom-tiles/Entrance.png"
+            src="/images/kingdom-tiles/Entrance.webp"
             alt="Kingdom Entrance"
             fill
             className="kingdom-entrance-img"
@@ -1482,7 +1491,7 @@ export function KingdomClient() {
       <HeaderSection
         title={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdom : TEXT_CONTENT.kingdom.ui.header.myKingdom}
         subtitle={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdomSubtitle : TEXT_CONTENT.kingdom.ui.header.myKingdomSubtitle}
-        imageSrc={coverImage || "/images/Kingdom.png"}
+        imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
         onImageUpload={async (file) => {
           const reader = new FileReader();

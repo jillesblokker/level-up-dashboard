@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * UNIFIED CHARACTER STATS SERVICE
  * 
@@ -91,7 +92,7 @@ class CharacterStatsService {
                 };
             }
         } catch (error) {
-            console.error('[CharacterStatsService] Error reading stats:', error);
+            logger.error('[CharacterStatsService] Error reading stats:', error);
         }
 
         return this.getDefaultStats();
@@ -103,7 +104,7 @@ class CharacterStatsService {
      */
     public updateStats(updates: Partial<CharacterStats>, source: string = 'unknown'): void {
         if (typeof window === 'undefined') {
-            console.warn('[CharacterStatsService] Cannot update stats on server side');
+            logger.warn('[CharacterStatsService] Cannot update stats on server side');
             return;
         }
 
@@ -220,7 +221,7 @@ class CharacterStatsService {
 
                             // Only log if this is the first attempt in a while
                             if (this.aheadSyncCount === 1) {
-                                console.log('[CharacterStatsService] Local stats ahead of server, syncing...');
+                                logger.debug('[CharacterStatsService] Local stats ahead of server, syncing...');
                             }
 
                             this.saveToLocalStorage(mergedStats);
@@ -240,7 +241,7 @@ class CharacterStatsService {
                 }
             }
         } catch (error) {
-            console.error('[CharacterStatsService] Error fetching stats:', error);
+            logger.error('[CharacterStatsService] Error fetching stats:', error);
         }
 
         return this.getStats();
@@ -270,7 +271,7 @@ class CharacterStatsService {
         // Check rate limit
         const now = Date.now();
         if (now - this.lastSyncTime < this.MIN_SYNC_INTERVAL_MS) {
-            console.log('[CharacterStatsService] Sync rate limited, will retry');
+            logger.debug('[CharacterStatsService] Sync rate limited, will retry');
             // Reschedule
             this.syncTimer = setTimeout(() => this.performSync(source), this.MIN_SYNC_INTERVAL_MS);
             return;
@@ -318,10 +319,10 @@ class CharacterStatsService {
                 this.aheadSyncCount = 0;
             } else {
                 // Sync failed - log once but don't spam
-                console.warn('[CharacterStatsService] Sync failed with status:', response.status);
+                logger.warn('[CharacterStatsService] Sync failed with status:', response.status);
             }
         } catch (error) {
-            console.error('[CharacterStatsService] Sync error:', error);
+            logger.error('[CharacterStatsService] Sync error:', error);
         } finally {
             this.isSyncing = false;
         }

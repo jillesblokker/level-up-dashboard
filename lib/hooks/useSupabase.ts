@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { useAuth } from '@clerk/nextjs';
@@ -85,7 +87,7 @@ export function useSupabase() {
                 const anon = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
 
                 if (!url || !anon) {
-                    console.error('[useSupabase] Supabase env vars missing!');
+                    logger.error('[useSupabase] Supabase env vars missing!');
                     setIsLoading(false);
                     return;
                 }
@@ -130,7 +132,7 @@ export function useSupabase() {
                 setSupabase(globalSupabaseInstance);
                 setIsLoading(false);
             } catch (err) {
-                console.error('[useSupabase] Error initializing Supabase:', err);
+                logger.error('[useSupabase] Error initializing Supabase:', err);
                 setIsLoading(false);
             }
         };

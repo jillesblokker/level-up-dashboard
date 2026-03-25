@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -181,7 +182,7 @@ export async function POST(request: Request) {
     return NextResponse.json(result.data);
 
   } catch (error) {
-    console.error('[Merge User Data] Error:', error);
+    logger.error('[Merge User Data] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

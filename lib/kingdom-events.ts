@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Kingdom Events Manager - Centralized event system for tracking game progress
 
 export interface KingdomEventData {
@@ -176,7 +177,7 @@ class KingdomEventsManager {
         }))
       }
     } catch (error) {
-      console.error('Error loading time series data:', error)
+      logger.error('Error loading time series data:', error)
     }
     return []
   }

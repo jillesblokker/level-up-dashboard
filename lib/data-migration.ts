@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from "@/lib/logger";
+
 export interface MigrationStatus {
   isRunning: boolean
   progress: number
@@ -67,10 +69,10 @@ export class DataMigration {
       await this.migrateGameSettings()
 
       this.status.current = 'Migration completed successfully!'
-      console.log('Data migration completed successfully')
+      logger.debug('Data migration completed successfully')
     } catch (error) {
       this.status.error = error instanceof Error ? error.message : 'Unknown error'
-      console.error('Data migration failed:', error)
+      logger.error('Data migration failed:', error)
       throw error
     } finally {
       this.status.isRunning = false
@@ -83,9 +85,9 @@ export class DataMigration {
       try {
         const parsedStats = JSON.parse(stats)
         // Migration is now handled by individual components using the new API endpoints
-        console.log('Character stats migration handled by components')
+        logger.debug('Character stats migration handled by components')
       } catch (error) {
-        console.warn('Failed to migrate character stats:', error)
+        logger.warn('Failed to migrate character stats:', error)
       }
     }
   }
@@ -98,9 +100,9 @@ export class DataMigration {
     if (inventory || kingdomInventory || equippedItems) {
       try {
         // Migration is now handled by individual components using the new API endpoints
-        console.log('Inventory migration handled by components')
+        logger.debug('Inventory migration handled by components')
       } catch (error) {
-        console.warn('Failed to migrate inventory:', error)
+        logger.warn('Failed to migrate inventory:', error)
       }
     }
   }
@@ -112,9 +114,9 @@ export class DataMigration {
     if (checkedQuests || questStats) {
       try {
         // Migration is now handled by individual components using the new API endpoints
-        console.log('Quest data migration handled by components')
+        logger.debug('Quest data migration handled by components')
       } catch (error) {
-        console.warn('Failed to migrate quest data:', error)
+        logger.warn('Failed to migrate quest data:', error)
       }
     }
   }
@@ -126,9 +128,9 @@ export class DataMigration {
     if (dailyQuests || lastReset) {
       try {
         // Migration is now handled by individual components using the new API endpoints
-        console.log('Daily quests migration handled by components')
+        logger.debug('Daily quests migration handled by components')
       } catch (error) {
-        console.warn('Failed to migrate daily quests:', error)
+        logger.warn('Failed to migrate daily quests:', error)
       }
     }
   }
@@ -174,9 +176,9 @@ export class DataMigration {
     if (hasSettings) {
       try {
         // Migration is now handled by individual components using the new API endpoints
-        console.log('Game settings migration handled by components')
+        logger.debug('Game settings migration handled by components')
       } catch (error) {
-        console.warn('Failed to migrate game settings:', error)
+        logger.warn('Failed to migrate game settings:', error)
       }
     }
   }

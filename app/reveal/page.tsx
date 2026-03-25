@@ -101,7 +101,7 @@ function Page() {
       {/* Static image as the very bottom layer, always visible until overlay is removed */}
       <div className="absolute inset-0 z-0 pointer-events-none w-full h-full">
         <img
-          src="/images/Reveal/reveal-static.png"
+          src="/images/Reveal/reveal-static.webp"
           alt="Reveal Static Background"
           className="object-cover w-full h-full"
           draggable={false}
@@ -123,7 +123,7 @@ function Page() {
         }}
       >
         <img
-          src="/images/Reveal/reveal-door.png"
+          src="/images/Reveal/reveal-door.webp"
           alt="Reveal Door"
           className="object-cover w-full h-full"
           style={{
@@ -139,7 +139,7 @@ function Page() {
           style={{ transitionDuration: '800ms' }}
         >
           <img
-            src="/images/Reveal/reveal-background.png"
+            src="/images/Reveal/reveal-background.webp"
             alt="Reveal Background"
             className={`object-cover w-full h-full transition-transform ease-in-out ${scaleBackground ? 'scale-[12]' : 'scale-100'}`}
             draggable={false}

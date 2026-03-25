@@ -6,7 +6,7 @@ export default function RequireSignIn() {
     <div className="relative min-h-screen flex items-center justify-center bg-black">
       {/* Medieval Cover Image */}
       <Image
-        src="/images/realm-header.jpg"
+        src="/images/realm-header.webp"
         alt="Realm Cover"
         fill
         className="object-cover object-center"

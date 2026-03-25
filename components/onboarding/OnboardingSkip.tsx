@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
@@ -24,9 +25,9 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
 
   // Prevent immediate clicking
   useEffect(() => {
-    console.log('OnboardingSkip: Component mounted, setting up click delay')
+    logger.debug('OnboardingSkip: Component mounted, setting up click delay')
     const timer = setTimeout(() => {
-      console.log('OnboardingSkip: Click delay expired, enabling clicks')
+      logger.debug('OnboardingSkip: Click delay expired, enabling clicks')
       setCanClick(true)
     }, 1000) // 1 second delay
 
@@ -34,10 +35,10 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
   }, [])
 
   const handleSkipClick = (e: React.MouseEvent) => {
-    console.log('OnboardingSkip: Skip button clicked manually', { canClick, timestamp: Date.now() })
+    logger.debug('OnboardingSkip: Skip button clicked manually', { canClick, timestamp: Date.now() })
     
     if (!canClick) {
-      console.log('OnboardingSkip: Click blocked due to delay')
+      logger.debug('OnboardingSkip: Click blocked due to delay')
       e.preventDefault()
       e.stopPropagation()
       return
@@ -49,20 +50,20 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
   }
 
   const handleSkipConfirm = (e: React.MouseEvent) => {
-    console.log('OnboardingSkip: Skip confirmed manually')
+    logger.debug('OnboardingSkip: Skip confirmed manually')
     e.preventDefault()
     e.stopPropagation()
     onSkipConfirm()
   }
 
   const handleSkipCancel = (e: React.MouseEvent) => {
-    console.log('OnboardingSkip: Skip cancelled manually')
+    logger.debug('OnboardingSkip: Skip cancelled manually')
     e.preventDefault()
     e.stopPropagation()
     onSkipCancel()
   }
 
-  console.log('OnboardingSkip: Rendering with isSkipping:', isSkipping, 'canClick:', canClick)
+  logger.debug('OnboardingSkip: Rendering with isSkipping:', isSkipping, 'canClick:', canClick)
 
   return (
     <>
@@ -74,16 +75,16 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
         aria-label="Skip tutorial"
         tabIndex={-1}
         disabled={!canClick}
-        onFocus={() => console.log('OnboardingSkip: Skip button focused', { canClick, timestamp: Date.now() })}
-        onBlur={() => console.log('OnboardingSkip: Skip button blurred')}
+        onFocus={() => logger.debug('OnboardingSkip: Skip button focused', { canClick, timestamp: Date.now() })}
+        onBlur={() => logger.debug('OnboardingSkip: Skip button blurred')}
         onKeyDown={(e) => {
-          console.log('OnboardingSkip: Skip button keydown:', e.key, { canClick, timestamp: Date.now() })
+          logger.debug('OnboardingSkip: Skip button keydown:', e.key, { canClick, timestamp: Date.now() })
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
           }
         }}
-        onMouseEnter={() => console.log('OnboardingSkip: Skip button mouse enter')}
-        onMouseLeave={() => console.log('OnboardingSkip: Skip button mouse leave')}
+        onMouseEnter={() => logger.debug('OnboardingSkip: Skip button mouse enter')}
+        onMouseLeave={() => logger.debug('OnboardingSkip: Skip button mouse leave')}
       >
         <X className="h-4 w-4 mr-2" />
         Skip {!canClick && '(disabled)'}

@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -22,7 +24,7 @@ export function TitleEvolutionModal({
   oldTitleImage,
   newTitleImage
 }: TitleEvolutionModalProps) {
-  console.log('🎪 TitleEvolutionModal render:', { isOpen, oldTitle, newTitle });
+  logger.debug('🎪 TitleEvolutionModal render:', { isOpen, oldTitle, newTitle });
 
   if (!isOpen) return null;
 
@@ -62,7 +64,7 @@ export function TitleEvolutionModal({
                 className="object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/images/character/squire.png';
+                  target.src = '/images/character/squire.webp';
                 }}
               />
             </div>
@@ -84,7 +86,7 @@ export function TitleEvolutionModal({
                 className="object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/images/character/squire.png';
+                  target.src = '/images/character/squire.webp';
                 }}
               />
             </div>

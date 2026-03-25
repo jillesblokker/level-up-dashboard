@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -104,7 +105,7 @@ export async function GET(request: Request) {
         });
 
     } catch (error) {
-        console.error('Error fetching friend stats:', error);
+        logger.error('Error fetching friend stats:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

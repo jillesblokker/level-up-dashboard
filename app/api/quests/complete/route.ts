@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
             .single()
 
         if (questError || !quest) {
-            console.error('Error fetching quest:', questError)
+            logger.error('Error fetching quest:', questError)
             return NextResponse.json({ error: 'Quest not found' }, { status: 404 })
         }
 
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
             })
 
         if (completionError) {
-            console.error('Error marking quest complete:', completionError)
+            logger.error('Error marking quest complete:', completionError)
             return NextResponse.json({ error: 'Failed to complete quest' }, { status: 500 })
         }
 
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
             .single()
 
         if (statsError && statsError.code !== 'PGRST116') {
-            console.error('Error fetching character stats:', statsError)
+            logger.error('Error fetching character stats:', statsError)
         }
 
         const currentLevel = currentStats?.level || 1
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
             })
 
         if (updateError) {
-            console.error('Error updating character stats:', updateError)
+            logger.error('Error updating character stats:', updateError)
             return NextResponse.json({ error: 'Failed to update stats' }, { status: 500 })
         }
 
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest) {
                 const streakManager = new AllianceStreakManager(supabase);
                 await streakManager.updateStreak(userId);
             } catch (notifyError) {
-                console.error('Error notifying sender:', notifyError);
+                logger.error('Error notifying sender:', notifyError);
                 // Don't fail the whole request if notification fails
             }
         }
@@ -224,7 +225,7 @@ export async function POST(request: NextRequest) {
             newStreak
         })
     } catch (error) {
-        console.error('Error in /api/quests/complete:', error)
+        logger.error('Error in /api/quests/complete:', error)
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

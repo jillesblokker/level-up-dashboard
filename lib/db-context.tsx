@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { initializeDatabase } from '@/lib/db';
@@ -30,7 +33,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         await initializeDatabase();
         setIsDbInitialized(true);
       } catch (err) {
-        console.error('Failed to initialize database:', err);
+        logger.error('Failed to initialize database:', err);
         setError(err instanceof Error ? err : new Error('Unknown database error'));
         toast({
           title: 'Database Error',

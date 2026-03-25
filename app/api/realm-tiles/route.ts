@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery, authenticatedFriendQuery } from '@/lib/supabase/jwt-verification';
 
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
               .insert(seedRows);
 
             if (insertError) {
-              console.error('Failed to seed initial grid:', insertError);
+              logger.error('Failed to seed initial grid:', insertError);
               // Don't fail the request, just return empty and let frontend fallback
             } else {
               // Re-fetch
@@ -92,7 +93,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error: any) {
-    console.error('[Realm Tiles GET] Error:', error);
+    logger.error('[Realm Tiles GET] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -155,7 +156,7 @@ export async function POST(request: Request) {
     return NextResponse.json(result.data);
 
   } catch (error: any) {
-    console.error('[Realm Tiles POST] Error:', error);
+    logger.error('[Realm Tiles POST] Error:', error);
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

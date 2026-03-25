@@ -29,7 +29,7 @@ export const locationDetails: LocationDetails = {
       {
         name: "Merchant's Square",
         description: "A bustling marketplace where traders from all corners gather.",
-        image: "/images/locations/kingdom-marketplace.png",
+        image: "/images/locations/kingdom-marketplace.webp",
         items: [
           {
             name: "Health Potion",
@@ -46,7 +46,7 @@ export const locationDetails: LocationDetails = {
       {
         name: "Royal Stables",
         description: "Fine steeds and mounts for your journeys.",
-        image: "/images/locations/royal-stables.png",
+        image: "/images/locations/royal-stables.webp",
         items: [
           {
             name: "Horse",
@@ -58,7 +58,7 @@ export const locationDetails: LocationDetails = {
       {
         name: "Ember's Forge",
         description: "Master blacksmith crafting weapons and armor.",
-        image: "/images/locations/embers-anvil.png",
+        image: "/images/locations/embers-anvil.webp",
         items: [
           {
             name: "Iron Sword",

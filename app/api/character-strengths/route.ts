@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
       .eq('completed', true);
 
     if (completionError) {
-      console.error('Error fetching completions:', completionError);
+      logger.error('Error fetching completions:', completionError);
       return NextResponse.json({ error: completionError.message }, { status: 500 });
     }
 
@@ -49,7 +50,7 @@ export async function GET(req: NextRequest) {
         .in('id', validQuestIds);
 
       if (questError) {
-        console.error('Error fetching quest details:', questError);
+        logger.error('Error fetching quest details:', questError);
         // We continue, treating failed quests as having no category
       } else if (quests) {
         quests.forEach((q: any) => {
@@ -82,7 +83,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ strengths });
 
   } catch (error) {
-    console.error('API Error:', error);
+    logger.error('API Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

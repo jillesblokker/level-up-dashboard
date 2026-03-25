@@ -1,29 +1,30 @@
+import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 
 export async function POST(req: NextRequest) {
-  console.log('[UI-Only Daily Reset] 🚀 API ROUTE CALLED - Starting POST request');
+  logger.debug('[UI-Only Daily Reset] 🚀 API ROUTE CALLED - Starting POST request');
   try {
     const { userId } = await getAuth(req);
-    console.log('[UI-Only Daily Reset] 🚀 User ID from auth:', userId);
+    logger.debug('[UI-Only Daily Reset] 🚀 User ID from auth:', userId);
     if (!userId) {
-      console.log('[UI-Only Daily Reset] 🚀 No user ID found, returning 401');
+      logger.debug('[UI-Only Daily Reset] 🚀 No user ID found, returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[UI-Only Daily Reset] Starting UI-ONLY daily reset for user:', userId);
+    logger.debug('[UI-Only Daily Reset] Starting UI-ONLY daily reset for user:', userId);
     
     // Get TODAY's date in YYYY-MM-DD format
     const today = new Date().toISOString().split('T')[0];
-    console.log('[UI-Only Daily Reset] 🔍 Today\'s date:', today);
+    logger.debug('[UI-Only Daily Reset] 🔍 Today\'s date:', today);
     
     // UI-ONLY RESET: No database operations!
     // The quest completion logic will naturally show quests as incomplete
     // if there's no completed=true record for today
     
-    console.log('[UI-Only Daily Reset] ✅ UI-ONLY reset completed - no database changes made');
-    console.log('[UI-Only Daily Reset] 💡 Quest display will automatically show quests as incomplete');
-    console.log('[UI-Only Daily Reset] 💡 Historical data preserved - all completion records remain intact');
+    logger.debug('[UI-Only Daily Reset] ✅ UI-ONLY reset completed - no database changes made');
+    logger.debug('[UI-Only Daily Reset] 💡 Quest display will automatically show quests as incomplete');
+    logger.debug('[UI-Only Daily Reset] 💡 Historical data preserved - all completion records remain intact');
     
     return NextResponse.json({ 
       success: true, 
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[UI-Only Daily Reset] Internal server error:', error);
+    logger.error('[UI-Only Daily Reset] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error', details: error }, { status: 500 });
   }
 }

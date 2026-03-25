@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -10,7 +11,7 @@ export async function GET() {
     }
 
     // Simple test response
-    console.log('[kingdom-events] Test call:', { userId });
+    logger.debug('[kingdom-events] Test call:', { userId });
     
     return NextResponse.json({ 
       success: true, 
@@ -18,7 +19,7 @@ export async function GET() {
       message: 'Kingdom events API connected'
     });
   } catch (err) {
-    console.error('[kingdom-events] Error:', err);
+    logger.error('[kingdom-events] Error:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 } 

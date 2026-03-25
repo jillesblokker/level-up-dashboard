@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
@@ -150,10 +153,10 @@ export default function ProfilePage() {
   // Guide button click handler
   const handleGuideClick = () => {
     if (typeof window !== 'undefined' && (window as any).openOnboarding) {
-      console.log('Opening onboarding via guide button');
+      logger.debug('Opening onboarding via guide button');
       (window as any).openOnboarding();
     } else {
-      console.log('Onboarding function not available');
+      logger.debug('Onboarding function not available');
     }
   };
 
@@ -225,7 +228,7 @@ export default function ProfilePage() {
       eventBus.emit("profile-updated");
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.error("Error updating profile:", error);
+      logger.error("Error updating profile:", error);
       toast.error("Failed to update profile");
     } finally {
       setIsSaving(false);
@@ -268,7 +271,7 @@ export default function ProfilePage() {
       }, 2000);
 
     } catch (error) {
-      console.error("Error deleting account:", error);
+      logger.error("Error deleting account:", error);
       toast.error(error instanceof Error ? error.message : "Failed to delete account");
       setIsDeleting(false);
     }
@@ -293,7 +296,7 @@ export default function ProfilePage() {
         <div className="relative w-full max-w-2xl h-80 flex flex-col items-center justify-center text-center rounded-lg overflow-hidden mb-8">
           {/* Hero background with medieval theme */}
           <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
-          <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-20" />
+          <div className="absolute inset-0 bg-[url('/images/kingdom-header.webp')] bg-cover bg-center opacity-20" />
 
           {/* Decorative elements */}
           <div className="absolute top-4 left-4 w-8 h-8 border-2 border-amber-500/30 rounded-full" />
@@ -326,7 +329,7 @@ export default function ProfilePage() {
       {/* Hero Section */}
       <div className="relative mb-8 rounded-lg overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
-        <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-30" />
+        <div className="absolute inset-0 bg-[url('/images/kingdom-header.webp')] bg-cover bg-center opacity-30" />
 
         {/* Decorative border elements */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />

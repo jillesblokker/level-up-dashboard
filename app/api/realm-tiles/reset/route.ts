@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../../lib/supabase/server-client';
@@ -43,7 +44,7 @@ export async function POST() {
       .delete()
       .eq('user_id', userId);
     if (deleteError) {
-      console.error('[RESET][DELETE] Supabase error:', deleteError);
+      logger.error('[RESET][DELETE] Supabase error:', deleteError);
       return NextResponse.json({ error: deleteError.message, details: deleteError }, { status: 500 });
     }
 
@@ -54,7 +55,7 @@ export async function POST() {
       .eq('user_id', userId);
 
     if (monsterError) {
-      console.error('[RESET][DELETE MONSTERS] Supabase error:', monsterError);
+      logger.error('[RESET][DELETE MONSTERS] Supabase error:', monsterError);
     }
 
     // Insert the initial grid (Normalized Format)
@@ -80,13 +81,13 @@ export async function POST() {
       .insert(seedRows);
 
     if (insertError) {
-      console.error('[RESET][INSERT] Supabase error:', insertError);
+      logger.error('[RESET][INSERT] Supabase error:', insertError);
       return NextResponse.json({ error: insertError.message, details: insertError }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[RESET][CATCH] Internal server error:', error);
+    logger.error('[RESET][CATCH] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error', details: String(error) }, { status: 500 });
   }
 } 

@@ -1,4 +1,6 @@
 "use client"
+
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -38,7 +40,7 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
 
             setUnlocked(unlockedMap);
         } catch (error) {
-            console.error('Error fetching achievements:', error);
+            logger.error('Error fetching achievements:', error);
         } finally {
             setLoading(false);
         }

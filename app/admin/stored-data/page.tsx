@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 
 import { useEffect, useState } from "react";
@@ -169,7 +172,7 @@ export default function AdminPage() {
         }
       });
     } catch (error) {
-      console.error('Error unlocking rare tile:', error);
+      logger.error('Error unlocking rare tile:', error);
       toast.error('Failed to unlock rare tile', {
         style: {
           backgroundColor: '#dc2626',
@@ -200,7 +203,7 @@ export default function AdminPage() {
         }
       });
     } catch (error) {
-      console.error('Error clearing rare tile:', error);
+      logger.error('Error clearing rare tile:', error);
       toast.error('Failed to clear rare tile', {
         style: {
           backgroundColor: '#dc2626',
@@ -224,7 +227,7 @@ export default function AdminPage() {
 
         // Store in localStorage
         localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
-        console.log('[Admin] Synced', completedQuests.length, 'quest completions to localStorage');
+        logger.debug('[Admin] Synced', completedQuests.length, 'quest completions to localStorage');
       }
 
       // 2. Sync Gold Transactions
@@ -235,9 +238,9 @@ export default function AdminPage() {
 
         // Store in localStorage
         localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
-        console.log('[Admin] Synced', goldTransactions.length, 'gold transactions to localStorage');
+        logger.debug('[Admin] Synced', goldTransactions.length, 'gold transactions to localStorage');
       } else {
-        console.error('[Admin] Gold API failed:', goldResponse.status);
+        logger.error('[Admin] Gold API failed:', goldResponse.status);
       }
 
       // 3. Sync Experience Transactions
@@ -256,9 +259,9 @@ export default function AdminPage() {
         }));
 
         localStorage.setItem('experienceTransactions', JSON.stringify(expDataToStore));
-        console.log('[Admin] Synced', expTransactions.length, 'experience transactions to localStorage');
+        logger.debug('[Admin] Synced', expTransactions.length, 'experience transactions to localStorage');
       } else {
-        console.error('[Admin] Experience API failed:', expResponse.status);
+        logger.error('[Admin] Experience API failed:', expResponse.status);
       }
 
       // 4. Sync Inventory Items
@@ -269,9 +272,9 @@ export default function AdminPage() {
 
         // Store in localStorage
         localStorage.setItem('inventory', JSON.stringify(inventoryItems));
-        console.log('[Admin] Synced', inventoryItems.length, 'inventory items to localStorage');
+        logger.debug('[Admin] Synced', inventoryItems.length, 'inventory items to localStorage');
       } else {
-        console.error('[Admin] Inventory API failed:', inventoryResponse.status);
+        logger.error('[Admin] Inventory API failed:', inventoryResponse.status);
       }
 
       toast.success(TEXT_CONTENT.admin.storedData.toasts.synced, {
@@ -291,7 +294,7 @@ export default function AdminPage() {
       }, 2000);
 
     } catch (error) {
-      console.error('[Admin] Error syncing data:', error);
+      logger.error('[Admin] Error syncing data:', error);
       toast.error('Failed to sync data to localStorage', {
         style: {
           backgroundColor: '#dc2626',
@@ -307,7 +310,7 @@ export default function AdminPage() {
   // 🎯 NEW: Auto-sync missing data to localStorage
   const autoSyncMissingData = async () => {
     try {
-      console.log('[Admin] Auto-syncing missing data...');
+      logger.debug('[Admin] Auto-syncing missing data...');
 
       // Auto-sync quest completions if missing
       let localStorageQuests = [];
@@ -317,15 +320,15 @@ export default function AdminPage() {
           localStorageQuests = JSON.parse(questData);
         }
       } catch (error) {
-        console.log('[Admin] localStorage quest data corrupted, will re-sync');
+        logger.debug('[Admin] localStorage quest data corrupted, will re-sync');
       }
 
       if (!localStorageQuests || localStorageQuests.length === 0) {
-        console.log('[Admin] Auto-syncing quest completions...');
+        logger.debug('[Admin] Auto-syncing quest completions...');
         const questResponse = await fetch('/api/quests/simple');
         if (questResponse.ok) {
           const questData = await questResponse.json();
-          console.log('[Admin] Quest API response:', questData);
+          logger.debug('[Admin] Quest API response:', questData);
 
           // 🎯 FIX: The API returns completedQuests as a count, not an array
           // We need to create an array with the count for comparison
@@ -335,11 +338,11 @@ export default function AdminPage() {
             count: questData.completedQuests
           }));
 
-          console.log('[Admin] Extracted completedQuests:', completedQuests);
+          logger.debug('[Admin] Extracted completedQuests:', completedQuests);
           localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
-          console.log('[Admin] Auto-synced', completedQuests.length, 'quest completions');
+          logger.debug('[Admin] Auto-synced', completedQuests.length, 'quest completions');
         } else {
-          console.error('[Admin] Quest API failed:', questResponse.status);
+          logger.error('[Admin] Quest API failed:', questResponse.status);
         }
       }
 
@@ -351,22 +354,22 @@ export default function AdminPage() {
           localStorageInventory = JSON.parse(inventoryData);
         }
       } catch (error) {
-        console.log('[Admin] localStorage inventory data corrupted, will re-sync');
+        logger.debug('[Admin] localStorage inventory data corrupted, will re-sync');
       }
 
       if (!localStorageInventory || localStorageInventory.length === 0) {
-        console.log('[Admin] Auto-syncing inventory...');
+        logger.debug('[Admin] Auto-syncing inventory...');
         const inventoryResponse = await fetch('/api/inventory');
         if (inventoryResponse.ok) {
           const inventoryData = await inventoryResponse.json();
-          console.log('[Admin] Inventory API response:', inventoryData);
+          logger.debug('[Admin] Inventory API response:', inventoryData);
           // 🎯 FIX: Extract the data array, not the whole response
           const inventoryItems = inventoryData.data || inventoryData || [];
-          console.log('[Admin] Extracted inventoryItems:', inventoryItems);
+          logger.debug('[Admin] Extracted inventoryItems:', inventoryItems);
           localStorage.setItem('inventory', JSON.stringify(inventoryItems));
-          console.log('[Admin] Auto-synced', inventoryItems.length, 'inventory items');
+          logger.debug('[Admin] Auto-synced', inventoryItems.length, 'inventory items');
         } else {
-          console.error('[Admin] Inventory API failed:', inventoryResponse.status);
+          logger.error('[Admin] Inventory API failed:', inventoryResponse.status);
         }
       }
 
@@ -378,19 +381,19 @@ export default function AdminPage() {
           localStorageGold = JSON.parse(goldData);
         }
       } catch (error) {
-        console.log('[Admin] localStorage gold data corrupted, will re-sync');
+        logger.debug('[Admin] localStorage gold data corrupted, will re-sync');
       }
 
       if (!localStorageGold || localStorageGold.length === 0) {
-        console.log('[Admin] Auto-syncing gold transactions...');
+        logger.debug('[Admin] Auto-syncing gold transactions...');
         const goldResponse = await fetch('/api/gold-transactions');
         if (goldResponse.ok) {
           const goldData = await goldResponse.json();
           const goldTransactions = goldData.data || [];
           localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
-          console.log('[Admin] Auto-synced', goldTransactions.length, 'gold transactions');
+          logger.debug('[Admin] Auto-synced', goldTransactions.length, 'gold transactions');
         } else {
-          console.error('[Admin] Gold API failed:', goldResponse.status);
+          logger.error('[Admin] Gold API failed:', goldResponse.status);
         }
       }
 
@@ -402,31 +405,31 @@ export default function AdminPage() {
           localStorageExp = JSON.parse(expData);
         }
       } catch (error) {
-        console.log('[Admin] localStorage experience data corrupted, will re-sync');
+        logger.debug('[Admin] localStorage experience data corrupted, will re-sync');
       }
 
       if (!localStorageExp || localStorageExp.length === 0) {
-        console.log('[Admin] Auto-syncing experience transactions...');
+        logger.debug('[Admin] Auto-syncing experience transactions...');
         const expResponse = await fetch('/api/experience-transactions');
         if (expResponse.ok) {
           const expData = await expResponse.json();
           const expTransactions = expData.data || [];
           localStorage.setItem('experienceTransactions', JSON.stringify(expTransactions));
-          console.log('[Admin] Auto-synced', expTransactions.length, 'experience transactions');
+          logger.debug('[Admin] Auto-synced', expTransactions.length, 'experience transactions');
         } else {
-          console.error('[Admin] Experience API failed:', expResponse.status);
+          logger.error('[Admin] Experience API failed:', expResponse.status);
         }
       }
 
-      console.log('[Admin] Auto-sync complete');
+      logger.debug('[Admin] Auto-sync complete');
 
       // Force refresh the data comparison to show updated status
       setTimeout(async () => {
-        console.log('[Admin] Refreshing data comparison after auto-sync...');
+        logger.debug('[Admin] Refreshing data comparison after auto-sync...');
         await compareDataSources();
       }, 1000);
     } catch (error) {
-      console.error('[Admin] Auto-sync error:', error);
+      logger.error('[Admin] Auto-sync error:', error);
     }
   };
 
@@ -434,13 +437,13 @@ export default function AdminPage() {
   const forceSyncAllData = async () => {
     try {
       setIsLoading(true);
-      console.log('[Admin] Force syncing all data...');
+      logger.debug('[Admin] Force syncing all data...');
 
       // Force sync quest completions
       const questResponse = await fetch('/api/quests/simple');
       if (questResponse.ok) {
         const questData = await questResponse.json();
-        console.log('[Admin] Quest API response for force sync:', questData);
+        logger.debug('[Admin] Quest API response for force sync:', questData);
 
         // 🎯 FIX: The API returns completedQuests as a count, not an array
         // We need to create an array with the count for comparison
@@ -451,7 +454,7 @@ export default function AdminPage() {
         }));
 
         localStorage.setItem('questCompletions', JSON.stringify(completedQuests));
-        console.log('[Admin] Force synced', completedQuests.length, 'quest completions');
+        logger.debug('[Admin] Force synced', completedQuests.length, 'quest completions');
       }
 
       // Force sync inventory
@@ -461,7 +464,7 @@ export default function AdminPage() {
         // 🎯 FIX: Extract the data array, not the whole response
         const inventoryItems = inventoryData.data || inventoryData || [];
         localStorage.setItem('inventory', JSON.stringify(inventoryItems));
-        console.log('[Admin] Force synced', inventoryItems.length, 'inventory items');
+        logger.debug('[Admin] Force synced', inventoryItems.length, 'inventory items');
       }
 
       // Force sync gold transactions
@@ -470,7 +473,7 @@ export default function AdminPage() {
         const goldData = await goldResponse.json();
         const goldTransactions = goldData.data || [];
         localStorage.setItem('goldTransactions', JSON.stringify(goldTransactions));
-        console.log('[Admin] Force synced', goldTransactions.length, 'gold transactions');
+        logger.debug('[Admin] Force synced', goldTransactions.length, 'gold transactions');
       }
 
       // Force sync experience transactions
@@ -479,7 +482,7 @@ export default function AdminPage() {
         const expData = await expResponse.json();
         const expTransactions = expData.data || [];
         localStorage.setItem('experienceTransactions', JSON.stringify(expTransactions));
-        console.log('[Admin] Force synced', expTransactions.length, 'experience transactions');
+        logger.debug('[Admin] Force synced', expTransactions.length, 'experience transactions');
       }
 
       toast.success(TEXT_CONTENT.admin.storedData.toasts.forceSynced, {
@@ -496,7 +499,7 @@ export default function AdminPage() {
       }, 1000);
 
     } catch (error) {
-      console.error('[Admin] Force sync error:', error);
+      logger.error('[Admin] Force sync error:', error);
       toast.error('Force sync failed', {
         style: {
           backgroundColor: '#dc2626',
@@ -530,7 +533,7 @@ export default function AdminPage() {
       }, 1000);
 
     } catch (error) {
-      console.error('[Admin] Clear localStorage error:', error);
+      logger.error('[Admin] Clear localStorage error:', error);
       toast.error('Failed to clear localStorage', {
         style: {
           backgroundColor: '#dc2626',
@@ -543,25 +546,25 @@ export default function AdminPage() {
 
   const debugLocalStorage = () => {
     try {
-      console.log('=== localStorage DEBUG ===');
-      console.log('questCompletions:', localStorage.getItem('questCompletions'));
-      console.log('inventory:', localStorage.getItem('inventory'));
-      console.log('goldTransactions:', localStorage.getItem('goldTransactions'));
-      console.log('experienceTransactions:', localStorage.getItem('experienceTransactions'));
+      logger.debug('=== localStorage DEBUG ===');
+      logger.debug('questCompletions:', localStorage.getItem('questCompletions'));
+      logger.debug('inventory:', localStorage.getItem('inventory'));
+      logger.debug('goldTransactions:', localStorage.getItem('goldTransactions'));
+      logger.debug('experienceTransactions:', localStorage.getItem('experienceTransactions'));
 
       // Try to parse each item
       try {
         const quests = JSON.parse(localStorage.getItem('questCompletions') || '[]');
-        console.log('Parsed quests:', quests, 'Type:', typeof quests, 'IsArray:', Array.isArray(quests));
+        logger.debug('Parsed quests:', quests, 'Type:', typeof quests, 'IsArray:', Array.isArray(quests));
       } catch (e) {
-        console.log('Failed to parse quests:', e);
+        logger.debug('Failed to parse quests:', e);
       }
 
       try {
         const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-        console.log('Parsed inventory:', inventory, 'Type:', typeof inventory, 'IsArray:', Array.isArray(inventory));
+        logger.debug('Parsed inventory:', inventory, 'Type:', typeof inventory, 'IsArray:', Array.isArray(inventory));
       } catch (e) {
-        console.log('Failed to parse inventory:', e);
+        logger.debug('Failed to parse inventory:', e);
       }
 
       toast.success(TEXT_CONTENT.admin.storedData.toasts.debugLogged, {
@@ -573,7 +576,7 @@ export default function AdminPage() {
       });
 
     } catch (error) {
-      console.error('[Admin] Debug localStorage error:', error);
+      logger.error('[Admin] Debug localStorage error:', error);
       toast.error('Debug failed', {
         style: {
           backgroundColor: '#dc2626',
@@ -586,38 +589,38 @@ export default function AdminPage() {
 
   const testIndividualAPIs = async () => {
     try {
-      console.log('=== TESTING INDIVIDUAL APIs ===');
+      logger.debug('=== TESTING INDIVIDUAL APIs ===');
 
       // Test Quest API
       const questResponse = await fetch('/api/quests/simple');
-      console.log('Quest API Status:', questResponse.status);
+      logger.debug('Quest API Status:', questResponse.status);
       if (questResponse.ok) {
         const questData = await questResponse.json();
-        console.log('Quest API Data:', questData);
+        logger.debug('Quest API Data:', questData);
       }
 
       // Test Inventory API
       const inventoryResponse = await fetch('/api/inventory');
-      console.log('Inventory API Status:', inventoryResponse.status);
+      logger.debug('Inventory API Status:', inventoryResponse.status);
       if (inventoryResponse.ok) {
         const inventoryData = await inventoryResponse.json();
-        console.log('Inventory API Data:', inventoryData);
+        logger.debug('Inventory API Data:', inventoryData);
       }
 
       // Test Gold API
       const goldResponse = await fetch('/api/gold-transactions');
-      console.log('Gold API Status:', goldResponse.status);
+      logger.debug('Gold API Status:', goldResponse.status);
       if (goldResponse.ok) {
         const goldData = await goldResponse.json();
-        console.log('Gold API Data:', goldData);
+        logger.debug('Gold API Data:', goldData);
       }
 
       // Test Experience API
       const expResponse = await fetch('/api/experience-transactions');
-      console.log('Experience API Status:', expResponse.status);
+      logger.debug('Experience API Status:', expResponse.status);
       if (expResponse.ok) {
         const expData = await expResponse.json();
-        console.log('Experience API Data:', expData);
+        logger.debug('Experience API Data:', expData);
       }
 
       toast.success(TEXT_CONTENT.admin.storedData.toasts.apisTested, {
@@ -629,7 +632,7 @@ export default function AdminPage() {
       });
 
     } catch (error) {
-      console.error('[Admin] Test APIs error:', error);
+      logger.error('[Admin] Test APIs error:', error);
       toast.error('API testing failed', {
         style: {
           backgroundColor: '#dc2626',
@@ -660,7 +663,7 @@ export default function AdminPage() {
             setInventoryItems(inventory || []);
           }
         } catch (error) {
-          console.error('Error loading inventory:', error);
+          logger.error('Error loading inventory:', error);
         }
 
         // Load achievements (using direct API call)
@@ -673,7 +676,7 @@ export default function AdminPage() {
             setAchievements(userAchievements || []);
           }
         } catch (error) {
-          console.error('Error loading achievements:', error);
+          logger.error('Error loading achievements:', error);
         }
 
         // Set summary data
@@ -704,7 +707,7 @@ export default function AdminPage() {
         loadPerformanceStats();
 
       } catch (error) {
-        console.error('Error loading Supabase data:', error);
+        logger.error('Error loading Supabase data:', error);
         toast.error('Failed to load data');
       } finally {
         setIsLoading(false);
@@ -773,7 +776,7 @@ export default function AdminPage() {
       }));
       setErrorLogs(formattedErrors);
     } catch (error) {
-      console.error('Error loading error logs:', error);
+      logger.error('Error loading error logs:', error);
     }
   };
 
@@ -783,7 +786,7 @@ export default function AdminPage() {
       const stats = performanceMonitor.getStats();
       setPerformanceStats(stats);
     } catch (error) {
-      console.error('Error loading performance stats:', error);
+      logger.error('Error loading performance stats:', error);
     }
   };
 
@@ -1006,7 +1009,7 @@ export default function AdminPage() {
         const localStorageQuestCount = localStorageQuests.length; // Direct count since we store completed quests
 
         // BYPASS: Use the working simple quest API directly instead of the broken main Quest API
-        console.log('[Admin] Bypassing broken Quest API, using simple API directly...');
+        logger.debug('[Admin] Bypassing broken Quest API, using simple API directly...');
 
         const simpleResponse = await fetch('/api/quests/simple', {
           credentials: 'include'
@@ -1014,14 +1017,14 @@ export default function AdminPage() {
 
         if (simpleResponse.ok) {
           const simpleData = await simpleResponse.json();
-          console.log('[Admin] Simple quest API data:', simpleData);
+          logger.debug('[Admin] Simple quest API data:', simpleData);
 
           // Use the accurate counts from the working simple API
           const supabaseQuestCount = simpleData.completedQuests || 0;
           const actualCompletedCount = simpleData.completedQuests || 0;
           const actualIncompleteCount = simpleData.incompleteQuests || 0;
 
-          console.log('[Admin] Quest counts from working simple API:', {
+          logger.debug('[Admin] Quest counts from working simple API:', {
             completed: actualCompletedCount,
             incomplete: actualIncompleteCount,
             total: simpleData.challengesCount || 0
@@ -1038,7 +1041,7 @@ export default function AdminPage() {
           };
           comparisons.push(questComparison);
         } else {
-          console.error('[Admin] Simple quest API failed:', simpleResponse.status, simpleResponse.statusText);
+          logger.error('[Admin] Simple quest API failed:', simpleResponse.status, simpleResponse.statusText);
           comparisons.push({
             table: 'Quest Completions',
             localStorageCount: localStorageQuestCount,
@@ -1049,7 +1052,7 @@ export default function AdminPage() {
           });
         }
       } catch (error) {
-        console.error('[Admin] Quest comparison error:', error);
+        logger.error('[Admin] Quest comparison error:', error);
         comparisons.push({
           table: 'Quest Completions',
           localStorageCount: 0,
@@ -1072,13 +1075,13 @@ export default function AdminPage() {
 
         if (goldResponse.ok) {
           const goldData = await goldResponse.json();
-          console.log('[Admin] Gold API Response:', goldData);
+          logger.debug('[Admin] Gold API Response:', goldData);
 
           // Handle both array and object responses
           const goldTransactions = Array.isArray(goldData) ? goldData : (goldData.data || []);
           const supabaseGoldCount = goldTransactions.length;
 
-          console.log('[Admin] Gold Transactions Count:', supabaseGoldCount);
+          logger.debug('[Admin] Gold Transactions Count:', supabaseGoldCount);
 
           const goldComparison: DataComparison = {
             table: 'Gold Transactions',
@@ -1091,7 +1094,7 @@ export default function AdminPage() {
           };
           comparisons.push(goldComparison);
         } else {
-          console.error('[Admin] Gold API failed:', goldResponse.status, goldResponse.statusText);
+          logger.error('[Admin] Gold API failed:', goldResponse.status, goldResponse.statusText);
           comparisons.push({
             table: 'Gold Transactions',
             localStorageCount: localStorageGoldCount,
@@ -1102,7 +1105,7 @@ export default function AdminPage() {
           });
         }
       } catch (error) {
-        console.error('[Admin] Gold comparison error:', error);
+        logger.error('[Admin] Gold comparison error:', error);
         comparisons.push({
           table: 'Gold Transactions',
           localStorageCount: 0,
@@ -1125,13 +1128,13 @@ export default function AdminPage() {
 
         if (expResponse.ok) {
           const expData = await expResponse.json();
-          console.log('[Admin] Experience API Response:', expData);
+          logger.debug('[Admin] Experience API Response:', expData);
 
           // Handle both array and object responses
           const expTransactions = Array.isArray(expData) ? expData : (expData.data || []);
           const supabaseExpCount = expTransactions.length;
 
-          console.log('[Admin] Experience Transactions Count:', supabaseExpCount);
+          logger.debug('[Admin] Experience Transactions Count:', supabaseExpCount);
 
           const expComparison: DataComparison = {
             table: 'Experience Transactions',
@@ -1144,7 +1147,7 @@ export default function AdminPage() {
           };
           comparisons.push(expComparison);
         } else {
-          console.error('[Admin] Experience API failed:', expResponse.status, expResponse.statusText);
+          logger.error('[Admin] Experience API failed:', expResponse.status, expResponse.statusText);
           comparisons.push({
             table: 'Experience Transactions',
             localStorageCount: localStorageExpCount,
@@ -1155,7 +1158,7 @@ export default function AdminPage() {
           });
         }
       } catch (error) {
-        console.error('[Admin] Experience comparison error:', error);
+        logger.error('[Admin] Experience comparison error:', error);
         comparisons.push({
           table: 'Experience Transactions',
           localStorageCount: 0,
@@ -1178,13 +1181,13 @@ export default function AdminPage() {
 
         if (inventoryResponse.ok) {
           const inventoryData = await inventoryResponse.json();
-          console.log('[Admin] Inventory API Response:', inventoryData);
+          logger.debug('[Admin] Inventory API Response:', inventoryData);
 
           // Handle both array and object responses
           const inventoryItems = Array.isArray(inventoryData) ? inventoryData : (inventoryData.data || []);
           const supabaseInventoryCount = inventoryItems.length;
 
-          console.log('[Admin] Inventory Items Count:', supabaseInventoryCount);
+          logger.debug('[Admin] Inventory Items Count:', supabaseInventoryCount);
 
           const inventoryComparison: DataComparison = {
             table: 'Inventory Items',
@@ -1197,7 +1200,7 @@ export default function AdminPage() {
           };
           comparisons.push(inventoryComparison);
         } else {
-          console.error('[Admin] Inventory API failed:', inventoryResponse.status, inventoryResponse.statusText);
+          logger.error('[Admin] Inventory API failed:', inventoryResponse.status, inventoryResponse.statusText);
           comparisons.push({
             table: 'Inventory Items',
             localStorageCount: localStorageInventoryCount,
@@ -1208,7 +1211,7 @@ export default function AdminPage() {
           });
         }
       } catch (error) {
-        console.error('[Admin] Inventory comparison error:', error);
+        logger.error('[Admin] Inventory comparison error:', error);
         comparisons.push({
           table: 'Inventory Items',
           localStorageCount: 0,
@@ -1303,7 +1306,7 @@ export default function AdminPage() {
             supabaseKingdomEventCount = Array.isArray(kingdomEventData) ? kingdomEventData.length : 0;
           }
         } catch (kingdomEventError) {
-          console.log('Kingdom Events API not available, skipping count');
+          logger.debug('Kingdom Events API not available, skipping count');
         }
 
         const kingdomEventComparison: DataComparison = {
@@ -1343,7 +1346,7 @@ export default function AdminPage() {
             supabaseCharacterStatCount = Array.isArray(characterStatData) ? characterStatData.length : 0;
           }
         } catch (characterStatError) {
-          console.log('Character Stats API not available, skipping count');
+          logger.debug('Character Stats API not available, skipping count');
         }
 
         // Ensure we have valid numbers for comparison
@@ -1362,7 +1365,7 @@ export default function AdminPage() {
         };
         comparisons.push(characterStatComparison);
       } catch (error) {
-        console.error('Character Stats comparison error:', error);
+        logger.error('Character Stats comparison error:', error);
         comparisons.push({
           table: 'Character Stats',
           localStorageCount: 0,
@@ -1389,7 +1392,7 @@ export default function AdminPage() {
             supabaseAchievementCount = Array.isArray(achievementData) ? achievementData.filter((a: any) => a.unlocked).length : 0;
           }
         } catch (achievementError) {
-          console.log('Achievements API not available, skipping count');
+          logger.debug('Achievements API not available, skipping count');
         }
 
         const achievementComparison: DataComparison = {
@@ -1416,7 +1419,7 @@ export default function AdminPage() {
       setDataComparison(comparisons);
       toast.success('Data comparison completed!');
     } catch (error) {
-      console.error('Error comparing data:', error);
+      logger.error('Error comparing data:', error);
       toast.error('Failed to compare data sources');
     } finally {
       setIsComparingData(false);
@@ -1434,7 +1437,7 @@ export default function AdminPage() {
 
       if (response.ok) {
         const debugData = await response.json();
-        console.log('Quest Debug Data:', debugData);
+        logger.debug('Quest Debug Data:', debugData);
 
         // Show the results in a toast
         if (debugData.debug) {
@@ -1443,7 +1446,7 @@ export default function AdminPage() {
 
           // Also log the completions if any exist
           if (debugData.completions && debugData.completions.length > 0) {
-            console.log('Quest Completions Found:', debugData.completions);
+            logger.debug('Quest Completions Found:', debugData.completions);
             toast.success(`Found ${debugData.completions.length} quest completions!`);
           } else {
             toast.warning('No quest completions found in database');
@@ -1453,7 +1456,7 @@ export default function AdminPage() {
         toast.error('Failed to fetch quest debug data');
       }
     } catch (error) {
-      console.error('Quest debug error:', error);
+      logger.error('Quest debug error:', error);
       toast.error('Error debugging quest completions');
     }
   };
@@ -1469,7 +1472,7 @@ export default function AdminPage() {
 
       if (response.ok) {
         const testData = await response.json();
-        console.log('Quest Matching Test:', testData);
+        logger.debug('Quest Matching Test:', testData);
 
         // Show results in toast
         const completedCount = testData.analysis?.filter((a: any) => a.is_completed).length || 0;
@@ -1479,13 +1482,13 @@ export default function AdminPage() {
 
         // Log detailed analysis
         if (testData.analysis) {
-          console.log('Quest Matching Analysis:', testData.analysis);
+          logger.debug('Quest Matching Analysis:', testData.analysis);
         }
       } else {
         toast.error('Failed to test quest matching');
       }
     } catch (error) {
-      console.error('Quest matching test error:', error);
+      logger.error('Quest matching test error:', error);
       toast.error('Error testing quest matching');
     }
   };
@@ -1629,7 +1632,7 @@ TECHNICAL DETAILS:
         }
       }
     } catch (error) {
-      console.error('[Admin] Error initializing default flags:', error);
+      logger.error('[Admin] Error initializing default flags:', error);
     }
   };
 
@@ -1662,7 +1665,7 @@ TECHNICAL DETAILS:
         setHarvestFestivalActive(harvestActive);
       }
     } catch (error) {
-      console.error('[Admin] Error loading event flags:', error);
+      logger.error('[Admin] Error loading event flags:', error);
     }
   };
 
@@ -1690,10 +1693,10 @@ TECHNICAL DETAILS:
         const harvestValue = harvestData?.data?.data?.[0]?.setting_value;
         const harvestActive = harvestValue !== undefined ? String(harvestValue).toLowerCase() === 'true' : false;
         setHarvestFestivalActive(harvestActive);
-        console.log(`[Admin] Refreshed harvest festival active: ${harvestActive}`);
+        logger.debug(`[Admin] Refreshed harvest festival active: ${harvestActive}`);
       }
     } catch (error) {
-      console.error('[Admin] Error refreshing event flags:', error);
+      logger.error('[Admin] Error refreshing event flags:', error);
     }
   };
 
@@ -1701,7 +1704,7 @@ TECHNICAL DETAILS:
   const toggleEvent = async (key: string, currentValue: boolean) => {
     const newValue = !currentValue;
 
-    console.log(`[Admin] Toggling ${key} from ${currentValue} to ${newValue}`);
+    logger.debug(`[Admin] Toggling ${key} from ${currentValue} to ${newValue}`);
 
     try {
       const response = await fetchWithAuth('/api/game-settings', {
@@ -1730,11 +1733,11 @@ TECHNICAL DETAILS:
         toast.success(`${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} is now ${newValue ? 'ACTIVE' : 'INACTIVE'}`);
       } else {
         const errorText = await response.text();
-        console.error(`[Admin] API error: ${response.status} - ${errorText}`);
+        logger.error(`[Admin] API error: ${response.status} - ${errorText}`);
         toast.error('Failed to update event status');
       }
     } catch (error) {
-      console.error('[Admin] Error updating event:', error);
+      logger.error('[Admin] Error updating event:', error);
       toast.error('An error occurred while updating the event');
     }
   };
@@ -1979,22 +1982,22 @@ TECHNICAL DETAILS:
                             <Button
                               onClick={async () => {
                                 try {
-                                  console.log('=== TESTING WORKING SIMPLE QUEST API ===');
+                                  logger.debug('=== TESTING WORKING SIMPLE QUEST API ===');
                                   const response = await fetch('/api/quests/simple', {
                                     credentials: 'include'
                                   });
                                   if (response.ok) {
                                     const data = await response.json();
-                                    console.log('✅ Simple Quest API Response:', data);
-                                    console.log('✅ Completed Quests:', data.completedQuests);
-                                    console.log('✅ Incomplete Quests:', data.incompleteQuests);
-                                    console.log('✅ Total Completions:', data.completionsCount);
-                                    console.log('✅ Total Challenges:', data.challengesCount);
+                                    logger.debug('✅ Simple Quest API Response:', data);
+                                    logger.debug('✅ Completed Quests:', data.completedQuests);
+                                    logger.debug('✅ Incomplete Quests:', data.incompleteQuests);
+                                    logger.debug('✅ Total Completions:', data.completionsCount);
+                                    logger.debug('✅ Total Challenges:', data.challengesCount);
                                   } else {
-                                    console.error('❌ Simple Quest API failed:', response.status, response.statusText);
+                                    logger.error('❌ Simple Quest API failed:', response.status, response.statusText);
                                   }
                                 } catch (error) {
-                                  console.error('❌ Simple Quest API error:', error);
+                                  logger.error('❌ Simple Quest API error:', error);
                                 }
                               }}
                               variant="outline"
@@ -2654,7 +2657,7 @@ TECHNICAL DETAILS:
                       <Button
                         key={track}
                         onClick={() => {
-                          console.log(`[Audio Test] Playing music: ${track}`);
+                          logger.debug(`[Audio Test] Playing music: ${track}`);
                           playMusic(track);
                         }}
                         className="w-full justify-start text-sm"
@@ -2687,7 +2690,7 @@ TECHNICAL DETAILS:
                       <Button
                         key={sfx}
                         onClick={() => {
-                          console.log(`[Audio Test] Playing SFX: ${sfx}`);
+                          logger.debug(`[Audio Test] Playing SFX: ${sfx}`);
                           playSFX(sfx);
                         }}
                         className="w-full justify-start text-sm"

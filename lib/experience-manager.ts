@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { toast } from "@/components/ui/use-toast"
 import { calculateLevelFromExperience, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
@@ -40,7 +41,7 @@ async function getEquippedPerks(): Promise<Perk[]> {
     const perks = JSON.parse(savedPerks);
     return Array.isArray(perks) ? perks.filter((p: Perk) => p.equipped) : [];
   } catch (error) {
-    console.error('Error loading perks:', error);
+    logger.error('Error loading perks:', error);
     return [];
   }
 }
@@ -146,7 +147,7 @@ export async function gainExperience(amount: number, source: string, category: s
       leveledUp: newLevel > oldLevel
     }
   } catch (error) {
-    console.error('[Experience Manager] Error gaining experience:', error)
+    logger.error('[Experience Manager] Error gaining experience:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -178,12 +179,12 @@ async function logExperienceTransaction(
     });
 
     if (!response.ok) {
-      console.warn('[Experience Manager] Failed to log transaction to database:', response.status);
+      logger.warn('[Experience Manager] Failed to log transaction to database:', response.status);
     } else {
       // Removed debugging log
     }
   } catch (error) {
-    console.warn('[Experience Manager] Error logging transaction:', error);
+    logger.warn('[Experience Manager] Error logging transaction:', error);
     // Don't fail the main operation if logging fails
   }
 }

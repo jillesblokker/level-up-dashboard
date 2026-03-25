@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
@@ -46,14 +47,14 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (error) {
-            console.error("Supabase error:", error);
+            logger.error("Supabase error:", error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json({ success: true, quest: data });
 
     } catch (err: any) {
-        console.error("Admin Quests API Error:", err);
+        logger.error("Admin Quests API Error:", err);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

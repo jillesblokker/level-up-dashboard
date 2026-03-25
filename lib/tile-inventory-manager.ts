@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { InventoryItem } from '@/lib/inventory-manager';
 import { authenticatedFetch } from './auth-helpers';
 
@@ -22,14 +23,14 @@ export async function getTileInventory(userId: string): Promise<TileInventoryIte
         }
 
         if (!response.ok) {
-            console.error('[Tile Inventory] Failed to fetch tile inventory:', response.status, response.statusText);
+            logger.error('[Tile Inventory] Failed to fetch tile inventory:', response.status, response.statusText);
             return [];
         }
 
         const data = await response.json();
         return data || [];
     } catch (error) {
-        console.error('[Tile Inventory] Error fetching tile inventory:', error);
+        logger.error('[Tile Inventory] Error fetching tile inventory:', error);
         return [];
     }
 }
@@ -38,7 +39,7 @@ export async function addTileToInventory(userId: string, tile: TileInventoryItem
     // Removed debugging log
 
     if (!userId) {
-        console.error('[Tile Inventory Manager] No userId provided');
+        logger.error('[Tile Inventory Manager] No userId provided');
         return;
     }
 
@@ -50,14 +51,14 @@ export async function addTileToInventory(userId: string, tile: TileInventoryItem
         }, 'Add Tile Inventory');
 
         if (!response) {
-            console.error('[Tile Inventory Manager] No response from API');
+            logger.error('[Tile Inventory Manager] No response from API');
             return;
         }
 
         // Removed debugging log
 
         if (!response.ok) {
-            console.error('[Tile Inventory Manager] Failed to add tile to inventory:', response.status, response.statusText);
+            logger.error('[Tile Inventory Manager] Failed to add tile to inventory:', response.status, response.statusText);
             return;
         }
 
@@ -65,7 +66,7 @@ export async function addTileToInventory(userId: string, tile: TileInventoryItem
         // Dispatch event to notify components
         window.dispatchEvent(new Event('tile-inventory-update'));
     } catch (error) {
-        console.error('[Tile Inventory] Error adding tile to inventory:', error);
+        logger.error('[Tile Inventory] Error adding tile to inventory:', error);
     }
 }
 
@@ -82,14 +83,14 @@ export async function removeTileFromInventory(userId: string, tileId: string, qu
         }
 
         if (!response.ok) {
-            console.error('[Tile Inventory] Failed to remove tile from inventory:', response.status, response.statusText);
+            logger.error('[Tile Inventory] Failed to remove tile from inventory:', response.status, response.statusText);
             return;
         }
 
         // Dispatch event to notify components
         window.dispatchEvent(new Event('tile-inventory-update'));
     } catch (error) {
-        console.error('[Tile Inventory] Error removing tile from inventory:', error);
+        logger.error('[Tile Inventory] Error removing tile from inventory:', error);
     }
 }
 

@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -69,7 +72,7 @@ export default function RestoreStatsPage() {
             });
           }
         } catch (error) {
-          console.error('Error reading localStorage:', error);
+          logger.error('Error reading localStorage:', error);
         }
       }
 
@@ -118,7 +121,7 @@ export default function RestoreStatsPage() {
         });
       }
     } catch (error) {
-      console.error('Error restoring stats:', error);
+      logger.error('Error restoring stats:', error);
       setRestoreResult({
         success: false,
         message: 'Network error while restoring stats',
@@ -141,7 +144,7 @@ export default function RestoreStatsPage() {
         data: result
       });
     } catch (error) {
-      console.error('Error testing connection:', error);
+      logger.error('Error testing connection:', error);
       setRestoreResult({
         success: false,
         message: 'Failed to test database connection',

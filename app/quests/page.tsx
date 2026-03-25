@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { AddMilestoneForm } from "@/components/add-milestone-form"
@@ -49,7 +51,11 @@ import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-syst
 import { MedievalErrorBoundary as EnhancedErrorBoundary } from '@/components/medieval-error-boundary'
 import { DailyProgressCard } from '@/components/daily-progress-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
-import { TarotCardDisplay } from '@/components/tarot-card'
+import dynamic from 'next/dynamic';
+const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m => ({ default: m.TarotCardDisplay })), {
+  loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />,
+  ssr: false,
+});
 import { StreakIndicator } from "@/components/streak-indicator"
 import { ResponsiveModal } from "@/components/ui/responsive-modal"
 import { useQuickAdd } from "@/components/quick-add-provider"
@@ -136,7 +142,7 @@ export default function QuestsPage() {
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
 
-  console.log('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
+  logger.debug('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
   const [quests, setQuests] = useState<Quest[]>([]);
   const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
@@ -211,7 +217,7 @@ export default function QuestsPage() {
 
   const { syncNow, isSyncing, lastSync } = useQuestSync({
     onQuestsUpdate: async () => {
-      console.log('[Quest Sync] Syncing quests...');
+      logger.debug('[Quest Sync] Syncing quests...');
       // Refetch quests from the server
       if (!token) return;
 
@@ -228,19 +234,19 @@ export default function QuestsPage() {
 
         const data = await res.json();
         setQuests(data || []);
-        console.log('[Quest Sync] Quests synced successfully');
+        logger.debug('[Quest Sync] Quests synced successfully');
       } catch (error) {
-        console.error('[Quest Sync] Error syncing quests:', error);
+        logger.error('[Quest Sync] Error syncing quests:', error);
         throw error;
       }
     },
     onCharacterStatsUpdate: async () => {
-      console.log('[Quest Sync] Syncing character stats...');
+      logger.debug('[Quest Sync] Syncing character stats...');
       // Trigger character stats update
       window.dispatchEvent(new Event('character-stats-update'));
     },
     onError: (error) => {
-      console.error('[Quest Sync] Sync error:', error);
+      logger.error('[Quest Sync] Sync error:', error);
       setSyncError(error.message);
       // Clear error after 5 seconds
       setTimeout(() => setSyncError(null), 5000);
@@ -281,7 +287,7 @@ export default function QuestsPage() {
   const todaysTotal = todaysQuests.length;
 
   // Debug quest filtering
-  console.log('[Quest Filter Debug]', {
+  logger.debug('[Quest Filter Debug]', {
     totalQuests: quests.length,
     currentCategory: safeQuestCategory,
     questsInCategory: todaysTotal,
@@ -363,7 +369,7 @@ export default function QuestsPage() {
           });
         }
       } catch (error) {
-        console.error('[Character Stats] Error fetching stats:', error);
+        logger.error('[Character Stats] Error fetching stats:', error);
       }
     };
 
@@ -373,7 +379,7 @@ export default function QuestsPage() {
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
     const handleQuestAdded = (event: any) => {
-      console.log('[QuestsPage] Global quest added event received, refreshing...', event.detail);
+      logger.debug('[QuestsPage] Global quest added event received, refreshing...', event.detail);
 
       // Auto-switch to the new quest's category if provided
       if (event.detail?.category) {
@@ -406,27 +412,27 @@ export default function QuestsPage() {
     async function fetchQuests(retryCount = 0) {
       try {
         if (!token) return; // Guard for linter
-        console.log('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '... (attempt', retryCount + 1, ')');
+        logger.debug('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '... (attempt', retryCount + 1, ')');
         const res = await fetch(`/api/quests?t=${Date.now()}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('[Quests Debug] Response status:', res.status, 'ok:', res.ok);
+        logger.debug('[Quests Debug] Response status:', res.status, 'ok:', res.ok);
         if (!res.ok) {
           const errorText = await res.text();
-          console.error('[Quests Debug] Error response:', errorText);
+          logger.error('[Quests Debug] Error response:', errorText);
           throw new Error(`Failed to fetch quests: ${res.status} ${errorText}`);
         }
         // Check if response is HTML (error page) instead of JSON
         const contentType = res.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
           const htmlText = await res.text();
-          console.error('[Quests Debug] Received HTML instead of JSON:', htmlText.substring(0, 200));
+          logger.error('[Quests Debug] Received HTML instead of JSON:', htmlText.substring(0, 200));
 
           // Retry once if we get HTML (might be a temporary auth issue)
           if (retryCount < 1) {
-            console.log('[Quests Debug] Retrying after HTML response...');
+            logger.debug('[Quests Debug] Retrying after HTML response...');
             await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
             return fetchQuests(retryCount + 1);
           }
@@ -435,7 +441,7 @@ export default function QuestsPage() {
         }
 
         const data = await res.json();
-        console.log('[Quests Debug] Data received:', {
+        logger.debug('[Quests Debug] Data received:', {
           dataType: typeof data,
           isArray: Array.isArray(data),
           length: Array.isArray(data) ? data.length : 'N/A',
@@ -447,14 +453,14 @@ export default function QuestsPage() {
         // Debug: Check for quests that are completed
         const completedQuests = data?.filter((q: any) => q.completed) || [];
         if (completedQuests.length > 0) {
-          console.log('[Quests Debug] Found completed quests:', completedQuests.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed })));
+          logger.debug('[Quests Debug] Found completed quests:', completedQuests.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed })));
         }
 
         setQuests(data || []);
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
         setQuests([]);
-        console.error('[Quests Debug] Error fetching quests:', err);
+        logger.error('[Quests Debug] Error fetching quests:', err);
       } finally {
         setLoading(false);
       }
@@ -468,11 +474,11 @@ export default function QuestsPage() {
     try {
       const token = await getToken({ template: 'supabase' });
       if (!token) {
-        console.log('[Favorites] No token available');
+        logger.debug('[Favorites] No token available');
         return;
       }
 
-      console.log('[Favorites] Fetching favorites from API...');
+      logger.debug('[Favorites] Fetching favorites from API...');
       const response = await fetch('/api/quests/favorites', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -481,14 +487,14 @@ export default function QuestsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('[Favorites] API response:', data);
+        logger.debug('[Favorites] API response:', data);
         setFavoritedQuests(new Set(data.favorites || []));
-        console.log('[Favorites] Set favorited quests:', data.favorites || []);
+        logger.debug('[Favorites] Set favorited quests:', data.favorites || []);
       } else {
-        console.error('[Favorites] API error:', response.status, response.statusText);
+        logger.error('[Favorites] API error:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching favorites:', error);
+      logger.error('Error fetching favorites:', error);
     }
   };
 
@@ -508,14 +514,14 @@ export default function QuestsPage() {
       const today = netherlandsDate; // Format: YYYY-MM-DD
 
       // Debug timezone conversion
-      console.log('[Daily Reset] Timezone debug:', {
+      logger.debug('[Daily Reset] Timezone debug:', {
         utcTime: now.toISOString(),
         netherlandsDate: netherlandsDate,
         today: today,
         lastReset: lastReset
       });
 
-      console.log('[Daily Reset] Checking reset conditions:', {
+      logger.debug('[Daily Reset] Checking reset conditions:', {
         lastReset,
         today,
         shouldReset: lastReset !== today,
@@ -525,15 +531,15 @@ export default function QuestsPage() {
 
       // Debug: Show if we're skipping due to localStorage
       if (lastReset === today) {
-        console.log('[Daily Reset] ⚠️ Skipping reset because localStorage shows reset already processed today');
-        console.log('[Daily Reset] 💡 To force a reset, clear localStorage: localStorage.removeItem("last-quest-reset-date")');
+        logger.debug('[Daily Reset] ⚠️ Skipping reset because localStorage shows reset already processed today');
+        logger.debug('[Daily Reset] 💡 To force a reset, clear localStorage: localStorage.removeItem("last-quest-reset-date")');
       }
 
       // Only reset if we haven't processed today's reset AND we have a valid token
       // Remove the dailyResetInitiated check to allow manual resets
       if (lastReset !== today && token) {
-        console.log('[Daily Reset] Starting daily reset for date:', today);
-        console.log('[Daily Reset] Last reset was:', lastReset, 'Today is:', today);
+        logger.debug('[Daily Reset] Starting daily reset for date:', today);
+        logger.debug('[Daily Reset] Last reset was:', lastReset, 'Today is:', today);
 
         // Mark that we've initiated a reset to prevent multiple calls
         dailyResetInitiated.current = true;
@@ -546,7 +552,7 @@ export default function QuestsPage() {
           .then(async res => {
             if (!res.ok) {
               const err = await res.text();
-              console.error('[Daily Reset] API error:', res.status, err);
+              logger.error('[Daily Reset] API error:', res.status, err);
               toast({
                 title: 'Daily Reset Error',
                 description: `Failed to reset daily quests: ${err || res.statusText}`,
@@ -557,7 +563,7 @@ export default function QuestsPage() {
 
             // Only parse JSON if response is OK
             const result = await res.json();
-            console.log('[Daily Reset] Success:', result);
+            logger.debug('[Daily Reset] Success:', result);
 
             // Mark that we've processed today's reset
             localStorage.setItem('last-quest-reset-date', today);
@@ -566,16 +572,16 @@ export default function QuestsPage() {
             dailyResetInitiated.current = false;
 
             // 🔍 DEBUG: Log the quest state after reset
-            console.log('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
+            logger.debug('[Daily Reset] Quest state after reset:', quests.map(q => ({ id: q.id, name: q.name, completed: q.completed })));
 
             // IMPORTANT: DO NOT manually reset quest state - this causes data loss!
             // The quest completion logic will naturally show quests as incomplete
             // if there's no completed=true record for today
-            console.log('[Daily Reset] ✅ Preserving quest state - no manual reset to prevent data loss');
+            logger.debug('[Daily Reset] ✅ Preserving quest state - no manual reset to prevent data loss');
 
             // Optimized delay before refreshing to ensure reset completion
             setTimeout(() => {
-              console.log('[Daily Reset] Refreshing quest data after reset...');
+              logger.debug('[Daily Reset] Refreshing quest data after reset...');
               setRefreshTrigger(prev => prev + 1);
             }, 1500); // Reduced delay since UI-only reset is instant
 
@@ -585,7 +591,7 @@ export default function QuestsPage() {
             });
           })
           .catch(err => {
-            console.error('[Daily Reset] Network error:', err);
+            logger.error('[Daily Reset] Network error:', err);
             toast({
               title: 'Daily Reset Error',
               description: `Network or server error: ${err.message || err}`,
@@ -593,7 +599,7 @@ export default function QuestsPage() {
             });
           });
       } else {
-        console.log('[Daily Reset] Skipping reset - already processed today or conditions not met');
+        logger.debug('[Daily Reset] Skipping reset - already processed today or conditions not met');
       }
     }
   }, [loading, userId, token]); // Remove quests.length to prevent reset from running after every quest completion
@@ -615,7 +621,7 @@ export default function QuestsPage() {
     // If the date has changed, reset the flag
     if (lastReset !== today) {
       dailyResetInitiated.current = false;
-      console.log('[Daily Reset] Date changed, resetting daily reset flag');
+      logger.debug('[Daily Reset] Date changed, resetting daily reset flag');
     }
   }, []);
 
@@ -637,7 +643,7 @@ export default function QuestsPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
-          console.error('[Streaks] Failed to fetch streak:', res.status, res.statusText);
+          logger.error('[Streaks] Failed to fetch streak:', res.status, res.statusText);
           throw new Error('Failed to fetch streak');
         }
         const data = await res.json();
@@ -693,7 +699,7 @@ export default function QuestsPage() {
           }
         }
       } catch (error) {
-        console.error('[Streaks] Error fetching streak:', error);
+        logger.error('[Streaks] Error fetching streak:', error);
         if (!cancelled) setStreakData({ streak_days: 0, week_streaks: 0 });
       }
     };
@@ -706,7 +712,7 @@ export default function QuestsPage() {
     if (!userId || !questCategory) return;
 
     // Disable polling to prevent infinite loops
-    console.log('[Streaks Poll] Polling disabled to prevent infinite loops');
+    logger.debug('[Streaks Poll] Polling disabled to prevent infinite loops');
 
     // Only fetch once on mount
     const fetchStreakOnce = async () => {
@@ -721,13 +727,13 @@ export default function QuestsPage() {
               const data = await res.json();
               setStreakData(data);
             } else {
-              console.error('[Streaks Poll] Non-JSON response received');
+              logger.error('[Streaks Poll] Non-JSON response received');
             }
           } else {
-            console.error('[Streaks Poll] HTTP error:', res.status, res.statusText);
+            logger.error('[Streaks Poll] HTTP error:', res.status, res.statusText);
           }
         } catch (error) {
-          console.error('[Streaks Poll] Error fetching streak:', error);
+          logger.error('[Streaks Poll] Error fetching streak:', error);
         }
       }
     };
@@ -764,7 +770,7 @@ export default function QuestsPage() {
         setChallengeStreakData(updatedData);
       }
     } catch (error) {
-      console.error('Failed to update challenge streak:', error);
+      logger.error('Failed to update challenge streak:', error);
     }
   };
 
@@ -772,7 +778,7 @@ export default function QuestsPage() {
   const [questStreakUpdatedToday, setQuestStreakUpdatedToday] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // console.log('[Quest Streak Debug] Effect triggered:', {
+    // logger.debug('[Quest Streak Debug] Effect triggered:', {
     //   userId,
     //   todaysTotal,
     //   todaysCompleted,
@@ -782,21 +788,21 @@ export default function QuestsPage() {
     // });
 
     if (!userId || todaysTotal === 0) {
-      // console.log('[Quest Streak Debug] Bailing early - no userId or no quests');
+      // logger.debug('[Quest Streak Debug] Bailing early - no userId or no quests');
       return;
     }
     if (typeof window === 'undefined') return;
 
     const today = new Date().toISOString().slice(0, 10);
     const allQuestsCompleted = todaysCompleted === todaysTotal && todaysTotal > 0;
-    // console.log('[Quest Streak Debug] All quests completed?', allQuestsCompleted);
+    // logger.debug('[Quest Streak Debug] All quests completed?', allQuestsCompleted);
 
     // 🎯 SIMPLIFIED: Just check if all quests are completed and we haven't updated today
     const alreadyUpdatedToday = questCategory ? questStreakUpdatedToday[questCategory] === today : false;
-    // console.log('[Quest Streak Debug] Already updated today?', alreadyUpdatedToday);
+    // logger.debug('[Quest Streak Debug] Already updated today?', alreadyUpdatedToday);
 
     if (allQuestsCompleted && !alreadyUpdatedToday && questCategory) {
-      // console.log('[Quest Streak Debug] 🎉 ALL QUESTS COMPLETED! Updating streak...');
+      // logger.debug('[Quest Streak Debug] 🎉 ALL QUESTS COMPLETED! Updating streak...');
 
       // Mark as updated today to prevent infinite loop
       setQuestStreakUpdatedToday(prev => ({ ...prev, [questCategory]: today }));
@@ -804,7 +810,7 @@ export default function QuestsPage() {
       // Get current streak from state and increment
       const currentStreak = streakData?.streak_days ?? 0;
       const newStreak = currentStreak + 1;
-      // console.log('[Quest Streak Debug] Updating from', currentStreak, 'to', newStreak);
+      // logger.debug('[Quest Streak Debug] Updating from', currentStreak, 'to', newStreak);
 
       updateStreak(newStreak, 0);
 
@@ -839,7 +845,7 @@ export default function QuestsPage() {
   const [streakUpdatedToday, setStreakUpdatedToday] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // console.log('[Streak Debug] Effect triggered:', {
+    // logger.debug('[Streak Debug] Effect triggered:', {
     //   challengesLength: challenges.length,
     //   challengeCategory,
     //   challengeStreakData,
@@ -847,12 +853,12 @@ export default function QuestsPage() {
     // });
 
     if (!challenges.length) {
-      // console.log('[Streak Debug] No challenges loaded yet');
+      // logger.debug('[Streak Debug] No challenges loaded yet');
       return;
     }
 
     const challengesForCategory = challenges.filter(c => c.category === challengeCategory);
-    // console.log('[Streak Debug] Challenges for category:', {
+    // logger.debug('[Streak Debug] Challenges for category:', {
     //   category: challengeCategory,
     //   total: challengesForCategory.length,
     //   completed: challengesForCategory.filter(c => c.completed).length,
@@ -860,12 +866,12 @@ export default function QuestsPage() {
     // });
 
     const allChallengesCompleted = challengesForCategory.length > 0 && challengesForCategory.every(c => c.completed);
-    // console.log('[Streak Debug] All challenges completed?', allChallengesCompleted);
+    // logger.debug('[Streak Debug] All challenges completed?', allChallengesCompleted);
 
     // 🎯 PREVENT INFINITE LOOP: Check if we already updated streak today
     const today = new Date().toISOString().slice(0, 10);
     const alreadyUpdatedToday = challengeCategory ? streakUpdatedToday[challengeCategory] === today : false;
-    // console.log('[Streak Debug] Already updated today?', alreadyUpdatedToday);
+    // logger.debug('[Streak Debug] Already updated today?', alreadyUpdatedToday);
 
     if (allChallengesCompleted && !alreadyUpdatedToday && challengeCategory) {
       // Removed debugging log
@@ -947,7 +953,7 @@ export default function QuestsPage() {
         duration: 2000,
       });
     } catch (error) {
-      console.error('Error updating streak:', error);
+      logger.error('Error updating streak:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.streak.error.title,
         description: TEXT_CONTENT.questBoard.toasts.streak.error.desc,
@@ -962,11 +968,11 @@ export default function QuestsPage() {
     // Find the quest object
     const questObj = quests.find(q => q.id === questId);
     if (!questObj) {
-      console.error('[QUEST-TOGGLE] Quest not found:', questId);
+      logger.error('[QUEST-TOGGLE] Quest not found:', questId);
       return;
     }
 
-    console.log('[QUEST-TOGGLE] Updating quest state:', { questId, newCompleted, questName: questObj.name });
+    logger.debug('[QUEST-TOGGLE] Updating quest state:', { questId, newCompleted, questName: questObj.name });
 
     // Update the quest in the local state (optimistic update)
     setQuests(prevQuests =>
@@ -982,7 +988,7 @@ export default function QuestsPage() {
       const goldReward = questObj.gold || 50;
       const xpReward = questObj.xp || 25;
 
-      console.log('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+      logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
@@ -1028,7 +1034,7 @@ export default function QuestsPage() {
       }
 
       const responseData = await response.json();
-      console.log('[QUEST-TOGGLE] Quest persisted to backend successfully', responseData);
+      logger.debug('[QUEST-TOGGLE] Quest persisted to backend successfully', responseData);
 
       // 🎯 Display character-based milestone message if received
       if (responseData.milestoneMessage) {
@@ -1039,7 +1045,7 @@ export default function QuestsPage() {
         });
       }
     } catch (error) {
-      console.error('[QUEST-TOGGLE] Error persisting quest:', error);
+      logger.error('[QUEST-TOGGLE] Error persisting quest:', error);
       // Don't show error toast as rewards were already applied
       // Just log for debugging
     }
@@ -1070,7 +1076,7 @@ export default function QuestsPage() {
         duration: 2000,
       });
     } catch (error) {
-      console.error('Error updating favorite:', error);
+      logger.error('Error updating favorite:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.favorites.error.title,
         description: TEXT_CONTENT.questBoard.toasts.favorites.error.desc,
@@ -1117,7 +1123,7 @@ export default function QuestsPage() {
         duration: 2000,
       });
     } catch (error) {
-      console.error('Error deleting quest:', error);
+      logger.error('Error deleting quest:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.deletion.questError.title,
         description: TEXT_CONTENT.questBoard.toasts.deletion.questError.desc,
@@ -1132,11 +1138,11 @@ export default function QuestsPage() {
     // Find the challenge object
     const challengeObj = challenges.find(c => c.id === challengeId);
     if (!challengeObj) {
-      console.error('[CHALLENGE-TOGGLE] Challenge not found:', challengeId);
+      logger.error('[CHALLENGE-TOGGLE] Challenge not found:', challengeId);
       return;
     }
 
-    console.log('[CHALLENGE-TOGGLE] Updating challenge state:', { challengeId, newCompleted, challengeName: challengeObj.name });
+    logger.debug('[CHALLENGE-TOGGLE] Updating challenge state:', { challengeId, newCompleted, challengeName: challengeObj.name });
 
     // Update local state (optimistic update)
     setChallenges(prevChallenges =>
@@ -1152,7 +1158,7 @@ export default function QuestsPage() {
       const goldReward = challengeObj.gold || 50;
       const xpReward = challengeObj.xp || 25;
 
-      console.log('[CHALLENGE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+      logger.debug('[CHALLENGE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `challenge-completion:${challengeId}`);
@@ -1195,9 +1201,9 @@ export default function QuestsPage() {
         throw new Error(`Failed to update challenge: ${response.status} ${errorData.error || ''}`);
       }
 
-      console.log('[CHALLENGE-TOGGLE] Challenge persisted to backend successfully');
+      logger.debug('[CHALLENGE-TOGGLE] Challenge persisted to backend successfully');
     } catch (error) {
-      console.error('[CHALLENGE-TOGGLE] Error persisting challenge:', error);
+      logger.error('[CHALLENGE-TOGGLE] Error persisting challenge:', error);
       // Don't show error toast as rewards were already applied
       // Just log for debugging
     }
@@ -1240,7 +1246,7 @@ export default function QuestsPage() {
         duration: 2000,
       });
     } catch (error) {
-      console.error('Error deleting challenge:', error);
+      logger.error('Error deleting challenge:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.deletion.challengeError.title,
         description: TEXT_CONTENT.questBoard.toasts.deletion.challengeError.desc,
@@ -1282,7 +1288,7 @@ export default function QuestsPage() {
 
           // Log if buff was applied
           if (buffedRewards.buffApplied) {
-            console.log(`[Bulk Complete] Tarot buff applied to ${quest.name}:`, {
+            logger.debug(`[Bulk Complete] Tarot buff applied to ${quest.name}:`, {
               baseXp,
               baseGold,
               buffedXp: buffedRewards.xp,
@@ -1306,7 +1312,7 @@ export default function QuestsPage() {
           });
 
           if (!response.ok) {
-            console.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
+            logger.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
             // Revert optimistic update on failure
             setQuests(prevQuests =>
               prevQuests.map(q =>
@@ -1316,10 +1322,10 @@ export default function QuestsPage() {
               )
             );
           } else {
-            console.log(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
+            logger.debug(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
           }
         } catch (apiError) {
-          console.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
+          logger.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
           // Revert optimistic update on error
           setQuests(prevQuests =>
             prevQuests.map(q =>
@@ -1339,7 +1345,7 @@ export default function QuestsPage() {
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error bulk completing favorites:', error);
+      logger.error('Error bulk completing favorites:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.completion.bulkError.title,
         description: TEXT_CONTENT.questBoard.toasts.completion.bulkError.desc,
@@ -1388,7 +1394,7 @@ export default function QuestsPage() {
 
           if (!response.ok) {
             const errorText = await response.text();
-            console.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
+            logger.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
             // Revert optimistic update on failure
             setQuests(prevQuests =>
               prevQuests.map(q =>
@@ -1399,10 +1405,10 @@ export default function QuestsPage() {
             );
           } else {
             const responseData = await response.json();
-            console.log(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
+            logger.debug(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
           }
         } catch (apiError) {
-          console.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
+          logger.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
           // Revert optimistic update on error
           setQuests(prevQuests =>
             prevQuests.map(q =>
@@ -1417,7 +1423,7 @@ export default function QuestsPage() {
       // Wait a moment for database to update, then refresh quest data
       setTimeout(async () => {
         try {
-          console.log('[Bulk Complete All] Refreshing quest data after completion...');
+          logger.debug('[Bulk Complete All] Refreshing quest data after completion...');
           const response = await fetch(`/api/quests?t=${Date.now()}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -1426,11 +1432,11 @@ export default function QuestsPage() {
 
           if (response.ok) {
             const data = await response.json();
-            console.log('[Bulk Complete All] Refreshed quest data:', data);
+            logger.debug('[Bulk Complete All] Refreshed quest data:', data);
             setQuests(data);
           }
         } catch (error) {
-          console.error('[Bulk Complete All] Error refreshing quest data:', error);
+          logger.error('[Bulk Complete All] Error refreshing quest data:', error);
         }
       }, 1000);
 
@@ -1440,7 +1446,7 @@ export default function QuestsPage() {
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error bulk completing all favorites:', error);
+      logger.error('Error bulk completing all favorites:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.completion.bulkError.title,
         description: TEXT_CONTENT.questBoard.toasts.completion.bulkError.desc,
@@ -1454,7 +1460,7 @@ export default function QuestsPage() {
     if (!token) return;
 
     setManualResetLoading(true);
-    console.log('[Manual Reset] Starting manual reset...');
+    logger.debug('[Manual Reset] Starting manual reset...');
 
     try {
       const res = await fetch('/api/quests/reset-daily-ui-only', {
@@ -1464,7 +1470,7 @@ export default function QuestsPage() {
 
       if (!res.ok) {
         const err = await res.text();
-        console.error('[Manual Reset] API error:', res.status, err);
+        logger.error('[Manual Reset] API error:', res.status, err);
         toast({
           title: TEXT_CONTENT.questBoard.toasts.manualReset.error.title,
           description: TEXT_CONTENT.questBoard.toasts.manualReset.error.desc.replace('{error}', err || res.statusText),
@@ -1474,7 +1480,7 @@ export default function QuestsPage() {
       }
 
       const result = await res.json();
-      console.log('[Manual Reset] Success:', result);
+      logger.debug('[Manual Reset] Success:', result);
 
       // Force all quests to show as incomplete
       setQuests(prevQuests =>
@@ -1486,7 +1492,7 @@ export default function QuestsPage() {
 
       // Add a small delay before refreshing to ensure the reset has completed
       setTimeout(() => {
-        console.log('[Manual Reset] Refreshing quest data after reset...');
+        logger.debug('[Manual Reset] Refreshing quest data after reset...');
         setRefreshTrigger(prev => prev + 1);
       }, 1000);
 
@@ -1499,7 +1505,7 @@ export default function QuestsPage() {
       });
 
     } catch (err) {
-      console.error('[Manual Reset] Error:', err);
+      logger.error('[Manual Reset] Error:', err);
       toast({
         title: 'Manual Reset Error',
         description: `Error: ${err instanceof Error ? err.message : String(err)}`,
@@ -1514,22 +1520,22 @@ export default function QuestsPage() {
   // Fetch challenges and milestones from Supabase instead of using predefined data
   const fetchChallengesAndMilestones = React.useCallback(async () => {
     if (!user) {
-      console.log('[Challenges Frontend] No user available, skipping fetch');
+      logger.debug('[Challenges Frontend] No user available, skipping fetch');
       return;
     }
 
     // Get token directly instead of depending on token state
     const token = await getToken({ template: 'supabase' });
     if (!token) {
-      console.log('[Challenges Frontend] No token available, skipping fetch');
+      logger.debug('[Challenges Frontend] No token available, skipping fetch');
       return;
     }
 
-    console.log('[Challenges Frontend] Starting to fetch challenges and milestones...');
+    logger.debug('[Challenges Frontend] Starting to fetch challenges and milestones...');
 
     try {
       // Fetch challenges
-      console.log('[Challenges Frontend] Fetching challenges from /api/challenges-ultra-simple...');
+      logger.debug('[Challenges Frontend] Fetching challenges from /api/challenges-ultra-simple...');
       const challengesRes = await fetch(`/api/challenges-ultra-simple?t=${Date.now()}&r=${Math.random()}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -1537,17 +1543,17 @@ export default function QuestsPage() {
           'Pragma': 'no-cache'
         },
       });
-      console.log('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
+      logger.debug('[Challenges Frontend] Challenges response:', { status: challengesRes.status, ok: challengesRes.ok });
 
       if (challengesRes.ok) {
         const challengesData = await challengesRes.json();
         const completedChallenges = challengesData?.filter((c: any) => c.completed === true) || [];
-        console.log('[Challenges Frontend] Challenges data received:', {
+        logger.debug('[Challenges Frontend] Challenges data received:', {
           count: challengesData?.length || 0,
           completedCount: completedChallenges.length,
           sample: challengesData?.slice(0, 2)?.map((c: any) => ({ id: c.id, name: c.name, completed: c.completed, date: c.date }))
         });
-        console.log('[Challenges Frontend] Detailed completion debug:', challengesData.map((c: any) => ({
+        logger.debug('[Challenges Frontend] Detailed completion debug:', challengesData.map((c: any) => ({
           id: c.id,
           name: c.name,
           completed: c.completed,
@@ -1555,11 +1561,11 @@ export default function QuestsPage() {
           debug: c.completion_debug
         })));
 
-        console.log('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
-        console.log('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
+        logger.debug('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
+        logger.debug('[Challenges Frontend] All challenges completion status:', challengesData?.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
         setChallenges(challengesData || []);
       } else {
-        console.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
+        logger.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
         toast({
           title: 'Error loading challenges',
           description: `Failed to load challenges: ${challengesRes.status} ${challengesRes.statusText}`,
@@ -1576,11 +1582,11 @@ export default function QuestsPage() {
               variant: 'destructive'
             });
           }
-        } catch (e) { console.error('Error parsing error response', e); }
+        } catch (e) { logger.error('Error parsing error response', e); }
       }
 
       // Fetch milestones
-      console.log('[Challenges Frontend] Fetching milestones from /api/milestones...');
+      logger.debug('[Challenges Frontend] Fetching milestones from /api/milestones...');
       const milestonesRes = await fetch(`/api/milestones?t=${Date.now()}&r=${Math.random()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1588,27 +1594,27 @@ export default function QuestsPage() {
           'Pragma': 'no-cache'
         },
       });
-      console.log('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
+      logger.debug('[Challenges Frontend] Milestones response:', { status: milestonesRes.status, ok: milestonesRes.ok });
 
       if (milestonesRes.ok) {
         const milestonesData = await milestonesRes.json();
-        console.log('[Challenges Frontend] Milestones data received:', {
+        logger.debug('[Challenges Frontend] Milestones data received:', {
           count: milestonesData?.length || 0,
           sample: milestonesData?.slice(0, 2)?.map((m: any) => ({ id: m.id, name: m.name, completed: m.completed, date: m.date }))
         });
-        console.log('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
+        logger.debug('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
         setMilestones(milestonesData || []);
       } else {
-        console.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
+        logger.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
       }
     } catch (error) {
-      console.error('[Challenges Frontend] Error fetching challenges and milestones:', error);
+      logger.error('[Challenges Frontend] Error fetching challenges and milestones:', error);
     }
   }, [user, getToken]);
 
   // Initialize challenges and milestones data - must be before early returns
   useEffect(() => {
-    console.log('[Challenges Frontend] useEffect triggered, user:', !!user);
+    logger.debug('[Challenges Frontend] useEffect triggered, user:', !!user);
     fetchChallengesAndMilestones();
   }, [user, fetchChallengesAndMilestones]);
 
@@ -1618,11 +1624,11 @@ export default function QuestsPage() {
     // Find the milestone object
     const milestoneObj = milestones.find(m => m.id === milestoneId);
     if (!milestoneObj) {
-      console.error('[MILESTONE-TOGGLE] Milestone not found:', milestoneId);
+      logger.error('[MILESTONE-TOGGLE] Milestone not found:', milestoneId);
       return;
     }
 
-    console.log('[MILESTONE-TOGGLE] Updating milestone state:', { milestoneId, newCompleted, milestoneName: milestoneObj.name });
+    logger.debug('[MILESTONE-TOGGLE] Updating milestone state:', { milestoneId, newCompleted, milestoneName: milestoneObj.name });
 
     // Update local state (optimistic update)
     setMilestones(prevMilestones =>
@@ -1638,7 +1644,7 @@ export default function QuestsPage() {
       const goldReward = milestoneObj.gold || 100; // Milestones typically have higher rewards
       const xpReward = milestoneObj.xp || 100;
 
-      console.log('[MILESTONE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+      logger.debug('[MILESTONE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `milestone-completion:${milestoneId}`);
@@ -1680,9 +1686,9 @@ export default function QuestsPage() {
         throw new Error('Failed to update milestone');
       }
 
-      console.log('[MILESTONE-TOGGLE] Milestone persisted to backend successfully');
+      logger.debug('[MILESTONE-TOGGLE] Milestone persisted to backend successfully');
     } catch (error) {
-      console.error('[MILESTONE-TOGGLE] Error persisting milestone:', error);
+      logger.error('[MILESTONE-TOGGLE] Error persisting milestone:', error);
       // Don't show error toast as rewards were already applied
       // Just log for debugging
     }
@@ -1729,7 +1735,7 @@ export default function QuestsPage() {
       setDeleteMilestoneConfirmOpen(false);
       setMilestoneToDelete(null);
     } catch (error) {
-      console.error('Error deleting milestone:', error);
+      logger.error('Error deleting milestone:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.deletion.milestoneError.title,
         description: TEXT_CONTENT.questBoard.toasts.deletion.milestoneError.desc,
@@ -1787,7 +1793,7 @@ export default function QuestsPage() {
       }
 
       const result = await response.json();
-      console.log('[Quest Edit] Update successful:', result);
+      logger.debug('[Quest Edit] Update successful:', result);
 
       toast({
         title: TEXT_CONTENT.questBoard.toasts.updates.quest.title,
@@ -1798,7 +1804,7 @@ export default function QuestsPage() {
       setEditModalOpen(false);
       setEditingQuest(null);
     } catch (error) {
-      console.error('Error updating quest:', error);
+      logger.error('Error updating quest:', error);
 
       // Revert optimistic update on error
       setQuests(prevQuests =>
@@ -1863,7 +1869,7 @@ export default function QuestsPage() {
       setEditChallengeModalOpen(false);
       setEditingChallenge(null);
     } catch (error) {
-      console.error('Error updating challenge:', error);
+      logger.error('Error updating challenge:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.updates.challengeError.title,
         description: TEXT_CONTENT.questBoard.toasts.updates.challengeError.desc,
@@ -1919,7 +1925,7 @@ export default function QuestsPage() {
       setEditMilestoneModalOpen(false);
       setEditingMilestone(null);
     } catch (error) {
-      console.error('Error updating milestone:', error);
+      logger.error('Error updating milestone:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.updateFailed.title,
         description: TEXT_CONTENT.questBoard.toasts.updateFailed.desc,
@@ -1959,7 +1965,7 @@ export default function QuestsPage() {
 
       setAddQuestModalOpen(false);
     } catch (error) {
-      console.error('Error adding quest:', error);
+      logger.error('Error adding quest:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.error.title,
         description: TEXT_CONTENT.questBoard.toasts.error.desc,
@@ -1985,12 +1991,12 @@ export default function QuestsPage() {
 
 
   if (!isClerkLoaded || !isUserLoaded) {
-    console.log('[Challenges Frontend] Early return - Waiting for auth and Clerk client...', { isClerkLoaded, isUserLoaded, user: !!user });
+    logger.debug('[Challenges Frontend] Early return - Waiting for auth and Clerk client...', { isClerkLoaded, isUserLoaded, user: !!user });
     return <FullPageLoading message={TEXT_CONTENT.questBoard.loading} />;
   }
 
   if (!userId) {
-    console.log('[Challenges Frontend] Early return - No userId found', { userId, user: !!user });
+    logger.debug('[Challenges Frontend] Early return - No userId found', { userId, user: !!user });
     return (
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">{TEXT_CONTENT.questBoard.header.guide.title}</h1>
@@ -2016,7 +2022,7 @@ export default function QuestsPage() {
         <HeaderSection
           title={TEXT_CONTENT.questBoard.header.title}
           subtitle={TEXT_CONTENT.questBoard.header.subtitle}
-          imageSrc="/images/quests-header.jpg"
+          imageSrc="/images/quests-header.webp"
           defaultBgColor="bg-amber-900"
           shouldRevealImage={true}
           guideComponent={
@@ -2349,7 +2355,7 @@ export default function QuestsPage() {
                               throw new Error('Failed to refetch');
                             })
                             .then(data => setChallengeStreakData(data))
-                            .catch(error => console.error('Error refetching streak:', error));
+                            .catch(error => logger.error('Error refetching streak:', error));
                         }
                       }}
                     />

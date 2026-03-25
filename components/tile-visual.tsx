@@ -29,41 +29,41 @@ export function TileVisual({
   const getTileImage = () => {
     switch (tile.type) {
       case 'grass':
-        return '/images/tiles/grass-tile.png'
+        return '/images/tiles/grass-tile.webp'
       case 'forest':
-        return '/images/tiles/forest-tile.png'
+        return '/images/tiles/forest-tile.webp'
       case 'water':
-        return '/images/tiles/water-tile.png'
+        return '/images/tiles/water-tile.webp'
       case 'mountain':
-        return '/images/tiles/mountain-tile.png'
+        return '/images/tiles/mountain-tile.webp'
       case 'desert':
-        return '/images/tiles/desert-tile.png'
+        return '/images/tiles/desert-tile.webp'
       case 'ice':
-        return '/images/tiles/ice-tile.png'
+        return '/images/tiles/ice-tile.webp'
       case 'city':
-        return '/images/tiles/city-tile.png'
+        return '/images/tiles/city-tile.webp'
       case 'town':
-        return '/images/tiles/town-tile.png'
+        return '/images/tiles/town-tile.webp'
       case 'mystery':
-        return '/images/tiles/mystery-tile.png'
+        return '/images/tiles/mystery-tile.webp'
       case 'portal-entrance':
-        return '/images/tiles/portal-entrance-tile.png'
+        return '/images/tiles/portal-entrance-tile.webp'
       case 'portal-exit':
-        return '/images/tiles/portal-exit-tile.png'
+        return '/images/tiles/portal-exit-tile.webp'
       case 'cave':
-        return '/images/tiles/cave-tile.png'
+        return '/images/tiles/cave-tile.webp'
       case 'dungeon':
-        return '/images/tiles/dungeon-tile.png'
+        return '/images/tiles/dungeon-tile.webp'
       case 'castle':
-        return '/images/tiles/castle-tile.png'
+        return '/images/tiles/castle-tile.webp'
       case 'snow':
-        return '/images/tiles/snow-tile.png'
+        return '/images/tiles/snow-tile.webp'
       case 'lava':
-        return '/images/tiles/lava-tile.png'
+        return '/images/tiles/lava-tile.webp'
       case 'volcano':
-        return '/images/tiles/volcano-tile.png'
+        return '/images/tiles/volcano-tile.webp'
       default:
-        return '/images/tiles/empty-tile.png'
+        return '/images/tiles/empty-tile.webp'
     }
   }
 

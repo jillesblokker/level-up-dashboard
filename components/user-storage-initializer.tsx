@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
 import { setCurrentUserId, migrateLegacyData, cleanupLegacyData } from '@/lib/user-scoped-storage';
@@ -17,7 +19,7 @@ export function UserStorageInitializer() {
         if (!isLoaded) return;
 
         if (userId) {
-            console.log('[UserStorageInitializer] User logged in:', userId);
+            logger.debug('[UserStorageInitializer] User logged in:', userId);
 
             // Set the current user ID for scoped storage
             setCurrentUserId(userId);
@@ -59,7 +61,7 @@ export function UserStorageInitializer() {
             syncPreferencesToLocalStorage();
 
         } else {
-            console.log('[UserStorageInitializer] User logged out');
+            logger.debug('[UserStorageInitializer] User logged out');
 
             // Clear the user ID
             setCurrentUserId(null);

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../../lib/supabase/server-client';
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[Simple Quest API] User ID:', userId);
+    logger.debug('[Simple Quest API] User ID:', userId);
 
     const queryPromise = (async () => {
       // 1. Get all challenges (quest definitions)
@@ -26,11 +27,11 @@ export async function GET(request: Request) {
         .select('*');
 
       if (challengesError) {
-        console.error('[Simple Quest API] Challenges error:', challengesError);
+        logger.error('[Simple Quest API] Challenges error:', challengesError);
         return NextResponse.json({ error: challengesError.message }, { status: 500 });
       }
 
-      console.log('[Simple Quest API] Challenges fetched:', challenges?.length || 0);
+      logger.debug('[Simple Quest API] Challenges fetched:', challenges?.length || 0);
 
       // 2. Get user's quest completions
       const { data: completions, error: completionsError } = await supabase
@@ -39,17 +40,17 @@ export async function GET(request: Request) {
         .eq('user_id', userId);
 
       if (completionsError) {
-        console.error('[Simple Quest API] Completions error:', completionsError);
+        logger.error('[Simple Quest API] Completions error:', completionsError);
         return NextResponse.json({ error: completionsError.message }, { status: 500 });
       }
 
-      console.log('[Simple Quest API] Completions fetched:', completions?.length || 0);
+      logger.debug('[Simple Quest API] Completions fetched:', completions?.length || 0);
 
       // 3. Count completed quests
       const completedCount = completions?.filter(c => c.completed === true && c.completed_at !== null).length || 0;
       const incompleteCount = completions?.filter(c => c.completed === false || c.completed_at === null).length || 0;
 
-      console.log('[Simple Quest API] Counts:', { completed: completedCount, incomplete: incompleteCount });
+      logger.debug('[Simple Quest API] Counts:', { completed: completedCount, incomplete: incompleteCount });
 
       // 4. Return simple summary
       return NextResponse.json({
@@ -68,7 +69,7 @@ export async function GET(request: Request) {
 
     return result;
   } catch (error) {
-    console.error('[Simple Quest API] Error:', error);
+    logger.error('[Simple Quest API] Error:', error);
     
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {

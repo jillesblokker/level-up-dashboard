@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('[Gold Transactions API] Insert error:', error);
+        logger.error('[Gold Transactions API] Insert error:', error);
         throw error;
       }
 
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Gold Transactions API] Error:', error);
+    logger.error('[Gold Transactions API] Error:', error);
     
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
         .range(offset, offset + limit - 1);
 
       if (error) {
-        console.error('[Gold Transactions API] Select error:', error);
+        logger.error('[Gold Transactions API] Select error:', error);
         throw error;
       }
 
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Gold Transactions API] Error:', error);
+    logger.error('[Gold Transactions API] Error:', error);
     
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 export interface ActivePerk {
   perk_name: string;
   effect: string;
@@ -19,12 +20,12 @@ export async function loadActivePerks(): Promise<ActivePerk[]> {
     if (response.ok) {
       const data = await response.json();
       if (data.data) {
-        console.log('[Active Perks Manager] Loaded from Supabase:', data.data);
+        logger.debug('[Active Perks Manager] Loaded from Supabase:', data.data);
         return data.data;
       }
     }
   } catch (error) {
-    console.warn('[Active Perks Manager] Failed to load from Supabase:', error);
+    logger.warn('[Active Perks Manager] Failed to load from Supabase:', error);
   }
 
   // Fallback to localStorage
@@ -37,11 +38,11 @@ export async function loadActivePerks(): Promise<ActivePerk[]> {
         effect: perk.effect,
         expires_at: perk.expiresAt
       }));
-      console.log('[Active Perks Manager] Loaded from localStorage:', activePerks);
+      logger.debug('[Active Perks Manager] Loaded from localStorage:', activePerks);
       return activePerks;
     }
   } catch (error) {
-    console.warn('[Active Perks Manager] Failed to load from localStorage:', error);
+    logger.warn('[Active Perks Manager] Failed to load from localStorage:', error);
   }
 
   return [];
@@ -67,14 +68,14 @@ export async function saveActivePerks(perks: ActivePerk[]): Promise<{ success: b
       });
 
       if (!response.ok) {
-        console.warn('[Active Perks Manager] Failed to save perk to Supabase:', perk.perk_name);
+        logger.warn('[Active Perks Manager] Failed to save perk to Supabase:', perk.perk_name);
         break;
       }
     }
     supabaseSuccess = true;
-    console.log('[Active Perks Manager] Saved to Supabase:', perks);
+    logger.debug('[Active Perks Manager] Saved to Supabase:', perks);
   } catch (error) {
-    console.warn('[Active Perks Manager] Supabase save error:', error);
+    logger.warn('[Active Perks Manager] Supabase save error:', error);
   }
 
   // Save to localStorage as backup
@@ -89,9 +90,9 @@ export async function saveActivePerks(perks: ActivePerk[]): Promise<{ success: b
     
     localStorage.setItem('active-potion-perks', JSON.stringify(perksObject));
     localStorageSuccess = true;
-    console.log('[Active Perks Manager] Saved to localStorage:', perksObject);
+    logger.debug('[Active Perks Manager] Saved to localStorage:', perksObject);
   } catch (error) {
-    console.warn('[Active Perks Manager] localStorage save error:', error);
+    logger.warn('[Active Perks Manager] localStorage save error:', error);
   }
 
   const result: { success: boolean; error?: string } = {
@@ -136,7 +137,7 @@ export async function removeActivePerk(perkName: string): Promise<{ success: boo
           localStorage.setItem('active-potion-perks', JSON.stringify(perks));
         }
       } catch (error) {
-        console.warn('[Active Perks Manager] Error updating localStorage:', error);
+        logger.warn('[Active Perks Manager] Error updating localStorage:', error);
       }
 
       return { success: true };
@@ -144,7 +145,7 @@ export async function removeActivePerk(perkName: string): Promise<{ success: boo
       return { success: false, error: 'Failed to remove perk' };
     }
   } catch (error) {
-    console.warn('[Active Perks Manager] Error removing perk:', error);
+    logger.warn('[Active Perks Manager] Error removing perk:', error);
     return { success: false, error: 'Error removing perk' };
   }
 }
@@ -164,7 +165,7 @@ export function getActivePerks(): ActivePerk[] {
       }));
     }
   } catch (error) {
-    console.warn('[Active Perks Manager] Error getting perks:', error);
+    logger.warn('[Active Perks Manager] Error getting perks:', error);
   }
 
   return [];
@@ -184,9 +185,9 @@ export function setActivePerks(perks: ActivePerk[]): void {
     });
     
     localStorage.setItem('active-potion-perks', JSON.stringify(perksObject));
-    console.log('[Active Perks Manager] Set perks:', perks);
+    logger.debug('[Active Perks Manager] Set perks:', perks);
   } catch (error) {
-    console.warn('[Active Perks Manager] Error setting perks:', error);
+    logger.warn('[Active Perks Manager] Error setting perks:', error);
   }
 }
 
@@ -200,6 +201,6 @@ export async function cleanupExpiredPerks(): Promise<void> {
   
   if (activePerks.length !== currentPerks.length) {
     await saveActivePerks(activePerks);
-    console.log('[Active Perks Manager] Cleaned up expired perks');
+    logger.debug('[Active Perks Manager] Cleaned up expired perks');
   }
 } 

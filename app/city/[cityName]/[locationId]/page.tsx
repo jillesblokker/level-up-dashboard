@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
@@ -43,7 +45,7 @@ const locationData: Record<string, any> = {
         price: 50,
         type: "item",
         emoji: "🧪",
-        image: "/images/items/potion/potion-health.png",
+        image: "/images/items/potion/potion-health.webp",
         stats: { defense: 1 }
       },
       {
@@ -53,7 +55,7 @@ const locationData: Record<string, any> = {
         price: 75,
         type: "item",
         emoji: "💎",
-        image: "/images/items/potion/potion-exp.png",
+        image: "/images/items/potion/potion-exp.webp",
         stats: { attack: 1 }
       },
       {
@@ -63,7 +65,7 @@ const locationData: Record<string, any> = {
         price: 100,
         type: "artifact",
         emoji: "🍀",
-        image: "/images/items/artifact/ring/artifact-ringo.png"
+        image: "/images/items/artifact/ring/artifact-ringo.webp"
       }
     ]
   },
@@ -79,7 +81,7 @@ const locationData: Record<string, any> = {
         price: 200,
         type: "equipment",
         emoji: "⚔️",
-        image: "/images/items/sword/sword-sunblade.png",
+        image: "/images/items/sword/sword-sunblade.webp",
         stats: { attack: 4 }
       },
       {
@@ -89,7 +91,7 @@ const locationData: Record<string, any> = {
         price: 250,
         type: "equipment",
         emoji: "🥋",
-        image: "/images/items/armor/armor-darko.png",
+        image: "/images/items/armor/armor-darko.webp",
         stats: { defense: 4 }
       },
       {
@@ -99,7 +101,7 @@ const locationData: Record<string, any> = {
         price: 180,
         type: "equipment",
         emoji: "🛡️",
-        image: "/images/items/shield/shield-blockado.png",
+        image: "/images/items/shield/shield-blockado.webp",
         stats: { defense: 3 }
       }
     ]
@@ -116,7 +118,7 @@ const locationData: Record<string, any> = {
         price: 300,
         type: "book",
         emoji: "📚",
-        image: "/images/items/scroll/scroll-perkamento.png",
+        image: "/images/items/scroll/scroll-perkamento.webp",
         stats: { attack: 2 }
       },
       {
@@ -126,7 +128,7 @@ const locationData: Record<string, any> = {
         price: 250,
         type: "scroll",
         emoji: "📜",
-        image: "/images/items/scroll/scroll-memento.png",
+        image: "/images/items/scroll/scroll-memento.webp",
         stats: { defense: 2 }
       },
       {
@@ -136,7 +138,7 @@ const locationData: Record<string, any> = {
         price: 400,
         type: "book",
         emoji: "💠",
-        image: "/images/items/scroll/scroll-scrolly.png",
+        image: "/images/items/scroll/scroll-scrolly.webp",
         stats: { attack: 1, defense: 1 }
       }
     ]
@@ -153,7 +155,7 @@ const locationData: Record<string, any> = {
         price: 500,
         type: "artifact",
         emoji: "💍",
-        image: "/images/items/artifact/ring/artifact-ringo.png"
+        image: "/images/items/artifact/ring/artifact-ringo.webp"
       },
       {
         id: "royal-decree",
@@ -162,7 +164,7 @@ const locationData: Record<string, any> = {
         price: 750,
         type: "scroll",
         emoji: "📜",
-        image: "/images/items/scroll/scroll-perkamento.png"
+        image: "/images/items/scroll/scroll-perkamento.webp"
       },
       {
         id: "governors-medallion",
@@ -171,7 +173,7 @@ const locationData: Record<string, any> = {
         price: 1000,
         type: "artifact",
         emoji: "🏅",
-        image: "/images/items/artifact/crown/artifact-crowny.png"
+        image: "/images/items/artifact/crown/artifact-crowny.webp"
       }
     ]
   },
@@ -187,7 +189,7 @@ const locationData: Record<string, any> = {
         price: 30,
         type: "item",
         emoji: "🍖",
-        image: "/images/items/potion/potion-health.png",
+        image: "/images/items/potion/potion-health.webp",
         stats: { defense: 1 }
       },
       {
@@ -197,7 +199,7 @@ const locationData: Record<string, any> = {
         price: 45,
         type: "item",
         emoji: "🍺",
-        image: "/images/items/potion/potion-exp.png",
+        image: "/images/items/potion/potion-exp.webp",
         stats: { attack: 1 }
       },
       {
@@ -207,7 +209,7 @@ const locationData: Record<string, any> = {
         price: 100,
         type: "artifact",
         emoji: "💫",
-        image: "/images/items/artifact/ring/artifact-ringo.png"
+        image: "/images/items/artifact/ring/artifact-ringo.webp"
       }
     ]
   },
@@ -216,9 +218,9 @@ const locationData: Record<string, any> = {
     description: "Buy equipment: sword, shield, and armor set.",
     icon: Swords,
     items: [
-      { id: "iron-sword", name: "Iron Sword", description: "A sturdy iron sword for battle.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-irony.png", stats: { attack: 3 } },
-      { id: "steel-shield", name: "Steel Shield", description: "A strong steel shield for protection.", price: 100, type: "equipment", emoji: "🛡️", image: "/images/items/shield/shield-reflecto.png", stats: { defense: 2 } },
-      { id: "iron-armor", name: "Iron Armor", description: "Full body iron armor.", price: 250, type: "equipment", emoji: "🥋", image: "/images/items/armor/armor-darko.png", stats: { defense: 3 } }
+      { id: "iron-sword", name: "Iron Sword", description: "A sturdy iron sword for battle.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-irony.webp", stats: { attack: 3 } },
+      { id: "steel-shield", name: "Steel Shield", description: "A strong steel shield for protection.", price: 100, type: "equipment", emoji: "🛡️", image: "/images/items/shield/shield-reflecto.webp", stats: { defense: 2 } },
+      { id: "iron-armor", name: "Iron Armor", description: "Full body iron armor.", price: 250, type: "equipment", emoji: "🥋", image: "/images/items/armor/armor-darko.webp", stats: { defense: 3 } }
     ]
   },
   "kingdom-marketplace": {
@@ -245,34 +247,34 @@ const locationData: Record<string, any> = {
 
 // Helper function for item image mapping
 function getItemImagePath(item: LocationItem): string {
-  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.png";
-  if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.png";
-  if (item.name === "Health Potion") return "/images/items/potion/potion-health.png";
-  if (item.name === "Mana Potion") return "/images/items/potion/potion-exp.png";
-  if (item.name === "Gold Potion") return "/images/items/potion/potion-gold.png";
-  if (item.name === "Leather Armor") return "/images/items/armor/armor-normalo.png";
-  if (item.name === "Chain Mail") return "/images/items/armor/armor-darko.png";
-  if (item.name === "Plate Armor") return "/images/items/armor/armor-blanko.png";
-  if (item.name === "Wooden Shield") return "/images/items/shield/shield-defecto.png";
-  if (item.name === "Iron Shield") return "/images/items/shield/shield-blockado.png";
-  if (item.name === "Steel Shield") return "/images/items/shield/shield-reflecto.png";
-  if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.png";
-  if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.png";
-  if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.png";
-  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.png";
-  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.png";
-  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.png";
-  if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.png";
-  if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.png";
-  if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.png";
-  if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.png";
-  if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.png";
+  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.webp";
+  if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.webp";
+  if (item.name === "Health Potion") return "/images/items/potion/potion-health.webp";
+  if (item.name === "Mana Potion") return "/images/items/potion/potion-exp.webp";
+  if (item.name === "Gold Potion") return "/images/items/potion/potion-gold.webp";
+  if (item.name === "Leather Armor") return "/images/items/armor/armor-normalo.webp";
+  if (item.name === "Chain Mail") return "/images/items/armor/armor-darko.webp";
+  if (item.name === "Plate Armor") return "/images/items/armor/armor-blanko.webp";
+  if (item.name === "Wooden Shield") return "/images/items/shield/shield-defecto.webp";
+  if (item.name === "Iron Shield") return "/images/items/shield/shield-blockado.webp";
+  if (item.name === "Steel Shield") return "/images/items/shield/shield-reflecto.webp";
+  if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.webp";
+  if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.webp";
+  if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.webp";
+  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.webp";
+  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.webp";
+  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.webp";
+  if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.webp";
+  if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.webp";
+  if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.webp";
+  if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.webp";
+  if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.webp";
 
   // Handle variations for items with multiple images
   const variations = [
-    "/images/items/sword/sword-irony.png",
-    "/images/items/sword/sword-sunblade.png",
-    "/images/items/sword/sword-twig.png"
+    "/images/items/sword/sword-irony.webp",
+    "/images/items/sword/sword-sunblade.webp",
+    "/images/items/sword/sword-twig.webp"
   ];
   let idx = 0;
   if (item.id && typeof item.id === 'string') {
@@ -281,7 +283,7 @@ function getItemImagePath(item: LocationItem): string {
   }
   // Ensure idx is within bounds
   idx = Math.max(0, Math.min(idx, variations.length - 1));
-  return variations[idx] || "/images/items/placeholder.jpg";
+  return variations[idx] || "/images/items/placeholder.webp";
 }
 
 export default function CityLocationPage() {
@@ -308,14 +310,14 @@ export default function CityLocationPage() {
               credentials: 'include'
             });
             if (!response.ok) {
-              console.error('Failed to load inventory:', response.status);
+              logger.error('Failed to load inventory:', response.status);
             }
           } catch (error) {
-            console.error('Failed to load inventory:', error);
+            logger.error('Failed to load inventory:', error);
           }
         }
       } catch (error) {
-        console.error("Failed to load character stats:", error)
+        logger.error("Failed to load character stats:", error)
       }
     }
 
@@ -358,10 +360,10 @@ export default function CityLocationPage() {
           credentials: 'include'
         });
         if (!response.ok) {
-          console.error('Failed to update character stats:', response.status);
+          logger.error('Failed to update character stats:', response.status);
         }
       } catch (error) {
-        console.error('Failed to update character stats:', error);
+        logger.error('Failed to update character stats:', error);
       }
     }
     setGold(newGold)
@@ -388,10 +390,10 @@ export default function CityLocationPage() {
         });
 
         if (!response.ok) {
-          console.error('Failed to add item to inventory:', response.status);
+          logger.error('Failed to add item to inventory:', response.status);
         }
       } catch (error) {
-        console.error('Failed to add item to inventory:', error);
+        logger.error('Failed to add item to inventory:', error);
       }
     }
 
@@ -407,7 +409,7 @@ export default function CityLocationPage() {
   }
 
   const locationImage = params.locationId === "royal-stables"
-    ? "/images/locations/royal-stables.png"
+    ? "/images/locations/royal-stables.webp"
     : `/images/locations/${location.name.toLowerCase().replace(/'/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.png`;
 
   return (
@@ -475,7 +477,7 @@ export default function CityLocationPage() {
                             className="object-contain"
                             sizes="(max-width: 768px) 100vw, 33vw"
                             aria-label={`${horse.name}-image`}
-                            onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                            onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
                           />
                         </div>
                         <CardHeader>
@@ -517,7 +519,7 @@ export default function CityLocationPage() {
                           className="object-contain"
                           sizes="(max-width: 768px) 100vw, 33vw"
                           aria-label={`${item.name}-image`}
-                          onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.jpg"; }}
+                          onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
                         />
                       </div>
                       <CardHeader>

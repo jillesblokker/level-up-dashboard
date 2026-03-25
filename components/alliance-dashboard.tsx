@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -122,7 +124,7 @@ export function AllianceDashboard() {
                 setFriends(acceptedFriends);
             }
         } catch (e) {
-            console.error(e);
+            logger.error(e);
         } finally {
             setLoadingFriends(false);
         }

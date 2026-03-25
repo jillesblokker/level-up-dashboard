@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useState } from 'react'
 import { MonsterBattle } from './monster-battle'
 import { Button } from '@/components/ui/button'
@@ -11,7 +13,7 @@ export function MonsterBattleExample() {
   const [monsterType, setMonsterType] = useState<'dragon' | 'goblin' | 'troll' | 'wizard' | 'pegasus' | 'fairy'>('dragon')
 
   const handleBattleComplete = (won: boolean, goldEarned: number, xpEarned: number) => {
-    console.log(`Battle ${won ? 'won' : 'lost'}! Gold: ${goldEarned}, XP: ${xpEarned}`)
+    logger.debug(`Battle ${won ? 'won' : 'lost'}! Gold: ${goldEarned}, XP: ${xpEarned}`)
     // Here you would update the game state, remove the monster tile, etc.
   }
 

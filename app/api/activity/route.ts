@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
             .limit(limit);
 
         if (error) {
-            console.error('Activity Feed Error:', error);
+            logger.error('Activity Feed Error:', error);
             return NextResponse.json({ success: true, data: [] });
         }
 
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ success: true, data: activity });
 
     } catch (error: any) {
-        console.error('Activity Feed Catch Error:', error);
+        logger.error('Activity Feed Catch Error:', error);
         return NextResponse.json({ success: true, data: [] });
     }
 }

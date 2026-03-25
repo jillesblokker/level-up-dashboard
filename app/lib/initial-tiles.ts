@@ -13,7 +13,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Grass tile",
-    image: "/images/tiles/grass-tile.png",
+    image: "/images/tiles/grass-tile.webp",
     cost: 100,
     quantity: 10
   },
@@ -29,7 +29,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Water tile",
-    image: "/images/tiles/water-tile.png",
+    image: "/images/tiles/water-tile.webp",
     cost: 100,
     quantity: 10
   },
@@ -45,7 +45,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Forest tile",
-    image: "/images/tiles/forest-tile.png",
+    image: "/images/tiles/forest-tile.webp",
     cost: 100,
     quantity: 10
   },
@@ -61,7 +61,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Mountain tile",
-    image: "/images/tiles/mountain-tile.png",
+    image: "/images/tiles/mountain-tile.webp",
     cost: 100,
     quantity: 10
   },
@@ -77,7 +77,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Desert tile",
-    image: "/images/tiles/desert-tile.png",
+    image: "/images/tiles/desert-tile.webp",
     cost: 100,
     quantity: 10
   },
@@ -93,7 +93,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Ice tile",
-    image: "/images/tiles/ice-tile.png",
+    image: "/images/tiles/ice-tile.webp",
     cost: 100,
     quantity: 10
   },
@@ -109,7 +109,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "Town tile",
-    image: "/images/tiles/town-tile.png",
+    image: "/images/tiles/town-tile.webp",
     cost: 200,
     quantity: 5
   },
@@ -125,7 +125,7 @@ export const initialTiles: InventoryItem[] = [
     x: 0,
     y: 0,
     ariaLabel: "City tile",
-    image: "/images/tiles/city-tile.png",
+    image: "/images/tiles/city-tile.webp",
     cost: 300,
     quantity: 3
   }

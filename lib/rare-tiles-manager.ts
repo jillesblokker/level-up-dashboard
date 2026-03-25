@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface RareTile {
@@ -121,7 +122,7 @@ export async function loadRareTiles(supabase: SupabaseClient, userId: string): P
     });
 
     if (!response.ok) {
-      console.error('Error loading rare tiles:', response.statusText);
+      logger.error('Error loading rare tiles:', response.statusText);
       return RARE_TILES.map(tile => ({
         ...tile,
         unlocked: isRareTileUnlocked(tile)
@@ -140,7 +141,7 @@ export async function loadRareTiles(supabase: SupabaseClient, userId: string): P
       };
     });
   } catch (error) {
-    console.error('Error loading rare tiles:', error);
+    logger.error('Error loading rare tiles:', error);
     return RARE_TILES.map(tile => ({
       ...tile,
       unlocked: isRareTileUnlocked(tile)
@@ -169,7 +170,7 @@ export async function unlockRareTile(supabase: SupabaseClient, userId: string, t
       throw new Error(errorData.error || 'Failed to unlock rare tile');
     }
   } catch (error) {
-    console.error('Error unlocking rare tile:', error);
+    logger.error('Error unlocking rare tile:', error);
     throw error;
   }
 }
@@ -193,7 +194,7 @@ export async function clearRareTileUnlock(supabase: SupabaseClient, userId: stri
       throw new Error(errorData.error || 'Failed to clear rare tile');
     }
   } catch (error) {
-    console.error('Error clearing rare tile unlock:', error);
+    logger.error('Error clearing rare tile unlock:', error);
     throw error;
   }
 } 

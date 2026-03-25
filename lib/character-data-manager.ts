@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import type { CharacterStats, Perk } from '@/types/character';
 
 // Minimal interfaces for strengths and titles
@@ -21,7 +22,7 @@ export interface CharacterTitle {
 
 async function getClerkToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
-    console.error('[Character Data] getClerkToken called on server side');
+    logger.error('[Character Data] getClerkToken called on server side');
     return null;
   }
 
@@ -29,13 +30,13 @@ async function getClerkToken(): Promise<string | null> {
     // Access Clerk from window if available
     const clerk = (window as any).__clerk;
     if (!clerk) {
-      console.error('[Character Data] Clerk not available on window');
+      logger.error('[Character Data] Clerk not available on window');
       return null;
     }
 
     const session = clerk.session;
     if (!session) {
-      console.error('[Character Data] No active Clerk session');
+      logger.error('[Character Data] No active Clerk session');
       return null;
     }
 
@@ -43,7 +44,7 @@ async function getClerkToken(): Promise<string | null> {
     // Removed debugging log
     return token;
   } catch (error) {
-    console.error('[Character Data] Error getting Clerk token:', error);
+    logger.error('[Character Data] Error getting Clerk token:', error);
     return null;
   }
 }
@@ -55,7 +56,7 @@ export async function getCharacterStats(userId: string): Promise<CharacterStats 
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return null;
     }
 
@@ -66,14 +67,14 @@ export async function getCharacterStats(userId: string): Promise<CharacterStats 
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to fetch character stats:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to fetch character stats:', response.status, response.statusText);
       return null;
     }
 
     const data = await response.json();
     return data as CharacterStats;
   } catch (error) {
-    console.error('[Character Data] Error fetching character stats:', error);
+    logger.error('[Character Data] Error fetching character stats:', error);
     return null;
   }
 }
@@ -84,7 +85,7 @@ export async function updateCharacterStats(userId: string, stats: Partial<Charac
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -98,14 +99,14 @@ export async function updateCharacterStats(userId: string, stats: Partial<Charac
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to update character stats:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to update character stats:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-stats-update'));
   } catch (error) {
-    console.error('[Character Data] Error updating character stats:', error);
+    logger.error('[Character Data] Error updating character stats:', error);
   }
 }
 
@@ -116,7 +117,7 @@ export async function getCharacterStrengths(userId: string): Promise<CharacterSt
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return [];
     }
 
@@ -127,14 +128,14 @@ export async function getCharacterStrengths(userId: string): Promise<CharacterSt
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to fetch character strengths:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to fetch character strengths:', response.status, response.statusText);
       return [];
     }
 
     const data = await response.json();
     return data || [];
   } catch (error) {
-    console.error('[Character Data] Error fetching character strengths:', error);
+    logger.error('[Character Data] Error fetching character strengths:', error);
     return [];
   }
 }
@@ -145,7 +146,7 @@ export async function addCharacterStrength(userId: string, strength: Omit<Charac
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -159,14 +160,14 @@ export async function addCharacterStrength(userId: string, strength: Omit<Charac
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to add character strength:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to add character strength:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-strengths-update'));
   } catch (error) {
-    console.error('[Character Data] Error adding character strength:', error);
+    logger.error('[Character Data] Error adding character strength:', error);
   }
 }
 
@@ -176,7 +177,7 @@ export async function updateCharacterStrength(userId: string, strengthId: string
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -190,14 +191,14 @@ export async function updateCharacterStrength(userId: string, strengthId: string
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to update character strength:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to update character strength:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-strengths-update'));
   } catch (error) {
-    console.error('[Character Data] Error updating character strength:', error);
+    logger.error('[Character Data] Error updating character strength:', error);
   }
 }
 
@@ -208,7 +209,7 @@ export async function getCharacterTitles(userId: string): Promise<CharacterTitle
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return [];
     }
 
@@ -219,14 +220,14 @@ export async function getCharacterTitles(userId: string): Promise<CharacterTitle
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to fetch character titles:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to fetch character titles:', response.status, response.statusText);
       return [];
     }
 
     const data = await response.json();
     return data || [];
   } catch (error) {
-    console.error('[Character Data] Error fetching character titles:', error);
+    logger.error('[Character Data] Error fetching character titles:', error);
     return [];
   }
 }
@@ -237,7 +238,7 @@ export async function addCharacterTitle(userId: string, title: Omit<CharacterTit
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -251,14 +252,14 @@ export async function addCharacterTitle(userId: string, title: Omit<CharacterTit
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to add character title:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to add character title:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-titles-update'));
   } catch (error) {
-    console.error('[Character Data] Error adding character title:', error);
+    logger.error('[Character Data] Error adding character title:', error);
   }
 }
 
@@ -268,7 +269,7 @@ export async function updateCharacterTitle(userId: string, titleId: string, upda
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -282,14 +283,14 @@ export async function updateCharacterTitle(userId: string, titleId: string, upda
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to update character title:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to update character title:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-titles-update'));
   } catch (error) {
-    console.error('[Character Data] Error updating character title:', error);
+    logger.error('[Character Data] Error updating character title:', error);
   }
 }
 
@@ -300,7 +301,7 @@ export async function getCharacterPerks(userId: string): Promise<Perk[]> {
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return [];
     }
 
@@ -311,14 +312,14 @@ export async function getCharacterPerks(userId: string): Promise<Perk[]> {
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to fetch character perks:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to fetch character perks:', response.status, response.statusText);
       return [];
     }
 
     const data = await response.json();
     return data || [];
   } catch (error) {
-    console.error('[Character Data] Error fetching character perks:', error);
+    logger.error('[Character Data] Error fetching character perks:', error);
     return [];
   }
 }
@@ -329,7 +330,7 @@ export async function addCharacterPerk(userId: string, perk: Omit<Perk, 'id' | '
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -343,14 +344,14 @@ export async function addCharacterPerk(userId: string, perk: Omit<Perk, 'id' | '
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to add character perk:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to add character perk:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-perks-update'));
   } catch (error) {
-    console.error('[Character Data] Error adding character perk:', error);
+    logger.error('[Character Data] Error adding character perk:', error);
   }
 }
 
@@ -360,7 +361,7 @@ export async function updateCharacterPerk(userId: string, perkId: string, update
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Character Data] No authentication token available');
+      logger.error('[Character Data] No authentication token available');
       return;
     }
 
@@ -374,14 +375,14 @@ export async function updateCharacterPerk(userId: string, perkId: string, update
     });
 
     if (!response.ok) {
-      console.error('[Character Data] Failed to update character perk:', response.status, response.statusText);
+      logger.error('[Character Data] Failed to update character perk:', response.status, response.statusText);
       return;
     }
 
     // Dispatch event to notify components
     window.dispatchEvent(new Event('character-perks-update'));
   } catch (error) {
-    console.error('[Character Data] Error updating character perk:', error);
+    logger.error('[Character Data] Error updating character perk:', error);
   }
 } 
 
@@ -404,14 +405,14 @@ export async function saveCharacterData(key: string, value: any): Promise<boolea
     });
 
     if (response.ok) {
-      console.log(`[Character Data Manager] ✅ Saved character data: ${key}`);
+      logger.debug(`[Character Data Manager] ✅ Saved character data: ${key}`);
       return true;
     } else {
-      console.error(`[Character Data Manager] ❌ Failed to save character data: ${key}`);
+      logger.error(`[Character Data Manager] ❌ Failed to save character data: ${key}`);
       return false;
     }
   } catch (error) {
-    console.error(`[Character Data Manager] Error saving character data ${key}:`, error);
+    logger.error(`[Character Data Manager] Error saving character data ${key}:`, error);
     return false;
   }
 }
@@ -424,15 +425,15 @@ export async function getCharacterData(key: string): Promise<any | null> {
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.value !== null) {
-        console.log(`[Character Data Manager] ✅ Retrieved character data: ${key}`);
+        logger.debug(`[Character Data Manager] ✅ Retrieved character data: ${key}`);
         return data.value;
       }
     }
     
-    console.log(`[Character Data Manager] ℹ️ No character data found for: ${key}`);
+    logger.debug(`[Character Data Manager] ℹ️ No character data found for: ${key}`);
     return null;
   } catch (error) {
-    console.error(`[Character Data Manager] Error retrieving character data ${key}:`, error);
+    logger.error(`[Character Data Manager] Error retrieving character data ${key}:`, error);
     return null;
   }
 }
@@ -440,10 +441,10 @@ export async function getCharacterData(key: string): Promise<any | null> {
 // Migrate character data from localStorage to Supabase
 export async function migrateCharacterDataToSupabase(): Promise<boolean> {
   try {
-    console.log('[Character Data Manager] 🚀 Starting character data migration...');
+    logger.debug('[Character Data Manager] 🚀 Starting character data migration...');
     
     if (typeof window === 'undefined') {
-      console.log('[Character Data Manager] Skipping migration - not in browser');
+      logger.debug('[Character Data Manager] Skipping migration - not in browser');
       return true;
     }
 
@@ -451,7 +452,7 @@ export async function migrateCharacterDataToSupabase(): Promise<boolean> {
     const migrationDone = localStorage.getItem(migrationKey);
     
     if (migrationDone) {
-      console.log('[Character Data Manager] Migration already completed');
+      logger.debug('[Character Data Manager] Migration already completed');
       return true;
     }
 
@@ -480,7 +481,7 @@ export async function migrateCharacterDataToSupabase(): Promise<boolean> {
     }
 
     if (!hasData) {
-      console.log('[Character Data Manager] No character data to migrate');
+      logger.debug('[Character Data Manager] No character data to migrate');
       localStorage.setItem(migrationKey, 'true');
       return true;
     }
@@ -505,7 +506,7 @@ export async function migrateCharacterDataToSupabase(): Promise<boolean> {
     const allSuccessful = results.every(result => result);
 
     if (allSuccessful) {
-      console.log('[Character Data Manager] ✅ Character data migration completed successfully');
+      logger.debug('[Character Data Manager] ✅ Character data migration completed successfully');
       localStorage.setItem(migrationKey, 'true');
       
       // Clean up localStorage after successful migration
@@ -517,17 +518,17 @@ export async function migrateCharacterDataToSupabase(): Promise<boolean> {
         try {
           localStorage.removeItem(key);
         } catch (error) {
-          console.warn(`[Character Data Manager] Could not remove localStorage key: ${key}`, error);
+          logger.warn(`[Character Data Manager] Could not remove localStorage key: ${key}`, error);
         }
       });
       
       return true;
     } else {
-      console.error('[Character Data Manager] ❌ Some character data failed to migrate');
+      logger.error('[Character Data Manager] ❌ Some character data failed to migrate');
       return false;
     }
   } catch (error) {
-    console.error('[Character Data Manager] ❌ Character data migration failed:', error);
+    logger.error('[Character Data Manager] ❌ Character data migration failed:', error);
     return false;
   }
 }
@@ -535,7 +536,7 @@ export async function migrateCharacterDataToSupabase(): Promise<boolean> {
 // Sync character data to localStorage as backup
 export async function syncCharacterDataToLocalStorage(): Promise<void> {
   try {
-    console.log('[Character Data Manager] 🔄 Syncing character data to localStorage...');
+    logger.debug('[Character Data Manager] 🔄 Syncing character data to localStorage...');
     
     const characterKeys = [
       'character-perks', 'active-potion-perks', 'character-header-image'
@@ -548,12 +549,12 @@ export async function syncCharacterDataToLocalStorage(): Promise<void> {
           localStorage.setItem(key, JSON.stringify(value));
         }
       } catch (error) {
-        console.warn(`[Character Data Manager] Could not sync key to localStorage: ${key}`, error);
+        logger.warn(`[Character Data Manager] Could not sync key to localStorage: ${key}`, error);
       }
     }
     
-    console.log('[Character Data Manager] ✅ Character data synced to localStorage');
+    logger.debug('[Character Data Manager] ✅ Character data synced to localStorage');
   } catch (error) {
-    console.error('[Character Data Manager] Error syncing character data to localStorage:', error);
+    logger.error('[Character Data Manager] Error syncing character data to localStorage:', error);
   }
 } 

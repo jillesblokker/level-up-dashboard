@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import Dexie, { Table } from 'dexie';
 
@@ -136,7 +139,7 @@ let db: LevelUpDatabase;
 if (typeof window !== "undefined") {
   db = new LevelUpDatabase();
   db.open().catch((error) => {
-    console.error("Failed to open database:", error);
+    logger.error("Failed to open database:", error);
   });
 } else {
   // On the server, create a dummy db object to silence errors
@@ -165,7 +168,7 @@ export async function getAll<T>(table: Table<T>): Promise<T[]> {
   try {
     return await table.toArray();
   } catch (error) {
-    console.error(`Failed to get all items from table:`, error);
+    logger.error(`Failed to get all items from table:`, error);
     return [];
   }
 }
@@ -176,7 +179,7 @@ export async function getById<T>(table: Table<T>, id: number | string): Promise<
   try {
     return await table.get(id);
   } catch (error) {
-    console.error(`Failed to get item by id ${id}:`, error);
+    logger.error(`Failed to get item by id ${id}:`, error);
     return undefined;
   }
 }
@@ -187,7 +190,7 @@ export async function add<T>(table: Table<T>, item: T): Promise<number | string>
   try {
     return await table.add(item);
   } catch (error) {
-    console.error(`Failed to add item:`, error);
+    logger.error(`Failed to add item:`, error);
     throw error;
   }
 }
@@ -202,7 +205,7 @@ export async function update<T>(
   try {
     return await table.update(id, changes as any);
   } catch (error) {
-    console.error(`Failed to update item ${id}:`, error);
+    logger.error(`Failed to update item ${id}:`, error);
     throw error;
   }
 }
@@ -213,7 +216,7 @@ export async function remove<T>(table: Table<T>, id: number | string): Promise<v
   try {
     await table.delete(id);
   } catch (error) {
-    console.error(`Failed to delete item ${id}:`, error);
+    logger.error(`Failed to delete item ${id}:`, error);
     throw error;
   }
 }
@@ -277,7 +280,7 @@ export async function initializeDatabase() {
       }
     }
   } catch (error) {
-    console.error("Error initializing database:", error);
+    logger.error("Error initializing database:", error);
     // If we get a constraint error, try to recover by clearing and reinitializing
     if (error instanceof Dexie.ConstraintError) {
       try {
@@ -289,7 +292,7 @@ export async function initializeDatabase() {
         }
         await initializeDatabase();
       } catch (retryError) {
-        console.error("Failed to recover from database error:", retryError);
+        logger.error("Failed to recover from database error:", retryError);
       }
     }
   }
@@ -310,7 +313,7 @@ export async function getTileInventory() {
       cost: tile.cost || 0
     }));
   } catch (error) {
-    console.error("Error getting tile inventory:", error);
+    logger.error("Error getting tile inventory:", error);
     return [];
   }
 }
@@ -331,7 +334,7 @@ export async function saveTileInventory(tiles: TileItem[]) {
     }
     return true;
   } catch (error) {
-    console.error("Error saving tile inventory:", error);
+    logger.error("Error saving tile inventory:", error);
     return false;
   }
 }

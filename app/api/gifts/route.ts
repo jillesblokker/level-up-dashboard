@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
         const { data: gifts, error } = await query;
 
         if (error) {
-            console.error('Error fetching gifts:', error);
+            logger.error('Error fetching gifts:', error);
             return NextResponse.json({ error: 'Failed to fetch gifts' }, { status: 500 });
         }
 
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ gifts });
 
     } catch (error) {
-        console.error('Unexpected error fetching gifts:', error);
+        logger.error('Unexpected error fetching gifts:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -101,7 +102,7 @@ export async function POST(request: Request) {
             .single();
 
         if (error) {
-            console.error('Error sending gift:', error);
+            logger.error('Error sending gift:', error);
             // Refund gold if failed
             if (itemType === 'gold') {
                 await supabaseServer.rpc('increment_gold', { amount: amount, user_id: userId });
@@ -135,7 +136,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, gift });
 
     } catch (error) {
-        console.error('Unexpected error sending gift:', error);
+        logger.error('Unexpected error sending gift:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState, useCallback, useRef } from "react"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
@@ -106,7 +108,7 @@ const loadInitialGridFromCSV = async (): Promise<Tile[][]> => {
             row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
         );
     } catch (error) {
-        console.error('Failed to load initial grid from CSV, using default:', error);
+        logger.error('Failed to load initial grid from CSV, using default:', error);
         return createBaseGrid();
     }
 };
@@ -118,7 +120,7 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
         ...tile,
         type: 'grass',
         name: 'Grass',
-        image: '/images/tiles/grass-tile.png',
+        image: '/images/tiles/grass-tile.webp',
         isVisited: true,
     };
 }
@@ -312,7 +314,7 @@ function RealmPageContent() {
                     setMonsters(data.data);
                 }
             } catch (error) {
-                console.error('Error fetching monsters:', error);
+                logger.error('Error fetching monsters:', error);
             }
         };
         fetchMonsters();
@@ -361,7 +363,7 @@ function RealmPageContent() {
                     description: TEXT_CONTENT.realm.toasts.monsterDefeated.desc,
                 });
             } catch (error) {
-                console.error("Error marking monster defeated:", error);
+                logger.error("Error marking monster defeated:", error);
             }
         }
         setMonsterEvent({ open: false, monster: null });
@@ -481,7 +483,7 @@ function RealmPageContent() {
         recordTilePlacement(tileType);
         checkAchievementProgress('place', tileType);
 
-        console.log('[Realm] User placed tile:', tileType, 'Total:', userPlacedTilesRef.current[userPlacedKey]);
+        logger.debug('[Realm] User placed tile:', tileType, 'Total:', userPlacedTilesRef.current[userPlacedKey]);
 
         // Update selectedTile quantity if it has one
         if (hasTileInSelected && currentSelectedTile.quantity !== undefined) {
@@ -515,12 +517,12 @@ function RealmPageContent() {
 
                 // Immediately save the full grid state
                 if (userId) {
-                    saveGridData(userId, updatedGrid).catch(e => console.error('Failed to background save grid:', e));
+                    saveGridData(userId, updatedGrid).catch(e => logger.error('Failed to background save grid:', e));
                 }
 
                 // Immediately save the full grid state
                 if (userId) {
-                    saveGridData(userId, updatedGrid).catch(e => console.error('Failed to background save grid:', e));
+                    saveGridData(userId, updatedGrid).catch(e => logger.error('Failed to background save grid:', e));
                 }
 
                 const spawnResult = checkMonsterSpawn(updatedGrid, tileType, monstersRef.current);
@@ -559,7 +561,7 @@ function RealmPageContent() {
                 }
             }
         } catch (err) {
-            console.error('Error placing tile:', err);
+            logger.error('Error placing tile:', err);
         }
     };
 
@@ -769,7 +771,7 @@ function RealmPageContent() {
             });
             if (!res.ok) throw new Error('Failed to transform tile');
         } catch (err) {
-            console.error('Transform failed', err);
+            logger.error('Transform failed', err);
         }
     };
 
@@ -1131,7 +1133,7 @@ function RealmPageContent() {
                 variant: "destructive",
             });
         } catch (e) {
-            console.error('Failed to rotate tile:', e);
+            logger.error('Failed to rotate tile:', e);
             toast({ title: 'Error', description: 'Failed to save rotation', variant: 'destructive' });
         }
     };
@@ -1187,7 +1189,7 @@ function RealmPageContent() {
             <HeaderSection
                 title={isVisiting ? TEXT_CONTENT.realm.header.envoyTitle : TEXT_CONTENT.realm.header.title}
                 subtitle={isVisiting ? TEXT_CONTENT.realm.header.envoySubtitle : TEXT_CONTENT.realm.header.subtitle}
-                imageSrc="/images/realm-header.jpg"
+                imageSrc="/images/realm-header.webp"
                 defaultBgColor="bg-blue-900"
                 onAnimationStart={() => setIsAnimating(true)}
                 onAnimationEnd={() => {
@@ -1545,7 +1547,7 @@ function RealmPageContent() {
                                         <div className="relative w-48 h-48 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-blue-500/30">
                                             <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
                                                 <Image
-                                                    src="/images/tiles/cave-tile.png"
+                                                    src="/images/tiles/cave-tile.webp"
                                                     alt="Ancient Cave"
                                                     fill
                                                     className="object-cover"

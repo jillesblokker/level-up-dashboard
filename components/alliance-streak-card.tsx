@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,7 +36,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                 setStreak(data);
             }
         } catch (error) {
-            console.error('Error fetching alliance streak:', error);
+            logger.error('Error fetching alliance streak:', error);
         } finally {
             setLoading(false);
         }

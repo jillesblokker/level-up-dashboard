@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -73,13 +75,13 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             setQualifiesForComeback(data.qualifiesForComeback || false);
             setComebackReason(data.reason || '');
           } else {
-            console.error('Comeback challenges API returned non-JSON response');
+            logger.error('Comeback challenges API returned non-JSON response');
           }
         } else {
-          console.error('Comeback challenges API error:', res.status, res.statusText);
+          logger.error('Comeback challenges API error:', res.status, res.statusText);
         }
       } catch (error) {
-        console.error('Failed to fetch comeback challenges:', error);
+        logger.error('Failed to fetch comeback challenges:', error);
       }
     }
 
@@ -317,26 +319,26 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                       });
 
                       // Log detailed instructions to console
-                      console.log('🔧 MANUAL MIGRATION REQUIRED');
-                      console.log('=====================================');
-                      console.log('📋 Steps:');
+                      logger.debug('🔧 MANUAL MIGRATION REQUIRED');
+                      logger.debug('=====================================');
+                      logger.debug('📋 Steps:');
                       instructions.steps.forEach((step: string, index: number) => {
-                        console.log(`   ${step}`);
+                        logger.debug(`   ${step}`);
                       });
-                      console.log('');
-                      console.log('📝 SQL to run:');
-                      console.log(sqlCode);
-                      console.log('');
-                      console.log('ℹ️ Note:', instructions.note);
-                      console.log('=====================================');
+                      logger.debug('');
+                      logger.debug('📝 SQL to run:');
+                      logger.debug(sqlCode);
+                      logger.debug('');
+                      logger.debug('ℹ️ Note:', instructions.note);
+                      logger.debug('=====================================');
 
                       // Copy SQL to clipboard if possible
                       if (navigator.clipboard) {
                         try {
                           await navigator.clipboard.writeText(sqlCode);
-                          console.log('✅ SQL copied to clipboard!');
+                          logger.debug('✅ SQL copied to clipboard!');
                         } catch (clipboardError) {
-                          console.log('❌ Could not copy to clipboard');
+                          logger.debug('❌ Could not copy to clipboard');
                         }
                       }
                     } else {
@@ -348,7 +350,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                       });
                     }
                   } catch (error) {
-                    console.error('Migration error:', error);
+                    logger.error('Migration error:', error);
                     toast({
                       title: "Migration Error",
                       description: "Failed to run migration. Please try again.",

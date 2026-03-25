@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -44,10 +46,10 @@ export function UserNav() {
   // Guide button click handler
   const handleGuideClick = () => {
     if (typeof window !== 'undefined' && (window as any).openOnboarding) {
-      console.log('Opening onboarding via guide button');
+      logger.debug('Opening onboarding via guide button');
       (window as any).openOnboarding();
     } else {
-      console.log('Onboarding function not available');
+      logger.debug('Onboarding function not available');
     }
   };
 
@@ -58,7 +60,7 @@ export function UserNav() {
   return (
     <div className="relative z-50">
       <DropdownMenu open={isOpen} onOpenChange={(open) => {
-        console.log('[UserNav] Dropdown state changing to:', open);
+        logger.debug('[UserNav] Dropdown state changing to:', open);
         if (open) {
           (window as any).__userNavLastOpen = Date.now();
         }
@@ -98,12 +100,12 @@ export function UserNav() {
           align="end"
           sideOffset={8}
           onInteractOutside={(e) => {
-            console.log('[UserNav] Interact outside:', e.target);
+            logger.debug('[UserNav] Interact outside:', e.target);
             // Prevent closing if we just opened (within 100ms)
             const now = Date.now();
             const lastOpenTime = (window as any).__userNavLastOpen || 0;
             if (now - lastOpenTime < 100) {
-              console.log('[UserNav] Preventing close - just opened');
+              logger.debug('[UserNav] Preventing close - just opened');
               e.preventDefault();
             }
           }}

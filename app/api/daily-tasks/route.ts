@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
@@ -9,7 +10,7 @@ export async function GET() {
     }
 
     // Simple test response
-    console.log('[daily-tasks] Test call:', { userId });
+    logger.debug('[daily-tasks] Test call:', { userId });
     
     return NextResponse.json({ 
       success: true, 
@@ -17,7 +18,7 @@ export async function GET() {
       message: 'Daily tasks API connected'
     });
   } catch (err) {
-    console.error('[daily-tasks] Error:', err);
+    logger.error('[daily-tasks] Error:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 } 

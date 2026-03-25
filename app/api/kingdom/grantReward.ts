@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { logKingdomEvent } from './logKingdomEvent';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
@@ -31,7 +32,7 @@ export async function grantReward({
   relatedId?: string,
   context?: any
 }) {
-  console.log('[grantReward] Granting reward:', { userId, type, amount, relatedId });
+  logger.debug('[grantReward] Granting reward:', { userId, type, amount, relatedId });
 
   // Actually grant the rewards by updating character stats
   if (amount && amount > 0) {
@@ -61,7 +62,7 @@ export async function grantReward({
           }, {
             onConflict: 'user_id'
           });
-        console.log('[grantReward] Gold updated:', { old: currentGold, new: newGold, added: amount });
+        logger.debug('[grantReward] Gold updated:', { old: currentGold, new: newGold, added: amount });
       } else if (type === 'exp' || type === 'quest') {
         // Update experience (and recalculate level if needed)
         const newXP = currentXP + amount;
@@ -79,10 +80,10 @@ export async function grantReward({
           }, {
             onConflict: 'user_id'
           });
-        console.log('[grantReward] XP updated:', { old: currentXP, new: newXP, added: amount, level: newLevel });
+        logger.debug('[grantReward] XP updated:', { old: currentXP, new: newXP, added: amount, level: newLevel });
       }
     } catch (error) {
-      console.error('[grantReward] Error updating character stats:', error);
+      logger.error('[grantReward] Error updating character stats:', error);
       // Continue to log the event even if stats update fails
     }
   }
@@ -97,8 +98,8 @@ export async function grantReward({
   if (relatedId !== undefined) {
     logArgs.relatedId = relatedId;
   }
-  console.log('[grantReward] Logging event:', logArgs);
+  logger.debug('[grantReward] Logging event:', logArgs);
   const result = await logKingdomEvent(logArgs);
-  console.log('[grantReward] Event logged:', result);
+  logger.debug('[grantReward] Event logged:', result);
   return true;
 }

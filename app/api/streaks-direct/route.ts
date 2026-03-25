@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuth } from '@clerk/nextjs/server'
 import { supabaseServer } from '../../../lib/supabase/server-client'
@@ -69,7 +70,7 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
           return payload.sub;
         }
       } catch (decodeError) {
-        console.error('[Streaks Direct] Token decode failed:', decodeError);
+        logger.error('[Streaks Direct] Token decode failed:', decodeError);
       }
     }
 
@@ -81,12 +82,12 @@ async function extractUserIdFromToken(req: NextRequest): Promise<string | null> 
         return userId;
       }
     } catch (clerkError) {
-      console.error('[Streaks Direct] Clerk auth failed:', clerkError);
+      logger.error('[Streaks Direct] Clerk auth failed:', clerkError);
     }
 
     return null;
   } catch (error) {
-    console.error('[Streaks Direct] Error extracting user ID:', error);
+    logger.error('[Streaks Direct] Error extracting user ID:', error);
     return null;
   }
 }
@@ -132,7 +133,7 @@ export async function GET(req: NextRequest) {
     // Query result (omitted)
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error('[Streaks Direct GET] Database error:', error);
+      logger.error('[Streaks Direct GET] Database error:', error);
       return NextResponse.json({ error: error.message }, {
         status: 500,
         headers: {
@@ -177,7 +178,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[Streaks Direct GET] Error:', err);
+    logger.error('[Streaks Direct GET] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
     }, {
@@ -229,7 +230,7 @@ export async function POST(req: NextRequest) {
 
     // Check if recovery columns exist
     const hasRecoveryColumns = await checkRecoveryColumnsExist();
-    console.log('[Streaks Direct POST] Recovery columns available:', hasRecoveryColumns);
+    logger.debug('[Streaks Direct POST] Recovery columns available:', hasRecoveryColumns);
 
     const today = new Date().toISOString().slice(0, 10);
     let resilienceBonus = 0;
@@ -274,7 +275,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[Streaks Direct POST] Database error:', error);
+      logger.error('[Streaks Direct POST] Database error:', error);
       return NextResponse.json({ error: error.message }, {
         status: 500,
         headers: {
@@ -296,7 +297,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[Streaks Direct POST] Error:', err);
+    logger.error('[Streaks Direct POST] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
     }, {
@@ -378,7 +379,7 @@ export async function PUT(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[Streaks Direct PUT] Error:', err);
+    logger.error('[Streaks Direct PUT] Error:', err);
     return NextResponse.json({
       error: err.message || 'Unknown error'
     }, {

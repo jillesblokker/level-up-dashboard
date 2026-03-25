@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 // Performance monitoring utility
 // Tracks API response times and identifies performance bottlenecks
 
@@ -91,7 +92,7 @@ class PerformanceMonitor {
 
     // Log slow requests (>2 seconds)
     if (metric.duration > 2000) {
-      console.warn('[PerformanceMonitor] Slow API call detected:', {
+      logger.warn('[PerformanceMonitor] Slow API call detected:', {
         endpoint: metric.endpoint,
         method: metric.method,
         duration: `${metric.duration.toFixed(2)}ms`,

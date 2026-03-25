@@ -63,7 +63,7 @@ export function KingdomStep({ onNext }: KingdomStepProps) {
                   {tile && (
                     <div className="w-full h-full flex items-center justify-center overflow-hidden">
                       <img
-                        src={`/images/tiles/${tile}-tile.png`}
+                        src={`/images/tiles/${tile}-tile.webp`}
                         alt={`${tile} tile`}
                         className="w-full h-full object-cover"
                         onError={(e) => {

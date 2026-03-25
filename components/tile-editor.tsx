@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useState, useEffect } from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -78,7 +80,7 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
         }
       }).filter(Boolean) as ExtendedTileItem[]
     } catch (error) {
-      console.error('Error parsing markdown:', error)
+      logger.error('Error parsing markdown:', error)
       toast.error('Failed to parse markdown content')
       return []
     }
@@ -97,7 +99,7 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
         toast.error('No valid tiles found in markdown')
       }
     } catch (error) {
-      console.error('Error applying changes:', error)
+      logger.error('Error applying changes:', error)
       toast.error('Failed to apply changes')
     }
   }
@@ -134,7 +136,7 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
 
   // Get tile image based on type
   const getTileImage = (type: TileType) => {
-    return `/images/tiles/${type}-tile.png`
+    return `/images/tiles/${type}-tile.webp`
   }
 
   return (

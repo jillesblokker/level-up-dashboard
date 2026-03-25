@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('[Property Timers API] Select error:', error);
+        logger.error('[Property Timers API] Select error:', error);
         throw error;
       }
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Property Timers API] Error:', error);
+    logger.error('[Property Timers API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Property Timers API] Error:', error);
+    logger.error('[Property Timers API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -154,7 +155,7 @@ export async function PUT(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('[Property Timers API] Update error:', error);
+        logger.error('[Property Timers API] Update error:', error);
         throw error;
       }
 
@@ -171,7 +172,7 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Property Timers API] Error:', error);
+    logger.error('[Property Timers API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -200,7 +201,7 @@ export async function DELETE(request: NextRequest) {
         .eq('y', parseInt(y));
 
       if (error) {
-        console.error('[Property Timers API] Delete error:', error);
+        logger.error('[Property Timers API] Delete error:', error);
         throw error;
       }
 
@@ -217,7 +218,7 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Property Timers API] Error:', error);
+    logger.error('[Property Timers API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

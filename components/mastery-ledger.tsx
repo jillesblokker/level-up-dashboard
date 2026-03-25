@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Flame, Trophy, Shield, Medal, CheckCircle2, TrendingUp, Ban, Check, X, ScrollText, Target, ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -110,7 +112,7 @@ export function MasteryLedger() {
             const token = await getToken({ template: 'supabase' })
 
             if (!token) {
-                console.warn('[MasteryLedger] No auth token available, skipping fetch')
+                logger.warn('[MasteryLedger] No auth token available, skipping fetch')
                 setLoading(false)
                 return
             }
@@ -170,7 +172,7 @@ export function MasteryLedger() {
             setCompletions(allCompletions)
 
         } catch (err) {
-            console.error('Failed to fetch ledger data:', err)
+            logger.error('Failed to fetch ledger data:', err)
         } finally {
             setLoading(false)
         }
@@ -181,7 +183,7 @@ export function MasteryLedger() {
 
         // Listen for updates from other components
         const handleUpdate = () => {
-            console.log('[MasteryLedger] Received update event, refreshing data...')
+            logger.debug('[MasteryLedger] Received update event, refreshing data...')
             fetchData()
         }
 

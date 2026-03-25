@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export class AllianceStreakManager {
@@ -21,7 +22,7 @@ export class AllianceStreakManager {
                 .single();
 
             if (fetchError) {
-                console.error('Error fetching streak data:', fetchError);
+                logger.error('Error fetching streak data:', fetchError);
                 return { streak: 0, isNewRecord: false };
             }
 
@@ -69,7 +70,7 @@ export class AllianceStreakManager {
                 .eq('user_id', userId);
 
             if (updateError) {
-                console.error('Error updating streak:', updateError);
+                logger.error('Error updating streak:', updateError);
                 return { streak: newStreak, isNewRecord };
             }
 
@@ -78,7 +79,7 @@ export class AllianceStreakManager {
 
             return { streak: newStreak, isNewRecord };
         } catch (error) {
-            console.error('Error in updateStreak:', error);
+            logger.error('Error in updateStreak:', error);
             return { streak: 0, isNewRecord: false };
         }
     }
@@ -170,7 +171,7 @@ export class AllianceStreakManager {
                 lastUpdated: data.alliance_streak_last_updated
             };
         } catch (error) {
-            console.error('Error getting streak:', error);
+            logger.error('Error getting streak:', error);
             return { current: 0, longest: 0, lastUpdated: null };
         }
     }

@@ -15,9 +15,9 @@ interface TileStepProps {
 export function TileStep({ onNext }: TileStepProps) {
   const [selectedTile, setSelectedTile] = useState<string | null>(null)
   const [tileInventory, setTileInventory] = useState([
-    { id: 'grass', name: 'Grass', cost: 25, quantity: 0, image: '/images/tiles/grass-tile.png' },
-    { id: 'water', name: 'Water', cost: 50, quantity: 0, image: '/images/tiles/water-tile.png' },
-    { id: 'forest', name: 'Forest', cost: 75, quantity: 0, image: '/images/tiles/forest-tile.png' }
+    { id: 'grass', name: 'Grass', cost: 25, quantity: 0, image: '/images/tiles/grass-tile.webp' },
+    { id: 'water', name: 'Water', cost: 50, quantity: 0, image: '/images/tiles/water-tile.webp' },
+    { id: 'forest', name: 'Forest', cost: 75, quantity: 0, image: '/images/tiles/forest-tile.webp' }
   ])
   const [goldBalance, setGoldBalance] = useState(20)
 
@@ -86,7 +86,7 @@ export function TileStep({ onNext }: TileStepProps) {
                 <div className="text-center space-y-2 md:space-y-3">
                   <div className="w-12 h-12 md:w-16 md:h-16 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
                     <img
-                      src={`/images/tiles/${tile.id}-tile.png`}
+                      src={`/images/tiles/${tile.id}-tile.webp`}
                       alt={tile.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {

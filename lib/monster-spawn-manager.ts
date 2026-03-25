@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { Tile } from '@/types/tiles';
 import { MonsterType, SpawnCheckResult, MonsterSpawn } from '@/types/monsters';
 
@@ -143,7 +144,7 @@ async function saveMonsterToSupabase(x: number, y: number, monsterType: MonsterT
     });
 
     if (!response.ok) {
-      console.error('Failed to save monster to Supabase');
+      logger.error('Failed to save monster to Supabase');
     } else {
       // Dispatch event to update UI
       if (typeof window !== 'undefined') {
@@ -151,7 +152,7 @@ async function saveMonsterToSupabase(x: number, y: number, monsterType: MonsterT
       }
     }
   } catch (error) {
-    console.error('Error saving monster to Supabase:', error);
+    logger.error('Error saving monster to Supabase:', error);
   }
 }
 

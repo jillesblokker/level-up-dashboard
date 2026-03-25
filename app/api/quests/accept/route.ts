@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true });
 
     } catch (error) {
-        console.error('Error processing quest acceptance:', error);
+        logger.error('Error processing quest acceptance:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

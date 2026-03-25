@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export interface Migration {
@@ -104,10 +105,10 @@ export class DatabaseMigrationSystem {
             try {
               const { error } = await supabaseServer.rpc('exec_sql', { sql: constraint.sql });
               if (error) {
-                console.warn(`Constraint ${constraint.name} might already exist:`, error.message);
+                logger.warn(`Constraint ${constraint.name} might already exist:`, error.message);
               }
             } catch (error) {
-              console.warn(`Constraint ${constraint.name} setup failed:`, error);
+              logger.warn(`Constraint ${constraint.name} setup failed:`, error);
             }
           }
         },
@@ -190,7 +191,7 @@ export class DatabaseMigrationSystem {
       if (error) throw error;
       return migrations && migrations.length > 0 ? migrations[0]?.version || 0 : 0;
     } catch (error) {
-      console.error('Error getting current migration version:', error);
+      logger.error('Error getting current migration version:', error);
       return 0;
     }
   }
@@ -217,7 +218,7 @@ export class DatabaseMigrationSystem {
     const currentVersion = await this.getCurrentVersion();
     const target = targetVersion ?? Math.max(...this.migrations.map(m => m.version));
 
-    console.log(`🔄 Starting migration from version ${currentVersion} to ${target}`);
+    logger.debug(`🔄 Starting migration from version ${currentVersion} to ${target}`);
 
     if (target > currentVersion) {
       // Migrate forward
@@ -226,7 +227,7 @@ export class DatabaseMigrationSystem {
       // Migrate backward (rollback)
       await this.migrateDown(currentVersion, target);
     } else {
-      console.log('✅ Database is already at target version');
+      logger.debug('✅ Database is already at target version');
     }
   }
 
@@ -255,7 +256,7 @@ export class DatabaseMigrationSystem {
     const operation = direction === 'up' ? 'Applying' : 'Rolling back';
 
     try {
-      console.log(`${operation} migration ${migration.version}: ${migration.name}`);
+      logger.debug(`${operation} migration ${migration.version}: ${migration.name}`);
 
       if (direction === 'up') {
         await migration.up();
@@ -266,11 +267,11 @@ export class DatabaseMigrationSystem {
       }
 
       const executionTime = Date.now() - startTime;
-      console.log(`✅ ${operation} migration ${migration.version} completed in ${executionTime}ms`);
+      logger.debug(`✅ ${operation} migration ${migration.version} completed in ${executionTime}ms`);
 
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      console.error(`❌ ${operation} migration ${migration.version} failed after ${executionTime}ms:`, error);
+      logger.error(`❌ ${operation} migration ${migration.version} failed after ${executionTime}ms:`, error);
       throw error;
     }
   }
@@ -317,7 +318,7 @@ export class DatabaseMigrationSystem {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error getting migration history:', error);
+      logger.error('Error getting migration history:', error);
       return [];
     }
   }
@@ -359,10 +360,10 @@ export class DatabaseMigrationSystem {
   }
 
   async reset(): Promise<void> {
-    console.log('🔄 Resetting database to version 0');
+    logger.debug('🔄 Resetting database to version 0');
     const currentVersion = await this.getCurrentVersion();
     await this.migrate(0);
-    console.log('✅ Database reset completed');
+    logger.debug('✅ Database reset completed');
   }
 
   async status(): Promise<{
@@ -395,9 +396,9 @@ export const migrationSystem = DatabaseMigrationSystem.getInstance();
 export async function runMigrations(targetVersion?: number): Promise<void> {
   try {
     await migrationSystem.migrate(targetVersion);
-    console.log('✅ All migrations completed successfully');
+    logger.debug('✅ All migrations completed successfully');
   } catch (error) {
-    console.error('❌ Migration failed:', error);
+    logger.error('❌ Migration failed:', error);
     throw error;
   }
 }

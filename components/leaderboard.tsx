@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -35,7 +37,7 @@ export function Leaderboard() {
           setEntries(data.data);
         }
       } catch (error) {
-        console.error("Failed to fetch leaderboard", error);
+        logger.error("Failed to fetch leaderboard", error);
       } finally {
         setLoading(false);
       }

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { gainGold } from "@/lib/gold-manager"
 import { gainExperience } from "@/lib/experience-manager"
 import { notificationService } from "@/lib/notification-service"
@@ -47,5 +48,5 @@ export function grantAchievementRewards(creatureId: string, creatureName: string
     }
   );
   
-  console.log(`Achievement reward granted for ${creatureName}: ${rewards.gold} gold, ${rewards.experience} exp`);
+  logger.debug(`Achievement reward granted for ${creatureName}: ${rewards.gold} gold, ${rewards.experience} exp`);
 } 

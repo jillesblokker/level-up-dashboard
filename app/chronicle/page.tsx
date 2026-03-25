@@ -1,4 +1,6 @@
 "use client"
+
+import { logger } from "@/lib/logger";
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useAuth } from '@clerk/nextjs'
@@ -46,7 +48,7 @@ export default function ChroniclePage() {
                 setEntries(sorted)
             }
         } catch (error) {
-            console.error('Failed to load entries', error)
+            logger.error('Failed to load entries', error)
         } finally {
             setIsLoading(false)
         }

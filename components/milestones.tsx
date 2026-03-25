@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -138,13 +140,13 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         });
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('[Milestones] API error:', response.status, errorText);
+          logger.error('[Milestones] API error:', response.status, errorText);
           throw new Error(`Failed to fetch milestones: ${response.status} ${errorText}`);
         }
         const milestoneData = await response.json();
         setMilestones(milestoneData || []);
       } catch (err) {
-        console.error('[Milestones] Fetch error:', err);
+        logger.error('[Milestones] Fetch error:', err);
         toast({
           title: 'Error',
           description: 'Failed to load milestones. Please try again.',
@@ -239,7 +241,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         description: "Milestone created successfully!",
       });
     } catch (error) {
-      console.error('Error creating milestone:', error);
+      logger.error('Error creating milestone:', error);
       toast({
         title: "Error",
         description: "Failed to create milestone. Please try again.",
@@ -262,7 +264,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
       if (!response.ok) {
         const err = await response.text();
-        console.error('Delete error:', err);
+        logger.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
 
@@ -284,7 +286,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         description: 'Milestone deleted successfully!',
       });
     } catch (error) {
-      console.error('Error deleting milestone:', error);
+      logger.error('Error deleting milestone:', error);
       toast({
         title: 'Error',
         description: 'Failed to delete milestone. Please try again.',
@@ -337,7 +339,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         description: completed ? 'Milestone completed!' : 'Milestone unchecked!',
       });
     } catch (error) {
-      console.error('Error toggling milestone completion:', error);
+      logger.error('Error toggling milestone completion:', error);
       toast({
         title: 'Error',
         description: 'Failed to update milestone. Please try again.',
@@ -381,7 +383,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
       if (!response.ok) {
         const err = await response.text();
-        console.error('Edit error:', err);
+        logger.error('Edit error:', err);
         throw new Error(err || 'Failed to update milestone');
       }
 
@@ -399,7 +401,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       setEditModalOpen(false);
       setEditingMilestone(null);
     } catch (error) {
-      console.error('Error updating milestone:', error);
+      logger.error('Error updating milestone:', error);
       toast({
         title: 'Error',
         description: 'Failed to update milestone. Please try again.',
@@ -442,7 +444,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
 
       if (!response.ok) {
         const err = await response.text();
-        console.error('Delete error:', err);
+        logger.error('Delete error:', err);
         throw new Error(err || 'Failed to delete milestone');
       }
 
@@ -462,7 +464,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         description: 'Milestone deleted successfully!',
       });
     } catch (error) {
-      console.error('Error deleting custom milestone:', error);
+      logger.error('Error deleting custom milestone:', error);
       toast({
         title: 'Error',
         description: 'Failed to delete milestone. Please try again.',
@@ -532,7 +534,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           });
         }
       } catch (err) {
-        console.error('Failed to persist milestone completion:', err);
+        logger.error('Failed to persist milestone completion:', err);
       }
     }
   };
@@ -563,7 +565,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
         // Removed debugging log
       },
       (error) => {
-        console.error('[Milestones] Polling error:', error);
+        logger.error('[Milestones] Polling error:', error);
         // Silent error handling for polling to avoid spam
       }
     );
@@ -791,7 +793,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
       // The API will handle granting rewards, so we don't need to do it here
       // This prevents double rewards
     } catch (err) {
-      console.error('Failed to toggle milestone completion:', err);
+      logger.error('Failed to toggle milestone completion:', err);
       toast({
         title: 'Error',
         description: 'Failed to update milestone status. Please try again.',

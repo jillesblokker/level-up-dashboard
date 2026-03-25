@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -10,7 +11,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log(`[Kingdom Items API] Fetching items for user: ${userId}`);
+    logger.debug(`[Kingdom Items API] Fetching items for user: ${userId}`);
 
     const { data, error } = await supabaseServer
       .from('kingdom_items')
@@ -19,7 +20,7 @@ export async function GET() {
       .single();
 
     if (error) {
-      console.error('[Kingdom Items API] Supabase error:', error);
+      logger.error('[Kingdom Items API] Supabase error:', error);
       
       // Check if it's a table doesn't exist error
       if (error.code === '42P01') {
@@ -45,12 +46,12 @@ export async function GET() {
       return NextResponse.json({ items: [] });
     }
 
-    console.log(`[Kingdom Items API] Successfully fetched items for user: ${userId}`);
+    logger.debug(`[Kingdom Items API] Successfully fetched items for user: ${userId}`);
     return NextResponse.json({
       items: data.items_data || []
     });
   } catch (error) {
-    console.error('[Kingdom Items API] Unexpected error:', error);
+    logger.error('[Kingdom Items API] Unexpected error:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid items data' }, { status: 400 });
     }
 
-    console.log(`[Kingdom Items API] Saving items for user: ${userId}`);
+    logger.debug(`[Kingdom Items API] Saving items for user: ${userId}`);
 
     const itemsData = {
       user_id: userId,
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
       });
 
     if (error) {
-      console.error('[Kingdom Items API] Supabase upsert error:', error);
+      logger.error('[Kingdom Items API] Supabase upsert error:', error);
       
       // Check if it's a table doesn't exist error
       if (error.code === '42P01') {
@@ -104,10 +105,10 @@ export async function POST(request: Request) {
       }, { status: 500 });
     }
 
-    console.log(`[Kingdom Items API] Successfully saved items for user: ${userId}`);
+    logger.debug(`[Kingdom Items API] Successfully saved items for user: ${userId}`);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Kingdom Items API] Unexpected error:', error);
+    logger.error('[Kingdom Items API] Unexpected error:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'

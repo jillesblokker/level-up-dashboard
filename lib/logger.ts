@@ -1,15 +1,6 @@
 /**
- * Centralized Logger Utility
- * 
- * This module provides a structured logging system with log levels that can be
- * configured based on environment. In production, DEBUG and INFO logs are suppressed.
- * 
- * Usage:
- *   import { logger } from '@/lib/logger'
- *   logger.debug('Detailed debugging info', { context: 'example' })
- *   logger.info('General information')
- *   logger.warn('Warning message')
- *   logger.error('Error occurred', error)
+ * Production-safe logger utility
+ * Suppresses verbose logs in production while keeping high-priority ones
  */
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
@@ -20,7 +11,6 @@ interface LoggerConfig {
   enableColors: boolean
 }
 
-// Log level hierarchy (lower number = more verbose)
 const LOG_LEVELS: Record<LogLevel, number> = {
   debug: 0,
   info: 1,
@@ -28,7 +18,6 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   error: 3
 }
 
-// Console colors for different log levels
 const LOG_COLORS: Record<LogLevel, string> = {
   debug: '\x1b[36m', // Cyan
   info: '\x1b[32m',  // Green
@@ -38,35 +27,32 @@ const LOG_COLORS: Record<LogLevel, string> = {
 
 const RESET_COLOR = '\x1b[0m'
 
-// Determine if we're in production
 const isProduction = process.env.NODE_ENV === 'production'
 const isServer = typeof window === 'undefined'
 
-// Default configuration based on environment
-const defaultConfig: LoggerConfig = {
-  minLevel: isProduction ? 'warn' : 'debug',
-  enableTimestamps: true,
-  enableColors: isServer // Colors work better in Node.js terminal
-}
-
 class Logger {
   private config: LoggerConfig
-  private context: string | undefined
+  private context: string | null = null
 
-  constructor(config: Partial<LoggerConfig> = {}, context?: string) {
-    this.config = { ...defaultConfig, ...config }
+  constructor(context: string | null = null) {
+    this.context = context
+    this.config = {
+      // Show everything in dev, only warn/error in prod
+      minLevel: isProduction ? 'warn' : 'debug',
+      enableTimestamps: true,
+      enableColors: isServer // Colors only work in terminal/server logs
+    }
+  }
+
+  /**
+   * Set the context for all subsequent logs
+   */
+  setContext(context: string): void {
     this.context = context
   }
 
   /**
-   * Create a child logger with a specific context
-   */
-  withContext(context: string): Logger {
-    return new Logger(this.config, context)
-  }
-
-  /**
-   * Check if a log level should be output
+   * Check if the message should be logged based on current level
    */
   private shouldLog(level: LogLevel): boolean {
     return LOG_LEVELS[level] >= LOG_LEVELS[this.config.minLevel]
@@ -102,10 +88,13 @@ class Logger {
   /**
    * Internal log method
    */
-  private log(level: LogLevel, message: string, ...args: unknown[]): void {
+  private log(level: LogLevel, message: any, ...args: unknown[]): void {
     if (!this.shouldLog(level)) return
 
-    const formattedMessage = this.formatMessage(level, message)
+    const msgString = typeof message === 'string' ? message :
+      (message instanceof Error ? message.message : JSON.stringify(message, null, 2))
+
+    const formattedMessage = this.formatMessage(level, msgString)
 
     switch (level) {
       case 'debug':
@@ -123,99 +112,67 @@ class Logger {
     }
   }
 
-  /**
-   * Log debug message (suppressed in production)
-   */
-  debug(message: string, ...args: unknown[]): void {
+  debug(message: any, ...args: unknown[]): void {
     this.log('debug', message, ...args)
   }
 
-  /**
-   * Log info message (suppressed in production)
-   */
-  info(message: string, ...args: unknown[]): void {
+  info(message: any, ...args: unknown[]): void {
     this.log('info', message, ...args)
   }
 
-  /**
-   * Log warning message
-   */
-  warn(message: string, ...args: unknown[]): void {
+  warn(message: any, ...args: unknown[]): void {
     this.log('warn', message, ...args)
   }
 
-  /**
-   * Log error message
-   */
-  error(message: string, ...args: unknown[]): void {
+  error(message: any, ...args: unknown[]): void {
     this.log('error', message, ...args)
   }
 
-  /**
-   * Log an error with stack trace
-   */
-  errorWithStack(message: string, error: Error | unknown, ...args: unknown[]): void {
-    if (error instanceof Error) {
-      this.log('error', `${message}: ${error.message}`, ...args)
-      if (error.stack && !isProduction) {
-        console.error(error.stack)
-      }
-    } else {
-      this.log('error', message, error, ...args)
+  errorWithStack(message: string, error: unknown, ...args: unknown[]): void {
+    if (!this.shouldLog('error')) return
+
+    this.error(message, error, ...args)
+    if (error instanceof Error && error.stack) {
+      this.debug('Stack Trace:', error.stack)
     }
   }
 
-  /**
-   * Measure and log execution time
-   */
   time<T>(label: string, fn: () => T): T {
-    const start = performance.now()
+    const start = Date.now()
     try {
-      const result = fn()
-      const duration = performance.now() - start
-      this.debug(`${label} completed in ${duration.toFixed(2)}ms`)
-      return result
-    } catch (error) {
-      const duration = performance.now() - start
-      this.error(`${label} failed after ${duration.toFixed(2)}ms`, error)
-      throw error
+      return fn()
+    } finally {
+      const duration = Date.now() - start
+      this.debug(`${label} took ${duration}ms`)
     }
   }
 
-  /**
-   * Measure and log async execution time
-   */
   async timeAsync<T>(label: string, fn: () => Promise<T>): Promise<T> {
-    const start = performance.now()
+    const start = Date.now()
     try {
       const result = await fn()
-      const duration = performance.now() - start
-      this.debug(`${label} completed in ${duration.toFixed(2)}ms`)
+      const duration = Date.now() - start
+      this.debug(`${label} took ${duration}ms`)
       return result
     } catch (error) {
-      const duration = performance.now() - start
-      this.error(`${label} failed after ${duration.toFixed(2)}ms`, error)
+      const duration = Date.now() - start
+      this.error(`${label} failed after ${duration}ms`, error)
       throw error
     }
   }
 }
 
-// Export singleton logger instance
+// Export a singleton instance
 export const logger = new Logger()
 
-// Default export for backwards compatibility
-export default logger
+// Export specialized instance for API routes
+export const apiLogger = new Logger('API')
 
-// Export Logger class for custom instances
+// Export specialized instance for Auth
+export const authLogger = new Logger('AUTH')
+
+// Export class for custom context loggers
 export { Logger }
 
-// Export type for use in other modules
-export type { LogLevel, LoggerConfig }
-
-// Convenience exports for common contexts
-export const apiLogger = logger.withContext('API')
-export const dbLogger = logger.withContext('DB')
-export const authLogger = logger.withContext('Auth')
-export const uiLogger = logger.withContext('UI')
-export const syncLogger = logger.withContext('Sync')
-
+// Default export
+export default logger

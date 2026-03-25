@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -37,13 +38,13 @@ export async function POST(request: NextRequest) {
             });
 
         if (error) {
-            console.error('[Tarot Sync] Error saving preference:', error);
+            logger.error('[Tarot Sync] Error saving preference:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('[Tarot Sync] Unexpected error:', error);
+        logger.error('[Tarot Sync] Unexpected error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

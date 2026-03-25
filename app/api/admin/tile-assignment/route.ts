@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, tile: resultData });
 
     } catch (err: any) {
-        console.error("Admin Tile Assignment Error:", err);
+        logger.error("Admin Tile Assignment Error:", err);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

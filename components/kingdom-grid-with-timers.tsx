@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import Image from "next/image"
 import { Tile, TileType } from '@/types/tiles'
@@ -310,7 +312,7 @@ export function KingdomGridWithTimers({
         setBuildTokens(stats.build_tokens || 0)
         setPlayerLevel(calculateLevelFromExperience(stats.experience || 0))
       } catch (error) {
-        console.warn('[Kingdom] Failed to load local character data:', error)
+        logger.warn('[Kingdom] Failed to load local character data:', error)
       }
     }
 
@@ -323,7 +325,7 @@ export function KingdomGridWithTimers({
         // This will fetch from server, merge, and emit 'character-stats-update'
         await fetchFreshCharacterStats()
       } catch (error) {
-        console.warn('[Kingdom] Failed to fetch fresh stats:', error)
+        logger.warn('[Kingdom] Failed to fetch fresh stats:', error)
       }
     }
 
@@ -415,7 +417,7 @@ export function KingdomGridWithTimers({
           }
         }
       } catch (error) {
-        console.error('[Kingdom] Error fetching event flags:', error);
+        logger.error('[Kingdom] Error fetching event flags:', error);
       }
     };
 
@@ -474,7 +476,7 @@ export function KingdomGridWithTimers({
           name: TEXT_CONTENT.kingdomGrid.expansion.vacantTile.name,
           description: TEXT_CONTENT.kingdomGrid.expansion.vacantTile.description,
           type: 'vacant',
-          image: '/images/kingdom-tiles/Vacant.png',
+          image: '/images/kingdom-tiles/Vacant.webp',
           cost: 0,
           quantity: 0,
           x,
@@ -748,11 +750,11 @@ export function KingdomGridWithTimers({
             });
           }
         } catch (e) {
-          console.error('Failed to add to inventory', e);
+          logger.error('Failed to add to inventory', e);
           toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
         }
       } else {
-        console.warn('[Kingdom] No userId available for inventory add');
+        logger.warn('[Kingdom] No userId available for inventory add');
       }
 
       // Emit event to update inventory UI
@@ -812,7 +814,7 @@ export function KingdomGridWithTimers({
               category: 'building',
               image: property.image
             });
-            console.warn('[Kingdom] Inventory add success (Materials)');
+            logger.warn('[Kingdom] Inventory add success (Materials)');
             toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
             if (onInventoryUpdate) {
               onInventoryUpdate({
@@ -824,11 +826,11 @@ export function KingdomGridWithTimers({
               });
             }
           } catch (e) {
-            console.error('Failed to add to inventory', e);
+            logger.error('Failed to add to inventory', e);
             toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
           }
         } else {
-          console.warn('[Kingdom] No userId available for inventory add');
+          logger.warn('[Kingdom] No userId available for inventory add');
         }
 
         toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
@@ -836,7 +838,7 @@ export function KingdomGridWithTimers({
         // Trigger inventory update
         window.dispatchEvent(new Event('character-inventory-update'));
       } else {
-        console.warn('onMaterialSpend callback missing');
+        logger.warn('onMaterialSpend callback missing');
       }
       return;
     }
@@ -928,14 +930,14 @@ export function KingdomGridWithTimers({
     // 1. Grid persistence (saveKingdomGrid)
     // 2. Inventory management (removeFromKingdomInventory + localItems optimistic update)
     if (onTilePlace) {
-      console.log('[KingdomGrid] Delegating placement to onTilePlace:', newTile);
+      logger.debug('[KingdomGrid] Delegating placement to onTilePlace:', newTile);
       onTilePlace(x, y, newTile);
 
       // We do NOT manually decrease inventory here because onTilePlace (handlePlaceKingdomTile) does it.
       // We do NOT manually setPropertyInventory here because the parent will update the 'inventory' prop,
       // which triggers the useEffect synchronization.
     } else {
-      console.warn('[KingdomGrid] onTilePlace prop missing, falling back to local state update (Inventory might desync)');
+      logger.warn('[KingdomGrid] onTilePlace prop missing, falling back to local state update (Inventory might desync)');
 
       // Fallback: Update local grid if no parent handler
       if (updatedGrid[y]) {
@@ -962,7 +964,7 @@ export function KingdomGridWithTimers({
               // Also trigger inventory update event
               window.dispatchEvent(new Event('character-inventory-update'));
             } catch (e) {
-              console.warn('[Kingdom] Failed to decrement inventory', e)
+              logger.warn('[Kingdom] Failed to decrement inventory', e)
             }
           })()
         }
@@ -1017,7 +1019,7 @@ export function KingdomGridWithTimers({
               body: JSON.stringify({ tileId: newTile.id, x, y, tileType: newTile.type, endTime: endIso, isReady: false })
             })
           } catch (e) {
-            console.warn('[Kingdom] Failed to persist timer', e)
+            logger.warn('[Kingdom] Failed to persist timer', e)
           }
         })()
     } else if (movingTileSource) {
@@ -1533,7 +1535,7 @@ export function KingdomGridWithTimers({
     if (propertyDef && onTileRemove) {
       onTileRemove(propertyDef.id);
     } else if (propertyDef) {
-      console.warn('onTileRemove prop not provided');
+      logger.warn('onTileRemove prop not provided');
     }
 
     toast({
@@ -1676,7 +1678,7 @@ export function KingdomGridWithTimers({
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
               >
                 <Image
-                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.png' : (isKingdomTile && kingdomTile ? kingdomTile.image : tile.image)}
+                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.webp' : (isKingdomTile && kingdomTile ? kingdomTile.image : tile.image)}
                   alt={tile.name}
                   fill
                   className="object-cover"
@@ -1984,7 +1986,7 @@ export function KingdomGridWithTimers({
               toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
             }
           } catch (e) {
-            console.error('Error purchasing build token:', e);
+            logger.error('Error purchasing build token:', e);
             toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
           }
         }}

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
@@ -22,15 +23,15 @@ export async function GET(req: NextRequest) {
       .eq('user_id', userId);
 
     if (error) {
-      console.error('[API] Error loading eggs:', error);
+      logger.error('[API] Error loading eggs:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log('[API] Eggs loaded for user:', userId, 'Count:', eggs?.length || 0);
+    logger.debug('[API] Eggs loaded for user:', userId, 'Count:', eggs?.length || 0);
     return NextResponse.json({ eggs: eggs || [] });
 
   } catch (err: any) {
-    console.error('[API] Easter eggs GET error:', err);
+    logger.error('[API] Easter eggs GET error:', err);
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
 }
@@ -67,11 +68,11 @@ export async function POST(req: NextRequest) {
         .select();
 
       if (error) {
-        console.error('[API] Error creating eggs:', error);
+        logger.error('[API] Error creating eggs:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log('[API] Eggs initialized for user:', userId);
+      logger.debug('[API] Eggs initialized for user:', userId);
       return NextResponse.json({ success: true, eggs: data });
 
     } else if (action === 'find') {
@@ -92,11 +93,11 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (error) {
-        console.error('[API] Error finding egg:', error);
+        logger.error('[API] Error finding egg:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log('[API] Egg found:', eggId, 'for user:', userId);
+      logger.debug('[API] Egg found:', eggId, 'for user:', userId);
       return NextResponse.json({ success: true, egg: data });
 
     } else if (action === 'reset') {
@@ -107,11 +108,11 @@ export async function POST(req: NextRequest) {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('[API] Error resetting eggs:', error);
+        logger.error('[API] Error resetting eggs:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log('[API] Eggs reset for user:', userId);
+      logger.debug('[API] Eggs reset for user:', userId);
       return NextResponse.json({ success: true });
 
     } else {
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (err: any) {
-    console.error('[API] Easter eggs POST error:', err);
+    logger.error('[API] Easter eggs POST error:', err);
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
 } 

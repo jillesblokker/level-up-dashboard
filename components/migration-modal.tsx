@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -58,7 +61,7 @@ export function MigrationModal({ isOpen, onClose, onComplete }: MigrationModalPr
       }
 
     } catch (error) {
-      console.error('Migration error:', error);
+      logger.error('Migration error:', error);
       setResult({
         success: false,
         migrated: [],

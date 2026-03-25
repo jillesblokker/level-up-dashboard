@@ -178,7 +178,7 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
   }
 
   const getTileImage = () => {
-    return `/images/kingdom-tiles/${tile.name}.png`
+    return `/images/kingdom-tiles/${tile.name}.webp`
   }
 
   return (

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       // Handle any database error gracefully
-      console.log('Database error in quest favorites GET:', error.message);
+      logger.debug('Database error in quest favorites GET:', error.message);
       return NextResponse.json({ favorites: [] });
     }
 
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ favorites: favoritedQuestIds });
 
   } catch (error) {
-    console.log('Error in quest favorites GET:', error);
+    logger.debug('Error in quest favorites GET:', error);
     // Return empty array for any error
     return NextResponse.json({ favorites: [] });
   }
@@ -58,14 +59,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       // Handle any database error gracefully
-      console.log('Database error in quest favorites POST:', error.message);
+      logger.debug('Database error in quest favorites POST:', error.message);
       return NextResponse.json({ success: true, data: { user_id: userId, quest_id: questId } });
     }
 
     return NextResponse.json({ success: true, data });
 
   } catch (error) {
-    console.log('Error in quest favorites POST:', error);
+    logger.debug('Error in quest favorites POST:', error);
     // Return success for any error to prevent UI crashes
     return NextResponse.json({ success: true });
   }
@@ -94,14 +95,14 @@ export async function DELETE(request: NextRequest) {
 
     if (error) {
       // Handle any database error gracefully
-      console.log('Database error in quest favorites DELETE:', error.message);
+      logger.debug('Database error in quest favorites DELETE:', error.message);
       return NextResponse.json({ success: true });
     }
 
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.log('Error in quest favorites DELETE:', error);
+    logger.debug('Error in quest favorites DELETE:', error);
     // Return success for any error to prevent UI crashes
     return NextResponse.json({ success: true });
   }

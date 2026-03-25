@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { Button } from '@/components/ui/button'
@@ -105,11 +107,11 @@ export default function LocationClient({ slug, locationId }: Props) {
               setInventory(Array.isArray(inventoryItems) ? inventoryItems : []);
             }
           } catch (error) {
-            console.error('Failed to load inventory:', error);
+            logger.error('Failed to load inventory:', error);
           }
         }
       } catch (error) {
-        console.error("Failed to load character stats:", error)
+        logger.error("Failed to load character stats:", error)
       }
     }
 
@@ -136,9 +138,9 @@ export default function LocationClient({ slug, locationId }: Props) {
   }
 
   const locationImage = locationId === "the-dragons-rest"
-    ? "/images/locations/the-dragons-rest-tavern.png"
+    ? "/images/locations/the-dragons-rest-tavern.webp"
     : locationId === "royal-stables"
-      ? "/images/locations/royal-stables.png"
+      ? "/images/locations/royal-stables.webp"
       : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '')}.png`;
 
   const handlePurchase = async (item: LocationItem) => {
@@ -162,10 +164,10 @@ export default function LocationClient({ slug, locationId }: Props) {
           credentials: 'include'
         });
         if (!response.ok) {
-          console.error('Failed to update character stats:', response.status);
+          logger.error('Failed to update character stats:', response.status);
         }
       } catch (error) {
-        console.error('Failed to update character stats:', error);
+        logger.error('Failed to update character stats:', error);
       }
     }
     setGold(newGold)
@@ -177,7 +179,7 @@ export default function LocationClient({ slug, locationId }: Props) {
           ...item,
           type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
           quantity: 1,
-          image: `/images/items/${item.type}/${item.id}.png`,
+          image: `/images/items/${item.type}/${item.id}.webp`,
         };
 
         const response = await fetch('/api/inventory', {
@@ -188,10 +190,10 @@ export default function LocationClient({ slug, locationId }: Props) {
         });
 
         if (!response.ok) {
-          console.error('Failed to add item to inventory:', response.status);
+          logger.error('Failed to add item to inventory:', response.status);
         }
       } catch (error) {
-        console.error('Failed to add item to inventory:', error);
+        logger.error('Failed to add item to inventory:', error);
       }
     }
 
@@ -259,10 +261,10 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <h2 className="text-xl font-bold mb-4">Horses for Sale</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.horses?.map((horse) => {
-                      let imagePath = "/images/items/placeholder.png";
-                      if (horse.name === "Sally Swift Horse") imagePath = "/images/items/horse/horse-stelony.png";
-                      if (horse.name === "Buster Endurance Horse") imagePath = "/images/items/horse/horse-perony.png";
-                      if (horse.name === "Shadow War Horse") imagePath = "/images/items/horse/horse-felony.png";
+                      let imagePath = "/images/items/placeholder.webp";
+                      if (horse.name === "Sally Swift Horse") imagePath = "/images/items/horse/horse-stelony.webp";
+                      if (horse.name === "Buster Endurance Horse") imagePath = "/images/items/horse/horse-perony.webp";
+                      if (horse.name === "Shadow War Horse") imagePath = "/images/items/horse/horse-felony.webp";
                       return (
                         <Card key={horse.id} className="flex flex-col">
                           <div className="w-full aspect-[4/3] relative bg-black">
@@ -273,7 +275,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${horse.name}-image`}
-                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.png"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
                             />
                           </div>
                           <CardHeader>
@@ -310,11 +312,11 @@ export default function LocationClient({ slug, locationId }: Props) {
                       if (!invItem) return null
 
                       // Get artifact image from the artifact folder
-                      let imagePath = "/images/items/placeholder.png";
-                      if (artifact.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.png";
-                      if (artifact.name === "Merchant's Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
-                      if (artifact.name === "Restful Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.png";
-                      if (artifact.name === "Mystic Brew") imagePath = "/images/items/artifact/potion/artifact-potion.png";
+                      let imagePath = "/images/items/placeholder.webp";
+                      if (artifact.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.webp";
+                      if (artifact.name === "Merchant's Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.webp";
+                      if (artifact.name === "Restful Charm") imagePath = "/images/items/artifact/ring/artifact-ringo.webp";
+                      if (artifact.name === "Mystic Brew") imagePath = "/images/items/artifact/potion/artifact-potion.webp";
                       // Add more artifact mappings as needed
 
                       return (
@@ -327,7 +329,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${artifact.name}-image`}
-                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.png"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
                             />
                           </div>
                           <CardHeader>
@@ -356,10 +358,10 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <h2 className="text-xl font-bold mt-4 mb-4">Buy Items</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.map((item) => {
-                      let imagePath = "/images/items/placeholder.png";
-                      if (item.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.png";
-                      if (item.name === "Magic Scroll") imagePath = "/images/items/scroll/scroll-scrolly.png";
-                      if (item.name === "Tome of Knowledge") imagePath = "/images/items/scroll/scroll-perkamento.png";
+                      let imagePath = "/images/items/placeholder.webp";
+                      if (item.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.webp";
+                      if (item.name === "Magic Scroll") imagePath = "/images/items/scroll/scroll-scrolly.webp";
+                      if (item.name === "Tome of Knowledge") imagePath = "/images/items/scroll/scroll-perkamento.webp";
                       // Add more mappings as needed
                       return (
                         <Card key={item.id} className="flex flex-col">
@@ -371,7 +373,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${item.name}-image`}
-                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.png"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
                             />
                           </div>
                           <CardHeader>
@@ -402,10 +404,10 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <h2 className="text-xl font-bold mb-4">Potions for Sale</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.map((item) => {
-                      let imagePath = "/images/items/placeholder.png";
-                      if (item.name === "Health Potion") imagePath = "/images/items/potion/potion-health.png";
-                      if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.png";
-                      if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.png";
+                      let imagePath = "/images/items/placeholder.webp";
+                      if (item.name === "Health Potion") imagePath = "/images/items/potion/potion-health.webp";
+                      if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.webp";
+                      if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.webp";
                       // Add more mappings as needed
                       return (
                         <Card key={item.id} className="flex flex-col">
@@ -417,7 +419,7 @@ export default function LocationClient({ slug, locationId }: Props) {
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               aria-label={`${item.name}-image`}
-                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.png"; }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
                             />
                           </div>
                           <CardHeader>

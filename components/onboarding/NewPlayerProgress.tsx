@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle2, Circle, Trophy, ArrowRight } from 'lucide-react'
@@ -95,7 +97,7 @@ export function NewPlayerProgress() {
                     milestoneFinished = milestones.some((m: any) => m.completed)
                 }
             } catch (e) {
-                console.warn('Milestones API check failed', e)
+                logger.warn('Milestones API check failed', e)
             }
 
             const updatedItems = [
@@ -118,7 +120,7 @@ export function NewPlayerProgress() {
             setIsVisible(!allDone)
             setIsLoaded(true)
         } catch (error) {
-            console.error('Failed to load player progress:', error)
+            logger.error('Failed to load player progress:', error)
             setIsLoaded(true)
         }
     }

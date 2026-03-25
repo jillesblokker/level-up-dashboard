@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -64,7 +66,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             toast.success("You feel deeply centered.", { description: "+30 XP" })
             onClose()
         } catch (error) {
-            console.error("Failed to record meditation:", error);
+            logger.error("Failed to record meditation:", error);
             // Still close and show success since XP was likely updated or we want to avoid blocking
             onClose();
         }

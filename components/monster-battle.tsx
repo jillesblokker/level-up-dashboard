@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -37,42 +39,42 @@ const weapons: Weapon[] = [
 const monsterData = {
   dragon: {
     name: 'Dragoni',
-    image: '/images/achievements/201.png',
+    image: '/images/achievements/201.webp',
     description: 'A fearsome dragon with scales as hard as steel',
     difficulty: 'Hard',
     achievementId: '201'
   },
   goblin: {
     name: 'Orci',
-    image: '/images/achievements/202.png',
+    image: '/images/achievements/202.webp',
     description: 'A sneaky goblin with sharp daggers',
     difficulty: 'Easy',
     achievementId: '202'
   },
   troll: {
     name: 'Trollie',
-    image: '/images/achievements/203.png',
+    image: '/images/achievements/203.webp',
     description: 'A massive troll with incredible strength',
     difficulty: 'Medium',
     achievementId: '203'
   },
   wizard: {
     name: 'Sorceror',
-    image: '/images/achievements/204.png',
+    image: '/images/achievements/204.webp',
     description: 'A powerful wizard with dark magic',
     difficulty: 'Hard',
     achievementId: '204'
   },
   pegasus: {
     name: 'Peggie',
-    image: '/images/achievements/205.png',
+    image: '/images/achievements/205.webp',
     description: 'A majestic winged horse with divine powers',
     difficulty: 'Medium',
     achievementId: '205'
   },
   fairy: {
     name: 'Fairiel',
-    image: '/images/achievements/206.png',
+    image: '/images/achievements/206.webp',
     description: 'A magical fairy with nature magic',
     difficulty: 'Easy',
     achievementId: '206'
@@ -243,18 +245,18 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
     // Unlock achievement for defeating this monster
     if (monster.achievementId) {
-      console.log('Attempting to unlock monster achievement:', monster.achievementId, 'for monster:', monster.name)
+      logger.debug('Attempting to unlock monster achievement:', monster.achievementId, 'for monster:', monster.name)
       fetch('/api/achievements/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ achievementId: monster.achievementId })
       }).then(response => {
-        console.log('Achievement unlock response status:', response.status)
+        logger.debug('Achievement unlock response status:', response.status)
         return response.json()
       }).then(data => {
-        console.log('Achievement unlock response data:', data)
+        logger.debug('Achievement unlock response data:', data)
       }).catch(error => {
-        console.error('Failed to unlock achievement:', error)
+        logger.error('Failed to unlock achievement:', error)
       })
     }
 
@@ -325,11 +327,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 alt={monster.name}
                 className="w-full h-full object-cover"
                 onLoad={() => {
-                  console.log('Monster image loaded successfully:', monster.image);
+                  logger.debug('Monster image loaded successfully:', monster.image);
                 }}
                 onError={(e) => {
-                  console.error('Failed to load monster image:', monster.image);
-                  console.error('Error details:', e);
+                  logger.error('Failed to load monster image:', monster.image);
+                  logger.error('Error details:', e);
                   // Try to show a fallback
                   e.currentTarget.src = '/images/placeholders/item-placeholder.svg';
                 }}

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
       results 
     });
   } catch (error) {
-    console.error('[Setup Database API] Error:', error);
+    logger.error('[Setup Database API] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

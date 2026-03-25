@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { toast } from "@/components/ui/use-toast";
 import { emitGoldGained } from "@/lib/kingdom-events";
 import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
@@ -69,7 +70,7 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
 
     return { ...currentStats, gold: currentStats.gold + amount };
   } catch (error) {
-    console.error("Error managing gold:", error);
+    logger.error("Error managing gold:", error);
     return null;
   }
 }
@@ -98,7 +99,7 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
     try {
       await logGoldTransaction(-amount, newBalance, 'spend', source, metadata);
     } catch (error) {
-      console.warn('[Gold Manager] Failed to log transaction, but continuing:', error);
+      logger.warn('[Gold Manager] Failed to log transaction, but continuing:', error);
     }
 
     // Emit kingdom event for tracking weekly progress (negative amount)
@@ -118,7 +119,7 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
 
     return true;
   } catch (error) {
-    console.error("[Gold Manager] Error spending gold:", error);
+    logger.error("[Gold Manager] Error spending gold:", error);
     return false;
   }
 }
@@ -128,7 +129,7 @@ export function hasEnoughGold(amount: number): boolean {
     const stats = getCharacterStats();
     return stats.gold >= amount;
   } catch (error) {
-    console.error("Error checking gold balance:", error);
+    logger.error("Error checking gold balance:", error);
     return false;
   }
 }
@@ -157,12 +158,12 @@ async function logGoldTransaction(
     });
 
     if (!response.ok) {
-      console.warn('[Gold Manager] Failed to log transaction to database:', response.status);
+      logger.warn('[Gold Manager] Failed to log transaction to database:', response.status);
     } else {
       // Removed debugging log
     }
   } catch (error) {
-    console.warn('[Gold Manager] Error logging transaction:', error);
+    logger.warn('[Gold Manager] Error logging transaction:', error);
     // Don't fail the main operation if logging fails
   }
 } 

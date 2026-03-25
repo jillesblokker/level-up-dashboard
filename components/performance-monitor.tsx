@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useReportWebVitals } from 'next/web-vitals'
 import { useEffect } from 'react'
 
@@ -7,7 +9,7 @@ export function PerformanceMonitor() {
     useReportWebVitals((metric) => {
         // Log to console in development
         if (process.env.NODE_ENV === 'development') {
-            console.log('[Web Vitals]', metric)
+            logger.debug('[Web Vitals]', metric)
         }
 
         // In a real production environment, you would send this to your analytics service
@@ -22,7 +24,7 @@ export function PerformanceMonitor() {
 
     useEffect(() => {
         // Log initial load
-        // console.log('[Performance] App mounted')
+        // logger.debug('[Performance] App mounted')
 
         let observer: PerformanceObserver | undefined
 
@@ -32,7 +34,7 @@ export function PerformanceMonitor() {
                 observer = new PerformanceObserver((list) => {
                     list.getEntries().forEach((entry) => {
                         if (entry.duration > 50) { // 50ms threshold for long tasks
-                            // console.warn('[Performance] Long task detected:', entry.duration.toFixed(2), 'ms', entry)
+                            // logger.warn('[Performance] Long task detected:', entry.duration.toFixed(2), 'ms', entry)
                         }
                     })
                 })

@@ -1,18 +1,19 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Restore Quest Completions] Starting restore process');
+    logger.debug('[Restore Quest Completions] Starting restore process');
     
     const { userId } = await auth();
     if (!userId) {
-      console.error('[Restore Quest Completions] Unauthorized');
+      logger.error('[Restore Quest Completions] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[Restore Quest Completions] Authenticated user:', userId);
+    logger.debug('[Restore Quest Completions] Authenticated user:', userId);
     
     // Get all quest completions for this user
     const { data: completions, error: fetchError } = await supabaseServer
@@ -22,11 +23,11 @@ export async function POST(request: NextRequest) {
       .eq('completed', true);
 
     if (fetchError) {
-      console.error('[Restore Quest Completions] Error fetching completions:', fetchError);
+      logger.error('[Restore Quest Completions] Error fetching completions:', fetchError);
       return NextResponse.json({ error: 'Failed to fetch quest completions' }, { status: 500 });
     }
 
-    console.log('[Restore Quest Completions] Found completions:', completions?.length || 0);
+    logger.debug('[Restore Quest Completions] Found completions:', completions?.length || 0);
 
     if (!completions || completions.length === 0) {
       return NextResponse.json({ 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     const totalXP = completions.reduce((sum, completion) => sum + (completion.xp_earned || 0), 0);
     const totalGold = completions.reduce((sum, completion) => sum + (completion.gold_earned || 0), 0);
 
-    console.log('[Restore Quest Completions] Total rewards:', { totalXP, totalGold });
+    logger.debug('[Restore Quest Completions] Total rewards:', { totalXP, totalGold });
 
     // Update character stats with the total rewards
     const { data: currentStats, error: statsError } = await supabaseServer
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (statsError) {
-      console.error('[Restore Quest Completions] Error fetching current stats:', statsError);
+      logger.error('[Restore Quest Completions] Error fetching current stats:', statsError);
       return NextResponse.json({ error: 'Failed to fetch current stats' }, { status: 500 });
     }
 
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (updateError) {
-      console.error('[Restore Quest Completions] Error updating stats:', updateError);
+      logger.error('[Restore Quest Completions] Error updating stats:', updateError);
       return NextResponse.json({ error: 'Failed to update character stats' }, { status: 500 });
     }
 
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
         });
 
       if (goldError) {
-        console.error('[Restore Quest Completions] Error creating gold transaction:', goldError);
+        logger.error('[Restore Quest Completions] Error creating gold transaction:', goldError);
       }
     }
 
@@ -116,11 +117,11 @@ export async function POST(request: NextRequest) {
         });
 
       if (expError) {
-        console.error('[Restore Quest Completions] Error creating experience transaction:', expError);
+        logger.error('[Restore Quest Completions] Error creating experience transaction:', expError);
       }
     }
 
-    console.log('[Restore Quest Completions] Successfully restored quest completions');
+    logger.debug('[Restore Quest Completions] Successfully restored quest completions');
     return NextResponse.json({ 
       success: true, 
       message: 'Quest completions restored successfully',
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Restore Quest Completions] Unexpected error:', error);
+    logger.error('[Restore Quest Completions] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

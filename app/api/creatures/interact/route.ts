@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 
 import { NextResponse, NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
             .limit(1);
 
         if (fetchError) {
-            console.error('Error checking interactions:', fetchError);
+            logger.error('Error checking interactions:', fetchError);
             return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
 
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
         });
 
     } catch (error) {
-        console.error('Creature interaction error:', error);
+        logger.error('Creature interaction error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

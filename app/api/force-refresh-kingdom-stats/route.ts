@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
@@ -7,25 +8,25 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
     // Extract token from Authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('[Force Refresh] No Bearer token found');
+      logger.debug('[Force Refresh] No Bearer token found');
       return null;
     }
     
     const token = authHeader.substring(7);
-    console.log('[Force Refresh] Found Bearer token, length:', token.length);
+    logger.debug('[Force Refresh] Found Bearer token, length:', token.length);
     
     // For now, let's try to decode the JWT to get basic info
     try {
       // Simple JWT decode (without verification for debugging)
       const tokenParts = token.split('.');
       if (tokenParts.length !== 3) {
-        console.log('[Force Refresh] Invalid JWT format');
+        logger.debug('[Force Refresh] Invalid JWT format');
         return null;
       }
       
       const base64Url = tokenParts[1];
       if (!base64Url) {
-        console.log('[Force Refresh] Missing JWT payload');
+        logger.debug('[Force Refresh] Missing JWT payload');
         return null;
       }
       
@@ -35,40 +36,40 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
       }).join(''));
       
       const payload = JSON.parse(jsonPayload);
-      console.log('[Force Refresh] JWT payload:', payload);
+      logger.debug('[Force Refresh] JWT payload:', payload);
       
       // Extract user ID from JWT payload
       if (payload.sub) {
-        console.log('[Force Refresh] Found userId in JWT:', payload.sub);
+        logger.debug('[Force Refresh] Found userId in JWT:', payload.sub);
         return payload.sub;
       }
       
       // Try alternative fields
       if (payload.user_id) {
-        console.log('[Force Refresh] Found userId in JWT (user_id):', payload.user_id);
+        logger.debug('[Force Refresh] Found userId in JWT (user_id):', payload.user_id);
         return payload.user_id;
       }
       
       if (payload.userId) {
-        console.log('[Force Refresh] Found userId in JWT (userId):', payload.userId);
+        logger.debug('[Force Refresh] Found userId in JWT (userId):', payload.userId);
         return payload.userId;
       }
       
-      console.log('[Force Refresh] No userId found in JWT payload');
+      logger.debug('[Force Refresh] No userId found in JWT payload');
       return null;
     } catch (jwtError) {
-      console.log('[Force Refresh] JWT decode error:', jwtError);
+      logger.debug('[Force Refresh] JWT decode error:', jwtError);
       return null;
     }
   } catch (e) {
-    console.error('[Force Refresh] Authentication error:', e);
+    logger.error('[Force Refresh] Authentication error:', e);
     return null;
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Force Refresh] API called');
+    logger.debug('[Force Refresh] API called');
     
     const userId = await getUserIdFromRequest(request);
     if (!userId) {
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
         .eq('completed', true);
 
       if (questError) {
-        console.error('[Force Refresh] Quest data error:', questError);
+        logger.error('[Force Refresh] Quest data error:', questError);
         refreshResults.quests = { error: questError.message };
       } else {
         refreshResults.quests = { 
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
         .eq('completed', true);
 
       if (challengeError) {
-        console.error('[Force Refresh] Challenge data error:', challengeError);
+        logger.error('[Force Refresh] Challenge data error:', challengeError);
         refreshResults.challenges = { error: challengeError.message };
       } else {
         refreshResults.challenges = { 
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
         .eq('completed', true);
 
       if (milestoneError) {
-        console.error('[Force Refresh] Milestone data error:', milestoneError);
+        logger.error('[Force Refresh] Milestone data error:', milestoneError);
         refreshResults.milestones = { error: milestoneError.message };
       } else {
         refreshResults.milestones = { 
@@ -143,7 +144,7 @@ export async function POST(request: NextRequest) {
         };
       }
 
-      console.log('[Force Refresh] Successfully refreshed all data:', refreshResults);
+      logger.debug('[Force Refresh] Successfully refreshed all data:', refreshResults);
 
       return NextResponse.json({
         success: true,
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
       });
 
     } catch (error: any) {
-      console.error('[Force Refresh] Error during refresh:', error);
+      logger.error('[Force Refresh] Error during refresh:', error);
       return NextResponse.json({
         success: false,
         error: error.message
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('[Force Refresh] API error:', error);
+    logger.error('[Force Refresh] API error:', error);
     return NextResponse.json({
       success: false,
       error: error.message

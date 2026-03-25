@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,7 +26,7 @@ export function GameFeatures() {
   const [achievementsLoading, setAchievementsLoading] = useState(true);
   const [achievementsError, setAchievementsError] = useState<string | null>(null);
   const dataLoadedRef = useRef(false);
-  const undiscoveredImg = '/images/undiscovered.png';
+  const undiscoveredImg = '/images/undiscovered.webp';
   const [showAllDiscovered, setShowAllDiscovered] = useState(false);
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export function GameFeatures() {
           achievements: loadedAchievements,
         });
       } catch (error) {
-        console.error('Error loading game data:', error);
+        logger.error('Error loading game data:', error);
         setAchievementsError('Failed to load achievements');
         setAchievementsLoading(false);
       }

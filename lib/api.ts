@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { TileType } from '@/types/tiles';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
@@ -15,7 +16,7 @@ async function getAuthToken(): Promise<string | null> {
       // Try to access Clerk from window
       const clerk = (window as any).__clerk;
       if (!clerk) {
-        console.log(`[API] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
+        logger.debug(`[API] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -23,7 +24,7 @@ async function getAuthToken(): Promise<string | null> {
 
       const session = clerk.session;
       if (!session) {
-        console.log(`[API] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
+        logger.debug(`[API] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -31,16 +32,16 @@ async function getAuthToken(): Promise<string | null> {
 
       // Try to get token with supabase template
       const token = await session.getToken({ template: 'supabase' });
-      console.log('[API] Got Clerk token:', token ? 'present' : 'null');
+      logger.debug('[API] Got Clerk token:', token ? 'present' : 'null');
       return token;
     } catch (error) {
-      console.error(`[API] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      logger.error(`[API] Error getting Clerk token (attempt ${attempts + 1}):`, error);
       await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
   }
   
-  console.error('[API] Failed to get Clerk token after all attempts');
+  logger.error('[API] Failed to get Clerk token after all attempts');
   return null;
 }
 
@@ -105,7 +106,7 @@ export async function createTilePlacement(
 
     return handleApiResponse<TilePlacement>(response);
   } catch (error) {
-    console.error('Failed to create tile placement:', error);
+    logger.error('Failed to create tile placement:', error);
     const errorToThrow = error instanceof Error ? error : new Error('Failed to create tile placement');
     if ((error as any).status) {
       (errorToThrow as any).status = (error as any).status;
@@ -125,7 +126,7 @@ export async function getTilePlacements(
 
     return handleApiResponse<TilePlacement[]>(response);
   } catch (error) {
-    console.error('Failed to fetch tile placements:', error);
+    logger.error('Failed to fetch tile placements:', error);
     const errorToThrow = error instanceof Error ? error : new Error('Failed to fetch tile placements');
     if ((error as any).status) {
       (errorToThrow as any).status = (error as any).status;
@@ -198,7 +199,7 @@ export async function updateGridData(
       throw new Error(errorData.error || 'Failed to update grid data');
     }
   } catch (error) {
-    console.error('Failed to update grid data:', error);
+    logger.error('Failed to update grid data:', error);
     throw new Error(error instanceof Error ? error.message : 'Failed to update grid data');
   }
 }
@@ -239,7 +240,7 @@ export function subscribeToGridChanges(
   userId: string,
   callback: (payload: { new: { id: string; grid: number[][] }, eventType: string, old: { id: string } | null }) => void
 ): { unsubscribe: () => void } {
-  console.log('Setting up grid change subscription for user:', userId);
+  logger.debug('Setting up grid change subscription for user:', userId);
   
   // For now, we'll use polling instead of real-time subscription
   // This can be enhanced later with WebSocket or Server-Sent Events
@@ -266,7 +267,7 @@ export function subscribeToGridChanges(
         }
       }
     } catch (error) {
-      console.error('Error polling grid data:', error);
+      logger.error('Error polling grid data:', error);
     }
   }, 5000); // Poll every 5 seconds
 

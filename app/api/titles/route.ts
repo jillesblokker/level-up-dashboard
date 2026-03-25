@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabase/server-client";
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
             .order('required_level', { ascending: true });
 
         if (titlesError) {
-            console.error("Error fetching titles:", titlesError);
+            logger.error("Error fetching titles:", titlesError);
             return NextResponse.json({ error: "Failed to fetch titles" }, { status: 500 });
         }
 
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
             .eq('user_id', userId);
 
         if (userTitlesError) {
-            console.error("Error fetching user titles:", userTitlesError);
+            logger.error("Error fetching user titles:", userTitlesError);
             return NextResponse.json({ error: "Failed to fetch user titles" }, { status: 500 });
         }
 
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ titles: titlesWithStatus });
     } catch (error) {
-        console.error("API Error:", error);
+        logger.error("API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
                 .eq('title_id', titleId);
 
             if (error) {
-                console.error("Error equipping title:", error);
+                logger.error("Error equipping title:", error);
                 throw error;
             }
 
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 
     } catch (error) {
-        console.error("API Error:", error);
+        logger.error("API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

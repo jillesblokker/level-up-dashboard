@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -368,7 +369,7 @@ export function useAchievementManager() {
 
   const claimAchievement = (achievement: Achievement) => {
     // Handle reward claiming logic here
-    console.log('Claiming achievement:', achievement);
+    logger.debug('Claiming achievement:', achievement);
     closePopup();
   };
 

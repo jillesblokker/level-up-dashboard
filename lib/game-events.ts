@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { EventEmitter } from 'events';
 import { GameState } from '../types/game';
 
@@ -133,7 +134,7 @@ export class GameEventsManager extends EventEmitter {
             return true;
           default:
             // Unknown requirement type, default to false to be safe
-            console.warn(`Unknown requirement type: ${req.type} for event ${event.id}`);
+            logger.warn(`Unknown requirement type: ${req.type} for event ${event.id}`);
             return false;
         }
       });

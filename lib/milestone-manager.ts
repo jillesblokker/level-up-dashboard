@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { supabaseServer } from './supabase/server-client';
 import { MILESTONE_POOL, EncouragingMessage } from './encouraging-messages';
 
@@ -30,7 +31,7 @@ export async function getMilestoneMessage(milestoneKey: string): Promise<Encoura
         return getHardcodedMessage(milestoneKey);
 
     } catch (err) {
-        console.warn('Error fetching milestone message from DB:', err);
+        logger.warn('Error fetching milestone message from DB:', err);
         // Final fallback to hardcoded if DB fails
         const { getMilestoneMessage: getHardcodedMessage } = await import('./encouraging-messages');
         return getHardcodedMessage(milestoneKey);

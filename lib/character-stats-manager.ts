@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * CHARACTER STATS MANAGER (DEPRECATED)
  * 
@@ -16,7 +17,7 @@ export type { CharacterStats } from './character-stats-service';
  * Loads character stats (delegates to new service)
  */
 export async function loadCharacterStats(): Promise<CharacterStats> {
-  console.warn('[CharacterStatsManager] loadCharacterStats is deprecated. Use fetchFreshCharacterStats from character-stats-service.ts');
+  logger.warn('[CharacterStatsManager] loadCharacterStats is deprecated. Use fetchFreshCharacterStats from character-stats-service.ts');
   return await characterStatsService.fetchAndMerge();
 }
 
@@ -25,7 +26,7 @@ export async function loadCharacterStats(): Promise<CharacterStats> {
  * ⚠️ DEPRECATED
  */
 export async function saveCharacterStats(stats: Partial<CharacterStats>): Promise<boolean> {
-  console.warn('[CharacterStatsManager] saveCharacterStats is deprecated. Use updateCharacterStats from character-stats-service.ts');
+  logger.warn('[CharacterStatsManager] saveCharacterStats is deprecated. Use updateCharacterStats from character-stats-service.ts');
   characterStatsService.updateStats(stats, 'legacy-manager-save');
   return true;
 }

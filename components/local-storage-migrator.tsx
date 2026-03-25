@@ -1,4 +1,7 @@
-'use client';
+'use client'
+
+import { logger } from "@/lib/logger";
+;
 
 import { useEffect, useState } from 'react';
 import { migrateLocalStorageToSupabase } from '@/lib/user-preferences-manager';
@@ -21,7 +24,7 @@ export default function LocalStorageMigrator() {
 
       setIsMigrating(true);
       try {
-        console.log('[LocalStorage Migrator] 🚀 Starting comprehensive migration...');
+        logger.debug('[LocalStorage Migrator] 🚀 Starting comprehensive migration...');
         
         // Phase 1: User Preferences
         setMigrationProgress('Migrating user preferences...');
@@ -42,9 +45,9 @@ export default function LocalStorageMigrator() {
         localStorage.setItem('supabase-migration-complete', 'true');
         setMigrationComplete(true);
         setMigrationProgress('Migration completed successfully!');
-        console.log('[LocalStorage Migrator] ✅ Comprehensive migration completed successfully');
+        logger.debug('[LocalStorage Migrator] ✅ Comprehensive migration completed successfully');
       } catch (error) {
-        console.error('[LocalStorage Migrator] ❌ Migration failed:', error);
+        logger.error('[LocalStorage Migrator] ❌ Migration failed:', error);
         setMigrationProgress('Migration failed. Check console for details.');
       } finally {
         setIsMigrating(false);

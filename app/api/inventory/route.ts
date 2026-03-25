@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { auth } from '@clerk/nextjs/server';
@@ -88,13 +89,13 @@ export async function GET(request: Request) {
         const id = rawId.toLowerCase().trim().replace(/\s+/g, '-');
 
         // Specific mappings based on directory structure
-        if (id.startsWith('material-')) return `/images/items/materials/${id}.png`;
-        if (id.startsWith('fish-')) return `/images/items/food/${id}.png`;
-        if (id.startsWith('potion-')) return `/images/items/potion/${id}.png`;
-        if (id.startsWith('sword-')) return `/images/items/sword/${id}.png`;
-        if (id.startsWith('armor-')) return `/images/items/armor/${id}.png`;
-        if (id.startsWith('shield-')) return `/images/items/shield/${id}.png`;
-        if (id.startsWith('scroll-')) return `/images/items/scroll/${id}.png`;
+        if (id.startsWith('material-')) return `/images/items/materials/${id}.webp`;
+        if (id.startsWith('fish-')) return `/images/items/food/${id}.webp`;
+        if (id.startsWith('potion-')) return `/images/items/potion/${id}.webp`;
+        if (id.startsWith('sword-')) return `/images/items/sword/${id}.webp`;
+        if (id.startsWith('armor-')) return `/images/items/armor/${id}.webp`;
+        if (id.startsWith('shield-')) return `/images/items/shield/${id}.webp`;
+        if (id.startsWith('scroll-')) return `/images/items/scroll/${id}.webp`;
 
         // Map types to physical folders
         let folder = type;
@@ -110,7 +111,7 @@ export async function GET(request: Request) {
             break;
         }
 
-        return `/images/items/${folder}/${id}.png`;
+        return `/images/items/${folder}/${id}.webp`;
       };
 
       const mappedData = (data || []).map((row: any) => ({
@@ -137,7 +138,7 @@ export async function GET(request: Request) {
       data: result.data
     });
   } catch (error) {
-    console.error('[Inventory API] Error:', error);
+    logger.error('[Inventory API] Error:', error);
 
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {
@@ -158,7 +159,7 @@ export async function POST(request: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      console.error('[Inventory API] Unauthorized POST request');
+      logger.error('[Inventory API] Unauthorized POST request');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -169,7 +170,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item is required' }, { status: 400 });
     }
 
-    console.log('[API Inventory] Processing POST for:', item.id, 'User:', userId);
+    logger.debug('[API Inventory] Processing POST for:', item.id, 'User:', userId);
 
     // Manually set user context for RLS if needed, though service role key bypasses it usually
     try {
@@ -187,13 +188,13 @@ export async function POST(request: Request) {
       .single();
 
     if (existing) {
-      console.log('[API Inventory] Item exists. Old Qty:', existing.quantity, 'Adding:', item.quantity);
+      logger.debug('[API Inventory] Item exists. Old Qty:', existing.quantity, 'Adding:', item.quantity);
     } else {
-      console.log('[API Inventory] Item/User not found. Fetch err:', fetchError?.code);
+      logger.debug('[API Inventory] Item/User not found. Fetch err:', fetchError?.code);
     }
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('[Inventory API] Fetch Error:', fetchError);
+      logger.error('[Inventory API] Fetch Error:', fetchError);
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
 
@@ -210,7 +211,7 @@ export async function POST(request: Request) {
         .single();
 
       if (error) {
-        console.error('[Inventory API] Update Error:', error);
+        logger.error('[Inventory API] Update Error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
       resultData = data;
@@ -236,7 +237,7 @@ export async function POST(request: Request) {
         .single();
 
       if (error) {
-        console.error('[Inventory API] Insert error:', error);
+        logger.error('[Inventory API] Insert error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
       resultData = data;
@@ -248,7 +249,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('[Inventory API] Error:', error);
+    logger.error('[Inventory API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -323,7 +324,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Inventory API] Error:', error);
+    logger.error('[Inventory API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -397,7 +398,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json(result.data);
   } catch (error) {
-    console.error('[Inventory API] Error:', error);
+    logger.error('[Inventory API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

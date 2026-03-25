@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { GameState } from '../types/game'
 // Replaced all Supabase direct calls with API routes for authentication flow
 // All database logic now uses authenticated API routes
@@ -6,7 +7,7 @@ export type GameData = GameState
 
 async function getClerkToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
-    console.error('[Game Data Sync] getClerkToken called on server side');
+    logger.error('[Game Data Sync] getClerkToken called on server side');
     return null;
   }
 
@@ -14,13 +15,13 @@ async function getClerkToken(): Promise<string | null> {
     // Access Clerk from window if available
     const clerk = (window as any).__clerk;
     if (!clerk) {
-      console.error('[Game Data Sync] Clerk not available on window');
+      logger.error('[Game Data Sync] Clerk not available on window');
       return null;
     }
 
     const session = clerk.session;
     if (!session) {
-      console.error('[Game Data Sync] No active Clerk session');
+      logger.error('[Game Data Sync] No active Clerk session');
       return null;
     }
 
@@ -28,7 +29,7 @@ async function getClerkToken(): Promise<string | null> {
     // Removed debugging log
     return token;
   } catch (error) {
-    console.error('[Game Data Sync] Error getting Clerk token:', error);
+    logger.error('[Game Data Sync] Error getting Clerk token:', error);
     return null;
   }
 }
@@ -38,14 +39,14 @@ export async function syncGameData(
   userId: string
 ): Promise<void> {
   if (!userId) {
-    console.error('[Game Data Sync] No user ID provided');
+    logger.error('[Game Data Sync] No user ID provided');
     return;
   }
 
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Game Data Sync] No authentication token available');
+      logger.error('[Game Data Sync] No authentication token available');
       return;
     }
 
@@ -82,27 +83,27 @@ export async function syncGameData(
     });
 
     if (!saveResponse.ok) {
-      console.error('[Game Data Sync] Failed to sync game data:', saveResponse.status, saveResponse.statusText);
+      logger.error('[Game Data Sync] Failed to sync game data:', saveResponse.status, saveResponse.statusText);
       throw new Error('Failed to sync game data');
     }
 
     // Removed debugging log
   } catch (error) {
-    console.error('[Game Data Sync] Error syncing game data:', error);
+    logger.error('[Game Data Sync] Error syncing game data:', error);
     throw error;
   }
 }
 
 export async function loadGameData(userId: string): Promise<GameData | null> {
   if (!userId) {
-    console.error('[Game Data Sync] No user ID provided');
+    logger.error('[Game Data Sync] No user ID provided');
     return null;
   }
 
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Game Data Sync] No authentication token available');
+      logger.error('[Game Data Sync] No authentication token available');
       return null;
     }
 
@@ -113,14 +114,14 @@ export async function loadGameData(userId: string): Promise<GameData | null> {
     });
 
     if (!response.ok) {
-      console.error('[Game Data Sync] Failed to load game data:', response.status, response.statusText);
+      logger.error('[Game Data Sync] Failed to load game data:', response.status, response.statusText);
       return null;
     }
 
     const data = await response.json();
     return data?.realmMap || null;
   } catch (error) {
-    console.error('[Game Data Sync] Error loading game data:', error);
+    logger.error('[Game Data Sync] Error loading game data:', error);
     throw error;
   }
 }
@@ -140,7 +141,7 @@ export function getLocalGameData(): GameData {
       selectedTile: null
     }
   } catch (error) {
-    console.error('Error getting local game data:', error)
+    logger.error('Error getting local game data:', error)
     return {
       inventory: {},
       selectedTile: null
@@ -155,6 +156,6 @@ export function saveLocalGameData(data: GameData): void {
     if (data.character) localStorage.setItem('character', JSON.stringify(data.character))
     if (data.quests) localStorage.setItem('quests', JSON.stringify(data.quests))
   } catch (error) {
-    console.error('Error saving local game data:', error)
+    logger.error('Error saving local game data:', error)
   }
 } 

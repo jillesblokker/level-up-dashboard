@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { Tile } from '@/types/tiles';
 import { TileType } from '@/types/tiles';
 // Replaced all Supabase direct calls with API routes for authentication flow
@@ -98,7 +99,7 @@ function createTileFromNumeric(numeric: number, x: number, y: number): Tile {
 
 async function getClerkToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
-    console.error('[Grid Persistence] getClerkToken called on server side');
+    logger.error('[Grid Persistence] getClerkToken called on server side');
     return null;
   }
 
@@ -106,13 +107,13 @@ async function getClerkToken(): Promise<string | null> {
     // Access Clerk from window if available
     const clerk = (window as any).__clerk;
     if (!clerk) {
-      console.error('[Grid Persistence] Clerk not available on window');
+      logger.error('[Grid Persistence] Clerk not available on window');
       return null;
     }
 
     const session = clerk.session;
     if (!session) {
-      console.error('[Grid Persistence] No active Clerk session');
+      logger.error('[Grid Persistence] No active Clerk session');
       return null;
     }
 
@@ -120,21 +121,21 @@ async function getClerkToken(): Promise<string | null> {
     // Removed debugging log
     return token;
   } catch (error) {
-    console.error('[Grid Persistence] Error getting Clerk token:', error);
+    logger.error('[Grid Persistence] Error getting Clerk token:', error);
     return null;
   }
 }
 
 export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | null> {
   if (!userId) {
-    console.error('[Grid Persistence] No user ID provided');
+    logger.error('[Grid Persistence] No user ID provided');
     return null;
   }
 
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Grid Persistence] No authentication token available');
+      logger.error('[Grid Persistence] No authentication token available');
       return null;
     }
 
@@ -146,7 +147,7 @@ export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | n
     });
 
     if (!response.ok) {
-      console.error('[Grid Persistence] Failed to load grid:', response.status, response.statusText);
+      logger.error('[Grid Persistence] Failed to load grid:', response.status, response.statusText);
       return null;
     }
 
@@ -161,21 +162,21 @@ export async function loadGridFromSupabase(userId: string): Promise<Tile[][] | n
       row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
     );
   } catch (error) {
-    console.error('[Grid Persistence] Error loading grid:', error);
+    logger.error('[Grid Persistence] Error loading grid:', error);
     return null;
   }
 }
 
 export async function saveGridToSupabase(userId: string, grid: Tile[][]): Promise<void> {
   if (!userId) {
-    console.error('[Grid Persistence] No user ID provided');
+    logger.error('[Grid Persistence] No user ID provided');
     return;
   }
 
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Grid Persistence] No authentication token available');
+      logger.error('[Grid Persistence] No authentication token available');
       return;
     }
 
@@ -196,13 +197,13 @@ export async function saveGridToSupabase(userId: string, grid: Tile[][]): Promis
     });
 
     if (!response.ok) {
-      console.error('[Grid Persistence] Failed to save grid:', response.status, response.statusText);
+      logger.error('[Grid Persistence] Failed to save grid:', response.status, response.statusText);
       throw new Error('Failed to save grid to API');
     }
 
     // Removed debugging log
   } catch (error) {
-    console.error('[Grid Persistence] Error saving grid:', error);
+    logger.error('[Grid Persistence] Error saving grid:', error);
     throw error;
   }
 } 

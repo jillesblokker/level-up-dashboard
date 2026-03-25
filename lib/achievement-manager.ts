@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createClient } from '@supabase/supabase-js';
 
 export type AchievementType =
@@ -31,7 +32,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'New Alliance',
         description: 'Add your first friend',
         icon: 'UserPlus',
-        image: '/images/achievements/107.png',
+        image: '/images/achievements/107.webp',
         requirement: 1,
         reward: { xp: 50, gold: 10 }
     },
@@ -41,7 +42,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Popular Companion',
         description: 'Add 5 friends',
         icon: 'Users',
-        image: '/images/achievements/108.png',
+        image: '/images/achievements/108.webp',
         requirement: 5,
         reward: { xp: 200, gold: 50, title: 'Companion' }
     },
@@ -51,7 +52,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Guild Leader',
         description: 'Add 10 friends',
         icon: 'Crown',
-        image: '/images/achievements/109.png',
+        image: '/images/achievements/109.webp',
         requirement: 10,
         reward: { xp: 500, gold: 100, title: 'Leader' }
     },
@@ -61,7 +62,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Quest Giver',
         description: 'Send your first quest to a friend',
         icon: 'Scroll',
-        image: '/images/achievements/110.png',
+        image: '/images/achievements/110.webp',
         requirement: 1,
         reward: { xp: 50, gold: 10 }
     },
@@ -71,7 +72,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Task Master',
         description: 'Send 5 quests to friends',
         icon: 'ScrollText',
-        image: '/images/achievements/111.png',
+        image: '/images/achievements/111.webp',
         requirement: 5,
         reward: { xp: 200, gold: 50 }
     },
@@ -81,7 +82,7 @@ export const ACHIEVEMENTS: Record<AchievementType, AchievementDefinition> = {
         title: 'Grand Questmaster',
         description: 'Send 10 quests to friends',
         icon: 'BookOpen',
-        image: '/images/achievements/112.png',
+        image: '/images/achievements/112.webp',
         requirement: 10,
         reward: { xp: 500, gold: 100, title: 'Questmaster' }
     }
@@ -133,12 +134,12 @@ export class AchievementManager {
                         });
 
                     if (mainAchError) {
-                        console.error('[AchievementManager] Failed to insert into main achievements table:', mainAchError);
+                        logger.error('[AchievementManager] Failed to insert into main achievements table:', mainAchError);
                     } else {
-                        console.log(`[AchievementManager] ✅ Achievement ${definition.title} added to main achievements table`);
+                        logger.debug(`[AchievementManager] ✅ Achievement ${definition.title} added to main achievements table`);
                     }
                 } catch (err) {
-                    console.error('[AchievementManager] Error inserting into main achievements:', err);
+                    logger.error('[AchievementManager] Error inserting into main achievements:', err);
                 }
 
                 // Award rewards by updating character_stats
@@ -159,10 +160,10 @@ export class AchievementManager {
                             })
                             .eq('user_id', userId);
 
-                        console.log(`[AchievementManager] ✅ Awarded ${definition.reward.gold} gold and ${definition.reward.xp} XP for ${definition.title}`);
+                        logger.debug(`[AchievementManager] ✅ Awarded ${definition.reward.gold} gold and ${definition.reward.xp} XP for ${definition.title}`);
                     }
                 } catch (rewardErr) {
-                    console.error('[AchievementManager] Error awarding rewards:', rewardErr);
+                    logger.error('[AchievementManager] Error awarding rewards:', rewardErr);
                 }
 
                 return true; // Unlocked successfully

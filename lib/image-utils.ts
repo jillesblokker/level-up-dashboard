@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import { db } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
@@ -58,7 +61,7 @@ export async function uploadImage(file: File, imageId: string): Promise<string |
           
           resolve(dataUrl);
         } catch (error) {
-          console.error("Error processing image:", error);
+          logger.error("Error processing image:", error);
           reject(error);
         }
       };
@@ -70,7 +73,7 @@ export async function uploadImage(file: File, imageId: string): Promise<string |
       reader.readAsDataURL(file);
     });
   } catch (error) {
-    console.error("Error uploading image:", error);
+    logger.error("Error uploading image:", error);
     toast({
       title: "Upload Error",
       description: "Failed to upload image. Please try again.",
@@ -86,7 +89,7 @@ export async function getImage(imageId: string): Promise<string | null> {
     const image = db ? await db.images.get(imageId) : null;
     return image?.dataUrl || null;
   } catch (error) {
-    console.error("Error retrieving image:", error);
+    logger.error("Error retrieving image:", error);
     return null;
   }
 }

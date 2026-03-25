@@ -1,12 +1,7 @@
+import { logger } from "@/lib/logger";
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-
-// Self-contained simplified logger
-const logger = {
-  info: (msg: string, ctx?: any) => console.log(`[Challenges API Info] ${msg}`, ctx || ''),
-  error: (msg: string, ctx?: any) => console.error(`[Challenges API Error] ${msg}`, ctx || ''),
-};
 
 // Force dynamic route to prevent caching
 export const dynamic = 'force-dynamic';
@@ -45,7 +40,7 @@ export async function GET(request: Request) {
     const { userId } = await auth();
 
     if (!userId) {
-      console.warn('[Challenges API] No userId found via auth()');
+      logger.warn('[Challenges API] No userId found via auth()');
       return NextResponse.json({ error: 'Unauthorized - invalid session' }, { status: 401 });
     }
 
@@ -54,7 +49,7 @@ export async function GET(request: Request) {
     const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('[Challenges API] Missing env vars:', { url: !!supabaseUrl, key: !!supabaseServiceKey });
+      logger.error('[Challenges API] Missing env vars:', { url: !!supabaseUrl, key: !!supabaseServiceKey });
       return NextResponse.json({ error: 'Server configuration error: Missing Supabase credentials' }, { status: 500 });
     }
 
@@ -132,7 +127,7 @@ export async function GET(request: Request) {
 
   } catch (error) {
     // ... catch block handles response
-    console.error('[Challenges API Error]', error);
+    logger.error('[Challenges API Error]', error);
     return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : String(error),
@@ -202,7 +197,7 @@ export async function PUT(request: Request) {
 
             // 4. If all are completed, update the streaks table
             if (count === catChallenges.length) {
-              console.log(`[Streak] Category ${category} completed for user ${userId}`);
+              logger.debug(`[Streak] Category ${category} completed for user ${userId}`);
 
               const { data: existingStreak } = await serviceClient
                 .from('streaks')
@@ -235,7 +230,7 @@ export async function PUT(request: Request) {
           }
         }
       } catch (streakErr) {
-        console.error('[Streak Error] Failed to update category streak:', streakErr);
+        logger.error('[Streak Error] Failed to update category streak:', streakErr);
       }
       // --- End Category Streak Logic ---
 

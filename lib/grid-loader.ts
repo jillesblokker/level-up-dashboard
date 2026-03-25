@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { TileType, Tile } from '@/types/tiles'
 
 // Helper function to get auth token with retry logic
@@ -13,7 +14,7 @@ async function getAuthToken(): Promise<string | null> {
       // Try to access Clerk from window
       const clerk = (window as any).__clerk;
       if (!clerk) {
-        console.log(`[Grid Loader] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
+        logger.debug(`[Grid Loader] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -21,7 +22,7 @@ async function getAuthToken(): Promise<string | null> {
 
       const session = clerk.session;
       if (!session) {
-        console.log(`[Grid Loader] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
+        logger.debug(`[Grid Loader] No active Clerk session, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
         continue;
@@ -29,16 +30,16 @@ async function getAuthToken(): Promise<string | null> {
 
       // Try to get token with supabase template
       const token = await session.getToken({ template: 'supabase' });
-      console.log('[Grid Loader] Got Clerk token:', token ? 'present' : 'null');
+      logger.debug('[Grid Loader] Got Clerk token:', token ? 'present' : 'null');
       return token;
     } catch (error) {
-      console.error(`[Grid Loader] Error getting Clerk token (attempt ${attempts + 1}):`, error);
+      logger.error(`[Grid Loader] Error getting Clerk token (attempt ${attempts + 1}):`, error);
       await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
   }
 
-  console.error('[Grid Loader] Failed to get Clerk token after all attempts');
+  logger.error('[Grid Loader] Failed to get Clerk token after all attempts');
   return null;
 }
 
@@ -51,12 +52,12 @@ export async function loadGridWithSupabaseFallback(
   try {
     // If user is authenticated, try to load from API first
     if (!isGuest && userId) {
-      console.log('Attempting to load grid from API for authenticated user...');
+      logger.debug('Attempting to load grid from API for authenticated user...');
       try {
         // Get auth token
         const token = await getAuthToken();
         if (!token) {
-          console.log('No auth token available, falling back to localStorage');
+          logger.debug('No auth token available, falling back to localStorage');
         } else {
           const response = await fetch(`/api/data?type=grid&userId=${userId}`, {
             headers: {
@@ -68,21 +69,21 @@ export async function loadGridWithSupabaseFallback(
           if (response.ok) {
             const data = await response.json();
             if (data && data.grid && Array.isArray(data.grid)) {
-              console.log('Successfully loaded grid from API');
+              logger.debug('Successfully loaded grid from API');
               // Convert numeric grid back to Tile grid
               const tileGrid: Tile[][] = data.grid.map((row: number[], y: number) =>
                 row.map((numeric: number, x: number) => createTileFromNumeric(numeric, x, y))
               );
               return tileGrid;
             } else {
-              console.log('Invalid grid data from API, falling back to localStorage');
+              logger.debug('Invalid grid data from API, falling back to localStorage');
             }
           } else {
-            console.log('API call failed, falling back to localStorage');
+            logger.debug('API call failed, falling back to localStorage');
           }
         }
       } catch (apiError) {
-        console.log('Error loading from API, falling back to localStorage:', apiError);
+        logger.debug('Error loading from API, falling back to localStorage:', apiError);
       }
     }
 
@@ -90,13 +91,13 @@ export async function loadGridWithSupabaseFallback(
     if (typeof window !== 'undefined') {
       const savedGrid = localStorage.getItem('grid');
       if (savedGrid) {
-        console.log('Loading grid from localStorage');
+        logger.debug('Loading grid from localStorage');
         return JSON.parse(savedGrid);
       }
     }
 
     // Final fallback to initial grid
-    console.log('No saved grid found, loading initial grid');
+    logger.debug('No saved grid found, loading initial grid');
     const gridData = await loadInitialGrid();
     const tileGrid: Tile[][] = gridData.grid.map((row, y) =>
       row.map((numeric, x) => createTileFromNumeric(numeric, x, y))
@@ -109,7 +110,7 @@ export async function loadGridWithSupabaseFallback(
 
     return tileGrid;
   } catch (error) {
-    console.error('Error in loadGridWithSupabaseFallback:', error);
+    logger.error('Error in loadGridWithSupabaseFallback:', error);
     // Return a basic grid if there's an error
     return Array(7).fill(null).map((_, y) =>
       Array(13).fill(null).map((_, x) => createTileFromNumeric(2, x, y)) // 2 is grass
@@ -141,7 +142,7 @@ export async function loadAndProcessInitialGrid(): Promise<Tile[][]> {
 
     return tileGrid;
   } catch (error) {
-    console.error('Error in loadAndProcessInitialGrid:', error);
+    logger.error('Error in loadAndProcessInitialGrid:', error);
     // Return a basic grid if there's an error
     return Array(7).fill(null).map((_, y) =>
       Array(13).fill(null).map((_, x) => createTileFromNumeric(2, x, y)) // 2 is grass
@@ -227,15 +228,15 @@ export interface GridData {
 
 export async function loadInitialGrid(): Promise<GridData> {
   try {
-    console.log('Attempting to load initial grid from CSV...')
+    logger.debug('Attempting to load initial grid from CSV...')
     const response = await fetch('/data/initial-grid.csv')
-    console.log('Fetch response status:', response.status)
+    logger.debug('Fetch response status:', response.status)
     if (!response.ok) {
-      console.error('Failed to fetch initial grid:', response.status, response.statusText)
+      logger.error('Failed to fetch initial grid:', response.status, response.statusText)
       throw new Error(`Failed to fetch initial grid: ${response.statusText}`)
     }
     const csvText = await response.text()
-    console.log('CSV content loaded (first 100 chars):', csvText.substring(0, 100) + '...')
+    logger.debug('CSV content loaded (first 100 chars):', csvText.substring(0, 100) + '...')
 
     // Parse CSV into 2D array, skipping the header row and taking only EXPECTED_GRID_COLS
     const rows = csvText.trim().split('\n')
@@ -246,12 +247,12 @@ export async function loadInitialGrid(): Promise<GridData> {
 
     const grid = rows.map(row => row.split(',').map(Number).slice(0, EXPECTED_GRID_COLS));
 
-    console.log('Parsed grid dimensions:', grid.length, 'x', grid[0]?.length);
-    console.log('Parsed grid (first row):', grid[0]);
+    logger.debug('Parsed grid dimensions:', grid.length, 'x', grid[0]?.length);
+    logger.debug('Parsed grid (first row):', grid[0]);
 
     // Basic validation
     if (grid.length === 0 || !grid[0] || grid[0].length === 0) {
-      console.error('Parsed grid has unexpected dimensions.', grid.length, grid[0]?.length);
+      logger.error('Parsed grid has unexpected dimensions.', grid.length, grid[0]?.length);
       throw new Error('Parsed grid has unexpected dimensions.');
     }
 
@@ -261,9 +262,9 @@ export async function loadInitialGrid(): Promise<GridData> {
       columns: grid[0].length
     }
   } catch (error) {
-    console.error('Error loading initial grid:', error)
+    logger.error('Error loading initial grid:', error)
     // Return a default grid if loading fails
-    console.log('Creating default grid as fallback...')
+    logger.debug('Creating default grid as fallback...')
     const defaultGrid = Array(7).fill(null).map((_, y) =>
       Array(EXPECTED_GRID_COLS).fill(null).map((_, x) => {
         if (x === 0 || x === EXPECTED_GRID_COLS - 1 || y === 0 || y === 6) return 1 // Mountain borders
@@ -272,7 +273,7 @@ export async function loadInitialGrid(): Promise<GridData> {
         return 2 // Grass
       })
     )
-    console.log('Default grid created dimensions:', defaultGrid.length, 'x', defaultGrid[0]?.length)
+    logger.debug('Default grid created dimensions:', defaultGrid.length, 'x', defaultGrid[0]?.length)
     return {
       grid: defaultGrid,
       rows: defaultGrid.length,
@@ -285,7 +286,7 @@ export function convertNumericToTileType(numeric: number): TileType {
   const tileType = numericToTileType[numeric]
   if (!tileType) {
     // Log the unexpected numeric value
-    console.warn(`Unexpected numeric tile value encountered: ${numeric}`);
+    logger.warn(`Unexpected numeric tile value encountered: ${numeric}`);
     // Return a default type or throw an error
     // Returning 'empty' as a fallback for unexpected numbers
     return 'empty';
@@ -313,12 +314,12 @@ export function createTileFromNumeric(numeric: number, x: number, y: number) {
       cityName = `Town ${x}-${y}`;
     }
   }
-  let image = `/images/tiles/${type}-tile.png`;
-  if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.png';
-  if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
-  if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
-  if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.png';
-  if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.png';
+  let image = `/images/tiles/${type}-tile.webp`;
+  if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.webp';
+  if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.webp';
+  if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.webp';
+  if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.webp';
+  if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.webp';
 
   return {
     id: `tile-${x}-${y}`,

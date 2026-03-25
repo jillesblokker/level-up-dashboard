@@ -7,25 +7,25 @@ export const AUTOSAVE_INTERVAL = 30000;
 export const INITIAL_POS = { x: 6, y: 3 };
 
 export const defaultTile = (type: TileType): Tile => {
-    let image = `/images/tiles/${type}-tile.png`;
-    if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.png';
-    if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.png';
-    if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.png';
-    if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.png';
-    if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.png';
+    let image = `/images/tiles/${type}-tile.webp`;
+    if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.webp';
+    if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.webp';
+    if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.webp';
+    if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.webp';
+    if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.webp';
     // Navigation Hub Overrides
-    if (type === 'quest-board') image = '/images/kingdom-tiles/QuestBoard.png';
-    if (type === 'monument') image = '/images/kingdom-tiles/Monument.png';
-    if (type === 'training-grounds') image = '/images/kingdom-tiles/TrainingGrounds.png';
-    if (type === 'tavern') image = '/images/kingdom-tiles/Inn.png';
-    if (type === 'market') image = '/images/kingdom-tiles/MarketStalls.png';
-    if (type === 'market-stalls') image = '/images/kingdom-tiles/MarketStalls.png';
+    if (type === 'quest-board') image = '/images/kingdom-tiles/QuestBoard.webp';
+    if (type === 'monument') image = '/images/kingdom-tiles/Monument.webp';
+    if (type === 'training-grounds') image = '/images/kingdom-tiles/TrainingGrounds.webp';
+    if (type === 'tavern') image = '/images/kingdom-tiles/Inn.webp';
+    if (type === 'market') image = '/images/kingdom-tiles/MarketStalls.webp';
+    if (type === 'market-stalls') image = '/images/kingdom-tiles/MarketStalls.webp';
 
-    if (type === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.png';
-    if (type === 'watchtower') image = '/images/kingdom-tiles/Watchtower.png';
-    if (type === 'library') image = '/images/kingdom-tiles/Library.png';
-    if (type === 'wizard') image = '/images/kingdom-tiles/Wizard.png';
-    if (type === 'temple') image = '/images/kingdom-tiles/Temple.png';
+    if (type === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.webp';
+    if (type === 'watchtower') image = '/images/kingdom-tiles/Watchtower.webp';
+    if (type === 'library') image = '/images/kingdom-tiles/Library.webp';
+    if (type === 'wizard') image = '/images/kingdom-tiles/Wizard.webp';
+    if (type === 'temple') image = '/images/kingdom-tiles/Temple.webp';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -126,22 +126,22 @@ function safeCheck(obj: any, key: any) {
 }
 
 export const getTileImage = (type: TileType): string => {
-    if (type === 'crossroad') return '/images/kingdom-tiles/Crossroad.png';
-    if (type === 'straightroad') return '/images/kingdom-tiles/Straightroad.png';
-    if (type === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.png';
-    if (type === 'tsplitroad') return '/images/kingdom-tiles/Tsplitroad.png';
-    if (type === 'quest-board') return '/images/kingdom-tiles/QuestBoard.png';
-    if (type === 'monument') return '/images/kingdom-tiles/Monument.png';
-    if (type === 'training-grounds') return '/images/kingdom-tiles/TrainingGrounds.png';
-    if (type === 'tavern') return '/images/kingdom-tiles/Inn.png';
-    if (type === 'market') return '/images/kingdom-tiles/MarketStalls.png';
-    if (type === 'market-stalls') return '/images/kingdom-tiles/MarketStalls.png';
-    if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.png';
-    if (type === 'watchtower') return '/images/kingdom-tiles/Watchtower.png';
-    if (type === 'library') return '/images/kingdom-tiles/Library.png';
-    if (type === 'wizard') return '/images/kingdom-tiles/Wizard.png';
-    if (type === 'temple') return '/images/kingdom-tiles/Temple.png';
-    return `/images/tiles/${type}-tile.png`;
+    if (type === 'crossroad') return '/images/kingdom-tiles/Crossroad.webp';
+    if (type === 'straightroad') return '/images/kingdom-tiles/Straightroad.webp';
+    if (type === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.webp';
+    if (type === 'tsplitroad') return '/images/kingdom-tiles/Tsplitroad.webp';
+    if (type === 'quest-board') return '/images/kingdom-tiles/QuestBoard.webp';
+    if (type === 'monument') return '/images/kingdom-tiles/Monument.webp';
+    if (type === 'training-grounds') return '/images/kingdom-tiles/TrainingGrounds.webp';
+    if (type === 'tavern') return '/images/kingdom-tiles/Inn.webp';
+    if (type === 'market') return '/images/kingdom-tiles/MarketStalls.webp';
+    if (type === 'market-stalls') return '/images/kingdom-tiles/MarketStalls.webp';
+    if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.webp';
+    if (type === 'watchtower') return '/images/kingdom-tiles/Watchtower.webp';
+    if (type === 'library') return '/images/kingdom-tiles/Library.webp';
+    if (type === 'wizard') return '/images/kingdom-tiles/Wizard.webp';
+    if (type === 'temple') return '/images/kingdom-tiles/Temple.webp';
+    return `/images/tiles/${type}-tile.webp`;
 };
 
 export const createBaseGrid = (): Tile[][] => {

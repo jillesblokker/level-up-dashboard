@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@clerk/nextjs/server';
@@ -52,9 +53,9 @@ export async function GET(request: Request) {
       });
     }
   } catch (error) {
-    console.error('[User Preferences API] Error:', error);
+    logger.error('[User Preferences API] Error:', error);
     if (error instanceof Error) {
-      console.error('[User Preferences API] Error details:', error.message, error.stack);
+      logger.error('[User Preferences API] Error details:', error.message, error.stack);
     }
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
@@ -98,9 +99,9 @@ export async function POST(request: Request) {
       data: data 
     });
   } catch (error) {
-    console.error('[User Preferences API] Error:', error);
+    logger.error('[User Preferences API] Error:', error);
     if (error instanceof Error) {
-      console.error('[User Preferences API] Error details:', error.message, error.stack);
+      logger.error('[User Preferences API] Error details:', error.message, error.stack);
     }
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
@@ -136,9 +137,9 @@ export async function DELETE(request: Request) {
       message: 'Preference deleted successfully' 
     });
   } catch (error) {
-    console.error('[User Preferences API] Error:', error);
+    logger.error('[User Preferences API] Error:', error);
     if (error instanceof Error) {
-      console.error('[User Preferences API] Error details:', error.message, error.stack);
+      logger.error('[User Preferences API] Error details:', error.message, error.stack);
     }
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 

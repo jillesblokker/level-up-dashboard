@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -106,14 +107,14 @@ export async function PUT(
                 await achievementManager.checkAndUnlock(friendship.user_id, 'ten_friends', senderFriendCount);
             }
         } catch (achError) {
-            console.error('Error checking achievements:', achError);
+            logger.error('Error checking achievements:', achError);
             // Don't fail the request if achievements fail
         }
 
         return NextResponse.json({ success: true, status: 'accepted' });
 
     } catch (error) {
-        console.error('Error responding to friend request:', error);
+        logger.error('Error responding to friend request:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -159,7 +160,7 @@ export async function DELETE(
         return NextResponse.json({ success: true });
 
     } catch (error) {
-        console.error('Error removing friend:', error);
+        logger.error('Error removing friend:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

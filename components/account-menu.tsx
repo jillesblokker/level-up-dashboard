@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -78,7 +79,7 @@ export function AccountMenu() {
         reason: 'manual_guide_button_click',
         previousState: 'will_be_cleared'
       });
-      console.log('Onboarding reset temporarily disabled');
+      logger.debug('Onboarding reset temporarily disabled');
 
       smartLogger.addGuideStep('OPEN_ONBOARDING', true, {
         action: 'open_onboarding_modal',
@@ -86,7 +87,7 @@ export function AccountMenu() {
         method: 'force_open_override',
         expectedBehavior: 'modal_should_open_immediately'
       });
-      console.log('Onboarding open temporarily disabled');
+      logger.debug('Onboarding open temporarily disabled');
 
       smartLogger.addGuideStep('CLOSE_DROPDOWN', true, {
         action: 'close_account_menu',

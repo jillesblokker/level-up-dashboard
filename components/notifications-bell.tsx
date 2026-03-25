@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import { Bell, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,7 +32,7 @@ export function NotificationsBell() {
                 setUnreadCount(data.filter(n => !n.is_read).length);
             }
         } catch (error) {
-            console.error("Failed to fetch notifications", error);
+            logger.error("Failed to fetch notifications", error);
         }
     };
 
@@ -68,7 +70,7 @@ export function NotificationsBell() {
             ));
             setUnreadCount(prev => Math.max(0, prev - ids.length));
         } catch (error) {
-            console.error("Failed to mark read", error);
+            logger.error("Failed to mark read", error);
         }
     };
 

@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -61,7 +64,7 @@ export function ImageUpload({
         }
       }
     } catch (error) {
-      console.error("Image upload error:", error);
+      logger.error("Image upload error:", error);
       setPreviewUrl(initialImage); // Revert to previous image
       toast({
         title: "Upload Error",

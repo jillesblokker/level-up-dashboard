@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabase/server-client";
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (updateError) {
-            console.error("Ascension update failed", updateError);
+            logger.error("Ascension update failed", updateError);
             return NextResponse.json({ error: "Failed to process ascension" }, { status: 500 });
         }
 
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error) {
-        console.error("API Error:", error);
+        logger.error("API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

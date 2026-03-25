@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { writeFile, mkdir } from "fs/promises"
@@ -56,13 +57,13 @@ export async function POST(req: Request) {
       .eq('id', userId)
 
     if (error) {
-      console.error("Error updating avatar in database:", error)
+      logger.error("Error updating avatar in database:", error)
       return new NextResponse("Failed to update avatar", { status: 500 })
     }
 
     return NextResponse.json({ url: imageUrl })
   } catch (error) {
-    console.error("Error handling avatar upload:", error)
+    logger.error("Error handling avatar upload:", error)
     return new NextResponse("Internal Server Error", { status: 500 })
   }
 } 

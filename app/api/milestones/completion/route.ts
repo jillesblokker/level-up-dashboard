@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
@@ -10,7 +11,7 @@ async function getUserIdFromRequest(request: Request): Promise<string | null> {
     const { userId } = getAuth(request as NextRequest);
     return userId || null;
   } catch (e) {
-    console.error('[Clerk] JWT verification failed:', e);
+    logger.error('[Clerk] JWT verification failed:', e);
     return null;
   }
 }
@@ -66,7 +67,7 @@ export async function PUT(request: Request) {
         .eq('id', milestoneId)
         .single();
       if (milestoneError || !milestone) {
-        console.error('[API/milestones/completion] Milestone not found:', milestoneError);
+        logger.error('[API/milestones/completion] Milestone not found:', milestoneError);
         return NextResponse.json({ error: 'Milestone not found' }, { status: 404 });
       }
       

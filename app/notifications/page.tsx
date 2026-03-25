@@ -201,7 +201,7 @@ export default function NotificationsPage() {
     <div className="w-full min-h-[80vh] flex flex-col items-center justify-center relative overflow-hidden bg-black rounded-xl border border-amber-800/20 shadow-lg">
       {/* Background with medieval theme */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 via-transparent to-amber-900/5" />
-      <div className="absolute inset-0 bg-[url('/images/kingdom-header.jpg')] bg-cover bg-center opacity-5" />
+      <div className="absolute inset-0 bg-[url('/images/kingdom-header.webp')] bg-cover bg-center opacity-5" />
 
       {/* Decorative border elements */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />

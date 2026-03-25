@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +42,7 @@ export default function RestoreProgressPage() {
         throw new Error(data.error || TEXT_CONTENT.restoreProgress.toast.failDesc);
       }
     } catch (error) {
-      console.error('Restore error:', error);
+      logger.error('Restore error:', error);
       toast({
         title: TEXT_CONTENT.restoreProgress.toast.failTitle,
         description: error instanceof Error ? error.message : TEXT_CONTENT.restoreProgress.toast.failDesc,

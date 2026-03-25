@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { readdir } from 'fs/promises';
 import path from 'path';
 
@@ -49,7 +50,7 @@ export class ImageManager {
       
       return this.images;
     } catch (error) {
-      console.error('Error loading images:', error);
+      logger.error('Error loading images:', error);
       return [];
     }
   }
@@ -116,7 +117,7 @@ export class ImageManager {
             }
           });
         } catch (e) {
-          console.error('Error parsing saved image descriptions', e);
+          logger.error('Error parsing saved image descriptions', e);
         }
       }
     }

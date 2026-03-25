@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { supabaseServer } from '@/lib/supabase/server-client';
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
 
             if (error) {
                 // If table doesn't exist or other error, return empty
-                console.error('[Leaderboard] Streak error:', error);
+                logger.error('[Leaderboard] Streak error:', error);
                 return NextResponse.json({ success: true, data: [] });
             }
 
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
                 .limit(limit);
 
             if (error) {
-                console.error('Error fetching quests leaderboard view:', error);
+                logger.error('Error fetching quests leaderboard view:', error);
                 return NextResponse.json({ success: true, data: [] });
             }
 
@@ -78,7 +79,7 @@ export async function GET(req: NextRequest) {
                 .in('user_id', userIds);
 
             if (userError) {
-                console.error('Error fetching user stats for leaderboard:', userError);
+                logger.error('Error fetching user stats for leaderboard:', userError);
             }
 
             const leaderboard = records.map((record, index) => {
@@ -109,7 +110,7 @@ export async function GET(req: NextRequest) {
                 .select('id, name, members');
 
             if (allianceError) {
-                console.error('Error fetching alliances:', allianceError);
+                logger.error('Error fetching alliances:', allianceError);
                 return NextResponse.json({ success: true, data: [] });
             }
 
@@ -122,7 +123,7 @@ export async function GET(req: NextRequest) {
                 .gte('completed_at', startOfMonth.toISOString());
 
             if (compError) {
-                console.error('Error fetching quest_completion for alliances:', compError);
+                logger.error('Error fetching quest_completion for alliances:', compError);
                 return NextResponse.json({ success: true, data: [] });
             }
 
@@ -180,7 +181,7 @@ export async function GET(req: NextRequest) {
                 .limit(limit);
 
             if (error) {
-                console.error('Error fetching tiles leaderboard view:', error);
+                logger.error('Error fetching tiles leaderboard view:', error);
                 // Fallback to empty if view missing, though it should exist now
                 return NextResponse.json({ success: true, data: [] });
             }
@@ -196,7 +197,7 @@ export async function GET(req: NextRequest) {
                 .in('user_id', userIds);
 
             if (userError) {
-                console.error('Error fetching user stats for leaderboard:', userError);
+                logger.error('Error fetching user stats for leaderboard:', userError);
             }
 
             const leaderboard = records.map((record, index) => {
@@ -223,7 +224,7 @@ export async function GET(req: NextRequest) {
             .limit(limit);
 
         if (error) {
-            console.error('Leaderboard Fetch Error:', error);
+            logger.error('Leaderboard Fetch Error:', error);
             // Return empty list on valid database errors (e.g. missing columns during migration) to prevent 500s
             return NextResponse.json({ success: true, data: [] });
         }
@@ -241,7 +242,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ success: true, data: leaderboard });
 
     } catch (error: any) {
-        console.error('Leaderboard API Error:', error);
+        logger.error('Leaderboard API Error:', error);
         // Ensure we always return JSON, even on crash
         return NextResponse.json({
             error: error.message || 'Internal Server Error',

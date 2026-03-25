@@ -1,5 +1,8 @@
 
-"use client";
+"use client"
+
+import { logger } from "@/lib/logger";
+;
 
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -27,7 +30,7 @@ export function ActivityFeed() {
                     setActivities(data.data);
                 }
             } catch (error) {
-                console.error("Failed to load activity", error);
+                logger.error("Failed to load activity", error);
             } finally {
                 setLoading(false);
             }

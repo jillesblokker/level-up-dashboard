@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 interface LogEntry {
   timestamp: string
   level: 'info' | 'warn' | 'error' | 'debug'
@@ -95,10 +96,10 @@ class SmartLogger {
     console.group(
       `${emoji} [${entry.component}] ${entry.action}`
     )
-    console.log(`%cTimestamp: ${entry.timestamp}`, style)
-    console.log(`%cSession: ${entry.sessionId}`, style)
-    if (entry.userId) console.log(`%cUser: ${entry.userId}`, style)
-    console.log(`%cDetails:`, style, entry.details)
+    logger.debug(`%cTimestamp: ${entry.timestamp}`, style)
+    logger.debug(`%cSession: ${entry.sessionId}`, style)
+    if (entry.userId) logger.debug(`%cUser: ${entry.userId}`, style)
+    logger.debug(`%cDetails:`, style, entry.details)
     console.groupEnd()
   }
 
@@ -115,7 +116,7 @@ class SmartLogger {
       
       localStorage.setItem('smart-logs', JSON.stringify(logs))
     } catch (error) {
-      console.warn('Failed to save log to storage:', error)
+      logger.warn('Failed to save log to storage:', error)
     }
   }
 

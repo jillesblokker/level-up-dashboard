@@ -34,21 +34,21 @@ const defaultTownData: TownData = {
       name: TEXT_CONTENT.town.locations.marketplace.name,
       description: TEXT_CONTENT.town.locations.marketplace.description,
       icon: 'ShoppingBag',
-      image: '/images/locations/kingdom-marketplace.png'
+      image: '/images/locations/kingdom-marketplace.webp'
     },
     {
       id: 'the-dragons-rest',
       name: TEXT_CONTENT.town.locations.dragonsRest.name,
       description: TEXT_CONTENT.town.locations.dragonsRest.description,
       icon: 'Home',
-      image: '/images/locations/the-dragons-rest-tavern.png'
+      image: '/images/locations/the-dragons-rest-tavern.webp'
     },
     {
       id: 'royal-stables',
       name: TEXT_CONTENT.town.locations.stables.name,
       description: TEXT_CONTENT.town.locations.stables.description,
       icon: 'Swords',
-      image: '/images/locations/royal-stables.png'
+      image: '/images/locations/royal-stables.webp'
     }
   ]
 }
@@ -105,7 +105,7 @@ export default function TownClient({ slug }: Props) {
       <HeaderSection
         title={townData.name}
         subtitle={townData.description}
-        imageSrc="/images/locations/town.png"
+        imageSrc="/images/locations/town.webp"
         shouldRevealImage={true}
         className="mb-8"
       />

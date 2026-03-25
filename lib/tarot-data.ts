@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
 
 export interface TarotCard {
@@ -221,5 +222,5 @@ export function saveTodaysCard(card: TarotCard): void {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ card })
-    }).catch(err => console.error('[Tarot] Failed to sync to server:', err));
+    }).catch(err => logger.error('[Tarot] Failed to sync to server:', err));
 }

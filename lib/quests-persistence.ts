@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { Quest } from "@/types/game";
 import { defaultQuests } from "@/lib/default-quests"; // Assuming default quests are here
 // Replaced all Supabase direct calls with API routes for authentication flow
@@ -5,7 +6,7 @@ import { defaultQuests } from "@/lib/default-quests"; // Assuming default quests
 
 async function getClerkToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
-    console.error('[Quests Persistence] getClerkToken called on server side');
+    logger.error('[Quests Persistence] getClerkToken called on server side');
     return null;
   }
 
@@ -13,21 +14,21 @@ async function getClerkToken(): Promise<string | null> {
     // Access Clerk from window if available
     const clerk = (window as any).__clerk;
     if (!clerk) {
-      console.error('[Quests Persistence] Clerk not available on window');
+      logger.error('[Quests Persistence] Clerk not available on window');
       return null;
     }
 
     const session = clerk.session;
     if (!session) {
-      console.error('[Quests Persistence] No active Clerk session');
+      logger.error('[Quests Persistence] No active Clerk session');
       return null;
     }
 
     const token = await session.getToken();
-    console.log('[Quests Persistence] Got Clerk token:', token ? 'present' : 'null');
+    logger.debug('[Quests Persistence] Got Clerk token:', token ? 'present' : 'null');
     return token;
   } catch (error) {
-    console.error('[Quests Persistence] Error getting Clerk token:', error);
+    logger.error('[Quests Persistence] Error getting Clerk token:', error);
     return null;
   }
 }
@@ -36,7 +37,7 @@ export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Quests Persistence] No authentication token available, returning default quests');
+      logger.error('[Quests Persistence] No authentication token available, returning default quests');
       return defaultQuests;
     }
 
@@ -47,12 +48,12 @@ export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
     });
 
     if (!response.ok) {
-      console.error('[Quests Persistence] Failed to fetch quests:', response.status, response.statusText, 'returning default');
+      logger.error('[Quests Persistence] Failed to fetch quests:', response.status, response.statusText, 'returning default');
       return defaultQuests;
     }
 
     const data = await response.json();
-    console.log('[Quests Persistence] Successfully fetched quests from API');
+    logger.debug('[Quests Persistence] Successfully fetched quests from API');
     
     // Transform the data to match Quest type if needed
     return (data || []).map((q: any) => ({
@@ -69,7 +70,7 @@ export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
       updatedAt: q.updated_at || q.created_at,
     }));
   } catch (error) {
-    console.error('[Quests Persistence] Error fetching quests from API, returning default:', error);
+    logger.error('[Quests Persistence] Error fetching quests from API, returning default:', error);
     return defaultQuests;
   }
 }
@@ -78,12 +79,12 @@ export async function updateQuestCompletion(questId: string, completed: boolean)
   try {
     const token = await getClerkToken();
     if (!token) {
-      console.error('[Quests Persistence] No authentication token available');
+      logger.error('[Quests Persistence] No authentication token available');
       return false;
     }
 
     // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF OLD ENDPOINTS
-    console.log('[Quests Persistence] Using smart quest completion system...');
+    logger.debug('[Quests Persistence] Using smart quest completion system...');
     
     const response = await fetch('/api/quests/smart-completion', {
       method: 'POST',
@@ -101,17 +102,17 @@ export async function updateQuestCompletion(questId: string, completed: boolean)
     });
 
     if (!response.ok) {
-      console.error('[Quests Persistence] Failed to process quest completion:', response.status, response.statusText);
+      logger.error('[Quests Persistence] Failed to process quest completion:', response.status, response.statusText);
       return false;
     }
 
     const result = await response.json();
-    console.log('[Quests Persistence] Smart completion result:', result);
+    logger.debug('[Quests Persistence] Smart completion result:', result);
     
-    console.log('[Quests Persistence] Successfully processed quest completion');
+    logger.debug('[Quests Persistence] Successfully processed quest completion');
     return true;
   } catch (error) {
-    console.error('[Quests Persistence] Error processing quest completion:', error);
+    logger.error('[Quests Persistence] Error processing quest completion:', error);
     return false;
   }
 }
@@ -119,6 +120,6 @@ export async function updateQuestCompletion(questId: string, completed: boolean)
 export async function saveQuestProgress(questId: string, progress: number): Promise<boolean> {
   // For now, we'll just log this since there's no specific progress API
   // This could be implemented as a separate endpoint if needed
-  console.log('[Quests Persistence] saveQuestProgress called for quest:', questId, 'progress:', progress);
+  logger.debug('[Quests Persistence] saveQuestProgress called for quest:', questId, 'progress:', progress);
   return true;
 } 

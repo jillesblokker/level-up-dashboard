@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { authenticatedFetch } from './auth-helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { z } from 'zod';
@@ -23,7 +24,7 @@ function updateCachedInventory(item: InventoryItem) {
 
     setUserScopedItem('offline-inventory-cache', JSON.stringify(cached));
   } catch (e) {
-    console.warn('Failed to update inventory cache', e);
+    logger.warn('Failed to update inventory cache', e);
   }
 }
 
@@ -69,7 +70,7 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
     const response = await fetchWithAuth('/api/inventory');
 
     if (!response.ok) {
-      console.warn(`[Inventory Manager] Failed to fetch inventory: ${response.status}`);
+      logger.warn(`[Inventory Manager] Failed to fetch inventory: ${response.status}`);
       return [];
     }
 
@@ -80,10 +81,10 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
       return result.data as InventoryItem[];
     }
 
-    console.warn('[Inventory Manager] Validation failed for inventory data:', result.error);
+    logger.warn('[Inventory Manager] Validation failed for inventory data:', result.error);
     return [];
   } catch (error) {
-    console.error('Error fetching inventory:', error);
+    logger.error('Error fetching inventory:', error);
     return [];
   }
 }
@@ -91,14 +92,14 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
 // Add or update an inventory item
 export async function addToInventory(userId: string, item: InventoryItem) {
   if (!userId) {
-    console.error('[Inventory Manager] addToInventory called without userId!');
+    logger.error('[Inventory Manager] addToInventory called without userId!');
     return;
   }
 
   try {
     // Update local cache first for immediate feedback
     updateCachedInventory(item);
-    console.log('[Inventory Manager] Added to cache:', item.id, item.name);
+    logger.debug('[Inventory Manager] Added to cache:', item.id, item.name);
 
     const response = await authenticatedFetch('/api/inventory', {
       method: 'POST',
@@ -106,21 +107,21 @@ export async function addToInventory(userId: string, item: InventoryItem) {
     }, 'Add Inventory');
 
     if (!response) {
-      console.error('[Inventory Manager] authenticatedFetch returned null - item NOT saved to database!', item.id);
+      logger.error('[Inventory Manager] authenticatedFetch returned null - item NOT saved to database!', item.id);
       // Item is in cache but not in database - this will cause issues on refresh
       return;
     }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[Inventory Manager] Failed to add inventory item: ${response.status}`, errorText);
+      logger.error(`[Inventory Manager] Failed to add inventory item: ${response.status}`, errorText);
       throw new Error(`Failed to add inventory item: ${response.status}`);
     }
 
-    console.log('[Inventory Manager] Successfully saved to database:', item.id);
+    logger.debug('[Inventory Manager] Successfully saved to database:', item.id);
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
-    console.error('[Inventory Manager] Error adding to inventory:', error);
+    logger.error('[Inventory Manager] Error adding to inventory:', error);
   }
 }
 
@@ -147,7 +148,7 @@ export async function removeFromInventory(userId: string, itemId: string, quanti
 
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
-    console.error('Error removing from inventory:', error);
+    logger.error('Error removing from inventory:', error);
   }
 }
 
@@ -190,7 +191,7 @@ export async function clearInventory(userId: string) {
 
     window.dispatchEvent(new Event('character-inventory-update'));
   } catch (error) {
-    console.error('Error clearing inventory:', error);
+    logger.error('Error clearing inventory:', error);
   }
 }
 
@@ -210,7 +211,7 @@ export async function getInventoryByType(userId: string, type: string): Promise<
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching inventory by type:', error);
+    logger.error('Error fetching inventory by type:', error);
     return [];
   }
 }
@@ -231,7 +232,7 @@ export async function getInventoryByCategory(userId: string, category: string): 
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching inventory by category:', error);
+    logger.error('Error fetching inventory by category:', error);
     return [];
   }
 }
@@ -256,7 +257,7 @@ export async function equipItem(userId: string, itemId: string): Promise<boolean
     window.dispatchEvent(new Event('character-inventory-update'));
     return true;
   } catch (error) {
-    console.error('Error equipping item:', error);
+    logger.error('Error equipping item:', error);
     return false;
   }
 }
@@ -281,7 +282,7 @@ export async function unequipItem(userId: string, itemId: string): Promise<boole
     window.dispatchEvent(new Event('character-inventory-update'));
     return true;
   } catch (error) {
-    console.error('Error unequipping item:', error);
+    logger.error('Error unequipping item:', error);
     return false;
   }
 }
@@ -304,7 +305,7 @@ export async function hasItem(userId: string, itemId: string): Promise<boolean> 
     const item = await response.json();
     return !!item;
   } catch (error) {
-    console.error('Error checking for item:', error);
+    logger.error('Error checking for item:', error);
     return false;
   }
 }
@@ -336,10 +337,10 @@ export async function getEquippedItems(userId: string): Promise<InventoryItem[]>
       return data;
     }
 
-    console.warn('[Inventory Manager] getEquippedItems: Unexpected response format:', data);
+    logger.warn('[Inventory Manager] getEquippedItems: Unexpected response format:', data);
     return [];
   } catch (error) {
-    console.error('Error fetching equipped items:', error);
+    logger.error('Error fetching equipped items:', error);
     return [];
   }
 }
@@ -355,13 +356,13 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
 
     if (!response) {
       // Fallback to cache if API skipped (circuit breaker)
-      console.warn('[Inventory Manager] API skipped, using cached inventory');
+      logger.warn('[Inventory Manager] API skipped, using cached inventory');
       return cached;
     }
 
     if (!response.ok) {
       // Fallback to cache if API fails
-      console.warn('[Inventory Manager] API failed, using cached inventory');
+      logger.warn('[Inventory Manager] API failed, using cached inventory');
       return cached;
     }
 
@@ -374,7 +375,7 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
     } else if (Array.isArray(data)) {
       items = data;
     } else {
-      console.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
+      logger.warn('[Inventory Manager] getStoredItems: Unexpected response format:', data);
       return cached; // Return cache on unexpected format
     }
 
@@ -386,14 +387,14 @@ export async function getStoredItems(userId: string): Promise<InventoryItem[]> {
     } else if (cached.length > 0) {
       // API returned empty, but we have cached items - something might be wrong with the API
       // Return cached items but don't overwrite the cache
-      console.warn('[Inventory Manager] API returned empty but cache has items, using cache');
+      logger.warn('[Inventory Manager] API returned empty but cache has items, using cache');
       return cached;
     }
 
     // Both empty
     return items;
   } catch (error) {
-    console.error('Error fetching stored items:', error);
+    logger.error('Error fetching stored items:', error);
     // Return cache on any error
     return cached;
   }
@@ -406,7 +407,7 @@ export async function getTotalStats(userId: string): Promise<{ movement: number;
 
     // Ensure equippedItems is an array
     if (!Array.isArray(equippedItems)) {
-      console.warn('[Inventory Manager] getTotalStats: equippedItems is not an array:', equippedItems);
+      logger.warn('[Inventory Manager] getTotalStats: equippedItems is not an array:', equippedItems);
       return { movement: 0, attack: 0, defense: 0 };
     }
 
@@ -420,14 +421,14 @@ export async function getTotalStats(userId: string): Promise<{ movement: number;
             defense: totals.defense + (stats.defense || 0),
           };
         } catch (error) {
-          console.warn('[Inventory Manager] getTotalStats: Error processing item:', item, error);
+          logger.warn('[Inventory Manager] getTotalStats: Error processing item:', item, error);
           return totals; // Return unchanged totals on error
         }
       },
       { movement: 0, attack: 0, defense: 0 }
     );
   } catch (error) {
-    console.error('[Inventory Manager] getTotalStats: Error:', error);
+    logger.error('[Inventory Manager] getTotalStats: Error:', error);
     return { movement: 0, attack: 0, defense: 0 };
   }
 }

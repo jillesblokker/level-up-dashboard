@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, message: 'Purchased 1 Build Token', newTokens: (statsData.streak_tokens || 0) + 1 });
 
     } catch (error: any) {
-        console.error('Buy Token error:', error);
+        logger.error('Buy Token error:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }

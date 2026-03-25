@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[App Logs] Error:', err);
+    logger.error('[App Logs] Error:', err);
     return NextResponse.json({ 
       error: err.message || 'Unknown error' 
     }, { status: 500 });

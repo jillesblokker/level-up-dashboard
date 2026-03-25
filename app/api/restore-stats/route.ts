@@ -1,18 +1,19 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Restore Stats API] Starting restore process');
+    logger.debug('[Restore Stats API] Starting restore process');
     
     const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      console.log('[Restore Stats API] Authenticated user:', userId);
+      logger.debug('[Restore Stats API] Authenticated user:', userId);
       
       // Get the request body to see what stats to restore
       const body = await request.json();
       const { gold = 0, experience = 0, level = 1, health = 100, max_health = 100 } = body;
       
-      console.log('[Restore Stats] Restoring stats for user:', userId, { gold, experience, level, health, max_health });
+      logger.debug('[Restore Stats] Restoring stats for user:', userId, { gold, experience, level, health, max_health });
       
       // Check if character_stats table exists
       const { error: tableCheckError } = await supabase
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
         .limit(1);
       
       if (tableCheckError) {
-        console.error('[Restore Stats] Table check error:', tableCheckError);
+        logger.error('[Restore Stats] Table check error:', tableCheckError);
         return { error: `Database table not ready: ${tableCheckError.message}` };
       }
       
@@ -44,11 +45,11 @@ export async function POST(request: NextRequest) {
         .single();
       
       if (statsError) {
-        console.error('[Restore Stats] Error updating character stats:', statsError);
+        logger.error('[Restore Stats] Error updating character stats:', statsError);
         return { error: statsError };
       }
       
-      console.log('[Restore Stats] Successfully updated character stats:', statsData);
+      logger.debug('[Restore Stats] Successfully updated character stats:', statsData);
       
       // Create a transaction record for the restored stats
       if (gold > 0) {
@@ -65,9 +66,9 @@ export async function POST(request: NextRequest) {
           });
         
         if (goldError) {
-          console.error('[Restore Stats] Error creating gold transaction:', goldError);
+          logger.error('[Restore Stats] Error creating gold transaction:', goldError);
         } else {
-          console.log('[Restore Stats] Successfully created gold transaction');
+          logger.debug('[Restore Stats] Successfully created gold transaction');
         }
       }
       
@@ -85,9 +86,9 @@ export async function POST(request: NextRequest) {
           });
         
         if (expError) {
-          console.error('[Restore Stats] Error creating experience transaction:', expError);
+          logger.error('[Restore Stats] Error creating experience transaction:', expError);
         } else {
-          console.log('[Restore Stats] Successfully created experience transaction');
+          logger.debug('[Restore Stats] Successfully created experience transaction');
         }
       }
       
@@ -95,23 +96,23 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[Restore Stats API] Authentication error:', error);
+      logger.error('[Restore Stats API] Authentication error:', error);
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
     }
 
     if (data?.error) {
-      console.error('[Restore Stats API] Data error:', data.error);
+      logger.error('[Restore Stats API] Data error:', data.error);
       return NextResponse.json({ error: 'Failed to restore stats', details: data.error }, { status: 500 });
     }
 
-    console.log('[Restore Stats API] Successfully restored stats');
+    logger.debug('[Restore Stats API] Successfully restored stats');
     return NextResponse.json({ 
       success: true, 
       message: 'Character stats restored successfully',
       data: data?.data 
     });
   } catch (error) {
-    console.error('[Restore Stats API] Unexpected error:', error);
+    logger.error('[Restore Stats API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

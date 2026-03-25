@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 import { clerkClient } from '@clerk/nextjs/server';
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
         });
 
     } catch (e: any) {
-        console.error("Analytics Error:", e);
+        logger.error("Analytics Error:", e);
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
             .order('created_at', { ascending: false })
 
         if (questsError) {
-            console.error('Error fetching quests:', questsError)
+            logger.error('Error fetching quests:', questsError)
             return NextResponse.json({ error: 'Failed to fetch quests' }, { status: 500 })
         }
 
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
             .gte('completed_at', todayStr)
 
         if (completionsError) {
-            console.error('Error fetching completions:', completionsError)
+            logger.error('Error fetching completions:', completionsError)
         }
 
         // Create a set of completed quest IDs for today
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(dailyQuests)
     } catch (error) {
-        console.error('Error in /api/quests/daily:', error)
+        logger.error('Error in /api/quests/daily:', error)
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

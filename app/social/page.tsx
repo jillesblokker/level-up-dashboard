@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
@@ -147,7 +149,7 @@ export default function AlliesPage() {
         if (savedImage) {
             setCoverImage(savedImage);
         } else {
-            setCoverImage('/images/allies-cover.jpg');
+            setCoverImage('/images/allies-cover.webp');
         }
     }, [user?.id, triggerCatchUp]);
 
@@ -160,7 +162,7 @@ export default function AlliesPage() {
                 setMyStats(data.stats);
             }
         } catch (error) {
-            console.error("Error fetching my stats:", error);
+            logger.error("Error fetching my stats:", error);
             // Fallback to local stats if API fails
             const stats = getCharacterStats();
             const level = calculateLevelFromExperience(stats.experience);
@@ -196,7 +198,7 @@ export default function AlliesPage() {
                 setRequests(data.requests || []);
             }
         } catch (error) {
-            console.error("Error fetching friends:", error);
+            logger.error("Error fetching friends:", error);
         } finally {
             setIsLoading(false);
         }
@@ -212,7 +214,7 @@ export default function AlliesPage() {
                 setSearchResults(data.users || []);
             }
         } catch (error) {
-            console.error("Error searching users:", error);
+            logger.error("Error searching users:", error);
         } finally {
             setIsSearching(false);
         }
@@ -332,7 +334,7 @@ export default function AlliesPage() {
                 setCompareStats(data.stats);
             }
         } catch (error) {
-            console.error("Error fetching stats:", error);
+            logger.error("Error fetching stats:", error);
         }
     };
 
@@ -341,7 +343,7 @@ export default function AlliesPage() {
             <HeaderSection
                 title={TEXT_CONTENT.social.header.title}
                 subtitle={TEXT_CONTENT.social.header.subtitle}
-                imageSrc={coverImage || "/images/allies-header.jpg"}
+                imageSrc={coverImage || "/images/allies-header.webp"}
                 canEdit={!!user?.id}
                 onImageUpload={handleImageUpload}
                 defaultBgColor="bg-amber-900"
@@ -415,7 +417,7 @@ export default function AlliesPage() {
                                 <CardContent className="pt-6 flex flex-col items-center">
                                     <div className="relative w-48 h-48 mb-6">
                                         <Image
-                                            src="/images/empty-states/allies.png"
+                                            src="/images/empty-states/allies.webp"
                                             alt="No allies yet"
                                             fill
                                             className="object-contain"
@@ -484,7 +486,7 @@ export default function AlliesPage() {
                                                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50" />
                                                     <div className="relative w-32 h-32 mb-4 drop-shadow-xl hover:scale-105 transition-transform duration-500 filter sepia-[0.1]">
                                                         <Image
-                                                            src={`/images/character/${titleInfo.id}.png`}
+                                                            src={`/images/character/${titleInfo.id}.webp`}
                                                             alt={titleInfo.name}
                                                             fill
                                                             className="object-contain"
@@ -639,7 +641,7 @@ export default function AlliesPage() {
                                         <div className="text-center py-8 flex flex-col items-center">
                                             <div className="relative w-40 h-40 mb-4 opacity-80">
                                                 <Image
-                                                    src="/images/empty-states/search.png"
+                                                    src="/images/empty-states/search.webp"
                                                     alt="Search for friends"
                                                     fill
                                                     className="object-contain"
@@ -662,7 +664,7 @@ export default function AlliesPage() {
                             <div className="text-center py-12 text-muted-foreground flex flex-col items-center">
                                 <div className="relative w-40 h-40 mb-4 opacity-80">
                                     <Image
-                                        src="/images/empty-states/requests.png"
+                                        src="/images/empty-states/requests.webp"
                                         alt="No requests"
                                         fill
                                         className="object-contain"
@@ -936,7 +938,7 @@ export default function AlliesPage() {
                                         <div className="text-center py-12 space-y-4">
                                             <div className="relative w-32 h-32 mx-auto opacity-50">
                                                 <Image
-                                                    src="/images/empty-states/quests.png"
+                                                    src="/images/empty-states/quests.webp"
                                                     alt="No quests completed"
                                                     fill
                                                     className="object-contain"
@@ -1004,7 +1006,7 @@ export default function AlliesPage() {
                                         <div className="text-center py-12 space-y-4">
                                             <div className="relative w-32 h-32 mx-auto opacity-50">
                                                 <Image
-                                                    src="/images/empty-states/challenges.png"
+                                                    src="/images/empty-states/challenges.webp"
                                                     alt="No challenges completed"
                                                     fill
                                                     className="object-contain"
@@ -1072,7 +1074,7 @@ export default function AlliesPage() {
                                         <div className="text-center py-12 space-y-4">
                                             <div className="relative w-32 h-32 mx-auto opacity-50">
                                                 <Image
-                                                    src="/images/empty-states/milestones.png"
+                                                    src="/images/empty-states/milestones.webp"
                                                     alt="No milestones achieved"
                                                     fill
                                                     className="object-contain"

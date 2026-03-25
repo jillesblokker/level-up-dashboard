@@ -1,18 +1,19 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Restore Original Challenges] Starting restoration process');
+    logger.debug('[Restore Original Challenges] Starting restoration process');
     
     const { userId } = await auth();
     if (!userId) {
-      console.error('[Restore Original Challenges] Unauthorized');
+      logger.error('[Restore Original Challenges] Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[Restore Original Challenges] Authenticated user:', userId);
+    logger.debug('[Restore Original Challenges] Authenticated user:', userId);
     
     // First, clear existing challenges
     const { error: deleteError } = await supabaseServer
@@ -21,11 +22,11 @@ export async function POST(request: NextRequest) {
       .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
 
     if (deleteError) {
-      console.error('[Restore Original Challenges] Error clearing existing challenges:', deleteError);
+      logger.error('[Restore Original Challenges] Error clearing existing challenges:', deleteError);
       return NextResponse.json({ error: 'Failed to clear existing challenges' }, { status: 500 });
     }
 
-    console.log('[Restore Original Challenges] Cleared existing challenges');
+    logger.debug('[Restore Original Challenges] Cleared existing challenges');
 
     // Insert the user's original challenges
     const originalChallenges = [
@@ -68,11 +69,11 @@ export async function POST(request: NextRequest) {
       .select();
 
     if (insertError) {
-      console.error('[Restore Original Challenges] Error inserting challenges:', insertError);
+      logger.error('[Restore Original Challenges] Error inserting challenges:', insertError);
       return NextResponse.json({ error: 'Failed to insert original challenges' }, { status: 500 });
     }
 
-    console.log('[Restore Original Challenges] Successfully restored:', insertData?.length || 0, 'original challenges');
+    logger.debug('[Restore Original Challenges] Successfully restored:', insertData?.length || 0, 'original challenges');
 
     // Group challenges by category for response
     const challengesByCategory = originalChallenges.reduce((acc, challenge) => {
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Restore Original Challenges] Internal server error:', error);
+    logger.error('[Restore Original Challenges] Internal server error:', error);
     return NextResponse.json({ error: 'Internal server error', details: error }, { status: 500 });
   }
 }

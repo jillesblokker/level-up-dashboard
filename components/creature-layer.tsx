@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CreatureDefinition, CREATURE_DEFINITIONS } from '@/lib/creature-mapping';
 import { CreatureSprite } from './creature-sprite';
@@ -38,7 +39,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     // 1. Fetch Unlocked Achievements, Spawn Creatures, AND Check Cooldowns
     useEffect(() => {
         const fetchUnlockedCreatures = async () => {
-            // console.log('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
+            // logger.debug('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
 
             try {
                 if (!isLoaded || !user) return;
@@ -120,7 +121,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
                 setActiveCreatures(creaturesToSpawn);
             } catch (error) {
-                console.error('[CreatureLayer] Unexpected error:', error);
+                logger.error('[CreatureLayer] Unexpected error:', error);
             }
         };
 
@@ -141,7 +142,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             if (validNeighbors.length > 0) {
                 const nextTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
                 if (nextTile) {
-                    // console.log(`[CreatureLayer] Moving ${def.name} from`, creature.position, 'to', { row: nextTile.row, col: nextTile.col });
+                    // logger.debug(`[CreatureLayer] Moving ${def.name} from`, creature.position, 'to', { row: nextTile.row, col: nextTile.col });
                     return {
                         ...creature,
                         position: { row: nextTile.row, col: nextTile.col },
@@ -231,7 +232,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const rows = grid.length;
     const cols = grid[0].length;
 
-    // console.log('[CreatureLayer] Rendering with', activeCreatures.length, 'creatures');
+    // logger.debug('[CreatureLayer] Rendering with', activeCreatures.length, 'creatures');
 
     return (
         <div
@@ -241,13 +242,13 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             {activeCreatures.map(creature => {
                 const def = CREATURE_DEFINITIONS[creature.definitionId];
                 if (!def) {
-                    console.warn('[CreatureLayer] No definition found for creature:', creature.definitionId);
+                    logger.warn('[CreatureLayer] No definition found for creature:', creature.definitionId);
                     return null;
                 }
 
                 const isPlayerOnTile = !!playerTile && playerTile.row === creature.position.row && playerTile.col === creature.position.col;
 
-                // console.log('[CreatureLayer] Rendering creature:', def.name, 'at position:', creature.position);
+                // logger.debug('[CreatureLayer] Rendering creature:', def.name, 'at position:', creature.position);
 
                 return (
                     <div
@@ -296,7 +297,7 @@ function findRandomSpawnPoint(grid: Tile[][], habitatType: string): { row: numbe
     // Second pass: If no tiles found, try 'vacant' or 'grass' as fallback for ANY creature
     // This ensures creatures appear even if their specific habitat isn't built yet
     if (validTiles.length === 0) {
-        // console.log(`[CreatureLayer] No specific habitat found for ${habitatType}, trying fallback to grass/vacant`);
+        // logger.debug(`[CreatureLayer] No specific habitat found for ${habitatType}, trying fallback to grass/vacant`);
         grid.forEach((row, r) => {
             if (!row) return;
             row.forEach((tile, c) => {
@@ -360,7 +361,7 @@ function isHabitatMatch(tile: Tile, habitatType: string): boolean {
 
     const tileType = tile.type?.toLowerCase() || 'vacant';
 
-    // console.log('[isHabitatMatch] Checking tile type:', tileType, 'against habitat:', habitatType);
+    // logger.debug('[isHabitatMatch] Checking tile type:', tileType, 'against habitat:', habitatType);
 
     switch (habitatType) {
         case 'water':

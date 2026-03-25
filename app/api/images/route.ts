@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     // Return the path directly
     return NextResponse.json({ path });
   } catch (error) {
-    console.error('Error in images API:', error);
+    logger.error('Error in images API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

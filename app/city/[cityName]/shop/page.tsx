@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import React from "react"
 import { useState, useEffect } from "react"
 import { ChevronLeft } from "lucide-react"
@@ -68,7 +70,7 @@ export default function ShopPage() {
       name: "Health Potion",
       description: "Restores 50 health points",
       price: 40,
-      image: "/images/items/potion/potion-health.png",
+      image: "/images/items/potion/potion-health.webp",
       emoji: "🧪"
     },
     {
@@ -76,7 +78,7 @@ export default function ShopPage() {
       name: "Mana Potion",
       description: "Restores 50 mana points",
       price: 45,
-      image: "/images/items/potion/potion-mana.png",
+      image: "/images/items/potion/potion-mana.webp",
       emoji: "🔮"
     },
     {
@@ -84,7 +86,7 @@ export default function ShopPage() {
       name: "Strength Potion",
       description: "Increases strength by 5 for 1 hour",
       price: 60,
-      image: "/images/items/potion/potion-strength.png",
+      image: "/images/items/potion/potion-strength.webp",
       emoji: "💪"
     },
     {
@@ -92,7 +94,7 @@ export default function ShopPage() {
       name: "Leather Armor",
       description: "Basic protection against physical damage",
       price: 100,
-      image: "/images/items/armor/armor-leather.png",
+      image: "/images/items/armor/armor-leather.webp",
       emoji: "🥋"
     },
     {
@@ -100,7 +102,7 @@ export default function ShopPage() {
       name: "Iron Sword",
       description: "A reliable weapon for combat",
       price: 90,
-      image: "/images/items/sword/sword-iron.png",
+      image: "/images/items/sword/sword-iron.webp",
       emoji: "⚔️"
     },
     {
@@ -108,7 +110,7 @@ export default function ShopPage() {
       name: "Magic Scroll",
       description: "Teaches a random spell",
       price: 80,
-      image: "/images/items/scroll/scroll-magic.png",
+      image: "/images/items/scroll/scroll-magic.webp",
       emoji: "📜"
     }
   ]
@@ -117,17 +119,17 @@ export default function ShopPage() {
   const getLocationImage = (cityName: string) => {
     // Map city names to their specific images
     const locationImageMap: Record<string, string> = {
-      'embers-anvil': '/images/locations/embers-anvil.png',
-      'kingdom-marketplace': '/images/locations/kingdom-marketplace.png',
-      'royal-stables': '/images/locations/royal-stables.png',
-      'the-dragons-rest': '/images/locations/the-dragons-rest-tavern.png',
-      'blacksmith': '/images/locations/embers-anvil.png',
-      'marketplace': '/images/locations/kingdom-marketplace.png',
-      'library': '/images/locations/library.png',
-      'inn': '/images/locations/inn.png'
+      'embers-anvil': '/images/locations/embers-anvil.webp',
+      'kingdom-marketplace': '/images/locations/kingdom-marketplace.webp',
+      'royal-stables': '/images/locations/royal-stables.webp',
+      'the-dragons-rest': '/images/locations/the-dragons-rest-tavern.webp',
+      'blacksmith': '/images/locations/embers-anvil.webp',
+      'marketplace': '/images/locations/kingdom-marketplace.webp',
+      'library': '/images/locations/library.webp',
+      'inn': '/images/locations/inn.webp'
     }
     
-    return locationImageMap[cityName] || '/images/locations/market.png'
+    return locationImageMap[cityName] || '/images/locations/market.webp'
   }
 
   const locationImage = getLocationImage(cityName)
@@ -224,7 +226,7 @@ export default function ShopPage() {
                         window.dispatchEvent(new Event('character-inventory-update'))
                       }
                     } catch (error) {
-                      console.error('Error purchasing item:', error);
+                      logger.error('Error purchasing item:', error);
                     }
                   }}
                 >

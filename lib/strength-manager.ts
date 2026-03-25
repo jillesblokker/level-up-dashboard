@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * Strength Manager
  * 
@@ -134,7 +135,7 @@ export function getStrengths(): Strength[] {
   try {
     return JSON.parse(savedStrengths)
   } catch (err) {
-    console.error('Error parsing strengths:', err)
+    logger.error('Error parsing strengths:', err)
     localStorage.removeItem(STRENGTHS_KEY)
     return defaultStrengths
   }
@@ -219,7 +220,7 @@ export function gainStrengthFromQuest(questCategory: string, questLevel: number 
 
   const strengthCategory = categoryMapping[questCategory.toLowerCase()]
   if (!strengthCategory) {
-    console.warn(`Unknown quest category: ${questCategory}`)
+    logger.warn(`Unknown quest category: ${questCategory}`)
     return
   }
 
@@ -229,5 +230,5 @@ export function gainStrengthFromQuest(questCategory: string, questLevel: number 
 
   gainStrengthExperience(strengthCategory, experienceGain)
 
-  console.log(`Gained ${experienceGain} ${strengthCategory} experience from ${questCategory} quest`)
+  logger.debug(`Gained ${experienceGain} ${strengthCategory} experience from ${questCategory} quest`)
 } 

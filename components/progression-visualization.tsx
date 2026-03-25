@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "@/lib/logger";
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -49,7 +51,7 @@ export function ProgressionVisualization() {
           level
         }))
       } catch (error) {
-        console.error('Error loading stats:', error)
+        logger.error('Error loading stats:', error)
       }
     }
 

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: result.data });
 
   } catch (error) {
-    console.error('[Data API] Error:', error);
+    logger.error('[Data API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' }, 
       { status: 500 }
@@ -233,7 +234,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('[Data API] Error:', error);
+    logger.error('[Data API] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' }, 
       { status: 500 }
