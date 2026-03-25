@@ -29,10 +29,16 @@ export function LoadingState({ message = "Loading...", size = 'md', className = 
 
 export function FullPageLoading({ message = "Summoning the Realm..." }: { message?: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="flex flex-col items-center gap-6">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+        aria-hidden="true"
+      />
+      
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center gap-6">
         <div className="relative">
-          <div className="absolute inset-0 animate-ping rounded-full bg-amber-500/10"></div>
           <Loader2 className="animate-spin text-amber-500 h-12 w-12" />
         </div>
         <span className="text-amber-400 text-xl font-medieval tracking-widest">{message}</span>
