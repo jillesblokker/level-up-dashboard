@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Sparkles, Loader2 } from 'lucide-react';
