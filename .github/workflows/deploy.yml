@@ -27,7 +27,11 @@ jobs:
       - name: Verify Environment Secrets
         run: |
           if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then 
-            echo "::error::DEPLOYMENT ERROR: VPS_SSH_KEY secret is missing! Go to Settings > Secrets and variables > Actions in your repo and add it."
+            echo "::error::DEPLOYMENT ERROR: VPS_SSH_KEY secret is missing! Go to Settings > Secrets and variables > Action in your repo."
+            exit 1
+          fi
+          if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then 
+            echo "::error::BUILD ERROR: SUPABASE_SERVICE_ROLE_KEY secret is missing! Needed for secure build-time access."
             exit 1
           fi
 
@@ -39,10 +43,15 @@ jobs:
           echo "Starting Next.js Build..."
           pnpm build || { echo "::error::BUILD ERROR: Next.js build failed. Click 'deploy' to see the logs for syntax or typescript errors."; exit 1; }
         env:
+          NODE_ENV: production
+          CI: false  # Prevent warnings from failing the build
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_CLERK_FRONTEND_API: "clerk.jillesblokker.com"
+          CLERK_ALLOWED_ORIGINS: "http://localhost:3005,https://lvlup.jillesblokker.com"
 
       - name: Setup SSH key
         run: |
@@ -58,7 +67,7 @@ jobs:
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
           else
-            echo "::error::STANDALONE ERROR: .next/standalone folder not found. Ensure output: 'standalone' is in next.config.mjs."
+            echo "::error::STANDALONE ERROR: .next/standalone folder not found."
             exit 1
           fi
 
@@ -67,7 +76,7 @@ jobs:
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude '.env' \
-            .next/standalone/ root@165.232.86.194:/var/www/level-up/ || { echo "::error::SYNC ERROR: Failed to upload files to VPS. Check VPS_SSH_KEY and IP address."; exit 1; }
+            .next/standalone/ root@165.232.86.194:/var/www/level-up/ || { echo "::error::SYNC ERROR: Failed to upload files to VPS."; exit 1; }
 
       - name: Restart PM2 on server
         run: |
