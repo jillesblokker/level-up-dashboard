@@ -72,10 +72,8 @@ import { TEXT_CONTENT } from "@/lib/text-content"
 
 
 // Dynamic imports for performance optimization
-const RevealOverlay = dynamic(() => import('../reveal/page'), {
-    ssr: false,
-    loading: () => null // No loading state needed
-});
+
+
 const MonsterBattle = dynamic(() => import('@/components/monster-battle').then(mod => ({ default: mod.MonsterBattle })), {
     ssr: false,
     loading: () => null
@@ -1173,7 +1171,7 @@ function RealmPageContent() {
                     </Button>
                 </div>
             )}
-            <RevealOverlay />
+
             <HeaderSection
                 title={isVisiting ? TEXT_CONTENT.realm.header.envoyTitle : TEXT_CONTENT.realm.header.title}
                 subtitle={isVisiting ? TEXT_CONTENT.realm.header.envoySubtitle : TEXT_CONTENT.realm.header.subtitle}

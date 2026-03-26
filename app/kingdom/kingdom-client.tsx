@@ -64,10 +64,8 @@ import {
 } from '@/lib/supabase-persistence-client'
 import { KingdomGuide } from '@/components/kingdom/kingdom-guide'
 import dynamic from 'next/dynamic';
-const RevealOverlay = dynamic(() => import('../reveal/page'), {
-  ssr: false,
-  loading: () => null
-});
+
+
 const ProgressionVisualization = dynamic(
   () => import('@/components/progression-visualization').then(m => ({ default: m.ProgressionVisualization })),
   { loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />, ssr: false }
@@ -1448,7 +1446,7 @@ export function KingdomClient() {
         </div>
       )}
 
-      <RevealOverlay />
+
 
       <HeaderSection
         title={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdom : TEXT_CONTENT.kingdom.ui.header.myKingdom}
