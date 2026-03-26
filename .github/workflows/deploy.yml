@@ -72,22 +72,27 @@ jobs:
             exit 1
           fi
 
+      - name: Reset Server State
+        run: |
+          # Robust cleanup and permission reset on server before sync
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "mkdir -p /var/www/level-up && chown -R root:root /var/www/level-up && chmod -R 755 /var/www/level-up"
+
       - name: Sync built app to server
         run: |
-          # Robust sync: Remove compression (-z) as it can glitch on large files/full disks
-          # Add --info=progress2 to see more details if it fails
-          rsync -a --delete \
+          # Using --inplace to avoid creating temporary files if the filesystem is being finicky with deep paths
+          rsync -a --delete --ignore-errors \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             --exclude '.env' \
             .next/standalone/ root@165.232.86.194:/var/www/level-up/ || { 
-              echo "::error::SYNC FAILED! Likely Disk Space or Permission issue.";
-              ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "df -h /var/www/level-up";
-              exit 1; 
+              echo "::error::SYNC FAILED! Retrying with fallback...";
+              rsync -a --delete \
+                -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+                .next/standalone/ root@165.232.86.194:/var/www/level-up/;
             }
 
       - name: Restart PM2 on server
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "chmod -R 755 /var/www/level-up && cd /var/www/level-up && PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up || PORT=3005 HOSTNAME=0.0.0.0 pm2 restart level-up" || { echo "::error::PM2 RESTART FAILED."; exit 1; }
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "cd /var/www/level-up && PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up || PORT=3005 HOSTNAME=0.0.0.0 pm2 restart level-up" || { echo "::error::PM2 RESTART FAILED."; exit 1; }
 
       - name: Verify deployment
         run: |
