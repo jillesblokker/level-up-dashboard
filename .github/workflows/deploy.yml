@@ -8,9 +8,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      # Opt into Node.js 24 for actions to avoid deprecation warnings
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
@@ -24,18 +21,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           cache: 'pnpm'
 
-      - name: Verify Secrets
+      - name: Verify Environment Secrets
         run: |
-          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then echo "Error: VPS_SSH_KEY is missing"; exit 1; fi
+          # Only check for the presence of the critical deployment key
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then 
+            echo "Critical Error: VPS_SSH_KEY secret is missing or empty in GitHub Repo Settings!"
+            exit 1
+          fi
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js app
-        run: pnpm build
+        run: |
+          echo "Starting Next.js Build..."
+          pnpm build || { echo "Build failed! See error logs above."; exit 1; }
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -51,13 +54,13 @@ jobs:
 
       - name: Prepare standalone files
         run: |
-          # The standalone output doesn't include public or static files by default
+          # Ensure .next/standalone exists before copying
           if [ -d ".next/standalone" ]; then
             cp -r public .next/standalone/
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
           else
-            echo "Error: .next/standalone not found. Ensure output: 'standalone' is in next.config.mjs"
+            echo "Error: .next/standalone not found. Check if output: 'standalone' is in next.config.mjs"
             exit 1
           fi
 
@@ -71,7 +74,7 @@ jobs:
 
       - name: Restart PM2 on server
         run: |
-          # Point PM2 to the standalone server.js
+          # Point PM2 to the standalone server.js and set the port to 3005 as expected.
           ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up"
 
       - name: Verify deployment
