@@ -56,9 +56,7 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          # Using printf with raw format to handle the multiline secret perfectly
           printf "%s" "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
-          # Ensure there's a trailing newline which some SSH clients require
           echo "" >> ~/.ssh/deploy_key
           chmod 400 ~/.ssh/deploy_key
           ssh-keyscan -H 165.232.86.194 >> ~/.ssh/known_hosts
@@ -76,6 +74,7 @@ jobs:
 
       - name: Sync built app to server
         run: |
+          # Use -p to preserve permissions and ensure they are readable by the web server
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             --exclude '.env' \
@@ -83,7 +82,8 @@ jobs:
 
       - name: Restart PM2 on server
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up" || { echo "::error::PM2 ERROR: PM2 restart failed."; exit 1; }
+          # Ensure correct permissions and restart PM2
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "chmod -R 755 /var/www/level-up && cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up" || { echo "::error::PM2 ERROR: PM2 restart failed."; exit 1; }
 
       - name: Verify deployment
         run: |
