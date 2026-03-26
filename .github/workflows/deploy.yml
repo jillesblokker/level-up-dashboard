@@ -26,9 +26,8 @@ jobs:
 
       - name: Verify Environment Secrets
         run: |
-          # Only check for the presence of the critical deployment key
           if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then 
-            echo "Critical Error: VPS_SSH_KEY secret is missing or empty in GitHub Repo Settings!"
+            echo "::error::DEPLOYMENT ERROR: VPS_SSH_KEY secret is missing! Go to Settings > Secrets and variables > Actions in your repo and add it."
             exit 1
           fi
 
@@ -38,7 +37,7 @@ jobs:
       - name: Build Next.js app
         run: |
           echo "Starting Next.js Build..."
-          pnpm build || { echo "Build failed! See error logs above."; exit 1; }
+          pnpm build || { echo "::error::BUILD ERROR: Next.js build failed. Click 'deploy' to see the logs for syntax or typescript errors."; exit 1; }
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -54,28 +53,25 @@ jobs:
 
       - name: Prepare standalone files
         run: |
-          # Ensure .next/standalone exists before copying
           if [ -d ".next/standalone" ]; then
             cp -r public .next/standalone/
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
           else
-            echo "Error: .next/standalone not found. Check if output: 'standalone' is in next.config.mjs"
+            echo "::error::STANDALONE ERROR: .next/standalone folder not found. Ensure output: 'standalone' is in next.config.mjs."
             exit 1
           fi
 
       - name: Sync built app to server
         run: |
-          # Sync the standalone bundle to the server.
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude '.env' \
-            .next/standalone/ root@165.232.86.194:/var/www/level-up/
+            .next/standalone/ root@165.232.86.194:/var/www/level-up/ || { echo "::error::SYNC ERROR: Failed to upload files to VPS. Check VPS_SSH_KEY and IP address."; exit 1; }
 
       - name: Restart PM2 on server
         run: |
-          # Point PM2 to the standalone server.js and set the port to 3005 as expected.
-          ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up"
+          ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up" || { echo "::error::PM2 ERROR: Failed to restart app on server."; exit 1; }
 
       - name: Verify deployment
         run: |
