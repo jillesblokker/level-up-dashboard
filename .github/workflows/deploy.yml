@@ -2,7 +2,7 @@ name: Build & Deploy to VPS
 
 on:
   push:
-    branches: [main]
+    branches: [main, development]
 
 jobs:
   deploy:
@@ -13,17 +13,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build Next.js app
-        run: npm run build
+        run: pnpm build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -37,15 +42,27 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H 165.232.86.194 >> ~/.ssh/known_hosts
 
+      - name: Prepare standalone files
+        run: |
+          # The standalone output doesn't include public or static files by default
+          cp -r public .next/standalone/
+          mkdir -p .next/standalone/.next
+          cp -r .next/static .next/standalone/.next/
+
       - name: Sync built app to server
         run: |
+          # Sync the standalone bundle to the server.
+          # We use --delete to keep it clean, but exclude .env to avoid overwriting production secrets.
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
-            .next/ root@165.232.86.194:/var/www/level-up/.next/
+            --exclude '.env' \
+            .next/standalone/ root@165.232.86.194:/var/www/level-up/
 
       - name: Restart PM2 on server
         run: |
-          ssh -i ~/.ssh/deploy_key root@165.232.86.194 "pm2 restart level-up"
+          # Point PM2 to the standalone server.js and set the port to 3005 as expected.
+          # We use 'pm2 start' with --name and 'pm2 save' to ensure it survives reboots.
+          ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up"
 
       - name: Verify deployment
         run: |
