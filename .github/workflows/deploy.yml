@@ -26,23 +26,20 @@ jobs:
 
       - name: Verify Environment Secrets
         run: |
-          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then 
-            echo "::error::DEPLOYMENT ERROR: VPS_SSH_KEY secret is missing!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then 
-            echo "::error::BUILD ERROR: SUPABASE_SERVICE_ROLE_KEY secret is missing! Check your .env for the value."
-            exit 1
-          fi
+          # Check for all critical private secrets
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then echo "::error::MISSING SECRET: VPS_SSH_KEY"; exit 1; fi
+          if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then echo "::error::MISSING SECRET: SUPABASE_SERVICE_ROLE_KEY"; exit 1; fi
+          if [ -z "${{ secrets.CLERK_SECRET_KEY }}" ]; then echo "::error::MISSING SECRET: CLERK_SECRET_KEY"; exit 1; fi
+          if [ -z "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" ]; then echo "::error::MISSING SECRET: NEXT_PUBLIC_SUPABASE_ANON_KEY"; exit 1; fi
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js app
         run: |
-          echo "Starting Next.js Build with RAM boost..."
+          echo "Starting Next.js Build with public vars hardcoded..."
           pnpm build > build.log 2>&1 || { 
-            echo "::error::BUILD FAILED! Showing last 50 lines of log below:";
+            echo "::error::BUILD FAILED! Showing error log details below:";
             tail -n 50 build.log; 
             exit 1; 
           }
@@ -51,13 +48,15 @@ jobs:
           CI: false
           NEXT_TELEMETRY_DISABLED: 1
           NODE_OPTIONS: "--max-old-space-size=4096"
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Hardcoding public URLs to ensure they are never missing during the build
+          NEXT_PUBLIC_SUPABASE_URL: "https://uunfpqrauivviygysjzj.supabase.co"
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k"
           NEXT_PUBLIC_CLERK_FRONTEND_API: "clerk.jillesblokker.com"
           CLERK_ALLOWED_ORIGINS: "http://localhost:3005,https://lvlup.jillesblokker.com"
+          # These must come from secrets
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Setup SSH key
         run: |
@@ -73,7 +72,7 @@ jobs:
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
           else
-            echo "::error::STANDALONE ERROR: .next/standalone missing. Check next.config.mjs."
+            echo "::error::STANDALONE ERROR: .next/standalone missing."
             exit 1
           fi
 
@@ -82,11 +81,11 @@ jobs:
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude '.env' \
-            .next/standalone/ root@165.232.86.194:/var/www/level-up/ || { echo "::error::SYNC ERROR: VPS upload failed."; exit 1; }
+            .next/standalone/ root@165.232.86.194:/var/www/level-up/ || { echo "::error::SYNC ERROR: Sync failed."; exit 1; }
 
       - name: Restart PM2 on server
         run: |
-          ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up" || { echo "::error::PM2 ERROR: Failed to restart app."; exit 1; }
+          ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up" || { echo "::error::PM2 ERROR: PM2 restart failed."; exit 1; }
 
       - name: Verify deployment
         run: |
