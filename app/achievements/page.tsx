@@ -597,11 +597,7 @@ export default function Page() {
   }
 
   if (!isClerkLoaded || !isAuthLoaded) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <p>{TEXT_CONTENT.achievements.ui.loading}</p>
-      </div>
-    );
+    return <LoadingAchievements />;
   }
   if (isLoading) {
     return <LoadingAchievements />;
