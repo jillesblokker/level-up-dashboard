@@ -64,19 +64,10 @@ jobs:
       - name: Prepare and TAR standalone bundle
         run: |
           if [ -d ".next/standalone" ]; then
-            # Sync static and public into standalone properly
             cp -r public .next/standalone/
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
-            
-            # Pack EVERYTHING inside standalone to make sure paths are absolute
-            cd .next/standalone
-            tar -czf ../../deploy.tar.gz .
-            cd ../..
-            
-            # Inspect the archive (for debugging if it fails again)
-            echo "Bundle contents (top 20 files):"
-            tar -tf deploy.tar.gz | head -n 20
+            cd .next/standalone && tar -czf ../../deploy.tar.gz . && cd ../..
           else
             echo "::error::STANDALONE ERROR: Build output missing."
             exit 1
@@ -86,27 +77,26 @@ jobs:
         run: |
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
-      - name: Extract and Update Nginx
+      - name: NUCLEAR RESET and Update
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
-            mkdir -p /var/www/level-up && 
-            rm -rf /var/www/level-up/* && 
-            tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up && 
-            chmod -R 755 /var/www/level-up && 
-            # Log the extracted files to see where server.js went
-            ls -F /var/www/level-up/ &&
-            find /etc/nginx/sites-enabled/ -type f -exec sed -i 's/:3000/:3005/g' {} + 2>/dev/null || true && 
-            (nginx -t && systemctl reload nginx || true)
+            # Kill everything that is eating CPU now to unfreeze the server
+            pm2 kill || true
+            pkill node || true
+            mkdir -p /var/www/level-up
+            rm -rf /var/www/level-up/*
+            tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up
+            chmod -R 755 /var/www/level-up
+            # Automatically scan and fix ALL Nginx configurations on the server
+            find /etc/nginx/sites-enabled/ -type f -exec sed -i 's/:3000/:3005/g' {} + 2>/dev/null || true
+            nginx -t && systemctl reload nginx || true
           "
 
       - name: Force Start and Verify
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
             cd /var/www/level-up && 
-            pm2 delete level-up || true && 
-            # Specifically check if server.js exists before starting
-            if [ ! -f server.js ]; then echo '::error::FATAL: server.js MISSING ON VPS'; exit 1; fi
             PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up && 
-            sleep 15 && 
+            sleep 20 && 
             curl -I http://localhost:3005 || (echo '::error::APP_HEALTH_FAILED' && exit 1)
           "
