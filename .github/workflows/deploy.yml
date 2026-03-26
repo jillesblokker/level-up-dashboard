@@ -63,15 +63,11 @@ jobs:
 
       - name: Prepare and TAR standalone bundle
         run: |
-          # The Snapshot method: Pack everything into one file to avoid rsync errors
           if [ -d ".next/standalone" ]; then
             cp -r public .next/standalone/
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
-            # Go inside standalone and tar it up
-            cd .next/standalone
-            tar -czf ../../deploy.tar.gz .
-            cd ../..
+            cd .next/standalone && tar -czf ../../deploy.tar.gz . && cd ../..
           else
             echo "::error::STANDALONE ERROR: Build output missing."
             exit 1
@@ -79,26 +75,26 @@ jobs:
 
       - name: Send Snapshot to server
         run: |
-          # Send the single file instead of thousands
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
-      - name: Extract and Restart on server
+      - name: Extract and Update Nginx
         run: |
-          # Wipe old files, extract snapshot, fix nginx and restart PM2
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
             mkdir -p /var/www/level-up && 
             rm -rf /var/www/level-up/* && 
             tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up && 
             chmod -R 755 /var/www/level-up && 
-            sed -i 's/localhost:3000/localhost:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true && 
-            sed -i 's/127.0.0.1:3000/127.0.0.1:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true && 
-            (nginx -t && systemctl reload nginx || true) && 
-            cd /var/www/level-up && 
-            pm2 delete level-up || true && 
-            PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up
+            # Force update any proxy_pass directives across enabled sites
+            find /etc/nginx/sites-enabled/ -type f -exec sed -i 's/:3000/:3005/g' {} + 2>/dev/null || true && 
+            (nginx -t && systemctl reload nginx || true)
           "
 
-      - name: Verify deployment
+      - name: Force Start and Verify
         run: |
-          sleep 5
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "pm2 status"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
+            cd /var/www/level-up && 
+            pm2 delete level-up || true && 
+            PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up && 
+            sleep 15 && 
+            curl -I http://localhost:3005 || (echo '::error::APP_HEALTH_FAILED' && exit 1)
+          "
