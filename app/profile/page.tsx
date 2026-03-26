@@ -33,6 +33,8 @@ import { Progress } from "@/components/ui/progress";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from '@/lib/text-content';
+import ProfileLoading from './loading';
+
 
 const placeholderSvg = "/images/placeholders/item-placeholder.svg";
 
@@ -278,16 +280,7 @@ export default function ProfilePage() {
   };
 
   if (!isLoaded) {
-    return (
-      <div className="container max-w-4xl py-8">
-        <Card className="p-6" aria-label="profile-loading-card">
-          <div className="flex items-center justify-center space-x-2">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
-            <p className="text-center">{TEXT_CONTENT.profile.loading}</p>
-          </div>
-        </Card>
-      </div>
-    );
+    return <ProfileLoading />;
   }
 
   if (!user) {

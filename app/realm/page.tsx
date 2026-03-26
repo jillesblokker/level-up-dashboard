@@ -41,6 +41,8 @@ import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
 import { HeaderSection } from '@/components/HeaderSection';
 import { PageGuide } from '@/components/page-guide';
 import { LoadingScreen } from '@/components/loading-screen';
+import RealmLoading from './loading';
+
 
 // Import realm utilities and constants
 import {
@@ -130,7 +132,7 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
 
 export default function RealmPage() {
     return (
-        <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-gray-900 text-white">{TEXT_CONTENT.realm.loading}</div>}>
+        <React.Suspense fallback={<RealmLoading />}>
             <RealmPageContent />
         </React.Suspense>
     );
@@ -1145,20 +1147,7 @@ function RealmPageContent() {
     if (!isMounted) return null;
 
     if (isLoading) {
-        return (
-            <LoadingScreen
-                title={TEXT_CONTENT.realm.loadingStory.title}
-                content={
-                    <>
-                        {TEXT_CONTENT.realm.loadingStory.p1}<br />
-                        {TEXT_CONTENT.realm.loadingStory.p2}<br />
-                        {TEXT_CONTENT.realm.loadingStory.p3}<br />
-                        {TEXT_CONTENT.realm.loadingStory.p4}<br />
-                        {TEXT_CONTENT.realm.loadingStory.p5}
-                    </>
-                }
-            />
-        );
+        return <RealmLoading />;
     }
 
     return (

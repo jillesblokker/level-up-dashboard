@@ -43,6 +43,8 @@ import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
 import { EmptyQuests } from '@/components/empty-states'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
+import TasksLoading from './loading'
+
 import { useQuestSync } from '@/hooks/useQuestSync'
 import { useOfflineSupport } from '@/hooks/useOfflineSupport'
 import { SyncStatusIndicator } from '@/components/sync-status-indicator'
@@ -1992,7 +1994,7 @@ export default function QuestsPage() {
 
   if (!isClerkLoaded || !isUserLoaded) {
     logger.debug('[Challenges Frontend] Early return - Waiting for auth and Clerk client...', { isClerkLoaded, isUserLoaded, user: !!user });
-    return <FullPageLoading message={TEXT_CONTENT.questBoard.loading} />;
+    return <TasksLoading />;
   }
 
   if (!userId) {

@@ -37,6 +37,8 @@ import { AllianceDashboard } from "@/components/alliance-dashboard"
 import { Leaderboard } from "@/components/leaderboard"
 import { ActivityFeed } from "@/components/activity-feed"
 import { TEXT_CONTENT } from '@/lib/text-content'
+import SocialLoading from './loading';
+
 
 import { getCurrentTitle } from "@/lib/title-manager"
 
@@ -94,13 +96,16 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function AlliesPage() {
-    const { user } = useUser();
+    const { user, isLoaded } = useUser();
+
     const router = useRouter();
     const { toast } = useToast();
     const [activeTab, setActiveTab] = useState("allies");
     const [friends, setFriends] = useState<Friend[]>([]);
     const [requests, setRequests] = useState<Friend[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+
 
     // Search state
     const [searchQuery, setSearchQuery] = useState("");
@@ -152,6 +157,9 @@ export default function AlliesPage() {
             setCoverImage('/images/allies-cover.webp');
         }
     }, [user?.id, triggerCatchUp]);
+
+    if (!isLoaded || isLoading) return <SocialLoading />;
+
 
     const fetchMyStats = async () => {
         if (!user?.id) return;

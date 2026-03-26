@@ -5,6 +5,8 @@ import { logger } from "@/lib/logger";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import { useUser, useAuth } from "@clerk/nextjs";
+import KingdomLoading from "./loading"
+
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge"
@@ -385,7 +387,8 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
 }
 
 export function KingdomClient() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
+
   const { getToken } = useAuth();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -437,7 +440,8 @@ export function KingdomClient() {
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
-  const [showEntrance, setShowEntrance] = useState(true);
+  const [showEntrance, setShowEntrance] = useState(false);
+
   const [zoomed, setZoomed] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const isInitialSaveRef = useRef(true);
@@ -446,8 +450,10 @@ export function KingdomClient() {
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [coverImageLoading, setCoverImageLoading] = useState(true);
   const [gridLoading, setGridLoading] = useState(true);
-  const [sellingModalOpen, setSellingModalOpen] = useState(false);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
+  const [sellingModalOpen, setSellingModalOpen] = useState(false);
+
+
   const [userTokens, setUserTokens] = useState(0);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [journeyStats, setJourneyStats] = useState<{
@@ -1412,56 +1418,12 @@ export function KingdomClient() {
     }
   };
 
-  if (showEntrance) {
-    // Animation logic:
-    // 1. Zoom in towards the door (75% down the image)
-    // 2. Fade to black while zooming
-    // 3. Reveal content
-
-    return (
-      <div
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-1000"
-        style={{
-          width: '100vw',
-          height: '100vh',
-          padding: 0,
-          margin: 0,
-          opacity: fadeOut ? 0 : 1
-        }}
-      >
-        <div className="relative w-full h-full" style={{ overflow: 'hidden', padding: 0, margin: 0 }}>
-          <Image
-            src="/images/kingdom-tiles/Entrance.webp"
-            alt="Kingdom Entrance"
-            fill
-            className="kingdom-entrance-img"
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center center',
-              // Zoom in to 4.5x scale
-              transform: zoomed ? 'scale(4.5)' : 'scale(1)',
-              // Set origin to 50% horizontal, 75% vertical (where the door is)
-              transformOrigin: '50% 75%',
-              // Smooth 3s transition
-              transition: 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1.0)',
-            }}
-            unoptimized
-          />
-          {/* Black overlay that fades in as we zoom */}
-          <div
-            className="absolute inset-0 bg-black transition-opacity ease-in-out"
-            style={{
-              opacity: zoomed ? 1 : 0,
-              // Start fading to black slightly after zoom starts, finish before zoom ends
-              transitionDuration: '2.5s',
-              transitionDelay: '0.5s'
-            }}
-          />
-        </div>
-      </div>
-    );
+  if (!isLoaded || inventoryLoading || coverImageLoading || gridLoading) {
+    return <KingdomLoading />;
   }
+
   // After animation, show the main content immediately
+
   return (
     <div className={cn(
       "min-h-screen relative"

@@ -1,6 +1,18 @@
-import { FullPageLoading } from "@/components/ui/loading-states"
-import { TEXT_CONTENT } from "@/lib/text-content"
+import { LoadingScreen } from "@/components/loading-screen"
+import { Trophy } from "lucide-react"
 
 export default function LoadingAchievements() {
-  return <FullPageLoading message={TEXT_CONTENT.loading.title} />
+  return (
+    <LoadingScreen
+      title="Retrieving Your Chronicles"
+      icon={<Trophy className="w-12 h-12" />}
+      content={
+        <>
+          Your deeds of valor are etched in the halls of history.<br />
+          Gathering your achievements and legendary milestones.<br />
+          The realm remembers those who strive for greatness.
+        </>
+      }
+    />
+  )
 }
