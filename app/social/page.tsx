@@ -1135,10 +1135,8 @@ export default function AlliesPage() {
                             </Tabs>
                         </div>
                     ) : (
-                        <div className="py-12 text-center flex flex-col items-center justify-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                            <p className="text-muted-foreground">Summoning stats from the archives...</p>
-                        </div>
+                            <p className="text-muted-foreground italic font-serif opacity-80 animate-pulse">Summoning stats from the archives...</p>
+
                     )}
                 </DialogContent>
             </Dialog>

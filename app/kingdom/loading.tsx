@@ -9,10 +9,11 @@ export default function KingdomLoading() {
       content={
         <>
           The stone walls of your castle rise from humble beginnings.<br />
-          Manage your subjects, expand your territories, and grow your power.<br />
+          Manage your subjects and expand your territories.<br />
           Every great kingdom started with a single cornerstone.
         </>
       }
     />
   )
 }
+

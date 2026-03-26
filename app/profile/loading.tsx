@@ -8,11 +8,12 @@ export default function ProfileLoading() {
       icon={<User className="w-12 h-12" />}
       content={
         <>
-          Every adventurer&apos;s deeds are recorded in the Great Hall.<br />
-          Your history, achievements, and settings are being retrieved.<br />
-          Your legend is taking shape.
+          Every adventurer&apos;s deeds are recorded here.<br />
+          Your achievements and settings are being retrieved.<br />
+          Your legend is taking shape before the world.
         </>
       }
     />
   )
 }
+

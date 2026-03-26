@@ -24,15 +24,15 @@ export default function Loading() {
 
   return (
     <LoadingScreen
-      title="Preparing Your Journey..."
+      title="Preparing Your Journey"
       icon={<Sword className="w-12 h-12" />}
       content={
-        <div className="space-y-2">
-          <p className="text-gray-400 italic">
+        <div className="space-y-4">
+          <p className="border-t border-blue-500/20 pt-4 px-12">
             &quot;{LOADING_TIPS[tipIndex]}&quot;
           </p>
-          <p className="text-xs text-amber-500/50 mt-4 tabular-nums">
-            {tipIndex + 1} / {LOADING_TIPS.length}
+          <p className="text-xs text-blue-400/50 tabular-nums">
+            Chapter {tipIndex + 1} of {LOADING_TIPS.length}
           </p>
         </div>
       }

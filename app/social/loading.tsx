@@ -10,9 +10,10 @@ export default function SocialLoading() {
         <>
           The Tavern buzzes with the laughter of allies and adventurers.<br />
           Forge bonds, share quests, and rise together.<br />
-          No legend was written alone.
+          No legend was ever written alone.
         </>
       }
     />
   )
 }
+

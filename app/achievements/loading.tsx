@@ -8,7 +8,7 @@ export default function LoadingAchievements() {
       icon={<Trophy className="w-12 h-12" />}
       content={
         <>
-          Your deeds of valor are etched in the halls of history.<br />
+          Your deeds of valor are etched in history.<br />
           Gathering your achievements and legendary milestones.<br />
           The realm remembers those who strive for greatness.
         </>
