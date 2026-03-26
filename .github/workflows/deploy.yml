@@ -8,13 +8,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Opt into Node.js 24 for actions to avoid deprecation warnings
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
@@ -24,8 +27,12 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      - name: Verify Secrets
+        run: |
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then echo "Error: VPS_SSH_KEY is missing"; exit 1; fi
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build Next.js app
         run: pnpm build
@@ -45,14 +52,18 @@ jobs:
       - name: Prepare standalone files
         run: |
           # The standalone output doesn't include public or static files by default
-          cp -r public .next/standalone/
-          mkdir -p .next/standalone/.next
-          cp -r .next/static .next/standalone/.next/
+          if [ -d ".next/standalone" ]; then
+            cp -r public .next/standalone/
+            mkdir -p .next/standalone/.next
+            cp -r .next/static .next/standalone/.next/
+          else
+            echo "Error: .next/standalone not found. Ensure output: 'standalone' is in next.config.mjs"
+            exit 1
+          fi
 
       - name: Sync built app to server
         run: |
           # Sync the standalone bundle to the server.
-          # We use --delete to keep it clean, but exclude .env to avoid overwriting production secrets.
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude '.env' \
@@ -60,8 +71,7 @@ jobs:
 
       - name: Restart PM2 on server
         run: |
-          # Point PM2 to the standalone server.js and set the port to 3005 as expected.
-          # We use 'pm2 start' with --name and 'pm2 save' to ensure it survives reboots.
+          # Point PM2 to the standalone server.js
           ssh -i ~/.ssh/deploy_key root@165.232.86.194 "cd /var/www/level-up && PORT=3005 pm2 start server.js --name level-up || pm2 restart level-up"
 
       - name: Verify deployment
