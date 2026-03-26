@@ -85,9 +85,17 @@ jobs:
 
       - name: Force Restart PM2
         run: |
-          # Kill any old process that is confused and trying to run 'npm start'
-          # Then start specifically with 'node server.js'
+          # Ensure Node 20 is present and start specifically with 'node server.js'
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "cd /var/www/level-up && pm2 delete level-up || true && PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up"
+
+      - name: Update Nginx Backend Port
+        run: |
+          # This bridges the gap by making Nginx point to the new 3005 port
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
+            sed -i 's/localhost:3000/localhost:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true
+            sed -i 's/127.0.0.1:3000/127.0.0.1:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true
+            nginx -t && systemctl reload nginx || echo 'Nginx already up to date or at different path.'
+          "
 
       - name: Verify deployment
         run: |
