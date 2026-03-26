@@ -61,40 +61,41 @@ jobs:
           chmod 400 ~/.ssh/deploy_key
           ssh-keyscan -H 165.232.86.194 >> ~/.ssh/known_hosts
 
-      - name: Prepare standalone files
+      - name: Prepare and TAR standalone bundle
         run: |
+          # The Snapshot method: Pack everything into one file to avoid rsync errors
           if [ -d ".next/standalone" ]; then
             cp -r public .next/standalone/
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
+            # Go inside standalone and tar it up
+            cd .next/standalone
+            tar -czf ../../deploy.tar.gz .
+            cd ../..
           else
             echo "::error::STANDALONE ERROR: Build output missing."
             exit 1
           fi
 
-      - name: Reset Server State
+      - name: Send Snapshot to server
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "mkdir -p /var/www/level-up && chmod -R 755 /var/www/level-up"
+          # Send the single file instead of thousands
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
-      - name: Sync built app to server
+      - name: Extract and Restart on server
         run: |
-          rsync -a --delete --ignore-errors \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            --exclude '.env' \
-            .next/standalone/ root@165.232.86.194:/var/www/level-up/
-
-      - name: Force Restart PM2
-        run: |
-          # Ensure Node 20 is present and start specifically with 'node server.js'
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "cd /var/www/level-up && pm2 delete level-up || true && PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up"
-
-      - name: Update Nginx Backend Port
-        run: |
-          # This bridges the gap by making Nginx point to the new 3005 port
+          # Wipe old files, extract snapshot, fix nginx and restart PM2
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
-            sed -i 's/localhost:3000/localhost:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true
-            sed -i 's/127.0.0.1:3000/127.0.0.1:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true
-            nginx -t && systemctl reload nginx || echo 'Nginx already up to date or at different path.'
+            mkdir -p /var/www/level-up && 
+            rm -rf /var/www/level-up/* && 
+            tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up && 
+            chmod -R 755 /var/www/level-up && 
+            sed -i 's/localhost:3000/localhost:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true && 
+            sed -i 's/127.0.0.1:3000/127.0.0.1:3005/g' /etc/nginx/sites-available/default 2>/dev/null || true && 
+            (nginx -t && systemctl reload nginx || true) && 
+            cd /var/www/level-up && 
+            pm2 delete level-up || true && 
+            PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up
           "
 
       - name: Verify deployment
