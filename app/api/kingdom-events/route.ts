@@ -24,15 +24,41 @@ export async function GET() {
   }
 } 
 
-// Basic telemetry endpoint for tile collects
+// Telemetry endpoint for tile placements and collects
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
     const body = await req.json();
-    const { tileId, wasLucky, goldEarned, experienceAwarded } = body || {};
+    const { kind, tileId, tileName, x, y, wasLucky, goldEarned, experienceAwarded } = body || {};
+
+    // --- tile-placed event: records WHERE a tile was placed for layout recovery ---
+    if (kind === 'tile-placed') {
+      if (!tileId) {
+        return NextResponse.json({ error: 'tileId is required' }, { status: 400 });
+      }
+      const { data, error } = await supabaseServer
+        .from('kingdom_event_log')
+        .insert([{
+          user_id: userId,
+          event_type: 'tile_placed',
+          related_id: tileId,
+          amount: null,
+          context: { kind: 'tile-placed', tileId, tileName, x, y },
+          created_at: new Date().toISOString(),
+        }])
+        .select();
+      if (error) {
+        logger.error('[kingdom-events] Failed to record tile_placed event:', error);
+        return NextResponse.json({ error: 'Failed to record event' }, { status: 500 });
+      }
+      return NextResponse.json({ success: true, data });
+    }
+
+    // --- tile-collect event (existing): records rewards from collecting tiles ---
     if (!tileId) {
       return NextResponse.json({ error: 'tileId is required' }, { status: 400 });
     }

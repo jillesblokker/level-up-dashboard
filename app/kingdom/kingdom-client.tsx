@@ -944,6 +944,22 @@ export function KingdomClient() {
 
     // 4. Save to API
     saveKingdomGridToSupabase(updatedGrid);
+
+    // 5. Log placement to kingdom_event_log for layout recovery
+    // Fire-and-forget — a logging failure must never block tile placement
+    fetch('/api/kingdom-events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'tile-placed',
+        tileId,
+        tileName: tile.name,
+        x,
+        y,
+      }),
+    }).catch(err => {
+      logger.error('[Kingdom] Failed to log tile placement event:', err);
+    });
   }
 
   // Restore renderItemCard for inventory display
