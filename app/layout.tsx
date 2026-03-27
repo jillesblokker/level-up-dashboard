@@ -135,10 +135,10 @@ export default function RootLayout({
                   window.addEventListener('load', function() {
                     navigator.serviceWorker.register('/sw.js')
                       .then(function(registration) {
-                        logger.debug('SW registered: ', registration);
+                        console.log('SW registered: ', registration);
                       })
                       .catch(function(registrationError) {
-                        logger.debug('SW registration failed: ', registrationError);
+                        console.log('SW registration failed: ', registrationError);
                       });
                   });
                 }
