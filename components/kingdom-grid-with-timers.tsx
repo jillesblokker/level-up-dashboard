@@ -903,70 +903,60 @@ export function KingdomGridWithTimers({
       ariaLabel: `${selectedProperty.name} tile`
     }
 
-    // IMPORTANT: Update the local grid state directly instead of using onTilePlace
-    // This prevents the property from being treated as an inventory item
-    const updatedGrid = grid.map(row => row.slice())
+    // Create a copy of the grid to update
+    const updatedGrid = grid.map(row => row.slice());
 
-    // If we are moving, clear the OLD spot first (unless it's the same spot)
-    if (movingTileSource && !isMovingToSource) {
-      const srcY = movingTileSource.y;
-      const srcX = movingTileSource.x;
-      if (updatedGrid[srcY] && updatedGrid[srcY][srcX]) {
-        updatedGrid[srcY][srcX] = {
-          ...updatedGrid[srcY][srcX],
-          type: 'vacant',
-          name: 'Vacant Plot',
-          image: 'Vacant.png',
-          id: updatedGrid[srcY][srcX]?.id || `vacant-${srcX}-${srcY}`,
-          description: 'A vacant plot ready for building.',
-          connections: [],
-          rotation: 0
-        } as Tile;
-      }
+    // Place the new tile in the grid
+    if (updatedGrid[y]) {
+      updatedGrid[y][x] = newTile;
     }
 
-    // Delegate completely to parent onTilePlace if available.
-    // This allows the parent (KingdomClient) to handle:
-    // 1. Grid persistence (saveKingdomGrid)
-    // 2. Inventory management (removeFromKingdomInventory + localItems optimistic update)
-    if (onTilePlace) {
-      logger.debug('[KingdomGrid] Delegating placement to onTilePlace:', newTile);
-      onTilePlace(x, y, newTile);
-
-      // We do NOT manually decrease inventory here because onTilePlace (handlePlaceKingdomTile) does it.
-      // We do NOT manually setPropertyInventory here because the parent will update the 'inventory' prop,
-      // which triggers the useEffect synchronization.
-    } else {
-      logger.warn('[KingdomGrid] onTilePlace prop missing, falling back to local state update (Inventory might desync)');
-
-      // Fallback: Update local grid if no parent handler
-      if (updatedGrid[y]) {
-        updatedGrid[y][x] = newTile
-      }
+    if (movingTileSource && !isMovingToSource) {
+      // MOVE: we already cleared the old cell and placed in the new cell above.
+      // Push the full updated grid to the parent so BOTH changes are persisted.
+      // Do NOT call onTilePlace — that would decrement inventory (tile was already placed, not from inventory).
       if (onGridUpdate) {
-        onGridUpdate(updatedGrid)
-      } else {
-        // ...
+        onGridUpdate(updatedGrid);
       }
-
-      // Fallback: Decrease property quantity ONLY if NOT moving
-      if (!movingTileSource && selectedProperty.costType === 'build-token') {
-        const updatedInventory = propertyInventory.map(p =>
-          p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
-        )
-        setPropertyInventory(updatedInventory)
-
-        // Persist inventory decrement using the main inventory API
-        if (userId) {
-          (async () => {
-            try {
-              await removeFromKingdomInventory(userId, selectedProperty.id, 1);
-              // Also trigger inventory update event
-              window.dispatchEvent(new Event('character-inventory-update'));
-            } catch (e) {
-              logger.warn('[Kingdom] Failed to decrement inventory', e)
-            }
-          })()
+      // Log the move as a placement event (fire-and-forget)
+      fetch('/api/kingdom-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'tile-placed',
+          tileId: selectedProperty.id,
+          tileName: selectedProperty.name,
+          x,
+          y,
+        }),
+      }).catch(() => { });
+    } else {
+      // NEW PLACEMENT (from inventory): delegate to parent onTilePlace which handles
+      // inventory decrement + grid persistence.
+      if (onTilePlace) {
+        logger.debug('[KingdomGrid] Delegating new placement to onTilePlace:', newTile);
+        onTilePlace(x, y, newTile);
+      } else {
+        logger.warn('[KingdomGrid] onTilePlace prop missing, falling back to local state update');
+        if (onGridUpdate) {
+          onGridUpdate(updatedGrid);
+        }
+        // Fallback: Decrease property quantity ONLY if NOT moving
+        if (!movingTileSource && selectedProperty.costType === 'build-token') {
+          const updatedInventory = propertyInventory.map(p =>
+            p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
+          );
+          setPropertyInventory(updatedInventory);
+          if (userId) {
+            (async () => {
+              try {
+                await removeFromKingdomInventory(userId, selectedProperty.id, 1);
+                window.dispatchEvent(new Event('character-inventory-update'));
+              } catch (e) {
+                logger.warn('[Kingdom] Failed to decrement inventory', e);
+              }
+            })();
+          }
         }
       }
     }
