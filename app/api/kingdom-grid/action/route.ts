@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     const { action, grid, itemId, x, y, tileName } = await request.json();
 
-    if (!grid || !Array.isArray(grid)) {
+    if (!grid || !Array.isArray(grid) || grid.length === 0) {
       return NextResponse.json({ error: 'Invalid grid data' }, { status: 400 });
     }
 

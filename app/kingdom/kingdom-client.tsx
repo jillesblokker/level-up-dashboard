@@ -886,16 +886,15 @@ export function KingdomClient() {
     const tileId = tile.type || tile.id?.split('-')[0] || tile.id;
     logger.debug('[Kingdom] placing tile, decrementing inventory for:', tileId);
 
-    // 1. Optimistic UI update for grid
-    let updatedGrid: Tile[][] = [];
+    // 1. Pre-calculate the updated grid
+    const updatedGrid = kingdomGrid.map(row => row.slice());
+    if (updatedGrid[y]) {
+      updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
+    }
+
+    // 2. Optimistic UI update for grid
     isOptimisticSaveRef.current = true;
-    setKingdomGrid(prev => {
-      updatedGrid = prev.map(row => row.slice());
-      if (updatedGrid[y]) {
-        updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
-      }
-      return updatedGrid;
-    });
+    setKingdomGrid(updatedGrid);
 
     // 2. Optimistic UI update for inventory
     setLocalItems(prev => {
