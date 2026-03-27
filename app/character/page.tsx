@@ -1030,10 +1030,10 @@ export default function CharacterPage() {
                   <option value="strengths">{TEXT_CONTENT.character.ui.tabs.strengths}</option>
                 </select>
               </div>
-              <TabsList className="grid w-auto grid-cols-3 hidden md:grid">
-                <TabsTrigger value="titles">{TEXT_CONTENT.character.ui.tabs.titles}</TabsTrigger>
-                <TabsTrigger value="perks">{TEXT_CONTENT.character.ui.tabs.perks}</TabsTrigger>
-                <TabsTrigger value="strengths">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
+              <TabsList className="grid h-12 w-auto grid-cols-3 bg-black/40 border border-amber-900/20 p-1 rounded-xl mb-8 hidden md:grid shadow-inner backdrop-blur-md">
+                <TabsTrigger value="titles" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.titles}</TabsTrigger>
+                <TabsTrigger value="perks" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.perks}</TabsTrigger>
+                <TabsTrigger value="strengths" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
               </TabsList>
               <TabsContent value="titles" className="mt-6">
                 <div className="max-w-6xl mx-auto w-full">

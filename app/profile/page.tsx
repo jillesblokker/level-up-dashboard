@@ -411,24 +411,25 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="avatar" className="w-full space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-amber-800/20 h-auto p-1">
-          <TabsTrigger value="avatar" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+        <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
+          <TabsTrigger value="avatar" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
             <Camera className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.avatar}</span>
           </TabsTrigger>
-          <TabsTrigger value="profile" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+          <TabsTrigger value="profile" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
             <User className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.profile}</span>
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+          <TabsTrigger value="appearance" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
             <Palette className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.colors}</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="data-[state=active]:bg-amber-900 data-[state=active]:text-amber-400 min-h-[44px]">
+          <TabsTrigger value="settings" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
             <Settings className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="avatar" className="space-y-6">
           <Card className="bg-gray-900 border-amber-800/20">

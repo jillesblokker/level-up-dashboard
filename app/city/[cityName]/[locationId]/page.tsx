@@ -83,20 +83,21 @@ export default function CityLocationPage() {
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-auto grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-xl mb-12 shadow-inner mx-auto max-w-2xl">
-                <TabsTrigger value="alliances" className="py-3 font-semibold transition-all">
-                  <Users className="w-4 h-4 mr-2" />
+              <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md mx-auto max-w-2xl">
+                <TabsTrigger value="alliances" className="flex items-center gap-2 py-3 h-full px-8 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                  <Users className="w-4 h-4" />
                   Alliances
                 </TabsTrigger>
-                <TabsTrigger value="allies" className="py-3 font-semibold transition-all">
-                  <UserPlus className="w-4 h-4 mr-2" />
+                <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-8 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                  <UserPlus className="w-4 h-4" />
                   Ally Board
                 </TabsTrigger>
-                <TabsTrigger value="leaderboard" className="py-3 font-semibold transition-all">
-                  <Trophy className="w-4 h-4 mr-2" />
+                <TabsTrigger value="leaderboard" className="flex items-center gap-2 py-3 h-full px-8 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                  <Trophy className="w-4 h-4" />
                   Legends
                 </TabsTrigger>
               </TabsList>
+
               
               <TabsContent value="alliances" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                 <AllianceDashboard />

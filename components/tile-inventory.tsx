@@ -356,20 +356,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     <>
       <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy' | 'guide')} className="w-full h-full flex flex-col">
         <div className="px-6 pt-4 pb-2 shrink-0">
-          <TabsList className="w-full flex bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-lg p-1">
+          <TabsList className="flex h-12 bg-black/40 backdrop-blur-md border border-amber-900/30 rounded-xl p-1.5 w-full">
             <TabsTrigger
               value="place"
-              className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+              className="flex-1 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
             >
               Place Tiles
             </TabsTrigger>
             <TabsTrigger
               value="buy"
-              className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-semibold transition-all rounded-md"
+              className="flex-1 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
             >
               Buy Tiles
             </TabsTrigger>
           </TabsList>
+
         </div>
 
         <TabsContent value="place" className="flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden mt-0">

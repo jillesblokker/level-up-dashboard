@@ -1482,7 +1482,7 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="flex bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto justify-start h-auto no-scrollbar">
+          <TabsList className="flex h-12 bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto justify-start no-scrollbar">
             <TabsTrigger
               value="thrivehaven"
               className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/20 border-0"
@@ -1500,7 +1500,7 @@ export function KingdomClient() {
             {!isVisiting && (
               <TabsTrigger
                 value="inventory"
-                className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-blue-600 to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/20 border-0"
+                className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-amber-600 to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 border-0"
               >
                 <Backpack className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.inventory}</span>
@@ -1668,9 +1668,9 @@ export function KingdomClient() {
                       <option value="stored">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</option>
                     </select>
                   </div>
-                  <TabsList className="grid w-full grid-cols-2 bg-black border-amber-800/30 hidden md:grid">
-                    <TabsTrigger value="equipped" aria-label="equipped-tab">{TEXT_CONTENT.kingdom.ui.bag.tabs.equipped}</TabsTrigger>
-                    <TabsTrigger value="stored" aria-label="stored-tab">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</TabsTrigger>
+                  <TabsList className="grid h-12 w-full grid-cols-2 bg-black/40 border-amber-800/20 p-1.5 hidden md:grid rounded-xl">
+                    <TabsTrigger value="equipped" aria-label="equipped-tab" className="rounded-lg">{TEXT_CONTENT.kingdom.ui.bag.tabs.equipped}</TabsTrigger>
+                    <TabsTrigger value="stored" aria-label="stored-tab" className="rounded-lg">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</TabsTrigger>
                   </TabsList>
                   {inventoryLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">

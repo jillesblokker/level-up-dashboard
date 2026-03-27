@@ -392,21 +392,21 @@ export default function AlliesPage() {
                 <div className="h-8"></div> {/* Spacer to prevent overlap */}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="w-full flex overflow-x-auto no-scrollbar md:grid md:grid-cols-4 h-auto mb-8 gap-2 px-1 pb-1 md:gap-0 md:px-0">
-                        <TabsTrigger value="allies" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
+                    <TabsList className="w-full flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
+                        <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Users className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.allies}
                             {friends.length > 0 && <Badge variant="secondary" className="ml-1">{friends.length}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
+                        <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Scroll className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.chronicles}
                         </TabsTrigger>
-                        <TabsTrigger value="add" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
+                        <TabsTrigger value="add" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <UserPlus className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.addFriend}
                         </TabsTrigger>
-                        <TabsTrigger value="requests" className="flex items-center gap-2 py-3 flex-shrink-0 min-w-[100px] md:min-w-0 md:w-full min-h-[44px]">
+                        <TabsTrigger value="requests" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Mail className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.requests}
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}

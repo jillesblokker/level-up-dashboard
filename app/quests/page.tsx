@@ -2072,61 +2072,40 @@ export default function QuestsPage() {
           <MobileContentWrapper>
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
-            {/* Three Pillars Perspective Switcher */}
-            <div className="flex bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto">
-              <button
-                onClick={() => setActiveView('forge')}
-                className={cn(
-                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
-                  activeView === 'forge'
-                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/20"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
-                )}
-              >
-                <Sword className="w-4 h-4" />
-                <span>The Forge</span>
-              </button>
-              <button
-                onClick={() => setActiveView('ledger')}
-                disabled={stats.level < 10}
-                className={cn(
-                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
-                  activeView === 'ledger'
-                    ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-lg shadow-amber-500/20"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50",
-                  stats.level < 10 && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <Flame className="w-4 h-4" />
-                <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
-              </button>
-              <button
-                onClick={() => setActiveView('sanctuary')}
-                disabled={stats.level < 20}
-                className={cn(
-                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
-                  activeView === 'sanctuary'
-                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50",
-                  stats.level < 20 && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <Trophy className="w-4 h-4" />
-                <span>The Sanctuary</span>
-              </button>
-              <button
-                onClick={() => setActiveView('recovery')}
-                className={cn(
-                  "flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
-                  activeView === 'recovery'
-                    ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-lg shadow-green-500/20"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-900/50"
-                )}
-              >
-                <Heart className="w-4 h-4" />
-                <span>Recovery</span>
-              </button>
-            </div>
+            <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="w-full mb-8">
+              <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
+                <TabsTrigger
+                  value="forge"
+                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
+                >
+                  <Sword className="w-4 h-4" />
+                  <span>The Forge</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="ledger"
+                  disabled={stats.level < 10}
+                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
+                >
+                  <Flame className="w-4 h-4" />
+                  <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sanctuary"
+                  disabled={stats.level < 20}
+                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
+                >
+                  <Trophy className="w-4 h-4" />
+                  <span>{stats.level < 20 ? 'Sanctuary (Lvl 20)' : 'The Sanctuary'}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="recovery"
+                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
+                >
+                  <Heart className="w-4 h-4" />
+                  <span>Recovery</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
             {/* THE LEDGER - Mastery Tracking */}
             {
