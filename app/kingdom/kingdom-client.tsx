@@ -1485,14 +1485,14 @@ export function KingdomClient() {
           <TabsList className="flex h-12 bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto justify-start no-scrollbar">
             <TabsTrigger
               value="thrivehaven"
-              className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/20 border-0"
+              className="flex-shrink-0 flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
             >
               <LayoutGrid className="w-4 h-4" />
               <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
             </TabsTrigger>
             <TabsTrigger
               value="journey"
-              className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-amber-600 to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 border-0"
+              className="flex-shrink-0 flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
             >
               <Compass className="w-4 h-4" />
               <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
@@ -1500,7 +1500,7 @@ export function KingdomClient() {
             {!isVisiting && (
               <TabsTrigger
                 value="inventory"
-                className="flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-gray-500 hover:text-gray-300 hover:bg-gray-900/50 data-[state=active]:bg-gradient-to-r from-amber-600 to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 border-0"
+                className="flex-shrink-0 flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
               >
                 <Backpack className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.inventory}</span>
