@@ -1146,7 +1146,8 @@ export function KingdomClient() {
 
     try {
       isInventoryLoadingRef.current = true;
-      setInventoryLoading(true);
+      // Do NOT setInventoryLoading(true) here! It unmounts the entire page.
+      // Initial state is true, so initial load is handled. Subsequent syncs stay silent.
 
       // 1. Fetch Parallel Data
       const [equipped, stored, stats, challengesResponse] = await Promise.all([
