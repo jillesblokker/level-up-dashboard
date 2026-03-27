@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ChevronLeft, Coffee } from "lucide-react"
+import dynamic from "next/dynamic"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { LoadingScreen } from "@/components/loading-screen"
+// Deep dynamic import to break any circular dependency chains
+const LoadingScreen = dynamic(() => import("@/components/loading-screen").then(mod => mod.LoadingScreen), {
+  ssr: false
+})
 
 const TAVERN_ITEMS = [
   {
@@ -35,40 +36,21 @@ const TAVERN_ITEMS = [
 
 export default function TavernPage() {
   const params = useParams()
-  const cityName = params ? (params['cityName'] as string) : ''
+  const cityName = (params?.cityName as string) || ''
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 800)
+    const timer = setTimeout(() => setIsLoading(false), 600)
     return () => clearTimeout(timer)
   }, [])
-
-  if (!params) {
-    return (
-      <div className="container py-10" role="main" aria-label="tavern-error-section">
-        <Card aria-label="tavern-error-card">
-          <CardHeader>
-            <CardTitle>Error</CardTitle>
-            <CardDescription>
-              Unable to load tavern information.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    )
-  }
 
   if (isLoading) {
     return (
       <LoadingScreen
         title="Resting at The Dragon's Rest"
-        icon={<Coffee className="w-12 h-12" />}
         content={
           <div className="space-y-4">
-            <p className="border-t border-amber-500/20 pt-4 px-12 italic">
+            <p className="border-t border-amber-500/20 pt-4 px-12 italic text-amber-100/70">
               &quot;The hearth fire crackles as you step into the warm, dimly lit room. Tavern tales and fresh potions await the weary adventurer.&quot;
             </p>
           </div>
@@ -78,41 +60,60 @@ export default function TavernPage() {
   }
 
   return (
-    <div className="container py-10" role="main" aria-label="tavern-content-section">
+    <div className="container mx-auto py-10 px-4 min-h-screen text-white">
       <div className="mb-6">
-        <Link href={`/city/${cityName}`}>
-          <Button variant="outline" size="sm" aria-label="Back to City">
-            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Back to City
-          </Button>
+        <Link 
+          href={`/city/${cityName}`}
+          className="inline-flex items-center px-4 py-2 border border-amber-500/40 rounded-md text-sm font-medium text-amber-500 hover:bg-amber-500/10 transition-colors"
+        >
+          ← Back to City
         </Link>
       </div>
       
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight">The Dragon&apos;s Rest</h1>
-        <p className="text-muted-foreground mt-2">A cozy tavern where adventurers gather to rest and share stories.</p>
+      <div className="mb-12">
+        <h1 className="text-4xl md:text-5xl font-medieval font-bold tracking-tight text-amber-500">The Dragon&apos;s Rest</h1>
+        <p className="text-slate-400 mt-3 text-lg italic">A cozy tavern where adventurers gather to rest and share stories.</p>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="tavern-items-grid">
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {TAVERN_ITEMS.map((item) => (
-          <Card key={item.id} className="overflow-hidden bg-gray-950/50 border-amber-900/20 hover:border-amber-500/30 transition-all group" aria-label={`${item.name}-card`}>
-            <div 
-              className="h-48 bg-cover bg-center transition-transform group-hover:scale-105" 
-              style={{ backgroundImage: `url(${item.image})` }}
-              aria-label={`${item.name}-image`}
-              role="img"
-            />
-            <CardHeader className="bg-gradient-to-b from-transparent to-black/60 pt-4">
-              <CardTitle className="text-amber-500">{item.name}</CardTitle>
-              <CardDescription className="text-amber-400 font-numeric">{item.price}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-300 min-h-[40px]">{item.description}</p>
-              <Button className="w-full mt-4 bg-amber-600 hover:bg-amber-500 text-black font-semibold" aria-label={`Buy ${item.name}`}>
+          <div 
+            key={item.id} 
+            className="group relative flex flex-col rounded-xl overflow-hidden bg-gray-950 border border-amber-900/30 hover:border-amber-500/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black"
+          >
+            {/* Image Section */}
+            <div className="relative h-56 w-full overflow-hidden">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" 
+                style={{ backgroundImage: `url(${item.image})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <span className="bg-amber-600/90 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Available</span>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <div className="p-6 flex flex-col flex-grow">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-xl font-bold text-amber-100 group-hover:text-amber-500 transition-colors">{item.name}</h3>
+                <span className="text-amber-400 font-mono font-medium">{item.price}</span>
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                {item.description}
+              </p>
+              
+              <button 
+                className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-black font-bold rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-amber-900/20"
+                onClick={() => alert(`Purchasing ${item.name}...`)}
+              >
                 Purchase Item
-              </Button>
-            </CardContent>
-          </Card>
+              </button>
+            </div>
+            
+            {/* Grain Overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 bg-[url('/images/noise.png')] mix-blend-overlay transition-opacity" />
+          </div>
         ))}
       </div>
     </div>
