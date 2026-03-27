@@ -906,7 +906,25 @@ export function KingdomGridWithTimers({
     // Create a copy of the grid to update
     const updatedGrid = grid.map(row => row.slice());
 
-    // Place the new tile in the grid
+    // If we are moving, clear the OLD spot first (unless it's the same spot)
+    if (movingTileSource && !isMovingToSource) {
+      const srcY = movingTileSource.y;
+      const srcX = movingTileSource.x;
+      if (updatedGrid[srcY] && updatedGrid[srcY][srcX]) {
+        updatedGrid[srcY][srcX] = {
+          ...updatedGrid[srcY][srcX],
+          type: 'vacant',
+          name: 'Vacant Plot',
+          image: 'Vacant.png',
+          id: updatedGrid[srcY][srcX]?.id || `vacant-${srcX}-${srcY}`,
+          description: 'A vacant plot ready for building.',
+          connections: [],
+          rotation: 0
+        } as Tile;
+      }
+    }
+
+    // Place the new tile in the grid at the new location
     if (updatedGrid[y]) {
       updatedGrid[y][x] = newTile;
     }
