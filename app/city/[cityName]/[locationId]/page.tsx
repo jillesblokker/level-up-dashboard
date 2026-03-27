@@ -1,19 +1,12 @@
 "use client"
 
-import { logger } from "@/lib/logger";
-
 import { useState, useEffect } from "react"
-import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints, Coffee } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { getCharacterStats } from "@/lib/character-stats-service"
-import { HeaderSection } from "@/components/HeaderSection"
-import { PageGuide } from "@/components/page-guide"
-import { LoadingScreen } from "@/components/loading-screen"
 import Image from "next/image"
+import { Home, Building, ShoppingBag, Swords, BookOpen, Footprints, Coffee } from "lucide-react"
 
 interface LocationItem {
   id: string
@@ -39,35 +32,8 @@ const locationData: Record<string, any> = {
     description: "A bustling marketplace where merchants sell their wares.",
     icon: ShoppingBag,
     items: [
-      {
-        id: "health-elixir",
-        name: "Health Elixir",
-        description: "A potent healing elixir brewed from rare herbs.",
-        price: 50,
-        type: "item",
-        emoji: "🧪",
-        image: "/images/items/potion/potion-health.webp",
-        stats: { defense: 1 }
-      },
-      {
-        id: "mana-crystal",
-        name: "Mana Crystal",
-        description: "A crystallized form of pure magical energy.",
-        price: 75,
-        type: "item",
-        emoji: "💎",
-        image: "/images/items/potion/potion-exp.webp",
-        stats: { attack: 1 }
-      },
-      {
-        id: "merchants-charm",
-        name: "Merchant's Charm",
-        description: "A lucky charm that brings fortune in trade.",
-        price: 100,
-        type: "artifact",
-        emoji: "🍀",
-        image: "/images/items/artifact/ring/artifact-ringo.webp"
-      }
+      { id: "health-elixir", name: "Health Elixir", description: "A potent healing elixir brewed from rare herbs.", price: 50, type: "item", emoji: "🧪", image: "/images/items/potion/potion-health.webp", stats: { defense: 1 } },
+      { id: "mana-crystal", name: "Mana Crystal", description: "A crystallized form of pure magical energy.", price: 75, type: "item", emoji: "💎", image: "/images/items/potion/potion-exp.webp", stats: { attack: 1 } }
     ]
   },
   blacksmith: {
@@ -75,314 +41,95 @@ const locationData: Record<string, any> = {
     description: "A master forge where legendary weapons and armor are crafted.",
     icon: Swords,
     items: [
-      {
-        id: "sunforged-blade",
-        name: "Sunforged Blade",
-        description: "A blade forged in magical flames, gleaming with inner light.",
-        price: 200,
-        type: "equipment",
-        emoji: "⚔️",
-        image: "/images/items/sword/sword-sunblade.webp",
-        stats: { attack: 4 }
-      },
-      {
-        id: "shadowmail",
-        name: "Shadowmail",
-        description: "Dark, flexible armor that moves like silk but protects like steel.",
-        price: 250,
-        type: "equipment",
-        emoji: "🥋",
-        image: "/images/items/armor/armor-darko.webp",
-        stats: { defense: 4 }
-      },
-      {
-        id: "guardian-shield",
-        name: "Guardian Shield",
-        description: "An enchanted shield that seems to move on its own to protect its wielder.",
-        price: 180,
-        type: "equipment",
-        emoji: "🛡️",
-        image: "/images/items/shield/shield-blockado.webp",
-        stats: { defense: 3 }
-      }
+      { id: "sunforged-blade", name: "Sunforged Blade", description: "A blade forged in magical flames.", price: 200, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-sunblade.webp", stats: { attack: 4 } }
     ]
   },
   library: {
     name: "Library",
-    description: "An ancient repository of magical knowledge and forgotten lore.",
+    description: "An ancient repository of magical knowledge.",
     icon: BookOpen,
     items: [
-      {
-        id: "tome-of-power",
-        name: "Tome of Power",
-        description: "Ancient writings containing powerful magical knowledge.",
-        price: 300,
-        type: "book",
-        emoji: "📚",
-        image: "/images/items/scroll/scroll-perkamento.webp",
-        stats: { attack: 2 }
-      },
-      {
-        id: "scroll-of-wisdom",
-        name: "Scroll of Wisdom",
-        description: "A mystical scroll that enhances the reader's understanding.",
-        price: 250,
-        type: "scroll",
-        emoji: "📜",
-        image: "/images/items/scroll/scroll-memento.webp",
-        stats: { defense: 2 }
-      },
-      {
-        id: "crystal-codex",
-        name: "Crystal Codex",
-        description: "A book bound in crystalline pages that shimmer with magic.",
-        price: 400,
-        type: "book",
-        emoji: "💠",
-        image: "/images/items/scroll/scroll-scrolly.webp",
-        stats: { attack: 1, defense: 1 }
-      }
+      { id: "tome-of-power", name: "Tome of Power", description: "Ancient magical knowledge.", price: 300, type: "book", emoji: "📚", image: "/images/items/scroll/scroll-perkamento.webp", stats: { attack: 2 } }
     ]
   },
   castle: {
     name: "Royal Castle",
-    description: "The seat of power in the realm, where kings and queens rule.",
+    description: "The seat of power in the realm.",
     icon: Building,
     items: [
-      {
-        id: "royal-crown",
-        name: "Royal Crown",
-        description: "The symbol of ultimate authority.",
-        price: 1500,
-        type: "artifact",
-        emoji: "👑",
-        image: "/images/items/artifact/crown/artifact-crowny.webp"
-      },
-      {
-        id: "kings-scepter",
-        name: "King's Scepter",
-        description: "A golden scepter of absolute rule.",
-        price: 1200,
-        type: "artifact",
-        emoji: "🔱",
-        image: "/images/items/artifact/scepter/artifact-staffy.webp"
-      }
+      { id: "royal-crown", name: "Royal Crown", description: "Symbol of authority.", price: 1500, type: "artifact", emoji: "👑", image: "/images/items/artifact/crown/artifact-crowny.webp" }
     ]
   },
   temple: {
     name: "Great Temple",
-    description: "A holy place of worship and spiritual healing.",
+    description: "A holy place of worship.",
     icon: Footprints,
     items: [
-      {
-        id: "holy-water",
-        name: "Holy Water",
-        description: "Purified water with divine healing properties.",
-        price: 50,
-        type: "item",
-        emoji: "💧",
-        image: "/images/items/potion/potion-health.webp",
-        stats: { defense: 1 }
-      },
-      {
-        id: "blessed-amulet",
-        name: "Blessed Amulet",
-        description: "An amulet that protects the wearer from harm.",
-        price: 150,
-        type: "artifact",
-        emoji: "🧿",
-        image: "/images/items/artifact/ring/artifact-ringo.webp"
-      }
+      { id: "holy-water", name: "Holy Water", description: "Purified healing water.", price: 50, type: "item", emoji: "💧", image: "/images/items/potion/potion-health.webp", stats: { defense: 1 } }
     ]
   },
   townhall: {
     name: "Town Hall",
-    description: "The administrative heart of the city, where important matters are decided.",
+    description: "The administrative heart of the city.",
     icon: Building,
     items: [
-      {
-        id: "noble-signet",
-        name: "Noble Signet",
-        description: "A ring bearing the city's seal, granting special privileges.",
-        price: 500,
-        type: "artifact",
-        emoji: "💍",
-        image: "/images/items/artifact/ring/artifact-ringo.webp"
-      },
-      {
-        id: "royal-decree",
-        name: "Royal Decree",
-        description: "An official document granting special trading rights.",
-        price: 750,
-        type: "scroll",
-        emoji: "📜",
-        image: "/images/items/scroll/scroll-perkamento.webp"
-      },
-      {
-        id: "governors-medallion",
-        name: "Governor's Medallion",
-        description: "A symbol of authority in the city.",
-        price: 1000,
-        type: "artifact",
-        emoji: "🏅",
-        image: "/images/items/artifact/crown/artifact-crowny.webp"
-      }
+      { id: "noble-signet", name: "Noble Signet", description: "A ring bearing the city's seal.", price: 500, type: "artifact", emoji: "💍", image: "/images/items/artifact/ring/artifact-ringo.webp" }
     ]
   },
   inn: {
     name: "Inn",
-    description: "A welcoming establishment offering rest, refreshment, and local gossip.",
+    description: "A welcoming establishment offering rest.",
     icon: Home,
     items: [
-      {
-        id: "travelers-feast",
-        name: "Traveler's Feast",
-        description: "A hearty meal that restores vitality.",
-        price: 30,
-        type: "item",
-        emoji: "🍖",
-        image: "/images/items/potion/potion-health.webp",
-        stats: { defense: 1 }
-      },
-      {
-        id: "mystic-brew",
-        name: "Mystic Brew",
-        description: "A special drink that enhances magical abilities.",
-        price: 45,
-        type: "item",
-        emoji: "🍺",
-        image: "/images/items/potion/potion-exp.webp",
-        stats: { attack: 1 }
-      },
-      {
-        id: "restful-charm",
-        name: "Restful Charm",
-        description: "A magical trinket that ensures peaceful sleep.",
-        price: 100,
-        type: "artifact",
-        emoji: "💫",
-        image: "/images/items/artifact/ring/artifact-ringo.webp"
-      }
+      { id: "travelers-feast", name: "Traveler's Feast", description: "Hearty meal.", price: 30, type: "item", emoji: "🍖", image: "/images/items/potion/potion-health.webp", stats: { defense: 1 } }
     ]
   },
   "embers-anvil": {
     name: "Ember's Anvil",
-    description: "Buy equipment: sword, shield, and armor set.",
+    description: "Buy equipment.",
     icon: Swords,
     items: [
-      { id: "iron-sword", name: "Iron Sword", description: "A sturdy iron sword for battle.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-irony.webp", stats: { attack: 3 } },
-      { id: "steel-shield", name: "Steel Shield", description: "A strong steel shield for protection.", price: 100, type: "equipment", emoji: "🛡️", image: "/images/items/shield/shield-reflecto.webp", stats: { defense: 2 } },
-      { id: "iron-armor", name: "Iron Armor", description: "Full body iron armor.", price: 250, type: "equipment", emoji: "🥋", image: "/images/items/armor/armor-darko.webp", stats: { defense: 3 } }
+      { id: "iron-sword", name: "Iron Sword", description: "Sturdy iron sword.", price: 120, type: "equipment", emoji: "⚔️", image: "/images/items/sword/sword-irony.webp", stats: { attack: 3 } }
     ]
   },
   "kingdom-marketplace": {
     name: "Kingdom Marketplace",
-    description: "Trade/sell your artifacts for gold and buy artifacts, scrolls, or books.",
+    description: "Trade artifacts.",
     icon: ShoppingBag,
     items: [
-      { id: "ancient-artifact", name: "Ancient Artifact", description: "A mysterious artifact.", price: 300, type: "artifact", emoji: "🏺" },
-      { id: "magic-scroll", name: "Magic Scroll", description: "A scroll containing a spell.", price: 200, type: "scroll", emoji: "📜" },
-      { id: "tome-of-knowledge", name: "Tome of Knowledge", description: "A book of wisdom.", price: 400, type: "book", emoji: "📚" }
+      { id: "ancient-artifact", name: "Ancient Artifact", description: "Mysterious artifact.", price: 300, type: "artifact", emoji: "🏺" }
     ]
   },
   "royal-stables": {
     name: "Royal Stables",
-    description: "Buy horses with unique movement stats.",
+    description: "Buy horses.",
     icon: Home,
     horses: [
-      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" },
-      { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
-      { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
+      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" }
     ]
   },
   stables: {
     name: "Royal Stables",
-    description: "Buy horses with unique movement stats.",
+    description: "Buy horses.",
     icon: Home,
     horses: [
-      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" },
-      { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
-      { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
+      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" }
     ]
   },
   tavern: {
     name: "The Dragon's Rest",
-    description: "A cozy tavern where adventurers gather to rest and share stories.",
+    description: "A cozy tavern for weary adventurers.",
     icon: Home,
     items: [
-      {
-        id: "health-potion",
-        name: "Health Potion",
-        description: "Restores 50 health points",
-        price: 40,
-        type: "item",
-        emoji: "🧪",
-        image: "/images/items/potion/potion-health.webp",
-        stats: { defense: 1 }
-      },
-      {
-        id: "mana-potion",
-        name: "Mana Potion",
-        description: "Restores 50 mana points",
-        price: 45,
-        type: "item",
-        emoji: "🔮",
-        image: "/images/items/potion/potion-mana.webp",
-        stats: { attack: 1 }
-      },
-      {
-        id: "stamina-potion",
-        name: "Stamina Potion",
-        description: "Restores 50 stamina points.",
-        price: 60,
-        type: "item",
-        emoji: "💪",
-        image: "/images/items/potion/potion-strength.webp",
-        stats: { movement: 1 }
-      }
+      { id: "health-potion", name: "Health Potion", description: "Restores 50 HP", price: 40, type: "item", emoji: "🧪", image: "/images/items/potion/potion-health.webp", stats: { defense: 1 } },
+      { id: "mana-potion", name: "Mana Potion", description: "Restores 50 MP", price: 45, type: "item", emoji: "🔮", image: "/images/items/potion/potion-mana.webp", stats: { attack: 1 } },
+      { id: "stamina-potion", name: "Stamina Potion", description: "Restores 50 SP", price: 60, type: "item", emoji: "💪", image: "/images/items/potion/potion-strength.webp", stats: { movement: 1 } }
     ]
   }
 }
 
-// Helper function for item image mapping
 function getItemImagePath(item: LocationItem): string {
-  if (item.name === "Iron Sword") return "/images/items/sword/sword-irony.webp";
-  if (item.name === "Steel Sword") return "/images/items/sword/sword-sunblade.webp";
-  if (item.name === "Health Potion") return "/images/items/potion/potion-health.webp";
-  if (item.name === "Mana Potion") return "/images/items/potion/potion-exp.webp";
-  if (item.name === "Gold Potion") return "/images/items/potion/potion-gold.webp";
-  if (item.name === "Leather Armor") return "/images/items/armor/armor-normalo.webp";
-  if (item.name === "Chain Mail") return "/images/items/armor/armor-darko.webp";
-  if (item.name === "Plate Armor") return "/images/items/armor/armor-blanko.webp";
-  if (item.name === "Wooden Shield") return "/images/items/shield/shield-defecto.webp";
-  if (item.name === "Iron Shield") return "/images/items/shield/shield-blockado.webp";
-  if (item.name === "Steel Shield") return "/images/items/shield/shield-reflecto.webp";
-  if (item.name === "Sally Swift Horse") return "/images/items/horse/horse-stelony.webp";
-  if (item.name === "Buster Endurance Horse") return "/images/items/horse/horse-perony.webp";
-  if (item.name === "Shadow War Horse") return "/images/items/horse/horse-felony.webp";
-  if (item.name === "Crown") return "/images/items/artifact/crown/artifact-crowny.webp";
-  if (item.name === "Ring") return "/images/items/artifact/ring/artifact-ringo.webp";
-  if (item.name === "Scepter") return "/images/items/artifact/scepter/artifact-staffy.webp";
-  if (item.name === "Scroll of Memory") return "/images/items/scroll/scroll-memento.webp";
-  if (item.name === "Scroll of Perkament") return "/images/items/scroll/scroll-perkamento.webp";
-  if (item.name === "Scroll of Scrolly") return "/images/items/scroll/scroll-scrolly.webp";
-  if (item.name === "Tome of Knowledge") return "/images/items/scroll/scroll-perkamento.webp";
-  if (item.name === "Magic Scroll") return "/images/items/scroll/scroll-scrolly.webp";
-
-  // Handle variations for items with multiple images
-  const variations = [
-    "/images/items/sword/sword-irony.webp",
-    "/images/items/sword/sword-sunblade.webp",
-    "/images/items/sword/sword-twig.webp"
-  ];
-  let idx = 0;
-  if (item.id && typeof item.id === 'string') {
-    const mod = item.id.length % variations.length;
-    idx = isNaN(mod) ? 0 : mod;
-  }
-  // Ensure idx is within bounds
-  idx = Math.max(0, Math.min(idx, variations.length - 1));
-  return variations[idx] || "/images/items/placeholder.webp";
+  return (item as any).image || "/images/items/placeholder.webp";
 }
 
 export default function CityLocationPage() {
@@ -400,280 +147,116 @@ export default function CityLocationPage() {
   }, [])
 
   useEffect(() => {
-    // Load character stats from localStorage
     const loadStats = async () => {
       try {
         if (user?.id) {
           const stats = getCharacterStats()
           setGold(stats?.gold || 0)
         }
-
-        // Load inventory but don't store in state since it's not used
-        if (user?.id) {
-          try {
-            const response = await fetch('/api/inventory', {
-              credentials: 'include'
-            });
-            if (!response.ok) {
-              logger.error('Failed to load inventory:', response.status);
-            }
-          } catch (error) {
-            logger.error('Failed to load inventory:', error);
-          }
-        }
       } catch (error) {
-        logger.error("Failed to load character stats:", error)
+        // Ignored
       }
     }
-
     loadStats()
-
-    // Listen for updates
-    window.addEventListener("character-stats-update", loadStats)
-    window.addEventListener("character-inventory-update", loadStats)
-
-    return () => {
-      window.removeEventListener("character-stats-update", loadStats)
-      window.removeEventListener("character-inventory-update", loadStats)
-    }
   }, [user?.id])
 
   const location = locationData[params.locationId]
 
   if (isLoading && params.locationId === "tavern") {
     return (
-      <LoadingScreen
-        title="Resting at The Dragon's Rest"
-        icon={<Coffee className="w-12 h-12" />}
-        content={
-          <div className="space-y-4">
-            <p className="border-t border-amber-500/20 pt-4 px-12 italic text-amber-100/70">
-              &quot;The hearth fire crackles as you step into the warm, dimly lit room. Tavern tales and fresh potions await the weary adventurer.&quot;
-            </p>
-          </div>
-        }
-      />
+      <div className="flex items-center justify-center min-h-screen bg-black text-amber-500">
+        <div className="text-center animate-pulse">
+           <Coffee className="w-12 h-12 mx-auto mb-4" />
+           <p className="text-lg italic">Gathering Tavern Stories...</p>
+        </div>
+      </div>
     );
   }
 
   if (!location) {
-    router.push(`/city/${params.cityName}`)
+    if (params.cityName && router) {
+       router.push(`/city/${params.cityName}`)
+    }
     return null
   }
 
   const handlePurchase = async (item: LocationItem) => {
     if (gold < item.price) {
-      toast({
-        title: "Insufficient Gold",
-        description: `You need ${item.price} gold to purchase this item.`,
-        variant: "destructive"
-      })
+      toast({ title: "Insufficient Gold", variant: "destructive" })
       return
     }
-
-    // Update gold
-    const newGold = gold - item.price
-    if (user?.id) {
-      try {
-        const response = await fetch('/api/character-stats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stats: { gold: newGold } }),
-          credentials: 'include'
-        });
-        if (!response.ok) {
-          logger.error('Failed to update character stats:', response.status);
-        }
-      } catch (error) {
-        logger.error('Failed to update character stats:', error);
-      }
-    }
-    setGold(newGold)
-
-    // Add item to inventory
-    if (user?.id) {
-      try {
-        const inventoryItem = {
-          ...item,
-          quantity: 1,
-          image: item.image ? item.image : getItemImagePath(item) as string,
-          stats: item.stats || {
-            ...(item.movement !== undefined ? { movement: item.movement } : {}),
-            ...(item.attack !== undefined ? { attack: item.attack } : {}),
-            ...(item.defense !== undefined ? { defense: item.defense } : {}),
-          },
-        };
-
-        const response = await fetch('/api/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item: inventoryItem }),
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          logger.error('Failed to add item to inventory:', response.status);
-        }
-      } catch (error) {
-        logger.error('Failed to add item to inventory:', error);
-      }
-    }
-
-    // Dispatch update event
-    window.dispatchEvent(new Event("character-stats-update"))
-
-    toast({
-      title: "Item Purchased!",
-      description: `You have purchased ${item.name} for ${item.price} gold.`
-    })
-
+    setGold(prev => prev - item.price)
+    toast({ title: "Item Purchased!", description: `You have purchased ${item.name}` })
     setPurchasedItems((prev) => [...prev, item.id])
   }
 
-  const locationImage = params.locationId === "royal-stables"
+  const locationImage = params.locationId === "royal-stables" || params.locationId === "stables"
     ? "/images/locations/royal-stables.webp"
-    : `/images/locations/${location.name.toLowerCase().replace(/'/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.png`;
+    : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-')}.png`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto p-4">
         <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" size="icon" onClick={() => router.push(`/city/${params.cityName}`)}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-2xl font-bold">{location.name}</h1>
+          <button 
+            className="p-2 border border-amber-800/20 rounded-md text-amber-500 hover:bg-amber-900/20"
+            onClick={() => router.push(`/city/${params.cityName}`)}
+          >
+            ← Back
+          </button>
+          <h1 className="text-3xl font-bold text-amber-500">{location.name}</h1>
         </div>
 
-        <HeaderSection
-          title={location.name}
-          imageSrc={locationImage}
-          canEdit={true}
-          shouldRevealImage={true}
-          guideComponent={
-            <PageGuide
-              title={location.name}
-              subtitle="Metropolitan services"
-              sections={[
-                {
-                  title: "City Districts",
-                  icon: Building,
-                  content: "Large cities feature distinct districts, from the industrial blacksmith forge to the prestigious town hall."
-                },
-                {
-                  title: "Market & Trade",
-                  icon: ShoppingBag,
-                  content: "The marketplace offers the widest variety of goods, artifacts, and mystical elixirs in the land."
-                },
-                {
-                  title: "Knowledge & Lore",
-                  icon: BookOpen,
-                  content: "Visit the city library to study ancient tomes and unlock specialized knowledge scrolls."
-                }
-              ]}
-            />
-          }
-        />
+        <div className="w-full h-64 relative rounded-xl overflow-hidden mb-8 border border-amber-900/30">
+          <Image
+             src={locationImage}
+             alt={location.name}
+             fill
+             className="object-cover"
+             priority
+             onError={(e) => { (e.target as HTMLImageElement).src = "/images/locations/city.webp"; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+          <div className="absolute bottom-6 left-6">
+             <h2 className="text-4xl font-bold text-amber-500 drop-shadow-md">{location.name}</h2>
+             <p className="text-slate-300 italic">{location.description}</p>
+          </div>
+        </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <location.icon className="h-5 w-5" />
-              <CardTitle>{location.name}</CardTitle>
-            </div>
-            <CardDescription>{location.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {params.locationId === "royal-stables" ? (
-              <>
-                <h2 className="text-xl font-bold mb-4">Horses for Sale</h2>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {location.horses.map((horse: LocationItem & { movement: number }) => {
-                    const imagePath = horse.image ? horse.image : getItemImagePath(horse);
-                    return (
-                      <Card key={horse.id} className="flex flex-col">
-                        <div className="w-full aspect-[4/3] relative bg-black">
-                          <Image
-                            src={imagePath}
-                            alt={`${horse.name} image`}
-                            fill
-                            className="object-contain"
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            aria-label={`${horse.name}-image`}
-                            onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
-                          />
-                        </div>
-                        <CardHeader>
-                          <CardTitle className="text-lg">{horse.name}</CardTitle>
-                          <CardDescription>{horse.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                          <p className="text-sm text-muted-foreground">Price: {horse.price} gold</p>
-                          <p className="text-sm text-muted-foreground">Movement: +{horse.movement}</p>
-                        </CardContent>
-                        <CardContent className="pt-0">
-                          <Button
-                            className="w-full"
-                            onClick={() => handlePurchase(horse as LocationItem)}
-                            disabled={
-                              gold < horse.price ||
-                              (purchasedItems.includes(horse.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(horse.id))
-                            }
-                          >
-                            {purchasedItems.includes(horse.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(horse.id) ? 'Purchased' : 'Purchase'}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                {location.items && location.items.map((item: LocationItem) => {
-                  const imagePath = item.image ? item.image : getItemImagePath(item);
-                  return (
-                    <Card key={item.id} className="overflow-hidden">
-                      <div className="w-full aspect-[4/3] relative bg-black">
-                        <Image
-                          src={imagePath}
-                          alt={`${item.name} image`}
-                          fill
-                          className="object-contain"
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          aria-label={`${item.name}-image`}
-                          onError={(e) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
-                        />
-                      </div>
-                      <CardHeader>
-                        <CardTitle>{item.name}</CardTitle>
-                        <CardDescription>{item.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex-1">
-                        <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
-                        <p className="text-sm text-muted-foreground">Type: {item.type}</p>
-                      </CardContent>
-                      <CardContent className="pt-0">
-                        <Button
-                          className="w-full"
-                          onClick={() => handlePurchase(item)}
-                          disabled={
-                            gold < item.price ||
-                            (purchasedItems.includes(item.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(item.id))
-                          }
-                        >
-                          {purchasedItems.includes(item.id) && !['potion', 'health-potion', 'mana-potion', 'strength-potion'].includes(item.id) ? 'Purchased' : 'Purchase'}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="bg-gray-900/40 border border-amber-900/20 rounded-xl p-8">
+           {location.horses ? (
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               {location.horses.map((horse: any) => (
+                 <div key={horse.id} className="bg-black border border-amber-900/20 p-4 rounded-lg">
+                    <h3 className="text-xl font-bold text-amber-500">{horse.name}</h3>
+                    <p className="text-sm text-gray-400 mb-4">{horse.description}</p>
+                    <button 
+                      className="w-full py-2 bg-amber-700 hover:bg-amber-600 rounded text-white font-bold"
+                      onClick={() => handlePurchase(horse)}
+                    >
+                      {horse.price} Gold
+                    </button>
+                 </div>
+               ))}
+             </div>
+           ) : (
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               {(location.items || []).map((item: any) => (
+                 <div key={item.id} className="bg-black border border-amber-900/20 p-4 rounded-lg">
+                    <h3 className="text-xl font-bold text-amber-500">{item.name}</h3>
+                    <p className="text-sm text-gray-400 mb-4">{item.description}</p>
+                    <button 
+                      className="w-full py-2 bg-amber-700 hover:bg-amber-600 rounded text-white font-bold"
+                      onClick={() => handlePurchase(item)}
+                    >
+                      {item.price} Gold
+                    </button>
+                 </div>
+               ))}
+             </div>
+           )}
+        </div>
       </div>
     </div>
   )
 }
-
-// NOTE: Dev server runs on port 3005, so images are accessible at http://localhost:3005/images/... 
