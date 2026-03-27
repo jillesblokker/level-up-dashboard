@@ -48,6 +48,8 @@ export function useAuthContext() {
   return useContext(AuthContext);
 }
 
+import { QuickAddProvider } from "@/components/quick-add-provider"
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
@@ -58,7 +60,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         <TooltipProvider>
-          {children}
+          <QuickAddProvider>
+            {children}
+          </QuickAddProvider>
         </TooltipProvider>
       </ThemeProvider>
     </AuthProvider>

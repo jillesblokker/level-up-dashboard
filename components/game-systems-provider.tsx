@@ -36,25 +36,23 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
     }
 
     return (
-        <QuickAddProvider>
-            <KeyboardShortcutsProvider />
-            <ParticleProvider>
-                <div className="flex flex-col h-full">
-                    <CharacterStatsSync />
-                    {children}
-                    <SeasonalHuntWrapper />
-                </div>
+        <ParticleProvider>
+            <div className="flex flex-col h-full">
+                <CharacterStatsSync />
+                {children}
+                <SeasonalHuntWrapper />
+            </div>
 
-                {/* Background Systems */}
-                <UserStorageInitializer />
-                <LocalStorageMigrator />
-                <KingdomNotificationManager />
-                <DayNightCycle />
-                <Toaster />
-                <SonnerToaster />
-                <InstallPrompt />
-                <PerformanceMonitor />
-            </ParticleProvider>
-        </QuickAddProvider>
+            {/* Background Systems */}
+            <UserStorageInitializer />
+            <LocalStorageMigrator />
+            <KingdomNotificationManager />
+            <DayNightCycle />
+            <Toaster />
+            <SonnerToaster />
+            <InstallPrompt />
+            <PerformanceMonitor />
+            <KeyboardShortcutsProvider />
+        </ParticleProvider>
     )
 }
