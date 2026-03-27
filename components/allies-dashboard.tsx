@@ -238,20 +238,31 @@ export function AlliesDashboard() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-xl mb-12 shadow-inner">
-          <TabsTrigger value="allies" className="data-[state=active]:bg-amber-800 data-[state=active]:text-amber-100 py-3 font-semibold transition-all">
+        <TabsList className="grid w-full grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-2xl mb-8">
+          <TabsTrigger value="allies" className="py-3 font-semibold transition-all">
             <Users className="w-4 h-4 mr-2" />
             My Allies
-            {friends.length > 0 && <Badge variant="secondary" className="ml-2 bg-amber-500/20 text-amber-300 border-amber-500/30 font-bold">{friends.length}</Badge>}
+            {friends.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-amber-900/40 text-amber-500 text-[10px] rounded-full border border-amber-900/30 font-bold">
+                {friends.length}
+              </span>
+            )}
           </TabsTrigger>
-          <TabsTrigger value="add" className="data-[state=active]:bg-amber-800 data-[state=active]:text-amber-100 py-3 font-semibold transition-all">
+          <TabsTrigger value="add" className="py-3 font-semibold transition-all">
             <UserPlus className="w-4 h-4 mr-2" />
             Recruit
           </TabsTrigger>
-          <TabsTrigger value="requests" className="data-[state=active]:bg-amber-800 data-[state=active]:text-amber-100 py-3 font-semibold transition-all relative">
+          <TabsTrigger value="requests" className="py-3 font-semibold transition-all relative">
             <Mail className="w-4 h-4 mr-2" />
             Registry
-            {requests.length > 0 && <Badge variant="destructive" className="ml-2 animate-pulse bg-red-600">{requests.length}</Badge>}
+            {requests.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 text-[10px] text-black items-center justify-center font-bold">
+                  {requests.length}
+                </span>
+              </span>
+            )}
           </TabsTrigger>
         </TabsList>
 

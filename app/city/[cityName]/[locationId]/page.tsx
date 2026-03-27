@@ -83,16 +83,16 @@ export default function CityLocationPage() {
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-xl mb-12 shadow-inner">
-                <TabsTrigger value="alliances" className="data-[state=active]:bg-amber-900/40 py-3 font-semibold transition-all">
+              <TabsList className="grid w-auto grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-xl mb-12 shadow-inner mx-auto max-w-2xl">
+                <TabsTrigger value="alliances" className="py-3 font-semibold transition-all">
                   <Users className="w-4 h-4 mr-2" />
                   Alliances
                 </TabsTrigger>
-                <TabsTrigger value="allies" className="data-[state=active]:bg-amber-900/40 py-3 font-semibold transition-all">
+                <TabsTrigger value="allies" className="py-3 font-semibold transition-all">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Ally Board
                 </TabsTrigger>
-                <TabsTrigger value="leaderboard" className="data-[state=active]:bg-amber-800/40 py-3 font-semibold transition-all">
+                <TabsTrigger value="leaderboard" className="py-3 font-semibold transition-all">
                   <Trophy className="w-4 h-4 mr-2" />
                   Legends
                 </TabsTrigger>
