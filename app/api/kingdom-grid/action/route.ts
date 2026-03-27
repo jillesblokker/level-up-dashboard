@@ -46,14 +46,15 @@ export async function POST(request: Request) {
       }
       
       // Log placement
-      supabaseServer.from('kingdom_event_log').insert([{
+      const { error: logErr1 } = await supabaseServer.from('kingdom_event_log').insert([{
         user_id: userId,
         event_type: 'tile_placed',
         related_id: itemId,
         amount: null,
         context: { kind: 'tile-placed', tileId: itemId, tileName, x, y },
         created_at: new Date().toISOString(),
-      }]).then(); // fire-and-forget
+      }]);
+      if (logErr1) logger.error('[Kingdom Grid Action] failed to log placement:', logErr1);
     }
 
     // 2. If action is 'stash', we must increment inventory
@@ -82,25 +83,27 @@ export async function POST(request: Request) {
       }
       
       // Log stash
-      supabaseServer.from('kingdom_event_log').insert([{
+      const { error: logErr2 } = await supabaseServer.from('kingdom_event_log').insert([{
         user_id: userId,
         event_type: 'tile_stashed',
         related_id: itemId,
         amount: null,
         context: { kind: 'tile-stashed', tileId: itemId, tileName, x, y },
         created_at: new Date().toISOString(),
-      }]).then(); // fire-and-forget
+      }]);
+      if (logErr2) logger.error('[Kingdom Grid Action] failed to log stash:', logErr2);
     }
     
     // For 'move', we just log it
     if (action === 'move') {
-      supabaseServer.from('kingdom_event_log').insert([{
+      const { error: logErr3 } = await supabaseServer.from('kingdom_event_log').insert([{
         user_id: userId,
         event_type: 'tile_moved',
         related_id: itemId || 'unknown',
         context: { kind: 'tile-moved', tileName, newX: x, newY: y },
         created_at: new Date().toISOString(),
-      }]).then();
+      }]);
+      if (logErr3) logger.error('[Kingdom Grid Action] failed to log move:', logErr3);
     }
 
     // 3. Save the new grid array to database
