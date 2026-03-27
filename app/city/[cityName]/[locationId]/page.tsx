@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints } from "lucide-react"
+import { ArrowLeft, Building, ShoppingBag, Swords, BookOpen, Home, Footprints, Coffee } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { HeaderSection } from "@/components/HeaderSection"
 import { PageGuide } from "@/components/page-guide"
+import { LoadingScreen } from "@/components/loading-screen"
 import Image from "next/image"
 
 interface LocationItem {
@@ -143,6 +144,57 @@ const locationData: Record<string, any> = {
       }
     ]
   },
+  castle: {
+    name: "Royal Castle",
+    description: "The seat of power in the realm, where kings and queens rule.",
+    icon: Building,
+    items: [
+      {
+        id: "royal-crown",
+        name: "Royal Crown",
+        description: "The symbol of ultimate authority.",
+        price: 1500,
+        type: "artifact",
+        emoji: "👑",
+        image: "/images/items/artifact/crown/artifact-crowny.webp"
+      },
+      {
+        id: "kings-scepter",
+        name: "King's Scepter",
+        description: "A golden scepter of absolute rule.",
+        price: 1200,
+        type: "artifact",
+        emoji: "🔱",
+        image: "/images/items/artifact/scepter/artifact-staffy.webp"
+      }
+    ]
+  },
+  temple: {
+    name: "Great Temple",
+    description: "A holy place of worship and spiritual healing.",
+    icon: Footprints,
+    items: [
+      {
+        id: "holy-water",
+        name: "Holy Water",
+        description: "Purified water with divine healing properties.",
+        price: 50,
+        type: "item",
+        emoji: "💧",
+        image: "/images/items/potion/potion-health.webp",
+        stats: { defense: 1 }
+      },
+      {
+        id: "blessed-amulet",
+        name: "Blessed Amulet",
+        description: "An amulet that protects the wearer from harm.",
+        price: 150,
+        type: "artifact",
+        emoji: "🧿",
+        image: "/images/items/artifact/ring/artifact-ringo.webp"
+      }
+    ]
+  },
   townhall: {
     name: "Town Hall",
     description: "The administrative heart of the city, where important matters are decided.",
@@ -242,6 +294,53 @@ const locationData: Record<string, any> = {
       { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
       { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
     ]
+  },
+  stables: {
+    name: "Royal Stables",
+    description: "Buy horses with unique movement stats.",
+    icon: Home,
+    horses: [
+      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" },
+      { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
+      { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
+    ]
+  },
+  tavern: {
+    name: "The Dragon's Rest",
+    description: "A cozy tavern where adventurers gather to rest and share stories.",
+    icon: Home,
+    items: [
+      {
+        id: "health-potion",
+        name: "Health Potion",
+        description: "Restores 50 health points",
+        price: 40,
+        type: "item",
+        emoji: "🧪",
+        image: "/images/items/potion/potion-health.webp",
+        stats: { defense: 1 }
+      },
+      {
+        id: "mana-potion",
+        name: "Mana Potion",
+        description: "Restores 50 mana points",
+        price: 45,
+        type: "item",
+        emoji: "🔮",
+        image: "/images/items/potion/potion-mana.webp",
+        stats: { attack: 1 }
+      },
+      {
+        id: "stamina-potion",
+        name: "Stamina Potion",
+        description: "Restores 50 stamina points.",
+        price: 60,
+        type: "item",
+        emoji: "💪",
+        image: "/images/items/potion/potion-strength.webp",
+        stats: { movement: 1 }
+      }
+    ]
   }
 }
 
@@ -293,6 +392,12 @@ export default function CityLocationPage() {
   const { user } = useUser()
   const [gold, setGold] = useState(0)
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     // Load character stats from localStorage
@@ -334,6 +439,23 @@ export default function CityLocationPage() {
   }, [user?.id])
 
   const location = locationData[params.locationId]
+
+  if (isLoading && params.locationId === "tavern") {
+    return (
+      <LoadingScreen
+        title="Resting at The Dragon's Rest"
+        icon={<Coffee className="w-12 h-12" />}
+        content={
+          <div className="space-y-4">
+            <p className="border-t border-amber-500/20 pt-4 px-12 italic text-amber-100/70">
+              &quot;The hearth fire crackles as you step into the warm, dimly lit room. Tavern tales and fresh potions await the weary adventurer.&quot;
+            </p>
+          </div>
+        }
+      />
+    );
+  }
+
   if (!location) {
     router.push(`/city/${params.cityName}`)
     return null
