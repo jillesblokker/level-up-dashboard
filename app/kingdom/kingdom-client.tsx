@@ -1439,7 +1439,7 @@ export function KingdomClient() {
             size="sm"
             variant="secondary"
             className="h-9 px-4 rounded-xl bg-amber-600 text-black hover:bg-amber-500 border-none ml-2 font-bold"
-            onClick={() => router.push('/allies')}
+            onClick={() => router.push('/city/Grand Citadel/tavern?tab=allies')}
           >
             {TEXT_CONTENT.kingdom.ui.envoyMode.returnHome}
           </Button>

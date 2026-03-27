@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { getCityData } from "@/lib/city-data"
 import { HeaderSection } from "@/components/HeaderSection"
@@ -16,11 +16,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function CityLocationPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
+  const initialTab = searchParams?.get('tab') || 'alliances'
+  
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState(initialTab)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (searchParams?.get('tab')) {
+      setActiveTab(searchParams.get('tab')!)
+    }
+  }, [searchParams])
 
   if (!mounted || !params) {
     return (
@@ -72,17 +82,17 @@ export default function CityLocationPage() {
 
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Tabs defaultValue="alliances" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-xl mb-12 shadow-inner">
-                <TabsTrigger value="alliances" className="data-[state=active]:bg-amber-800 data-[state=active]:text-amber-100 py-3 font-semibold transition-all">
+                <TabsTrigger value="alliances" className="data-[state=active]:bg-amber-900/40 py-3 font-semibold transition-all">
                   <Users className="w-4 h-4 mr-2" />
                   Alliances
                 </TabsTrigger>
-                <TabsTrigger value="allies" className="data-[state=active]:bg-amber-800 data-[state=active]:text-amber-100 py-3 font-semibold transition-all">
+                <TabsTrigger value="allies" className="data-[state=active]:bg-amber-900/40 py-3 font-semibold transition-all">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Ally Board
                 </TabsTrigger>
-                <TabsTrigger value="leaderboard" className="data-[state=active]:bg-amber-800 data-[state=active]:text-amber-100 py-3 font-semibold transition-all">
+                <TabsTrigger value="leaderboard" className="data-[state=active]:bg-amber-800/40 py-3 font-semibold transition-all">
                   <Trophy className="w-4 h-4 mr-2" />
                   Legends
                 </TabsTrigger>

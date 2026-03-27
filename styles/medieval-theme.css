@@ -140,10 +140,21 @@ h6 {
 }
 
 .medieval-card .card-title {
-  color: #ffffff; /* Pure white for WCAG AAA */
+  color: #ffffff;
   font-family: var(--font-medieval);
   letter-spacing: 0.03em;
   font-weight: 600;
+}
+
+/* Force Amber Highlights on Tabs - override any blue defaults */
+[data-state="active"] {
+  color: #f59e0b !important; /* amber-500 */
+}
+
+/* Discovered/Accepted High-Fantasy Card variant */
+.medieval-card-amber {
+  border: 2px solid #f59e0b !important;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(245, 158, 11, 0.1);
 }
 
 .medieval-card .card-description {
