@@ -8,13 +8,14 @@ import { Gloock } from "next/font/google"
 import { Libre_Baskerville } from "next/font/google"
 import { Providers } from "../components/providers"
 import { Toaster } from "@/components/ui/toaster"
+import { Providers } from "../components/providers"
+import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
 import type { Metadata, Viewport } from "next"
 import { GradientProvider } from './providers/gradient-provider'
 import { AuthContent } from '@/components/auth-content'
 import AuthGate from "@/app/components/AuthGate"
 import { ClerkProvider } from '@clerk/nextjs'
-import { ThemeProvider } from '@/components/theme-provider'
 import { MedievalErrorBoundary as GlobalErrorBoundary } from '@/components/medieval-error-boundary'
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
@@ -153,31 +154,25 @@ export default function RootLayout({
           fontLibreBaskerville.variable
         )}>
           <GlobalErrorBoundary>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-            >
+            <Providers>
               <GradientProvider>
                 <TitleEvolutionProvider>
                   <AudioProvider>
-                    <Providers>
-                      <ClientOnboardingProvider>
-                        <AuthGate>
-                          <GameSystemsProvider>
-                            <NavBar session={null} />
-                            <main className="flex-1 relative pb-24 lg:landscape:pb-0">
-                              {children}
-                            </main>
-                            <BottomNav />
-                          </GameSystemsProvider>
-                        </AuthGate>
-                      </ClientOnboardingProvider>
-                    </Providers>
+                    <ClientOnboardingProvider>
+                      <AuthGate>
+                        <GameSystemsProvider>
+                          <NavBar session={null} />
+                          <main className="flex-1 relative pb-24 lg:landscape:pb-0">
+                            {children}
+                          </main>
+                          <BottomNav />
+                        </GameSystemsProvider>
+                      </AuthGate>
+                    </ClientOnboardingProvider>
                   </AudioProvider>
                 </TitleEvolutionProvider>
               </GradientProvider>
-            </ThemeProvider>
+            </Providers>
           </GlobalErrorBoundary>
         </body>
       </html>

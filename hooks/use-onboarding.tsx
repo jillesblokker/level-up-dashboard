@@ -266,6 +266,15 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         debugOnboardingState
     }
 
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!mounted) {
+        return <>{children}</>
+    }
+
     return (
         <OnboardingContext.Provider value={contextValue}>
             {children}

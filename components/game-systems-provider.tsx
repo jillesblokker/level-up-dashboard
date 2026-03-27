@@ -21,6 +21,20 @@ import { UserStorageInitializer } from '@/components/user-storage-initializer'
  * visible UI immediately but manage background game state/events.
  */
 export function GameSystemsProvider({ children }: { children: React.ReactNode }) {
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!mounted) {
+        return (
+            <div className="flex flex-col h-full">
+                {children}
+            </div>
+        )
+    }
+
     return (
         <QuickAddProvider>
             <KeyboardShortcutsProvider />
