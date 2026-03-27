@@ -61,6 +61,7 @@ const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m 
 import { StreakIndicator } from "@/components/streak-indicator"
 import { ResponsiveModal } from "@/components/ui/responsive-modal"
 import { useQuickAdd } from "@/components/quick-add-provider"
+import { LoadingScreen } from "@/components/loading-screen"
 import { TEXT_CONTENT } from '@/lib/text-content'
 
 
@@ -463,7 +464,7 @@ export default function QuestsPage() {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
         setQuests([]);
         logger.error('[Quests Debug] Error fetching quests:', err);
-      } finally {
+    } finally {
         setLoading(false);
       }
     }
@@ -2015,6 +2016,22 @@ export default function QuestsPage() {
   }
 
 
+
+  if (loading) {
+    return (
+      <LoadingScreen
+        title="Seeking Your Quests"
+        icon={<Sword className="w-12 h-12" />}
+        content={
+          <div className="space-y-4">
+            <p className="border-t border-blue-500/20 pt-4 px-12 italic">
+              &quot;The path to greatness is paved with daily devotion. Your legend begins with a single task.&quot;
+            </p>
+          </div>
+        }
+      />
+    );
+  }
 
   return (
     <EnhancedErrorBoundary>
