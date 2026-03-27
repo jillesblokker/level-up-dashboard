@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GiftModal } from "@/components/gift-modal"
+import { getCharacterStats } from "@/lib/character-stats-service"
 
 interface Friend {
   id: string; // Friendship ID
@@ -708,10 +709,11 @@ export function AlliesDashboard() {
       {/* GIFT MODAL wrapper */}
       {selectedFriend && (
          <GiftModal 
-           isOpen={giftModalOpen}
-           onClose={() => setGiftModalOpen(false)}
-           targetUserId={selectedFriend.friendId}
-           targetUsername={selectedFriend.username}
+           open={giftModalOpen}
+           onOpenChange={setGiftModalOpen}
+           recipientId={selectedFriend.friendId}
+           recipientName={selectedFriend.username}
+           userGold={getCharacterStats().gold}
          />
       )}
     </div>
