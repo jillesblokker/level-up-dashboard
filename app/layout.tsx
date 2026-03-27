@@ -8,8 +8,6 @@ import { Gloock } from "next/font/google"
 import { Libre_Baskerville } from "next/font/google"
 import { Providers } from "../components/providers"
 import { Toaster } from "@/components/ui/toaster"
-import { Providers } from "../components/providers"
-import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
 import type { Metadata, Viewport } from "next"
 import { GradientProvider } from './providers/gradient-provider'
