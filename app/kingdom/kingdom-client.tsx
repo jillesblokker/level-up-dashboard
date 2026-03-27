@@ -62,6 +62,7 @@ import {
   loadKingdomItems,
   loadKingdomTileStates
 } from '@/lib/supabase-persistence-client'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { KingdomGuide } from '@/components/kingdom/kingdom-guide'
 import dynamic from 'next/dynamic';
 
@@ -443,6 +444,7 @@ export function KingdomClient() {
   const [zoomed, setZoomed] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const isInitialSaveRef = useRef(true);
+  const isOptimisticSaveRef = useRef(false);
 
   const [kingdomContent, setKingdomContent] = useState<JSX.Element | null>(null);
   const [inventoryLoading, setInventoryLoading] = useState(true);
@@ -656,6 +658,13 @@ export function KingdomClient() {
 
   // Save kingdom grid to Supabase
   const saveKingdomGridToSupabase = useCallback(async (grid: Tile[][]) => {
+    // If the grid was updated via the atomic action router (e.g. placing, moving, stashing),
+    // skip the duplicate auto-save to prevent race conditions.
+    if (isOptimisticSaveRef.current) {
+      isOptimisticSaveRef.current = false;
+      return;
+    }
+
     try {
       const token = await getToken();
       if (!token) {
@@ -872,94 +881,151 @@ export function KingdomClient() {
   };
 
   async function handlePlaceKingdomTile(x: number, y: number, tile: Tile) {
-    // 1. Update the grid visually
-    setKingdomGrid(prev => {
-      const newGrid = prev.map(row => row.slice());
-      if (newGrid[y]) {
-        newGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
-      }
-      return newGrid;
-    });
-
-    // 2. Decrease inventory count in database (the tile.type is the item ID like 'crossroad', 'well', etc.)
+    if (!user?.id) return;
+    
     const tileId = tile.type || tile.id?.split('-')[0] || tile.id;
     logger.debug('[Kingdom] placing tile, decrementing inventory for:', tileId);
 
-    if (user?.id && tileId) {
-      try {
-        // Remove from database inventory
-        await removeFromKingdomInventory(user.id, tileId, 1);
-
-        // Update local state immediately for UI feedback
-        setLocalItems(prev => {
-          const existingIndex = prev.findIndex(i =>
-            i.id === tileId ||
-            i.id.toLowerCase() === tileId.toLowerCase() ||
-            i.name?.toLowerCase().replace(/\s+/g, '') === tileId.toLowerCase()
-          );
-
-          if (existingIndex >= 0) {
-            const newItems = [...prev];
-            const existing = newItems[existingIndex];
-            if (existing) {
-              const newQuantity = (existing.quantity || 0) - 1;
-              // If new quantity is 0 and it was positive before, we might want to keep it as 0?
-              // Or if it becomes negative, we keep it negative to offset storedItems.
-              newItems[existingIndex] = { ...existing, quantity: newQuantity };
-            }
-            return newItems;
-          } else {
-            // Item not in localItems, but likely in storedItems.
-            // Add a negative entry to offset storedItems in mergedItems
-            logger.debug('[Kingdom] Adding local offset for:', tileId);
-            return [...prev, {
-              id: tileId,
-              name: tile.name,
-              type: tile.type as any,
-              quantity: -1,
-              image: tile.image || ''
-            }];
-          }
-        });
-
-        // NOTE: We do NOT modify storedItems here!
-        // storedItems represents the server's truth and will be updated on next fetch.
-        // localItems holds the optimistic offset (-1) that mergedItems uses.
-      } catch (error) {
-        logger.error('[Kingdom] Failed to decrease inventory after placing tile:', error);
-        // Notify user of the issue
-        toast({
-          title: "Sync Issue",
-          description: "Failed to update inventory on server. Your changes may not persist.",
-          variant: "destructive",
-        });
+    // 1. Optimistic UI update for grid
+    let updatedGrid: Tile[][] = [];
+    isOptimisticSaveRef.current = true;
+    setKingdomGrid(prev => {
+      updatedGrid = prev.map(row => row.slice());
+      if (updatedGrid[y]) {
+        updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
       }
-    }
-
-    // 3. Save the updated grid
-    const updatedGrid = kingdomGrid.map(row => row.slice());
-    if (updatedGrid[y]) {
-      updatedGrid[y][x] = { ...tile, x, y, id: `${tile.id}-${x}-${y}` };
-    }
-
-    // 4. Save to API
-    saveKingdomGridToSupabase(updatedGrid);
-
-    // 5. Log placement to kingdom_event_log for layout recovery
-    // Fire-and-forget — a logging failure must never block tile placement
-    fetch('/api/kingdom-events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        kind: 'tile-placed',
-        tileId,
-        tileName: tile.name,
-        x,
-        y,
-      }),
-    }).catch(err => {
-      logger.error('[Kingdom] Failed to log tile placement event:', err);
+      return updatedGrid;
     });
+
+    // 2. Optimistic UI update for inventory
+    setLocalItems(prev => {
+      const existingIndex = prev.findIndex(i =>
+        i.id === tileId ||
+        i.id.toLowerCase() === tileId.toLowerCase() ||
+        i.name?.toLowerCase().replace(/\s+/g, '') === tileId.toLowerCase()
+      );
+
+      if (existingIndex >= 0) {
+        const newItems = [...prev];
+        const existing = newItems[existingIndex];
+        if (existing) {
+          newItems[existingIndex] = { ...existing, quantity: (existing.quantity || 0) - 1 };
+        }
+        return newItems;
+      } else {
+        return [...prev, {
+          id: tileId,
+          name: tile.name,
+          type: tile.type as any,
+          quantity: -1,
+          image: tile.image || ''
+        }];
+      }
+    });
+
+    // 3. Make atomic server request
+    try {
+      const response = await fetchWithAuth('/api/kingdom-grid/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'place',
+          grid: updatedGrid,
+          itemId: tileId,
+          tileName: tile.name,
+          x,
+          y
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to place tile atomically');
+      window.dispatchEvent(new Event('character-inventory-update'));
+    } catch (error) {
+      logger.error('[Kingdom] Failed to place tile atomically:', error);
+      toast({
+        title: "Sync Issue",
+        description: "Failed to update layout on server. Your changes may revert.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleMoveKingdomTile(updatedGrid: Tile[][], x: number, y: number, newTile: Tile) {
+    if (!user?.id) return;
+    
+    // Optimistic
+    isOptimisticSaveRef.current = true;
+    setKingdomGrid(updatedGrid);
+
+    try {
+      const response = await fetchWithAuth('/api/kingdom-grid/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'move',
+          grid: updatedGrid,
+          itemId: newTile.type || newTile.id,
+          tileName: newTile.name,
+          x,
+          y
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to move tile atomically');
+    } catch (error) {
+      logger.error('[Kingdom] Failed to move tile atomically:', error);
+      toast({
+        title: "Sync Issue",
+        description: "Failed to move tile on server.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleStashKingdomTile(updatedGrid: Tile[][], x: number, y: number, tileId: string) {
+    if (!user?.id) return;
+
+    // Optimistic grid
+    isOptimisticSaveRef.current = true;
+    setKingdomGrid(updatedGrid);
+
+    // Optimistic inventory increment
+    setLocalItems(prev => {
+      const existingIndex = prev.findIndex(i =>
+        i.id === tileId || i.id.toLowerCase() === tileId.toLowerCase()
+      );
+      if (existingIndex >= 0) {
+        const newItems = [...prev];
+        const existing = newItems[existingIndex];
+        if (existing) {
+          newItems[existingIndex] = { ...existing, quantity: (existing.quantity || 0) + 1 };
+        }
+        return newItems;
+      } else {
+        return [...prev, { id: tileId, name: 'Restored Tile', type: 'item' as any, quantity: 1, image: '' } as KingdomInventoryItem];
+      }
+    });
+
+    try {
+      const response = await fetchWithAuth('/api/kingdom-grid/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'stash',
+          grid: updatedGrid,
+          itemId: tileId,
+          x,
+          y
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to stash tile atomically');
+      window.dispatchEvent(new Event('character-inventory-update'));
+    } catch (error) {
+      logger.error('[Kingdom] Failed to stash tile atomically:', error);
+      toast({
+        title: "Sync Issue",
+        description: "Failed to return tile to inventory.",
+        variant: "destructive",
+      });
+    }
   }
 
   // Restore renderItemCard for inventory display
@@ -1526,8 +1592,9 @@ export function KingdomClient() {
                       onTilePlace={isVisiting ? () => { } : handlePlaceKingdomTile}
                       selectedTile={selectedKingdomTile}
                       setSelectedTile={isVisiting ? () => { } : setSelectedKingdomTile}
-                      onGridExpand={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
                       onGridUpdate={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                      onTileMove={isVisiting ? undefined : handleMoveKingdomTile}
+                      onTileStash={isVisiting ? undefined : handleStashKingdomTile}
                       onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
                       onItemFound={isVisiting ? () => { } : handleKingdomTileItemFound}
                       readOnly={isVisiting}

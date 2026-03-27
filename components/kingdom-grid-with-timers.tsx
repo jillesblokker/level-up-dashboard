@@ -57,6 +57,8 @@ interface KingdomGridWithTimersProps {
   onMaterialSpend?: ((itemId: string, quantity: number) => void | Promise<void>) | undefined
   userId?: string | null
   onInventoryUpdate?: ((item: any) => void) | undefined
+  onTileMove?: ((updatedGrid: Tile[][], x: number, y: number, tile: Tile) => void) | undefined
+  onTileStash?: ((updatedGrid: Tile[][], x: number, y: number, tileId: string) => void) | undefined
 }
 
 interface TileTimer {
@@ -81,7 +83,9 @@ export function KingdomGridWithTimers({
   inventory = [],
   onMaterialSpend,
   userId,
-  onInventoryUpdate
+  onInventoryUpdate,
+  onTileMove,
+  onTileStash
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const router = useRouter()
@@ -932,22 +936,11 @@ export function KingdomGridWithTimers({
     if (movingTileSource && !isMovingToSource) {
       // MOVE: we already cleared the old cell and placed in the new cell above.
       // Push the full updated grid to the parent so BOTH changes are persisted.
-      // Do NOT call onTilePlace — that would decrement inventory (tile was already placed, not from inventory).
-      if (onGridUpdate) {
+      if (onTileMove) {
+        onTileMove(updatedGrid, x, y, newTile);
+      } else if (onGridUpdate) {
         onGridUpdate(updatedGrid);
       }
-      // Log the move as a placement event (fire-and-forget)
-      fetch('/api/kingdom-events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          kind: 'tile-placed',
-          tileId: selectedProperty.id,
-          tileName: selectedProperty.name,
-          x,
-          y,
-        }),
-      }).catch(() => { });
     } else {
       // NEW PLACEMENT (from inventory): delegate to parent onTilePlace which handles
       // inventory decrement + grid persistence.
@@ -1522,28 +1515,32 @@ export function KingdomGridWithTimers({
     if (!window.confirm(`Are you sure you want to remove ${tile.name}? It will return to your inventory.`)) return;
 
     // Remove from grid
-    const newGrid = [...grid];
-    if (newGrid[y]) {
-      newGrid[y] = [...newGrid[y]];
-      newGrid[y][x] = {
-        ...newGrid[y][x],
+    const updatedGrid = grid.map(row => row.slice());
+    if (updatedGrid[y]) {
+      updatedGrid[y][x] = {
+        ...updatedGrid[y][x],
         type: 'vacant',
         name: 'Vacant Plot',
         image: 'Vacant.png',
-        id: newGrid[y][x]?.id || `vacant-${x}-${y}`,
+        id: updatedGrid[y][x]?.id || `vacant-${x}-${y}`,
         description: 'A vacant plot ready for building.',
         connections: [],
         rotation: 0
       } as Tile;
-      if (onGridUpdate) onGridUpdate(newGrid);
     }
 
-    // Return to inventory
-    const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name);
-    if (propertyDef && onTileRemove) {
-      onTileRemove(propertyDef.id);
-    } else if (propertyDef) {
-      logger.warn('onTileRemove prop not provided');
+    const propertyDef = KINGDOM_TILES.find(kt => kt.name === tile.name || kt.id === tile.type);
+    const tileId = propertyDef?.id || tile.type || tile.id;
+
+    if (onTileStash) {
+      onTileStash(updatedGrid, x, y, tileId);
+    } else {
+      if (onGridUpdate) onGridUpdate(updatedGrid);
+      if (propertyDef && onTileRemove) {
+        onTileRemove(propertyDef.id);
+      } else if (propertyDef) {
+        logger.warn('onTileRemove prop not provided');
+      }
     }
 
     toast({
