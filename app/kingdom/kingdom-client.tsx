@@ -1120,27 +1120,9 @@ export function KingdomClient() {
     };
   }, []);
 
-  // Load kingdom grid on mount
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const loadKingdomGrid = async () => {
-      try {
-        const response = await fetch('/api/kingdom-grid');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.grid) {
-            setKingdomGrid(data.grid);
-          }
-        }
-      } catch (error) {
-        logger.error('Failed to load kingdom grid:', error);
-      }
-    };
-
-    loadKingdomGrid();
-  }, [user?.id]);
-
+  // NOTE: Kingdom grid is loaded by initializeKingdomData above.
+  // Do NOT add a second grid loader here — it causes a race condition
+  // that overwrites the saved grid with stale/default data.
 
   // Consolidated Inventory & Challenges Loading Logic
   const loadInventory = useCallback(async () => {
