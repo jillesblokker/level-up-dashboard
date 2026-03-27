@@ -36,7 +36,7 @@ const TAVERN_ITEMS = [
 
 export default function TavernPage() {
   const params = useParams()
-  const cityName = (params?.cityName as string) || ''
+  const cityName = (params?.['cityName'] as string) || ''
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
