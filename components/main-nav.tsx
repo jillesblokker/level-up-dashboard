@@ -109,15 +109,15 @@ export function MainNav() {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href="/social"
+              href="/city/Grand Citadel/tavern"
               className={cn(
                 "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname?.startsWith("/social")
+                pathname?.includes("/tavern")
                   ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
               aria-label="Navigate to Social"
-              aria-current={pathname?.startsWith("/social") ? "page" : undefined}
+              aria-current={pathname?.includes("/tavern") ? "page" : undefined}
             >
               {TEXT_CONTENT.navigation.social}
             </Link>

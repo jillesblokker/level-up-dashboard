@@ -33,7 +33,7 @@ export async function testSupabaseConnection() {
   }
 }
 
-// Initialize connection test
-if (typeof window === 'undefined') {
-  testSupabaseConnection();
-} 
+// Remove the automatic call during build evaluation to prevent noise and potential failures
+// if (typeof window === 'undefined') {
+//   testSupabaseConnection();
+// }

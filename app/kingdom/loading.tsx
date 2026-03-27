@@ -6,6 +6,7 @@ export default function KingdomLoading() {
     <LoadingScreen
       title="Your Kingdom Awaits"
       icon={<Crown className="w-12 h-12" />}
+      variant="amber"
       content={
         <>
           The stone walls of your castle rise from humble beginnings.<br />

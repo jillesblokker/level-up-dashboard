@@ -6,6 +6,7 @@ export default function TasksLoading() {
     <LoadingScreen
       title="Seeking Your Quests"
       icon={<Compass className="w-12 h-12" />}
+      variant="amber"
       content={
         <>
           In the town square, the Quest Board hums with activity.<br />
