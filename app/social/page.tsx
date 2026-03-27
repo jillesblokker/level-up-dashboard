@@ -392,7 +392,7 @@ export default function AlliesPage() {
                 <div className="h-8"></div> {/* Spacer to prevent overlap */}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="w-full flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
+                    <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Users className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.allies}
