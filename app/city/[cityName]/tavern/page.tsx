@@ -46,6 +46,21 @@ export default function TavernPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  if (!params) {
+    return (
+      <div className="container py-10" role="main" aria-label="tavern-error-section">
+        <Card aria-label="tavern-error-card">
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              Unable to load tavern information.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <LoadingScreen
@@ -60,21 +75,6 @@ export default function TavernPage() {
         }
       />
     );
-  }
-
-  if (!params) {
-    return (
-      <div className="container py-10" role="main" aria-label="tavern-error-section">
-        <Card aria-label="tavern-error-card">
-          <CardHeader>
-            <CardTitle>Error</CardTitle>
-            <CardDescription>
-              Unable to load tavern information.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    )
   }
 
   return (
