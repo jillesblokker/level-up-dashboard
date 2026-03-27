@@ -7,6 +7,7 @@ export default function RealmLoading() {
     <LoadingScreen
       title="Exploring the lands of Valoreth"
       icon={<MapIcon className="w-12 h-12" />}
+      variant="amber"
       content={
         <>
           King Necrion sought treasures of growth in this mystical land.<br />

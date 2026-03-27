@@ -253,8 +253,8 @@ body {
 .medieval-night h1,
 .medieval-night h2,
 .medieval-night h3 {
-  text-shadow: 0 0 10px rgba(147, 197, 253, 0.3);
-  /* Blue glow */
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  /* Amber glow */
 }
 
 /* Torches/Lights at night */

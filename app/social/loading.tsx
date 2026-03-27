@@ -6,6 +6,7 @@ export default function SocialLoading() {
     <LoadingScreen
       title="Entering the Tavern"
       icon={<Users className="w-12 h-12" />}
+      variant="amber"
       content={
         <>
           The Tavern buzzes with the laughter of allies and adventurers.<br />

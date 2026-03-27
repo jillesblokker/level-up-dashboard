@@ -26,13 +26,14 @@ export default function Loading() {
     <LoadingScreen
       title="Preparing Your Journey"
       icon={<Sword className="w-12 h-12" />}
+      variant="amber"
       content={
         <div className="space-y-4">
-          <p className="border-t border-blue-500/20 pt-4 px-12">
+          <p className="border-t border-amber-500/20 pt-4 px-12 italic font-serif">
             &quot;{LOADING_TIPS[tipIndex]}&quot;
           </p>
-          <p className="text-xs text-blue-400/50 tabular-nums">
-            Chapter {tipIndex + 1} of {LOADING_TIPS.length}
+          <p className="text-[10px] text-amber-500/40 tracking-[0.2em] uppercase font-black tabular-nums">
+            Archived Scroll {tipIndex + 1} of {LOADING_TIPS.length}
           </p>
         </div>
       }

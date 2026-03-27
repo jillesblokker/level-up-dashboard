@@ -1,6 +1,19 @@
-import { FullPageLoading } from "@/components/ui/loading-states"
-import { TEXT_CONTENT } from "@/lib/text-content"
+import { LoadingScreen } from "@/components/loading-screen"
+import { Backpack } from "lucide-react"
 
-export default function Loading() {
-  return <FullPageLoading message={TEXT_CONTENT.loading.title} />
+export default function InventoryLoading() {
+  return (
+    <LoadingScreen
+      title="Accessing Your Vault"
+      icon={<Backpack className="w-12 h-12" />}
+      variant="amber"
+      content={
+        <>
+          Your artifacts and treasures are being gathered from the storehouse.<br />
+          Organize your gear and prepare for the road ahead.<br />
+          A well-prepared hero is halfway to victory.
+        </>
+      }
+    />
+  )
 }

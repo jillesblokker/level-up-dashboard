@@ -6,6 +6,7 @@ export default function ProfileLoading() {
     <LoadingScreen
       title="Preparing Your Hall of Records"
       icon={<User className="w-12 h-12" />}
+      variant="amber"
       content={
         <>
           Every adventurer&apos;s deeds are recorded here.<br />

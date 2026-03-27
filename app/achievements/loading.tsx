@@ -6,6 +6,7 @@ export default function LoadingAchievements() {
     <LoadingScreen
       title="Retrieving Your Chronicles"
       icon={<Trophy className="w-12 h-12" />}
+      variant="amber"
       content={
         <>
           Your deeds of valor are etched in history.<br />
