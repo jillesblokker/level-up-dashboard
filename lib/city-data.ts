@@ -23,7 +23,7 @@ const defaultCityData: CityData = {
       name: "The Dragon's Rest",
       subtitle: "The social heart of the realm",
       description: 'Rest and recover while listening to local gossip, forming alliances, or challenging rivals.',
-      image: "/images/locations/tavern.webp"
+      image: "/images/allies-header.webp"
     },
     {
       id: 'marketplace',
