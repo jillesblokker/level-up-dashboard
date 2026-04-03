@@ -45,7 +45,9 @@ DECLARE
         'kingdom_event_log',
         'property_timers',
         'gold_transactions',
-        'experience_transactions'
+        'experience_transactions',
+        'streaks',
+        'seasonal_hunt'
     ];
 BEGIN
     FOR t_name IN SELECT unnest(tables)
@@ -69,6 +71,8 @@ BEGIN
             EXECUTE 'DROP POLICY IF EXISTS "Users manage own preferences" ON public.user_preferences';
             EXECUTE 'DROP POLICY IF EXISTS "Users view own logs" ON public.kingdom_event_log';
             EXECUTE 'DROP POLICY IF EXISTS "Users can manage their own property timers" ON public.property_timers';
+            EXECUTE 'DROP POLICY IF EXISTS "Users can manage own streaks" ON public.streaks';
+            EXECUTE 'DROP POLICY IF EXISTS "Users manage own streaks" ON public.streaks';
             
             -- Create unified policy
             EXECUTE 'CREATE POLICY "Users manage own ' || t_name || '_unified" ON public.' || t_name || 
