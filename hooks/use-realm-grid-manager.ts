@@ -52,7 +52,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
 
             if (gridResult && gridResult.tiles && Array.isArray(gridResult.tiles)) {
                 // Normalized Grid Data
-                console.log('[useRealmGridManager] Detected normalized grid data. Reconstructing...');
+                logger.info('[useRealmGridManager] Detected normalized grid data. Reconstructing...');
                 const tiles = gridResult.tiles;
 
                 const newGrid = createBaseGrid();
@@ -103,7 +103,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                 try {
                     const validatedGrid = GridSchema.parse(gridResult);
                     finalGrid = validatedGrid as unknown as Tile[][];
-                    console.log('[useRealmGridManager] Loaded legacy blob grid. Migrating to normalized storage...');
+                    logger.info('[useRealmGridManager] Loaded legacy blob grid. Migrating to normalized storage...');
 
                     // Auto-migrate to new persistence (Fire and forget)
                     (async () => {
@@ -138,7 +138,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                                     },
                                     body: JSON.stringify(tilesToMigrate)
                                 });
-                                console.log('[useRealmGridManager] Migration successful:', tilesToMigrate.length, 'tiles.');
+                                logger.info('[useRealmGridManager] Migration successful: ' + tilesToMigrate.length + ' tiles.');
                             }
                         } catch (err) {
                             console.error('[useRealmGridManager] Migration failed:', err);
@@ -154,7 +154,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             if (finalGrid) {
                 setGrid(finalGrid);
             } else {
-                console.log('[useRealmGridManager] No saved grid found, loading initial seed...');
+                logger.info('[useRealmGridManager] No saved grid found, loading initial seed...');
                 const initialGrid = await loadAndProcessInitialGrid();
                 setGrid(initialGrid);
             }
@@ -191,6 +191,8 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
 
         const saveTimeout = setTimeout(async () => {
             try {
+                // Only save the whole grid periodically if autoSave is on
+                // We rely on per-tile saves for placement/deletion
                 setSaveStatus('saving');
                 const result = await saveGridData(userId, grid);
                 if (result.success) {
@@ -202,7 +204,7 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
             } catch (error) {
                 setSaveStatus('error');
             }
-        }, 5000);
+        }, 30000); // Increased to 30 seconds to save egress
 
         return () => clearTimeout(saveTimeout);
     }, [grid, autoSave, isLoading, userId, gridInitialized, saveGridData]);
