@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 ;
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -335,10 +336,10 @@ export default function ProfilePage() {
           <div className="relative">
             <div className="w-24 h-24 rounded-full border-4 border-amber-500/30 overflow-hidden bg-gray-900 shadow-lg">
               {avatarType === 'uploaded' && user?.imageUrl ? (
-                <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
+                <Image src={user.imageUrl} alt="Profile" width={96} height={96} className="w-full h-full object-cover" />
               ) : avatarType === 'default' ? (
                 <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                  <img src={placeholderSvg} alt="Default avatar" className="w-12 h-12 object-contain opacity-70" />
+                  <Image src={placeholderSvg} alt="Default avatar" width={48} height={48} className="w-12 h-12 object-contain opacity-70" />
                 </div>
               ) : (
                 <div
@@ -478,7 +479,7 @@ export default function ProfilePage() {
                     aria-label="Use default avatar"
                   >
                     <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-gray-800">
-                      <img src={placeholderSvg} alt="Default avatar" className="w-10 h-10 object-contain opacity-70" />
+                      <Image src={placeholderSvg} alt="Default avatar" width={40} height={40} className="w-10 h-10 object-contain opacity-70" />
                     </div>
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
                       Default
@@ -498,7 +499,7 @@ export default function ProfilePage() {
                   >
                     <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-gray-900 overflow-hidden">
                       {user?.imageUrl ? (
-                        <img src={user.imageUrl} alt="Uploaded avatar" className="w-full h-full object-cover" />
+                        <Image src={user.imageUrl} alt="Uploaded avatar" width={80} height={80} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-gray-500 text-sm">No image</span>
                       )}

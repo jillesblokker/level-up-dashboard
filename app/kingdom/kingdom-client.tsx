@@ -41,11 +41,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Backpack, Sword, LayoutGrid, Compass, Gift, BookOpen, Flame, Skull } from "lucide-react";
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
-import { KingdomStatsBlock, KingStatsBlock } from "@/components/kingdom-stats-graph";
-import { KingdomGridWithTimers } from '@/components/kingdom-grid-with-timers';
-import { KingdomPropertiesInventory } from '@/components/kingdom-properties-inventory';
-
-import { KingdomTileGrid } from '@/components/kingdom-tile-grid';
+import dynamic from 'next/dynamic';
 import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
@@ -63,8 +59,22 @@ import {
   loadKingdomTileStates
 } from '@/lib/supabase-persistence-client'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
-import { KingdomGuide } from '@/components/kingdom/kingdom-guide'
-import dynamic from 'next/dynamic';
+
+const KingdomStatsBlock = dynamic(() => import("@/components/kingdom-stats-graph").then(m => m.KingdomStatsBlock), { ssr: false });
+const KingStatsBlock = dynamic(() => import("@/components/kingdom-stats-graph").then(m => m.KingStatsBlock), { ssr: false });
+const KingdomGridWithTimers = dynamic(() => import("@/components/kingdom-grid-with-timers").then(m => m.KingdomGridWithTimers), { 
+  ssr: false,
+  loading: () => <div className="w-full flex flex-col items-center justify-center py-8 gap-4 animate-pulse">
+    <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, 64px)' }}>
+      {Array.from({ length: 36 }).map((_, i) => (
+        <div key={i} className="w-16 h-16 bg-gray-700/50 rounded" />
+      ))}
+    </div>
+  </div>
+});
+const KingdomPropertiesInventory = dynamic(() => import("@/components/kingdom-properties-inventory").then(m => m.KingdomPropertiesInventory), { ssr: false });
+const KingdomTileGrid = dynamic(() => import("@/components/kingdom-tile-grid").then(m => m.KingdomTileGrid), { ssr: false });
+const KingdomGuide = dynamic(() => import("@/components/kingdom/kingdom-guide").then(m => m.KingdomGuide), { ssr: false });
 
 
 const ProgressionVisualization = dynamic(

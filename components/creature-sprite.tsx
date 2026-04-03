@@ -1,5 +1,6 @@
 import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { CreatureDefinition } from '@/lib/creature-mapping';
 import { cn } from '@/lib/utils';
 
@@ -57,12 +58,9 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
             </div>
 
             {/* Creature Image */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-                src={`/images/creatures/${creature.filename}`}
-                alt={creature.name}
+            <div 
                 className={cn(
-                    "object-contain drop-shadow-lg transition-all duration-300",
+                    "relative transition-all duration-300",
                     isJumping ? "animate-bounce scale-110" : ""
                 )}
                 style={{
@@ -70,15 +68,18 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                     height: `${creature.scale * 70}%`,
                     animation: isJumping ? undefined : 'waddle 2s ease-in-out infinite',
                 }}
-                onLoad={() => {
-                    // logger.debug('[CreatureSprite] Image loaded successfully:', creature.name, creature.filename);
-                }}
-                onError={(e) => {
-                    logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);
-                    // Fallback if image fails to load
-                    e.currentTarget.style.display = 'none';
-                }}
-            />
+            >
+                <Image
+                    src={`/images/creatures/${creature.filename}`}
+                    alt={creature.name}
+                    fill
+                    sizes="100px"
+                    className="object-contain drop-shadow-lg"
+                    onError={() => {
+                        logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);
+                    }}
+                />
+            </div>
             <style jsx>{`
                 @keyframes waddle {
                     0%, 100% {

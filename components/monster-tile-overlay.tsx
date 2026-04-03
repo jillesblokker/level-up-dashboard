@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import Image from 'next/image'
 import { Tile } from '@/types/tiles'
 import { getTileMonsterType } from '@/lib/monster-spawn-manager'
 
@@ -31,12 +31,13 @@ export function MonsterTileOverlay({ tile, size = 32, className = '' }: MonsterT
       className={`absolute inset-0 flex items-center justify-center pointer-events-none ${className}`}
       style={{ zIndex: 10 }}
     >
-      <div className="relative">
-        <img
+      <div className="relative" style={{ width: size, height: size }}>
+        <Image
           src={imageSrc}
           alt={`${monsterType} monster`}
+          fill
+          sizes={`${size}px`}
           className="object-contain"
-          style={{ width: size, height: size }}
         />
         {/* Monster indicator glow */}
         <div className="absolute inset-0 bg-red-500/20 rounded-full animate-pulse" />

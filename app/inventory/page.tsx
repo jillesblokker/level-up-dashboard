@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -136,14 +137,16 @@ export default function InventoryPage() {
               {item.emoji ? (
                 <div className="text-4xl">{item.emoji}</div>
               ) : item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-16 h-16 object-cover rounded-lg"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                    (e.target as HTMLImageElement).src = "/images/items/placeholder.webp";
-                  }}
-                />
+                <div className="w-16 h-16 relative">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover rounded-lg"
+                    priority={false}
+                  />
+                </div>
               ) : (
                 <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center">
                   <span className="text-2xl">📦</span>

@@ -409,7 +409,13 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/penguin.webp" alt="Penguin" className="object-contain w-full h-full" />
+            <Image 
+              src="/images/Animals/penguin.webp" 
+              alt="Penguin" 
+              fill
+              sizes={`${tileSize * 3.2}px`}
+              className="object-contain" 
+            />
           </div>
         )}
 
@@ -424,7 +430,13 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/horse.webp" alt="Horse" className="object-contain w-full h-full" />
+            <Image 
+              src="/images/Animals/horse.webp" 
+              alt="Horse" 
+              fill
+              sizes={`${tileSize * 3.2}px`}
+              className="object-contain" 
+            />
           </div>
         )}
 
@@ -439,7 +451,13 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/sheep.webp" alt="Sheep" className="object-contain w-full h-full" />
+            <Image 
+              src="/images/Animals/sheep.webp" 
+              alt="Sheep" 
+              fill
+              sizes={`${tileSize * 3.2}px`}
+              className="object-contain" 
+            />
           </div>
         )}
 
@@ -463,13 +481,14 @@ export function MapGrid({
           >
             <div className="relative w-full h-full">
               <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md animate-pulse"></div>
-              <img
+              <Image
                 src={getMonsterImageUrl(monster.monster_type)}
                 alt={monster.monster_type}
-                className="relative z-10 object-contain w-full h-full drop-shadow-md"
+                fill
+                sizes={`${tileSize}px`}
+                className="relative z-10 object-contain drop-shadow-md"
                 onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/images/creatures/Drakon.webp';
+                  (e.target as any).src = '/images/creatures/Drakon.webp';
                 }}
               />
 
@@ -488,7 +507,13 @@ export function MapGrid({
               transform: 'translate(-50%, -50%)'
             }}
           >
-            <img src="/images/Animals/eagle.webp" alt="Eagle" className="object-contain w-full h-full" />
+            <Image 
+              src="/images/Animals/eagle.webp" 
+              alt="Eagle" 
+              fill
+              sizes={`${tileSize * 3.2}px`}
+              className="object-contain" 
+            />
           </div>
         )}
       </div>

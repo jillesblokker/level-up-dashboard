@@ -100,12 +100,13 @@ function Page() {
       <div className="sr-only" aria-live="polite">{announce}</div>
       {/* Static image as the very bottom layer, always visible until overlay is removed */}
       <div className="absolute inset-0 z-0 pointer-events-none w-full h-full">
-        <img
+        <Image
           src="/images/Reveal/reveal-static.webp"
           alt="Reveal Static Background"
-          className="object-cover w-full h-full"
+          fill
+          priority
+          className="object-cover"
           draggable={false}
-          style={{ borderRadius: 0 }}
         />
       </div>
       {/* Door image as the middle layer, animating upwards */}
@@ -122,13 +123,12 @@ function Page() {
           height: '100%'
         }}
       >
-        <img
+        <Image
           src="/images/Reveal/reveal-door.webp"
           alt="Reveal Door"
-          className="object-cover w-full h-full"
-          style={{
-            borderRadius: 0
-          }}
+          fill
+          priority
+          className="object-cover"
           draggable={false}
         />
       </div>
@@ -138,14 +138,18 @@ function Page() {
           className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}
           style={{ transitionDuration: '800ms' }}
         >
-          <img
+          <Image
             src="/images/Reveal/reveal-background.webp"
             alt="Reveal Background"
-            className={`object-cover w-full h-full transition-transform ease-in-out ${scaleBackground ? 'scale-[12]' : 'scale-100'}`}
+            fill
+            priority
+            className={cn(
+              "object-cover transition-transform ease-in-out",
+              scaleBackground ? "scale-[12]" : "scale-100"
+            )}
             draggable={false}
             style={{
               transition: 'opacity 0.8s, transform 1.5s cubic-bezier(0.7, 0, 0.3, 1)',
-              borderRadius: 0,
               transitionDuration: '1500ms'
             }}
           />

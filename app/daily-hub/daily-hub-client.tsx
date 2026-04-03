@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from 'react'
+import NextImage from 'next/image'
 import { useUser } from '@clerk/nextjs'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { Card, CardContent } from '@/components/ui/card'
@@ -377,10 +378,12 @@ export function DailyHubClient() {
                                 {/* Right Side: Image */}
                                 <div className="flex-1 w-full max-w-md">
                                     <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-black/40">
-                                        <img
+                                        <NextImage
                                             src="/images/gameplay-loop.webp"
                                             alt="Level Up Gameplay Loop"
-                                            className="w-full h-full object-contain p-2"
+                                            fill
+                                            priority
+                                            className="object-contain p-2"
                                         />
                                         {/* Cinematic glow effect */}
                                         <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />

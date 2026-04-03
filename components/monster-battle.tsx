@@ -321,19 +321,18 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         <CardContent className="space-y-6">
           {/* Monster Card */}
           <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800">
-            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-              <img
+            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden relative">
+              <Image
                 src={monster.image}
                 alt={monster.name}
-                className="w-full h-full object-cover"
+                fill
+                sizes="64px"
+                className="object-cover"
                 onLoad={() => {
                   logger.debug('Monster image loaded successfully:', monster.image);
                 }}
-                onError={(e) => {
+                onError={() => {
                   logger.error('Failed to load monster image:', monster.image);
-                  logger.error('Error details:', e);
-                  // Try to show a fallback
-                  e.currentTarget.src = '/images/placeholders/item-placeholder.svg';
                 }}
               />
             </div>

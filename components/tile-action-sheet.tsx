@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { createPortal } from 'react-dom'
 import { ArrowRightLeft, RotateCw, Trash2, X, Sparkles, Clock, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -63,9 +64,11 @@ export function TileActionSheet({
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
                                     {tile.image ? (
-                                        <img
+                                        <Image
                                             src={tile.image}
                                             alt={tileName}
+                                            width={40}
+                                            height={40}
                                             className="w-10 h-10 object-contain"
                                         />
                                     ) : (
