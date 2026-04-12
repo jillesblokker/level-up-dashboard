@@ -38,18 +38,10 @@ export async function POST(req: NextRequest) {
                     throw new Error('Quest not found');
                 }
 
-                // Use challenge data as quest
-                // Re-assign quest variable or use challenge data below
-                // For simplicity, let's just proceed with challenge data mapped
-
                 // 2. Check if already completed TODAY
                 const today = new Date().toISOString().split('T')[0];
                 const { data: existing } = await supabase
-                    .from('quest_completion') // or challenge_completion?
-                    // The frontend seems to treat these as "Quests". 
-                    // If the ID came from 'challenges' table, we should probably insert into 'challenge_completion' OR 'quest_completion'.
-                    // Given typical "Bulk Complete" naming, it's likely Quests.
-                    // Let's assume 'quest_completion' is the target.
+                    .from('quest_completion')
                     .select('id')
                     .eq('quest_id', questId)
                     .eq('user_id', userId)
@@ -61,7 +53,6 @@ export async function POST(req: NextRequest) {
                 }
 
                 // 3. Insert completion
-                // Determine rewards
                 const difficultyRewards: Record<string, { xp: number; gold: number }> = {
                     easy: { xp: 25, gold: 25 },
                     medium: { xp: 50, gold: 50 },
@@ -80,17 +71,20 @@ export async function POST(req: NextRequest) {
                         gold_earned: rewards.gold
                     });
 
-                if (insertError) throw insertError;
+                if (insertError) {
+                    if (insertError.code === '23505') { // Duplicate key
+                        return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
+                    }
+                    throw insertError;
+                }
 
                 return { success: true, completed: true, rewards };
             }
 
             // Quest found in 'quests' table
-
             // 2. Check if already completed TODAY
-            const today = new Date().toISOString().split('T')[0]; // Simple UTC date
+            const today = new Date().toISOString().split('T')[0];
 
-            // Logic from api/quests/complete/route.ts
             const { data: existing } = await supabase
                 .from('quest_completion')
                 .select('id')
@@ -123,66 +117,26 @@ export async function POST(req: NextRequest) {
                 });
 
             if (insertError) {
+                if (insertError.code === '23505') { // Duplicate key
+                    return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
+                }
                 throw insertError;
             }
 
-            // 4. Update Character Stats (Simple increment)
+            // 4. Update Character Stats
             await supabase.rpc('grant_rewards', {
                 p_user_id: userId,
                 p_gold: rewards.gold,
                 p_xp: rewards.xp
             });
 
-            // 5. Productivity Milestones & Encouraging Messages
-            let milestoneMessage = null;
-            try {
-                const todayStr = new Date().toISOString().split('T')[0];
-
-                // Today's Quest Count
-                const { count: questsToday } = await supabase
-                    .from('quest_completion')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', userId)
-                    .eq('completed', true)
-                    .gte('completed_at', `${todayStr}T00:00:00`)
-                    .lte('completed_at', `${todayStr}T23:59:59`);
-
-                // Current Stats (Level/Gold)
-                const { data: charStats } = await supabase
-                    .from('character_stats')
-                    .select('streak_days, level, gold')
-                    .eq('user_id', userId)
-                    .single();
-
-                const { getMilestoneMessage } = await import('@/lib/milestone-manager');
-
-                // Priority: Level > Gold > Streak > Today's Quests
-                if (charStats?.level === 10 || charStats?.level === 20) {
-                    milestoneMessage = await getMilestoneMessage(`level_${charStats.level}`);
-                } else if (charStats?.gold >= 5000 && charStats?.gold < 5100) { // Approx check for "hitting" it
-                    milestoneMessage = await getMilestoneMessage('gold_5000');
-                } else if (charStats?.gold >= 1000 && charStats?.gold < 1100) {
-                    milestoneMessage = await getMilestoneMessage('gold_1000');
-                } else if (charStats?.streak_days === 7) {
-                    milestoneMessage = await getMilestoneMessage('streak_7');
-                } else if (charStats?.streak_days === 3) {
-                    milestoneMessage = await getMilestoneMessage('streak_3');
-                } else if (questsToday === 10) {
-                    milestoneMessage = await getMilestoneMessage('quests_10');
-                } else if (questsToday === 5) {
-                    milestoneMessage = await getMilestoneMessage('quests_5');
-                } else if (questsToday === 3) {
-                    milestoneMessage = await getMilestoneMessage('quests_3');
-                }
-            } catch (milestoneErr) {
-                logger.warn('[Smart Completion] Error checking milestones:', milestoneErr);
-            }
-
-            return { success: true, completed: true, rewards, milestoneMessage };
+            return { success: true, completed: true, rewards };
         });
 
         if (!result.success) {
-            return NextResponse.json({ error: result.error }, { status: 401 });
+            // Determine status code based on error message/type
+            const status = (result.error?.includes('auth') || result.error?.includes('session')) ? 401 : 500;
+            return NextResponse.json({ error: result.error }, { status });
         }
 
         return NextResponse.json(result.data);

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { createPortal } from 'react-dom'
-import { ArrowRightLeft, RotateCw, Trash2, X, Sparkles, Clock, Info } from 'lucide-react'
+import { ArrowRightLeft, RotateCw, Trash2, X, Sparkles, Clock, Info, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tile } from '@/types/tiles'
 
@@ -19,6 +19,8 @@ interface TileActionSheetProps {
     onRotate: () => void
     onCollect?: (() => void) | undefined
     onMeditate?: (() => void) | undefined
+    onCollectAll?: (() => void) | undefined
+    hasBatchReady?: boolean
 }
 
 export function TileActionSheet({
@@ -32,7 +34,9 @@ export function TileActionSheet({
     onDelete,
     onRotate,
     onCollect,
-    onMeditate
+    onMeditate,
+    onCollectAll,
+    hasBatchReady
 }: TileActionSheetProps) {
     const [mounted, setMounted] = useState(false)
 
@@ -138,6 +142,25 @@ export function TileActionSheet({
                                 <div className="text-left flex-1">
                                     <div className="font-bold text-white text-base">Collect Rewards</div>
                                     <div className="text-green-200 text-sm">Tap to claim your earnings</div>
+                                </div>
+                            </button>
+                        )}
+
+                        {/* Batch Collect - if multiple are ready */}
+                        {hasBatchReady && onCollectAll && (
+                            <button
+                                onClick={() => {
+                                    onCollectAll()
+                                    onClose()
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-amber-600/20 border border-amber-600/30 hover:bg-amber-600/30 transition-all active:scale-[0.98]"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                                    <Trophy className="w-6 h-6 text-amber-400" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-amber-400 text-base">Collect All Ready</div>
+                                    <div className="text-amber-300/60 text-sm">Bulk harvest all locations</div>
                                 </div>
                             </button>
                         )}

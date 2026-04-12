@@ -82,7 +82,19 @@ self.addEventListener('fetch', (event) => {
 
   // Skip ALL API requests - never cache API responses
   if (url.pathname.startsWith('/api/')) {
-    return event.respondWith(fetch(request))
+    return event.respondWith(
+      fetch(request).catch(error => {
+        console.error('[SW] API Fetch failed:', error);
+        return new Response(JSON.stringify({ 
+          error: 'Network failure', 
+          details: error.message,
+          offline: true 
+        }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      })
+    )
   }
 
   // Strategy: Cache First for Images and Audio, Network First for everything else

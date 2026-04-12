@@ -545,35 +545,34 @@ export function KingdomClient() {
         const savedGrid = await loadKingdomGrid(token, targetId);
         if (savedGrid && savedGrid.length > 0) {
           try {
-            // logger.debug('[Kingdom] Loading existing grid from Supabase...');
-
-            // Use the existing grid directly instead of recreating and merging
-            // logger.debug('[Kingdom] Using existing grid from Supabase:', {
-            //   gridLength: savedGrid.length,
-            //   hasTiles: savedGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty')),
-            //   vacantTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type === 'vacant').length,
-            //   userTileCount: savedGrid.flat().filter((cell: any) => cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty').length
-            // });
-
-            setKingdomGrid(savedGrid);
+            // Sanitize grid: ensure unique IDs for tiles that should be unique
+            const idSet = new Set<string>();
+            const sanitized = savedGrid.map((row: Tile[]) => row.map((tile: Tile) => {
+              if (!tile || tile.type === 'vacant' || tile.type === 'empty') return tile;
+              if (idSet.has(tile.id)) {
+                logger.warn(`[Kingdom] Found duplicate tile ID in Supabase: ${tile.id}. Converting to vacant.`);
+                return {
+                  ...tile,
+                  type: 'vacant',
+                  name: 'Vacant Plot',
+                  image: '/images/kingdom-tiles/Vacant.webp',
+                  id: `vacant-${tile.x}-${tile.y}`,
+                  description: 'A vacant plot ready for building.'
+                } as Tile;
+              }
+              if (tile.id) idSet.add(tile.id);
+              return tile;
+            }));
+            setKingdomGrid(sanitized);
           } catch (error) {
-            // logger.warn('[Kingdom] Failed to load existing grid, creating new one:', error);
+            logger.warn('[Kingdom] Failed to load/sanitize existing grid, creating new one:', error);
             const newGrid = createEmptyKingdomGrid();
-            // logger.debug('[Kingdom] Created new grid:', {
-            //   gridLength: newGrid.length,
-            //   hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-            // });
             setKingdomGrid(newGrid);
-            // Save the new grid to Supabase
             await saveKingdomGrid(newGrid, token);
           }
         } else {
           // logger.debug('[Kingdom] No existing grid found, creating new one...');
           const newGrid = createEmptyKingdomGrid();
-          // logger.debug('[Kingdom] Created new grid:', {
-          //   gridLength: newGrid.length,
-          //   hasTiles: newGrid.some((row: any) => row.some((cell: any) => cell && cell.type && cell.type !== 'empty'))
-          // });
           setKingdomGrid(newGrid);
           // Save the new grid to Supabase
           await saveKingdomGrid(newGrid, token);
@@ -675,11 +674,27 @@ export function KingdomClient() {
       return;
     }
 
+    // Sanitize grid before saving to prevent persisting duplicates
+    const idSet = new Set<string>();
+    const sanitizedGrid = grid.map(row => row.map(tile => {
+      if (!tile || tile.type === 'vacant' || tile.type === 'empty') return tile;
+      if (idSet.has(tile.id)) {
+        return {
+          ...tile,
+          type: 'vacant' as TileType,
+          id: `vacant-${tile.x}-${tile.y}`,
+          image: '/images/kingdom-tiles/Vacant.webp'
+        } as Tile;
+      }
+      if (tile.id) idSet.add(tile.id);
+      return tile;
+    }));
+
     try {
       const token = await getToken();
       if (!token) {
         // logger.debug('[Kingdom] No token available, falling back to localStorage');
-        localStorage.setItem('kingdom-grid', JSON.stringify(grid));
+        localStorage.setItem('kingdom-grid', JSON.stringify(sanitizedGrid));
         return;
       }
 
@@ -689,7 +704,7 @@ export function KingdomClient() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ grid }),
+        body: JSON.stringify({ grid: sanitizedGrid }),
       });
 
       if (response.ok) {

@@ -26,6 +26,7 @@ import { TEXT_CONTENT } from '@/lib/text-content'
 import { AnimatePresence } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
 import { TileActionSheet } from '@/components/tile-action-sheet'
+import { KingdomSummaryModal } from './kingdom-summary-modal'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
@@ -257,6 +258,10 @@ export function KingdomGridWithTimers({
   // State for mobile action sheet
   const [actionSheetOpen, setActionSheetOpen] = useState(false)
   const [actionSheetTile, setActionSheetTile] = useState<{ tile: Tile; x: number; y: number; timer?: TileTimer } | null>(null)
+
+  // Batch collection state
+  const [showSummaryModal, setShowSummaryModal] = useState(false)
+  const [summaryRewards, setSummaryRewards] = useState<any[]>([])
 
   // Add missing state for expand functionality
   const [propertiesOpen, setPropertiesOpen] = useState(false)
@@ -880,7 +885,15 @@ export function KingdomGridWithTimers({
     // Allow placement on vacant tiles OR if we are moving to the same spot (effectively resetting)
     const isMovingToSource = movingTileSource && movingTileSource.x === x && movingTileSource.y === y;
 
-    if (!targetTile || ((targetTile.type !== 'vacant' && targetTile.type !== 'empty') && !isMovingToSource)) {
+    if (isMovingToSource) {
+      logger.info('[KingdomGrid] Moving tile to same spot, cancelling move action.');
+      setSelectedProperty(null);
+      setPlacementMode(false);
+      setMovingTileSource(null);
+      return;
+    }
+
+    if (!targetTile || (targetTile.type !== 'vacant' && targetTile.type !== 'empty')) {
       toast({
         title: 'Invalid Placement',
         description: 'You can only place properties on vacant tiles.',
@@ -891,7 +904,7 @@ export function KingdomGridWithTimers({
 
     // Create the new kingdom tile
     const newTile: Tile = {
-      id: isMovingToSource && targetTile.id ? targetTile.id : `${selectedProperty.id}-${x}-${y}`,
+      id: `${selectedProperty.id}-${x}-${y}`,
       name: selectedProperty.name,
       description: `A ${selectedProperty.name.toLowerCase()} building`,
       type: selectedProperty.id as TileType,
@@ -910,17 +923,18 @@ export function KingdomGridWithTimers({
     // Create a copy of the grid to update
     const updatedGrid = grid.map(row => row.slice());
 
-    // If we are moving, clear the OLD spot first (unless it's the same spot)
-    if (movingTileSource && !isMovingToSource) {
+    // If we are moving, clear the OLD spot first
+    if (movingTileSource) {
       const srcY = movingTileSource.y;
       const srcX = movingTileSource.x;
+      logger.info(`[KingdomGrid] Moving tile from (${srcX},${srcY}) to (${x},${y})`);
       if (updatedGrid[srcY] && updatedGrid[srcY][srcX]) {
         updatedGrid[srcY][srcX] = {
           ...updatedGrid[srcY][srcX],
           type: 'vacant',
           name: 'Vacant Plot',
-          image: 'Vacant.png',
-          id: updatedGrid[srcY][srcX]?.id || `vacant-${srcX}-${srcY}`,
+          image: '/images/kingdom-tiles/Vacant.webp',
+          id: `vacant-${srcX}-${srcY}`,
           description: 'A vacant plot ready for building.',
           connections: [],
           rotation: 0
@@ -933,7 +947,7 @@ export function KingdomGridWithTimers({
       updatedGrid[y][x] = newTile;
     }
 
-    if (movingTileSource && !isMovingToSource) {
+    if (movingTileSource) {
       // MOVE: we already cleared the old cell and placed in the new cell above.
       // Push the full updated grid to the parent so BOTH changes are persisted.
       if (onTileMove) {
@@ -942,33 +956,11 @@ export function KingdomGridWithTimers({
         onGridUpdate(updatedGrid);
       }
     } else {
-      // NEW PLACEMENT (from inventory): delegate to parent onTilePlace which handles
-      // inventory decrement + grid persistence.
+      // NEW PLACEMENT (from inventory)
       if (onTilePlace) {
-        logger.debug('[KingdomGrid] Delegating new placement to onTilePlace:', newTile);
         onTilePlace(x, y, newTile);
-      } else {
-        logger.warn('[KingdomGrid] onTilePlace prop missing, falling back to local state update');
-        if (onGridUpdate) {
-          onGridUpdate(updatedGrid);
-        }
-        // Fallback: Decrease property quantity ONLY if NOT moving
-        if (!movingTileSource && selectedProperty.costType === 'build-token') {
-          const updatedInventory = propertyInventory.map(p =>
-            p.id === selectedProperty.id ? { ...p, quantity: Math.max(0, (p.quantity || 0) - 1) } : p
-          );
-          setPropertyInventory(updatedInventory);
-          if (userId) {
-            (async () => {
-              try {
-                await removeFromKingdomInventory(userId, selectedProperty.id, 1);
-                window.dispatchEvent(new Event('character-inventory-update'));
-              } catch (e) {
-                logger.warn('[Kingdom] Failed to decrement inventory', e);
-              }
-            })();
-          }
-        }
+      } else if (onGridUpdate) {
+        onGridUpdate(updatedGrid);
       }
     }
 
@@ -1479,6 +1471,110 @@ export function KingdomGridWithTimers({
         type: kingdomTile.itemType
       })
     }
+  }
+
+  const handleCollectAllReady = async () => {
+    const readyTimers = tileTimers.filter(t => t.isReady);
+    if (readyTimers.length === 0) {
+      toast({ title: "Nothing to collect", description: "Wait for your buildings to finish production!" });
+      return;
+    }
+
+    const collectedRewards: any[] = [];
+    const updatedTimers = [...tileTimers];
+    const { gainGold } = await import('@/lib/gold-manager');
+    const { gainExperience } = await import('@/lib/experience-manager');
+
+    for (const timer of readyTimers) {
+      const { x, y } = timer;
+      const tile = grid[y]?.[x];
+      if (!tile || tile.type === 'vacant') continue;
+
+      const kingdomTile = KINGDOM_TILES.find(kt =>
+        kt.id === tile.type.toLowerCase() ||
+        kt.name.toLowerCase() === tile.name.toLowerCase() ||
+        kt.image === tile.image
+      );
+      if (!kingdomTile || kingdomTile.timerMinutes === 0) continue;
+
+      const wasLucky = isLuckyTile(kingdomTile.luckyChance);
+      let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange);
+      const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
+      
+      if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
+        goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier);
+      } else if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
+        goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier);
+      } else {
+        goldEarned = Math.floor(goldEarned * adjacencyMultiplier);
+      }
+
+      const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3);
+      const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
+        ? Math.ceil(baseExperience * 1.1)
+        : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
+          ? Math.ceil(baseExperience * 1.1)
+          : baseExperience;
+
+      // Award gold and experience
+      gainGold(goldEarned, `tile-collect:${kingdomTile.id}`);
+      gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general');
+
+      // Add to summary
+      const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
+      collectedRewards.push({
+        tileName: kingdomTile.name,
+        goldEarned,
+        experienceEarned: experienceAwarded,
+        itemFound: itemFound ? {
+          image: itemFound,
+          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          type: kingdomTile.itemType
+        } : undefined,
+        isLucky: wasLucky
+      });
+
+      // Update timer in our local list
+      const newEndTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000);
+      const timerIdx = updatedTimers.findIndex(t => t.x === x && t.y === y);
+      if (timerIdx >= 0 && updatedTimers[timerIdx]) {
+        updatedTimers[timerIdx] = { 
+          ...updatedTimers[timerIdx]!, 
+          endTime: newEndTime, 
+          isReady: false 
+        };
+      }
+
+      // Persist to API (non-blocking)
+      fetchAuthRetry('/api/property-timers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ x, y, isReady: false, endTime: new Date(newEndTime).toISOString() })
+      }).catch(e => logger.error('Failed to persist timer in batch', e));
+
+      fetchAuthRetry('/api/kingdom-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
+      }).catch(e => logger.error('Failed to log event in batch', e));
+
+      if (onGoldEarned) onGoldEarned(goldEarned);
+      if (onItemFound && itemFound) {
+        onItemFound({
+          image: itemFound,
+          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          type: kingdomTile.itemType
+        });
+      }
+    }
+
+    setTileTimers(updatedTimers);
+    window.dispatchEvent(new CustomEvent('kingdom-building-collected'));
+    
+    setSummaryRewards(collectedRewards);
+    setShowSummaryModal(true);
+    
+    toast({ title: "Harvest Complete!", description: `Collected rewards from ${readyTimers.length} buildings.` });
   }
 
   const handleMoveTile = (x: number, y: number, tile: Tile) => {
@@ -2006,9 +2102,18 @@ export function KingdomGridWithTimers({
             isOpen={showModal}
             onClose={() => setShowModal(false)}
             reward={modalData}
+            onCollectAll={handleCollectAllReady}
+            hasBatchReady={tileTimers.filter(t => t.isReady).length > 1}
           />
         )
       }
+
+      {/* Kingdom Harvest Summary Modal */}
+      <KingdomSummaryModal
+        isOpen={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+        rewards={summaryRewards}
+      />
 
       {/* Zen Garden Meditation Modal */}
       <ZenMeditateModal
@@ -2047,6 +2152,8 @@ export function KingdomGridWithTimers({
             handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         } : undefined}
+        onCollectAll={handleCollectAllReady}
+        hasBatchReady={tileTimers.filter(t => t.isReady).length > 1}
         onMeditate={actionSheetTile?.tile?.type === 'zen-garden' ? () => {
           setZenModalOpen(true);
         } : undefined}

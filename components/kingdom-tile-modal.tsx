@@ -22,9 +22,11 @@ interface KingdomTileModalProps {
   isOpen: boolean
   onClose: () => void
   reward: KingdomTileReward | null
+  onCollectAll?: () => void
+  hasBatchReady?: boolean
 }
 
-export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalProps) {
+export function KingdomTileModal({ isOpen, onClose, reward, onCollectAll, hasBatchReady }: KingdomTileModalProps) {
   if (!reward) return null
 
   return (
@@ -153,18 +155,34 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
                 </div>
               )}
 
-              {/* Continue Button */}
-              <Button
-                onClick={onClose}
-                className={cn(
-                  "w-full py-6 font-serif text-lg tracking-wide transition-all duration-300 rounded-xl",
-                  reward.isLucky
-                    ? "bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/30 border-t border-white/10"
-                    : "bg-amber-700/90 hover:bg-amber-600 text-amber-50 border-t border-white/5 shadow-xl shadow-black/40"
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2">
+                {hasBatchReady && onCollectAll && (
+                  <Button
+                    onClick={() => {
+                      onClose();
+                      onCollectAll();
+                    }}
+                    variant="outline"
+                    className="w-full py-6 font-serif text-amber-400 border-amber-600/30 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-300 transition-all duration-300 rounded-xl flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Collect All Ready
+                  </Button>
                 )}
-              >
-                Collect & Continue
-              </Button>
+
+                <Button
+                  onClick={onClose}
+                  className={cn(
+                    "w-full py-6 font-serif text-lg tracking-wide transition-all duration-300 rounded-xl",
+                    reward.isLucky
+                      ? "bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/30 border-t border-white/10"
+                      : "bg-amber-700/90 hover:bg-amber-600 text-amber-50 border-t border-white/5 shadow-xl shadow-black/40"
+                  )}
+                >
+                  Collect & Continue
+                </Button>
+              </div>
             </div>
           </div>
         </div>
