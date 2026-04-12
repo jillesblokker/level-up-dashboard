@@ -1191,7 +1191,7 @@ export function KingdomGridWithTimers({
       router.push('/market');
       return;
     }
-    if (tile.type === 'crystal_cavern' || tile.type === 'dungeon') {
+    if (tile.type === 'dungeon') {
       toast({ title: "Entering Dungeon...", description: "Teleporting to Dungeon." });
       router.push('/dungeon');
       return;
@@ -1206,7 +1206,7 @@ export function KingdomGridWithTimers({
       router.push('/character');
       return;
     }
-    if (tile.type === 'tavern' || tile.type === 'inn') {
+    if (tile.type === 'tavern') {
       toast({ title: "Entering Tavern...", description: "Going to Social." });
       router.push('/social');
       return;
@@ -1221,11 +1221,8 @@ export function KingdomGridWithTimers({
       router.push('/chronicle');
       return;
     }
-    if (tile.type?.toLowerCase() === 'house') {
-      toast({ title: "Entering House...", description: "Going to Character." });
-      router.push('/character');
-      return;
-    }
+    // Removed redundant house hub to consolidate navigation
+    // (Training Grounds remains the primary character portal)
 
     // Handle property tiles (blacksmith, sawmill, etc.) - Collectible production buildings
     // Note: archery, jousting, market, dungeon are navigation tiles handled above
@@ -1813,25 +1810,23 @@ export function KingdomGridWithTimers({
 
                 {/* Navigation Hub Tiles - Always Clickable */}
                 {(tile.type === 'quest-board' || tile.type === 'market' ||
-                  tile.type === 'crystal_cavern' || tile.type === 'dungeon' ||
+                  tile.type === 'dungeon' ||
                   tile.type === 'monument' || tile.type === 'training-grounds' ||
                   tile.type === 'tavern' || tile.type === 'castle' ||
-                  tile.type?.toLowerCase() === 'library' || tile.type?.toLowerCase() === 'house' ||
-                  tile.type?.toLowerCase() === 'zen-garden' || tile.type?.toLowerCase() === 'inn' || tile.type?.toLowerCase() === 'market-stalls') && (
+                  tile.type?.toLowerCase() === 'library' || 
+                  tile.type?.toLowerCase() === 'zen-garden' || tile.type?.toLowerCase() === 'market-stalls') && (
                     <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
                       <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                         {tile.type === 'quest-board' ? 'Quests' :
                           tile.type === 'market' ? 'Market' :
-                            (tile.type?.toLowerCase() === 'crystal_cavern' || tile.type?.toLowerCase() === 'dungeon') ? 'Dungeon' :
+                            tile.type?.toLowerCase() === 'dungeon' ? 'Dungeon' :
                               tile.type?.toLowerCase() === 'monument' ? 'Achievements' :
                                 tile.type?.toLowerCase() === 'training-grounds' ? 'Character' :
                                   tile.type?.toLowerCase() === 'tavern' ? 'Social' :
                                     tile.type?.toLowerCase() === 'castle' ? 'Realm' :
                                       tile.type?.toLowerCase() === 'library' ? 'My Chronicle' :
-                                        tile.type?.toLowerCase() === 'house' ? 'Character' :
-                                          tile.type?.toLowerCase() === 'zen-garden' ? 'Meditation' :
-                                            tile.type?.toLowerCase() === 'inn' ? 'Social' :
-                                              tile.type?.toLowerCase() === 'market-stalls' ? 'Market' : ''}
+                                        tile.type?.toLowerCase() === 'zen-garden' ? 'Meditation' :
+                                          tile.type?.toLowerCase() === 'market-stalls' ? 'Market' : ''}
                       </div>
                     </div>
                   )}
