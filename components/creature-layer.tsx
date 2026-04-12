@@ -253,7 +253,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                 return (
                     <div
                         key={creature.instanceId}
-                        className="absolute transition-all ease-in-out pointer-events-auto cursor-pointer hover:scale-110 z-20"
+                        className="absolute transition-all ease-in-out pointer-events-none z-20"
                         style={{
                             top: `${(creature.position.row / rows) * 100}%`,
                             left: `${(creature.position.col / cols) * 100}%`,
@@ -261,16 +261,24 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             height: `${(1 / rows) * 100}%`,
                             transitionDuration: '3000ms'
                         }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onCreatureClick?.(creature);
-                        }}
                     >
-                        <CreatureSprite
-                            creature={def}
-                            isPlayerOnTile={isPlayerOnTile}
-                            tileSize={100} // Just a dummy value, component handles scaling via percentage
+                        {/* Smaller Hit Area for Interaction */}
+                        <div 
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] pointer-events-auto cursor-pointer hover:scale-125 transition-transform z-30 flex items-center justify-center rounded-full"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCreatureClick?.(creature);
+                            }}
                         />
+
+                        {/* Visual Sprite */}
+                        <div className="absolute inset-x-0 bottom-0 top-0">
+                            <CreatureSprite
+                                creature={def}
+                                isPlayerOnTile={isPlayerOnTile}
+                                tileSize={100} 
+                            />
+                        </div>
                     </div>
                 );
             })}
