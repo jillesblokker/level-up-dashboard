@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Crown, Hammer, Coins } from "lucide-react";
+import { Crown, Hammer, Coins, LayoutGrid } from "lucide-react";
 
 // Define a compatible interface for tiles used in this component
 interface PropertyTile {
@@ -19,20 +19,22 @@ interface PropertyTile {
   tokenCost?: number | undefined;
   materialCost?: { itemId: string; quantity: number }[] | undefined;
   quantity?: number | undefined;
-  levelRequired?: number | undefined; // Added for compatibility
+  levelRequired?: number | undefined;
+  placedCount?: number | undefined; // Added to track count on map
 }
 
 interface KingdomPropertiesInventoryProps {
   open: boolean;
   onClose: () => void;
-  tiles: PropertyTile[]; // Changed from Tile[]
-  selectedTile: PropertyTile | null; // Changed from Tile | null
+  tiles: PropertyTile[];
+  selectedTile: PropertyTile | null;
   setSelectedTile: (tile: PropertyTile | null) => void;
   onBuy?: (tile: PropertyTile, method: 'gold' | 'materials' | 'tokens') => void;
   onBuyToken?: () => void;
   inventory?: any[];
   tokens?: number;
   playerLevel?: number;
+  grid?: Tile[][]; // Added to calculate placed counts
 }
 
 export function KingdomPropertiesInventory({
@@ -45,7 +47,8 @@ export function KingdomPropertiesInventory({
   onBuyToken,
   inventory = [],
   tokens = 0,
-  playerLevel = 1
+  playerLevel = 1,
+  grid = []
 }: KingdomPropertiesInventoryProps) {
   const [activeTab, setActiveTab] = useState<'place' | 'buy'>('place');
 
@@ -90,7 +93,16 @@ export function KingdomPropertiesInventory({
     }
   });
 
-
+  // Calculate how many of each tile type are placed on the map
+  const placedMap = new Map<string, number>();
+  if (grid && grid.length > 0) {
+    grid.flat().forEach(cell => {
+      if (cell && cell.type && cell.type !== 'vacant' && cell.type !== 'empty') {
+        const type = cell.type.toLowerCase();
+        placedMap.set(type, (placedMap.get(type) || 0) + 1);
+      }
+    });
+  }
 
   const getOwnedCount = (tile: PropertyTile) => {
     const exactId = tile.id;
@@ -114,9 +126,15 @@ export function KingdomPropertiesInventory({
     return 0;
   };
 
+  const getPlacedCount = (tile: PropertyTile) => {
+    const exactId = tile.id.toLowerCase();
+    const nameKey = tile.name.toLowerCase().replace(/\s+/g, '');
+    
+    return placedMap.get(exactId) || placedMap.get(nameKey) || 0;
+  };
+
   const ownedTiles = tiles.filter(t => {
     const count = getOwnedCount(t);
-
     return count > 0;
   });
   // Sort buyable tiles? Maybe filter out ones that can't be bought? 
@@ -194,6 +212,7 @@ export function KingdomPropertiesInventory({
                       key={tile.id}
                       tile={tile}
                       owned={getOwnedCount(tile)}
+                      placedCount={getPlacedCount(tile)}
                       mode="place"
                       onSelect={() => {
                         setSelectedTile(tile);
@@ -212,6 +231,7 @@ export function KingdomPropertiesInventory({
                     key={tile.id}
                     tile={tile}
                     owned={getOwnedCount(tile)}
+                    placedCount={getPlacedCount(tile)}
                     mode="buy"
                     playerLevel={playerLevel}
                     onAction={(method) => onBuy && onBuy(tile, method)}
@@ -232,9 +252,10 @@ export function KingdomPropertiesInventory({
 }
 
 // Sub-component for individual cards
-function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getMaterialCount }: {
+function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, onAction, getMaterialCount }: {
   tile: PropertyTile;
   owned: number;
+  placedCount: number;
   mode: 'place' | 'buy';
   playerLevel?: number;
   onSelect?: () => void;
@@ -289,26 +310,63 @@ function TileCard({ tile, owned, mode, playerLevel = 1, onSelect, onAction, getM
           </div>
         )}
 
-        {/* Owned Badge */}
-        {owned > 0 && (
-          <div className="absolute top-2 right-2 bg-green-600/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm border border-green-400/30 z-20">
-            Owned: {owned}
+        {/* Available to Place Badge (Top Right) */}
+        {owned - placedCount > 0 && (
+          <div className="absolute top-2 right-2 bg-emerald-600 shadow-lg text-white text-[10px] uppercase font-black px-2 py-1 rounded-md border border-emerald-400/40 z-20 animate-pulse-subtle">
+            Ready to Place: {owned - placedCount}
+          </div>
+        )}
+        
+        {/* Fully Placed Badge (Top Right) */}
+        {owned > 0 && owned === placedCount && (
+          <div className="absolute top-2 right-2 bg-zinc-700 text-zinc-300 text-[10px] uppercase font-bold px-2 py-1 rounded-md border border-zinc-600/50 z-20">
+            All Placed
           </div>
         )}
 
-        {/* Level Requirement Badge (if unlocked but high level) */}
-        {!isLocked && tile.levelRequired && tile.levelRequired > 1 && (
-          <div className="absolute top-2 left-2 bg-blue-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-blue-400/30 z-20">
-            Lvl {tile.levelRequired}
+        {/* Placed Status Badge (Top Left) */}
+        {placedCount > 0 && (
+          <div className="absolute top-2 left-2 bg-blue-700/80 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-lg border border-blue-400/30 z-20 flex items-center gap-1">
+            <LayoutGrid className="w-2.5 h-2.5" />
+            <span>Map: {placedCount}</span>
+          </div>
+        )}
+
+        {/* Level Requirement Badge (if locked OR if showing buy tab) */}
+        {!isLocked && mode === 'buy' && tile.levelRequired && tile.levelRequired > 1 && (
+          <div className={cn(
+            "absolute bottom-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full z-20 border",
+            playerLevel >= tile.levelRequired ? "bg-zinc-800 text-zinc-400 border-zinc-700" : "bg-red-900/40 text-red-300 border-red-500/20"
+          )}>
+            Req: Lvl {tile.levelRequired}
           </div>
         )}
       </div>
 
       <CardContent className="p-3 flex-1 flex flex-col">
-        {/* Title */}
-        <h3 className={cn("font-bold text-lg leading-tight mb-2 truncate font-medieval tracking-wide text-center", isLocked ? "text-gray-500" : "text-amber-100")}>
+        <h3 className={cn("font-bold text-lg leading-tight mb-1 truncate font-medieval tracking-wide text-center", isLocked ? "text-gray-500" : "text-amber-100")}>
           {tile.name}
         </h3>
+
+        {/* Owned vs Placed Summary (Very Clear) */}
+        <div className="flex flex-col gap-1 mb-3">
+          <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-500">
+            <span>Inventory Status</span>
+            <span>Total: {owned}</span>
+          </div>
+          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden flex">
+            <div 
+              style={{ width: `${owned > 0 ? (placedCount / owned) * 100 : 0}%` }} 
+              className="h-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.5)]" 
+            />
+          </div>
+          <div className="flex justify-between items-center text-[11px] font-bold">
+            <span className="text-blue-400">{placedCount} Placed</span>
+            <span className={owned - placedCount > 0 ? "text-emerald-400" : "text-zinc-600"}>
+              {owned - placedCount} Available
+            </span>
+          </div>
+        </div>
 
         {/* Place Mode Visuals */}
         {isPlaceMode && (

@@ -734,15 +734,16 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'crystal_cavern',
     name: TEXT_CONTENT.kingdomTiles.crystal_cavern.name,
-    timerMinutes: 0, // Converted to Navigation Hub (Dungeon)
+    timerMinutes: 0, // Dungeon Navigation Hub
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles.crystal_cavern.clickMessage,
     possibleItems: [
-      '/images/items/scroll/scroll-perkamento.webp'
+      '/images/items/scroll/scroll-perkamento.webp',
+      '/images/items/materials/material-crystal.webp'
     ],
-    itemType: 'scroll',
+    itemType: 'material',
     rarity: 'legendary',
     image: '/images/tiles/crystal_cavern-tile.webp',
     levelRequired: 15,

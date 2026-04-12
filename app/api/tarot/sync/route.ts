@@ -15,26 +15,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Missing card data' }, { status: 400 });
         }
 
-        // Store today's card in user_preferences JSONB
-        // We'll store it under preferences -> daily_fate
-        const { data: currentPrefs } = await supabaseServer
-            .from('user_preferences')
-            .select('preferences')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        const preferences = currentPrefs?.preferences || {};
-        preferences.daily_fate = {
-            card,
-            date: new Date().toISOString().split('T')[0]
-        };
-
         const { error } = await supabaseServer
             .from('user_preferences')
             .upsert({
                 user_id: userId,
-                preferences,
+                preference_key: 'daily_fate',
+                preference_value: {
+                    card,
+                    date: new Date().toISOString().split('T')[0]
+                },
                 updated_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,preference_key'
             });
 
         if (error) {

@@ -97,11 +97,25 @@ function generateLoot(roomLevel: number): Loot | null {
     return { type: 'gold', amount: 50 + (roomLevel * 10), name: 'Gold Coins' };
   }
 
+  // 25% chance to get a crystal specifically in mid-to-high rooms
+  if (roomLevel >= 3 && Math.random() < 0.25) {
+    const crystal = comprehensiveItems.find(i => i.id === 'material-crystal');
+    if (crystal) {
+      return {
+        type: 'item',
+        name: crystal.name,
+        itemId: crystal.id,
+        itemStats: {},
+        starRating: 0
+      };
+    }
+  }
+
   const possibleItems = comprehensiveItems.filter(i => {
     if (roomLevel < 3) return i.rarity === 'common' || i.rarity === 'uncommon';
     if (roomLevel < 7) return i.rarity === 'rare' || i.rarity === 'epic';
     return i.rarity === 'legendary';
-  }).filter(i => i.type === 'weapon' || i.type === 'potion' || i.type === 'armor');
+  }).filter(i => i.type === 'weapon' || i.type === 'potion' || i.type === 'armor' || i.type === 'material');
 
   if (possibleItems.length > 0) {
     const item = possibleItems[Math.floor(Math.random() * possibleItems.length)]!;
@@ -393,11 +407,26 @@ export default function DungeonPage() {
     setBattleLog(prev => [...prev, ...logEntries]);
 
     if (newMonsterHp <= 0) {
-      // Monster defeated
       const loot = generateLoot(run.currentRoom);
-      const newLoot = loot ? [...run.lootCollected, loot] : run.lootCollected;
+      let newLoot = loot ? [...run.lootCollected, loot] : run.lootCollected;
 
       if (loot) logEntries.push(`✨ Loot found: ${loot.name}`);
+
+      // BOSS REWARD: Guaranteed Essence Crystal on Room 5 if victory
+      if (run.currentRoom === run.maxRooms && !newLoot.some(l => l.itemId === 'material-crystal')) {
+        const crystal = comprehensiveItems.find(i => i.id === 'material-crystal');
+        if (crystal) {
+          const bossLoot = {
+            type: 'item',
+            name: crystal.name,
+            itemId: crystal.id,
+            itemStats: {},
+            starRating: 0
+          };
+          newLoot = [...newLoot, bossLoot];
+          logEntries.push(`💎 BOSS DROPPED: ${crystal.name}!`);
+        }
+      }
 
       if (run.currentRoom >= run.maxRooms) {
         completeRun({ ...run, lootCollected: newLoot, status: 'completed' });

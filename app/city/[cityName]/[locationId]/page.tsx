@@ -7,12 +7,41 @@ import { HeaderSection } from "@/components/HeaderSection"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Users, Trophy, UserPlus } from "lucide-react"
-
-// Import Social Components
-import { AllianceDashboard } from "@/components/alliance-dashboard"
-import { Leaderboard } from "@/components/leaderboard"
-import { AlliesDashboard } from "@/components/allies-dashboard"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import dynamic from 'next/dynamic'
+
+function TavernBannerIcon(props: any) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      </svg>
+    )
+  }
+
+// Import Social Components dynamically to avoid initialization order issues
+const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard").then(mod => mod.AllianceDashboard), { 
+  ssr: false,
+  loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Alliance Data...</div>
+})
+const Leaderboard = dynamic(() => import("@/components/leaderboard").then(mod => mod.Leaderboard), { 
+  ssr: false,
+  loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Leaderboards...</div>
+})
+const AlliesDashboard = dynamic(() => import("@/components/allies-dashboard").then(mod => mod.AlliesDashboard), { 
+  ssr: false,
+  loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Allies...</div>
+})
 
 export default function CityLocationPage() {
   const params = useParams()
@@ -27,10 +56,11 @@ export default function CityLocationPage() {
   }, [])
 
   useEffect(() => {
-    if (searchParams?.get('tab')) {
-      setActiveTab(searchParams.get('tab')!)
+    const tabAtUrl = searchParams?.get('tab')
+    if (tabAtUrl && tabAtUrl !== activeTab) {
+      setActiveTab(tabAtUrl)
     }
-  }, [searchParams])
+  }, [searchParams, activeTab])
 
   if (!mounted || !params) {
     return (
@@ -115,7 +145,7 @@ export default function CityLocationPage() {
         ) : (
           <div className="flex flex-col items-center justify-center p-20 border border-dashed border-amber-900/30 rounded-3xl bg-amber-950/5 text-center space-y-6">
              <div className="p-6 bg-amber-900/10 rounded-full">
-                <Shield className="w-12 h-12 text-amber-900/40" />
+                <TavernBannerIcon className="w-12 h-12 text-amber-900/40" />
              </div>
             <h2 className="text-3xl font-medieval text-amber-500">{location.name}</h2>
             <p className="text-gray-500 max-w-sm font-serif leading-relaxed italic">
@@ -137,22 +167,3 @@ export default function CityLocationPage() {
     </div>
   )
 }
-
-function Shield(props: any) {
-    return (
-      <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      </svg>
-    )
-  }

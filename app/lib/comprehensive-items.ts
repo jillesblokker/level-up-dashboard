@@ -655,6 +655,21 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isEquippable: false,
     isConsumable: true,
   },
+  {
+    id: 'material-crystal',
+    name: 'Essence Crystal',
+    description: 'A glowing crystal pulsing with magical energy',
+    type: 'material',
+    category: 'magic',
+    rarity: 'rare',
+    stats: {},
+    emoji: '💎',
+    image: '/images/items/materials/material-crystal.webp',
+    cost: 150,
+    isDefault: false,
+    isEquippable: false,
+    isConsumable: true,
+  },
 
   // ==========================================
   // FOOD

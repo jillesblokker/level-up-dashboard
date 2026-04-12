@@ -99,15 +99,18 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
                                 {reward.itemFound && (
                                     <div className="flex items-center gap-2">
                                         <div className="text-[10px] text-zinc-500 italic max-w-[60px] truncate">{reward.itemFound.name}</div>
-                                        <div className="w-10 h-10 relative rounded bg-blue-500/10 border border-blue-500/20 overflow-hidden">
-                                            <Image 
-                                                src={reward.itemFound.image} 
-                                                alt={reward.itemFound.name} 
-                                                fill 
-                                                className="object-contain p-1"
-                                                unoptimized
-                                            />
-                                        </div>
+                                        <div className="w-10 h-10 relative rounded bg-zinc-800 border border-blue-500/30 overflow-hidden shadow-inner flex items-center justify-center">
+                                             <Image 
+                                                 src={reward.itemFound.image} 
+                                                 alt={reward.itemFound.name} 
+                                                 fill 
+                                                 className="object-contain p-1.5 drop-shadow-md"
+                                                 onError={(e) => {
+                                                     const target = e.currentTarget as HTMLImageElement;
+                                                     target.src = '/images/items/placeholder.webp';
+                                                 }}
+                                             />
+                                         </div>
                                     </div>
                                 )}
                             </div>

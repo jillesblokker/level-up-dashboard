@@ -32,10 +32,22 @@ import {
 import { MoreHorizontal } from "lucide-react"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
+import dynamic from 'next/dynamic'
+
+// Dynamically import heavy components to prevent initialization order issues (ReferenceError)
+const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard").then(mod => mod.AllianceDashboard), { 
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-black/20 rounded-xl">Loading Alliances...</div>
+})
+const Leaderboard = dynamic(() => import("@/components/leaderboard").then(mod => mod.Leaderboard), { 
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-black/20 rounded-xl">Loading Leaderboards...</div>
+})
+const ActivityFeed = dynamic(() => import("@/components/activity-feed").then(mod => mod.ActivityFeed), { 
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-black/20 rounded-xl">Loading Activity Record...</div>
+})
 import { GiftModal } from "@/components/gift-modal"
-import { AllianceDashboard } from "@/components/alliance-dashboard"
-import { Leaderboard } from "@/components/leaderboard"
-import { ActivityFeed } from "@/components/activity-feed"
 import { TEXT_CONTENT } from '@/lib/text-content'
 import SocialLoading from './loading';
 

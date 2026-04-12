@@ -1521,14 +1521,25 @@ export function KingdomGridWithTimers({
       gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general');
 
       // Add to summary
-      const itemFound = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
+      const itemFoundPath = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
+      
+      let itemName = 'Unknown Item';
+      if (itemFoundPath) {
+        const fileName = itemFoundPath.split('/').pop() || '';
+        itemName = fileName
+          .replace(/\.(png|webp)$/, '')
+          .split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      }
+
       collectedRewards.push({
         tileName: kingdomTile.name,
         goldEarned,
         experienceEarned: experienceAwarded,
-        itemFound: itemFound ? {
-          image: itemFound,
-          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        itemFound: itemFoundPath ? {
+          image: itemFoundPath,
+          name: itemName,
           type: kingdomTile.itemType
         } : undefined,
         isLucky: wasLucky
@@ -1559,10 +1570,10 @@ export function KingdomGridWithTimers({
       }).catch(e => logger.error('Failed to log event in batch', e));
 
       if (onGoldEarned) onGoldEarned(goldEarned);
-      if (onItemFound && itemFound) {
+      if (onItemFound && itemFoundPath) {
         onItemFound({
-          image: itemFound,
-          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          image: itemFoundPath,
+          name: itemName,
           type: kingdomTile.itemType
         });
       }
@@ -2060,6 +2071,7 @@ export function KingdomGridWithTimers({
         open={propertiesOpen}
         onClose={() => setPropertiesOpen(false)}
         inventory={inventory}
+        grid={grid}
         tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
         selectedTile={selectedInventoryTile}
         setSelectedTile={(tile) => {
