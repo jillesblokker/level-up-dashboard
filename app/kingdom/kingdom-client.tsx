@@ -465,6 +465,7 @@ export function KingdomClient() {
 
 
   const [userTokens, setUserTokens] = useState(0);
+  const [playerLevel, setPlayerLevel] = useState(1);
   const [challenges, setChallenges] = useState<any[]>([]);
   const [journeyStats, setJourneyStats] = useState<{
     dungeonRuns: any[];
@@ -1262,6 +1263,7 @@ export function KingdomClient() {
       const freshStats = await fetchFreshCharacterStats();
       if (freshStats) {
         setUserTokens(freshStats.streak_tokens || 0);
+        setPlayerLevel(freshStats.level || 1);
       }
 
       // 3. Normalize & Update Items
@@ -1625,6 +1627,7 @@ export function KingdomClient() {
                       inventory={mergedItems}
                       onMaterialSpend={isVisiting ? undefined : handleMaterialSpend}
                       userId={user?.id || null}
+                      playerLevel={playerLevel}
                       onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}
                     />
                   </MedievalErrorBoundary>
@@ -1852,6 +1855,8 @@ export function KingdomClient() {
         onBuyToken={handleBuyToken}
         inventory={mergedItems}
         tokens={userTokens}
+        playerLevel={playerLevel}
+        grid={kingdomGrid}
       />
     </div>
   );

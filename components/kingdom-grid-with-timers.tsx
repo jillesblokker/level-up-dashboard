@@ -60,6 +60,7 @@ interface KingdomGridWithTimersProps {
   onInventoryUpdate?: ((item: any) => void) | undefined
   onTileMove?: ((updatedGrid: Tile[][], x: number, y: number, tile: Tile) => void) | undefined
   onTileStash?: ((updatedGrid: Tile[][], x: number, y: number, tileId: string) => void) | undefined
+  playerLevel?: number
 }
 
 interface TileTimer {
@@ -86,7 +87,8 @@ export function KingdomGridWithTimers({
   userId,
   onInventoryUpdate,
   onTileMove,
-  onTileStash
+  onTileStash,
+  playerLevel = 1
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const router = useRouter()
@@ -269,7 +271,6 @@ export function KingdomGridWithTimers({
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place')
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
-  const [playerLevel, setPlayerLevel] = useState(1)
   const [pendingHabits, setPendingHabits] = useState<string[]>([]) // List of building types with incomplete quests
 
   // Fetch Quest Status for Habit Indicators
@@ -281,9 +282,12 @@ export function KingdomGridWithTimers({
           const quests = await res.json();
           const pending: string[] = [];
           
-          // Check for specific quest-building links
-          const hasPendingMeditation = quests.some((q: any) => q.name === 'Daily Meditation' && !q.completed);
-          if (hasPendingMeditation) pending.push('zen-garden');
+          // Safety check: ensure quests is an array
+          if (Array.isArray(quests)) {
+            // Check for specific quest-building links
+            const hasPendingMeditation = quests.some((q: any) => q.name === 'Daily Meditation' && !q.completed);
+            if (hasPendingMeditation) pending.push('zen-garden');
+          }
           
           setPendingHabits(pending);
         }
@@ -1775,7 +1779,7 @@ export function KingdomGridWithTimers({
             else if (type === 'zen-garden' || type === 'temple') tileSynergy = 'wellness';
             else if (type === 'castle') tileSynergy = 'honor';
             
-            const isDimmed = focusCategory && tileSynergy && tileSynergy !== focusCategory;
+            const isDimmed = focusCategory && tileSynergy !== focusCategory;
 
             return (
               <button
@@ -1786,7 +1790,7 @@ export function KingdomGridWithTimers({
                   // 5. Placement Mode "Heat Map"
                   isPlacementMode
                     ? isVacant
-                      ? "bg-emerald-950/40 border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse" // Valid
+                      ? "bg-emerald-950/40 border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]" // Removed pulse to reduce flashiness
                       : "opacity-40 grayscale pointer-events-none bg-slate-900" // Invalid
                     : isKingdomTile
                       ? "hover:ring-2 hover:ring-white/50 hover:shadow-2xl hover:-translate-y-1 bg-slate-900"
