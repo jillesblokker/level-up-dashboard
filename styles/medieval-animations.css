@@ -19,22 +19,22 @@
 }
 
 @keyframes medieval-pulse {
-  0%, 80%, 100% {
+  0%, 90%, 100% {
     transform: scale(1);
     opacity: 1;
   }
-  90% {
-    transform: scale(1.02);
-    opacity: 0.85;
+  95% {
+    transform: scale(1.005);
+    opacity: 0.95;
   }
 }
 
 @keyframes breathe {
-  0%, 70%, 100% {
+  0%, 85%, 100% {
     opacity: 1;
   }
-  85% {
-    opacity: 0.75;
+  92% {
+    opacity: 0.9;
   }
 }
 
@@ -207,11 +207,11 @@
 }
 
 .animate-medieval-pulse {
-  animation: medieval-pulse 3s ease-in-out infinite;
+  animation: medieval-pulse 8s ease-in-out infinite;
 }
 
 .animate-pulse-subtle {
-  animation: breathe 4s ease-in-out infinite;
+  animation: breathe 8s ease-in-out infinite;
 }
 
 .animate-float-subtle {
