@@ -51,6 +51,17 @@ export function KingdomPropertiesInventory({
   grid = []
 }: KingdomPropertiesInventoryProps) {
   const [activeTab, setActiveTab] = useState<'place' | 'buy'>('place');
+  const [floatingCosts, setFloatingCosts] = useState<{ id: string; text: string; x: number; y: number }[]>([]);
+
+  const triggerFloatingCost = (method: 'gold' | 'materials' | 'tokens', tile: PropertyTile, event: React.MouseEvent) => {
+    const costText = method === 'gold' ? `-${tile.cost}g` : method === 'tokens' ? `-${tile.tokenCost}t` : 'Resources -';
+    const id = Math.random().toString(36).substr(2, 9);
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    setFloatingCosts(prev => [...prev, { id, text: costText, x: rect.left + rect.width / 2, y: rect.top }]);
+    setTimeout(() => {
+      setFloatingCosts(prev => prev.filter(f => f.id !== id));
+    }, 1000);
+  };
 
   if (!open) return null;
 
@@ -195,7 +206,10 @@ export function KingdomPropertiesInventory({
                     mode="buy"
                     playerLevel={playerLevel}
                     tokens={tokens}
-                    onAction={(method) => onBuy && onBuy(tile, method)}
+                    onAction={(method, e) => {
+                      triggerFloatingCost(method, tile, e);
+                      onBuy && onBuy(tile, method);
+                    }}
                     getMaterialCount={(itemId) => {
                       return inventoryMap.get(itemId) || 0;
                     }}
@@ -205,6 +219,17 @@ export function KingdomPropertiesInventory({
             </TabsContent>
           </ScrollArea>
         </Tabs>
+        
+        {/* Phase 4: Floating Cost Animation Portal */}
+        {floatingCosts.map(f => (
+          <div 
+            key={f.id}
+            className="fixed z-[100] text-amber-400 font-bold pointer-events-none animate-float-up text-sm shadow-black drop-shadow-md"
+            style={{ left: f.x, top: f.y }}
+          >
+            {f.text}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -218,7 +243,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
   playerLevel?: number;
   tokens?: number;
   onSelect?: () => void;
-  onAction?: (method: 'gold' | 'materials' | 'tokens') => void;
+  onAction?: (method: 'gold' | 'materials' | 'tokens', event: React.MouseEvent) => void;
   getMaterialCount?: (itemId: string) => number;
 }) {
   const isPlaceMode = mode === 'place';
@@ -297,18 +322,37 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
           </div>
         )}
 
-        {placedCount > 0 && (
           <div className="absolute top-2 left-2 bg-blue-700/80 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-lg border border-blue-400/30 z-20 flex items-center gap-1">
             <LayoutGrid className="w-2.5 h-2.5" />
             <span>Map: {placedCount}</span>
           </div>
         )}
+
+        {/* Phase 7: Subtle 'Ready' icon for unplaced items */}
+        {owned - placedCount > 0 && !isPlaceMode && (
+          <div className="absolute bottom-2 right-2 bg-blue-500 text-white p-1 rounded-full shadow-lg z-30 animate-pulse-subtle">
+             <LayoutGrid className="w-3 h-3" />
+          </div>
+        )}
       </div>
 
       <CardContent className="p-3 flex-1 flex flex-col">
-        <h3 className={cn("font-bold text-lg leading-tight mb-1 truncate font-medieval tracking-wide text-center", isLocked ? "text-gray-500" : "text-amber-100")}>
+        <h3 className={cn("font-bold text-lg leading-tight mb-0.5 truncate font-medieval tracking-wide text-center", isLocked ? "text-gray-500" : "text-amber-100")}>
           {tile.name}
         </h3>
+
+        {/* Phase 1: Strategic Benefit Hint */}
+        {!isLocked && (
+          <p className="text-[10px] text-amber-500/70 text-center italic mb-2 leading-tight">
+            {tile.id === 'library' && "Brings +10% Knowledge XP"}
+            {tile.id === 'training-grounds' && "Brings +10% Might XP"}
+            {tile.id === 'castle' && "Brings +10% Honor XP"}
+            {(tile.id === 'zen-garden' || tile.id === 'temple') && "Brings +10% Wellness XP"}
+            {(tile.id === 'sawmill' || tile.id === 'stone-quarry') && "Generates passive resources"}
+            {(tile.id === 'house' || tile.id === 'mansion') && "Increases your population limits"}
+            {!['library', 'training-grounds', 'castle', 'zen-garden', 'temple', 'sawmill', 'stone-quarry', 'house', 'mansion'].includes(tile.id) && "Contributes to kingdom growth"}
+          </p>
+        )}
 
         <div className="flex flex-col gap-1 mb-3">
           <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-500">
@@ -367,7 +411,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
                   size="sm"
                   className={cn("w-full h-7 text-xs font-bold", isAffordable ? "bg-emerald-600 hover:bg-emerald-500" : "bg-amber-900/40")}
                   disabled={isLocked}
-                  onClick={(e) => { e.stopPropagation(); onAction?.(hasMaterialCost ? 'materials' : 'gold'); }}
+                  onClick={(e) => { e.stopPropagation(); onAction?.(hasMaterialCost ? 'materials' : 'gold', e); }}
                 >
                    {isAffordable ? 'Acquire Now' : 'Acquire'}
                 </Button>
@@ -379,7 +423,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
                 variant="outline"
                 size="sm"
                 className="w-full h-7 text-xs border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
-                onClick={(e) => { e.stopPropagation(); onAction?.('tokens'); }}
+                onClick={(e) => { e.stopPropagation(); onAction?.('tokens', e); }}
                 disabled={isLocked}
               >
                 <Crown className="w-3 h-3 mr-1" /> {tile.tokenCost} Tokens

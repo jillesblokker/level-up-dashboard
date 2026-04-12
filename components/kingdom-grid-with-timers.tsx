@@ -1787,10 +1787,43 @@ export function KingdomGridWithTimers({
                 className={cn(
                   "relative aspect-square overflow-hidden transition-all duration-300 group rounded-md shadow-lg",
                   isDimmed && "opacity-20 blur-[1px] grayscale",
-                  // 5. Placement Mode "Heat Map"
+                  // 5. Normal Mode / Vacant Mode
+                  !isPlacementMode && isVacant ? (
+                    <div className="w-full h-full relative opacity-20">
+                      {/* Phase 6: Foundation Aesthetic (Always visible) */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="w-8 h-8 border-2 border-white/10 rounded-sm rotate-45 flex items-center justify-center">
+                           <LayoutGrid className="w-4 h-4 text-white/10" />
+                        </div>
+                        <span className="text-[5px] text-white/20 uppercase font-black tracking-tighter mt-1">Ready</span>
+                      </div>
+                    </div>
+                  ) :
                   isPlacementMode
                     ? isVacant
-                      ? "bg-emerald-950/40 border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]" // Removed pulse to reduce flashiness
+                      ? (
+                        <div 
+                          className={cn(
+                            "w-full h-full relative transition-all duration-300",
+                            isHovered && "scale-105" // Phase 3: Snap effect
+                          )}
+                        >
+                          <div className={cn(
+                            "absolute inset-0 rounded-lg transition-all duration-300",
+                            isHovered 
+                              ? "bg-emerald-800/40 border-2 border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.4)]" 
+                              : "bg-emerald-900/20 border border-emerald-500/30"
+                          )} />
+                          
+                          {/* Phase 6: Foundation Aesthetic (Placement Mode) */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30">
+                            <div className="w-8 h-8 border-2 border-white/10 rounded-sm rotate-45 flex items-center justify-center">
+                               <LayoutGrid className="w-4 h-4 text-white/20" />
+                            </div>
+                            <span className="text-[6px] text-white/40 uppercase font-black tracking-tighter mt-1">Foundations</span>
+                          </div>
+                        </div>
+                      )
                       : "opacity-40 grayscale pointer-events-none bg-slate-900" // Invalid
                     : isKingdomTile
                       ? "hover:ring-2 hover:ring-white/50 hover:shadow-2xl hover:-translate-y-1 bg-slate-900"
@@ -1923,6 +1956,19 @@ export function KingdomGridWithTimers({
                                  tile.type === 'monument' ? 'Statue: Achievements' :
                                  auraColor ? synergyLabel : 'Interaction Available'}
                               </p>
+                              
+                              <div className="flex items-center justify-between text-[10px] text-slate-400 border-t border-white/5 pt-2 mt-2">
+                                <span>Current Tier</span>
+                                <span className="text-amber-500">Tier {currentTier}</span>
+                              </div>
+                              
+                              {/* Phase 5: Tier Preview */}
+                              {currentTier < 3 && (
+                                <div className="flex items-center justify-between text-[10px] text-slate-500 italic mt-1 bg-black/20 p-1 rounded">
+                                  <span>Evolution</span>
+                                  <span className="flex items-center gap-1">Next: Tier {currentTier + 1} <Image src={tile.image} alt="Next Tier" width={10} height={10} className="filter grayscale opacity-50" unoptimized /></span>
+                                </div>
+                              )}
                             </div>
                           </div>
                       )}
@@ -2054,26 +2100,33 @@ export function KingdomGridWithTimers({
           {/* 3. Category Focus Mode Toggles */}
           <div className="hidden lg:flex items-center gap-1 bg-black/20 p-1 rounded-lg border border-white/5">
             {[
-              { id: 'might', icon: '⚔️', label: 'Might' },
-              { id: 'knowledge', icon: '📖', label: 'Knowledge' },
-              { id: 'wellness', icon: '🧘', label: 'Wellness' },
-              { id: 'honor', icon: '👑', label: 'Honor' }
-            ].map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setFocusCategory(focusCategory === cat.id ? null : cat.id)}
-                className={cn(
-                  "p-1.5 rounded transition-all flex items-center gap-1.5",
-                  focusCategory === cat.id 
-                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
-                    : "text-slate-500 hover:text-slate-300 hover:bg-white/5 opacity-50 grayscale"
-                )}
-                title={`Filter for ${cat.label} synergy`}
-              >
-                <span className="text-sm">{cat.icon}</span>
-                <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">{cat.label}</span>
-              </button>
-            ))}
+              { id: 'might', icon: '⚔️', label: 'Might', types: ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'] },
+              { id: 'knowledge', icon: '📖', label: 'Knowledge', types: ['library', 'wizard', 'temple', 'monument'] },
+              { id: 'wellness', icon: '🧘', label: 'Wellness', types: ['zen-garden', 'temple', 'fountain', 'well', 'pond', 'park'] },
+              { id: 'honor', icon: '👑', label: 'Honor', types: ['castle', 'mansion', 'mayor', 'monument'] }
+            ].map(cat => {
+              const count = grid.flat().filter(cell => cell && cat.types.includes(cell.type?.toLowerCase() || '')).length;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setFocusCategory(focusCategory === cat.id ? null : cat.id)}
+                  className={cn(
+                    "p-1.5 rounded transition-all flex items-center gap-1.5",
+                    focusCategory === cat.id 
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
+                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5 opacity-50 grayscale"
+                  )}
+                  title={`Filter for ${cat.label} synergy`}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">{cat.label}</span>
+                  <span className={cn(
+                    "text-[8px] px-1 rounded-full",
+                    focusCategory === cat.id ? "bg-amber-500 text-black" : "bg-white/10 text-slate-400"
+                  )}>x{count}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
