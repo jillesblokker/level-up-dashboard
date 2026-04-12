@@ -270,6 +270,33 @@ export function KingdomGridWithTimers({
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
   const [playerLevel, setPlayerLevel] = useState(1)
+  const [pendingHabits, setPendingHabits] = useState<string[]>([]) // List of building types with incomplete quests
+
+  // Fetch Quest Status for Habit Indicators
+  useEffect(() => {
+    const fetchQuests = async () => {
+      try {
+        const res = await fetch('/api/quests');
+        if (res.ok) {
+          const quests = await res.json();
+          const pending: string[] = [];
+          
+          // Check for specific quest-building links
+          const hasPendingMeditation = quests.some((q: any) => q.name === 'Daily Meditation' && !q.completed);
+          if (hasPendingMeditation) pending.push('zen-garden');
+          
+          setPendingHabits(pending);
+        }
+      } catch (e) {
+        logger.error('Failed to fetch quests for indicators:', e);
+      }
+    };
+
+    fetchQuests();
+    // Refresh periodically or on focus
+    const interval = setInterval(fetchQuests, 60000);
+    return () => clearInterval(interval);
+  }, []);
   // Seasonal event flags
   const [winterFestivalActive, setWinterFestivalActive] = useState(false)
   const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
@@ -1737,16 +1764,22 @@ export function KingdomGridWithTimers({
 
             const isKingdomTile = kingdomTile !== null
             const isReady = timer?.isReady || false
-            const rarityClass = ''
+            const isVacant = tile.type === 'vacant';
+            const isPlacementMode = placementMode && selectedProperty;
 
             return (
               <button
-                key={`tile-${x}-${y}`}
+                key={`${x}-${y}`}
                 className={cn(
-                  "group relative w-full h-full aspect-square bg-black/60 flex items-center justify-center focus:outline-none",
-                  selectedTile && "ring-2 ring-amber-500",
-                  isKingdomTile && rarityClass,
-                  placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 cursor-pointer hover:ring-amber-400"
+                  "relative aspect-square overflow-hidden transition-all duration-300 group rounded-md shadow-lg",
+                  // 5. Placement Mode "Heat Map"
+                  isPlacementMode
+                    ? isVacant
+                      ? "bg-emerald-950/40 border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse" // Valid
+                      : "opacity-40 grayscale pointer-events-none bg-slate-900" // Invalid
+                    : isKingdomTile
+                      ? "hover:ring-2 hover:ring-white/50 hover:shadow-2xl hover:-translate-y-1 bg-slate-900"
+                      : "bg-[#0f172a] hover:bg-[#1e293b]"
                 )}
                 onMouseEnter={() => setHoveredTile({ x, y })}
                 onMouseLeave={() => setHoveredTile(null)}
@@ -1808,28 +1841,61 @@ export function KingdomGridWithTimers({
                   </div>
                 )}
 
-                {/* Navigation Hub Tiles - Always Clickable */}
-                {(tile.type === 'quest-board' || tile.type === 'market' ||
-                  tile.type === 'dungeon' ||
-                  tile.type === 'monument' || tile.type === 'training-grounds' ||
-                  tile.type === 'tavern' || tile.type === 'castle' ||
-                  tile.type?.toLowerCase() === 'library' || 
-                  tile.type?.toLowerCase() === 'zen-garden' || tile.type?.toLowerCase() === 'market-stalls') && (
-                    <div className="absolute inset-0 bg-amber-400/5 group-hover:bg-amber-400/15 transition-colors pointer-events-none flex flex-col items-center justify-end pb-2">
-                      <div className="bg-amber-900/90 text-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
-                        {tile.type === 'quest-board' ? 'Quests' :
-                          tile.type === 'market' ? 'Market' :
-                            tile.type?.toLowerCase() === 'dungeon' ? 'Dungeon' :
-                              tile.type?.toLowerCase() === 'monument' ? 'Achievements' :
-                                tile.type?.toLowerCase() === 'training-grounds' ? 'Character' :
-                                  tile.type?.toLowerCase() === 'tavern' ? 'Social' :
-                                    tile.type?.toLowerCase() === 'castle' ? 'Realm' :
-                                      tile.type?.toLowerCase() === 'library' ? 'My Chronicle' :
-                                        tile.type?.toLowerCase() === 'zen-garden' ? 'Meditation' :
-                                          tile.type?.toLowerCase() === 'market-stalls' ? 'Market' : ''}
-                      </div>
-                    </div>
-                  )}
+                {/* 1. Synergy Aura & 2. Habit Indicators */}
+                {(() => {
+                  const type = tile.type?.toLowerCase();
+                  let auraColor = '';
+                  let synergyLabel = '';
+                  
+                  if (type === 'library') { auraColor = 'blue'; synergyLabel = '+10% Knowledge XP'; }
+                  else if (type === 'training-grounds') { auraColor = 'red'; synergyLabel = '+10% Might XP'; }
+                  else if (type === 'zen-garden' || type === 'temple') { auraColor = 'emerald'; synergyLabel = '+10% Wellness XP'; }
+                  else if (type === 'castle') { auraColor = 'amber'; synergyLabel = '+10% Honor XP'; }
+
+                  const isPending = pendingHabits.includes(type);
+
+                  return (
+                    <>
+                      {/* Aura Effect */}
+                      {auraColor && (
+                        <div className={cn(
+                          "absolute inset-0 transition-opacity duration-1000",
+                          auraColor === 'blue' ? "bg-blue-400/5 shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]" :
+                          auraColor === 'red' ? "bg-red-400/5 shadow-[inset_0_0_20px_rgba(239,68,68,0.1)]" :
+                          auraColor === 'emerald' ? "bg-emerald-400/5 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]" :
+                          auraColor === 'amber' ? "bg-amber-400/5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)]" : ""
+                        )} />
+                      )}
+
+                      {/* Pending Habit Indicator (📜) */}
+                      {isPending && (
+                        <div className="absolute top-1 left-1 animate-bounce z-40 bg-white/90 rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-amber-200">
+                           <span className="text-[8px]">📜</span>
+                        </div>
+                      )}
+
+                      {/* 4. Enhanced Hover Info-Card */}
+                      {(tile.type === 'quest-board' || tile.type === 'market' ||
+                        tile.type === 'dungeon' ||
+                        tile.type === 'monument' || auraColor ||
+                        tile.type?.toLowerCase() === 'market-stalls') && (
+                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all pointer-events-none flex flex-col items-center justify-center p-1">
+                            <div className="bg-slate-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md">
+                              <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{tile.name || tile.type}</p>
+                              <div className="h-px bg-white/10 my-1 w-full" />
+                              <p className="text-[8px] text-slate-400 text-center italic">
+                                {tile.type === 'quest-board' ? 'Portal: Tasks' :
+                                 tile.type === 'market' ? 'Portal: Shop' :
+                                 tile.type === 'dungeon' ? 'Portal: Combat' :
+                                 tile.type === 'monument' ? 'Statue: Achievements' :
+                                 auraColor ? synergyLabel : 'Interaction Available'}
+                              </p>
+                            </div>
+                          </div>
+                      )}
+                    </>
+                  );
+                })()}
 
                 {/* Placement mode indicator for vacant tiles */}
                 {placementMode && tile.type === 'vacant' && (
