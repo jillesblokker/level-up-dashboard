@@ -196,6 +196,120 @@ export function AllianceDashboard() {
         </div>
     );
 
+    // --- Alliance Chest Panel: tiered rewards based on Alliance Might ---
+    const CHEST_TIERS = [
+        {
+            threshold: 0.25,
+            label: "Iron Chest",
+            emoji: "🗝️",
+            color: "border-gray-600/50 bg-gray-900/30",
+            headerColor: "text-gray-400",
+            rewards: [
+                { icon: "⚔️", name: "Shared XP Boost", desc: "+10% XP from all quests for 48 h" },
+                { icon: "🪙", name: "Gold Cache", desc: "200 gold split equally between members" },
+            ]
+        },
+        {
+            threshold: 0.50,
+            label: "Bronze Chest",
+            emoji: "📦",
+            color: "border-amber-800/50 bg-amber-950/20",
+            headerColor: "text-amber-600",
+            rewards: [
+                { icon: "🛡️", name: "Alliance Banner", desc: "Cosmetic banner displayed on your kingdom" },
+                { icon: "⚡", name: "Streak Shield", desc: "One free Streak Scroll for every member" },
+            ]
+        },
+        {
+            threshold: 0.75,
+            label: "Silver Chest",
+            emoji: "🪙",
+            color: "border-slate-500/50 bg-slate-900/20",
+            headerColor: "text-slate-300",
+            rewards: [
+                { icon: "🌟", name: "Rare Kingdom Tile", desc: "One random rare tile added to each member's stash" },
+                { icon: "💰", name: "Treasury Surge", desc: "+25% gold from kingdom visits for 72 h" },
+            ]
+        },
+        {
+            threshold: 1.0,
+            label: "Gold Chest",
+            emoji: "👑",
+            color: "border-yellow-600/60 bg-yellow-950/20",
+            headerColor: "text-yellow-400",
+            rewards: [
+                { icon: "🏆", name: "Dominant Alliance Title", desc: "Claim the monthly leaderboard crown" },
+                { icon: "💎", name: "Crystal Cavern Tile", desc: "Legendary tile granted to every member" },
+                { icon: "✨", name: "Double XP Weekend", desc: "Alliance-wide 2× XP for the next weekend" },
+            ]
+        },
+    ];
+
+    const AllianceChestPanel = ({ totalLevel, memberCount }: { totalLevel: number; memberCount: number }) => {
+        const target = Math.max(50, memberCount * 20);
+        const progress = Math.min(1, totalLevel / target);
+        const pct = Math.round(progress * 100);
+
+        return (
+            <div className="mt-4 pt-4 border-t border-amber-900/30 space-y-3">
+                {/* Might bar */}
+                <div>
+                    <div className="flex justify-between items-center text-xs text-amber-500 mb-1.5">
+                        <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Alliance Might</span>
+                        <span className="font-bold">{totalLevel} / {target} <span className="text-amber-500/50 font-normal">({pct}%)</span></span>
+                    </div>
+                    <Progress value={pct} className="h-2.5 bg-amber-950/50" indicatorClassName="bg-gradient-to-r from-amber-600 to-yellow-500" />
+                    <div className="flex justify-between mt-1">
+                        {[25, 50, 75, 100].map(t => (
+                            <span key={t} className={`text-[9px] font-bold ${pct >= t ? "text-yellow-500" : "text-gray-700"}`}>{t}%</span>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Chest tiers */}
+                <div className="space-y-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500/50 text-center">Alliance Chest Contents</p>
+                    {CHEST_TIERS.map((tier) => {
+                        const unlocked = progress >= tier.threshold;
+                        return (
+                            <div
+                                key={tier.label}
+                                className={`rounded-lg border p-3 transition-all ${unlocked
+                                    ? tier.color
+                                    : "border-gray-800/30 bg-black/20 opacity-50 grayscale"
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="text-base">{tier.emoji}</span>
+                                    <span className={`text-xs font-bold uppercase tracking-wide ${unlocked ? tier.headerColor : "text-gray-600"}`}>
+                                        {tier.label}
+                                    </span>
+                                    <span className="ml-auto text-[10px] font-semibold">
+                                        {unlocked
+                                            ? <span className="text-green-500">✓ Unlocked</span>
+                                            : <span className="text-gray-600">at {Math.round(tier.threshold * 100)}% Might</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div className="space-y-1">
+                                    {tier.rewards.map(r => (
+                                        <div key={r.name} className="flex items-start gap-1.5 text-[11px]">
+                                            <span>{r.icon}</span>
+                                            <div>
+                                                <span className={`font-semibold ${unlocked ? "text-amber-200/80" : "text-gray-600"}`}>{r.name}</span>
+                                                <span className={`ml-1 ${unlocked ? "text-gray-400" : "text-gray-700"}`}>— {r.desc}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-4 h-full flex flex-col">
             {alliances.length === 0 ? (
@@ -326,16 +440,10 @@ export function AllianceDashboard() {
                                 </div>
 
                                 {alliance.stats && (
-                                    <div className="mt-4 pt-4 border-t border-amber-900/30">
-                                        <div className="flex justify-between items-center text-xs text-amber-500 mb-1">
-                                            <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Alliance Might (Total Levels)</span>
-                                            <span>{alliance.stats.totalLevel} / {Math.max(50, alliance.stats.memberCount * 20)}</span>
-                                        </div>
-                                        <Progress value={Math.min(100, (alliance.stats.totalLevel / Math.max(50, alliance.stats.memberCount * 20)) * 100)} className="h-2 bg-amber-950/50" indicatorClassName="bg-amber-500" />
-                                        <p className="text-[10px] text-gray-500 mt-1 text-center">
-                                            Level up together to unlock the Alliance Chest!
-                                        </p>
-                                    </div>
+                                    <AllianceChestPanel
+                                        totalLevel={alliance.stats.totalLevel}
+                                        memberCount={alliance.stats.memberCount}
+                                    />
                                 )}
                             </CardContent>
                         </Card>
