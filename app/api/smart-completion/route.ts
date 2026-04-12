@@ -112,6 +112,46 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 3. Apply Kingdom Synergy Multipliers
+    try {
+      const { data: gridData } = await supabaseServer
+        .from('kingdom_grid')
+        .select('grid')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (gridData?.grid && Array.isArray(gridData.grid)) {
+        const flattenedGrid = gridData.grid.flat();
+        let synergyMultiplier = 1.0;
+
+        // Check for specific synergy buildings based on quest category
+        if (category.includes('knowledge')) {
+          const libraryCount = flattenedGrid.filter((tile: any) => tile?.type?.toLowerCase() === 'library').length;
+          if (libraryCount > 0) synergyMultiplier += 0.1; // +10% boost for Knowledge
+        }
+        if (category.includes('might')) {
+          const trainingCount = flattenedGrid.filter((tile: any) => tile?.type?.toLowerCase() === 'training-grounds').length;
+          if (trainingCount > 0) synergyMultiplier += 0.1; // +10% boost for Might
+        }
+        if (category.includes('wellness') || category.includes('vitality')) {
+          const zenCount = flattenedGrid.filter((tile: any) => tile?.type?.toLowerCase() === 'zen-garden' || tile?.type?.toLowerCase() === 'temple').length;
+          if (zenCount > 0) synergyMultiplier += 0.1; // +10% boost for Wellness
+        }
+        if (category.includes('honor')) {
+          const castleCount = flattenedGrid.filter((tile: any) => tile?.type?.toLowerCase() === 'castle').length;
+          if (castleCount > 0) synergyMultiplier += 0.1; // +10% boost for Honor
+        }
+
+        if (synergyMultiplier > 1.0) {
+          logger.debug(`[Smart Quest Completion] Applying Kingdom Synergy Multiplier: ${synergyMultiplier} for category: ${category}`);
+          verifiedXP = Math.floor(verifiedXP * synergyMultiplier);
+          verifiedGold = Math.floor(verifiedGold * synergyMultiplier);
+        }
+      }
+    } catch (synergyError) {
+      logger.error('[Smart Quest Completion] Error calculating synergy bonus:', synergyError);
+    }
+
     const completionTable = questData ? 'quest_completion' : 'challenge_completion';
     const idColumn = questData ? 'quest_id' : 'challenge_id';
 

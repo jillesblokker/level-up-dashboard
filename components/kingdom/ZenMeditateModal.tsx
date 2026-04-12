@@ -20,12 +20,19 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
     const [canClaim, setCanClaim] = useState(false)
     const [seconds, setSeconds] = useState(0)
 
-    // Reset state on open
+    // Reset state and init special quest on open
     useEffect(() => {
         if (isOpen) {
             setPhase('inhale')
             setCanClaim(false)
             setSeconds(0)
+
+            // Auto-initialize meditation quest if it doesn't exist
+            fetch('/api/quests/init-special', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'meditation' })
+            }).catch(err => logger.error('Failed to init meditation quest:', err));
         }
     }, [isOpen])
 
@@ -59,15 +66,39 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
 
     const handleMeditate = async () => {
         try {
-            // Record meditation in database for Journey stats
+            // 1. Record meditation in database for Journey stats
             await fetch('/api/meditations', { method: 'POST' });
+
+            // 2. Try to auto-complete the "Daily Meditation" quest if it exists
+            try {
+                const questsRes = await fetch('/api/quests');
+                if (questsRes.ok) {
+                    const quests = await questsRes.json();
+                    const meditationQuest = quests.find((q: any) => 
+                        q.name === 'Daily Meditation' && !q.completed
+                    );
+                    
+                    if (meditationQuest) {
+                        logger.debug('[ZenMeditate] Auto-completing meditation quest:', meditationQuest.id);
+                        await fetch('/api/smart-completion', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                questId: meditationQuest.id,
+                                completed: true
+                            })
+                        });
+                    }
+                }
+            } catch (qErr) {
+                logger.error('[ZenMeditate] Failed to auto-complete quest:', qErr);
+            }
 
             await updateCharacterStats({ experience: 30 }) // Increased reward to 30 XP
             toast.success("You feel deeply centered.", { description: "+30 XP" })
             onClose()
         } catch (error) {
             logger.error("Failed to record meditation:", error);
-            // Still close and show success since XP was likely updated or we want to avoid blocking
             onClose();
         }
     }
