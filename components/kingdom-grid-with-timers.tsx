@@ -1766,12 +1766,23 @@ export function KingdomGridWithTimers({
             const isReady = timer?.isReady || false
             const isVacant = tile.type === 'vacant';
             const isPlacementMode = placementMode && selectedProperty;
+            
+            // Focus Mode Logic: Dim tiles that don't match the focus category
+            const type = tile.type?.toLowerCase();
+            let tileSynergy = '';
+            if (type === 'library') tileSynergy = 'knowledge';
+            else if (type === 'training-grounds') tileSynergy = 'might';
+            else if (type === 'zen-garden' || type === 'temple') tileSynergy = 'wellness';
+            else if (type === 'castle') tileSynergy = 'honor';
+            
+            const isDimmed = focusCategory && tileSynergy && tileSynergy !== focusCategory;
 
             return (
               <button
                 key={`${x}-${y}`}
                 className={cn(
                   "relative aspect-square overflow-hidden transition-all duration-300 group rounded-md shadow-lg",
+                  isDimmed && "opacity-20 blur-[1px] grayscale",
                   // 5. Placement Mode "Heat Map"
                   isPlacementMode
                     ? isVacant
@@ -1839,6 +1850,24 @@ export function KingdomGridWithTimers({
                       Zen
                     </span>
                   </div>
+                )}
+
+                {/* 1. Efficiency Badges & 4. Living Indicators */}
+                {isKingdomTile && (
+                  <>
+                    {/* Living House Indicator: Chimney Smoke animation if timer is active */}
+                    {(type === 'house' || type === 'sawmill' || type === 'blacksmith') && !isReady && (
+                      <div className="absolute top-2 right-4 pointer-events-none">
+                         <div className="w-1 h-1 bg-slate-400/40 rounded-full animate-ping mb-1" />
+                         <div className="w-1.5 h-1.5 bg-slate-500/20 rounded-full animate-ping" />
+                      </div>
+                    )}
+                    
+                    {/* Efficiency Badge (Roman Numerals based on levelRequired) */}
+                    <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
+                      {tile.levelRequired && tile.levelRequired > 15 ? 'III' : tile.levelRequired && tile.levelRequired > 5 ? 'II' : 'I'}
+                    </div>
+                  </>
                 )}
 
                 {/* 1. Synergy Aura & 2. Habit Indicators */}
@@ -1997,25 +2026,52 @@ export function KingdomGridWithTimers({
       {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
       {/* Kingdom Control Bar - Grounded visual style */}
       <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-slate-950/50 border border-slate-800/50 backdrop-blur-md shadow-xl">
-        {/* Left: Weather Info */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center cursor-help transition-opacity hover:opacity-80">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl filter drop-shadow-md">
-                  {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
-                  <span className="text-[10px] text-slate-400 italic">{getWeatherDescription(weather)}</span>
+        {/* Left: Weather Info & Focus Mode */}
+        <div className="flex items-center gap-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center cursor-help transition-opacity hover:opacity-80">
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl filter drop-shadow-md">
+                    {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
+                    <span className="text-[10px] text-slate-400 italic">{getWeatherDescription(weather)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Current Weather: Affects resource production rates</p>
-          </TooltipContent>
-        </Tooltip>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Current Weather: Affects resource production rates</p>
+            </TooltipContent>
+          </Tooltip>
+
+          {/* 3. Category Focus Mode Toggles */}
+          <div className="hidden lg:flex items-center gap-1 bg-black/20 p-1 rounded-lg border border-white/5">
+            {[
+              { id: 'might', icon: '⚔️', label: 'Might' },
+              { id: 'knowledge', icon: '📖', label: 'Knowledge' },
+              { id: 'wellness', icon: '🧘', label: 'Wellness' },
+              { id: 'honor', icon: '👑', label: 'Honor' }
+            ].map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setFocusCategory(focusCategory === cat.id ? null : cat.id)}
+                className={cn(
+                  "p-1.5 rounded transition-all flex items-center gap-1.5",
+                  focusCategory === cat.id 
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
+                    : "text-slate-500 hover:text-slate-300 hover:bg-white/5 opacity-50 grayscale"
+                )}
+                title={`Filter for ${cat.label} synergy`}
+              >
+                <span className="text-sm">{cat.icon}</span>
+                <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Center: Resource HUD */}
         <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap">

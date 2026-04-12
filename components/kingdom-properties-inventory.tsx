@@ -262,16 +262,15 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
   onAction?: (method: 'gold' | 'materials' | 'tokens') => void;
   getMaterialCount?: (itemId: string) => number;
 }) {
-  const isPlaceMode = mode === 'place';
-  const hasMaterialCost = undefined !== tile.materialCost && tile.materialCost.length > 0;
-  const hasTokenCost = undefined !== tile.tokenCost && tile.tokenCost > 0;
-  // If no cost specified, assume gold only (default behavior for old tiles)
-  const goldCost = tile.cost || 0;
+  // Special state: Affordable right now?
+  const isAffordable = !isPlaceMode && !isLocked && (
+    (hasTokenCost && tokens >= tokenCost) ||
+    (!hasTokenCost && hasMaterialCost && tile.materialCost?.every(m => (getMaterialCount ? getMaterialCount(m.itemId) : 0) >= m.quantity)) ||
+    (!hasTokenCost && !hasMaterialCost && goldCost > 0) // Just check gold if no materials/tokens
+  );
 
-  const tokenCost = tile.tokenCost || 0;
-
-  // Calculate lock state
-  const isLocked = !isPlaceMode && tile.levelRequired !== undefined && playerLevel < tile.levelRequired;
+  // New Unlock Badge: If levelRequired === playerLevel
+  const isNewlyUnlocked = !isPlaceMode && tile.levelRequired === playerLevel;
 
   return (
     <Card
@@ -281,11 +280,12 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
           ? "border-amber-500/30 hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
           : isLocked
             ? "border-gray-800 opacity-70 grayscale-[0.5]"
-            : "border-gray-800 hover:border-gray-600"
+            : isAffordable
+              ? "border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:border-emerald-400"
+              : "border-gray-800 hover:border-gray-600"
       )}
       onClick={isPlaceMode ? onSelect : undefined}
     >
-      {/* ... (image section remains same, but let's just make sure we don't break it) ... */}
       {/* Card Header Illustration */}
       <div className={cn("w-full aspect-[4/3] relative bg-[#1a1d24] p-4 flex items-center justify-center shrink-0", isPlaceMode ? "bg-amber-900/10" : "")}>
         <Image
@@ -300,6 +300,20 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
           )}
           unoptimized
         />
+
+        {/* 6. Newly Unlocked Badge */}
+        {isNewlyUnlocked && (
+          <div className="absolute top-0 left-0 bg-amber-500 text-black text-[9px] font-black px-2 py-0.5 rounded-br-lg shadow-lg z-30 uppercase animate-pulse">
+            New Unlock
+          </div>
+        )}
+
+        {/* 2. Affordability Flash */}
+        {isAffordable && (
+           <div className="absolute top-2 left-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg z-30 animate-bounce">
+              <Hammer className="w-3 h-3" />
+           </div>
+        )}
 
         {/* Locked Overlay */}
         {isLocked && (
@@ -323,24 +337,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
             All Placed
           </div>
         )}
-
-        {/* Placed Status Badge (Top Left) */}
-        {placedCount > 0 && (
-          <div className="absolute top-2 left-2 bg-blue-700/80 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-lg border border-blue-400/30 z-20 flex items-center gap-1">
-            <LayoutGrid className="w-2.5 h-2.5" />
-            <span>Map: {placedCount}</span>
-          </div>
-        )}
-
-        {/* Level Requirement Badge (if locked OR if showing buy tab) */}
-        {!isLocked && mode === 'buy' && tile.levelRequired && tile.levelRequired > 1 && (
-          <div className={cn(
-            "absolute bottom-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full z-20 border",
-            playerLevel >= tile.levelRequired ? "bg-zinc-800 text-zinc-400 border-zinc-700" : "bg-red-900/40 text-red-300 border-red-500/20"
-          )}>
-            Req: Lvl {tile.levelRequired}
-          </div>
-        )}
+... (rest of header section) ...
       </div>
 
       <CardContent className="p-3 flex-1 flex flex-col">
@@ -349,36 +346,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
         </h3>
 
         {/* Owned vs Placed Summary (Very Clear) */}
-        <div className="flex flex-col gap-1 mb-3">
-          <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-500">
-            <span>Inventory Status</span>
-            <span>Total: {owned}</span>
-          </div>
-          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden flex">
-            <div 
-              style={{ width: `${owned > 0 ? (placedCount / owned) * 100 : 0}%` }} 
-              className="h-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.5)]" 
-            />
-          </div>
-          <div className="flex justify-between items-center text-[11px] font-bold">
-            <span className="text-blue-400">{placedCount} Placed</span>
-            <span className={owned - placedCount > 0 ? "text-emerald-400" : "text-zinc-600"}>
-              {owned - placedCount} Available
-            </span>
-          </div>
-        </div>
-
-        {/* Place Mode Visuals */}
-        {isPlaceMode && (
-          <div className="text-center mt-auto">
-            <Button
-              size="sm"
-              className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold"
-            >
-              Place Structure
-            </Button>
-          </div>
-        )}
+... (Inventory Status bar) ...
 
         {/* Buy Mode Requirements */}
         {!isPlaceMode && (
@@ -398,25 +366,31 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
                   </div>
                 )}
 
-                {/* Material Costs */}
+                {/* Material Costs + 7. Progress Bars */}
                 {hasMaterialCost && tile.materialCost?.map((mat, idx) => {
                   const rawName = mat.itemId.replace('material-', '');
                   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
                   const count = getMaterialCount ? getMaterialCount(mat.itemId) : 0;
                   const isEnough = count >= mat.quantity;
+                  const progressWidth = Math.min(100, (count / mat.quantity) * 100);
 
                   return (
-                    <div key={idx} className="flex items-center justify-between text-xs">
-                      <span className="flex items-center gap-1.5">
-                        <Hammer className={cn("w-3 h-3", isEnough ? "text-green-500" : "text-red-500")} />
-                        <span className={cn("font-bold", isEnough ? "text-green-500" : "text-red-500")}>
+                    <div key={idx} className="flex flex-col gap-0.5">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className={cn("font-bold", isEnough ? "text-green-500" : "text-slate-400")}>
                           {mat.quantity}x {displayName}
                         </span>
-                      </span>
+                        {!isEnough && (
+                          <span className="text-red-500/70 font-mono">
+                            {count}/{mat.quantity}
+                          </span>
+                        )}
+                        {isEnough && <Check className="w-2.5 h-2.5 text-green-500" />}
+                      </div>
                       {!isEnough && (
-                        <span className="text-[10px] text-red-500/70 ml-1">
-                          (Have: {count})
-                        </span>
+                         <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-600/50" style={{ width: `${progressWidth}%` }} />
+                         </div>
                       )}
                     </div>
                   );
@@ -424,14 +398,26 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, onSelect, o
 
                 <Button
                   size="sm"
-                  className="w-full mt-1 bg-amber-900/60 hover:bg-amber-800 text-amber-100 border border-amber-800/50 h-7 text-xs"
+                  className={cn(
+                    "w-full mt-1 border h-7 text-xs transition-all",
+                    isAffordable 
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400/50 shadow-lg shadow-emerald-900/40"
+                      : "bg-amber-900/60 hover:bg-amber-800 text-amber-100 border-amber-800/50"
+                  )}
                   onClick={(e) => { e.stopPropagation(); onAction?.(hasMaterialCost ? 'materials' : 'gold'); }}
                   disabled={isLocked}
                 >
-                  {isLocked ? 'Locked' : 'Build'}
+                  {isLocked ? 'Locked' : isAffordable ? 'Build Now' : 'Build'}
                 </Button>
               </div>
             </div>
+... (rest of buy option) ...
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
             {/* Option 2: Token Redemption (if available) */}
             {hasTokenCost && (
