@@ -1848,7 +1848,7 @@ export function KingdomGridWithTimers({
                 {/* Zen Garden Specialty Effect */}
                 {tile.type === 'zen-garden' && (
                   <div className="absolute inset-0 bg-teal-400/5 group-hover:bg-teal-400/10 transition-colors pointer-events-none flex flex-col items-center justify-center">
-                    <div className="w-full h-full absolute inset-0 animate-pulse bg-teal-400/5" />
+                    <div className="w-full h-full absolute inset-0 animate-pulse-subtle bg-teal-400/5" />
                     <Sparkles className="w-4 h-4 text-teal-300 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100 mb-1" />
                     <span className="text-[8px] font-bold text-teal-200 tracking-[0.2em] uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-black drop-shadow-lg">
                       Zen
@@ -1862,8 +1862,8 @@ export function KingdomGridWithTimers({
                     {/* Living House Indicator: Chimney Smoke animation if timer is active */}
                     {(type === 'house' || type === 'sawmill' || type === 'blacksmith') && !isReady && (
                       <div className="absolute top-2 right-4 pointer-events-none">
-                         <div className="w-1 h-1 bg-slate-400/40 rounded-full animate-ping mb-1" />
-                         <div className="w-1.5 h-1.5 bg-slate-500/20 rounded-full animate-ping" />
+                         <div className="w-1 h-1 bg-slate-400/40 rounded-full animate-drift-slow" />
+                         <div className="w-1.5 h-1.5 bg-slate-500/20 rounded-full animate-drift-slow [animation-delay:2.5s]" />
                       </div>
                     )}
                     

@@ -266,13 +266,13 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
         />
 
         {isNewlyUnlocked && (
-          <div className="absolute top-0 left-0 bg-amber-500 text-black text-[9px] font-black px-2 py-0.5 rounded-br-lg shadow-lg z-30 uppercase animate-pulse">
+          <div className="absolute top-0 left-0 bg-amber-500 text-black text-[9px] font-black px-2 py-0.5 rounded-br-lg shadow-lg z-30 uppercase animate-pulse-subtle">
             New Unlock
           </div>
         )}
 
         {isAffordable && (
-           <div className="absolute top-2 left-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg z-30 animate-bounce">
+           <div className="absolute top-2 left-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg z-30 animate-float-subtle">
               <Hammer className="w-3 h-3" />
            </div>
         )}
