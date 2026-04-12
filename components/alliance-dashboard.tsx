@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, Shield, Flame, CheckCircle, Plus, UserPlus, PlusCircle } from "lucide-react"
+import { Users, Shield, Flame, CheckCircle, Plus, UserPlus, PlusCircle, Star, Crown } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { getUserAlliances, checkInToAlliance, createAlliance, inviteToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
@@ -150,6 +150,52 @@ export function AllianceDashboard() {
 
     if (loading) return <div className="text-center p-4 text-amber-500/50">Summoning alliance records...</div>;
 
+    // --- Oath Benefits Banner shown inside each active alliance card ---
+    const OathBenefitsBanner = ({ streak, checkedInToday }: { streak: number; checkedInToday: boolean }) => (
+        <div className={`rounded-xl border p-4 mb-4 transition-colors ${checkedInToday
+            ? "bg-green-950/30 border-green-800/40"
+            : "bg-amber-950/30 border-amber-700/40"
+        }`}>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500/70 mb-2 flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-orange-500" />
+                The Oath of Brotherhood — Daily Reward
+            </p>
+            <p className="text-sm text-amber-100/60 leading-relaxed mb-3 font-serif italic">
+                &ldquo;Each dawn, a true ally reaffirms their bond. Speak the oath daily and your treasury shall grow — miss a day and your fire dims.&rdquo;
+            </p>
+            <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="bg-black/30 rounded-lg p-2.5 border border-amber-900/30">
+                    <div className="text-lg font-bold text-amber-400">+50</div>
+                    <div className="text-[10px] text-amber-500/60 uppercase tracking-wide font-semibold">XP</div>
+                    <div className="text-[9px] text-gray-600 mt-0.5">per oath</div>
+                </div>
+                <div className="bg-black/30 rounded-lg p-2.5 border border-amber-900/30">
+                    <div className="text-lg font-bold text-yellow-400">+10</div>
+                    <div className="text-[10px] text-amber-500/60 uppercase tracking-wide font-semibold">Gold</div>
+                    <div className="text-[9px] text-gray-600 mt-0.5">per oath</div>
+                </div>
+                <div className={`rounded-lg p-2.5 border ${streak >= 7 ? "bg-orange-950/40 border-orange-700/50" : "bg-black/30 border-amber-900/30"}`}>
+                    <div className="text-lg font-bold text-orange-400 flex items-center justify-center gap-0.5">
+                        {streak > 0 ? <><Flame className="w-4 h-4" />{streak}</> : <span className="text-gray-600">—</span>}
+                    </div>
+                    <div className="text-[10px] text-amber-500/60 uppercase tracking-wide font-semibold">Streak</div>
+                    <div className="text-[9px] text-gray-600 mt-0.5">days kept</div>
+                </div>
+            </div>
+            {streak >= 7 && (
+                <div className="mt-3 text-center text-[11px] text-orange-400/90 font-semibold border-t border-amber-900/20 pt-2">
+                    🔥 <span>{streak}-day streak!</span> Bonus gold multiplier is active.
+                </div>
+            )}
+            {checkedInToday && (
+                <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-green-400/80 font-medium border-t border-green-900/20 pt-2">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Oath sworn for today. Return at dawn to renew your vow.
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <div className="space-y-4 h-full flex flex-col">
             {alliances.length === 0 ? (
@@ -161,18 +207,43 @@ export function AllianceDashboard() {
                             Alliances
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="relative z-10 flex flex-col items-center justify-center text-center space-y-6 px-8">
+                    <CardContent className="relative z-10 flex flex-col items-center justify-center text-center space-y-6 px-6">
                         <div className="relative">
-                            <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full animate-pulse" />
-                            <Shield className="w-24 h-24 text-amber-900/40 relative z-10" />
-                            <PlusCircle className="w-8 h-8 text-amber-500 absolute bottom-0 right-0 z-20 bg-black rounded-full p-1 border border-amber-900" />
+                            <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full" style={{ animation: "pulse 8s ease-in-out infinite" }} />
+                            <Shield className="w-20 h-20 text-amber-900/40 relative z-10" />
+                            <PlusCircle className="w-7 h-7 text-amber-500 absolute bottom-0 right-0 z-20 bg-black rounded-full p-1 border border-amber-900" />
                         </div>
 
-                        <div className="space-y-2 max-w-sm">
+                        <div className="space-y-1 max-w-sm">
                             <p className="text-amber-100/80 font-medium text-lg">You walk alone... for now.</p>
                             <p className="text-amber-500/50 text-sm leading-relaxed">
-                                Swear an oath to an alliance to complete shared quests, earn unique rewards, and dominate the monthly leaderboards.
+                                No alliance yet binds you to others. Form or join one to begin swearing the daily oath and collecting rewards.
                             </p>
+                        </div>
+
+                        {/* Benefit preview cards */}
+                        <div className="w-full max-w-sm rounded-xl border border-amber-900/30 bg-amber-950/20 p-4 text-left space-y-3">
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500/60 text-center">Why join an alliance?</p>
+                            <div className="space-y-2.5 text-sm text-amber-100/60">
+                                <div className="flex items-start gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-orange-950/50 border border-orange-900/40 flex items-center justify-center shrink-0 mt-0.5">
+                                        <Flame className="w-4 h-4 text-orange-500" />
+                                    </div>
+                                    <span><span className="text-amber-300 font-semibold">Daily Oath:</span> Check in each day to earn <strong className="text-amber-400">+50 XP</strong> and <strong className="text-yellow-400">+10 Gold</strong>. Keep your streak for a gold bonus.</span>
+                                </div>
+                                <div className="flex items-start gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-amber-950/50 border border-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
+                                        <Shield className="w-4 h-4 text-amber-500" />
+                                    </div>
+                                    <span><span className="text-amber-300 font-semibold">Alliance Might:</span> Your combined levels fill the <strong className="text-amber-400">Alliance Chest</strong>, unlocking bonus rewards for all members.</span>
+                                </div>
+                                <div className="flex items-start gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-amber-950/50 border border-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
+                                        <Crown className="w-4 h-4 text-yellow-500" />
+                                    </div>
+                                    <span><span className="text-amber-300 font-semibold">Leaderboards:</span> Compete monthly for the title of <strong className="text-amber-400">Dominant Alliance</strong> of the realm.</span>
+                                </div>
+                            </div>
                         </div>
 
                         <Button
@@ -184,7 +255,7 @@ export function AllianceDashboard() {
                             Form New Alliance
                         </Button>
 
-                        <p className="text-xs text-amber-900/60 pt-4">
+                        <p className="text-xs text-amber-900/60">
                             Or wait for an invite from a friend...
                         </p>
                     </CardContent>
@@ -216,45 +287,42 @@ export function AllianceDashboard() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="flex justify-between items-center mt-2">
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                                            <Flame className="w-4 h-4 text-orange-500" />
-                                            <span>Daily Oath</span>
-                                        </div>
-                                        <span className="text-[10px] text-amber-500/70 ml-6">+50 XP • +10 Gold</span>
-                                    </div>
-                                    <div className="flex gap-2">
+                                {/* Oath Benefits Banner */}
+                                <OathBenefitsBanner
+                                    streak={alliance.myStreak?.current || 0}
+                                    checkedInToday={alliance.myStreak?.checkedInToday || false}
+                                />
+
+                                <div className="flex justify-between items-center">
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => openInviteModal(alliance.id)}
+                                        className="text-amber-500 hover:bg-amber-900/20"
+                                    >
+                                        <UserPlus className="w-4 h-4 mr-1.5" />
+                                        Invite Ally
+                                    </Button>
+
+                                    {alliance.myStreak?.checkedInToday ? (
                                         <Button
                                             size="sm"
-                                            variant="ghost"
-                                            onClick={() => openInviteModal(alliance.id)}
-                                            className="text-amber-500 hover:bg-amber-900/20"
+                                            disabled
+                                            className="bg-green-900/40 text-green-400 border border-green-900/50 cursor-not-allowed opacity-90"
                                         >
-                                            <UserPlus className="w-4 h-4" />
+                                            <CheckCircle className="w-3 h-3 mr-2" />
+                                            Oath Sworn ✓
                                         </Button>
-
-                                        {alliance.myStreak?.checkedInToday ? (
-                                            <Button
-                                                size="sm"
-                                                disabled
-                                                className="bg-green-900/40 text-green-400 border border-green-900/50 cursor-not-allowed opacity-90"
-                                            >
-                                                <CheckCircle className="w-3 h-3 mr-2" />
-                                                Oath Sworn ({alliance.myStreak.current})
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                size="sm"
-                                                onClick={() => handleCheckIn(alliance.id, alliance.name)}
-                                                className="bg-amber-800 hover:bg-amber-700 text-amber-100 border border-amber-600"
-                                            >
-                                                <CheckCircle className="w-3 h-3 mr-2" />
-                                                Check In
-                                                {alliance.myStreak && alliance.myStreak.current > 0 && ` (${alliance.myStreak.current})`}
-                                            </Button>
-                                        )}
-                                    </div>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            onClick={() => handleCheckIn(alliance.id, alliance.name)}
+                                            className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-amber-100 border border-amber-600 shadow-md shadow-amber-900/30 font-semibold px-4"
+                                        >
+                                            <Flame className="w-3.5 h-3.5 mr-2 text-orange-400" />
+                                            Swear Today&apos;s Oath
+                                        </Button>
+                                    )}
                                 </div>
 
                                 {alliance.stats && (
