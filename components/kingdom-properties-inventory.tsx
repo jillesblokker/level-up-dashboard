@@ -369,7 +369,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
                   disabled={isLocked}
                   onClick={(e) => { e.stopPropagation(); onAction?.(hasMaterialCost ? 'materials' : 'gold'); }}
                 >
-                   {isAffordable ? 'Build Now' : 'Build'}
+                   {isAffordable ? 'Acquire Now' : 'Acquire'}
                 </Button>
               </div>
             </div>
