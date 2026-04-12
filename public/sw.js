@@ -1,7 +1,7 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-const CACHE_NAME = 'level-up-v1.1.0'
-const STATIC_CACHE = 'level-up-static-v1.1.0'
-const DYNAMIC_CACHE = 'level-up-dynamic-v1.1.0'
+const CACHE_NAME = 'level-up-v1.1.1'
+const STATIC_CACHE = 'level-up-static-v1.1.1'
+const DYNAMIC_CACHE = 'level-up-dynamic-v1.1.1'
 
 // Files to cache for offline functionality
 const STATIC_FILES = [

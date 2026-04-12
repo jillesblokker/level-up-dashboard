@@ -371,10 +371,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'inn',
     name: TEXT_CONTENT.kingdomTiles.inn.name,
-    timerMinutes: 0,
-    normalGoldRange: [5, 20],
-    luckyGoldAmount: 60,
-    luckyChance: 0.18,
+    timerMinutes: 120,
+    normalGoldRange: [15, 40],
+    luckyGoldAmount: 150,
+    luckyChance: 0.1,
     clickMessage: TEXT_CONTENT.kingdomTiles.inn.clickMessage,
     possibleItems: [
       '/images/items/artifact/crown/artifact-crowny.webp',
@@ -712,7 +712,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'house',
     name: TEXT_CONTENT.kingdomTiles.house.name,
-    timerMinutes: 0, // Converted to Navigation Hub (Character)
+    timerMinutes: 30,
     normalGoldRange: [8, 20],
     luckyGoldAmount: 80,
     luckyChance: 0.15,
@@ -734,10 +734,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'crystal_cavern',
     name: TEXT_CONTENT.kingdomTiles.crystal_cavern.name,
-    timerMinutes: 0, // Dungeon Navigation Hub
-    normalGoldRange: [0, 0],
-    luckyGoldAmount: 0,
-    luckyChance: 0,
+    timerMinutes: 60,
+    normalGoldRange: [50, 150],
+    luckyGoldAmount: 300,
+    luckyChance: 0.1,
     clickMessage: TEXT_CONTENT.kingdomTiles.crystal_cavern.clickMessage,
     possibleItems: [
       '/images/items/scroll/scroll-perkamento.webp',
