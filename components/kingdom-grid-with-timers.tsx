@@ -1976,14 +1976,7 @@ export function KingdomGridWithTimers({
                   );
                 })()}
 
-                {/* Placement mode indicator for vacant tiles */}
-                {placementMode && tile.type === 'vacant' && (
-                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
-                    <div className="bg-amber-600 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">
-                      Place {selectedProperty?.name}
-                    </div>
-                  </div>
-                )}
+                {/* Redundant placement labels removed to prevent screen clutter and flashing */}
 
                 {/* Move/Delete Controls on Hover - Desktop only */}
                 {isKingdomTile && !placementMode && !readOnly && (

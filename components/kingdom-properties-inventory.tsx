@@ -354,22 +354,30 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
           </p>
         )}
 
-        <div className="flex flex-col gap-1 mb-3">
-          <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-500">
-            <span>Inventory</span>
-            <span>{owned} Total</span>
-          </div>
-          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden flex">
-            <div 
-              style={{ width: `${owned > 0 ? (placedCount / owned) * 100 : 0}%` }} 
-              className="h-full bg-blue-500" 
-            />
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-bold">
-            <span className="text-blue-400">{placedCount} On Map</span>
-            <span className={owned - placedCount > 0 ? "text-emerald-400" : "text-zinc-600"}>
-              {owned - placedCount} Available
-            </span>
+        {/* Phase 2 Refinement: Simplified Stats & Status */}
+        <div className="mt-auto space-y-3">
+          <div className="flex flex-col gap-1.5 bg-black/40 rounded-lg p-2.5 border border-white/5 shadow-inner">
+            <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-widest text-zinc-500 mb-0.5">
+               <span>Property Stats</span>
+               <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.5)]" />
+                  <span>Verified</span>
+               </div>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col">
+                <span className="text-[10px] text-zinc-500 font-bold uppercase">On Map</span>
+                <span className="text-sm font-black text-blue-400">{placedCount}</span>
+              </div>
+              <div className="h-8 w-px bg-white/5" />
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] text-zinc-500 font-bold uppercase">In Stash</span>
+                <span className={cn("text-sm font-black", (owned - placedCount) > 0 ? "text-emerald-400" : "text-zinc-600")}>
+                  {Math.max(0, owned - placedCount)}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
