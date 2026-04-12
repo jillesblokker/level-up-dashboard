@@ -1,31 +1,22 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-const CACHE_NAME = 'level-up-v1.1.1'
-const STATIC_CACHE = 'level-up-static-v1.1.1'
-const DYNAMIC_CACHE = 'level-up-dynamic-v1.1.1'
+// v1.2.0 - Fixed: only cache truly static assets to prevent install failures
+const CACHE_NAME = 'level-up-v1.2.0'
+const STATIC_CACHE = 'level-up-static-v1.2.0'
+const DYNAMIC_CACHE = 'level-up-dynamic-v1.2.0'
 
-// Files to cache for offline functionality
+// Only cache static assets - NOT app routes (they are SSR/authenticated and will always fail)
 const STATIC_FILES = [
-  '/',
-  '/daily-hub',
-  '/market',
-  '/quests',
-  '/kingdom',
-  '/character',
-  '/achievements',
-  '/realm',
   '/manifest.webmanifest',
   '/icons/thrivehaven_fav.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
 ]
 
-// Install event - cache static files
+// Install event - cache only truly static assets, then immediately take control
 self.addEventListener('install', (event) => {
-  // console.log('[SW] Installing service worker...')
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        // console.log('[SW] Caching static files')
         return Promise.allSettled(
           STATIC_FILES.map(url =>
             cache.add(url).catch(err => {
@@ -36,7 +27,7 @@ self.addEventListener('install', (event) => {
         )
       })
       .then(() => {
-        // console.log('[SW] Static files caching completed')
+        // Take control immediately - don't wait for old SW to die
         return self.skipWaiting()
       })
   )
