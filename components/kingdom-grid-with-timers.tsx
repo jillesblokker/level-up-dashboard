@@ -1903,10 +1903,12 @@ export function KingdomGridWithTimers({
                       </div>
                     )}
                     
-                    {/* Efficiency Badge (Roman Numerals based on levelRequired) */}
-                    <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
-                      {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
-                    </div>
+                    {/* Efficiency Badge (Roman Numerals based on tier) */}
+                    {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass'].includes(tile.type) && (
+                      <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
+                        {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
+                      </div>
+                    )}
                   </>
                 )}
 
