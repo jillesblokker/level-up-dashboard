@@ -8,7 +8,7 @@ import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
 import { KingdomPropertiesInventory } from './kingdom-properties-inventory'
 import { Button } from '@/components/ui/button'
-import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2, Check } from 'lucide-react'
+import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2, Check, LayoutGrid } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -96,6 +96,7 @@ export function KingdomGridWithTimers({
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
   const [movingTileSource, setMovingTileSource] = useState<{ x: number, y: number } | null>(null)
+  const [focusCategory, setFocusCategory] = useState<string | null>(null)
 
   // Memoize callback to prevent infinite loops in LuckyCelebration useEffect
   const handleLuckyComplete = useCallback(() => {
@@ -350,7 +351,7 @@ export function KingdomGridWithTimers({
 
         setKingdomExpansions(stats.kingdom_expansions || 0)
         setBuildTokens(stats.build_tokens || 0)
-        setPlayerLevel(calculateLevelFromExperience(stats.experience || 0))
+        // Level is now updated upstream via stats refresh
       } catch (error) {
         logger.warn('[Kingdom] Failed to load local character data:', error)
       }
@@ -1780,6 +1781,8 @@ export function KingdomGridWithTimers({
             else if (type === 'castle') tileSynergy = 'honor';
             
             const isDimmed = focusCategory && tileSynergy !== focusCategory;
+            const isHovered = hoveredTile?.x === x && hoveredTile?.y === y;
+            const currentTier = (tile as any).level || 1;
 
             return (
               <button
@@ -1902,7 +1905,7 @@ export function KingdomGridWithTimers({
                     
                     {/* Efficiency Badge (Roman Numerals based on levelRequired) */}
                     <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
-                      {tile.levelRequired && tile.levelRequired > 15 ? 'III' : tile.levelRequired && tile.levelRequired > 5 ? 'II' : 'I'}
+                      {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
                     </div>
                   </>
                 )}

@@ -322,6 +322,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
           </div>
         )}
 
+        {placedCount > 0 && (
           <div className="absolute top-2 left-2 bg-blue-700/80 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-lg border border-blue-400/30 z-20 flex items-center gap-1">
             <LayoutGrid className="w-2.5 h-2.5" />
             <span>Map: {placedCount}</span>
