@@ -1295,6 +1295,8 @@ export function KingdomGridWithTimers({
       // Generate rewards
       const wasLucky = isLuckyTile(kingdomTile.luckyChance)
       let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+      const currentTier = (tile as any).level || 1;
+      goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
       // Apply winter event bonus where applicable
       if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
         goldEarned = Math.floor(goldEarned * 1.2)
@@ -1405,6 +1407,8 @@ export function KingdomGridWithTimers({
     // Generate rewards
     const wasLucky = isLuckyTile(kingdomTile.luckyChance)
     let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
+    const currentTier = (tile as any).level || 1;
+    goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
     // Apply adjacency bonus
     const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
     if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
@@ -1528,6 +1532,8 @@ export function KingdomGridWithTimers({
 
       const wasLucky = isLuckyTile(kingdomTile.luckyChance);
       let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange);
+      const currentTier = (tile as any).level || 1;
+      goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
       const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
       
       if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
@@ -1616,6 +1622,48 @@ export function KingdomGridWithTimers({
     
     toast({ title: "Harvest Complete!", description: `Collected rewards from ${readyTimers.length} buildings.` });
   }
+
+  const getUpgradeCost = (tileType: string, currentTier: number) => {
+    if (currentTier >= 5) return null;
+    let baseCost = 250;
+    if (['mansion', 'castle', 'wizard', 'mayor'].includes(tileType)) baseCost = 2500;
+    else if (['library', 'temple', 'watchtower', 'fountain', 'jousting', 'archery'].includes(tileType)) baseCost = 1000;
+    else if (['ruins', 'crystal_cavern', 'floating_island', 'graveyard', 'oasis'].includes(tileType)) baseCost = 5000;
+    else if (['market-stalls', 'grocery', 'bakery', 'brewery', 'sawmill', 'blacksmith', 'inn'].includes(tileType)) baseCost = 500;
+    else if (['house', 'well', 'pond', 'vegetables', 'pumpkin-patch'].includes(tileType)) baseCost = 100;
+    return baseCost * Math.pow(2, currentTier - 1);
+  };
+
+  const handleUpgradeTile = async (x: number, y: number, tile: Tile) => {
+    if (readOnly) return;
+    const currentTier = (tile as any).level || 1;
+    const upgradeCost = getUpgradeCost(tile.type, currentTier);
+    
+    if (!upgradeCost) {
+      toast({ title: "Max Tier Reached", description: "This building cannot be upgraded any further." });
+      return;
+    }
+    
+    try {
+      const { spendGold } = await import('@/lib/gold-manager');
+      const success = await spendGold(upgradeCost, `upgrade_building_${tile.type}`);
+      if (!success) {
+        toast({ title: "Not Enough Gold", description: `You need ${upgradeCost.toLocaleString()} gold to upgrade to Tier ${currentTier + 1}.`, variant: "destructive" });
+        return;
+      }
+      
+      const newGrid = [...grid];
+      newGrid[y] = [...(newGrid[y] || [])];
+      newGrid[y][x] = { ...tile, level: currentTier + 1 } as any;
+      if (onGridUpdate) {
+        onGridUpdate(newGrid);
+      }
+      toast({ title: "Building Upgraded!", description: `Tier ${currentTier + 1} reached! Reward yields have increased permanently.` });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Upgrade Failed", description: "An error occurred.", variant: "destructive" });
+    }
+  };
 
   const handleMoveTile = (x: number, y: number, tile: Tile) => {
     // Find the full property definition to select it for placement
@@ -2321,6 +2369,14 @@ export function KingdomGridWithTimers({
             handleMoveTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         }}
+        onUpgrade={() => {
+          if (actionSheetTile) {
+            handleUpgradeTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+          }
+        }}
+        canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant'].includes(actionSheetTile.tile.type) : false}
+        upgradeCost={actionSheetTile ? (getUpgradeCost(actionSheetTile.tile.type, (actionSheetTile.tile as any).level || 1) || undefined) : undefined}
+        currentTier={actionSheetTile ? ((actionSheetTile.tile as any).level || 1) : 1}
         onDelete={() => {
           if (actionSheetTile) {
             handleDeleteTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);

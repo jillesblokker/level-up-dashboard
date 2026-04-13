@@ -21,6 +21,10 @@ interface TileActionSheetProps {
     onMeditate?: (() => void) | undefined
     onCollectAll?: (() => void) | undefined
     hasBatchReady?: boolean
+    onUpgrade?: (() => void) | undefined
+    canUpgrade?: boolean | undefined
+    upgradeCost?: number | undefined
+    currentTier?: number | undefined
 }
 
 export function TileActionSheet({
@@ -36,7 +40,11 @@ export function TileActionSheet({
     onCollect,
     onMeditate,
     onCollectAll,
-    hasBatchReady
+    hasBatchReady,
+    onUpgrade,
+    canUpgrade,
+    upgradeCost,
+    currentTier
 }: TileActionSheetProps) {
     const [mounted, setMounted] = useState(false)
 
@@ -161,6 +169,25 @@ export function TileActionSheet({
                                 <div className="text-left flex-1">
                                     <div className="font-bold text-amber-400 text-base">Collect All Ready</div>
                                     <div className="text-amber-300/60 text-sm">Bulk harvest all locations</div>
+                                </div>
+                            </button>
+                        )}
+
+                        {/* Upgrade action */}
+                        {onUpgrade && canUpgrade && upgradeCost && currentTier && (
+                            <button
+                                onClick={() => {
+                                    onUpgrade()
+                                    onClose()
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 transition-all active:scale-[0.98] shadow-lg shadow-amber-500/10"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                                    <Sparkles className="w-6 h-6 text-amber-100" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-white text-base">Upgrade to Tier {currentTier + 1}</div>
+                                    <div className="text-amber-200 text-sm font-medium">Cost: {upgradeCost.toLocaleString()} Gold</div>
                                 </div>
                             </button>
                         )}
