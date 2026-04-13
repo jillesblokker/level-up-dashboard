@@ -1871,7 +1871,7 @@ export function KingdomGridWithTimers({
                 style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
               >
                 <Image
-                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.webp' : (isKingdomTile && kingdomTile ? kingdomTile.image : tile.image)}
+                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.webp' : (isKingdomTile && kingdomTile ? kingdomTile.image : (tile.image || '/images/kingdom-tiles/Vacant.webp'))}
                   alt={tile.name}
                   fill
                   className="object-cover"
@@ -1969,7 +1969,7 @@ export function KingdomGridWithTimers({
                               {currentTier < 3 && (
                                 <div className="flex items-center justify-between text-[10px] text-slate-500 italic mt-1 bg-black/20 p-1 rounded">
                                   <span>Evolution</span>
-                                  <span className="flex items-center gap-1">Next: Tier {currentTier + 1} <Image src={tile.image} alt="Next Tier" width={10} height={10} className="filter grayscale opacity-50" unoptimized /></span>
+                                  <span className="flex items-center gap-1">Next: Tier {currentTier + 1} <Image src={(kingdomTile ? kingdomTile.image : tile.image) || '/images/kingdom-tiles/Vacant.webp'} alt="Next Tier" width={10} height={10} className="filter grayscale opacity-50" unoptimized /></span>
                                 </div>
                               )}
                             </div>
