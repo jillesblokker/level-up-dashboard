@@ -60,15 +60,15 @@ export function TileActionSheet({
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] md:hidden"
+                className="fixed inset-0 bg-black/70 backdrop-blur-md z-[9999]"
                 onClick={onClose}
             />
 
-            {/* Bottom Sheet */}
-            <div className="fixed inset-x-0 bottom-0 z-[9999] md:hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto">
-                <div className="bg-zinc-900 border-t border-amber-900/30 rounded-t-3xl shadow-2xl">
-                    {/* Handle */}
-                    <div className="flex justify-center pt-3 pb-2">
+            {/* Bottom Sheet / Desktop Modal */}
+            <div className="fixed inset-x-0 bottom-0 z-[9999] md:inset-0 md:flex md:items-center md:justify-center p-0 md:p-6 animate-in slide-in-from-bottom md:zoom-in-95 duration-300 pointer-events-none">
+                <div className="bg-zinc-950 border-t border-amber-900/30 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:rounded-3xl md:w-[480px] md:border md:border-white/10 md:shadow-2xl overflow-hidden pointer-events-auto max-h-[90vh] flex flex-col">
+                    {/* Handle (Mobile only) */}
+                    <div className="flex justify-center pt-3 pb-2 md:hidden">
                         <div className="w-10 h-1 bg-zinc-700 rounded-full" />
                     </div>
 
