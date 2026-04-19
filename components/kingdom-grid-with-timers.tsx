@@ -1250,6 +1250,11 @@ export function KingdomGridWithTimers({
       router.push('/chronicle');
       return;
     }
+    if (tile.type === 'crystal_cavern') {
+      toast({ title: "Entering Cavern...", description: "Delve into the depths." });
+      router.push('/dungeon');
+      return;
+    }
     // Removed redundant house hub to consolidate navigation
     // (Training Grounds remains the primary character portal)
 
@@ -2363,7 +2368,7 @@ export function KingdomGridWithTimers({
             handleUpgradeTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         }}
-        onEnter={actionSheetTile && ['dungeon', 'market', 'quest-board', 'monument', 'tavern', 'castle', 'library', 'training-grounds'].includes(actionSheetTile.tile.type) ? () => {
+        onEnter={actionSheetTile && ['dungeon', 'market', 'quest-board', 'monument', 'tavern', 'castle', 'library', 'training-grounds', 'crystal_cavern'].includes(actionSheetTile.tile.type) ? () => {
           if (actionSheetTile) {
             handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
