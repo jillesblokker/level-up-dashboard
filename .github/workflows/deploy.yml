@@ -96,11 +96,35 @@ jobs:
             nginx -t && systemctl reload nginx || true
           "
 
-      - name: Force Start and Verify
+      - name: Start App with PM2
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
-            cd /var/www/level-up && 
-            PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up && 
-            sleep 20 && 
-            curl -I http://localhost:3005 || (echo '::error::APP_HEALTH_FAILED' && exit 1)
-          "
+          ssh \
+            -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=10 \
+            root@165.232.86.194 "
+              cd /var/www/level-up
+              # Stop any existing instance cleanly
+              pm2 delete level-up 2>/dev/null || true
+              # Start with env vars explicitly set
+              PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js \
+                --name level-up \
+                --env production \
+                -- --port 3005
+              pm2 save --force
+              echo 'PM2 started successfully'
+            "
+
+      - name: Verify App is Running
+        run: |
+          # Wait for app to finish booting before checking
+          sleep 30
+          ssh \
+            -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=15 \
+            root@165.232.86.194 "
+              pm2 status level-up
+              curl -sf http://localhost:3005 > /dev/null && echo 'HEALTH CHECK PASSED' || (pm2 logs level-up --lines 30 && echo '::error::HEALTH CHECK FAILED' && exit 1)
+            "
