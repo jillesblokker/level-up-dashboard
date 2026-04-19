@@ -17,8 +17,10 @@ export default clerkMiddleware(async (auth, request) => {
   const { pathname, searchParams } = request.nextUrl;
 
   // Detect RSC (React Server Component) prefetch requests
-  // These have ?_rsc= in the URL and should NOT be redirected to external auth
-  const isRscRequest = searchParams.has('_rsc');
+  // These have ?_rsc= in the URL or 'rsc' / 'next-router-prefetch' headers
+  const isRscRequest = searchParams.has('_rsc') || 
+                      request.headers.get('rsc') === '1' || 
+                      request.headers.has('next-router-prefetch');
 
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {

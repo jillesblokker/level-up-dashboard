@@ -103,6 +103,9 @@ self.addEventListener('fetch', (event) => {
           })
           return networkResponse
         })
+        .catch(() => {
+           return new Response('Network error and no cache available', { status: 503, statusText: 'Service Unavailable' });
+        })
       })
     )
   } else {
@@ -117,8 +120,18 @@ self.addEventListener('fetch', (event) => {
           })
           return response
         })
-        .catch(() => {
-          return caches.match(request)
+        .catch(async () => {
+          const cachedResponse = await caches.match(request);
+          if (cachedResponse) return cachedResponse;
+          
+          // Return a fallback response instead of undefined
+          return new Response(
+            JSON.stringify({ error: 'Network failure or CORS block', offline: true }), 
+            {
+              status: 503,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
         })
     )
   }

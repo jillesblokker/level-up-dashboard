@@ -1645,7 +1645,6 @@ export function KingdomGridWithTimers({
     }
     
     try {
-      const { spendGold } = await import('@/lib/gold-manager');
       const success = await spendGold(upgradeCost, `upgrade_building_${tile.type}`);
       if (!success) {
         toast({ title: "Not Enough Gold", description: `You need ${upgradeCost.toLocaleString()} gold to upgrade to Tier ${currentTier + 1}.`, variant: "destructive" });
@@ -1952,7 +1951,7 @@ export function KingdomGridWithTimers({
                     )}
                     
                     {/* Efficiency Badge (Roman Numerals based on tier) */}
-                    {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass'].includes(tile.type) && (
+                    {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(tile.type) && (
                       <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
                         {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
                       </div>
@@ -2374,7 +2373,7 @@ export function KingdomGridWithTimers({
             handleUpgradeTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         }}
-        canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant'].includes(actionSheetTile.tile.type) : false}
+        canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(actionSheetTile.tile.type) : false}
         upgradeCost={actionSheetTile ? (getUpgradeCost(actionSheetTile.tile.type, (actionSheetTile.tile as any).level || 1) || undefined) : undefined}
         currentTier={actionSheetTile ? ((actionSheetTile.tile as any).level || 1) : 1}
         onDelete={() => {
