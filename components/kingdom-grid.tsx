@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useUser } from '@clerk/nextjs'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
-import { getCharacterStats } from '@/lib/character-stats-service'
+import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
 import { calculateLevelFromExperience } from '@/types/character'
 import { Tile, TileType } from '@/types/tiles'
 import Image from 'next/image'
@@ -88,7 +88,6 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const { getCharacterStats } = await import('@/lib/character-stats-service');
         const statsData = getCharacterStats();
         // Use the same level calculation as character page and navigation bar
         const currentLevel = calculateLevelFromExperience(statsData.experience || 0);
@@ -161,9 +160,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     setBuildTokens((prev: number) => {
       const newTokens = prev - (tile.cost || 1);
       // Persist to Supabase
-      import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-        updateCharacterStats({ build_tokens: newTokens }, 'build-token-purchase');
-      });
+      updateCharacterStats({ build_tokens: newTokens }, 'build-token-purchase');
       return newTokens;
     });
     setPropertyInventory((prev) => prev.map(t => t.id === tile.id ? { ...t, quantity: (t.quantity || 0) + 1 } : t));

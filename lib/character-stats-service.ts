@@ -144,7 +144,9 @@ class CharacterStatsService {
         this.queueSync(updates, source);
 
         // Broadcast update event
-        window.dispatchEvent(new Event('character-stats-update'));
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('character-stats-update'));
+        }
 
 
     }
@@ -236,7 +238,9 @@ class CharacterStatsService {
                         this.saveToLocalStorage(mergedStats);
                     }
 
-                    window.dispatchEvent(new Event('character-stats-update'));
+                    if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new Event('character-stats-update'));
+                    }
                     return mergedStats;
                 }
             }

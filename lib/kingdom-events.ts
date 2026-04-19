@@ -54,48 +54,54 @@ class KingdomEventsManager {
 
   // Emit events for other components to listen to
   public emitGoldGained(amount: number, source: string = 'unknown') {
-    const event = new CustomEvent('kingdom:goldGained', {
-      detail: { amount, source, timestamp: new Date() }
-    })
-    window.dispatchEvent(event)
-    
-    // Also emit legacy event for backward compatibility
-    const legacyEvent = new CustomEvent('goldUpdate', {
-      detail: { amount }
-    })
-    window.dispatchEvent(legacyEvent)
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('kingdom:goldGained', {
+        detail: { amount, source, timestamp: new Date() }
+      })
+      window.dispatchEvent(event)
+      
+      // Also emit legacy event for backward compatibility
+      const legacyEvent = new CustomEvent('goldUpdate', {
+        detail: { amount }
+      })
+      window.dispatchEvent(legacyEvent)
+    }
     
     // Update persistent data
     this.updateTimeSeriesData({ gold: amount })
   }
 
   public emitExperienceGained(amount: number, source: string = 'unknown') {
-    const event = new CustomEvent('kingdom:experienceGained', {
-      detail: { amount, source, timestamp: new Date() }
-    })
-    window.dispatchEvent(event)
-    
-    // Also emit legacy event for backward compatibility
-    const legacyEvent = new CustomEvent('expUpdate', {
-      detail: { amount }
-    })
-    window.dispatchEvent(legacyEvent)
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('kingdom:experienceGained', {
+        detail: { amount, source, timestamp: new Date() }
+      })
+      window.dispatchEvent(event)
+      
+      // Also emit legacy event for backward compatibility
+      const legacyEvent = new CustomEvent('expUpdate', {
+        detail: { amount }
+      })
+      window.dispatchEvent(legacyEvent)
+    }
     
     // Update persistent data
     this.updateTimeSeriesData({ experience: amount })
   }
 
   public emitQuestCompleted(questName: string, source: string = 'unknown') {
-    const event = new CustomEvent('kingdom:questCompleted', {
-      detail: { questName, source, timestamp: new Date() }
-    })
-    window.dispatchEvent(event)
-    
-    // Also emit legacy event for backward compatibility
-    const legacyEvent = new CustomEvent('questComplete', {
-      detail: { questName }
-    })
-    window.dispatchEvent(legacyEvent)
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('kingdom:questCompleted', {
+        detail: { questName, source, timestamp: new Date() }
+      })
+      window.dispatchEvent(event)
+      
+      // Also emit legacy event for backward compatibility
+      const legacyEvent = new CustomEvent('questComplete', {
+        detail: { questName }
+      })
+      window.dispatchEvent(legacyEvent)
+    }
     
     // Update persistent data
     this.updateTimeSeriesData({ questCount: 1 })
@@ -145,7 +151,9 @@ class KingdomEventsManager {
     const filteredData = existingData.filter(item => item.timestamp > cutoffDate)
     
     // Save to localStorage
-    localStorage.setItem('kingdom-time-series-data', JSON.stringify(filteredData))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kingdom-time-series-data', JSON.stringify(filteredData))
+    }
   }
 
   // Get aggregated data for different time periods
@@ -167,6 +175,7 @@ class KingdomEventsManager {
 
   private getTimeSeriesData(): TimeSeriesData[] {
     try {
+      if (typeof window === 'undefined') return []
       const saved = localStorage.getItem('kingdom-time-series-data')
       if (saved) {
         const parsed = JSON.parse(saved) as StoredTimeSeriesData[]

@@ -119,7 +119,9 @@ export async function addToInventory(userId: string, item: InventoryItem) {
     }
 
     logger.debug('[Inventory Manager] Successfully saved to database:', item.id);
-    window.dispatchEvent(new Event('character-inventory-update'));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-inventory-update'));
+    }
   } catch (error) {
     logger.error('[Inventory Manager] Error adding to inventory:', error);
   }
@@ -146,7 +148,9 @@ export async function removeFromInventory(userId: string, itemId: string, quanti
       throw new Error(`Failed to remove inventory item: ${response.status}`);
     }
 
-    window.dispatchEvent(new Event('character-inventory-update'));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-inventory-update'));
+    }
   } catch (error) {
     logger.error('Error removing from inventory:', error);
   }
@@ -189,7 +193,9 @@ export async function clearInventory(userId: string) {
       throw new Error(`Failed to clear inventory: ${response.status}`);
     }
 
-    window.dispatchEvent(new Event('character-inventory-update'));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-inventory-update'));
+    }
   } catch (error) {
     logger.error('Error clearing inventory:', error);
   }
@@ -254,7 +260,9 @@ export async function equipItem(userId: string, itemId: string): Promise<boolean
       throw new Error(`Failed to equip item: ${response.status}`);
     }
 
-    window.dispatchEvent(new Event('character-inventory-update'));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-inventory-update'));
+    }
     return true;
   } catch (error) {
     logger.error('Error equipping item:', error);
@@ -279,7 +287,9 @@ export async function unequipItem(userId: string, itemId: string): Promise<boole
       throw new Error(`Failed to unequip item: ${response.status}`);
     }
 
-    window.dispatchEvent(new Event('character-inventory-update'));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-inventory-update'));
+    }
     return true;
   } catch (error) {
     logger.error('Error unequipping item:', error);

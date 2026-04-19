@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -44,7 +45,6 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
   useEffect(() => {
     (async () => {
       try {
-        const { getCharacterStats } = await import('@/lib/character-stats-service');
         const stats = getCharacterStats();
         setBuildTokens(stats.build_tokens || 0);
       } catch {
@@ -170,9 +170,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         // Deduct build tokens and persist
         setBuildTokens(prev => {
           const newVal = Math.max(0, (prev || 0) - 5);
-          import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-            updateCharacterStats({ build_tokens: newVal }, 'streak-reconstruction');
-          });
+          updateCharacterStats({ build_tokens: newVal }, 'streak-reconstruction');
           return newVal;
         });
 
