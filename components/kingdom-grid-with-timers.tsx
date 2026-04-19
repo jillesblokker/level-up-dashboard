@@ -16,9 +16,10 @@ import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, ge
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
 import { useToast } from '@/components/ui/use-toast'
-import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
+import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
-import { spendGold } from '@/lib/gold-manager'
+import { spendGold, gainGold } from '@/lib/gold-manager'
+import { gainExperience } from '@/lib/experience-manager'
 import { addToKingdomInventory, removeFromKingdomInventory } from '@/lib/inventory-manager'
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
@@ -346,7 +347,6 @@ export function KingdomGridWithTimers({
     // Function to load stats from local state only (safe for event listeners)
     const loadLocalStats = async () => {
       try {
-        const { getCharacterStats } = await import('@/lib/character-stats-service')
         const stats = getCharacterStats()
 
         setKingdomExpansions(stats.kingdom_expansions || 0)
@@ -362,7 +362,6 @@ export function KingdomGridWithTimers({
       await loadLocalStats()
 
       try {
-        const { fetchFreshCharacterStats } = await import('@/lib/character-stats-service')
         // This will fetch from server, merge, and emit 'character-stats-update'
         await fetchFreshCharacterStats()
       } catch (error) {
@@ -534,9 +533,7 @@ export function KingdomGridWithTimers({
     // Update expansion count
     setKingdomExpansions((prev: number) => {
       const newVal = prev + 1;
-      import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-        updateCharacterStats({ kingdom_expansions: newVal }, 'kingdom-expansion');
-      });
+      updateCharacterStats({ kingdom_expansions: newVal }, 'kingdom-expansion');
       return newVal;
     });
 
@@ -1316,8 +1313,6 @@ export function KingdomGridWithTimers({
         // Award gold and experience
         ; (async () => {
           try {
-            const { gainGold } = await import('@/lib/gold-manager')
-            const { gainExperience } = await import('@/lib/experience-manager')
             // Award gold and experience
             gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
             gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
@@ -1423,8 +1418,6 @@ export function KingdomGridWithTimers({
       // Award gold and experience
       ; (async () => {
         try {
-          const { gainGold } = await import('@/lib/gold-manager')
-          const { gainExperience } = await import('@/lib/experience-manager')
           gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
           gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
         } catch { }
@@ -1515,8 +1508,6 @@ export function KingdomGridWithTimers({
 
     const collectedRewards: any[] = [];
     const updatedTimers = [...tileTimers];
-    const { gainGold } = await import('@/lib/gold-manager');
-    const { gainExperience } = await import('@/lib/experience-manager');
 
     for (const timer of readyTimers) {
       const { x, y } = timer;
@@ -1626,11 +1617,11 @@ export function KingdomGridWithTimers({
   const getUpgradeCost = (tileType: string, currentTier: number) => {
     if (currentTier >= 5) return null;
     let baseCost = 250;
-    if (['mansion', 'castle', 'wizard', 'mayor'].includes(tileType)) baseCost = 2500;
-    else if (['library', 'temple', 'watchtower', 'fountain', 'jousting', 'archery'].includes(tileType)) baseCost = 1000;
+    if (['mansion', 'castle', 'wizard', 'mayor', 'dungeon'].includes(tileType)) baseCost = 2500;
+    else if (['library', 'temple', 'watchtower', 'fountain', 'jousting', 'archery', 'monument'].includes(tileType)) baseCost = 1000;
     else if (['ruins', 'crystal_cavern', 'floating_island', 'graveyard', 'oasis'].includes(tileType)) baseCost = 5000;
-    else if (['market-stalls', 'grocery', 'bakery', 'brewery', 'sawmill', 'blacksmith', 'inn'].includes(tileType)) baseCost = 500;
-    else if (['house', 'well', 'pond', 'vegetables', 'pumpkin-patch'].includes(tileType)) baseCost = 100;
+    else if (['market-stalls', 'grocery', 'bakery', 'brewery', 'sawmill', 'blacksmith', 'inn', 'tavern', 'market'].includes(tileType)) baseCost = 500;
+    else if (['house', 'well', 'pond', 'vegetables', 'pumpkin-patch', 'quest-board'].includes(tileType)) baseCost = 100;
     return baseCost * Math.pow(2, currentTier - 1);
   };
 
@@ -1902,14 +1893,15 @@ export function KingdomGridWithTimers({
 
                   if (placementMode && selectedProperty) {
                     handlePropertyPlacement(x, y)
-                  } else if (isNavigationTile) {
-                    // Navigation tiles always navigate immediately
+                  } else if (isNavigationTile && !isMobile && !timer) {
+                    // On desktop, navigation tiles with NO timers (if any) navigate immediately
+                    // But if they have timers or we're on mobile, we show the action sheet for upgrades
                     handleTileClick(x, y, tile)
-                  } else if (isKingdomTile && isMobile && !readOnly) {
-                    // On mobile, open the action sheet for kingdom tiles
+                  } else if (isKingdomTile && !readOnly) {
+                    // Always show the action sheet for kingdom tiles to allow upgrades/moves/enters
                     setActionSheetTile({ tile, x, y, ...(timer ? { timer } : {}) });
                     setActionSheetOpen(true);
-                  } else if (isKingdomTile && (isReady || tile.type === 'zen-garden')) {
+                  } else if (isReady || tile.type === 'zen-garden') {
                     handleTileClick(x, y, tile)
                   } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
                     onTilePlace(x, y, selectedTile)
@@ -2308,9 +2300,7 @@ export function KingdomGridWithTimers({
             if (success) {
               setBuildTokens(prev => {
                 const newVal = (prev || 0) + 1;
-                import('@/lib/character-stats-service').then(({ updateCharacterStats }) => {
-                  updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
-                });
+                updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
                 return newVal;
               });
               toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
@@ -2373,6 +2363,11 @@ export function KingdomGridWithTimers({
             handleUpgradeTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         }}
+        onEnter={actionSheetTile && ['dungeon', 'market', 'quest-board', 'monument', 'tavern', 'castle', 'library', 'training-grounds'].includes(actionSheetTile.tile.type) ? () => {
+          if (actionSheetTile) {
+            handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+          }
+        } : undefined}
         canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(actionSheetTile.tile.type) : false}
         upgradeCost={actionSheetTile ? (getUpgradeCost(actionSheetTile.tile.type, (actionSheetTile.tile as any).level || 1) || undefined) : undefined}
         currentTier={actionSheetTile ? ((actionSheetTile.tile as any).level || 1) : 1}

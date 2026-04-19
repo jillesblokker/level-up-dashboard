@@ -25,6 +25,7 @@ interface TileActionSheetProps {
     canUpgrade?: boolean | undefined
     upgradeCost?: number | undefined
     currentTier?: number | undefined
+    onEnter?: (() => void) | undefined
 }
 
 export function TileActionSheet({
@@ -44,7 +45,8 @@ export function TileActionSheet({
     onUpgrade,
     canUpgrade,
     upgradeCost,
-    currentTier
+    currentTier,
+    onEnter
 }: TileActionSheetProps) {
     const [mounted, setMounted] = useState(false)
 
@@ -116,6 +118,25 @@ export function TileActionSheet({
 
                     {/* Actions */}
                     <div className="p-4 space-y-2">
+                        {/* Enter Hub Action - for Dungeons, Markets, etc. */}
+                        {onEnter && (
+                            <button
+                                onClick={() => {
+                                    onEnter()
+                                    onClose()
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20 mb-2 border border-white/10"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                                    <Sparkles className="w-6 h-6 text-white" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-white text-base">Enter {tileName.replace(/_/g, ' ')}</div>
+                                    <div className="text-blue-100 text-sm">Travel to this location</div>
+                                </div>
+                            </button>
+                        )}
+
                         {/* Meditate action - for Zen Garden */}
                         {onMeditate && (
                             <button
