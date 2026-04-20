@@ -8,7 +8,7 @@ import { Tile, TileType } from '@/types/tiles'
 import { cn } from '@/lib/utils'
 import { KingdomPropertiesInventory } from './kingdom-properties-inventory'
 import { Button } from '@/components/ui/button'
-import { ArrowRightLeft, Clock, Grid, Lock, MoreVertical, Package, Plus, RotateCw, Sparkles, Trophy, Trash2, Check, LayoutGrid } from 'lucide-react'
+import { ArrowRightLeft, Clock, RotateCw, Sparkles, Trash2, Check } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -35,10 +35,10 @@ let statsService: typeof import('@/lib/character-stats-service') | null = null;
 
 const loadManagers = async () => {
     try {
-        if (!goldManager) goldManager = await import('@/lib/gold-manager') as any;
-        if (!expManager) expManager = await import('@/lib/experience-manager') as any;
-        if (!invManager) invManager = await import('@/lib/inventory-manager') as any;
-        if (!statsService) statsService = await import('@/lib/character-stats-service') as any;
+        if (!goldManager) goldManager = await import('../lib/gold-manager') as any;
+        if (!expManager) expManager = await import('../lib/experience-manager') as any;
+        if (!invManager) invManager = await import('../lib/inventory-manager') as any;
+        if (!statsService) statsService = await import('../lib/character-stats-service') as any;
         return { goldManager, expManager, invManager, statsService };
     } catch (e) {
         logger.error('Failed to load game managers', e);
@@ -2112,7 +2112,7 @@ export function KingdomGridWithTimers({
         onClose={() => setPropertiesOpen(false)}
         inventory={inventory}
         grid={grid}
-        tiles={getAvailableProperties().map(p => ({ ...p, image: p.image.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
+        tiles={getAvailableProperties().map(p => ({ ...p, image: p.image?.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
         selectedTile={selectedInventoryTile}
         setSelectedTile={(tile) => {
           setSelectedInventoryTile(tile as any);

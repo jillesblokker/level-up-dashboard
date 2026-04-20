@@ -80,7 +80,7 @@ export const KingdomTileItem = React.memo(({
     >
       <div className="absolute inset-0 flex items-center justify-center p-0.5 md:p-1">
         <Image
-          src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
+          src={tile.image?.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
           alt={tile.name || tile.type}
           fill
           sizes="(max-width: 768px) 10vw, 5vw"
