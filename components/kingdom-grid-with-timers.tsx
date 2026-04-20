@@ -786,14 +786,15 @@ export function KingdomGridWithTimers({
       if (userId) {
         try {
           const { invManager } = await loadManagers();
-          await invManager.addToKingdomInventory({
+          const buildingItem = {
             id: property.id,
             name: property.name,
             quantity: 1,
             type: 'item',
             category: 'building',
             image: property.image
-          });
+          };
+          await invManager.addToKingdomInventory(userId, buildingItem);
           toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
           if (onInventoryUpdate) {
             onInventoryUpdate({
@@ -862,7 +863,7 @@ export function KingdomGridWithTimers({
         if (userId) {
           try {
             const { invManager } = await loadManagers();
-            await invManager.addToKingdomInventory({
+            await invManager.addToKingdomInventory(userId, {
               id: property.id,
               name: property.name,
               quantity: 1,
@@ -1515,6 +1516,23 @@ export function KingdomGridWithTimers({
     // Trigger callbacks
     if (onGoldEarned) onGoldEarned(goldEarned)
     if (onItemFound && itemFound) {
+      (async () => {
+        try {
+          const { invManager } = await loadManagers();
+          if (userId) {
+            await invManager.addToKingdomInventory(userId, {
+              image: itemFound,
+              name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+              type: kingdomTile.itemType,
+              quantity: 1,
+              category: 'material'
+            } as any);
+          }
+        } catch (e) {
+          logger.error('Failed to add found item to inventory', e);
+        }
+      })();
+
       onItemFound({
         image: itemFound,
         name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
@@ -1624,11 +1642,28 @@ export function KingdomGridWithTimers({
 
       if (onGoldEarned) onGoldEarned(goldEarned);
       if (onItemFound && itemFoundPath) {
-        onItemFound({
+        const foundItemData = {
           image: itemFoundPath,
           name: itemName,
           type: kingdomTile.itemType
-        });
+        };
+        
+        (async () => {
+          try {
+            const { invManager } = await loadManagers();
+            if (userId) {
+              await invManager.addToKingdomInventory(userId, {
+                ...foundItemData,
+                quantity: 1,
+                category: 'material'
+              } as any);
+            }
+          } catch (e) {
+            logger.error('Failed to add batch found item to inventory', e);
+          }
+        })();
+
+        onItemFound(foundItemData);
       }
     }
 
@@ -1749,6 +1784,18 @@ export function KingdomGridWithTimers({
       title: "Building Stored",
       description: `${tile.name} returned to inventory.`,
     });
+
+    // Handle inventory return in background
+    (async () => {
+      try {
+        const { invManager } = await loadManagers();
+        if (userId) {
+          await invManager.removeFromKingdomInventory(userId, tileId);
+        }
+      } catch (e) {
+        logger.error('Failed to return building to inventory', e);
+      }
+    })();
   };
 
   const handleRotateTile = (x: number, y: number, tile: Tile) => {
@@ -2040,6 +2087,7 @@ export function KingdomGridWithTimers({
           handleBuyProperty(tile as any, method);
         }}
         onBuyToken={async () => {
+          try {
             const { goldManager } = await loadManagers();
             const success = await goldManager.spendGold(1000, 'build-token-purchase');
             if (success) {
