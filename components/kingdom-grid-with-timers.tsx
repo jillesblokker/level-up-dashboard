@@ -16,11 +16,22 @@ import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, ge
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
 import { useToast } from '@/components/ui/use-toast'
-import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service'
+import { KingdomTileItem } from './KingdomTileItem'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
-import { spendGold, gainGold } from '@/lib/gold-manager'
-import { gainExperience } from '@/lib/experience-manager'
-import { addToKingdomInventory, removeFromKingdomInventory } from '@/lib/inventory-manager'
+
+// Game managers will be loaded dynamically to keep the initial bundle light
+let goldManager: typeof import('@/lib/gold-manager') | null = null;
+let expManager: typeof import('@/lib/experience-manager') | null = null;
+let invManager: typeof import('@/lib/inventory-manager') | null = null;
+let statsService: typeof import('@/lib/character-stats-service') | null = null;
+
+const loadManagers = async () => {
+    if (!goldManager) goldManager = await import('@/lib/gold-manager');
+    if (!expManager) expManager = await import('@/lib/experience-manager');
+    if (!invManager) invManager = await import('@/lib/inventory-manager');
+    if (!statsService) statsService = await import('@/lib/character-stats-service');
+    return { goldManager, expManager, invManager, statsService };
+};
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -347,7 +358,8 @@ export function KingdomGridWithTimers({
     // Function to load stats from local state only (safe for event listeners)
     const loadLocalStats = async () => {
       try {
-        const stats = getCharacterStats()
+        const { statsService } = await loadManagers();
+        const stats = statsService.getCharacterStats()
 
         setKingdomExpansions(stats.kingdom_expansions || 0)
         setBuildTokens(stats.build_tokens || 0)
@@ -363,7 +375,8 @@ export function KingdomGridWithTimers({
 
       try {
         // This will fetch from server, merge, and emit 'character-stats-update'
-        await fetchFreshCharacterStats()
+        const { statsService } = await loadManagers();
+        await statsService.fetchFreshCharacterStats()
       } catch (error) {
         logger.warn('[Kingdom] Failed to fetch fresh stats:', error)
       }
@@ -533,7 +546,9 @@ export function KingdomGridWithTimers({
     // Update expansion count
     setKingdomExpansions((prev: number) => {
       const newVal = prev + 1;
-      updateCharacterStats({ kingdom_expansions: newVal }, 'kingdom-expansion');
+      loadManagers().then(({ statsService }) => {
+        statsService.updateCharacterStats({ kingdom_expansions: newVal }, 'kingdom-expansion');
+      });
       return newVal;
     });
 
@@ -758,7 +773,8 @@ export function KingdomGridWithTimers({
         return;
       }
 
-      const success = await spendGold(property.cost, `buy-property:${property.id}`);
+      const { goldManager } = await loadManagers();
+      const success = await goldManager.spendGold(property.cost, `buy-property:${property.id}`);
       if (!success) {
         toast({ title: "Insufficient Gold", description: `You need ${property.cost} Gold.`, variant: "destructive" });
         return;
@@ -769,7 +785,8 @@ export function KingdomGridWithTimers({
       // Add to inventory
       if (userId) {
         try {
-          await addToKingdomInventory(userId, {
+          const { invManager } = await loadManagers();
+          await invManager.addToKingdomInventory({
             id: property.id,
             name: property.name,
             quantity: 1,
@@ -827,7 +844,8 @@ export function KingdomGridWithTimers({
 
       // 3. Deduct Gold
       if (goldCost > 0) {
-        const success = await spendGold(goldCost, `construct:${property.id}`);
+      const { goldManager } = await loadManagers();
+      const success = await goldManager.spendGold(goldCost, `construct:${property.id}`);
         if (!success) {
           toast({ title: "Insufficient Gold", description: `You need ${goldCost} Gold in addition to materials.`, variant: "destructive" });
           return;
@@ -843,8 +861,8 @@ export function KingdomGridWithTimers({
         // Add to inventory
         if (userId) {
           try {
-
-            await addToKingdomInventory(userId, {
+            const { invManager } = await loadManagers();
+            await invManager.addToKingdomInventory({
               id: property.id,
               name: property.name,
               quantity: 1,
@@ -1318,9 +1336,9 @@ export function KingdomGridWithTimers({
         // Award gold and experience
         ; (async () => {
           try {
-            // Award gold and experience
-            gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
-            gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+            const { goldManager, expManager } = await loadManagers();
+            goldManager.gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
+            expManager.gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
           } catch { }
         })()
         // Basic telemetry: log collect
@@ -1423,8 +1441,9 @@ export function KingdomGridWithTimers({
       // Award gold and experience
       ; (async () => {
         try {
-          gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
-          gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
+          const { goldManager, expManager } = await loadManagers();
+          goldManager.gainGold(goldEarned, `tile-collect:${kingdomTile.id}`)
+          expManager.gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general')
         } catch { }
       })()
       ; (async () => {
@@ -1548,8 +1567,11 @@ export function KingdomGridWithTimers({
           : baseExperience;
 
       // Award gold and experience
-      gainGold(goldEarned, `tile-collect:${kingdomTile.id}`);
-      gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general');
+      const { goldManager } = await loadManagers();
+      const { expManager } = await loadManagers();
+      
+      goldManager.gainGold(goldEarned, `tile-collect:${kingdomTile.id}`);
+      expManager.gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general');
 
       // Add to summary
       const itemFoundPath = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
@@ -1622,8 +1644,8 @@ export function KingdomGridWithTimers({
   const getUpgradeCost = (tileType: string, currentTier: number) => {
     if (currentTier >= 5) return null;
     let baseCost = 250;
-    if (['mansion', 'castle', 'wizard', 'mayor', 'dungeon'].includes(tileType)) baseCost = 2500;
-    else if (['library', 'temple', 'watchtower', 'fountain', 'jousting', 'archery', 'monument'].includes(tileType)) baseCost = 1000;
+    if (['mansion', 'castle', 'wizard', 'mayor', 'dungeon', 'market', 'tavern', 'monument', 'library', 'training-grounds', 'crystal_cavern', 'quest-board'].includes(tileType)) baseCost = 2500;
+    else if (['temple', 'watchtower', 'fountain', 'jousting', 'archery'].includes(tileType)) baseCost = 1000;
     else if (['ruins', 'crystal_cavern', 'floating_island', 'graveyard', 'oasis'].includes(tileType)) baseCost = 5000;
     else if (['market-stalls', 'grocery', 'bakery', 'brewery', 'sawmill', 'blacksmith', 'inn', 'tavern', 'market'].includes(tileType)) baseCost = 500;
     else if (['house', 'well', 'pond', 'vegetables', 'pumpkin-patch', 'quest-board'].includes(tileType)) baseCost = 100;
@@ -1641,7 +1663,8 @@ export function KingdomGridWithTimers({
     }
     
     try {
-      const success = await spendGold(upgradeCost, `upgrade_building_${tile.type}`);
+      const { goldManager } = await loadManagers();
+      const success = await goldManager.spendGold(upgradeCost, `upgrade_building_${tile.type}`);
       if (!success) {
         toast({ title: "Not Enough Gold", description: `You need ${upgradeCost.toLocaleString()} gold to upgrade to Tier ${currentTier + 1}.`, variant: "destructive" });
         return;
@@ -1796,321 +1819,38 @@ export function KingdomGridWithTimers({
         {/* Living World Creature Layer */}
         <CreatureLayer grid={grid} mapType="kingdom" />
 
-        {Array.from({ length: rows }).map((_, y) =>
-          Array.from({ length: cols }).map((_, x) => {
-            const tile = grid[y]?.[x]
-            const timer = tileTimers.find(t => t.x === x && t.y === y)
-            const kingdomTile = tile && tile.type !== 'vacant' ? KINGDOM_TILES.find(kt =>
-              kt.id === tile.type.toLowerCase() ||
-              kt.name.toLowerCase() === tile.name.toLowerCase() ||
-              kt.image === tile.image
-            ) : null
-
-            if (!tile) {
-              return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />
-            }
-
-            const isKingdomTile = kingdomTile !== null
-            const isReady = timer?.isReady || false
-            const isVacant = tile.type === 'vacant';
-            const isPlacementMode = placementMode && selectedProperty;
-            
-            // Focus Mode Logic: Dim tiles that don't match the focus category
-            const type = tile.type?.toLowerCase();
-            let tileSynergy = '';
-            if (type === 'library') tileSynergy = 'knowledge';
-            else if (type === 'training-grounds') tileSynergy = 'might';
-            else if (type === 'zen-garden' || type === 'temple') tileSynergy = 'wellness';
-            else if (type === 'castle') tileSynergy = 'honor';
-            
-            const isDimmed = focusCategory && tileSynergy !== focusCategory;
-            const isHovered = hoveredTile?.x === x && hoveredTile?.y === y;
-            const currentTier = (tile as any).level || 1;
+        {grid.map((row, y) => 
+          row.map((tile, x) => {
+            const timer = tileTimers.find(t => t.x === x && t.y === y);
+            const kingdomTile = KINGDOM_TILES.find(kt => 
+              kt.id === tile.type.toLowerCase() || 
+              kt.name.toLowerCase() === tile.name.toLowerCase()
+            );
 
             return (
-              <button
-                key={`${x}-${y}`}
-                className={cn(
-                  "relative aspect-square overflow-hidden transition-all duration-300 group rounded-md shadow-lg",
-                  isDimmed && "opacity-20 blur-[1px] grayscale",
-                  // 5. Normal Mode / Vacant Mode
-                  !isPlacementMode && isVacant ? (
-                    <div className="w-full h-full relative opacity-20">
-                      {/* Phase 6: Foundation Aesthetic (Always visible) */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-white/10 rounded-sm rotate-45 flex items-center justify-center">
-                           <LayoutGrid className="w-4 h-4 text-white/10" />
-                        </div>
-                        <span className="text-[5px] text-white/20 uppercase font-black tracking-tighter mt-1">Ready</span>
-                      </div>
-                    </div>
-                  ) :
-                  isPlacementMode
-                    ? isVacant
-                      ? (
-                        <div 
-                          className={cn(
-                            "w-full h-full relative transition-all duration-300",
-                            isHovered && "scale-105" // Phase 3: Snap effect
-                          )}
-                        >
-                          <div className={cn(
-                            "absolute inset-0 rounded-lg transition-all duration-300",
-                            isHovered 
-                              ? "bg-emerald-800/40 border-2 border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.4)]" 
-                              : "bg-emerald-900/20 border border-emerald-500/30"
-                          )} />
-                          
-                          {/* Phase 6: Foundation Aesthetic (Placement Mode) */}
-                          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30">
-                            <div className="w-8 h-8 border-2 border-white/10 rounded-sm rotate-45 flex items-center justify-center">
-                               <LayoutGrid className="w-4 h-4 text-white/20" />
-                            </div>
-                            <span className="text-[6px] text-white/40 uppercase font-black tracking-tighter mt-1">Foundations</span>
-                          </div>
-                        </div>
-                      )
-                      : "opacity-40 grayscale pointer-events-none bg-slate-900" // Invalid
-                    : isKingdomTile
-                      ? "hover:ring-2 hover:ring-white/50 hover:shadow-2xl hover:-translate-y-1 bg-slate-900"
-                      : "bg-[#0f172a] hover:bg-[#1e293b]"
-                )}
-                onMouseEnter={() => setHoveredTile({ x, y })}
-                onMouseLeave={() => setHoveredTile(null)}
-                aria-label={tile.ariaLabel || tile.name || `Tile ${x},${y}`}
-                onClick={() => {
-                  // Check if mobile (simple check based on viewport)
-                  const isMobile = window.innerWidth < 768;
-
-                  // Navigation tiles should always be clickable (no timer requirement)
-                  const isNavigationTile = tile.type === 'quest-board' ||
-                    tile.type === 'market' ||
-                    tile.type === 'crystal_cavern' ||
-                    tile.type === 'dungeon' ||
-                    tile.type === 'monument' ||
-                    tile.type === 'training-grounds' ||
-                    tile.type === 'tavern' ||
-                    tile.type === 'castle' ||
-                    tile.type?.toLowerCase() === 'library' ||
-                    tile.type?.toLowerCase() === 'house' ||
-                    tile.type?.toLowerCase() === 'inn' ||
-                    tile.type?.toLowerCase() === 'market-stalls';
-
-                  if (placementMode && selectedProperty) {
-                    handlePropertyPlacement(x, y)
-                  } else if (isNavigationTile && !isMobile && !timer) {
-                    // On desktop, navigation tiles with NO timers (if any) navigate immediately
-                    // But if they have timers or we're on mobile, we show the action sheet for upgrades
-                    handleTileClick(x, y, tile)
-                  } else if (isKingdomTile && !readOnly) {
-                    // Always show the action sheet for kingdom tiles to allow upgrades/moves/enters
-                    setActionSheetTile({ tile, x, y, ...(timer ? { timer } : {}) });
-                    setActionSheetOpen(true);
-                  } else if (isReady || tile.type === 'zen-garden') {
-                    handleTileClick(x, y, tile)
-                  } else if (selectedTile && (selectedTile.quantity || 0) > 0) {
-                    onTilePlace(x, y, selectedTile)
-                  }
-                }}
-                style={{ minWidth: 0, minHeight: 0, borderRadius: 0, margin: 0, padding: 0 }}
-              >
-                <Image
-                  src={tile.type === 'vacant' ? '/images/kingdom-tiles/Vacant.webp' : (isKingdomTile && kingdomTile ? kingdomTile.image : (tile.image || '/images/kingdom-tiles/Vacant.webp'))}
-                  alt={tile.name}
-                  fill
-                  className="object-cover"
-                  draggable={false}
-                  unoptimized
-                  onError={(e) => { e.currentTarget.src = '/images/placeholders/empty-tile.svg' }}
-                  style={{ transform: `rotate(${tile.rotation || 0}deg)`, transition: 'transform 0.3s ease' }}
-                />
-
-                {/* Zen Garden Specialty Effect */}
-                {tile.type === 'zen-garden' && (
-                  <div className="absolute inset-0 bg-teal-400/5 group-hover:bg-teal-400/10 transition-colors pointer-events-none flex flex-col items-center justify-center">
-                    <div className="w-full h-full absolute inset-0 animate-pulse-subtle bg-teal-400/5" />
-                    <Sparkles className="w-4 h-4 text-teal-300 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100 mb-1" />
-                    <span className="text-[8px] font-bold text-teal-200 tracking-[0.2em] uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-black drop-shadow-lg">
-                      Zen
-                    </span>
-                  </div>
-                )}
-
-                {/* 1. Efficiency Badges & 4. Living Indicators */}
-                {isKingdomTile && (
-                  <>
-                    {/* Living House Indicator: Chimney Smoke animation if timer is active */}
-                    {(type === 'house' || type === 'sawmill' || type === 'blacksmith') && !isReady && (
-                      <div className="absolute top-2 right-4 pointer-events-none">
-                         <div className="w-1 h-1 bg-slate-400/40 rounded-full animate-drift-slow" />
-                         <div className="w-1.5 h-1.5 bg-slate-500/20 rounded-full animate-drift-slow [animation-delay:2.5s]" />
-                      </div>
-                    )}
-                    
-                    {/* Efficiency Badge (Roman Numerals based on tier) */}
-                    {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(tile.type) && (
-                      <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
-                        {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* 1. Synergy Aura & 2. Habit Indicators */}
-                {(() => {
-                  const type = tile.type?.toLowerCase();
-                  let auraColor = '';
-                  let synergyLabel = '';
-                  
-                  if (type === 'library') { auraColor = 'blue'; synergyLabel = '+10% Knowledge XP'; }
-                  else if (type === 'training-grounds') { auraColor = 'red'; synergyLabel = '+10% Might XP'; }
-                  else if (type === 'zen-garden' || type === 'temple') { auraColor = 'emerald'; synergyLabel = '+10% Wellness XP'; }
-                  else if (type === 'castle') { auraColor = 'amber'; synergyLabel = '+10% Honor XP'; }
-
-                  const isPending = pendingHabits.includes(type);
-
-                  return (
-                    <>
-                      {/* Aura Effect */}
-                      {auraColor && (
-                        <div className={cn(
-                          "absolute inset-0 transition-opacity duration-1000",
-                          auraColor === 'blue' ? "bg-blue-400/5 shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]" :
-                          auraColor === 'red' ? "bg-red-400/5 shadow-[inset_0_0_20px_rgba(239,68,68,0.1)]" :
-                          auraColor === 'emerald' ? "bg-emerald-400/5 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]" :
-                          auraColor === 'amber' ? "bg-amber-400/5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)]" : ""
-                        )} />
-                      )}
-
-                      {/* Pending Habit Indicator (📜) */}
-                      {isPending && (
-                        <div className="absolute top-1 left-1 animate-bounce z-40 bg-white/90 rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-amber-200">
-                           <span className="text-[8px]">📜</span>
-                        </div>
-                      )}
-
-                      {/* 4. Enhanced Hover Info-Card */}
-                      {(tile.type === 'quest-board' || tile.type === 'market' ||
-                        tile.type === 'dungeon' ||
-                        tile.type === 'monument' || auraColor ||
-                        tile.type?.toLowerCase() === 'market-stalls') && (
-                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all pointer-events-none flex flex-col items-center justify-center p-1">
-                            <div className="bg-slate-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md">
-                              <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{tile.name || tile.type}</p>
-                              <div className="h-px bg-white/10 my-1 w-full" />
-                              <p className="text-[8px] text-slate-400 text-center italic">
-                                {tile.type === 'quest-board' ? 'Portal: Tasks' :
-                                 tile.type === 'market' ? 'Portal: Shop' :
-                                 tile.type === 'dungeon' ? 'Portal: Combat' :
-                                 tile.type === 'monument' ? 'Statue: Achievements' :
-                                 auraColor ? synergyLabel : 'Interaction Available'}
-                              </p>
-                              
-                              <div className="flex items-center justify-between text-[10px] text-slate-400 border-t border-white/5 pt-2 mt-2">
-                                <span>Current Tier</span>
-                                <span className="text-amber-500">Tier {currentTier}</span>
-                              </div>
-                              
-                              {/* Phase 5: Tier Preview */}
-                              {currentTier < 3 && (
-                                <div className="flex items-center justify-between text-[10px] text-slate-500 italic mt-1 bg-black/20 p-1 rounded">
-                                  <span>Evolution</span>
-                                  <span className="flex items-center gap-1">Next: Tier {currentTier + 1} <Image src={(kingdomTile ? kingdomTile.image : tile.image) || '/images/kingdom-tiles/Vacant.webp'} alt="Next Tier" width={10} height={10} className="filter grayscale opacity-50" unoptimized /></span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                      )}
-                    </>
-                  );
-                })()}
-
-                {/* Redundant placement labels removed to prevent screen clutter and flashing */}
-
-                {/* Move/Delete Controls on Hover - Desktop only */}
-                {isKingdomTile && !placementMode && !readOnly && (
-                  <>
-                    {/* Desktop hover controls */}
-                    <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
-                      <div
-                        role="button"
-                        title="Move"
-                        className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMoveTile(x, y, tile);
-                        }}
-                      >
-                        <ArrowRightLeft className="w-3 h-3" />
-                      </div>
-                      <div
-                        role="button"
-                        title="Store in Inventory"
-                        className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteTile(x, y, tile);
-                        }}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </div>
-                      <div
-                        role="button"
-                        title="Rotate 90°"
-                        className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRotateTile(x, y, tile);
-                        }}
-                      >
-                        <RotateCw className="w-3 h-3" />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Timer overlay for kingdom tiles - visible on mobile if < 3m, hover only on desktop */}
-                {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
-                  <div className={cn(
-                    "transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none group-hover:opacity-100",
-                    // Hide by default on mobile if > 3m remaining and not ready
-                    (timer.endTime - Date.now() > 3 * 60 * 1000 && !isReady) ? "opacity-0 md:opacity-0" : "opacity-100 md:opacity-0"
-                  )}>
-                    <div className={cn(
-                      "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded text-center font-mono shadow-sm backdrop-blur-sm",
-                      isReady
-                        ? "bg-green-500/90 text-white"
-                        : "bg-black/80 text-white",
-                      "min-h-[16px] md:min-h-[24px] flex items-center justify-center shrink-0"
-                    )}>
-                      {isReady ? (
-                        <div className="flex items-center justify-center gap-1">
-                          <Check className="w-3 h-3 md:hidden" />
-                          <Sparkles className="hidden md:block w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="whitespace-nowrap hidden md:inline">Ready!</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-0.5 md:gap-1">
-                          <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70" />
-                          {/* Mobile Compact Timer */}
-                          <span className="whitespace-nowrap md:hidden font-bold tracking-tighter">
-                            {formatTimeRemaining(timer.endTime)}
-                          </span>
-                          {/* Desktop Full Timer */}
-                          <span className="whitespace-nowrap hidden md:inline">
-                            {formatTimeRemaining(timer.endTime)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </button>
-            )
+              <KingdomTileItem
+                key={`${tile.id || 'tile'}-${x}-${y}`}
+                x={x}
+                y={y}
+                tile={tile}
+                timer={timer}
+                kingdomTile={kingdomTile}
+                currentTier={(tile as any).level || 1}
+                placementMode={!!placementMode}
+                readOnly={!!readOnly}
+                focusCategory={focusCategory}
+                pendingHabits={pendingHabits}
+                onClick={handleTileClick}
+                onMove={handleMoveTile}
+                onDelete={handleDeleteTile}
+                onRotate={handleRotateTile}
+                formatTimeRemaining={formatTimeRemaining}
+              />
+            );
           })
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -2300,12 +2040,13 @@ export function KingdomGridWithTimers({
           handleBuyProperty(tile as any, method);
         }}
         onBuyToken={async () => {
-          try {
-            const success = await spendGold(1000, 'build-token-purchase');
+            const { goldManager } = await loadManagers();
+            const success = await goldManager.spendGold(1000, 'build-token-purchase');
             if (success) {
+              const { statsService } = await loadManagers();
               setBuildTokens(prev => {
                 const newVal = (prev || 0) + 1;
-                updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
+                statsService.updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
                 return newVal;
               });
               toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
