@@ -18,6 +18,14 @@ import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
 import { useToast } from '@/components/ui/use-toast'
 import { KingdomTileItem } from './KingdomTileItem'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import { CreatureLayer } from '@/components/creature-layer'
+import { useWeather } from '@/hooks/use-weather'
+import { TEXT_CONTENT } from '@/lib/text-content'
+import { AnimatePresence } from 'framer-motion'
+import { LuckyCelebration } from '@/components/lucky-celebration'
+import { TileActionSheet } from '@/components/tile-action-sheet'
+import { KingdomSummaryModal } from './kingdom-summary-modal'
+
 
 // Game managers will be loaded dynamically to keep the initial bundle light
 let goldManager: typeof import('@/lib/gold-manager') | null = null;
@@ -32,13 +40,6 @@ const loadManagers = async () => {
     if (!statsService) statsService = await import('@/lib/character-stats-service');
     return { goldManager, expManager, invManager, statsService };
 };
-import { CreatureLayer } from '@/components/creature-layer'
-import { useWeather } from '@/hooks/use-weather'
-import { TEXT_CONTENT } from '@/lib/text-content'
-import { AnimatePresence } from 'framer-motion'
-import { LuckyCelebration } from '@/components/lucky-celebration'
-import { TileActionSheet } from '@/components/tile-action-sheet'
-import { KingdomSummaryModal } from './kingdom-summary-modal'
 
 // Helper function to calculate level from experience
 const calculateLevelFromExperience = (experience: number): number => {
