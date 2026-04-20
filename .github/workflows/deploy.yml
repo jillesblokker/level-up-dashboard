@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Verify Environment Secrets
@@ -79,55 +79,49 @@ jobs:
           fi
 
       - name: Send Snapshot to server
+        timeout-minutes: 3
         run: |
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
-      - name: NUCLEAR RESET and Update
+      - name: Deploy to server
+        timeout-minutes: 3
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 "
-            # Kill everything
-            pm2 kill || true
-            pkill -u root node || true
-            mkdir -p /var/www/level-up
-            rm -rf /var/www/level-up/*
-            tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up
-            chmod -R 755 /var/www/level-up
-            # Confirm file existence
-            if [ ! -f /var/www/level-up/server.js ]; then echo 'FATAL: server.js NOT IN ROOT'; ls -la /var/www/level-up; exit 1; fi
-            # Nginx fix
-            find /etc/nginx/sites-enabled/ -type f -exec sed -i 's/:3000/:3005/g' {} + 2>/dev/null || true
-            nginx -t && systemctl reload nginx || true
-          "
-
-      - name: Start App with PM2
-        run: |
-          ssh \
-            -i ~/.ssh/deploy_key \
+          ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=15 \
-            -o ServerAliveCountMax=10 \
+            -o ServerAliveInterval=10 \
+            -o ServerAliveCountMax=3 \
             root@165.232.86.194 "
-              cd /var/www/level-up
-              # Stop any existing instance cleanly
-              pm2 delete level-up 2>/dev/null || true
-              # Start with env vars explicitly set
-              PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js \
-                --name level-up \
-                --env production \
-                -- --port 3005
-              pm2 save --force
-              echo 'PM2 started successfully'
+              pm2 kill 2>/dev/null || true
+              pkill -u root node 2>/dev/null || true
+              sleep 2
+              mkdir -p /var/www/level-up
+              rm -rf /var/www/level-up/*
+              tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up
+              chmod -R 755 /var/www/level-up
+              if [ ! -f /var/www/level-up/server.js ]; then echo 'FATAL: server.js NOT IN ROOT'; ls -la /var/www/level-up; exit 1; fi
+              find /etc/nginx/sites-enabled/ -type f -exec sed -i 's/:3000/:3005/g' {} + 2>/dev/null || true
+              nginx -t && systemctl reload nginx || true
             "
 
-      - name: Verify App is Running
+      - name: Start PM2 app
+        timeout-minutes: 2
         run: |
-          # Wait for app to finish booting before checking
+          # PM2 daemon spawn causes SSH to hang (inherits FDs).
+          # We accept the potential broken pipe and verify separately.
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=5 \
+            -o ServerAliveCountMax=6 \
+            root@165.232.86.194 \
+            'cd /var/www/level-up && PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up --update-env && pm2 save --force && echo PM2_OK' \
+            || echo "PM2 start completed (SSH channel closed by daemon fork — this is expected)"
+
+      - name: Verify app is healthy
+        timeout-minutes: 2
+        run: |
+          echo "Waiting 15s for Next.js to boot..."
           sleep 15
-          ssh \
-            -i ~/.ssh/deploy_key \
+          ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=15 \
-            root@165.232.86.194 "
-              pm2 status level-up
-              curl -sf http://localhost:3005 > /dev/null && echo 'HEALTH CHECK PASSED' || (pm2 logs level-up --lines 30 && echo '::error::HEALTH CHECK FAILED' && exit 1)
-            "
+            root@165.232.86.194 \
+            'curl -sf -o /dev/null -w "%{http_code}" http://localhost:3005 && echo " — HEALTH CHECK PASSED" || (echo "::error::HEALTH CHECK FAILED"; pm2 logs level-up --lines 30 --nostream; exit 1)'
