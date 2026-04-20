@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Verify Environment Secrets
@@ -84,7 +84,7 @@ jobs:
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
       - name: Deploy to server
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: |
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
@@ -104,23 +104,19 @@ jobs:
             "
 
       - name: Start PM2 app
-        timeout-minutes: 2
+        timeout-minutes: 5
         run: |
-          # PM2 daemon spawn causes SSH to hang (inherits FDs).
-          # We accept the potential broken pipe and verify separately.
+          # Use nohup + disown logic to fully break SSH pipe inheritance
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=5 \
-            -o ServerAliveCountMax=6 \
             root@165.232.86.194 \
-            'cd /var/www/level-up && PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up --update-env && pm2 save --force && echo PM2_OK' \
-            || echo "PM2 start completed (SSH channel closed by daemon fork — this is expected)"
+            'cd /var/www/level-up && (PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up --update-env > /dev/null 2>&1 &) && sleep 2 && pm2 save --force'
 
       - name: Verify app is healthy
-        timeout-minutes: 2
+        timeout-minutes: 3
         run: |
-          echo "Waiting 15s for Next.js to boot..."
-          sleep 15
+          echo "Waiting 20s for Next.js to boot..."
+          sleep 20
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             root@165.232.86.194 \
