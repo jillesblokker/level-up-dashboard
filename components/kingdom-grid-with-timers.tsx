@@ -34,11 +34,16 @@ let invManager: typeof import('@/lib/inventory-manager') | null = null;
 let statsService: typeof import('@/lib/character-stats-service') | null = null;
 
 const loadManagers = async () => {
-    if (!goldManager) goldManager = await import('@/lib/gold-manager');
-    if (!expManager) expManager = await import('@/lib/experience-manager');
-    if (!invManager) invManager = await import('@/lib/inventory-manager');
-    if (!statsService) statsService = await import('@/lib/character-stats-service');
-    return { goldManager, expManager, invManager, statsService };
+    try {
+        if (!goldManager) goldManager = await import('@/lib/gold-manager') as any;
+        if (!expManager) expManager = await import('@/lib/experience-manager') as any;
+        if (!invManager) invManager = await import('@/lib/inventory-manager') as any;
+        if (!statsService) statsService = await import('@/lib/character-stats-service') as any;
+        return { goldManager, expManager, invManager, statsService };
+    } catch (e) {
+        logger.error('Failed to load game managers', e);
+        throw e;
+    }
 };
 
 // Helper function to calculate level from experience
@@ -110,6 +115,39 @@ export function KingdomGridWithTimers({
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
   const [movingTileSource, setMovingTileSource] = useState<{ x: number, y: number } | null>(null)
   const [focusCategory, setFocusCategory] = useState<string | null>(null)
+
+  // -- Hoisted Properties Search/Logic for Type Safety --
+  // Seasonal event flags (hoisted for property filtering)
+  const [winterFestivalActive, setWinterFestivalActive] = useState(false)
+  const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
+
+  const [propertyInventory, setPropertyInventory] = useState(() => {
+    return KINGDOM_TILES.map(tile => ({
+      id: tile.id,
+      name: tile.name,
+      image: tile.image,
+      description: tile.clickMessage,
+      cost: tile.cost,
+      tokenCost: tile.tokenCost,
+      materialCost: tile.materialCost,
+      quantity: 0,
+      levelRequired: tile.levelRequired || 1
+    }));
+  });
+
+  const availableProperties = useMemo(() => {
+    return propertyInventory.filter(property => {
+      if (property.id.startsWith('event-')) return false;
+      const isWinter = property.id.startsWith('winter-');
+      const isHarvest = property.id.startsWith('harvest-');
+      if (isWinter && !winterFestivalActive) return false;
+      if (isHarvest && !harvestFestivalActive) return false;
+      return true;
+    });
+  }, [propertyInventory, winterFestivalActive, harvestFestivalActive]);
+
+  const [selectedInventoryTile, setSelectedInventoryTile] = useState<typeof propertyInventory[0] | null>(null)
+  const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
 
   // Memoize callback to prevent infinite loops in LuckyCelebration useEffect
   const handleLuckyComplete = useCallback(() => {
@@ -281,7 +319,6 @@ export function KingdomGridWithTimers({
 
   // Add missing state for expand functionality
   const [propertiesOpen, setPropertiesOpen] = useState(false)
-  const [selectedInventoryTile, setSelectedInventoryTile] = useState<typeof propertyInventory[0] | null>(null)
   const [propertyTab, setPropertyTab] = useState<'place' | 'buy'>('place')
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
@@ -315,9 +352,6 @@ export function KingdomGridWithTimers({
     const interval = setInterval(fetchQuests, 60000);
     return () => clearInterval(interval);
   }, []);
-  // Seasonal event flags
-  const [winterFestivalActive, setWinterFestivalActive] = useState(false)
-  const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
   // Tiles affected by winter event bonus
   const WINTER_EVENT_TILE_IDS = new Set([
     'winter-fountain',
@@ -1868,11 +1902,13 @@ export function KingdomGridWithTimers({
         <CreatureLayer grid={grid} mapType="kingdom" />
 
         {grid.map((row, y) => 
-          row.map((tile, x) => {
+          row?.map((tile, x) => {
+            if (!tile) return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />;
+
             const timer = tileTimers.find(t => t.x === x && t.y === y);
             const kingdomTile = KINGDOM_TILES.find(kt => 
-              kt.id === tile.type.toLowerCase() || 
-              kt.name.toLowerCase() === tile.name.toLowerCase()
+              kt.id === tile.type?.toLowerCase() || 
+              kt.name?.toLowerCase() === tile.name?.toLowerCase()
             );
 
             return (
@@ -2089,22 +2125,26 @@ export function KingdomGridWithTimers({
         }}
         onBuyToken={async () => {
           try {
-            const { goldManager } = await loadManagers();
-            const success = await goldManager.spendGold(1000, 'build-token-purchase');
+            const managers = await loadManagers();
+            if (!managers.goldManager) return;
+            
+            const success = await managers.goldManager.spendGold(1000, 'build-token-purchase');
             if (success) {
-              const { statsService } = await loadManagers();
+              const { statsService: stats } = managers;
               setBuildTokens(prev => {
                 const newVal = (prev || 0) + 1;
-                statsService.updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
+                if (stats?.updateCharacterStats) {
+                  stats.updateCharacterStats({ build_tokens: newVal }, 'build-token-purchase');
+                }
                 return newVal;
               });
               toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
             } else {
-              toast({ title: "Purchase Failed", description: "Could not purchase build token.", variant: "destructive" });
+              toast({ title: "Purchase Failed", description: "Insufficient Gold.", variant: "destructive" });
             }
           } catch (e) {
-            logger.error('Error purchasing build token:', e);
-            toast({ title: "Purchase Failed", description: "An error occurred while purchasing the build token.", variant: "destructive" });
+            logger.error('Error in onBuyToken:', e);
+            toast({ title: "Purchase Error", description: "Action failed.", variant: "destructive" });
           }
         }}
         tokens={buildTokens}
