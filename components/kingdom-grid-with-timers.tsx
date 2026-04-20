@@ -122,32 +122,108 @@ export function KingdomGridWithTimers({
   const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
 
   const [propertyInventory, setPropertyInventory] = useState(() => {
-    return KINGDOM_TILES.map(tile => ({
-      id: tile.id,
-      name: tile.name,
-      image: tile.image,
-      description: tile.clickMessage,
-      cost: tile.cost,
-      tokenCost: tile.tokenCost,
-      materialCost: tile.materialCost,
-      quantity: 0,
-      levelRequired: tile.levelRequired || 1
-    }));
+    // Metadata for UI categorization and locking
+    const METADATA: Record<string, { category: string, levelRequired: number, isSeasonal?: boolean, eventType?: string }> = {
+      house: { category: 'basic', levelRequired: 1 },
+      well: { category: 'basic', levelRequired: 1 },
+      pond: { category: 'basic', levelRequired: 1 },
+      vegetables: { category: 'basic', levelRequired: 1 },
+      'market-stalls': { category: 'commerce', levelRequired: 1 },
+      grocery: { category: 'commerce', levelRequired: 1 },
+      bakery: { category: 'commerce', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
+      brewery: { category: 'commerce', levelRequired: 2, isSeasonal: true, eventType: 'harvest' },
+      blacksmith: { category: 'production', levelRequired: 1 },
+      sawmill: { category: 'production', levelRequired: 2 },
+      windmill: { category: 'production', levelRequired: 2 },
+      stable: { category: 'production', levelRequired: 1 },
+      'harvest-barn': { category: 'production', levelRequired: 2, isSeasonal: true, eventType: 'harvest' },
+      inn: { category: 'entertainment', levelRequired: 1 },
+      'snowy-inn': { category: 'entertainment', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      foodcourt: { category: 'entertainment', levelRequired: 2 },
+      'training-grounds': { category: 'entertainment', levelRequired: 2 },
+      'jousting': { category: 'entertainment', levelRequired: 3 },
+      'fireworks-stand': { category: 'entertainment', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      'pumpkin-patch': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
+      'winter-fountain': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      'ice-sculpture': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      library: { category: 'advanced', levelRequired: 3 },
+      temple: { category: 'advanced', levelRequired: 3 },
+      fountain: { category: 'advanced', levelRequired: 2 },
+      archery: { category: 'advanced', levelRequired: 2 },
+      watchtower: { category: 'advanced', levelRequired: 3 },
+      mansion: { category: 'prestige', levelRequired: 4 },
+      mayor: { category: 'prestige', levelRequired: 5 },
+      castle: { category: 'prestige', levelRequired: 5 },
+      wizard: { category: 'prestige', levelRequired: 4 },
+      farmland: { category: 'production', levelRequired: 2 },
+      jungle: { category: 'adventure', levelRequired: 3 },
+      ruins: { category: 'adventure', levelRequired: 4 },
+      oasis: { category: 'adventure', levelRequired: 5 },
+      coral_reef: { category: 'adventure', levelRequired: 6 },
+      graveyard: { category: 'mystic', levelRequired: 7 },
+      crystal_cavern: { category: 'mystic', levelRequired: 8 },
+      floating_island: { category: 'mystic', levelRequired: 10 },
+      'zen-garden': { category: 'mystic', levelRequired: 1 },
+    };
+
+    return KINGDOM_TILES.map(tile => {
+      const meta = METADATA[tile.id] || { category: 'misc', levelRequired: tile.levelRequired || 1 };
+      return {
+        id: tile.id,
+        name: tile.name,
+        image: tile.image,
+        cost: tile.cost || 0,
+        tokenCost: tile.tokenCost,
+        materialCost: tile.materialCost,
+        levelRequired: meta.levelRequired || tile.levelRequired || 1,
+        costType: 'gold', 
+        quantity: 0,
+        isSeasonal: meta.isSeasonal || false,
+        eventType: meta.eventType,
+        category: meta.category
+      };
+    });
   });
+
+  // Sync property inventory with user inventory (props)
+  useEffect(() => {
+    if (!inventory) return;
+    setPropertyInventory(prev => {
+      const inventoryMap = new Map();
+      inventory.forEach(i => {
+        inventoryMap.set(i.id, i.quantity || 0);
+        if (i.id.endsWith('-item')) {
+          inventoryMap.set(i.id.replace('-item', ''), i.quantity || 0);
+        }
+        if (i.name) {
+          inventoryMap.set(i.name.toLowerCase(), i.quantity || 0);
+        }
+      });
+
+      return prev.map(prop => {
+        const qty = inventoryMap.get(prop.id) ||
+          inventoryMap.get(prop.name?.toLowerCase()) ||
+          0;
+        if (prop.quantity !== qty) {
+          return { ...prop, quantity: qty };
+        }
+        return prop;
+      });
+    });
+  }, [inventory]);
 
   const availableProperties = useMemo(() => {
     return propertyInventory.filter(property => {
-      if (property.id.startsWith('event-')) return false;
-      const isWinter = property.id.startsWith('winter-');
-      const isHarvest = property.id.startsWith('harvest-');
-      if (isWinter && !winterFestivalActive) return false;
-      if (isHarvest && !harvestFestivalActive) return false;
-      return true;
+      if (!property.isSeasonal) return true;
+      if (property.eventType === 'winter') return winterFestivalActive;
+      if (property.eventType === 'harvest') return harvestFestivalActive;
+      return false;
     });
   }, [propertyInventory, winterFestivalActive, harvestFestivalActive]);
 
   const [selectedInventoryTile, setSelectedInventoryTile] = useState<typeof propertyInventory[0] | null>(null)
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
+  const [placementMode, setPlacementMode] = useState(false)
 
   // Memoize callback to prevent infinite loops in LuckyCelebration useEffect
   const handleLuckyComplete = useCallback(() => {
@@ -598,147 +674,9 @@ export function KingdomGridWithTimers({
     });
   };
 
-  // Legacy effect removed - logic consolidated into the main character data effect above
-
-  // Kingdom tile inventory for properties panel - dynamically loaded from KINGDOM_TILES source of truth
-  const [propertyInventory, setPropertyInventory] = useState(() => {
-    // Metadata for UI categorization and locking
-    const METADATA: Record<string, { category: string, levelRequired: number, isSeasonal?: boolean, eventType?: string }> = {
-      // Basic
-      house: { category: 'basic', levelRequired: 1 },
-      well: { category: 'basic', levelRequired: 1 },
-      pond: { category: 'basic', levelRequired: 1 },
-      vegetables: { category: 'basic', levelRequired: 1 },
-
-      // Commerce
-      'market-stalls': { category: 'commerce', levelRequired: 1 },
-      grocery: { category: 'commerce', levelRequired: 1 },
-      bakery: { category: 'commerce', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
-      brewery: { category: 'commerce', levelRequired: 2, isSeasonal: true, eventType: 'harvest' },
-
-      // Production
-      blacksmith: { category: 'production', levelRequired: 1 },
-      sawmill: { category: 'production', levelRequired: 2 },
-      windmill: { category: 'production', levelRequired: 2 },
-      stable: { category: 'production', levelRequired: 1 },
-      'harvest-barn': { category: 'production', levelRequired: 2, isSeasonal: true, eventType: 'harvest' },
-
-      // Entertainment
-      inn: { category: 'entertainment', levelRequired: 1 },
-      'snowy-inn': { category: 'entertainment', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
-      foodcourt: { category: 'entertainment', levelRequired: 2 },
-      'training-grounds': { category: 'entertainment', levelRequired: 2 },
-      'jousting': { category: 'entertainment', levelRequired: 3 },
-      'fireworks-stand': { category: 'entertainment', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
-
-      // Special / Seasonal
-      'pumpkin-patch': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
-      'winter-fountain': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
-      'ice-sculpture': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
-
-      // Advanced
-      library: { category: 'advanced', levelRequired: 3 },
-      temple: { category: 'advanced', levelRequired: 3 },
-      fountain: { category: 'advanced', levelRequired: 2 },
-      archery: { category: 'advanced', levelRequired: 2 },
-      watchtower: { category: 'advanced', levelRequired: 3 },
-
-      // Prestige
-      mansion: { category: 'prestige', levelRequired: 4 },
-      mayor: { category: 'prestige', levelRequired: 5 },
-      castle: { category: 'prestige', levelRequired: 5 },
-      wizard: { category: 'prestige', levelRequired: 4 },
-
-      // New Realm Tiles
-      farmland: { category: 'production', levelRequired: 2 },
-      jungle: { category: 'adventure', levelRequired: 3 },
-      ruins: { category: 'adventure', levelRequired: 4 },
-      oasis: { category: 'adventure', levelRequired: 5 },
-      coral_reef: { category: 'adventure', levelRequired: 6 },
-      graveyard: { category: 'mystic', levelRequired: 7 },
-      crystal_cavern: { category: 'mystic', levelRequired: 8 },
-      floating_island: { category: 'mystic', levelRequired: 10 },
-      'zen-garden': { category: 'mystic', levelRequired: 1 },
-    };
-
-    return KINGDOM_TILES.map(tile => {
-      const meta = METADATA[tile.id] || { category: 'misc', levelRequired: tile.levelRequired || 1 };
-      return {
-        id: tile.id,
-        name: tile.name,
-        image: tile.image,
-        cost: tile.cost || 0,
-        tokenCost: tile.tokenCost,
-        materialCost: tile.materialCost,
-        levelRequired: meta.levelRequired || tile.levelRequired || 1,
-        costType: 'gold', // Default identifier, actual logic handled by components
-        quantity: 0,
-        isSeasonal: meta.isSeasonal || false,
-        eventType: meta.eventType,
-        category: meta.category
-      };
-    });
-  });
-
-  // Sync property inventory with user inventory (props)
-  useEffect(() => {
-    if (!inventory) return;
-
-    setPropertyInventory(prev => {
-      // Create a map for faster lookups
-      const inventoryMap = new Map();
-      inventory.forEach(i => {
-        inventoryMap.set(i.id, i.quantity || 0);
-        if (i.id.endsWith('-item')) {
-          inventoryMap.set(i.id.replace('-item', ''), i.quantity || 0);
-        }
-        if (i.name) {
-          inventoryMap.set(i.name.toLowerCase(), i.quantity || 0);
-        }
-      });
-
-      return prev.map(prop => {
-        const qty = inventoryMap.get(prop.id) ||
-          inventoryMap.get(prop.name?.toLowerCase()) ||
-          0;
-
-        // Only update if changed to avoid unnecessary re-renders
-        if (prop.quantity !== qty) {
-          return { ...prop, quantity: qty };
-        }
-        return prop;
-      });
-    });
-  }, [inventory]);
-
-
-  // Property placement state
-  const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)
-  const [placementMode, setPlacementMode] = useState(false)
-
-  // Filter properties based on event status - memoized for performance
-  const availableProperties = useMemo(() => {
-    const available = propertyInventory.filter(property => {
-      if (!property.isSeasonal) {
-        return true; // Always show non-seasonal properties
-      }
-
-      if (property.eventType === 'winter') {
-        return winterFestivalActive;
-      }
-
-      if (property.eventType === 'harvest') {
-        return harvestFestivalActive;
-      }
-
-      return false; // Hide seasonal properties when their event is inactive
-    });
-
-    return available;
-  }, [propertyInventory, winterFestivalActive, harvestFestivalActive]);
-
   // Legacy function wrapper for compatibility
   const getAvailableProperties = () => availableProperties;
+
 
 
   // Check if player can place a property
