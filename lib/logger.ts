@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Production-safe logger utility
  * Suppresses verbose logs in production while keeping high-priority ones
@@ -98,15 +99,19 @@ class Logger {
 
     switch (level) {
       case 'debug':
+        // eslint-disable-next-line no-console
         console.debug(formattedMessage, ...args)
         break
       case 'info':
+        // eslint-disable-next-line no-console
         console.info(formattedMessage, ...args)
         break
       case 'warn':
+        // eslint-disable-next-line no-console
         console.warn(formattedMessage, ...args)
         break
       case 'error':
+        // eslint-disable-next-line no-console
         console.error(formattedMessage, ...args)
         break
     }

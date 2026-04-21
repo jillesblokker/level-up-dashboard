@@ -131,13 +131,13 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     <div className="relative flex flex-col items-center justify-center">
                         {/* Outer Glows */}
                         <div className={cn(
-                            "absolute w-48 h-48 rounded-full transition-all duration-[4000ms] blur-3xl opacity-20",
+                            "absolute w-48 h-48 rounded-full transition-all duration-[4s] blur-3xl opacity-20",
                             phase === 'inhale' ? 'bg-teal-400 scale-125' : phase === 'hold' ? 'bg-emerald-400 scale-150' : 'bg-blue-400 scale-100'
                         )} />
 
                         {/* The Actual Breathing Circle */}
                         <div className={cn(
-                            "relative w-32 h-32 rounded-full border border-teal-500/30 flex items-center justify-center transition-all duration-[4000ms] ease-in-out shadow-inner",
+                            "relative w-32 h-32 rounded-full border border-teal-500/30 flex items-center justify-center transition-all duration-[4s] ease-in-out shadow-inner",
                             phase === 'inhale' ? 'scale-150 bg-teal-500/5' : phase === 'hold' ? 'scale-150 bg-teal-500/20' : 'scale-100 bg-transparent'
                         )}>
                             <div className="flex flex-col items-center justify-center">

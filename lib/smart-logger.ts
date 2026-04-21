@@ -93,6 +93,7 @@ class SmartLogger {
       debug: 'color: #8b5cf6'
     }[entry.level]
 
+    // eslint-disable-next-line no-console
     console.group(
       `${emoji} [${entry.component}] ${entry.action}`
     )
@@ -100,6 +101,7 @@ class SmartLogger {
     logger.debug(`%cSession: ${entry.sessionId}`, style)
     if (entry.userId) logger.debug(`%cUser: ${entry.userId}`, style)
     logger.debug(`%cDetails:`, style, entry.details)
+    // eslint-disable-next-line no-console
     console.groupEnd()
   }
 

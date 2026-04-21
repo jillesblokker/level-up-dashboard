@@ -1,5 +1,7 @@
 "use client"
 
+import { logger } from "./logger";
+
 /**
  * Haptic feedback patterns for different interactions
  */
@@ -33,7 +35,7 @@ export function triggerHaptic(pattern: number | number[]) {
             window.navigator.vibrate(pattern)
         } catch (e) {
             // Ignore errors (some browsers might block it or throw)
-            console.debug('Haptics not supported or blocked', e)
+            logger.debug('Haptics not supported or blocked', e)
         }
     }
 }

@@ -33,13 +33,29 @@ let expManager: typeof import('@/lib/experience-manager') | null = null;
 let invManager: typeof import('@/lib/inventory-manager') | null = null;
 let statsService: typeof import('@/lib/character-stats-service') | null = null;
 
-const loadManagers = async () => {
+interface GameManagers {
+    goldManager: any;
+    expManager: any;
+    invManager: any;
+    statsService: any;
+}
+
+/**
+ * Load game managers dynamically to keep initial bundle size small
+ */
+const loadManagers = async (): Promise<GameManagers> => {
     try {
         if (!goldManager) goldManager = await import('../lib/gold-manager') as any;
         if (!expManager) expManager = await import('../lib/experience-manager') as any;
         if (!invManager) invManager = await import('../lib/inventory-manager') as any;
         if (!statsService) statsService = await import('../lib/character-stats-service') as any;
-        return { goldManager, expManager, invManager, statsService };
+        
+        return { 
+            goldManager: goldManager!, 
+            expManager: expManager!, 
+            invManager: invManager!, 
+            statsService: statsService! 
+        };
     } catch (e) {
         logger.error('Failed to load game managers', e);
         throw e;

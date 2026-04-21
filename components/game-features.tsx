@@ -30,7 +30,7 @@ export function GameFeatures() {
   const [showAllDiscovered, setShowAllDiscovered] = useState(false);
 
   useEffect(() => {
-    console.debug('[GameFeatures] mount');
+    logger.debug('[GameFeatures] mount');
     if (dataLoadedRef.current) return;
     
     const loadData = async () => {
@@ -42,7 +42,7 @@ export function GameFeatures() {
         setAchievementsLoading(false);
 
         dataLoadedRef.current = true;
-        console.debug('[GameFeatures] Data loaded', {
+        logger.debug('[GameFeatures] Data loaded', {
           achievements: loadedAchievements,
         });
       } catch (error) {
@@ -56,7 +56,7 @@ export function GameFeatures() {
   }, []);
 
   useEffect(() => {
-    console.debug('[GameFeatures] activeTab changed:', activeTab);
+    logger.debug('[GameFeatures] activeTab changed:', activeTab);
   }, [activeTab]);
 
   // Card 000 rendering as a variable, not an IIFE
