@@ -107,28 +107,32 @@ jobs:
       - name: Start PM2 app
         timeout-minutes: 5
         run: |
-          ssh -i ~/.ssh/deploy_key \
-            -o StrictHostKeyChecking=no \
-            root@165.232.86.194 \
-            'cd /var/www/level-up && \
-             (PORT=3005 \
-             HOSTNAME=0.0.0.0 \
-             NEXT_PUBLIC_SUPABASE_URL="https://uunfpqrauivviygysjzj.supabase.co" \
-             NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
-             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k" \
-             NEXT_PUBLIC_CLERK_FRONTEND_API="clerk.jillesblokker.com" \
-             CLERK_SECRET_KEY="${{ secrets.CLERK_SECRET_KEY }}" \
-             SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
-             pm2 start server.js --name level-up --update-env > /dev/null 2>&1 &) && \
-             sleep 5 && \
-             pm2 save --force'
+          # Use a heredoc to pass secrets and commands safely over SSH
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 << 'EOF'
+            cd /var/www/level-up
+            
+            # Create production env file for the runtime
+            cat << 'ENV_EOF' > .env.production
+            PORT=3005
+            HOSTNAME=0.0.0.0
+            NODE_ENV=production
+            NEXT_PUBLIC_SUPABASE_URL=https://uunfpqrauivviygysjzj.supabase.co
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k
+            NEXT_PUBLIC_CLERK_FRONTEND_API=clerk.jillesblokker.com
+            CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
+            SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+            ENV_EOF
+            
+            # Restart the app with the new environment
+            pm2 delete level-up 2>/dev/null || true
+            pm2 start server.js --name level-up --update-env
+            pm2 save --force
+          EOF
 
       - name: Verify app is healthy
         timeout-minutes: 5
         run: |
           echo "Waiting for Next.js to boot (30s)..."
           sleep 30
-          ssh -i ~/.ssh/deploy_key \
-            -o StrictHostKeyChecking=no \
-            root@165.232.86.194 \
-            'curl -vf http://127.0.0.1:3005/api/health 2>&1 || (echo "::error::HEALTH CHECK FAILED"; pm2 logs level-up --lines 100 --nostream; exit 1)'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 'curl -vf http://127.0.0.1:3005/api/health 2>&1 || (echo "::error::HEALTH CHECK FAILED"; pm2 logs level-up --lines 100 --nostream; exit 1)'

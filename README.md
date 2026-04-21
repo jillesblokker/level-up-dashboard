@@ -1,4 +1,5 @@
-# Level Up Dashboard
+# Level Up Dashboard 🚀
+<!-- Trigger re-build -->
 
 A Next.js-based game dashboard featuring:
 
