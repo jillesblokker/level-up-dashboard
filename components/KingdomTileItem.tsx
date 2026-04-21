@@ -13,7 +13,7 @@ interface KingdomTileItemProps {
   timer?: {
     endTime: number
     isReady: boolean
-  }
+  } | undefined
   kingdomTile?: any
   currentTier: number
   placementMode: boolean

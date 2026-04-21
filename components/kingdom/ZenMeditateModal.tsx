@@ -130,16 +130,22 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     {/* Breathing Visual */}
                     <div className="relative flex flex-col items-center justify-center">
                         {/* Outer Glows */}
-                        <div className={cn(
-                            "absolute w-48 h-48 rounded-full transition-all duration-[4s] blur-3xl opacity-20",
-                            phase === 'inhale' ? 'bg-teal-400 scale-125' : phase === 'hold' ? 'bg-emerald-400 scale-150' : 'bg-blue-400 scale-100'
-                        )} />
+                        <div 
+                            className={cn(
+                                "absolute w-48 h-48 rounded-full transition-all blur-3xl opacity-20",
+                                phase === 'inhale' ? 'bg-teal-400 scale-125' : phase === 'hold' ? 'bg-emerald-400 scale-150' : 'bg-blue-400 scale-100'
+                            )} 
+                            style={{ transitionDuration: '4s' }}
+                        />
 
                         {/* The Actual Breathing Circle */}
-                        <div className={cn(
-                            "relative w-32 h-32 rounded-full border border-teal-500/30 flex items-center justify-center transition-all duration-[4s] ease-in-out shadow-inner",
-                            phase === 'inhale' ? 'scale-150 bg-teal-500/5' : phase === 'hold' ? 'scale-150 bg-teal-500/20' : 'scale-100 bg-transparent'
-                        )}>
+                        <div 
+                            className={cn(
+                                "relative w-32 h-32 rounded-full border border-teal-500/30 flex items-center justify-center transition-all ease-in-out shadow-inner",
+                                phase === 'inhale' ? 'scale-150 bg-teal-500/5' : phase === 'hold' ? 'scale-150 bg-teal-500/20' : 'scale-100 bg-transparent'
+                            )}
+                            style={{ transitionDuration: '4s' }}
+                        >
                             <div className="flex flex-col items-center justify-center">
                                 <Wind className={cn(
                                     "w-12 h-12 text-teal-300 transition-all duration-1000",
