@@ -14,6 +14,11 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key'); // Optional: get specific preference
 
+    // Set user context so RLS honors the Clerk userId, fixing 500 errors if service role bypass fails
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch(e) {}
+
     let query = supabaseServer
       .from('user_preferences')
       .select('*')
@@ -78,6 +83,11 @@ export async function POST(request: Request) {
     });
     const { key, value } = BodySchema.parse(body);
 
+    // Set user context so RLS honors the Clerk userId, fixing 500 errors if service role bypass fails
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch(e) {}
+
     const { data, error } = await supabaseServer
       .from('user_preferences')
       .upsert({
@@ -123,6 +133,11 @@ export async function DELETE(request: Request) {
     if (!key) {
       return NextResponse.json({ error: 'Missing preference key' }, { status: 400 });
     }
+
+    // Set user context so RLS honors the Clerk userId, fixing 500 errors if service role bypass fails
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch(e) {}
 
     const { error } = await supabaseServer
       .from('user_preferences')

@@ -15,6 +15,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    try {
+      await supabaseAdmin.rpc('public.set_user_context', { user_id: userId });
+    } catch(e) {}
+
     // Load all items for the user
     const { data: items, error } = await supabaseAdmin
       .from('seasonal_hunt')
@@ -45,6 +49,10 @@ export async function POST(req: NextRequest) {
     if (!action) {
       return NextResponse.json({ error: 'Action required' }, { status: 400 });
     }
+
+    try {
+      await supabaseAdmin.rpc('public.set_user_context', { user_id: userId });
+    } catch(e) {}
 
     if (action === 'initialize') {
       if (!eventKey) {
