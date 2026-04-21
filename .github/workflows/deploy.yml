@@ -115,11 +115,12 @@ jobs:
               nginx -t && systemctl reload nginx || true
           DEPLOY_SCRIPT
 
-      - name: Create env and start app
-        timeout-minutes: 3
+      - name: Create env and start script
+        timeout-minutes: 2
         run: |
-          # Write .env.production file on the server
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 'bash -s' << ENVSCRIPT
+          # Write .env.production and a startup wrapper as a single SSH command
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 'bash -s' << SETUP_SCRIPT
+            # 1. Create .env.production with runtime secrets
             cat > /var/www/level-up/.env.production << 'ENVFILE'
           PORT=3005
           HOSTNAME=0.0.0.0
@@ -131,17 +132,29 @@ jobs:
           CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
           SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           ENVFILE
-          ENVSCRIPT
+
+            # 2. Create a wrapper script that loads env vars then starts node
+            cat > /var/www/level-up/start.sh << 'WRAPPER'
+          #!/bin/bash
+          set -a
+          source /var/www/level-up/.env.production
+          set +a
+          cd /var/www/level-up
+          exec node server.js
+          WRAPPER
+            chmod +x /var/www/level-up/start.sh
+            echo "Setup complete"
+          SETUP_SCRIPT
 
       - name: Start PM2 app
         timeout-minutes: 2
         run: |
-          # PM2 daemon holds SSH file descriptors open indefinitely.
-          # Use local `timeout` to kill SSH client after 30s — PM2 survives on server.
+          # PM2 daemon holds SSH file descriptors open — use timeout to force disconnect.
+          # Start the wrapper script (which loads env vars) instead of server.js directly.
           timeout 30 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
-            'cd /var/www/level-up && pm2 start server.js --name level-up --update-env' \
-            || echo "SSH timed out (expected — PM2 daemon is running)"
-          # Save PM2 list via a fresh short-lived connection
+            'cd /var/www/level-up && pm2 start start.sh --name level-up --interpreter bash' \
+            || echo "SSH timed out (expected — PM2 daemon keeps FDs open)"
+          # Save PM2 list via a fresh connection
           timeout 15 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
             'pm2 save --force 2>/dev/null; pm2 list 2>/dev/null' \
             || echo "PM2 save timed out (non-critical)"
@@ -150,7 +163,8 @@ jobs:
       - name: Verify app is healthy
         timeout-minutes: 5
         run: |
-          echo "Waiting for Next.js to boot (30s)..."
-          sleep 30
+          echo "Waiting for Next.js to boot (45s)..."
+          sleep 45
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
-            'curl -sf -o /dev/null -w "%{http_code}" http://127.0.0.1:3005 && echo " — HEALTH CHECK PASSED" || { echo "::error::HEALTH CHECK FAILED"; pm2 logs level-up --lines 50 --nostream; exit 1; }'
+            'echo "--- PM2 STATUS ---"; pm2 list; echo "--- PM2 LOGS ---"; pm2 logs level-up --lines 30 --nostream 2>/dev/null || true; echo "--- HEALTH CHECK ---"; curl -sf -o /dev/null -w "%{http_code}" http://127.0.0.1:3005 && echo " — PASSED" || { echo "::error::HEALTH CHECK FAILED — port 3005 not responding"; exit 1; }'
+
