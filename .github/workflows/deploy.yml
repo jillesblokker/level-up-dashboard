@@ -92,8 +92,8 @@ jobs:
             -o ServerAliveCountMax=3 \
             root@165.232.86.194 'bash -s' << 'DEPLOY_SCRIPT'
               # Stop existing processes - use timeout to prevent hangs
-              timeout 10 pm2 delete level-up 2>/dev/null || true
-              timeout 10 pm2 kill 2>/dev/null || true
+              pm2 delete level-up 2>/dev/null || true
+              # DO NOT use pm2 kill. Killing the PM2 daemon forces it to respawn, which hangs SSH!
               pkill -f "node.*server.js" 2>/dev/null || true
               sleep 2
               
@@ -115,50 +115,40 @@ jobs:
               nginx -t && systemctl reload nginx || true
           DEPLOY_SCRIPT
 
-      - name: Create env and start script
+      - name: Create PM2 ecosystem config
         timeout-minutes: 2
         run: |
-          # Write .env.production and a startup wrapper as a single SSH command
+          # Write ecosystem.json for PM2 to natively handle environment variables
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 'bash -s' << SETUP_SCRIPT
-            # 1. Create .env.production with runtime secrets
-            cat > /var/www/level-up/.env.production << 'ENVFILE'
-          PORT=3005
-          HOSTNAME=0.0.0.0
-          NODE_ENV=production
-          NEXT_PUBLIC_SUPABASE_URL=https://uunfpqrauivviygysjzj.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k
-          NEXT_PUBLIC_CLERK_FRONTEND_API=clerk.jillesblokker.com
-          CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          ENVFILE
-
-            # 2. Create a wrapper script that loads env vars then starts node
-            cat > /var/www/level-up/start.sh << 'WRAPPER'
-          #!/bin/bash
-          set -a
-          source /var/www/level-up/.env.production
-          set +a
-          cd /var/www/level-up
-          exec node server.js
-          WRAPPER
-            chmod +x /var/www/level-up/start.sh
-            echo "Setup complete"
+            cat > /var/www/level-up/ecosystem.json << 'ECOSYSTEM'
+          {
+            "apps": [{
+              "name": "level-up",
+              "script": "server.js",
+              "cwd": "/var/www/level-up",
+              "env": {
+                "PORT": 3005,
+                "HOSTNAME": "0.0.0.0",
+                "NODE_ENV": "production",
+                "NEXT_PUBLIC_SUPABASE_URL": "https://uunfpqrauivviygysjzj.supabase.co",
+                "NEXT_PUBLIC_SUPABASE_ANON_KEY": "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}",
+                "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k",
+                "NEXT_PUBLIC_CLERK_FRONTEND_API": "clerk.jillesblokker.com",
+                "CLERK_SECRET_KEY": "${{ secrets.CLERK_SECRET_KEY }}",
+                "SUPABASE_SERVICE_ROLE_KEY": "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+              }
+            }]
+          }
+          ECOSYSTEM
+            echo "Setup complete: ecosystem.json created"
           SETUP_SCRIPT
 
       - name: Start PM2 app
         timeout-minutes: 2
         run: |
-          # PM2 daemon holds SSH file descriptors open — use timeout to force disconnect.
-          # Start the wrapper script (which loads env vars) instead of server.js directly.
-          timeout 30 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
-            'cd /var/www/level-up && pm2 start start.sh --name level-up --interpreter bash' \
-            || echo "SSH timed out (expected — PM2 daemon keeps FDs open)"
-          # Save PM2 list via a fresh connection
-          timeout 15 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
-            'pm2 save --force 2>/dev/null; pm2 list 2>/dev/null' \
-            || echo "PM2 save timed out (non-critical)"
-          echo "=== PM2 app started ==="
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
+            'cd /var/www/level-up && pm2 start ecosystem.json && pm2 save --force'
+          echo "=== PM2 app started successfully ==="
 
       - name: Verify app is healthy
         timeout-minutes: 5
