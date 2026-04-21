@@ -134,11 +134,22 @@ jobs:
           ENVSCRIPT
 
       - name: Start PM2 app
-        timeout-minutes: 3
+        timeout-minutes: 2
         run: |
-          # Start PM2 in background, redirect all output to prevent SSH hang
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
-            'cd /var/www/level-up && nohup pm2 start server.js --name level-up --update-env </dev/null >/dev/null 2>&1 && sleep 3 && pm2 save --force && echo "PM2 started OK"'
+            'cat > /tmp/start-levelup.sh << "STARTSCRIPT"
+          #!/bin/bash
+          cd /var/www/level-up
+          pm2 start server.js --name level-up --update-env 2>&1
+          pm2 save --force 2>&1
+          echo "DONE at $(date)"
+          STARTSCRIPT
+          chmod +x /tmp/start-levelup.sh
+          setsid bash /tmp/start-levelup.sh < /dev/null > /tmp/pm2-start.log 2>&1 &
+          sleep 5
+          cat /tmp/pm2-start.log 2>/dev/null || true
+          pm2 list 2>/dev/null || true
+          echo "=== PM2 app started ==="'
 
       - name: Verify app is healthy
         timeout-minutes: 5
