@@ -106,18 +106,27 @@ jobs:
       - name: Start PM2 app
         timeout-minutes: 5
         run: |
-          # Use nohup + disown logic to fully break SSH pipe inheritance
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             root@165.232.86.194 \
-            'cd /var/www/level-up && (PORT=3005 HOSTNAME=0.0.0.0 pm2 start server.js --name level-up --update-env > /dev/null 2>&1 &) && sleep 2 && pm2 save --force'
+            "cd /var/www/level-up && \
+             PORT=3005 \
+             HOSTNAME=0.0.0.0 \
+             NEXT_PUBLIC_SUPABASE_URL='https://uunfpqrauivviygysjzj.supabase.co' \
+             NEXT_PUBLIC_SUPABASE_ANON_KEY='${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}' \
+             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY='pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k' \
+             NEXT_PUBLIC_CLERK_FRONTEND_API='clerk.jillesblokker.com' \
+             CLERK_SECRET_KEY='${{ secrets.CLERK_SECRET_KEY }}' \
+             SUPABASE_SERVICE_ROLE_KEY='${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}' \
+             pm2 start server.js --name level-up --update-env && \
+             pm2 save"
 
       - name: Verify app is healthy
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: |
-          echo "Waiting 20s for Next.js to boot..."
-          sleep 20
+          echo "Waiting for Next.js to boot (30s)..."
+          sleep 30
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             root@165.232.86.194 \
-            'curl -sf -o /dev/null -w "%{http_code}" http://localhost:3005 && echo " — HEALTH CHECK PASSED" || (echo "::error::HEALTH CHECK FAILED"; pm2 logs level-up --lines 30 --nostream; exit 1)'
+            'curl -vf http://127.0.0.1:3005/api/health 2>&1 || (echo "::error::HEALTH CHECK FAILED"; pm2 logs level-up --lines 100 --nostream; exit 1)'
