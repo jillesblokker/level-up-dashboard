@@ -91,6 +91,7 @@ jobs:
             -o ServerAliveInterval=10 \
             -o ServerAliveCountMax=3 \
             root@165.232.86.194 "
+              pm2 delete level-up 2>/dev/null || true
               pm2 kill 2>/dev/null || true
               pkill -u root node 2>/dev/null || true
               sleep 2
@@ -109,17 +110,18 @@ jobs:
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             root@165.232.86.194 \
-            "cd /var/www/level-up && \
-             PORT=3005 \
+            'cd /var/www/level-up && \
+             (PORT=3005 \
              HOSTNAME=0.0.0.0 \
-             NEXT_PUBLIC_SUPABASE_URL='https://uunfpqrauivviygysjzj.supabase.co' \
-             NEXT_PUBLIC_SUPABASE_ANON_KEY='${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}' \
-             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY='pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k' \
-             NEXT_PUBLIC_CLERK_FRONTEND_API='clerk.jillesblokker.com' \
-             CLERK_SECRET_KEY='${{ secrets.CLERK_SECRET_KEY }}' \
-             SUPABASE_SERVICE_ROLE_KEY='${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}' \
-             pm2 start server.js --name level-up --update-env && \
-             pm2 save"
+             NEXT_PUBLIC_SUPABASE_URL="https://uunfpqrauivviygysjzj.supabase.co" \
+             NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_live_Y2xlcmsuamlsbGVzYmxva2tlci5jb20k" \
+             NEXT_PUBLIC_CLERK_FRONTEND_API="clerk.jillesblokker.com" \
+             CLERK_SECRET_KEY="${{ secrets.CLERK_SECRET_KEY }}" \
+             SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+             pm2 start server.js --name level-up --update-env > /dev/null 2>&1 &) && \
+             sleep 5 && \
+             pm2 save --force'
 
       - name: Verify app is healthy
         timeout-minutes: 5
