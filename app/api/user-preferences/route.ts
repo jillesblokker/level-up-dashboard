@@ -1,52 +1,48 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '@/lib/supabase/server-client';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
-    const key = searchParams.get('key'); // Optional: get specific preference
+    const key = searchParams.get('key');
 
-    // Set user context so RLS honors the Clerk userId, fixing 500 errors if service role bypass fails
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch(e) {}
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      let query = supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId);
 
-    let query = supabaseServer
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId);
+      if (key) {
+        query = query.eq('preference_key', key);
+      }
 
-    if (key) {
-      query = query.eq('preference_key', key);
+      const { data, error } = await query;
+      if (error) throw error;
+      
+      return data;
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    
-    const { data: resultData, key: requestedKey } = { data, key };
+    const data = result.data;
 
-    if (requestedKey && data && data.length > 0) {
-      // Return single preference value
+    if (key && data && data.length > 0) {
       return NextResponse.json({ 
         success: true, 
         value: data[0].preference_value 
       });
-    } else if (requestedKey) {
-      // Key not found
+    } else if (key) {
       return NextResponse.json({ 
         success: true, 
         value: null 
       });
     } else {
-      // Return all preferences as key-value pairs
       const preferences: Record<string, any> = {};
       data?.forEach((pref: any) => {
         preferences[pref.preference_key] = pref.preference_value;
@@ -57,13 +53,10 @@ export async function GET(request: Request) {
         preferences 
       });
     }
-  } catch (error) {
-    logger.error('[User Preferences API] Error:', error);
-    if (error instanceof Error) {
-      logger.error('[User Preferences API] Error details:', error.message, error.stack);
-    }
+  } catch (error: any) {
+    logger.error('[User Preferences API] GET Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
+      { error: 'Internal server error', details: error.message }, 
       { status: 500 }
     );
   }
@@ -71,50 +64,48 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     const BodySchema = z.object({
       key: z.string().min(1),
-      value: z.union([z.string(), z.number(), z.boolean(), z.object({}).passthrough(), z.array(z.any())])
+      value: z.any()
     });
-    const { key, value } = BodySchema.parse(body);
+    const parsed = BodySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid body', details: parsed.error }, { status: 400 });
+    }
+    const { key, value } = parsed.data;
 
-    // Set user context so RLS honors the Clerk userId, fixing 500 errors if service role bypass fails
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch(e) {}
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          preference_key: key,
+          preference_value: value,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,preference_key'
+        })
+        .select()
+        .single();
 
-    const { data, error } = await supabaseServer
-      .from('user_preferences')
-      .upsert({
-        user_id: userId,
-        preference_key: key,
-        preference_value: value,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,preference_key'
-      })
-      .select()
-      .single();
+      if (error) throw error;
+      return data;
+    });
 
-    if (error) throw error;
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Unauthorized' }, { status: 401 });
+    }
 
     return NextResponse.json({ 
       success: true, 
       message: 'Preference saved successfully',
-      data: data 
+      data: result.data 
     });
-  } catch (error) {
-    logger.error('[User Preferences API] Error:', error);
-    if (error instanceof Error) {
-      logger.error('[User Preferences API] Error details:', error.message, error.stack);
-    }
+  } catch (error: any) {
+    logger.error('[User Preferences API] POST Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
+      { error: 'Internal server error', details: error.message }, 
       { status: 500 }
     );
   }
@@ -122,42 +113,36 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key');
 
     if (!key) {
-      return NextResponse.json({ error: 'Missing preference key' }, { status: 400 });
+      return NextResponse.json({ error: 'Key is required' }, { status: 400 });
     }
 
-    // Set user context so RLS honors the Clerk userId, fixing 500 errors if service role bypass fails
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch(e) {}
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      const { error } = await supabase
+        .from('user_preferences')
+        .delete()
+        .eq('user_id', userId)
+        .eq('preference_key', key);
 
-    const { error } = await supabaseServer
-      .from('user_preferences')
-      .delete()
-      .eq('user_id', userId)
-      .eq('preference_key', key);
+      if (error) throw error;
+      return { success: true };
+    });
 
-    if (error) throw error;
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Unauthorized' }, { status: 401 });
+    }
 
     return NextResponse.json({ 
-      success: true, 
-      message: 'Preference deleted successfully' 
+      success: true,
+      message: 'Preference deleted successfully'
     });
-  } catch (error) {
-    logger.error('[User Preferences API] Error:', error);
-    if (error instanceof Error) {
-      logger.error('[User Preferences API] Error details:', error.message, error.stack);
-    }
+  } catch (error: any) {
+    logger.error('[User Preferences API] DELETE Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, 
+      { error: 'Internal server error', details: error.message }, 
       { status: 500 }
     );
   }

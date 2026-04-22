@@ -157,12 +157,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      logger.error('[Inventory API] Unauthorized POST request');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     const { item } = body;
 
@@ -170,88 +164,70 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item is required' }, { status: 400 });
     }
 
-    logger.debug('[API Inventory] Processing POST for:', item.id, 'User:', userId);
-
-    // Manually set user context for RLS if needed, though service role key bypasses it usually
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch (e) {
-      // Ignore context setting error
-    }
-
-    // Check if item exists
-    const { data: existing, error: fetchError } = await supabaseServer
-      .from('inventory_items')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('item_id', item.id)
-      .single();
-
-    if (existing) {
-      logger.debug('[API Inventory] Item exists. Old Qty:', existing.quantity, 'Adding:', item.quantity);
-    } else {
-      logger.debug('[API Inventory] Item/User not found. Fetch err:', fetchError?.code);
-    }
-
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      logger.error('[Inventory API] Fetch Error:', fetchError);
-      return NextResponse.json({ error: fetchError.message }, { status: 500 });
-    }
-
-    let resultData;
-
-    if (existing) {
-      // Update quantity
-      const { data, error } = await supabaseServer
+    const { success, data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+      // Check if item exists
+      const { data: existing, error: fetchError } = await supabase
         .from('inventory_items')
-        .update({ quantity: existing.quantity + (item.quantity || 1) })
+        .select('*')
         .eq('user_id', userId)
         .eq('item_id', item.id)
-        .select()
         .single();
 
-      if (error) {
-        logger.error('[Inventory API] Update Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
       }
-      resultData = data;
-    } else {
-      // Insert new item
-      const { data, error } = await supabaseServer
-        .from('inventory_items')
-        .insert({
-          user_id: userId,
-          item_id: item.id,
-          name: item.name || 'Unknown Item',
-          type: item.type || 'item',
-          category: item.category || item.type || 'misc',
-          description: item.description || `Found: ${item.name}`,
-          emoji: item.emoji || '📦',
-          image: item.image || '',
-          stats: item.stats || {},
-          quantity: item.quantity || 1,
-          equipped: item.equipped || false,
-          is_default: false,
-        })
-        .select()
-        .single();
 
-      if (error) {
-        logger.error('[Inventory API] Insert error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      if (existing) {
+        // Update quantity
+        const { data, error: updateError } = await supabase
+          .from('inventory_items')
+          .update({ quantity: existing.quantity + (item.quantity || 1) })
+          .eq('user_id', userId)
+          .eq('item_id', item.id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        return data;
+      } else {
+        // Insert new item
+        const { data, error: insertError } = await supabase
+          .from('inventory_items')
+          .insert({
+            user_id: userId,
+            item_id: item.id,
+            name: item.name || 'Unknown Item',
+            type: item.type || 'item',
+            category: item.category || item.type || 'misc',
+            description: item.description || `Found: ${item.name}`,
+            emoji: item.emoji || '📦',
+            image: item.image || '',
+            stats: item.stats || {},
+            quantity: item.quantity || 1,
+            equipped: item.equipped || false,
+            is_default: false,
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        return data;
       }
-      resultData = data;
+    });
+
+    if (!success) {
+      return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401 });
     }
 
     return NextResponse.json({
       success: true,
-      data: resultData
+      data: data
     });
 
-  } catch (error) {
+  } catch (error: any) {
     logger.error('[Inventory API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }

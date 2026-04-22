@@ -1,48 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { logger } from "@/lib/logger";
 
-// Create a Supabase client with service role key for admin operations
-const supabaseAdmin = createClient(
-  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-  process.env['SUPABASE_SERVICE_ROLE_KEY']!
-);
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+      // Load all items for the user
+      const { data: items, error } = await supabase
+        .from('seasonal_hunt')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+      return items;
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Unauthorized' }, { status: 401 });
     }
 
-    try {
-      await supabaseAdmin.rpc('public.set_user_context', { user_id: userId });
-    } catch(e) {}
-
-    // Load all items for the user
-    const { data: items, error } = await supabaseAdmin
-      .from('seasonal_hunt')
-      .select('*')
-      .eq('user_id', userId);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ items: items || [] });
+    return NextResponse.json({ items: result.data || [] });
 
   } catch (err: any) {
+    logger.error('[Seasonal Hunt API] GET Error:', err);
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await req.json();
     const { action, itemId, eventKey } = body;
 
@@ -50,79 +38,64 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Action required' }, { status: 400 });
     }
 
-    try {
-      await supabaseAdmin.rpc('public.set_user_context', { user_id: userId });
-    } catch(e) {}
+    const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+      if (action === 'initialize') {
+        if (!eventKey) {
+          throw new Error('Event key required');
+        }
 
-    if (action === 'initialize') {
-      if (!eventKey) {
-        return NextResponse.json({ error: 'Event key required' }, { status: 400 });
+        // Create 10 items for the user
+        const items = [];
+        for (let i = 1; i <= 10; i++) {
+          items.push({
+            user_id: userId,
+            item_id: i,
+            event_key: eventKey,
+            found: false,
+            position: { x: 100 + (i * 50), y: 100 + (i * 30) }
+          });
+        }
+
+        const { data, error } = await supabase
+          .from('seasonal_hunt')
+          .insert(items)
+          .select();
+
+        if (error) throw error;
+        return data;
+
+      } else if (action === 'find') {
+        if (!itemId) {
+          throw new Error('Item ID required');
+        }
+
+        // Mark item as found
+        const { data, error } = await supabase
+          .from('seasonal_hunt')
+          .update({ 
+            found: true, 
+            found_at: new Date().toISOString() 
+          })
+          .eq('user_id', userId)
+          .eq('item_id', itemId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
       }
+      
+      throw new Error('Invalid action');
+    });
 
-      // Create 10 items for the user
-      const items = [];
-      for (let i = 1; i <= 10; i++) {
-        items.push({
-          user_id: userId,
-          item_id: i,
-          event_key: eventKey,
-          found: false,
-          position: { x: 100 + (i * 50), y: 100 + (i * 30) }
-        });
-      }
-
-      const { data, error } = await supabaseAdmin
-        .from('seasonal_hunt')
-        .insert(items)
-        .select();
-
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      return NextResponse.json({ success: true, items: data });
-
-    } else if (action === 'find') {
-      if (!itemId) {
-        return NextResponse.json({ error: 'Item ID required' }, { status: 400 });
-      }
-
-      // Mark item as found
-      const { data, error } = await supabaseAdmin
-        .from('seasonal_hunt')
-        .update({ 
-          found: true, 
-          found_at: new Date().toISOString() 
-        })
-        .eq('user_id', userId)
-        .eq('item_id', itemId)
-        .select()
-        .single();
-
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      return NextResponse.json({ success: true, item: data });
-
-    } else if (action === 'reset') {
-      // Delete all items for the user
-      const { error } = await supabaseAdmin
-        .from('seasonal_hunt')
-        .delete()
-        .eq('user_id', userId);
-
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      return NextResponse.json({ success: true });
-
-    } else {
-      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Unauthorized' }, { status: 401 });
     }
 
+    return NextResponse.json({ success: true, items: result.data });
+
   } catch (err: any) {
+    logger.error('[Seasonal Hunt API] POST Error:', err);
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
-} 
+}
