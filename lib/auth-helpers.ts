@@ -9,7 +9,7 @@ import { authLogger } from './logger';
 interface ClerkInstance {
   user: { id: string } | null;
   session: {
-    getToken(): Promise<string | null>;
+    getToken(options?: { skipCache?: boolean }): Promise<string | null>;
   } | null;
 }
 

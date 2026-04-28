@@ -3,13 +3,13 @@ import { InventoryItem } from '@/lib/inventory-manager';
 import { authenticatedFetch } from './auth-helpers';
 
 export interface TileInventoryItem extends InventoryItem {
-    cost?: number;
-    connections?: any[];
-    rotation?: number;
-    last_updated?: string;
-    rarity?: string;
-    category?: string;
-    version?: number;
+    cost?: number | undefined;
+    connections?: any[] | undefined;
+    rotation?: number | undefined;
+    last_updated?: string | undefined;
+    rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | undefined;
+    category?: string | undefined;
+    version?: number | undefined;
 }
 
 export async function getTileInventory(userId: string): Promise<TileInventoryItem[]> {

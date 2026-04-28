@@ -1,4 +1,5 @@
 import { InventoryItem } from '@/types/core-interfaces';
+export type { InventoryItem };
 import { logger } from "@/lib/logger";
 import { authenticatedFetch } from './auth-helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';

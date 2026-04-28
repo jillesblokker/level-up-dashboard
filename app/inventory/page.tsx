@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { useSupabaseRealtimeSync } from "@/hooks/useSupabaseRealtimeSync";
-import { getInventory, InventoryItem } from "@/lib/inventory-manager";
+import { getInventory, type InventoryItem } from "@/lib/inventory-manager";
 import { InventorySkeleton } from "@/components/skeletons/inventory-skeleton";
 import { TEXT_CONTENT } from "@/lib/text-content";
 import { getStarDisplay, getStarTierInfo, calculateItemValue } from "@/lib/star-rating";

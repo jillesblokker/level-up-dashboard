@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/core-interfaces'
+import { Tile, TileType, Tile as TileInventoryItem } from '@/types/core-interfaces'
 import { MapGrid } from '../components/MapGrid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"
@@ -427,7 +427,7 @@ function RealmPageContent() {
         // Check for monster battle first (regardless of game mode)
         const clickedTile = currentGrid[y]?.[x];
         if (clickedTile?.hasMonster) {
-            setCurrentMonster(clickedTile.hasMonster);
+            setCurrentMonster(clickedTile.hasMonster as MonsterType);
             setBattleOpen(true);
             return;
         }
@@ -486,7 +486,7 @@ function RealmPageContent() {
 
         // Update selectedTile quantity if it has one
         if (hasTileInSelected && currentSelectedTile.quantity !== undefined) {
-            setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, prev.quantity - 1) } : null);
+            setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, (prev.quantity || 0) - 1) } : null);
         }
 
         // Save tile to backend
@@ -598,7 +598,7 @@ function RealmPageContent() {
 
             // Check for monster battle
             if (targetTile?.hasMonster) {
-                setCurrentMonster(targetTile.hasMonster);
+                setCurrentMonster(targetTile.hasMonster as MonsterType);
                 setBattleOpen(true);
                 return;
             }
@@ -889,7 +889,7 @@ function RealmPageContent() {
 
             // Check for monster battle
             if (targetTile?.hasMonster) {
-                setCurrentMonster(targetTile.hasMonster);
+                setCurrentMonster(targetTile.hasMonster as MonsterType);
                 setBattleOpen(true);
                 return;
             }
@@ -910,7 +910,7 @@ function RealmPageContent() {
         if (currentTile) {
             // Check for monster battle first
             if (currentTile.hasMonster) {
-                setCurrentMonster(currentTile.hasMonster);
+                setCurrentMonster(currentTile.hasMonster as MonsterType);
                 setBattleOpen(true);
                 return;
             }

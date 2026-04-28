@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { TileType, InventoryItem } from "@/types/core-interfaces"
+import { Tile, TileType, InventoryItem } from "@/types/core-interfaces"
 import { spendGold } from "@/lib/gold-manager"
 import { useState, useEffect, useMemo } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -25,7 +25,7 @@ import { getUserScopedItem } from "@/lib/user-scoped-storage"
 
 
 // Static definition of all possible tiles to prevent re-creation on every render
-const allPossibleTiles: InventoryItem[] = [
+const allPossibleTiles: Tile[] = [
   // Foundation Tiles (Level 0-20)
   { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.webp' },
   { id: 'crossroad', name: 'Crossroad', type: 'crossroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crossroad tile', image: '/images/kingdom-tiles/Crossroad.webp' },
@@ -121,13 +121,13 @@ const tileCategories = [
 ];
 
 interface TileInventoryProps {
-  tiles: InventoryItem[]
-  selectedTile: InventoryItem | null
-  onSelectTile: (tile: InventoryItem | null) => void
-  onUpdateTiles: (tiles: InventoryItem[]) => void
+  tiles: Tile[]
+  selectedTile: Tile | null
+  onSelectTile: (tile: Tile | null) => void
+  onUpdateTiles: (tiles: Tile[]) => void
   activeTab: 'place' | 'buy' | 'guide'
   setActiveTab: (tab: 'place' | 'buy' | 'guide') => void
-  onOutOfTiles?: (tile: InventoryItem) => void
+  onOutOfTiles?: (tile: Tile) => void
 }
 
 export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
@@ -232,8 +232,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
             image: rareTile.image,
             description: rareTile.description,
             unlocked: isUnlocked
-          };
-        }).filter(Boolean) as InventoryItem[]; // Filter out nulls
+          } as Tile;
+        }).filter(Boolean) as Tile[]; // Filter out nulls
       } catch (err) {
         logger.error('Error processing rare tiles:', err);
         return [];
@@ -254,7 +254,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       let quantity = 0;
       if (category.id === 'foundation' && userLevelValue >= 1) {
         // If user has tiles, use their quantity. If not, start with 5
-        quantity = userTile ? userTile.quantity : 5;
+        quantity = (userTile && userTile.quantity !== undefined) ? userTile.quantity : 5;
       } else {
         // For other categories, use user's quantity or 0
         quantity = userTile?.quantity || 0;
@@ -283,11 +283,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     };
   }, [tiles, onUpdateTiles, user?.id]);
 
-  const handleBuyTile = async (tile: InventoryItem, e: React.MouseEvent) => {
+  const handleBuyTile = async (tile: Tile, e: React.MouseEvent) => {
     e.stopPropagation()
 
     const quantity = buyQuantities[tile.type] || 1
-    const totalCost = tile.cost * quantity
+    const totalCost = (tile.cost || 0) * quantity
 
     try {
       const success = await spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`);
@@ -309,7 +309,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
         const newTiles = tiles.map(item =>
           item.type === tile.type
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: (item.quantity || 0) + quantity }
             : item
         )
         onUpdateTiles(newTiles)
@@ -502,10 +502,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                 <div className="p-4 bg-background/95 backdrop-blur-sm flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center">
-                                    <span className="text-amber-500 font-medium">{tile.cost} gold</span>
-                                    {tile.cost > 0 && (
+                                    <span className="text-amber-500 font-medium">{tile.cost ?? 0} gold</span>
+                                    {(tile.cost ?? 0) > 0 && (
                                       <div className="text-xs text-gray-500 mt-1">
-                                        {tile.cost <= 50 ? 'Budget' : tile.cost <= 150 ? 'Standard' : tile.cost <= 300 ? 'Premium' : 'Luxury'}
+                                        {(tile.cost ?? 0) <= 50 ? 'Budget' : (tile.cost ?? 0) <= 150 ? 'Standard' : (tile.cost ?? 0) <= 300 ? 'Premium' : 'Luxury'}
                                       </div>
                                     )}
                                   </div>
@@ -656,7 +656,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                 <div className="p-4 bg-background/95 backdrop-blur-sm flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center mb-3">
-                                    <span className="text-amber-500 font-medium">{tile.cost} gold</span>
+                                    <span className="text-amber-500 font-medium">{tile.cost ?? 0} gold</span>
                                   </div>
                                   <div className="flex gap-2 items-center justify-center mt-auto">
                                     <Input

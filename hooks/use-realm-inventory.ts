@@ -38,12 +38,12 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                     }));
 
                 const foundationTiles = ['grass', 'water', 'forest', 'mountain'];
-                const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && item.quantity > 0);
+                const hasFoundationTiles = items.some(item => foundationTiles.includes(item.type) && (item.quantity ?? 0) > 0);
 
                 if (!hasFoundationTiles && userLevel >= 1) {
                     foundationTiles.forEach(tileType => {
                         const existingItem = items.find(item => item.type === tileType);
-                        if (!existingItem || existingItem.quantity === 0) {
+                        if (!existingItem || (existingItem.quantity ?? 0) === 0) {
                             items.push({
                                 id: tileType,
                                 name: tileType.charAt(0).toUpperCase() + tileType.slice(1),
@@ -86,8 +86,8 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                     if (mergedInventory[item.type]) {
                         mergedInventory[item.type] = {
                             ...mergedInventory[item.type],
-                            quantity: item.quantity,
-                            owned: item.quantity
+                            quantity: item.quantity ?? 0,
+                            owned: item.quantity ?? 0
                         };
                     }
                 });
@@ -174,7 +174,7 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
             }
             if (!prev[tileType]) return prev;
 
-            const newQuantity = Math.max(0, (prev[tileType].quantity || 0) + delta);
+            const newQuantity = Math.max(0, (prev[tileType].quantity ?? 0) + delta);
             return {
                 ...prev,
                 [tileType]: { ...prev[tileType], quantity: newQuantity, owned: newQuantity }

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Sparkles, Brain, Coins, Skull, Scroll, Heart } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { MysteryEvent, MysteryEventType } from '@/lib/mystery-events'
+import { MysteryEvent, MysteryEventType } from '@/types/core-interfaces'
 
 interface MysteryEventModalProps {
     isOpen: boolean

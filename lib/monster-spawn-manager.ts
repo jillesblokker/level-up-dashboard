@@ -158,7 +158,7 @@ async function saveMonsterToSupabase(x: number, y: number, monsterType: MonsterT
 
 // Get monster type from tile
 export function getTileMonsterType(tile: Tile): MonsterType | null {
-  return tile.hasMonster || null;
+  return (tile.hasMonster as MonsterType) || null;
 }
 
 // Check if a tile has a monster

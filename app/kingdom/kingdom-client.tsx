@@ -90,10 +90,10 @@ import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from "@/lib/text-content";
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
-  stats?: Record<string, number>,
-  description?: string,
-  category?: string,
-  star_rating?: number
+  stats?: Record<string, number | undefined> | undefined,
+  description?: string | undefined,
+  category?: string | undefined,
+  star_rating?: number | undefined
 }
 
 interface WindowWithHeaderImages extends Window {
@@ -379,7 +379,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       name: tileName,
       description: kingdomTileConfig ? kingdomTileConfig.clickMessage : `${TEXT_CONTENT.kingdomTiles.specialPrefix}${tileName}`,
       connections: [] as ConnectionDirection[],
-      rotation: 0,
+      rotation: 0 as 0 | 90 | 180 | 270,
       revealed: true,
       isVisited: false,
       x: 0,
