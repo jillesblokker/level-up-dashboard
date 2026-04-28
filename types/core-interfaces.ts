@@ -140,10 +140,10 @@ export interface Tile {
 export interface InventoryItem {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   type: 'mount' | 'weapon' | 'shield' | 'armor' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'resource' | 'item' | 'creature' | 'equipment' | 'book' | 'building';
   category?: string;
-  stats: {
+  stats?: {
     movement?: number;
     attack?: number;
     defense?: number;
@@ -153,10 +153,10 @@ export interface InventoryItem {
     gold?: number;
     experience?: number;
   };
-  emoji: string;
+  emoji?: string;
   quantity: number;
   isDefault?: boolean;
-  image: string;
+  image?: string;
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   cost?: number;
   isEquippable?: boolean;
