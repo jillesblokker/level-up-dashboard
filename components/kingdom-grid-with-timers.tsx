@@ -682,6 +682,8 @@ export function KingdomGridWithTimers({
     // Call the callback to update the parent component's grid
     if (onGridExpand) {
       onGridExpand(newGrid);
+    } else if (onGridUpdate) {
+      onGridUpdate(newGrid);
     }
 
     toast({

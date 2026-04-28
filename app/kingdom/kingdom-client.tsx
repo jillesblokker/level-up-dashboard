@@ -1622,6 +1622,7 @@ export function KingdomClient() {
                       selectedTile={selectedKingdomTile}
                       setSelectedTile={isVisiting ? () => { } : setSelectedKingdomTile}
                       onGridUpdate={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
+                      onGridExpand={isVisiting ? () => { } : (newGrid: Tile[][]) => setKingdomGrid(newGrid)}
                       onTileMove={isVisiting ? undefined : handleMoveKingdomTile}
                       onTileStash={isVisiting ? undefined : handleStashKingdomTile}
                       onGoldEarned={isVisiting ? () => { } : handleKingdomTileGoldEarned}
