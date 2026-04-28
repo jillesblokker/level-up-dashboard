@@ -62,3 +62,36 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { notificationIds } = await req.json().catch(() => ({ notificationIds: 'all' }));
+
+    const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+      let query = supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', userId);
+
+      if (Array.isArray(notificationIds) && notificationIds.length > 0) {
+        query = query.in('id', notificationIds);
+      } else if (notificationIds === 'all') {
+        // Delete all
+      } else {
+        return { message: 'No IDs provided', success: false };
+      }
+
+      const { error } = await query;
+      if (error) throw error;
+      return { success: true };
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+}

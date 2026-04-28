@@ -3,7 +3,7 @@
 // A simple database implementation using IndexedDB
 // This provides persistence beyond localStorage limits
 
-import { InventoryItem, TileType } from "@/types/tiles";
+import { InventoryItem, TileType } from "@/types/core-interfaces";
 import { QuestStats } from "@/types/game";
 
 // Database is now deprecated. All persistence is handled by Supabase.

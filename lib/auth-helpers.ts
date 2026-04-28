@@ -22,7 +22,7 @@ interface WindowWithClerk extends Window {
 
 // Circuit breaker to prevent infinite auth error loops
 const authErrorTimestamps: Map<string, number> = new Map();
-const CIRCUIT_BREAKER_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const CIRCUIT_BREAKER_TIMEOUT = 30 * 1000; // 30 seconds (reduced from 5 minutes)
 
 export function hasRecentAuthError(endpoint: string): boolean {
   const lastError = authErrorTimestamps.get(endpoint);
@@ -49,15 +49,14 @@ export function isAuthError(response: Response): boolean {
  * Get Clerk authentication token
  * Uses retry logic to wait for Clerk to be available
  */
-export async function getClerkToken(): Promise<string> {
+export async function getClerkToken(forceRefresh = false): Promise<string> {
   if (typeof window === 'undefined') {
-    authLogger.warn('Not in browser environment');
     return '';
   }
 
   // Wait for Clerk to be available with retry logic
   let attempts = 0;
-  const maxAttempts = 10;
+  const maxAttempts = 15; // Increased attempts slightly
   const typedWindow = window as WindowWithClerk;
 
   while (attempts < maxAttempts) {
@@ -66,16 +65,16 @@ export async function getClerkToken(): Promise<string> {
       const clerkInstance = typedWindow.__clerk || typedWindow.Clerk || typedWindow.clerk;
 
       if (!clerkInstance) {
-        authLogger.debug(`Clerk instance not found, attempt ${attempts + 1}/${maxAttempts}`);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        if (attempts === maxAttempts - 1) authLogger.warn('Clerk instance not found on window after max attempts');
+        await new Promise(resolve => setTimeout(resolve, 150));
         attempts++;
         continue;
       }
 
       // Check if user is signed in
       if (!clerkInstance.user) {
-        authLogger.debug(`No user signed in, attempt ${attempts + 1}/${maxAttempts}`);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        if (attempts === maxAttempts - 1) authLogger.warn('Clerk user not found in instance after max attempts');
+        await new Promise(resolve => setTimeout(resolve, 150));
         attempts++;
         continue;
       }
@@ -83,32 +82,30 @@ export async function getClerkToken(): Promise<string> {
       // Get the current session
       const session = clerkInstance.session;
       if (!session) {
-        authLogger.debug(`No active session, attempt ${attempts + 1}/${maxAttempts}`);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        if (attempts === maxAttempts - 1) authLogger.warn('Clerk session not found in instance after max attempts');
+        await new Promise(resolve => setTimeout(resolve, 150));
         attempts++;
         continue;
       }
 
-      // Get token WITHOUT template (for API routes, not Supabase RLS)
-      const token = await session.getToken();
+      // Get token
+      const token = await session.getToken({ skipCache: forceRefresh });
 
       if (!token) {
-        authLogger.debug(`Failed to get token from session, attempt ${attempts + 1}/${maxAttempts}`);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        if (attempts === maxAttempts - 1) authLogger.warn('Clerk session.getToken() returned null after max attempts');
+        await new Promise(resolve => setTimeout(resolve, 150));
         attempts++;
         continue;
       }
 
-      // Successfully retrieved token
       return token;
     } catch (error) {
-      authLogger.debug(`Error getting Clerk token (attempt ${attempts + 1}):`, error);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      if (attempts === maxAttempts - 1) authLogger.error('Error during getClerkToken:', error);
+      await new Promise(resolve => setTimeout(resolve, 150));
       attempts++;
     }
   }
 
-  authLogger.error('Failed to get Clerk token after all attempts');
   return '';
 }
 
@@ -146,7 +143,8 @@ export async function authenticatedFetch(
 
   // Check for auth error and mark circuit breaker
   if (isAuthError(response)) {
-    authLogger.error(`Authentication failed for ${endpoint} (${response.status})`);
+    const source = response.headers.get('X-Auth-Source') || 'API';
+    authLogger.error(`Authentication failed for ${endpoint} (${response.status}) [Source: ${source}]`);
     markAuthError(circuitKey);
     return null;
   }

@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from 'react'
-import { Tile } from '@/types/tiles'
+import { Tile } from '@/types/core-interfaces'
 
 function createInitialTile(x: number, y: number): Tile {
   return {

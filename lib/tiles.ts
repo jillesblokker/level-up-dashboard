@@ -1,4 +1,4 @@
-import { TileType } from '@/types/tiles';
+import { TileType } from '@/types/core-interfaces';
 
 export function getTileName(type: TileType): string {
   const tileNames: Record<TileType, string> = {

@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import Image from "next/image"
-import { Tile, TileType } from '@/types/tiles'
+import { Tile, TileType } from '@/types/core-interfaces'
 import { cn } from '@/lib/utils'
 import { KingdomPropertiesInventory } from './kingdom-properties-inventory'
 import { Button } from '@/components/ui/button'

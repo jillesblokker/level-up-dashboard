@@ -1,4 +1,4 @@
-import { Tile, TileType } from '../types/tiles';
+import { Tile, TileType } from '@/types/core-interfaces';
 import { Quest } from '@/types/game';
 
 // ... existing code from initial-tiles.ts

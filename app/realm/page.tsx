@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/tiles'
+import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/core-interfaces'
 import { MapGrid } from '../components/MapGrid'
 import { TileInventory } from '@/components/tile-inventory'
 import { Switch } from "@/components/ui/switch"

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
-import { Tile } from '@/types/tiles';
+import { Tile } from '@/types/core-interfaces';
 
 import { useWeather } from '@/hooks/use-weather';
 

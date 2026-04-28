@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { gainGold } from '@/lib/gold-manager';
 import { getAdjacentPositions, GRID_COLS, INITIAL_ROWS } from '@/app/realm/realm-utils';
-import { Tile } from '@/types/tiles';
+import { Tile } from '@/types/core-interfaces';
 
 export function useRealmAnimals(grid: Tile[][], isMounted: boolean, characterPosition: { x: number; y: number }, setAnimalInteractionModal: (modal: any) => void) {
     const { toast } = useToast();

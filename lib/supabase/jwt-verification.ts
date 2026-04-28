@@ -1,7 +1,7 @@
-import { NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from './server-client';
 import { apiLogger } from '@/lib/logger';
+import { NextRequest } from 'next/server';
 
 /**
  * JWT Verification following the authentication flow:
@@ -22,13 +22,23 @@ export interface AuthResult {
  */
 export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
-    // SECURITY UPGRADE: Use official Clerk auth() helper
-    // This handles all edge cases (Bearer tokens, cookies, etc.) robustly
-    const { userId } = await auth();
+    // Attempt 1: Modern Clerk auth() helper
+    const { userId: authUserId } = await auth();
+    
+    if (authUserId) {
+      apiLogger.debug(`[JWT Verification] Success via Clerk auth(), userId: ${authUserId}`);
+      return { success: true, userId: authUserId };
+    }
 
-    if (userId) {
-      apiLogger.debug(`[JWT Verification] Success via Clerk auth(), userId: ${userId}`);
-      return { success: true, userId };
+    // Attempt 2: Fallback to getAuth(request) which is sometimes more reliable with Bearer tokens
+    try {
+      const { userId: getAuthUserId } = await getAuth(request as any);
+      if (getAuthUserId) {
+        apiLogger.debug(`[JWT Verification] Success via Clerk getAuth(), userId: ${getAuthUserId}`);
+        return { success: true, userId: getAuthUserId };
+      }
+    } catch (getAuthError) {
+      apiLogger.debug('[JWT Verification] getAuth() failed as well');
     }
 
     // If auth() fails, try checking the header manually just for logging purposes

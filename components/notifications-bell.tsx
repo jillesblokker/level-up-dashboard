@@ -87,6 +87,21 @@ export function NotificationsBell() {
         if (unreadIds.length > 0) markAsRead(unreadIds);
     };
 
+    const deleteAll = async () => {
+        try {
+            await fetch('/api/notifications', {
+                method: 'DELETE',
+                body: JSON.stringify({ notificationIds: 'all' })
+            });
+
+            // local update
+            setNotifications([]);
+            setUnreadCount(0);
+        } catch (error) {
+            logger.error("Failed to delete notifications", error);
+        }
+    };
+
     return (
         <Popover open={isOpen} onOpenChange={handleOpenChange}>
             <PopoverTrigger asChild>
@@ -101,11 +116,18 @@ export function NotificationsBell() {
             <PopoverContent className="w-80 p-0 bg-black/95 border-amber-900/40 text-amber-100" align="end">
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                     <h4 className="font-medieval text-lg text-amber-500">Notifications</h4>
-                    {unreadCount > 0 && (
-                        <Button variant="ghost" size="sm" onClick={markAllRead} className="h-auto px-2 text-xs text-gray-400 hover:text-white">
-                            Mark all read
-                        </Button>
-                    )}
+                    <div className="flex flex-col items-end gap-1">
+                        {unreadCount > 0 && (
+                            <Button variant="ghost" size="sm" onClick={markAllRead} className="h-auto px-2 py-1 text-[10px] uppercase tracking-wider text-gray-400 hover:text-white">
+                                Mark all read
+                            </Button>
+                        )}
+                        {notifications.length > 0 && (
+                            <Button variant="ghost" size="sm" onClick={deleteAll} className="h-auto px-2 py-1 text-[10px] uppercase tracking-wider text-red-400/70 hover:text-red-400">
+                                Delete all
+                            </Button>
+                        )}
+                    </div>
                 </div>
                 <ScrollArea className="h-[300px]">
                     {notifications.length === 0 ? (

@@ -40,7 +40,12 @@ export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request) && isApiRoute(request) && !userId) {
     return NextResponse.json(
       { error: 'Unauthorized', message: 'Authentication required' },
-      { status: 401 }
+      { 
+        status: 401,
+        headers: {
+          'X-Auth-Source': 'middleware'
+        }
+      }
     );
   }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { Tile, TileType } from '@/types/tiles';
+import { Tile, TileType } from '@/types/core-interfaces';
 import { useDataLoaders } from './use-data-loaders';
 import { createBaseGrid, GRID_COLS, INITIAL_ROWS, EXPANSION_INCREMENT, defaultTile, getTileImage, INITIAL_POS } from '@/app/realm/realm-utils';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';

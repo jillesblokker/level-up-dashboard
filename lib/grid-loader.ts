@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { TileType, Tile } from '@/types/tiles'
+import { TileType, Tile } from '@/types/core-interfaces';
 
 // Helper function to get auth token with retry logic
 async function getAuthToken(): Promise<string | null> {

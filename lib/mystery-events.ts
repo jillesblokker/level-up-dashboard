@@ -1,12 +1,12 @@
 import { getRandomElement, getRandomInt, shuffleArray } from '@/lib/utils'
 import { toast } from "@/components/ui/use-toast";
-import { addToInventory, InventoryItem } from "@/lib/inventory-manager"
+import { addToInventory } from "@/lib/inventory-manager"
 import { createEventNotification } from "@/lib/notifications"
 import { gainGold } from "@/lib/gold-manager"
 import { gainExperience } from "@/lib/experience-manager"
+import { MysteryEvent, MysteryEventType, MysteryEventOutcome, MysteryEventReward, InventoryItem } from '@/types/core-interfaces'
 
 import { RIDDLE_DATA } from "@/lib/riddle-data"
-export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle'
 
 export interface ScrollItem {
   id: string;
@@ -50,36 +50,6 @@ export type NothingReward = {
   message: string;
 };
 
-export interface MysteryEventReward {
-  type: 'gold' | 'experience' | 'scroll' | 'artifact' | 'book' | 'nothing' | 'item';
-  amount?: number;
-  message?: string;
-  scroll?: {
-    id: string;
-    name: string;
-    content: string;
-    category: string;
-  };
-  item?: InventoryItem[];
-}
-
-export interface MysteryEventOutcome {
-  message: string;
-  reward?: MysteryEventReward;
-}
-
-export interface MysteryEvent {
-  id: string;
-  type: MysteryEventType;
-  title: string;
-  description: string;
-  choices: string[];
-  outcomes: Record<string, MysteryEventOutcome>;
-  enemyName?: string;
-  enemyLevel?: number;
-  requiredItems?: string[];
-}
-
 const treasureEvents: MysteryEvent[] = [
   {
     id: 'ancient-chest',
@@ -100,7 +70,7 @@ const treasureEvents: MysteryEvent[] = [
           } else if (roll === 2) {
             return { type: 'experience', amount: getRandomInt(20, 40), message: 'You gained wisdom from deciphering the runes!' };
           } else {
-            return { type: 'item', item: [{ id: 'ancient-artifact', name: 'Ancient Artifact', description: 'A mysterious artifact from the chest.', quantity: 1, type: 'artifact', category: 'artifact' }], message: 'You found an ancient artifact!' };
+            return { type: 'item', item: [{ id: 'ancient-artifact', name: 'Ancient Artifact', description: 'A mysterious artifact from the chest.', quantity: 1, type: 'artifact', category: 'artifact', emoji: '🏺', stats: {}, image: '/images/items/artifact/ancient-artifact.webp' }], message: 'You found an ancient artifact!' };
           }
         })()
       },
@@ -157,7 +127,10 @@ const treasureEvents: MysteryEvent[] = [
             description: 'A mysterious artifact from the ruins.',
             quantity: 1,
             type: 'artifact',
-            category: 'artifact'
+            category: 'artifact',
+            emoji: '🏺',
+            stats: {},
+            image: '/images/items/artifact/ancient-artifact.webp'
           }]
         }
       },
@@ -228,7 +201,10 @@ const artifactEvents: MysteryEvent[] = [
             description: 'An ancient artifact of unknown origin.',
             quantity: 1,
             type: 'artifact',
-            category: 'artifact'
+            category: 'artifact',
+            emoji: '🔮',
+            stats: {},
+            image: '/images/items/artifact/mysterious-artifact.webp'
           }]
         }
       },
@@ -347,7 +323,10 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
         description: reward.scroll.content,
         id: reward.scroll.id,
         quantity: 1,
-        category: reward.scroll.category
+        category: reward.scroll.category,
+        emoji: '📜',
+        stats: {},
+        image: `/images/items/scroll/${reward.scroll.id}.webp`
       });
     }
 

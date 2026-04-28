@@ -1,6 +1,5 @@
 import { logger } from "@/lib/logger";
-import { Tile } from '@/types/tiles';
-import { TileType } from '@/types/tiles';
+import { Tile, TileType } from '@/types/core-interfaces';
 // Replaced all Supabase direct calls with API routes for authentication flow
 // All database logic now uses authenticated API routes
 

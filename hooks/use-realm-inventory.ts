@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { Tile, TileType, InventoryItem as TileInventoryItem } from '@/types/tiles';
+import { Tile, TileType } from '@/types/core-interfaces';
+type TileInventoryItem = Tile;
 import { useDataLoaders } from './use-data-loaders';
 import { initialInventory } from '@/app/realm/realm-utils';
 

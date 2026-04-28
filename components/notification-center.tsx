@@ -116,6 +116,24 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     }
   };
 
+  const handleDeleteAll = async () => {
+    try {
+      // Server
+      await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationIds: 'all' })
+      });
+      fetchServerNotifications();
+
+      // Local
+      notificationService.clearAll();
+      setNotifications([]);
+    } catch (error) {
+      logger.error("Error deleting all notifications:", error);
+    }
+  };
+
   const handleFriendAction = async (notification: any, action: 'accept' | 'reject') => {
     try {
       const friendshipId = notification.data.friendshipId;
@@ -298,6 +316,17 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
               >
                 <CheckCheck className="h-4 w-4 mr-2" />
                 Mark All as Read
+              </Button>
+            )}
+
+            {allNotifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDeleteAll}
+                className="w-full text-red-400/70 hover:text-red-400 hover:bg-red-900/10"
+              >
+                Delete All
               </Button>
             )}
           </div>

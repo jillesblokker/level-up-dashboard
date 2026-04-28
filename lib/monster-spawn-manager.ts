@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { Tile } from '@/types/tiles';
+import { Tile } from '@/types/core-interfaces';
 import { MonsterType, SpawnCheckResult, MonsterSpawn } from '@/types/monsters';
 
 // Export for backwards compatibility if needed, but prefer import from types

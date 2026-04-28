@@ -166,6 +166,11 @@ class NotificationService {
     this.saveNotifications()
   }
 
+  public clearAll() {
+    this.notifications = []
+    this.saveNotifications()
+  }
+
   public getNotifications() {
     return this.notifications
   }

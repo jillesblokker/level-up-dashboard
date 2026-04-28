@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { TileType } from '@/types/tiles';
+import { TileType } from '@/types/core-interfaces';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 

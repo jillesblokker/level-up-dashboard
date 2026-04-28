@@ -1,5 +1,5 @@
 
-import { Tile, TileType } from '@/types/tiles';
+import { Tile, TileType } from '@/types/core-interfaces';
 
 export interface KingdomBonuses {
     strength: number;

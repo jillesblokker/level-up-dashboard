@@ -14,7 +14,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-service'
 import { calculateLevelFromExperience } from '@/types/character'
-import { Tile, TileType } from '@/types/tiles'
+import { Tile, TileType } from '@/types/core-interfaces'
 import Image from 'next/image'
 
 interface KingdomGridProps {

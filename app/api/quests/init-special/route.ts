@@ -1,21 +1,24 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { supabaseServer } from '@/lib/supabase/server-client';
 import { logger } from '@/lib/logger';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
-const supabase = supabaseServer;
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
-        const { userId } = await getAuth(request as NextRequest);
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        let body;
+        try {
+            body = await request.json();
+        } catch (e) {
+            logger.error('[InitSpecialQuest] Failed to parse request body');
+            return NextResponse.json({ error: 'Invalid or missing request body' }, { status: 400 });
         }
-
-        const body = await request.json();
+        
         const { type } = body;
 
-        if (type === 'meditation') {
+        if (type !== 'meditation') {
+            return NextResponse.json({ error: 'Invalid special quest type' }, { status: 400 });
+        }
+
+        const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
             // Check if "Daily Meditation" exists for this user
             const { data: existingQuest, error: fetchError } = await supabase
                 .from('quests')
@@ -26,7 +29,7 @@ export async function POST(request: Request) {
 
             if (fetchError) {
                 logger.error('[InitSpecialQuest] Error checking quest:', fetchError);
-                return NextResponse.json({ error: fetchError.message }, { status: 500 });
+                throw new Error(`Database error checking quest: ${fetchError.message}`);
             }
 
             if (!existingQuest) {
@@ -51,19 +54,31 @@ export async function POST(request: Request) {
 
                 if (insertError) {
                     logger.error('[InitSpecialQuest] Error inserting quest:', insertError);
-                    return NextResponse.json({ error: insertError.message }, { status: 500 });
+                    throw new Error(`Database error inserting quest: ${insertError.message}`);
                 }
 
-                return NextResponse.json({ success: true, created: true, message: 'Daily Meditation quest added to ledger.' });
+                return { success: true, created: true, message: 'Daily Meditation quest added to ledger.' };
             }
 
-            return NextResponse.json({ success: true, created: false, message: 'Quest already exists.' });
+            return { success: true, created: false, message: 'Quest already exists.' };
+        });
+
+        if (!result.success) {
+            return NextResponse.json({ 
+                error: result.error || 'Authentication failed',
+                details: result.error 
+            }, { status: result.error?.includes('Authentication') ? 401 : 500 });
         }
 
-        return NextResponse.json({ error: 'Invalid special quest type' }, { status: 400 });
+        return NextResponse.json(result.data);
 
-    } catch (error) {
+    } catch (error: any) {
         logger.error('[InitSpecialQuest] Unexpected error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Internal server error',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }
+
+

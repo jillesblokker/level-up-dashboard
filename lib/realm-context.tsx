@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Tile, TileType } from '@/types/tiles';
+import { Tile, TileType } from '@/types/core-interfaces';
 
 interface RealmContextType {
   grid: Tile[][];

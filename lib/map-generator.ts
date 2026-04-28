@@ -1,4 +1,4 @@
-import { Tile, TileType } from "@/types/tiles"
+import { Tile, TileType } from '@/types/core-interfaces'
 
 // Seeded random number generator
 class SeededRandom {

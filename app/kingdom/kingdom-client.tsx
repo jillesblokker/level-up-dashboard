@@ -42,7 +42,7 @@ import { Backpack, Sword, LayoutGrid, Compass, Gift, BookOpen, Flame, Skull } fr
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import dynamic from 'next/dynamic';
-import type { Tile, TileType, ConnectionDirection } from '@/types/tiles';
+import type { Tile, TileType, ConnectionDirection } from '@/types/core-interfaces';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { updateCharacterStats, getCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
@@ -1380,11 +1380,14 @@ export function KingdomClient() {
       // Use item.name (e.g., 'material-planks') as ID to ensure unique but stackable items
       id: item.name,
       name: item.name,
-      type: 'item', // Use 'item' as default type for kingdom tile items
+      type: 'resource', // Use 'resource' for materials found on tiles
       quantity: 1,
-      image: item.image,
-      description: `Found from kingdom tile: ${item.name}`,
-      category: item.type
+      image: item.image || '/images/items/mystery-item.webp',
+      description: `A valuable resource: ${item.name}`,
+      emoji: '📦',
+      stats: {},
+      category: item.type || 'resource',
+      rarity: 'common'
     }
 
     // Add to proper inventory system

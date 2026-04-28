@@ -1,3 +1,4 @@
+import { InventoryItem } from '@/types/core-interfaces';
 import { logger } from "@/lib/logger";
 import { authenticatedFetch } from './auth-helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
@@ -38,23 +39,6 @@ function getCachedInventory(): InventoryItem[] {
   }
 }
 
-export interface InventoryItem {
-  name: string
-  quantity: number
-  type: 'resource' | 'item' | 'creature' | 'scroll' | 'equipment' | 'artifact' | 'book' | 'building'
-  id: string
-  category?: string
-  description?: string
-  emoji?: string
-  image?: string
-  stats?: {
-    movement?: number
-    attack?: number
-    defense?: number
-  }
-  equipped?: boolean
-  star_rating?: number
-}
 
 // Zod Schema for robust runtime validation
 const InventoryResponseSchema = z.union([
@@ -90,11 +74,26 @@ export async function getInventory(userId: string): Promise<InventoryItem[]> {
 }
 
 // Add or update an inventory item
-export async function addToInventory(userId: string, item: InventoryItem) {
+export async function addToInventory(userId: string, partialItem: Partial<InventoryItem>) {
   if (!userId) {
     logger.error('[Inventory Manager] addToInventory called without userId!');
     return;
   }
+
+  // Ensure item has required fields or defaults
+  const item: InventoryItem = {
+    id: partialItem.id || `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    name: partialItem.name || 'Unknown Item',
+    description: partialItem.description || 'A mysterious item found in your travels.',
+    type: partialItem.type || 'item',
+    category: partialItem.category || partialItem.type || 'item',
+    stats: partialItem.stats || {},
+    emoji: partialItem.emoji || '📦',
+    quantity: partialItem.quantity || 1,
+    image: partialItem.image || '/images/items/item-placeholder.webp',
+    rarity: partialItem.rarity || 'common',
+    ...partialItem
+  } as InventoryItem;
 
   try {
     // Update local cache first for immediate feedback
@@ -107,14 +106,13 @@ export async function addToInventory(userId: string, item: InventoryItem) {
     }, 'Add Inventory');
 
     if (!response) {
-      logger.error('[Inventory Manager] authenticatedFetch returned null - item NOT saved to database!', item.id);
-      // Item is in cache but not in database - this will cause issues on refresh
+      logger.error(`[Inventory Manager] Request for ${item.name} (${item.id}) was skipped by circuit breaker or failed authentication.`);
       return;
     }
 
     if (!response.ok) {
       const errorText = await response.text();
-      logger.error(`[Inventory Manager] Failed to add inventory item: ${response.status}`, errorText);
+      logger.error(`[Inventory Manager] Failed to save ${item.name} to database: ${response.status}`, errorText);
       throw new Error(`Failed to add inventory item: ${response.status}`);
     }
 

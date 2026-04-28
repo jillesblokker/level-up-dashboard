@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Tile, TileType, ConnectionDirection } from '@/types/tiles';
+import { Tile, TileType, ConnectionDirection } from '@/types/core-interfaces';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 import {
     saveKingdomGrid,
