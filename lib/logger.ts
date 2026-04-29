@@ -183,7 +183,7 @@ const breadcrumbs: Breadcrumb[] = []
  * Useful for tracing multi-step operations (e.g., tile placement → save → API response).
  */
 export function addBreadcrumb(context: string, message: string, data?: Record<string, unknown>): void {
-  breadcrumbs.push({ timestamp: Date.now(), context, message, data })
+  breadcrumbs.push({ timestamp: Date.now(), context, message, ...(data ? { data } : {}) })
   if (breadcrumbs.length > MAX_BREADCRUMBS) breadcrumbs.shift()
 }
 
