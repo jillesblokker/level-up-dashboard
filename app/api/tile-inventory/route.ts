@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { rollStarRating, calculateItemValue, getStarDisplay, shouldCelebrate } from '@/lib/star-rating';
+import { TileInventoryUpdateSchema } from '@/types/schemas';
 
 export async function GET(req: NextRequest) {
   try {
@@ -47,11 +48,16 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { tile } = body;
+    const validation = TileInventoryUpdateSchema.safeParse(body);
 
-    if (!tile || !tile.id) {
-      return NextResponse.json({ error: 'Missing required tile data' }, { status: 400 });
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: 'Invalid request data', 
+        details: validation.error.format() 
+      }, { status: 400 });
     }
+
+    const { tile } = validation.data;
 
     const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
       // Check if tile exists

@@ -167,14 +167,71 @@ class Logger {
   }
 }
 
+// Breadcrumb system for tracing complex flows
+interface Breadcrumb {
+  timestamp: number
+  context: string
+  message: string
+  data?: Record<string, unknown>
+}
+
+const MAX_BREADCRUMBS = 50
+const breadcrumbs: Breadcrumb[] = []
+
+/**
+ * Add a breadcrumb to the global trail.
+ * Useful for tracing multi-step operations (e.g., tile placement → save → API response).
+ */
+export function addBreadcrumb(context: string, message: string, data?: Record<string, unknown>): void {
+  breadcrumbs.push({ timestamp: Date.now(), context, message, data })
+  if (breadcrumbs.length > MAX_BREADCRUMBS) breadcrumbs.shift()
+}
+
+/**
+ * Get the current breadcrumb trail (most recent last).
+ */
+export function getBreadcrumbs(): readonly Breadcrumb[] {
+  return breadcrumbs
+}
+
+/**
+ * Clear the breadcrumb trail.
+ */
+export function clearBreadcrumbs(): void {
+  breadcrumbs.length = 0
+}
+
+/**
+ * Log an error with full structured context, including breadcrumb trail.
+ * Use this for critical failures that need investigation.
+ */
+export function logStructuredError(
+  logger: Logger,
+  message: string,
+  error: unknown,
+  context?: Record<string, unknown>
+): void {
+  const errorInfo = error instanceof Error
+    ? { name: error.name, message: error.message, stack: error.stack }
+    : { raw: String(error) }
+
+  logger.error(message, {
+    error: errorInfo,
+    context,
+    breadcrumbs: breadcrumbs.slice(-10), // Last 10 breadcrumbs
+    timestamp: new Date().toISOString(),
+  })
+}
+
 // Export a singleton instance
 export const logger = new Logger()
 
-// Export specialized instance for API routes
+// Export specialized instances for each domain
 export const apiLogger = new Logger('API')
-
-// Export specialized instance for Auth
 export const authLogger = new Logger('AUTH')
+export const kingdomLogger = new Logger('Kingdom')
+export const inventoryLogger = new Logger('Inventory')
+export const realmLogger = new Logger('Realm')
 
 // Export class for custom context loggers
 export { Logger }

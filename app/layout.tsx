@@ -22,6 +22,7 @@ import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { GameSystemsProvider } from '@/components/game-systems-provider'
 import { AudioProvider } from '@/components/audio-provider'
 import { ClientOnboardingProvider } from '@/components/client-onboarding-provider'
+import { GameStoreProvider } from '@/components/providers/game-store-provider'
 
 // Background systems moved to GameSystemsProvider
 // - QuickAddProvider, KeyboardShortcutsProvider, ParticleProvider
@@ -159,6 +160,7 @@ export default function RootLayout({
                     <ClientOnboardingProvider>
                       <AuthGate>
                         <GameSystemsProvider>
+                          <GameStoreProvider />
                           <NavBar session={null} />
                           <main className="flex-1 relative pb-24 lg:landscape:pb-0">
                             {children}

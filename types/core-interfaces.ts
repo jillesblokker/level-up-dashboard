@@ -141,6 +141,8 @@ export interface Tile {
   monsterAchievementId?: string | undefined;
   owned?: number | undefined;
   unlocked?: boolean | undefined;
+  version?: number | undefined;
+  last_updated?: string | undefined;
 }
 
 export interface InventoryItem {

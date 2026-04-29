@@ -1,18 +1,8 @@
 import { logger } from "@/lib/logger";
-import { InventoryItem } from '@/lib/inventory-manager';
+import { Tile } from '@/types/core-interfaces';
 import { authenticatedFetch } from './auth-helpers';
 
-export interface TileInventoryItem extends InventoryItem {
-    cost?: number | undefined;
-    connections?: any[] | undefined;
-    rotation?: number | undefined;
-    last_updated?: string | undefined;
-    rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | undefined;
-    category?: string | undefined;
-    version?: number | undefined;
-}
-
-export async function getTileInventory(userId: string): Promise<TileInventoryItem[]> {
+export async function getTileInventory(userId: string): Promise<Tile[]> {
     if (!userId) return [];
 
     try {
@@ -35,7 +25,7 @@ export async function getTileInventory(userId: string): Promise<TileInventoryIte
     }
 }
 
-export async function addTileToInventory(userId: string, tile: TileInventoryItem) {
+export async function addTileToInventory(userId: string, tile: Partial<Tile>) {
     // Removed debugging log
 
     if (!userId) {
@@ -94,7 +84,7 @@ export async function removeTileFromInventory(userId: string, tileId: string, qu
     }
 }
 
-export async function updateTileInInventory(userId: string, tileId: string, updates: Partial<TileInventoryItem>) {
+export async function updateTileInInventory(userId: string, tileId: string, updates: Partial<Tile>) {
     // For now, we'll implement this as remove + add since the API doesn't have a deleted update endpoint
     // This could be optimized later by adding a PATCH endpoint
     // Removed debugging log

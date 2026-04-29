@@ -225,12 +225,52 @@ async function syncQuestCompletions() {
 }
 
 // Helper functions for IndexedDB operations
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('LevelUpOfflineDB', 1);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('pendingQuests')) {
+        db.createObjectStore('pendingQuests', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    
+    request.onsuccess = (event) => resolve(event.target.result);
+    request.onerror = (event) => reject(event.target.error);
+  });
+}
+
 async function getPendingCompletions() {
-  // This would integrate with your existing offline queue system
-  return []
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction('pendingQuests', 'readonly');
+      const store = transaction.objectStore('pendingQuests');
+      const request = store.getAll();
+      
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error('[SW] Failed to open DB:', error);
+    return [];
+  }
 }
 
 async function removePendingCompletion(id) {
-  // This would integrate with your existing offline queue system
-  return true
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction('pendingQuests', 'readwrite');
+      const store = transaction.objectStore('pendingQuests');
+      const request = store.delete(id);
+      
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error('[SW] Failed to delete from DB:', error);
+    return false;
+  }
 }

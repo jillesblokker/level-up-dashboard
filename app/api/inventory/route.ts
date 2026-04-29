@@ -8,10 +8,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    // Add timeout handling
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
-    });
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
@@ -19,7 +19,12 @@ export async function GET(request: Request) {
     const itemId = searchParams.get('itemId');
     const equipped = searchParams.get('equipped');
 
-    const queryPromise = authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
+    });
+
+    const queryPromise = (async () => {
       let query = supabaseServer
         .from('inventory_items')
         .select('*')
@@ -34,7 +39,7 @@ export async function GET(request: Request) {
       }
       if (itemId) {
         query = query.eq('item_id', itemId);
-        const { data, error } = await query.single();
+        const { data, error } = await query.maybeSingle();
         if (error && error.code !== 'PGRST116') {
           throw error;
         }
@@ -57,21 +62,16 @@ export async function GET(request: Request) {
       }
 
       const formatItemName = (name: string, id: string) => {
-        // If name already looks formatted (has spaces, capitals), return it
         if (name.includes(' ') && /^[A-Z]/.test(name)) return name;
-
-        // Use name if id is a generated kingdom-tile-id
         const source = (id && !id.startsWith('kingdom-tile-')) ? id : name;
-
         return source
-          .replace(/^(material|item|artifact|scroll|potion)-/i, '') // Remove prefixes
+          .replace(/^(material|item|artifact|scroll|potion)-/i, '')
           .split('-')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
       };
 
       const resolveItemImage = (row: any) => {
-        // trust the DB image ONLY if it's not a placeholder
         if (row.image &&
           row.image.startsWith('/images/') &&
           !row.image.includes('placeholder') &&
@@ -79,16 +79,10 @@ export async function GET(request: Request) {
           return row.image;
         }
 
-        // Construct path based on type/category
         const type = row.type || 'item';
-        // Use name if id is generated kingdom-tile-id
         const rawId = (row.item_id && !row.item_id.startsWith('kingdom-tile-')) ? row.item_id : row.name;
-
-        // Normalize ID for file path matching (lowercase, hyphens instead of spaces)
-        // This handles cases where name might be 'Fish Silver' -> 'fish-silver'
         const id = rawId.toLowerCase().trim().replace(/\s+/g, '-');
 
-        // Specific mappings based on directory structure
         if (id.startsWith('material-')) return `/images/items/materials/${id}.webp`;
         if (id.startsWith('fish-')) return `/images/items/food/${id}.webp`;
         if (id.startsWith('potion-')) return `/images/items/potion/${id}.webp`;
@@ -97,10 +91,9 @@ export async function GET(request: Request) {
         if (id.startsWith('shield-')) return `/images/items/shield/${id}.webp`;
         if (id.startsWith('scroll-')) return `/images/items/scroll/${id}.webp`;
 
-        // Map types to physical folders
         let folder = type;
         switch (type) {
-          case 'weapon': folder = 'sword'; break; // Default weapon folder
+          case 'weapon': folder = 'sword'; break;
           case 'resource': folder = 'materials'; break;
           case 'mount': folder = 'horse'; break;
           case 'food': folder = 'food'; break;
@@ -114,7 +107,7 @@ export async function GET(request: Request) {
         return `/images/items/${folder}/${id}.webp`;
       };
 
-      const mappedData = (data || []).map((row: any) => ({
+      return (data || []).map((row: any) => ({
         ...row,
         id: row.item_id,
         name: formatItemName(row.name, row.item_id),
@@ -122,23 +115,17 @@ export async function GET(request: Request) {
         equipped: row.equipped,
         stats: row.stats || {},
       }));
-
-      return mappedData;
-    });
+    })();
 
     // Race between timeout and query
     const result = await Promise.race([queryPromise, timeoutPromise]) as any;
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
-    }
-
     return NextResponse.json({
       success: true,
-      data: result.data
+      data: result
     });
   } catch (error) {
-    logger.error('[Inventory API] Error:', error);
+    logger.error('[Inventory API] GET Error:', error);
 
     // Handle timeout specifically
     if (error instanceof Error && error.message === 'Request timeout') {
@@ -157,75 +144,83 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { item } = body;
 
-    if (!item) {
-      return NextResponse.json({ error: 'Item is required' }, { status: 400 });
+    if (!item || !item.id) {
+      return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
     }
 
-    const { success, data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      // Check if item exists
-      const { data: existing, error: fetchError } = await supabase
+    // Set RLS context (optional but good practice)
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch (e) {
+      // Ignore RPC error if it doesn't exist
+    }
+
+    // Check if item exists
+    const { data: existing, error: fetchError } = await supabaseServer
+      .from('inventory_items')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('item_id', item.id)
+      .maybeSingle();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      logger.error('Error fetching inventory item:', fetchError);
+      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    }
+
+    if (existing) {
+      // Update quantity
+      const { data, error: updateError } = await supabaseServer
         .from('inventory_items')
-        .select('*')
+        .update({ quantity: existing.quantity + (item.quantity || 1) })
         .eq('user_id', userId)
         .eq('item_id', item.id)
+        .select()
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
+      if (updateError) {
+        logger.error('Error updating inventory item:', updateError);
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
       }
+      return NextResponse.json({ success: true, data });
+    } else {
+      // Insert new item
+      const { data, error: insertError } = await supabaseServer
+        .from('inventory_items')
+        .insert({
+          user_id: userId,
+          item_id: item.id,
+          name: item.name || 'Unknown Item',
+          type: item.type || 'item',
+          category: item.category || item.type || 'misc',
+          description: item.description || `Found: ${item.name}`,
+          emoji: item.emoji || '📦',
+          image: item.image || '',
+          stats: item.stats || {},
+          quantity: item.quantity || 1,
+          equipped: item.equipped || false,
+          is_default: false,
+        })
+        .select()
+        .single();
 
-      if (existing) {
-        // Update quantity
-        const { data, error: updateError } = await supabase
-          .from('inventory_items')
-          .update({ quantity: existing.quantity + (item.quantity || 1) })
-          .eq('user_id', userId)
-          .eq('item_id', item.id)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        return data;
-      } else {
-        // Insert new item
-        const { data, error: insertError } = await supabase
-          .from('inventory_items')
-          .insert({
-            user_id: userId,
-            item_id: item.id,
-            name: item.name || 'Unknown Item',
-            type: item.type || 'item',
-            category: item.category || item.type || 'misc',
-            description: item.description || `Found: ${item.name}`,
-            emoji: item.emoji || '📦',
-            image: item.image || '',
-            stats: item.stats || {},
-            quantity: item.quantity || 1,
-            equipped: item.equipped || false,
-            is_default: false,
-          })
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        return data;
+      if (insertError) {
+        logger.error('Error inserting inventory item:', insertError);
+        return NextResponse.json({ error: insertError.message }, { status: 500 });
       }
-    });
-
-    if (!success) {
-      return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401 });
+      return NextResponse.json({ success: true, data });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: data
-    });
-
   } catch (error: any) {
-    logger.error('[Inventory API] Error:', error);
+    logger.error('[Inventory API] POST Error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -235,6 +230,11 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action, itemId } = body;
 
@@ -242,67 +242,69 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Action and itemId are required' }, { status: 400 });
     }
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      if (action === 'equip') {
-        // Find the item to get its category
-        const { data: item, error: fetchError } = await supabase
-          .from('inventory_items')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('item_id', itemId)
-          .single();
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch (e) {
+      // Ignore RPC error if it doesn't exist
+    }
 
-        if (fetchError || !item) {
-          throw new Error('Item not found');
-        }
+    if (action === 'equip') {
+      // Find the item to get its category
+      const { data: item, error: fetchError } = await supabaseServer
+        .from('inventory_items')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('item_id', itemId)
+        .maybeSingle();
 
-        // Unequip any existing item of the same category
-        if (item.category) {
-          await supabase
-            .from('inventory_items')
-            .update({ equipped: false })
-            .eq('user_id', userId)
-            .eq('category', item.category)
-            .eq('equipped', true);
-        }
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw new Error(`Database error fetching item: ${fetchError.message}`);
+      }
 
-        // Equip the new item
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .update({ equipped: true })
-          .eq('user_id', userId)
-          .eq('item_id', itemId)
-          .select()
-          .single();
+      if (!item) {
+        throw new Error('Item not found');
+      }
 
-        if (error) throw error;
-        return data;
-
-      } else if (action === 'unequip') {
-        const { data, error } = await supabase
+      // Unequip any existing item of the same category
+      if (item.category) {
+        await supabaseServer
           .from('inventory_items')
           .update({ equipped: false })
           .eq('user_id', userId)
-          .eq('item_id', itemId)
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
+          .eq('category', item.category)
+          .eq('equipped', true);
       }
 
-      throw new Error('Invalid action');
-    });
+      // Equip the new item
+      const { data, error } = await supabaseServer
+        .from('inventory_items')
+        .update({ equipped: true })
+        .eq('user_id', userId)
+        .eq('item_id', itemId)
+        .select()
+        .single();
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      if (error) throw new Error(`Database error equipping item: ${error.message}`);
+      return NextResponse.json(data);
+
+    } else if (action === 'unequip') {
+      const { data, error } = await supabaseServer
+        .from('inventory_items')
+        .update({ equipped: false })
+        .eq('user_id', userId)
+        .eq('item_id', itemId)
+        .select()
+        .single();
+
+      if (error) throw new Error(`Database error unequipping item: ${error.message}`);
+      return NextResponse.json(data);
     }
 
-    return NextResponse.json(result.data);
-  } catch (error) {
-    logger.error('[Inventory API] Error:', error);
+    throw new Error('Invalid action');
+  } catch (error: any) {
+    logger.error('[Inventory API] PATCH Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
@@ -310,73 +312,80 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { itemId, quantity, clearAll } = body;
 
-    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
-      if (clearAll) {
-        // Clear all inventory
-        const { error } = await supabase
-          .from('inventory_items')
-          .delete()
-          .eq('user_id', userId);
-
-        if (error) throw error;
-        return { message: 'Inventory cleared' };
-      }
-
-      if (!itemId) {
-        throw new Error('itemId is required');
-      }
-
-      // Get current item
-      const { data: existing, error: fetchError } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('item_id', itemId)
-        .single();
-
-      if (fetchError || !existing) {
-        throw new Error('Item not found');
-      }
-
-      const removeQuantity = quantity || 1;
-
-      if (existing.quantity > removeQuantity) {
-        // Update quantity
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .update({ quantity: existing.quantity - removeQuantity })
-          .eq('user_id', userId)
-          .eq('item_id', itemId)
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
-      } else {
-        // Delete item completely
-        const { error } = await supabase
-          .from('inventory_items')
-          .delete()
-          .eq('user_id', userId)
-          .eq('item_id', itemId);
-
-        if (error) throw error;
-        return { message: 'Item removed' };
-      }
-    });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+    try {
+      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+    } catch (e) {
+      // Ignore RPC error if it doesn't exist
     }
 
-    return NextResponse.json(result.data);
-  } catch (error) {
-    logger.error('[Inventory API] Error:', error);
+    if (clearAll) {
+      // Clear all inventory
+      const { error } = await supabaseServer
+        .from('inventory_items')
+        .delete()
+        .eq('user_id', userId);
+
+      if (error) throw new Error(`Database error clearing inventory: ${error.message}`);
+      return NextResponse.json({ message: 'Inventory cleared' });
+    }
+
+    if (!itemId) {
+      return NextResponse.json({ error: 'itemId is required' }, { status: 400 });
+    }
+
+    // Get current item
+    const { data: existing, error: fetchError } = await supabaseServer
+      .from('inventory_items')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('item_id', itemId)
+      .maybeSingle();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      throw new Error(`Database error fetching item: ${fetchError.message}`);
+    }
+
+    if (!existing) {
+      throw new Error('Item not found');
+    }
+
+    const removeQuantity = quantity || 1;
+
+    if (existing.quantity > removeQuantity) {
+      // Update quantity
+      const { data, error } = await supabaseServer
+        .from('inventory_items')
+        .update({ quantity: existing.quantity - removeQuantity })
+        .eq('user_id', userId)
+        .eq('item_id', itemId)
+        .select()
+        .single();
+
+      if (error) throw new Error(`Database error updating quantity: ${error.message}`);
+      return NextResponse.json(data);
+    } else {
+      // Delete item completely
+      const { error } = await supabaseServer
+        .from('inventory_items')
+        .delete()
+        .eq('user_id', userId)
+        .eq('item_id', itemId);
+
+      if (error) throw new Error(`Database error deleting item: ${error.message}`);
+      return NextResponse.json({ message: 'Item removed' });
+    }
+  } catch (error: any) {
+    logger.error('[Inventory API] DELETE Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
