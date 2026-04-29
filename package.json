@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "clean-start": "rm -rf .next node_modules/.cache && next dev -p 3005",
     "dev:custom": "node server.js",
     "build": "next build",

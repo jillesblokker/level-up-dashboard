@@ -81,6 +81,16 @@ const locationData: Record<string, {
       { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
       { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
     ]
+  },
+  "embers-forge": {
+    name: "Ember's Forge",
+    description: "Master blacksmith crafting weapons and armor.",
+    icon: Swords,
+    items: [
+      { id: "iron-sword", name: "Iron Sword", description: "A sturdy blade", price: 200, type: "weapon", emoji: "🗡️" },
+      { id: "iron-armor", name: "Iron Armor", description: "Protective plate armor", price: 350, type: "equipment", emoji: "🛡️" },
+      { id: "steel-shield", name: "Steel Shield", description: "A heavy steel shield", price: 250, type: "equipment", emoji: "🛡️" }
+    ]
   }
 }
 
@@ -409,6 +419,52 @@ export default function LocationClient({ slug, locationId }: Props) {
                       if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.webp";
                       if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.webp";
                       // Add more mappings as needed
+                      return (
+                        <Card key={item.id} className="flex flex-col">
+                          <div className="w-full aspect-[4/3] relative bg-black">
+                            <Image
+                              src={imagePath}
+                              alt={`${item.name} image`}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              aria-label={`${item.name}-image`}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/items/placeholder.webp"; }}
+                            />
+                          </div>
+                          <CardHeader>
+                            <CardTitle className="text-lg">{item.name}</CardTitle>
+                            <CardDescription>{item.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="flex-1">
+                            <p className="text-sm text-muted-foreground">Price: {item.price} gold</p>
+                            <p className="text-sm text-muted-foreground">Type: {item.type}</p>
+                          </CardContent>
+                          <CardContent className="pt-0">
+                            <Button
+                              className="w-full"
+                              onClick={() => handlePurchase(item)}
+                              disabled={gold < item.price}
+                            >
+                              Purchase
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+              {locationId === "embers-forge" && (
+                <>
+                  <h2 className="text-xl font-bold mb-4">Weapons & Armor for Sale</h2>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {location.items?.map((item) => {
+                      let imagePath = "/images/items/placeholder.webp";
+                      if (item.name === "Iron Sword") imagePath = "/images/items/sword/sword-iron.webp";
+                      if (item.name === "Iron Armor") imagePath = "/images/items/armor/armor-iron.webp";
+                      if (item.name === "Steel Shield") imagePath = "/images/items/shield/shield-steel.webp";
+                      
                       return (
                         <Card key={item.id} className="flex flex-col">
                           <div className="w-full aspect-[4/3] relative bg-black">
