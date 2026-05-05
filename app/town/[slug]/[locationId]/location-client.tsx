@@ -13,6 +13,7 @@ import { getCharacterStats } from "@/lib/character-stats-service"
 import { HeaderSection } from "@/components/HeaderSection"
 import { PageGuide } from "@/components/page-guide"
 import Image from "next/image"
+import { useInventory, useCharacterStats, useUpdateCharacterStats, useAddInventoryItem } from "@/lib/queries"
 
 interface LocationItem {
   id: string
@@ -98,44 +99,34 @@ export default function LocationClient({ slug, locationId }: Props) {
   const router = useRouter()
   const { toast } = useToast()
   const { user } = useUser()
-  const [gold, setGold] = useState(0)
-  const [inventory, setInventory] = useState<InventoryItem[]>([])
 
+  // React Query — cached data is served instantly on subsequent visits
+  const { data: inventoryData } = useInventory()
+  const { data: statsData } = useCharacterStats()
+  const updateStatsMutation = useUpdateCharacterStats()
+  const addItemMutation = useAddInventoryItem()
+
+  // Derive gold from server data, falling back to local storage
+  const gold: number =
+    statsData?.gold ??
+    statsData?.stats?.gold ??
+    getCharacterStats()?.gold ??
+    0
+
+  const inventory: InventoryItem[] = Array.isArray(inventoryData) ? inventoryData : []
+
+  // Keep legacy event listeners so other parts of the app can still trigger a re-check
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        if (user?.id) {
-          const stats = getCharacterStats()
-          setGold(stats?.gold || 0)
-
-          try {
-            const response = await fetch('/api/inventory', {
-              credentials: 'include'
-            });
-            if (response.ok) {
-              const inventoryItems = await response.json();
-              setInventory(Array.isArray(inventoryItems) ? inventoryItems : []);
-            }
-          } catch (error) {
-            logger.error('Failed to load inventory:', error);
-          }
-        }
-      } catch (error) {
-        logger.error("Failed to load character stats:", error)
-      }
-    }
-
-    loadStats()
-
-    // Listen for updates
-    window.addEventListener("character-stats-update", loadStats)
-    window.addEventListener("character-inventory-update", loadStats)
-
+    // Nothing to do — React Query will automatically refetch on window focus if needed.
+    // We only keep these handlers so external dispatchers don't throw.
+    const noop = () => {}
+    window.addEventListener("character-stats-update", noop)
+    window.addEventListener("character-inventory-update", noop)
     return () => {
-      window.removeEventListener("character-stats-update", loadStats)
-      window.removeEventListener("character-inventory-update", loadStats)
+      window.removeEventListener("character-stats-update", noop)
+      window.removeEventListener("character-inventory-update", noop)
     }
-  }, [user?.id])
+  }, [])
 
   const location = locationData[locationId]
   useEffect(() => {
@@ -163,57 +154,32 @@ export default function LocationClient({ slug, locationId }: Props) {
       return
     }
 
-    // Update gold
     const newGold = gold - item.price
-    if (user?.id) {
-      try {
-        const response = await fetch('/api/character-stats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stats: { gold: newGold } }),
-          credentials: 'include'
-        });
-        if (!response.ok) {
-          logger.error('Failed to update character stats:', response.status);
-        }
-      } catch (error) {
-        logger.error('Failed to update character stats:', error);
-      }
-    }
-    setGold(newGold)
 
-    // Add item to inventory
-    if (user?.id) {
-      try {
-        const inventoryItem = {
+    try {
+      // Both mutations run in parallel; React Query invalidates cache on success
+      await Promise.all([
+        updateStatsMutation.mutateAsync({ gold: newGold }),
+        addItemMutation.mutateAsync({
           ...item,
-          type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment",
+          type: item.type as "artifact" | "scroll" | "book" | "creature" | "resource" | "item" | "equipment" | "weapon",
           quantity: 1,
           image: `/images/items/${item.type}/${item.id}.webp`,
-        };
+        }),
+      ])
 
-        const response = await fetch('/api/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item: inventoryItem }),
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          logger.error('Failed to add item to inventory:', response.status);
-        }
-      } catch (error) {
-        logger.error('Failed to add item to inventory:', error);
-      }
+      toast({
+        title: "Item Purchased!",
+        description: `You have purchased ${item.name} for ${item.price} gold.`
+      })
+    } catch (error) {
+      logger.error("Purchase failed:", error)
+      toast({
+        title: "Purchase Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      })
     }
-
-    // Dispatch update event
-    window.dispatchEvent(new Event("character-stats-update"))
-
-    toast({
-      title: "Item Purchased!",
-      description: `You have purchased ${item.name} for ${item.price} gold.`
-    })
   }
 
   return (
