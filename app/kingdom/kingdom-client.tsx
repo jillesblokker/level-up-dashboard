@@ -76,6 +76,7 @@ const KingdomPropertiesInventory = dynamic(() => import("@/components/kingdom-pr
 const KingdomTileGrid = dynamic(() => import("@/components/kingdom-tile-grid").then(m => m.KingdomTileGrid), { ssr: false });
 const KingdomGuide = dynamic(() => import("@/components/kingdom/kingdom-guide").then(m => m.KingdomGuide), { ssr: false });
 import { KingdomBonusesBlock } from "@/components/kingdom/kingdom-bonuses-block";
+import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 
 
 const ProgressionVisualization = dynamic(
