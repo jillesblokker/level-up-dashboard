@@ -4,7 +4,7 @@
 /* Global UI Fixes */
 html,
 body {
-  overscroll-behavior-y: none;
+  /* Removed overscroll-behavior-y: none to fix scrolling issues */
 }
 
 /* Line clamp utilities for text truncation */

@@ -37,7 +37,7 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
 
     return (
         <ParticleProvider>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col min-h-screen">
                 <CharacterStatsSync />
                 {children}
                 <SeasonalHuntWrapper />

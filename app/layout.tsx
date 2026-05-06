@@ -122,7 +122,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" suppressHydrationWarning className="h-full">
+      <html lang="en" suppressHydrationWarning className="min-h-screen">
         <head>
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -148,7 +148,7 @@ export default function RootLayout({
           />
         </head>
         <body className={cn(
-          "h-full font-sans antialiased bg-black text-white overflow-x-hidden",
+          "min-h-screen font-sans antialiased bg-black text-white",
           fontSans.variable,
           fontGloock.variable,
           fontLibreBaskerville.variable
