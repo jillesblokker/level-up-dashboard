@@ -2,7 +2,7 @@
 
 import { Coins, Star, Zap, Trophy } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
-import { announceToScreenReader } from '@/lib/accessibility'
+import { announceToScreenReader } from '@/lib/screen-reader'
 
 interface RewardData {
   gold?: number

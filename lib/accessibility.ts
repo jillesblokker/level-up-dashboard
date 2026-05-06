@@ -38,30 +38,6 @@ export function trapFocus(container: HTMLElement) {
 }
 
 /**
- * Create a live region for screen reader announcements
- */
-export function createLiveRegion(): HTMLElement {
-  const liveRegion = document.createElement('div')
-  liveRegion.setAttribute('aria-live', 'polite')
-  liveRegion.setAttribute('aria-atomic', 'true')
-  liveRegion.className = 'sr-only'
-  liveRegion.id = 'live-region'
-  document.body.appendChild(liveRegion)
-  return liveRegion
-}
-
-/**
- * Announce message to screen readers
- */
-export const announceToScreenReader = (message: string) => {
-  let liveRegion = document.getElementById('live-region')
-  if (!liveRegion) {
-    liveRegion = createLiveRegion()
-  }
-  liveRegion.textContent = message
-}
-
-/**
  * Enhanced focus trap hook for modals
  */
 export function useFocusTrap(isOpen: boolean) {

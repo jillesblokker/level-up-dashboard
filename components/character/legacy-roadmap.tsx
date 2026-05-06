@@ -45,7 +45,8 @@ export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
       <div className="relative flex justify-between items-center px-4 overflow-x-auto no-scrollbar gap-12 min-w-[1000px]">
         {ROADMAP_DATA.map((milestone, idx) => {
           const isUnlocked = currentLevel >= milestone.level
-          const isNext = !isUnlocked && (idx === 0 || currentLevel >= ROADMAP_DATA[idx-1].level)
+          const prevMilestone = idx > 0 ? ROADMAP_DATA[idx - 1] : null
+          const isNext = !isUnlocked && (idx === 0 || (prevMilestone && currentLevel >= prevMilestone.level))
 
           return (
             <div key={idx} className="flex flex-col items-center gap-4 relative z-20 group">
