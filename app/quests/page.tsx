@@ -2035,7 +2035,7 @@ export default function QuestsPage() {
 
   return (
     <EnhancedErrorBoundary>
-      <div className="min-h-full quests-page-container scroll-prevent pb-20" style={{ overscrollBehavior: 'none' }}>
+    <div className="min-h-screen quests-page-container pb-20">
 
 
         <HeaderSection

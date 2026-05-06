@@ -1365,8 +1365,8 @@ function RealmPageContent() {
                         onInteract={() => handleAnimalInteraction(animalInteractionModal.animalType)}
                     />
                 )}
-                {/* Full Width Map Area - Break out of all containers */}
-                <div className="fixed inset-0 top-[60px] left-0 right-0 bottom-0 z-0 bg-gray-900">
+                {/* Full Width Map Area - Part of the document flow to allow scrolling */}
+                <div className="relative w-full h-[75vh] min-h-[600px] z-0 bg-gray-900 overflow-hidden">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}

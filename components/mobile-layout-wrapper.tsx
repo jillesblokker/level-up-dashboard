@@ -76,7 +76,7 @@ export function MobileLayoutWrapper({
       style={{
         minHeight: isMobile ? viewportHeight : '100vh',
         WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain',
+        overscrollBehavior: 'auto',
         // Enhanced mobile touch targets
         ...(isMobile && {
           '--touch-target-size': '44px',
@@ -126,7 +126,7 @@ export function MobileScrollContainer({
       )}
       style={{
         WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain',
+        overscrollBehavior: 'auto',
         // Enhanced mobile scroll performance
         scrollBehavior: 'smooth'
       }}

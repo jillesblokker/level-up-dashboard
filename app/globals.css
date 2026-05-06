@@ -71,8 +71,7 @@ body {
   /* Mobile-specific overrides */
   html,
   body {
-    height: 100%;
-    width: 100%;
+    /* Removed height/width 100% to fix scroll locking */
     overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;

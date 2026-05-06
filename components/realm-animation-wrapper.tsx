@@ -165,15 +165,17 @@ export function RealmAnimationWrapper({
       // Add event listeners
       document.addEventListener('wheel', preventScroll, { passive: false })
       document.addEventListener('touchmove', preventScroll, { passive: false })
-      document.addEventListener('keydown', (e) => {
+      const handleKeydown = (e: KeyboardEvent) => {
         if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
           e.preventDefault()
         }
-      })
+      }
+      document.addEventListener('keydown', handleKeydown)
 
       return () => {
         document.removeEventListener('wheel', preventScroll)
         document.removeEventListener('touchmove', preventScroll)
+        document.removeEventListener('keydown', handleKeydown)
       }
     }
 
