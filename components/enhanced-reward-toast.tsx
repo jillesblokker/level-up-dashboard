@@ -8,8 +8,8 @@ interface RewardData {
   gold?: number
   xp?: number
   source: string
-  item?: string
-  achievement?: string
+  item?: string | undefined
+  achievement?: string | undefined
 }
 
 export function showEnhancedRewardToast(reward: RewardData) {
