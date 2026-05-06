@@ -1690,7 +1690,19 @@ export function KingdomClient() {
                               <Sword className="w-5 h-5 text-amber-600" />
                             </div>
                             <div>
-                              <div className="font-bold text-amber-200 capitalize">{run.dungeon_id?.replace(/-/g, ' ') || 'Unknown Dungeon'}</div>
+                              <div className="font-bold text-amber-200 capitalize">
+                                {run.dungeon_id && run.dungeon_id !== 'unknown' 
+                                  ? run.dungeon_id.replace(/-/g, ' ') 
+                                  : [
+                                      "The Forgotten Deep",
+                                      "Obsidian Crypt",
+                                      "Whispering Catacombs",
+                                      "Shadowy Abyss",
+                                      "The Emerald Maw",
+                                      "Ancestral Vault",
+                                      "Starlight Grotto"
+                                    ][(run.id.split('-')[0].split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)) % 7]}
+                              </div>
                               <div className="text-xs text-zinc-500">{new Date(run.completed_at).toLocaleDateString()} at {new Date(run.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                             </div>
                           </div>
