@@ -64,11 +64,12 @@ export function showEnhancedRewardToast(reward: RewardData) {
   announceToScreenReader(announcement)
 }
 
-export function showQuestCompletionToast(questName: string, gold: number, xp: number) {
+export function showQuestCompletionToast(questName: string, gold: number, xp: number, item?: string) {
   showEnhancedRewardToast({
     gold,
     xp,
     source: `completing ${questName}`,
+    item,
   })
 }
 

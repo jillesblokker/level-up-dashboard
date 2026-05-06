@@ -342,6 +342,29 @@ export default function AlliesPage() {
         }
     };
 
+    const handleHire = async (friend: Friend) => {
+        try {
+            const res = await fetch('/api/mercenaries/hire', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ friendId: friend.friendId })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                toast({
+                    title: "Mercenary Hired!",
+                    description: `${friend.username} joined your party! +20% ${data.buff.stat} for 24h.`,
+                    className: "bg-amber-900 border-amber-500 text-amber-100"
+                });
+            } else {
+                toast({ title: "Hire Failed", description: data.error || "Could not hire ally", variant: "destructive" });
+            }
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to connect to the Tavern", variant: "destructive" });
+        }
+    };
+
     const openCompareModal = async (friend: Friend) => {
         setSelectedFriend(friend);
         setCompareModalOpen(true);
@@ -593,6 +616,16 @@ export default function AlliesPage() {
                                                         >
                                                             <Gift className="w-3 h-3 mr-2" />
                                                             Gift
+                                                        </Button>
+                                                        <div className="w-px h-4 bg-border my-auto" />
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
+                                                            onClick={() => handleHire(friend)}
+                                                        >
+                                                            <UserPlus className="w-3 h-3 mr-2" />
+                                                            Hire
                                                         </Button>
                                                         <div className="w-px h-4 bg-border my-auto" />
                                                         <DropdownMenu>

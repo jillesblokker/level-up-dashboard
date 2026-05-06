@@ -12,6 +12,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
+import { ChroniclesCard } from '@/components/chronicles-card'
+import { ElementalAura } from '@/components/character/elemental-aura'
+import { LegacyRoadmap } from "@/components/character/legacy-roadmap"
+import dynamic from 'next/dynamic';
 import { Progress } from "@/components/ui/progress"
 import {
   AlertDialog,
@@ -867,12 +871,18 @@ export default function CharacterPage() {
                     {(() => {
                       // Use equipped title for visual, fall back to level-based calculation if nothing found
                       const currentTitleName = characterStats.titles.equipped;
-                      // Determine image from ID (we need to find the ID corresponding to the name or use the equipped Item)
                       const equippedItem = titlesList.find(t => t.is_equipped);
-                      const titleId = equippedItem ? equippedItem.id : TITLES.find(t => t.name === currentTitleName)?.id || 'squire';
-
-                      // Calculate next title progress based on level still (level progression logic remains valid)
                       const titleInfo = getTitleProgress(characterStats.level);
+
+                      // Determine dominant stat for Aura
+                      const dominantStat = [...strengths].sort((a, b) => (b.level || 0) - (a.level || 0))[0];
+                      let auraType: 'might' | 'knowledge' | 'vitality' | 'balanced' = 'balanced';
+                      
+                      if (dominantStat) {
+                        if (['might', 'physical', 'craft'].includes(dominantStat.category)) auraType = 'might';
+                        else if (['knowledge', 'mental', 'honor'].includes(dominantStat.category)) auraType = 'knowledge';
+                        else if (['vitality', 'wellness', 'exploration'].includes(dominantStat.category)) auraType = 'vitality';
+                      }
 
                       return (
                         <>
@@ -880,7 +890,11 @@ export default function CharacterPage() {
                           <div className="flex items-start gap-4">
                             {/* Character image on the left */}
                             <div className="relative w-24 h-24 flex-shrink-0 group">
-                              <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-xl animate-pulse" />
+                              {/* Elemental Aura Effect */}
+                              <ElementalAura 
+                                type={auraType} 
+                                intensity={characterStats.level > 50 ? 'high' : characterStats.level > 20 ? 'medium' : 'low'} 
+                              />
                               <div className="relative w-full h-full rounded-full border-2 border-amber-500/20 bg-zinc-900/80 p-2 overflow-hidden shadow-lg transition-all duration-500 group-hover:border-amber-500/40">
                                 <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-500/5 to-transparent">
                                   <Image
@@ -1009,6 +1023,19 @@ export default function CharacterPage() {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Legacy Roadmap - Future Unlocks */}
+          <Card className="medieval-card overflow-hidden">
+            <CardHeader className="pb-0">
+              <CardTitle className="text-sm font-serif text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                <Crown className="w-4 h-4" />
+                Legendary Roadmap
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LegacyRoadmap currentLevel={characterStats.level} />
             </CardContent>
           </Card>
 

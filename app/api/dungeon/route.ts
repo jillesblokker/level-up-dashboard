@@ -99,7 +99,13 @@ export async function POST(req: NextRequest) {
             });
 
             const totalVitality = (stats?.vitality || 1) + bonuses.vitality;
-            const maxHp = 100 + (totalVitality * 10) + equipHealth;
+            let maxHp = 100 + (totalVitality * 10) + equipHealth;
+
+            // Apply Mercenary Vitality Buff
+            const mercBuff = modifiers?.find(m => m.name === 'Mercenary Buff');
+            if (mercBuff && mercBuff.value === 'vitality') {
+                maxHp = Math.floor(maxHp * 1.2);
+            }
 
             const firstEncounter = generateEncounter(1, luckMultiplier);
 
@@ -232,7 +238,13 @@ export async function POST(req: NextRequest) {
 
                 } else if (choice === 'fight') {
                     // --- Fight ---
-                    const userDmg = Math.floor(5 + (strength * 0.5) + equipAttack + (Math.random() * 5));
+                    let userDmg = Math.floor(5 + (strength * 0.5) + equipAttack + (Math.random() * 5));
+
+                    // Apply Mercenary Strength/Intelligence Buff
+                    const mercBuff = modifiers?.find(m => m.name === 'Mercenary Buff');
+                    if (mercBuff && (mercBuff.value === 'strength' || mercBuff.value === 'intelligence')) {
+                        userDmg = Math.floor(userDmg * 1.2);
+                    }
 
                     encounter.hp = (encounter.hp || 30) - userDmg;
                     damageTaken = Math.max(1, monsterDmg - equipDefense);

@@ -997,24 +997,6 @@ export default function QuestsPage() {
       addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
       addToCharacterStat('experience', xpReward, `quest-completion:${questId}`);
 
-      // Show success toast with rewards
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.completion.quest.title,
-        description: TEXT_CONTENT.questBoard.toasts.completion.quest.desc
-          .replace('{name}', questObj.name)
-          .replace('{gold}', String(goldReward))
-          .replace('{xp}', String(xpReward)),
-        duration: 4000,
-      });
-    } else {
-      // Quest uncompleted - just show toast
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.title,
-        description: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.desc.replace('{name}', questObj.name),
-        duration: 2000,
-      });
-    }
-
     // Persist quest completion to backend using the smart-completion API
     try {
       const response = await fetch('/api/quests/smart-completion', {
@@ -1038,6 +1020,22 @@ export default function QuestsPage() {
 
       const responseData = await response.json();
       logger.debug('[QUEST-TOGGLE] Quest persisted to backend successfully', responseData);
+
+      // 🎯 Display enhanced feedback if quest was completed
+      if (newCompleted) {
+        showQuestCompletionToast(
+          questObj.name, 
+          responseData.rewards?.gold || goldReward, 
+          responseData.rewards?.xp || xpReward,
+          responseData.scavengedMaterial ? `${responseData.scavengedMaterial.emoji} ${responseData.scavengedMaterial.name}` : undefined
+        );
+      } else {
+        toast({
+          title: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.title,
+          description: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.desc.replace('{name}', questObj.name),
+          duration: 2000,
+        });
+      }
 
       // 🎯 Display character-based milestone message if received
       if (responseData.milestoneMessage) {

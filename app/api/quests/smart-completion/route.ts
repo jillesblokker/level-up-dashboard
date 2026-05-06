@@ -141,7 +141,60 @@ export async function POST(req: NextRequest) {
                 p_xp: finalRewards.xp
             });
 
-            return { success: true, completed: true, rewards: finalRewards, bonusType: isDay ? 'Day (Gold)' : 'Night (XP)' };
+            // 5. Material Scavenging (30% chance)
+            let scavengedMaterial = null;
+            if (Math.random() < 0.3) {
+                const category = (quest.category || 'might').toLowerCase();
+                let materialId = 'material-logs';
+                if (['might', 'craft'].includes(category)) materialId = 'material-steel';
+                else if (['knowledge', 'honor', 'castle'].includes(category)) materialId = 'material-crystal';
+                else if (['exploration'].includes(category)) materialId = 'material-planks';
+
+                const { comprehensiveItems } = await import('@/app/lib/comprehensive-items');
+                const materialRef = comprehensiveItems.find(i => i.id === materialId);
+
+                if (materialRef) {
+                    const { data: existing } = await supabase
+                        .from('inventory_items')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .eq('item_id', materialId)
+                        .single();
+
+                    if (existing) {
+                        await supabase
+                            .from('inventory_items')
+                            .update({ quantity: (existing.quantity || 1) + 1 })
+                            .eq('id', existing.id);
+                    } else {
+                        await supabase
+                            .from('inventory_items')
+                            .insert({
+                                user_id: userId,
+                                item_id: materialRef.id,
+                                name: materialRef.name,
+                                type: materialRef.type,
+                                category: materialRef.category,
+                                description: materialRef.description,
+                                emoji: materialRef.emoji,
+                                image: materialRef.image,
+                                stats: materialRef.stats || {},
+                                quantity: 1,
+                                equipped: false,
+                                is_default: false
+                            });
+                    }
+                    scavengedMaterial = { name: materialRef.name, emoji: materialRef.emoji };
+                }
+            }
+
+            return { 
+                success: true, 
+                completed: true, 
+                rewards: finalRewards, 
+                bonusType: isDay ? 'Day (Gold)' : 'Night (XP)',
+                scavengedMaterial
+            };
         });
 
         if (!result.success) {
