@@ -1,10 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
-  const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+}
+
+export async function GET() {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
@@ -12,86 +27,86 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(50);
 
-    if (error) throw error;
-    return data;
-  });
-
-  if (!result.success) {
-    return NextResponse.json({ error: result.error }, { status: 401 });
-  }
-
-  // Normalize data to array if it's not already
-  return NextResponse.json(result.data || [], {
-    headers: {
-      'Cache-Control': 'private, s-maxage=0, max-age=10, must-revalidate',
+    if (error) {
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
-  });
-}
 
-// Mark notifications as read
-export async function PATCH(req: NextRequest) {
-  try {
-    const { notificationIds } = await req.json(); // Array of IDs or 'all'
-
-    const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
-      let query = supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', userId);
-
-      if (Array.isArray(notificationIds) && notificationIds.length > 0) {
-        query = query.in('id', notificationIds);
-      } else if (notificationIds === 'all') {
-        // Mark all as read
-      } else {
-        return { message: 'No IDs provided', success: false }; // Return indicator
+    return NextResponse.json(data || [], {
+      headers: {
+        'Cache-Control': 'private, s-maxage=0, max-age=10, must-revalidate',
       }
-
-      const { data, error } = await query.select();
-      if (error) throw error;
-      return data;
     });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
-    }
-
-    return NextResponse.json(result.data);
-
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function PATCH(req: Request) {
   try {
-    const { notificationIds } = await req.json().catch(() => ({ notificationIds: 'all' }));
-
-    const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
-      let query = supabase
-        .from('notifications')
-        .delete()
-        .eq('user_id', userId);
-
-      if (Array.isArray(notificationIds) && notificationIds.length > 0) {
-        query = query.in('id', notificationIds);
-      } else if (notificationIds === 'all') {
-        // Delete all
-      } else {
-        return { message: 'No IDs provided', success: false };
-      }
-
-      const { error } = await query;
-      if (error) throw error;
-      return { success: true };
-    });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    return NextResponse.json(result.data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const body = await req.json().catch(() => ({}));
+    const notificationIds = body.notificationIds;
+
+    const supabase = getSupabaseAdmin();
+    let query = supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', userId);
+
+    if (Array.isArray(notificationIds) && notificationIds.length > 0) {
+      query = query.in('id', notificationIds);
+    } else if (notificationIds === 'all') {
+      // Mark all as read
+    } else {
+      return NextResponse.json({ message: 'No IDs provided', success: false }, { status: 400 });
+    }
+
+    const { data, error } = await query.select();
+    if (error) {
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json().catch(() => ({ notificationIds: 'all' }));
+    const notificationIds = body.notificationIds;
+
+    const supabase = getSupabaseAdmin();
+    let query = supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', userId);
+
+    if (Array.isArray(notificationIds) && notificationIds.length > 0) {
+      query = query.in('id', notificationIds);
+    } else if (notificationIds === 'all') {
+      // Delete all
+    } else {
+      return NextResponse.json({ message: 'No IDs provided', success: false }, { status: 400 });
+    }
+
+    const { error } = await query;
+    if (error) {
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

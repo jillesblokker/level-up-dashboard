@@ -9,16 +9,37 @@ export interface UserPreference {
 }
 
 /**
- * Gets a user preference from Supabase
+ * Gets a user preference.
+ * Checks localStorage first (instant, no auth needed) then falls back
+ * to the API only if the user appears to be authenticated.
  */
 export async function getUserPreference(key: string): Promise<unknown> {
+  // 1. Try localStorage first — works without auth and is instant
   try {
-    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.value;
+    const local = localStorage.getItem(`pref:${key}`);
+    if (local !== null) {
+      try { return JSON.parse(local); } catch { return local; }
     }
-    return null;
+  } catch { /* SSR or private browsing */ }
+
+  // 2. Only hit the API if we believe the user is signed in
+  //    (Clerk sets a __session cookie when authenticated)
+  const hasSession = typeof document !== 'undefined' &&
+    document.cookie.split(';').some(c => c.trim().startsWith('__session=') || c.trim().startsWith('__clerk_db_jwt='));
+
+  if (!hasSession) return null;
+
+  try {
+    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`, {
+      credentials: 'include',
+    });
+    if (!response.ok) return null;          // silently ignore 401/403/5xx
+    const data = await response.json();
+    // Cache in localStorage for next time
+    if (data.value !== null && data.value !== undefined) {
+      try { localStorage.setItem(`pref:${key}`, JSON.stringify(data.value)); } catch { /* ignore */ }
+    }
+    return data.value;
   } catch (error) {
     logger.error(`[User Preferences] Error getting preference ${key}:`, error);
     return null;
@@ -26,23 +47,28 @@ export async function getUserPreference(key: string): Promise<unknown> {
 }
 
 /**
- * Sets a user preference in Supabase
+ * Sets a user preference. Writes to localStorage immediately for instant
+ * reads, then persists to the API in the background.
  */
 export async function setUserPreference(key: string, value: unknown): Promise<boolean> {
+  // Write to localStorage immediately so reads don't need to wait
+  try {
+    localStorage.setItem(`pref:${key}`, JSON.stringify(value));
+  } catch { /* SSR or quota */ }
+
   try {
     const response = await fetch('/api/user-preferences', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, value }),
+      credentials: 'include',
     });
 
     if (response.ok) {
       logger.debug(`[User Preferences] Saved preference: ${key}`);
       return true;
     } else {
-      logger.error(`[User Preferences] Failed to save preference: ${key}`);
+      logger.warn(`[User Preferences] API returned ${response.status} for ${key} — localStorage only`);
       return false;
     }
   } catch (error) {
