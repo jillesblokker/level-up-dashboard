@@ -1,10 +1,17 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
-import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '@/lib/supabase/server-client';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+function getSupabaseAdmin() {
+  return createClient(
+    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+    process.env['SUPABASE_SERVICE_ROLE_KEY']!,
+    { auth: { persistSession: false } }
+  );
+}
 
 export async function GET(request: Request) {
   try {
@@ -19,126 +26,39 @@ export async function GET(request: Request) {
     const itemId = searchParams.get('itemId');
     const equipped = searchParams.get('equipped');
 
-    // Add timeout handling
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
-    });
+    const supabase = getSupabaseAdmin();
+    let query = supabase
+      .from('inventory_items')
+      .select('*')
+      .eq('user_id', userId);
 
-    const queryPromise = (async () => {
-      let query = supabaseServer
-        .from('inventory_items')
-        .select('*')
-        .eq('user_id', userId);
+    if (type) query = query.eq('type', type);
+    if (category) query = query.eq('category', category);
+    if (itemId) query = query.eq('item_id', itemId);
+    if (equipped === 'true') query = query.eq('equipped', true);
+    if (equipped === 'false') query = query.eq('equipped', false);
 
-      // Apply filters based on query parameters
-      if (type) {
-        query = query.eq('type', type);
-      }
-      if (category) {
-        query = query.eq('category', category);
-      }
-      if (itemId) {
-        query = query.eq('item_id', itemId);
-        const { data, error } = await query.maybeSingle();
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
-        return data ? {
-          ...data,
-          id: data.item_id,
-          equipped: data.equipped,
-          stats: data.stats || {},
-        } : null;
-      }
-      if (equipped === 'true') {
-        query = query.eq('equipped', true);
-      } else if (equipped === 'false') {
-        query = query.eq('equipped', false);
-      }
-
-      const { data, error } = await query;
-      if (error) {
-        throw error;
-      }
-
-      const formatItemName = (name: string, id: string) => {
-        if (name.includes(' ') && /^[A-Z]/.test(name)) return name;
-        const source = (id && !id.startsWith('kingdom-tile-')) ? id : name;
-        return source
-          .replace(/^(material|item|artifact|scroll|potion)-/i, '')
-          .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
-      };
-
-      const resolveItemImage = (row: any) => {
-        if (row.image &&
-          row.image.startsWith('/images/') &&
-          !row.image.includes('placeholder') &&
-          !row.image.includes('mystery-item')) {
-          return row.image;
-        }
-
-        const type = row.type || 'item';
-        const rawId = (row.item_id && !row.item_id.startsWith('kingdom-tile-')) ? row.item_id : row.name;
-        const id = rawId.toLowerCase().trim().replace(/\s+/g, '-');
-
-        if (id.startsWith('material-')) return `/images/items/materials/${id}.webp`;
-        if (id.startsWith('fish-')) return `/images/items/food/${id}.webp`;
-        if (id.startsWith('potion-')) return `/images/items/potion/${id}.webp`;
-        if (id.startsWith('sword-')) return `/images/items/sword/${id}.webp`;
-        if (id.startsWith('armor-')) return `/images/items/armor/${id}.webp`;
-        if (id.startsWith('shield-')) return `/images/items/shield/${id}.webp`;
-        if (id.startsWith('scroll-')) return `/images/items/scroll/${id}.webp`;
-
-        let folder = type;
-        switch (type) {
-          case 'weapon': folder = 'sword'; break;
-          case 'resource': folder = 'materials'; break;
-          case 'mount': folder = 'horse'; break;
-          case 'food': folder = 'food'; break;
-          case 'artifact':
-            if (id.includes('ring')) folder = 'artifact/ring';
-            else if (id.includes('crown')) folder = 'artifact/crown';
-            else folder = 'artifact';
-            break;
-        }
-
-        return `/images/items/${folder}/${id}.webp`;
-      };
-
-      return (data || []).map((row: any) => ({
-        ...row,
-        id: row.item_id,
-        name: formatItemName(row.name, row.item_id),
-        image: resolveItemImage(row),
-        equipped: row.equipped,
-        stats: row.stats || {},
-      }));
-    })();
-
-    // Race between timeout and query
-    const result = await Promise.race([queryPromise, timeoutPromise]) as any;
-
-    return NextResponse.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('[Inventory API] GET Error:', error);
-
-    // Handle timeout specifically
-    if (error instanceof Error && error.message === 'Request timeout') {
-      return NextResponse.json(
-        { error: 'Request timeout - please try again' },
-        { status: 408 }
-      );
+    const { data, error } = await query;
+    if (error) {
+      logger.error('[Inventory API] GET DB Error:', error);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Format items for the frontend
+    const formattedData = (data || []).map((row: any) => ({
+      ...row,
+      id: row.item_id, // Frontend expects 'id'
+      stats: row.stats || {},
+    }));
+
+    if (itemId && formattedData.length > 0) {
+      return NextResponse.json({ success: true, data: formattedData[0] });
+    }
+
+    return NextResponse.json({ success: true, data: formattedData });
+  } catch (error) {
+    logger.error('[Inventory API] GET Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -156,44 +76,42 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
     }
 
-    // Set RLS context (optional but good practice)
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch (e) {
-      // Ignore RPC error if it doesn't exist
-    }
+    const supabase = getSupabaseAdmin();
 
-    // Check if item exists
-    const { data: existing, error: fetchError } = await supabaseServer
+    // 1. Check if item exists to handle quantity increment
+    const { data: existing, error: fetchError } = await supabase
       .from('inventory_items')
       .select('*')
       .eq('user_id', userId)
       .eq('item_id', item.id)
       .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      logger.error('Error fetching inventory item:', fetchError);
+    if (fetchError) {
+      logger.error('[Inventory API] POST Fetch Error:', fetchError);
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
 
     if (existing) {
-      // Update quantity
-      const { data, error: updateError } = await supabaseServer
+      // 2a. Update quantity
+      const { data, error: updateError } = await supabase
         .from('inventory_items')
-        .update({ quantity: existing.quantity + (item.quantity || 1) })
+        .update({ 
+          quantity: existing.quantity + (item.quantity || 1),
+          updated_at: new Date().toISOString()
+        })
         .eq('user_id', userId)
         .eq('item_id', item.id)
         .select()
         .single();
 
       if (updateError) {
-        logger.error('Error updating inventory item:', updateError);
+        logger.error('[Inventory API] POST Update Error:', updateError);
         return NextResponse.json({ error: updateError.message }, { status: 500 });
       }
       return NextResponse.json({ success: true, data });
     } else {
-      // Insert new item
-      const { data, error: insertError } = await supabaseServer
+      // 2b. Insert new item
+      const { data, error: insertError } = await supabase
         .from('inventory_items')
         .insert({
           user_id: userId,
@@ -208,23 +126,28 @@ export async function POST(request: Request) {
           quantity: item.quantity || 1,
           equipped: item.equipped || false,
           is_default: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .select()
         .single();
 
       if (insertError) {
-        logger.error('Error inserting inventory item:', insertError);
+        logger.error('[Inventory API] POST Insert Error:', insertError);
+        // Specifically check for constraint violations to give better feedback
+        if (insertError.code === '23514') {
+          return NextResponse.json({ 
+            error: `Invalid item type: ${item.type}. Please check database constraints.`,
+            details: insertError.message 
+          }, { status: 500 });
+        }
         return NextResponse.json({ error: insertError.message }, { status: 500 });
       }
       return NextResponse.json({ success: true, data });
     }
-
   } catch (error: any) {
     logger.error('[Inventory API] POST Error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -242,32 +165,23 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Action and itemId are required' }, { status: 400 });
     }
 
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch (e) {
-      // Ignore RPC error if it doesn't exist
-    }
+    const supabase = getSupabaseAdmin();
 
     if (action === 'equip') {
       // Find the item to get its category
-      const { data: item, error: fetchError } = await supabaseServer
+      const { data: item, error: fetchError } = await supabase
         .from('inventory_items')
         .select('*')
         .eq('user_id', userId)
         .eq('item_id', itemId)
         .maybeSingle();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw new Error(`Database error fetching item: ${fetchError.message}`);
-      }
+      if (fetchError) throw fetchError;
+      if (!item) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
 
-      if (!item) {
-        throw new Error('Item not found');
-      }
-
-      // Unequip any existing item of the same category
+      // Unequip existing item of same category
       if (item.category) {
-        await supabaseServer
+        await supabase
           .from('inventory_items')
           .update({ equipped: false })
           .eq('user_id', userId)
@@ -276,37 +190,34 @@ export async function PATCH(request: Request) {
       }
 
       // Equip the new item
-      const { data, error } = await supabaseServer
+      const { data, error } = await supabase
         .from('inventory_items')
-        .update({ equipped: true })
+        .update({ equipped: true, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
         .eq('item_id', itemId)
         .select()
         .single();
 
-      if (error) throw new Error(`Database error equipping item: ${error.message}`);
+      if (error) throw error;
       return NextResponse.json(data);
 
     } else if (action === 'unequip') {
-      const { data, error } = await supabaseServer
+      const { data, error } = await supabase
         .from('inventory_items')
-        .update({ equipped: false })
+        .update({ equipped: false, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
         .eq('item_id', itemId)
         .select()
         .single();
 
-      if (error) throw new Error(`Database error unequipping item: ${error.message}`);
+      if (error) throw error;
       return NextResponse.json(data);
     }
 
-    throw new Error('Invalid action');
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
     logger.error('[Inventory API] PATCH Error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -320,73 +231,58 @@ export async function DELETE(request: Request) {
     const body = await request.json();
     const { itemId, quantity, clearAll } = body;
 
-    try {
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
-    } catch (e) {
-      // Ignore RPC error if it doesn't exist
-    }
+    const supabase = getSupabaseAdmin();
 
     if (clearAll) {
-      // Clear all inventory
-      const { error } = await supabaseServer
+      const { error } = await supabase
         .from('inventory_items')
         .delete()
         .eq('user_id', userId);
 
-      if (error) throw new Error(`Database error clearing inventory: ${error.message}`);
-      return NextResponse.json({ message: 'Inventory cleared' });
+      if (error) throw error;
+      return NextResponse.json({ success: true, message: 'Inventory cleared' });
     }
 
-    if (!itemId) {
-      return NextResponse.json({ error: 'itemId is required' }, { status: 400 });
-    }
+    if (!itemId) return NextResponse.json({ error: 'itemId is required' }, { status: 400 });
 
-    // Get current item
-    const { data: existing, error: fetchError } = await supabaseServer
+    const { data: existing, error: fetchError } = await supabase
       .from('inventory_items')
       .select('*')
       .eq('user_id', userId)
       .eq('item_id', itemId)
       .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      throw new Error(`Database error fetching item: ${fetchError.message}`);
-    }
-
-    if (!existing) {
-      throw new Error('Item not found');
-    }
+    if (fetchError) throw fetchError;
+    if (!existing) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
 
     const removeQuantity = quantity || 1;
 
     if (existing.quantity > removeQuantity) {
-      // Update quantity
-      const { data, error } = await supabaseServer
+      const { data, error } = await supabase
         .from('inventory_items')
-        .update({ quantity: existing.quantity - removeQuantity })
+        .update({ 
+          quantity: existing.quantity - removeQuantity,
+          updated_at: new Date().toISOString()
+        })
         .eq('user_id', userId)
         .eq('item_id', itemId)
         .select()
         .single();
 
-      if (error) throw new Error(`Database error updating quantity: ${error.message}`);
+      if (error) throw error;
       return NextResponse.json(data);
     } else {
-      // Delete item completely
-      const { error } = await supabaseServer
+      const { error } = await supabase
         .from('inventory_items')
         .delete()
         .eq('user_id', userId)
         .eq('item_id', itemId);
 
-      if (error) throw new Error(`Database error deleting item: ${error.message}`);
-      return NextResponse.json({ message: 'Item removed' });
+      if (error) throw error;
+      return NextResponse.json({ success: true, message: 'Item removed' });
     }
   } catch (error: any) {
     logger.error('[Inventory API] DELETE Error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-} 
+}
