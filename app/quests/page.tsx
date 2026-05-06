@@ -2038,37 +2038,37 @@ export default function QuestsPage() {
     <div className="min-h-screen quests-page-container pb-20">
 
 
-        <HeaderSection
-          title={TEXT_CONTENT.questBoard.header.title}
-          subtitle={TEXT_CONTENT.questBoard.header.subtitle}
-          imageSrc="/images/quests-header.webp"
-          defaultBgColor="bg-amber-900"
-          shouldRevealImage={true}
-          guideComponent={
-            <PageGuide
-              title={TEXT_CONTENT.questBoard.header.guide.title}
-              subtitle={TEXT_CONTENT.questBoard.header.guide.subtitle}
-              sections={[
-                {
-                  title: TEXT_CONTENT.questBoard.header.guide.sections.daily.title,
-                  icon: CheckCircle2,
-                  content: TEXT_CONTENT.questBoard.header.guide.sections.daily.content
-                },
-                {
-                  title: TEXT_CONTENT.questBoard.header.guide.sections.epic.title,
-                  icon: Zap,
-                  content: TEXT_CONTENT.questBoard.header.guide.sections.epic.content
-                },
-                {
-                  title: TEXT_CONTENT.questBoard.header.guide.sections.milestones.title,
-                  icon: Trophy,
-                  content: TEXT_CONTENT.questBoard.header.guide.sections.milestones.content
-                }
-              ]}
-            />
-          }
-        />
         <MobileLayoutWrapper className="quests-page-container">
+          <HeaderSection
+            title={TEXT_CONTENT.questBoard.header.title}
+            subtitle={TEXT_CONTENT.questBoard.header.subtitle}
+            imageSrc="/images/quests-header.webp"
+            defaultBgColor="bg-amber-900"
+            shouldRevealImage={true}
+            guideComponent={
+              <PageGuide
+                title={TEXT_CONTENT.questBoard.header.guide.title}
+                subtitle={TEXT_CONTENT.questBoard.header.guide.subtitle}
+                sections={[
+                  {
+                    title: TEXT_CONTENT.questBoard.header.guide.sections.daily.title,
+                    icon: CheckCircle2,
+                    content: TEXT_CONTENT.questBoard.header.guide.sections.daily.content
+                  },
+                  {
+                    title: TEXT_CONTENT.questBoard.header.guide.sections.epic.title,
+                    icon: Zap,
+                    content: TEXT_CONTENT.questBoard.header.guide.sections.epic.content
+                  },
+                  {
+                    title: TEXT_CONTENT.questBoard.header.guide.sections.milestones.title,
+                    icon: Trophy,
+                    content: TEXT_CONTENT.questBoard.header.guide.sections.milestones.content
+                  }
+                ]}
+              />
+            }
+          />
           <MobileContentWrapper>
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
