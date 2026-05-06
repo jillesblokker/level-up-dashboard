@@ -1366,7 +1366,7 @@ function RealmPageContent() {
                     />
                 )}
                 {/* Full Width Map Area - Part of the document flow to allow scrolling */}
-                <div className="relative w-full min-h-[calc(100vh-60px)] h-auto z-0 bg-gray-900 overflow-hidden">
+                <div className="relative w-full min-h-[calc(100vh-60px)] z-0 bg-gray-900 overflow-hidden">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}
