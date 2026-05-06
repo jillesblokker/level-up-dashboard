@@ -75,6 +75,7 @@ const KingdomGridWithTimers = dynamic(() => import("@/components/kingdom-grid-wi
 const KingdomPropertiesInventory = dynamic(() => import("@/components/kingdom-properties-inventory").then(m => m.KingdomPropertiesInventory), { ssr: false });
 const KingdomTileGrid = dynamic(() => import("@/components/kingdom-tile-grid").then(m => m.KingdomTileGrid), { ssr: false });
 const KingdomGuide = dynamic(() => import("@/components/kingdom/kingdom-guide").then(m => m.KingdomGuide), { ssr: false });
+import { KingdomBonusesBlock } from "@/components/kingdom/kingdom-bonuses-block";
 
 
 const ProgressionVisualization = dynamic(
@@ -1683,8 +1684,32 @@ export function KingdomClient() {
                 <CardContent>
                   {journeyStats.dungeonRuns.length > 0 ? (
                     <div className="space-y-4">
-                      {journeyStats.dungeonRuns.map((run: any) => (
-                        <div key={run.id} className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg border border-amber-900/10">
+                      {journeyStats.dungeonRuns.map((run: any) => {
+                        // Calculate highest rarity for visual effects
+                        let highestRarity = 'common';
+                        const rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+                        
+                        if (run.loot_obtained && Array.isArray(run.loot_obtained)) {
+                          run.loot_obtained.forEach((l: any) => {
+                            if (l.type === 'item' && l.itemId) {
+                              const item = comprehensiveItems.find(i => i.id === l.itemId);
+                              if (item && rarities.indexOf(item.rarity) > rarities.indexOf(highestRarity)) {
+                                highestRarity = item.rarity;
+                              }
+                            }
+                          });
+                        }
+
+                        const rarityGlows: Record<string, string> = {
+                          legendary: 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)] bg-yellow-900/10',
+                          epic: 'border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.3)] bg-purple-900/10',
+                          rare: 'border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)] bg-blue-900/10',
+                          uncommon: 'border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.1)] bg-green-900/5',
+                          common: 'border-amber-900/10 bg-zinc-900/50'
+                        };
+
+                        return (
+                          <div key={run.id} className={cn("flex items-center justify-between p-3 rounded-lg border transition-all duration-300", rarityGlows[highestRarity])}>
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-amber-900/20 rounded-full flex items-center justify-center border border-amber-900/30">
                               <Sword className="w-5 h-5 text-amber-600" />
@@ -1712,6 +1737,22 @@ export function KingdomClient() {
                               <span className="text-yellow-500">+{run.gold_earned}g</span>
                               <span className="text-blue-400">+{run.xp_earned}xp</span>
                             </div>
+                            {/* Loot Visualization */}
+                            {run.loot_obtained && Array.isArray(run.loot_obtained) && run.loot_obtained.filter((l: any) => l.type === 'item').length > 0 && (
+                              <div className="flex -space-x-1 overflow-hidden mt-1">
+                                {run.loot_obtained.filter((l: any) => l.type === 'item').map((lootItem: any, idx: number) => (
+                                  <div 
+                                    key={idx} 
+                                    className="w-6 h-6 rounded-full border border-amber-900/50 bg-gray-950 flex items-center justify-center p-0.5"
+                                    title={lootItem.name}
+                                  >
+                                    <span className="text-[10px] leading-none" role="img" aria-label={lootItem.name}>
+                                      {lootItem.emoji || (lootItem.name?.toLowerCase().includes('sword') ? '⚔️' : lootItem.name?.toLowerCase().includes('potion') ? '🧪' : '📦')}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -1723,6 +1764,11 @@ export function KingdomClient() {
                   )}
                 </CardContent>
               </Card>
+              {/* Kingdom Passive Bonuses */}
+              <div className="mb-6">
+                <KingdomBonusesBlock grid={kingdomGrid} />
+              </div>
+              
               {/* Kingdom Stats and Gains - Most Important for Kingdom Page */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="w-full" aria-label="kingdom-stats-block-container">

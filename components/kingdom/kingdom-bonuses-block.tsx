@@ -1,0 +1,59 @@
+"use client"
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Shield, Brain, Heart, Sword, TrendingUp, Coins } from 'lucide-react';
+import { calculateKingdomBonuses, KingdomBonuses } from '@/lib/kingdom-utils';
+import { Tile } from '@/types/core-interfaces';
+import { cn } from '@/lib/utils';
+
+interface KingdomBonusesBlockProps {
+    grid: Tile[][];
+    className?: string;
+}
+
+export function KingdomBonusesBlock({ grid, className }: KingdomBonusesBlockProps) {
+    const [bonuses, setBonuses] = useState<KingdomBonuses | null>(null);
+
+    useEffect(() => {
+        if (grid && grid.length > 0) {
+            setBonuses(calculateKingdomBonuses(grid));
+        }
+    }, [grid]);
+
+    if (!bonuses) return null;
+
+    const bonusItems = [
+        { label: 'Might Bonus', value: bonuses.strength, icon: Sword, color: 'text-red-400', bg: 'bg-red-400/10' },
+        { label: 'Intelligence Bonus', value: bonuses.intelligence, icon: Brain, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+        { label: 'Vitality Bonus', value: bonuses.vitality, icon: Heart, color: 'text-green-400', bg: 'bg-green-400/10' },
+        { label: 'XP Multiplier', value: `+${bonuses.xpBonusPercent}%`, icon: TrendingUp, color: 'text-purple-400', bg: 'bg-purple-400/10' },
+        { label: 'Gold Multiplier', value: `+${bonuses.goldBonusPercent}%`, icon: Coins, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+    ].filter(item => typeof item.value === 'number' ? item.value > 0 : parseInt(item.value) > 0);
+
+    if (bonusItems.length === 0) return null;
+
+    return (
+        <Card className={cn("bg-black/40 border-amber-900/30", className)}>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <Shield className="w-4 h-4" /> Kingdom Passive Bonuses
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {bonusItems.map((item, idx) => (
+                        <div key={idx} className={cn("p-3 rounded-lg border border-amber-900/10 flex flex-col items-center justify-center text-center gap-1", item.bg)}>
+                            <item.icon className={cn("w-5 h-5", item.color)} />
+                            <div className="text-lg font-bold text-white">{item.value}</div>
+                            <div className="text-[10px] uppercase text-zinc-500 font-medium">{item.label}</div>
+                        </div>
+                    ))}
+                </div>
+                <p className="text-[10px] text-zinc-500 mt-3 text-center italic">
+                    These bonuses are applied automatically to your character stats and dungeon rewards.
+                </p>
+            </CardContent>
+        </Card>
+    );
+}
