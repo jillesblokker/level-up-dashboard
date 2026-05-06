@@ -2038,7 +2038,7 @@ export default function QuestsPage() {
     <div className="min-h-screen quests-page-container pb-20">
 
 
-        <MobileLayoutWrapper className="quests-page-container">
+        <MobileLayoutWrapper className="quests-page-container" enableScroll={false}>
           <HeaderSection
             title={TEXT_CONTENT.questBoard.header.title}
             subtitle={TEXT_CONTENT.questBoard.header.subtitle}
