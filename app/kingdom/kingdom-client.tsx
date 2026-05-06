@@ -1755,8 +1755,9 @@ export function KingdomClient() {
                             )}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
+                  </div>
                   ) : (
                     <div className="text-center py-8 text-zinc-500">
                       <p>No dungeon conquests recorded yet.</p>
