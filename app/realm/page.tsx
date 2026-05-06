@@ -197,6 +197,56 @@ function RealmPageContent() {
         animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
         animalName: string;
     } | null>(null);
+    const [availableFood, setAvailableFood] = useState<any[]>([]);
+
+    const fetchFoodForAnimal = useCallback(async () => {
+        try {
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/inventory?category=food');
+            if (res.ok) {
+                const data = await res.json();
+                setAvailableFood(data.data || []);
+            }
+        } catch (err) {
+            logger.error('Failed to fetch food for animal:', err);
+        }
+    }, []);
+
+    const handleAnimalFeed = async (animalType: string, itemId: string) => {
+        try {
+            const defId = animalType === 'sheep' ? '901' : animalType === 'horse' ? '902' : '903';
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/creatures/interact', {
+                method: 'POST',
+                body: JSON.stringify({
+                    definitionId: defId,
+                    action: 'feed',
+                    itemId
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                toast({
+                    title: "🍎 Animal Fed!",
+                    description: data.message,
+                });
+                setAnimalInteractionModal(null);
+                // Refresh character stats to show buff if we add that later
+                window.dispatchEvent(new CustomEvent('character-stats-update'));
+            } else {
+                toast({ title: "Error", description: "Failed to feed animal", variant: "destructive" });
+            }
+        } catch (err) {
+            logger.error('Error feeding animal:', err);
+        }
+    };
+
+    useEffect(() => {
+        if (animalInteractionModal?.isOpen) {
+            fetchFoodForAnimal();
+        }
+    }, [animalInteractionModal?.isOpen, fetchFoodForAnimal]);
 
     const {
         horsePos, eaglePos, isHorsePresent, isPenguinPresent, penguinPos,
@@ -1362,6 +1412,8 @@ function RealmPageContent() {
                         onClose={() => setAnimalInteractionModal(null)}
                         animalType={animalInteractionModal.animalType}
                         animalName={animalInteractionModal.animalName}
+                        availableFood={availableFood}
+                        onFeed={(itemId) => handleAnimalFeed(animalInteractionModal.animalType, itemId)}
                         onInteract={() => handleAnimalInteraction(animalInteractionModal.animalType)}
                     />
                 )}

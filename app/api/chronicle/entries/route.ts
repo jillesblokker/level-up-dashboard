@@ -73,7 +73,39 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        return NextResponse.json(data);
+        // --- NEW: SENTIMENT ANALYSIS & BUFFS ---
+        const contentLower = content.toLowerCase();
+        const keywords = {
+            Might: ['strong', 'power', 'warrior', 'fight', 'train', 'victory', 'sword', 'muscle'],
+            Intelligence: ['think', 'read', 'study', 'learn', 'wisdom', 'magic', 'scroll', 'mind', 'book'],
+            Vitality: ['rest', 'sleep', 'eat', 'food', 'healthy', 'vital', 'nature', 'health', 'heart']
+        };
+
+        const activeBuffs: string[] = [];
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 12);
+
+        for (const [buffName, list] of Object.entries(keywords)) {
+            const count = list.filter(word => contentLower.includes(word)).length;
+            if (count >= 2) { // Need at least 2 keywords to trigger
+                await client.from('active_modifiers').upsert({
+                    user_id: userId,
+                    name: `${buffName} Focus`,
+                    effect: `+5 ${buffName} from your Chronicle entry`,
+                    expires_at: expiresAt.toISOString(),
+                    source: 'Chronicle Sentiment'
+                }, { onConflict: 'user_id,name' });
+                activeBuffs.push(buffName);
+            }
+        }
+
+        return NextResponse.json({ 
+            ...data, 
+            activeBuffs,
+            message: activeBuffs.length > 0 
+                ? `Reflection complete! Your focus on ${activeBuffs.join(' & ')} has granted you a temporary buff.` 
+                : 'Reflection recorded.'
+        });
 
     } catch (error) {
         logger.error('[API/chronicle] Internal Error:', error);

@@ -98,12 +98,21 @@ export async function POST(req: NextRequest) {
             }
 
             // 3. Mark as complete
+            const currentHour = new Date().getHours();
+            const isDay = currentHour >= 6 && currentHour < 18;
+            
             const difficultyRewards: Record<string, { xp: number; gold: number }> = {
                 easy: { xp: 25, gold: 25 },
                 medium: { xp: 50, gold: 50 },
                 hard: { xp: 100, gold: 100 }
             };
-            const rewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
+            const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
+            
+            // Apply Time-of-Day Bonuses
+            const finalRewards = {
+                gold: isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold,
+                xp: !isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp
+            };
 
             const { error: insertError } = await supabase
                 .from('quest_completion')
@@ -112,8 +121,10 @@ export async function POST(req: NextRequest) {
                     user_id: userId,
                     completed: true,
                     completed_at: new Date().toISOString(),
-                    xp_earned: rewards.xp,
-                    gold_earned: rewards.gold
+                    xp_earned: finalRewards.xp,
+                    gold_earned: finalRewards.gold,
+                    is_day_bonus: isDay,
+                    is_night_bonus: !isDay
                 });
 
             if (insertError) {
@@ -126,11 +137,11 @@ export async function POST(req: NextRequest) {
             // 4. Update Character Stats
             await supabase.rpc('grant_rewards', {
                 p_user_id: userId,
-                p_gold: rewards.gold,
-                p_xp: rewards.xp
+                p_gold: finalRewards.gold,
+                p_xp: finalRewards.xp
             });
 
-            return { success: true, completed: true, rewards };
+            return { success: true, completed: true, rewards: finalRewards, bonusType: isDay ? 'Day (Gold)' : 'Night (XP)' };
         });
 
         if (!result.success) {

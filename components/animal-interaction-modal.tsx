@@ -23,6 +23,8 @@ interface AnimalInteractionModalProps {
   animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
   animalName: string;
   onInteract: () => void;
+  availableFood?: Array<{ id: string; name: string }>;
+  onFeed: (itemId: string) => void;
 }
 
 export function AnimalInteractionModal({
@@ -31,6 +33,8 @@ export function AnimalInteractionModal({
   animalType,
   animalName,
   onInteract,
+  availableFood,
+  onFeed,
 }: AnimalInteractionModalProps) {
   const [isInteracting, setIsInteracting] = useState(false);
 
@@ -214,19 +218,37 @@ export function AnimalInteractionModal({
         </div>
 
         {/* Action buttons */}
-        <DialogFooter className="relative z-10 flex flex-row gap-3 mt-4">
+        <DialogFooter className="relative z-10 flex flex-col sm:flex-row gap-3 mt-4">
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="flex-1 h-12 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-xl"
+            className="flex-1 h-12 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-xl order-3 sm:order-1"
           >
             Leave Alone
           </Button>
+          
+          {availableFood && availableFood.length > 0 && (
+            <Button
+              onClick={() => {
+                const firstFood = availableFood[0];
+                if (firstFood) onFeed(firstFood.id);
+              }}
+              disabled={isInteracting}
+              className={cn(
+                "flex-1 h-12 text-white shadow-lg gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 order-2",
+                isInteracting && "opacity-70"
+              )}
+            >
+              <span className="text-lg">🍎</span>
+              Feed {availableFood[0]?.name || 'Animal'}
+            </Button>
+          )}
+
           <Button
             onClick={handleInteract}
             disabled={isInteracting}
             className={cn(
-              "flex-1 h-12 text-white shadow-lg gap-2 rounded-xl",
+              "flex-1 h-12 text-white shadow-lg gap-2 rounded-xl order-1 sm:order-3",
               style.button,
               isInteracting && "opacity-70"
             )}

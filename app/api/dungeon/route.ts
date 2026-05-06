@@ -72,7 +72,18 @@ export async function POST(req: NextRequest) {
             // previously deducted 50 gold here
 
 
-            // 3. Create Run
+            // 3. Check for Luck Modifiers
+            const now = new Date().toISOString();
+            const { data: modifiers } = await supabaseServer
+                .from('active_modifiers')
+                .select('*')
+                .eq('user_id', userId)
+                .gt('expires_at', now);
+
+            const animalLuck = modifiers?.find(m => m.name === 'Animal Luck');
+            const luckMultiplier = animalLuck ? 1.5 : 1.0;
+
+            // 4. Create Run
             // Base HP = 100 + ((Vitality + Bonus) * 10)
             const { data: equippedItems } = await supabaseServer
                 .from('inventory_items')
@@ -90,7 +101,7 @@ export async function POST(req: NextRequest) {
             const totalVitality = (stats?.vitality || 1) + bonuses.vitality;
             const maxHp = 100 + (totalVitality * 10) + equipHealth;
 
-            const firstEncounter = generateEncounter(1);
+            const firstEncounter = generateEncounter(1, luckMultiplier);
 
             const { data: newRun, error } = await supabaseServer
                 .from('dungeon_runs')
@@ -116,6 +127,16 @@ export async function POST(req: NextRequest) {
         // --- ACTION: PLAY TURN (FIGHT/FLEE/OPEN/USE_ITEM) ---
         if (action === 'play') {
             if (!runId) throw new Error('Missing runId');
+
+            const now = new Date().toISOString();
+            const { data: modifiers } = await supabaseServer
+                .from('active_modifiers')
+                .select('*')
+                .eq('user_id', userId)
+                .gt('expires_at', now);
+
+            const animalLuck = modifiers?.find(m => m.name === 'Animal Luck');
+            const luckMultiplier = animalLuck ? 1.5 : 1.0;
 
             // 1. Fetch Run
             const { data: run } = await supabaseServer
@@ -221,7 +242,7 @@ export async function POST(req: NextRequest) {
                     if (encounter.hp <= 0) {
                         isRoomCleared = true;
                         resultMessage += ' Monster defeated!';
-                        lootFound = generateLoot(run.current_room);
+                        lootFound = generateLoot(run.current_room, luckMultiplier);
                     }
                 } else if (choice === 'flee') {
                     // --- Flee ---
@@ -238,7 +259,7 @@ export async function POST(req: NextRequest) {
 
             } else if (encounter.type === 'treasure') {
                 isRoomCleared = true;
-                lootFound = generateLoot(run.current_room);
+                lootFound = generateLoot(run.current_room, luckMultiplier);
                 resultMessage = 'You found treasure!';
             }
 
@@ -262,7 +283,7 @@ export async function POST(req: NextRequest) {
                     newLoot.push({ type: 'gold', amount: 500, name: 'Completion Bonus' });
                 } else {
                     newRoom++;
-                    newEncounter = generateEncounter(newRoom);
+                    newEncounter = generateEncounter(newRoom, luckMultiplier);
                     resultMessage += ' Proceeding to next room...';
                 }
             }
@@ -304,8 +325,8 @@ export async function POST(req: NextRequest) {
     }
 }
 
-function generateEncounter(roomLevel: number): Encounter {
-    const isTreasure = Math.random() < 0.2; // 20% chance of treasure
+function generateEncounter(roomLevel: number, luckMultiplier: number = 1.0): Encounter {
+    const isTreasure = Math.random() < (0.2 * luckMultiplier); // Increased chance of treasure
     if (isTreasure) {
         return { type: 'treasure' };
     }
@@ -318,8 +339,8 @@ function generateEncounter(roomLevel: number): Encounter {
     };
 }
 
-function generateLoot(roomLevel: number): Loot | null {
-    if (Math.random() > 0.3) return null; // 30% chance of loot
+function generateLoot(roomLevel: number, luckMultiplier: number = 1.0): Loot | null {
+    if (Math.random() > (0.3 * luckMultiplier)) return null; // Increased chance of loot
 
     // Generate Items instead of just gold
     const possibleItems = comprehensiveItems.filter(i => {
@@ -332,9 +353,9 @@ function generateLoot(roomLevel: number): Loot | null {
         const item = possibleItems[Math.floor(Math.random() * possibleItems.length)]!;
 
         // Roll for Star Rating
-        const roll = Math.random();
+        const roll = Math.random() / luckMultiplier; // Luck makes high rolls easier
         let stars = 0;
-        if (roll < 0.01) stars = 3;      // 1% Radiant
+        if (roll < 0.01) stars = 3;      // 1% Radiant (effectively higher with luck)
         else if (roll < 0.05) stars = 2; // 4% Gleaming
         else if (roll < 0.15) stars = 1; // 10% Polished
 

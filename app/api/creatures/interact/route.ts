@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { instanceId, definitionId } = body;
+        const { instanceId, definitionId, action, itemId } = body;
 
         if (!definitionId) {
             return NextResponse.json({ error: 'Missing definitionId' }, { status: 400 });
@@ -25,6 +25,56 @@ export async function POST(request: NextRequest) {
         const def = CREATURE_DEFINITIONS[definitionId];
         if (!def) {
             return NextResponse.json({ error: 'Invalid creature definition' }, { status: 400 });
+        }
+
+        // --- NEW: FEEDING LOGIC ---
+        if (action === 'feed') {
+            if (!itemId) return NextResponse.json({ error: 'Missing itemId for feeding' }, { status: 400 });
+
+            // 1. Check Inventory for the food item
+            const { data: item, error: itemError } = await supabase
+                .from('inventory_items')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('item_id', itemId)
+                .single();
+
+            if (itemError || !item || item.quantity <= 0) {
+                return NextResponse.json({ error: 'You do not have this food item' }, { status: 400 });
+            }
+
+            // 2. Deduct Item
+            if (item.quantity > 1) {
+                await supabase.from('inventory_items').update({ quantity: item.quantity - 1 }).eq('id', item.id);
+            } else {
+                await supabase.from('inventory_items').delete().eq('id', item.id);
+            }
+
+            // 3. Grant Luck Modifier
+            const expiresAt = new Date();
+            expiresAt.setHours(expiresAt.getHours() + 24);
+
+            await supabase.from('active_modifiers').upsert({
+                user_id: userId,
+                name: 'Animal Luck',
+                effect: 'Increases chance of rare loot in dungeons by 20%',
+                expires_at: expiresAt.toISOString(),
+                source: `Fed ${def.name}`
+            }, { onConflict: 'user_id,name' });
+
+            // 4. Record Interaction
+            await supabase.from('creature_interactions').insert({
+                user_id: userId,
+                creature_definition_id: definitionId,
+                creature_instance_id: instanceId,
+                interaction_type: 'feed'
+            });
+
+            return NextResponse.json({
+                message: `You fed the ${def.name}. It seems very happy! You gained 'Animal Luck' for 24 hours.`,
+                fed: true,
+                expiresAt: expiresAt.toISOString()
+            });
         }
 
         // Logic Check: Is it an animal that gives rewards? (Sheep or Penguin)
