@@ -986,11 +986,10 @@ export default function QuestsPage() {
       )
     );
 
-    // 🎯 CRITICAL FIX: Apply rewards when completing quest
-    if (newCompleted) {
-      const goldReward = questObj.gold || 50;
-      const xpReward = questObj.xp || 25;
+    const goldReward = questObj.gold || 50;
+    const xpReward = questObj.xp || 25;
 
+    if (newCompleted) {
       logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
       // Apply rewards using unified service
@@ -1009,8 +1008,8 @@ export default function QuestsPage() {
         body: JSON.stringify({
           questId,
           completed: newCompleted,
-          xpReward: questObj.xp || 50,
-          goldReward: questObj.gold || 25
+          xpReward,
+          goldReward
         })
       });
 

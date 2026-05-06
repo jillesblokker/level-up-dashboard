@@ -53,7 +53,7 @@ export function createLiveRegion(): HTMLElement {
 /**
  * Announce message to screen readers
  */
-export function announceToScreenReader(message: string) {
+export const announceToScreenReader = (message: string) => {
   let liveRegion = document.getElementById('live-region')
   if (!liveRegion) {
     liveRegion = createLiveRegion()
