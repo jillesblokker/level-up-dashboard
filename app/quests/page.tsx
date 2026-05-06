@@ -996,6 +996,7 @@ export default function QuestsPage() {
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
       addToCharacterStat('experience', xpReward, `quest-completion:${questId}`);
+    }
 
     // Persist quest completion to backend using the smart-completion API
     try {
