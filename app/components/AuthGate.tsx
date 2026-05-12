@@ -7,7 +7,13 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, isLoaded } = useUser();
   
   if (!isLoaded) {
-    return <LoadingScreen message="Unlocking the Kingdom..." />;
+    return (
+      <LoadingScreen 
+        title="Unlocking the Kingdom..." 
+        content="The guards are verifying your credentials. Please wait by the gate."
+        variant="blue"
+      />
+    );
   }
   
   if (!user) {
