@@ -8,11 +8,11 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   
   if (!isLoaded) {
     return (
-      <LoadingScreen 
-        title="Unlocking the Kingdom..." 
-        content="The guards are verifying your credentials. Please wait by the gate."
-        variant="blue"
-      />
+      <div className="fixed inset-0 bg-black flex items-center justify-center z-[9999]">
+        <div className="text-amber-500 font-medieval text-2xl animate-pulse">
+          Unlocking the Kingdom...
+        </div>
+      </div>
     );
   }
   

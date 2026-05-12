@@ -295,26 +295,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 export function useOnboarding() {
     const context = useContext(OnboardingContext)
     if (context === undefined) {
-        // Return a stable fallback state instead of throwing during SSR
-        // This prevents the whole app from crashing if used in layout components
-        return {
-            onboardingState: {
-                hasCompletedOnboarding: false,
-                hasSkippedOnboarding: false,
-                hasHiddenGateway: false,
-                lastShownAt: null
-            },
-            isOnboardingOpen: false,
-            showGateway: false,
-            shouldShowOnboarding: () => false,
-            openOnboarding: () => {},
-            closeOnboarding: () => {},
-            completeOnboarding: () => {},
-            skipOnboarding: () => {},
-            hideGateway: () => {},
-            resetOnboarding: () => {},
-            debugOnboardingState: () => {}
-        }
+        throw new Error('useOnboarding must be used within an OnboardingProvider')
     }
     return context
 }
