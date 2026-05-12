@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { getCharacterStats } from '@/lib/character-stats-service';
@@ -287,7 +287,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     setShowModal(true);
   }, []);
 
-  const value: TitleEvolutionContextType = React.useMemo(() => ({
+  const value: TitleEvolutionContextType = useMemo(() => ({
     showModal,
     evolution,
     closeModal,
