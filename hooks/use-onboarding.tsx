@@ -252,7 +252,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         }
     }, [onboardingState, user])
 
-    const contextValue = useMemo(() => ({
+    const contextValue = {
         onboardingState,
         isOnboardingOpen,
         showGateway,
@@ -264,19 +264,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         hideGateway,
         resetOnboarding,
         debugOnboardingState
-    }), [
-        onboardingState,
-        isOnboardingOpen,
-        showGateway,
-        shouldShowOnboarding,
-        openOnboarding,
-        closeOnboarding,
-        completeOnboarding,
-        skipOnboarding,
-        hideGateway,
-        resetOnboarding,
-        debugOnboardingState
-    ])
+    }
 
     return (
         <OnboardingContext.Provider value={contextValue}>

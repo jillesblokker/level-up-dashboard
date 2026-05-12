@@ -287,7 +287,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     setShowModal(true);
   }, []);
 
-  const value: TitleEvolutionContextType = useMemo(() => ({
+  const value: TitleEvolutionContextType = {
     showModal,
     evolution,
     closeModal,
@@ -301,21 +301,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     triggerTestModal8,
     triggerTestModal9,
     triggerTestModal10
-  }), [
-    showModal,
-    evolution,
-    closeModal,
-    triggerTestModal,
-    triggerTestModal2,
-    triggerTestModal3,
-    triggerTestModal4,
-    triggerTestModal5,
-    triggerTestModal6,
-    triggerTestModal7,
-    triggerTestModal8,
-    triggerTestModal9,
-    triggerTestModal10
-  ]);
+  };
 
   return (
     <TitleEvolutionContext.Provider value={value}>
