@@ -44,6 +44,17 @@ export function AnimalInteractionModal({
   onFeed,
 }: AnimalInteractionModalProps) {
   const [isInteracting, setIsInteracting] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const getAnimalEmoji = () => {
+    switch (animalType) {
+      case 'horse':   return '🐴';
+      case 'sheep':   return '🐑';
+      case 'penguin': return '🐧';
+      case 'eagle':   return '🦅';
+      default:        return '🐾';
+    }
+  };
 
   const handleInteract = async () => {
     setIsInteracting(true);
@@ -173,15 +184,22 @@ export function AnimalInteractionModal({
             />
             {/* Portrait circle */}
             <div className={cn("relative w-40 h-40 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 group-hover:scale-105 transition-transform duration-500", style.border)}>
-              <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
-                <Image
-                  src={getAnimalImage()}
-                  alt={`${animalName} animal`}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
+              <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center">
+                {imageError ? (
+                  <span className="text-7xl select-none" role="img" aria-label={animalName}>
+                    {getAnimalEmoji()}
+                  </span>
+                ) : (
+                  <Image
+                    src={getAnimalImage()}
+                    alt={animalName}
+                    fill
+                    className="object-cover"
+                    priority
+                    onError={() => setImageError(true)}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 pointer-events-none" />
               </div>
             </div>
             {/* Sparkle decorations */}
