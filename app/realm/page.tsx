@@ -130,14 +130,6 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
 // (Moved to realm-utils.ts)
 
 export default function RealmPage() {
-    return (
-        <React.Suspense fallback={<RealmLoading />}>
-            <RealmPageContent />
-        </React.Suspense>
-    );
-}
-
-function RealmPageContent() {
     const { toast } = useToast();
     const { user, isLoaded: isClerkLoaded } = useUser();
     const { getToken } = useAuth();

@@ -36,6 +36,11 @@ interface OnboardingProviderProps {
 }
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     const [onboardingState, setOnboardingState] = useState<OnboardingState>({
         hasCompletedOnboarding: false,
         hasSkippedOnboarding: false,
@@ -272,11 +277,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         resetOnboarding,
         debugOnboardingState
     ])
-
-    const [mounted, setMounted] = useState(false)
-    useEffect(() => {
-        setMounted(true)
-    }, [])
 
     return (
         <OnboardingContext.Provider value={contextValue}>
