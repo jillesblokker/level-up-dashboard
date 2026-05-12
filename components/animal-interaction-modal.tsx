@@ -1,7 +1,6 @@
 'use client'
 
 import { logger } from "@/lib/logger";
-;
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,14 @@ interface AnimalInteractionModalProps {
   onFeed: (itemId: string) => void;
 }
 
+/** Converts a raw filename like "fish-red.webp" into "Fish Red" */
+function formatFoodName(raw: string): string {
+  return raw
+    .replace(/\.[^/.]+$/, '')        // strip extension
+    .replace(/[-_]/g, ' ')            // dashes → spaces
+    .replace(/\b\w/g, c => c.toUpperCase()); // Title Case
+}
+
 export function AnimalInteractionModal({
   isOpen,
   onClose,
@@ -50,21 +57,14 @@ export function AnimalInteractionModal({
     }
   };
 
-  const handleCancel = () => {
-    onClose();
-  };
-
   const getAnimalImage = (): string => {
-    // Use specific horse images from the horse folder
     if (animalType === 'horse') {
       const horseImages: string[] = [
         '/images/items/horse/horse-stelony.webp',
         '/images/items/horse/horse-perony.webp',
         '/images/items/horse/horse-felony.webp'
       ];
-      // Randomly select one of the horse images
-      const randomIndex = Math.floor(Math.random() * horseImages.length);
-      return horseImages[randomIndex]!; // Use non-null assertion since we know the array has elements
+      return horseImages[Math.floor(Math.random() * horseImages.length)]!;
     }
     return `/images/Animals/${animalType}.webp`;
   };
@@ -72,13 +72,13 @@ export function AnimalInteractionModal({
   const getAnimalDescription = () => {
     switch (animalType) {
       case 'horse':
-        return "A magnificent wild horse grazes nearby. Its coat shimmers in the sunlight, and there's a spark of untamed spirit in its eyes. Perhaps with patience, it could become a loyal companion.";
+        return "A magnificent wild horse grazes nearby. Its coat shimmers in the sunlight, and there's a spark of untamed spirit in its eyes.";
       case 'sheep':
         return "A fluffy sheep looks up at you with curious, gentle eyes. Its wool is thick and pristine—a valuable find for any traveler.";
       case 'penguin':
         return "An adorable penguin waddles across the ice with comical determination. It seems friendly and eager to play!";
       case 'eagle':
-        return "A majestic eagle surveys its domain from above. Its piercing gaze suggests ancient wisdom. If you could earn its trust...";
+        return "A majestic eagle surveys its domain from above. Its piercing gaze suggests ancient wisdom.";
       default:
         return "You've encountered a wild creature!";
     }
@@ -86,20 +86,14 @@ export function AnimalInteractionModal({
 
   const getActionButtonText = () => {
     switch (animalType) {
-      case 'horse':
-        return "Attempt to Tame";
-      case 'sheep':
-        return "Pet the Sheep";
-      case 'penguin':
-        return "Play with Penguin";
-      case 'eagle':
-        return "Call the Eagle";
-      default:
-        return "Interact";
+      case 'horse':   return 'Tame';
+      case 'sheep':   return 'Pet';
+      case 'penguin': return 'Play';
+      case 'eagle':   return 'Call';
+      default:        return 'Interact';
     }
   };
 
-  // Get biome-specific styling
   const getBiomeStyle = () => {
     switch (animalType) {
       case 'horse':
@@ -142,48 +136,43 @@ export function AnimalInteractionModal({
   };
 
   const style = getBiomeStyle();
+  const firstFood = availableFood?.[0];
+  const foodLabel = firstFood ? formatFoodName(firstFood.name || firstFood.id) : null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "sm:max-w-md overflow-hidden shadow-2xl",
+          // Fixed width so it never spills off-screen; padding keeps content inside
+          "w-[min(90vw,400px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl",
           `bg-gradient-to-b ${style.gradient} ${style.border} ${style.shadow}`
         )}
         role="dialog"
         aria-label="animal-interaction-modal"
       >
-        {/* Background Glow */}
+        {/* Hidden a11y header */}
+        <DialogHeader className="sr-only">
+          <DialogTitle>{animalName}</DialogTitle>
+          <DialogDescription>Wild animal encounter</DialogDescription>
+        </DialogHeader>
+
+        {/* Background glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className={cn("absolute top-1/4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl opacity-20", style.accentBg)} />
         </div>
 
-        <DialogHeader className="relative z-10 sr-only">
-          <DialogDescription id="animal-interaction-modal-desc">Wild animal encounter</DialogDescription>
-        </DialogHeader>
-
-        {/* Animal Display */}
-        <div className="relative z-10 flex flex-col items-center py-8">
-          {/* Decorative Outer Ring */}
+        {/* ── Animal portrait ── */}
+        <div className="relative z-10 flex flex-col items-center pt-10 pb-6 px-6">
           <div className="relative group">
-            {/* Pulsing Outer Glow */}
-            <div className={cn(
-              "absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20",
-              style.accentBg
-            )} />
-
-            {/* Rotating Decorative Border */}
-            <div className={cn(
-              "absolute -inset-4 border border-dashed rounded-full animate-spin-slow opacity-30",
-              style.accent
-            )} style={{ animationDuration: '15s' }} />
-
-            {/* Main Image Container */}
-            <div className={cn(
-              "relative w-48 h-48 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 group-hover:scale-105 transition-transform duration-500",
-              style.border
-            )}>
-              {/* Inner clipped container for the image */}
+            {/* Pulsing glow */}
+            <div className={cn("absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20", style.accentBg)} />
+            {/* Rotating ring */}
+            <div
+              className={cn("absolute -inset-4 border border-dashed rounded-full opacity-30", style.accent)}
+              style={{ animation: 'spin 15s linear infinite' }}
+            />
+            {/* Portrait circle */}
+            <div className={cn("relative w-40 h-40 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 group-hover:scale-105 transition-transform duration-500", style.border)}>
               <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
                 <Image
                   src={getAnimalImage()}
@@ -192,80 +181,67 @@ export function AnimalInteractionModal({
                   className="object-cover"
                   priority
                 />
-                {/* Subtle overlay to integrate with dark theme */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
               </div>
             </div>
-
-            {/* Sparkle decorations attached to the ring */}
-            <div className="absolute -top-4 -right-4">
-              <Sparkles className={cn("w-6 h-6 animate-pulse opacity-60", style.accent)} />
-            </div>
-            <div className="absolute -bottom-2 -left-4">
-              <Wind className={cn("w-6 h-6 animate-pulse opacity-40", style.accent)} style={{ animationDelay: '0.5s' }} />
-            </div>
+            {/* Sparkle decorations */}
+            <Sparkles className={cn("absolute -top-3 -right-3 w-5 h-5 animate-pulse opacity-60", style.accent)} />
+            <Wind className={cn("absolute -bottom-2 -left-3 w-5 h-5 animate-pulse opacity-40", style.accent)} style={{ animationDelay: '0.5s' }} />
           </div>
-        </div>
 
-        {/* Title and description */}
-        <div className="relative z-10 text-center px-2">
-          <DialogTitle className={cn("text-2xl font-serif mb-2", style.accent)}>
+          {/* ── Name & description ── */}
+          <h2 className={cn("mt-6 text-2xl font-serif font-semibold text-center", style.accent)}>
             {animalName}
-          </DialogTitle>
-          <DialogDescription className="text-zinc-300/80 text-sm leading-relaxed">
+          </h2>
+          <p className="mt-2 text-zinc-300/80 text-sm leading-relaxed text-center">
             {getAnimalDescription()}
-          </DialogDescription>
+          </p>
         </div>
 
-        {/* Action buttons */}
-        <DialogFooter className="relative z-10 flex flex-col sm:flex-row gap-3 mt-4">
-          <Button
-            variant="ghost"
-            onClick={handleCancel}
-            className="flex-1 h-12 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-xl order-3 sm:order-1"
-          >
-            Leave Alone
-          </Button>
-          
-          {availableFood && availableFood.length > 0 && (
-            <Button
-              onClick={() => {
-                const firstFood = availableFood[0];
-                if (firstFood) onFeed(firstFood.id);
-              }}
-              disabled={isInteracting}
-              className={cn(
-                "flex-1 h-12 text-white shadow-lg gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 order-2",
-                isInteracting && "opacity-70"
-              )}
-            >
-              <span className="text-lg">🍎</span>
-              Feed {availableFood[0]?.name || 'Animal'}
-            </Button>
-          )}
-
+        {/* ── Action buttons ── */}
+        {/* Stack vertically on mobile, row on sm+ — but cap label length so they never overflow */}
+        <div className="relative z-10 flex flex-col gap-2 px-6 pb-6">
+          {/* Primary action */}
           <Button
             onClick={handleInteract}
             disabled={isInteracting}
             className={cn(
-              "flex-1 h-12 text-white shadow-lg gap-2 rounded-xl order-1 sm:order-3",
+              "w-full h-11 text-white rounded-xl gap-2 shadow-lg",
               style.button,
               isInteracting && "opacity-70"
             )}
           >
             {isInteracting ? (
-              <>
-                <Sparkles className="w-4 h-4 animate-spin" />
-                Approaching...
-              </>
+              <><Sparkles className="w-4 h-4 animate-spin" /> Approaching…</>
             ) : (
-              <>
-                <Heart className="w-4 h-4" />
-                {getActionButtonText()}
-              </>
+              <><Heart className="w-4 h-4" /> {getActionButtonText()}</>
             )}
           </Button>
-        </DialogFooter>
+
+          {/* Feed button — only shown when food is available */}
+          {firstFood && foodLabel && (
+            <Button
+              onClick={() => onFeed(firstFood.id)}
+              disabled={isInteracting}
+              className={cn(
+                "w-full h-11 text-white rounded-xl gap-2 bg-orange-600 hover:bg-orange-500 shadow-lg",
+                isInteracting && "opacity-70"
+              )}
+            >
+              <span className="text-base leading-none">🍎</span>
+              <span className="truncate">Feed {foodLabel}</span>
+            </Button>
+          )}
+
+          {/* Cancel */}
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="w-full h-10 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-xl"
+          >
+            Leave Alone
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
