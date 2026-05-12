@@ -122,9 +122,7 @@ export async function POST(req: NextRequest) {
                     completed: true,
                     completed_at: new Date().toISOString(),
                     xp_earned: finalRewards.xp,
-                    gold_earned: finalRewards.gold,
-                    is_day_bonus: isDay,
-                    is_night_bonus: !isDay
+                    gold_earned: finalRewards.gold
                 });
 
             if (insertError) {

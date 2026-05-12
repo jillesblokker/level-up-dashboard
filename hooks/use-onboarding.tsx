@@ -53,15 +53,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         setMounted(true)
     }, [])
 
-    // Debug: Log state changes
-    useEffect(() => {
-        smartLogger.debug('useOnboarding', 'STATE_CHANGED', {
-            isOnboardingOpen,
-            onboardingState,
-            timestamp: Date.now()
-        })
-    }, [isOnboardingOpen, onboardingState])
-
     // Load onboarding state from localStorage and Supabase
     useEffect(() => {
         // 1. Initial load from localStorage (fast/fallback)
