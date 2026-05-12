@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { getCharacterStats } from '@/lib/character-stats-service';
@@ -141,32 +141,27 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     })();
   }, [lastProcessedLevel, userId]);
 
-  const closeModal = useCallback(() => {
+  const closeModal = () => {
     setShowModal(false);
     // Persist the current evolution level as processed to prevent re-showing
     if (evolution?.level) {
       const newLevel = evolution.level;
-      setLastProcessedLevel(prev => {
-        const next = Math.max(prev, newLevel);
-        if (next !== prev) {
-           // Save remotely
-           if (userId) {
-             setUserPreference('title-evolution-last-processed', String(next)).catch(() => { });
-           }
-           // Fallback local storage
-           try {
-             if (typeof window !== 'undefined') {
-               localStorage.setItem('title-evolution-last-processed', String(next));
-             }
-           } catch { }
+      setLastProcessedLevel(prev => Math.max(prev, newLevel));
+      // Save remotely as well
+      if (userId) {
+        setUserPreference('title-evolution-last-processed', String(newLevel)).catch(() => { });
+      }
+      // Fallback local storage
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('title-evolution-last-processed', String(newLevel));
         }
-        return next;
-      });
+      } catch { }
     }
     setEvolution(null);
-  }, [evolution, userId]);
+  };
 
-  const triggerTestModal = useCallback(() => {
+  const triggerTestModal = () => {
     console.log('Triggering test modal: Squire -> Knight');
     const testEvolution: TitleEvolution = {
       oldTitle: 'Squire',
@@ -177,9 +172,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal2 = useCallback(() => {
+  const triggerTestModal2 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Knight',
       newTitle: 'Baron',
@@ -189,9 +184,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal3 = useCallback(() => {
+  const triggerTestModal3 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Baron',
       newTitle: 'Viscount',
@@ -201,9 +196,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal4 = useCallback(() => {
+  const triggerTestModal4 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Viscount',
       newTitle: 'Count',
@@ -213,9 +208,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal5 = useCallback(() => {
+  const triggerTestModal5 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Count',
       newTitle: 'Marquis',
@@ -225,9 +220,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal6 = useCallback(() => {
+  const triggerTestModal6 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Marquis',
       newTitle: 'Duke',
@@ -237,9 +232,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal7 = useCallback(() => {
+  const triggerTestModal7 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Duke',
       newTitle: 'Prince',
@@ -249,9 +244,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal8 = useCallback(() => {
+  const triggerTestModal8 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Prince',
       newTitle: 'King',
@@ -261,9 +256,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal9 = useCallback(() => {
+  const triggerTestModal9 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'King',
       newTitle: 'Emperor',
@@ -273,9 +268,9 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
-  const triggerTestModal10 = useCallback(() => {
+  const triggerTestModal10 = () => {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Emperor',
       newTitle: 'God',
@@ -285,7 +280,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     };
     setEvolution(testEvolution);
     setShowModal(true);
-  }, []);
+  };
 
   const value: TitleEvolutionContextType = {
     showModal,

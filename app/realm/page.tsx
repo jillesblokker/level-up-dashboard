@@ -65,7 +65,6 @@ import { useRealmInventory } from '@/hooks/use-realm-inventory';
 
 import { useDataLoaders } from '@/hooks/use-data-loaders';
 import { useAchievementUnlock } from '@/hooks/use-achievement-unlock';
-import { useAchievementCatchUp } from '@/hooks/use-achievement-catch-up';
 import { useWeather } from '@/hooks/use-weather';
 
 import { useSound, SOUNDS } from "@/lib/sound-manager"
@@ -130,6 +129,14 @@ function assignTile(row: Tile[], x: number, tile: Tile) {
 // (Moved to realm-utils.ts)
 
 export default function RealmPage() {
+    return (
+        <React.Suspense fallback={<RealmLoading />}>
+            <RealmPageContent />
+        </React.Suspense>
+    );
+}
+
+function RealmPageContent() {
     const { toast } = useToast();
     const { user, isLoaded: isClerkLoaded } = useUser();
     const { getToken } = useAuth();
@@ -153,7 +160,6 @@ export default function RealmPage() {
     const { weather, setWeather } = useWeather();
     const weatherRef = useRef(weather);
     const lastMoveTimeRef = useRef(0);
-    const { triggerCatchUp } = useAchievementCatchUp();
 
     // Sync weather ref
     useEffect(() => {
@@ -291,7 +297,8 @@ export default function RealmPage() {
 
 
 
-    // (Removed internal require)
+    // Achievement catch-up hook
+    const { triggerCatchUp } = require('@/hooks/use-achievement-catch-up').useAchievementCatchUp();
 
     useEffect(() => {
         // Load initial stats

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback, createContext, useContext, ReactNode } from 'react'
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { smartLogger } from '@/lib/smart-logger'
@@ -36,11 +36,8 @@ interface OnboardingProviderProps {
 }
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
+    // ALL hooks must be declared at the top level — no early returns before this point
     const [mounted, setMounted] = useState(false)
-    useEffect(() => {
-        setMounted(true)
-    }, [])
-
     const [onboardingState, setOnboardingState] = useState<OnboardingState>({
         hasCompletedOnboarding: false,
         hasSkippedOnboarding: false,
@@ -50,6 +47,12 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
     const [showGateway, setShowGateway] = useState(false)
 
+    const { user, isLoaded: isUserLoaded } = useUser()
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     // Debug: Log state changes
     useEffect(() => {
         smartLogger.debug('useOnboarding', 'STATE_CHANGED', {
@@ -58,8 +61,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             timestamp: Date.now()
         })
     }, [isOnboardingOpen, onboardingState])
-
-    const { user, isLoaded: isUserLoaded } = useUser()
 
     // Load onboarding state from localStorage and Supabase
     useEffect(() => {
@@ -77,12 +78,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             getUserPreference('onboarding-state').then(dbState => {
                 if (dbState && typeof dbState === 'object') {
                     const typedState = dbState as OnboardingState
-                    
+
                     // Deep equality check to prevent loops
                     const isSame = JSON.stringify(typedState) === JSON.stringify(onboardingState)
                     if (!isSame) {
                         setOnboardingState(typedState)
-                        // Update local storage to match DB
                         setUserScopedItem('onboarding-state', JSON.stringify(typedState))
                         smartLogger.info('useOnboarding', 'SYNC_FROM_DB_COMPLETE', { dbState: typedState })
                     }
@@ -97,7 +97,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         setOnboardingState(updatedState)
         setUserScopedItem('onboarding-state', JSON.stringify(updatedState))
 
-        // Save to DB if logged in
         if (user) {
             setUserPreference('onboarding-state', updatedState)
         }
@@ -110,76 +109,33 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         })
     }
 
-    // Check if onboarding should be shown
-    const shouldShowOnboarding = useCallback(() => {
-        smartLogger.debug('useOnboarding', 'SHOULD_SHOW_CHECK', {
-            currentState: onboardingState,
-            stackTrace: new Error().stack
-        })
-
-        // Show if never completed and never skipped
+    const shouldShowOnboarding = () => {
         if (!onboardingState.hasCompletedOnboarding && !onboardingState.hasSkippedOnboarding) {
-            smartLogger.info('useOnboarding', 'SHOULD_SHOW_TRUE', {
-                reason: 'never_completed_or_skipped',
-                state: onboardingState
-            })
             return true
         }
-
-        // Show if completed but it's been more than 30 days
         if (onboardingState.hasCompletedOnboarding && onboardingState.lastShownAt) {
             const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000)
             if (onboardingState.lastShownAt < thirtyDaysAgo) {
-                smartLogger.info('useOnboarding', 'SHOULD_SHOW_TRUE', {
-                    reason: 'completed_but_30_days_ago',
-                    lastShownAt: onboardingState.lastShownAt,
-                    thirtyDaysAgo,
-                    daysSinceLastShown: Math.floor((Date.now() - onboardingState.lastShownAt) / (24 * 60 * 60 * 1000))
-                })
                 return true
             }
         }
-
-        smartLogger.info('useOnboarding', 'SHOULD_SHOW_FALSE', {
-            reason: 'conditions_not_met',
-            state: onboardingState
-        })
         return false
-    }, [onboardingState])
+    }
 
-    // Debug function to log current state
-    const debugOnboardingState = useCallback(() => {
+    const debugOnboardingState = () => {
         smartLogger.info('useOnboarding', 'DEBUG_STATE', {
             onboardingState,
             isOnboardingOpen,
             shouldShowResult: shouldShowOnboarding(),
             localStorage: getUserScopedItem('onboarding-state')
         })
-    }, [onboardingState, isOnboardingOpen, shouldShowOnboarding])
+    }
 
-    // Open onboarding
-    const openOnboarding = useCallback((forceOpen: boolean = false) => {
-        smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_CALLED', {
-            forceOpen,
-            currentIsOnboardingOpen: isOnboardingOpen,
-            currentOnboardingState: onboardingState,
-            callStack: new Error().stack?.split('\n').slice(1, 4).join('\n'),
-            timestamp: new Date().toISOString()
-        })
-
-        // If forceOpen is true, always open regardless of state
+    const openOnboarding = (forceOpen: boolean = false) => {
         if (forceOpen) {
-            smartLogger.info('useOnboarding', 'FORCE_OPEN_ONBOARDING', {
-                action: 'force_open',
-                previousState: isOnboardingOpen,
-                reason: 'manual_trigger_override',
-                bypassChecks: true
-            })
             setIsOnboardingOpen(true)
             return
         }
-
-        // Otherwise, check if it should be shown
         if (shouldShowOnboarding()) {
             if (!onboardingState.hasHiddenGateway) {
                 setShowGateway(true)
@@ -188,71 +144,45 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             }
             saveOnboardingState({ lastShownAt: Date.now() })
         }
-    }, [onboardingState, isOnboardingOpen, shouldShowOnboarding])
+    }
 
-    const hideGateway = useCallback(() => {
+    const hideGateway = () => {
         setShowGateway(false)
         saveOnboardingState({ hasHiddenGateway: true })
-    }, [onboardingState, user])
+    }
 
-    // Close onboarding
-    const closeOnboarding = useCallback(() => {
-        smartLogger.info('useOnboarding', 'CLOSE_ONBOARDING', {
-            action: 'close_onboarding',
-            previousState: isOnboardingOpen
-        })
+    const closeOnboarding = () => {
         setIsOnboardingOpen(false)
-    }, [isOnboardingOpen])
+    }
 
-    // Complete onboarding
-    const completeOnboarding = useCallback(() => {
-        smartLogger.info('useOnboarding', 'COMPLETE_ONBOARDING', {
-            action: 'complete_onboarding',
-            stackTrace: new Error().stack
-        })
+    const completeOnboarding = () => {
         saveOnboardingState({
             hasCompletedOnboarding: true,
             lastShownAt: Date.now()
         })
         closeOnboarding()
-    }, [onboardingState, user, closeOnboarding])
+    }
 
-    // Skip onboarding
-    const skipOnboarding = useCallback(() => {
-        smartLogger.info('useOnboarding', 'SKIP_ONBOARDING', {
-            action: 'skip_onboarding'
-        })
+    const skipOnboarding = () => {
         saveOnboardingState({
             hasSkippedOnboarding: true,
             lastShownAt: Date.now()
         })
         closeOnboarding()
-    }, [onboardingState, user, closeOnboarding])
+    }
 
-    // Reset onboarding (for testing or admin purposes)
-    const resetOnboarding = useCallback(() => {
-        smartLogger.info('useOnboarding', 'RESET_ONBOARDING', {
-            action: 'reset_onboarding',
-            previousState: onboardingState
-        })
+    const resetOnboarding = () => {
         saveOnboardingState({
             hasCompletedOnboarding: false,
             hasSkippedOnboarding: false,
             lastShownAt: null
         })
-
-        // Also reset the provider's hasShownOnboardingRef if it exists
         if (typeof window !== 'undefined') {
-            // Dispatch a custom event to reset the provider's state
             window.dispatchEvent(new CustomEvent('reset-onboarding-provider'))
-            smartLogger.info('useOnboarding', 'RESET_EVENT_DISPATCHED', {
-                event: 'reset-onboarding-provider',
-                message: 'Event dispatched to reset provider state'
-            })
         }
-    }, [onboardingState, user])
+    }
 
-    const contextValue = {
+    const contextValue: OnboardingContextType = {
         onboardingState,
         isOnboardingOpen,
         showGateway,
@@ -266,6 +196,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         debugOnboardingState
     }
 
+    // NOTE: We do NOT use an early return here (e.g. `if (!mounted) return ...`)
+    // because that would violate Rules of Hooks — all hooks above must always run.
+    // Instead we conditionally render the modal inside the JSX.
     return (
         <OnboardingContext.Provider value={contextValue}>
             {children}
