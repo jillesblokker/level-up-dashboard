@@ -71,21 +71,10 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Skip ALL API requests - never cache API responses
+  // Completely bypass ALL API requests - let the browser handle them natively
+  // This ensures cookies and auth headers are handled correctly by Clerk
   if (url.pathname.startsWith('/api/')) {
-    return event.respondWith(
-      fetch(request).catch(error => {
-        console.error('[SW] API Fetch failed:', error);
-        return new Response(JSON.stringify({ 
-          error: 'Network failure', 
-          details: error.message,
-          offline: true 
-        }), {
-          status: 503,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      })
-    )
+    return;
   }
 
   // Strategy: Cache First for Images and Audio, Network First for everything else

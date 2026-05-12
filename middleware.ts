@@ -22,18 +22,9 @@ export default clerkMiddleware(async (auth, request) => {
                       request.headers.get('rsc') === '1' || 
                       request.headers.has('next-router-prefetch');
 
-  // Helper to get the correct absolute URL (forces HTTPS in production)
-  const getAbsoluteUrl = (path: string) => {
-    const url = new URL(path, request.url);
-    if (url.hostname === 'lvlup.jillesblokker.com') {
-      url.protocol = 'https:';
-    }
-    return url;
-  };
-
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
-    return NextResponse.redirect(getAbsoluteUrl('/kingdom'));
+    return NextResponse.redirect(new URL('/kingdom', request.url));
   }
 
   // For API routes: return 401 JSON instead of redirecting (prevents CORS issues)
@@ -42,9 +33,7 @@ export default clerkMiddleware(async (auth, request) => {
       { error: 'Unauthorized', message: 'Authentication required' },
       { 
         status: 401,
-        headers: {
-          'X-Auth-Source': 'middleware'
-        }
+        headers: { 'X-Auth-Source': 'middleware' }
       }
     );
   }
@@ -52,8 +41,6 @@ export default clerkMiddleware(async (auth, request) => {
   // For RSC prefetch requests to protected pages without auth:
   // Return 401 instead of redirecting to prevent CORS errors
   if (!isPublicRoute(request) && !userId && isRscRequest) {
-    // For RSC, we want to return a response that doesn't trigger a browser redirect
-    // so we can avoid CORS preflight failures.
     return new NextResponse(null, {
       status: 401,
       headers: {
@@ -63,14 +50,9 @@ export default clerkMiddleware(async (auth, request) => {
     });
   }
 
-  // Protect all non-RSC routes except public ones
-  if (!isPublicRoute(request) && !isRscRequest) {
-    try {
-      await auth.protect();
-    } catch (error) {
-      // If protect throws (redirect), we ensure it uses HTTPS
-      return NextResponse.redirect(getAbsoluteUrl('/sign-in'));
-    }
+  // Protect all non-public routes
+  if (!isPublicRoute(request)) {
+    await auth.protect();
   }
 
   // Allow the request to continue

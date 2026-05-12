@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
+import { useState, useEffect, useMemo, useCallback, createContext, useContext, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { smartLogger } from '@/lib/smart-logger'
@@ -72,10 +72,15 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             getUserPreference('onboarding-state').then(dbState => {
                 if (dbState && typeof dbState === 'object') {
                     const typedState = dbState as OnboardingState
-                    setOnboardingState(typedState)
-                    // Update local storage to match DB
-                    setUserScopedItem('onboarding-state', JSON.stringify(typedState))
-                    smartLogger.info('useOnboarding', 'SYNC_FROM_DB_COMPLETE', { dbState: typedState })
+                    
+                    // Deep equality check to prevent loops
+                    const isSame = JSON.stringify(typedState) === JSON.stringify(onboardingState)
+                    if (!isSame) {
+                        setOnboardingState(typedState)
+                        // Update local storage to match DB
+                        setUserScopedItem('onboarding-state', JSON.stringify(typedState))
+                        smartLogger.info('useOnboarding', 'SYNC_FROM_DB_COMPLETE', { dbState: typedState })
+                    }
                 }
             })
         }
@@ -101,7 +106,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }
 
     // Check if onboarding should be shown
-    const shouldShowOnboarding = () => {
+    const shouldShowOnboarding = useCallback(() => {
         smartLogger.debug('useOnboarding', 'SHOULD_SHOW_CHECK', {
             currentState: onboardingState,
             stackTrace: new Error().stack
@@ -135,20 +140,20 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             state: onboardingState
         })
         return false
-    }
+    }, [onboardingState])
 
     // Debug function to log current state
-    const debugOnboardingState = () => {
+    const debugOnboardingState = useCallback(() => {
         smartLogger.info('useOnboarding', 'DEBUG_STATE', {
             onboardingState,
             isOnboardingOpen,
             shouldShowResult: shouldShowOnboarding(),
             localStorage: getUserScopedItem('onboarding-state')
         })
-    }
+    }, [onboardingState, isOnboardingOpen, shouldShowOnboarding])
 
     // Open onboarding
-    const openOnboarding = (forceOpen: boolean = false) => {
+    const openOnboarding = useCallback((forceOpen: boolean = false) => {
         smartLogger.info('useOnboarding', 'OPEN_ONBOARDING_CALLED', {
             forceOpen,
             currentIsOnboardingOpen: isOnboardingOpen,
@@ -166,16 +171,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                 bypassChecks: true
             })
             setIsOnboardingOpen(true)
-            // Don't update lastShownAt when force opening to prevent immediate closure
-            smartLogger.info('useOnboarding', 'FORCE_OPEN_COMPLETE', {
-                newState: true,
-                message: 'Modal should now be visible',
-                nextSteps: [
-                    'OnboardingModal should receive isOpen=true',
-                    'Modal should reset internal state',
-                    'Modal should become visible to user'
-                ]
-            })
             return
         }
 
@@ -188,24 +183,24 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             }
             saveOnboardingState({ lastShownAt: Date.now() })
         }
-    }
+    }, [onboardingState, isOnboardingOpen, shouldShowOnboarding])
 
-    const hideGateway = () => {
+    const hideGateway = useCallback(() => {
         setShowGateway(false)
         saveOnboardingState({ hasHiddenGateway: true })
-    }
+    }, [onboardingState, user])
 
     // Close onboarding
-    const closeOnboarding = () => {
+    const closeOnboarding = useCallback(() => {
         smartLogger.info('useOnboarding', 'CLOSE_ONBOARDING', {
             action: 'close_onboarding',
             previousState: isOnboardingOpen
         })
         setIsOnboardingOpen(false)
-    }
+    }, [isOnboardingOpen])
 
     // Complete onboarding
-    const completeOnboarding = () => {
+    const completeOnboarding = useCallback(() => {
         smartLogger.info('useOnboarding', 'COMPLETE_ONBOARDING', {
             action: 'complete_onboarding',
             stackTrace: new Error().stack
@@ -215,10 +210,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             lastShownAt: Date.now()
         })
         closeOnboarding()
-    }
+    }, [onboardingState, user, closeOnboarding])
 
     // Skip onboarding
-    const skipOnboarding = () => {
+    const skipOnboarding = useCallback(() => {
         smartLogger.info('useOnboarding', 'SKIP_ONBOARDING', {
             action: 'skip_onboarding'
         })
@@ -227,10 +222,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             lastShownAt: Date.now()
         })
         closeOnboarding()
-    }
+    }, [onboardingState, user, closeOnboarding])
 
     // Reset onboarding (for testing or admin purposes)
-    const resetOnboarding = () => {
+    const resetOnboarding = useCallback(() => {
         smartLogger.info('useOnboarding', 'RESET_ONBOARDING', {
             action: 'reset_onboarding',
             previousState: onboardingState
@@ -250,9 +245,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                 message: 'Event dispatched to reset provider state'
             })
         }
-    }
+    }, [onboardingState, user])
 
-    const contextValue: OnboardingContextType = {
+    const contextValue = useMemo(() => ({
         onboardingState,
         isOnboardingOpen,
         showGateway,
@@ -264,25 +259,35 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         hideGateway,
         resetOnboarding,
         debugOnboardingState
-    }
+    }), [
+        onboardingState,
+        isOnboardingOpen,
+        showGateway,
+        shouldShowOnboarding,
+        openOnboarding,
+        closeOnboarding,
+        completeOnboarding,
+        skipOnboarding,
+        hideGateway,
+        resetOnboarding,
+        debugOnboardingState
+    ])
 
     const [mounted, setMounted] = useState(false)
     useEffect(() => {
         setMounted(true)
     }, [])
 
-    if (!mounted) {
-        return <>{children}</>
-    }
-
     return (
         <OnboardingContext.Provider value={contextValue}>
             {children}
-            <OnboardingModal
-                isOpen={isOnboardingOpen}
-                onClose={closeOnboarding}
-                onComplete={completeOnboarding}
-            />
+            {mounted && (
+                <OnboardingModal
+                    isOpen={isOnboardingOpen}
+                    onClose={closeOnboarding}
+                    onComplete={completeOnboarding}
+                />
+            )}
         </OnboardingContext.Provider>
     )
 }
@@ -290,7 +295,26 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 export function useOnboarding() {
     const context = useContext(OnboardingContext)
     if (context === undefined) {
-        throw new Error('useOnboarding must be used within an OnboardingProvider')
+        // Return a stable fallback state instead of throwing during SSR
+        // This prevents the whole app from crashing if used in layout components
+        return {
+            onboardingState: {
+                hasCompletedOnboarding: false,
+                hasSkippedOnboarding: false,
+                hasHiddenGateway: false,
+                lastShownAt: null
+            },
+            isOnboardingOpen: false,
+            showGateway: false,
+            shouldShowOnboarding: () => false,
+            openOnboarding: () => {},
+            closeOnboarding: () => {},
+            completeOnboarding: () => {},
+            skipOnboarding: () => {},
+            hideGateway: () => {},
+            resetOnboarding: () => {},
+            debugOnboardingState: () => {}
+        }
     }
     return context
 }

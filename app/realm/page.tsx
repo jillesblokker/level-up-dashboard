@@ -65,6 +65,7 @@ import { useRealmInventory } from '@/hooks/use-realm-inventory';
 
 import { useDataLoaders } from '@/hooks/use-data-loaders';
 import { useAchievementUnlock } from '@/hooks/use-achievement-unlock';
+import { useAchievementCatchUp } from '@/hooks/use-achievement-catch-up';
 import { useWeather } from '@/hooks/use-weather';
 
 import { useSound, SOUNDS } from "@/lib/sound-manager"
@@ -160,6 +161,7 @@ function RealmPageContent() {
     const { weather, setWeather } = useWeather();
     const weatherRef = useRef(weather);
     const lastMoveTimeRef = useRef(0);
+    const { triggerCatchUp } = useAchievementCatchUp();
 
     // Sync weather ref
     useEffect(() => {
@@ -297,8 +299,7 @@ function RealmPageContent() {
 
 
 
-    // Achievement catch-up hook
-    const { triggerCatchUp } = require('@/hooks/use-achievement-catch-up').useAchievementCatchUp();
+    // (Removed internal require)
 
     useEffect(() => {
         // Load initial stats
