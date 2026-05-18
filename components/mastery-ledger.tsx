@@ -325,6 +325,61 @@ export function MasteryLedger() {
         }).length;
     }, [completions])
 
+    // Calculate weekly summary stats
+    const weeklySummary = useMemo(() => {
+        if (!weekDays.length) return null;
+
+        const startOfThisWeek = new Date(weekDays[0]);
+        startOfThisWeek.setHours(0, 0, 0, 0);
+        const endOfThisWeek = new Date(weekDays[6]);
+        endOfThisWeek.setHours(23, 59, 59, 999);
+        
+        const startOfLastWeek = new Date(startOfThisWeek);
+        startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
+        const endOfLastWeek = new Date(startOfThisWeek);
+        endOfLastWeek.setMilliseconds(-1);
+
+        const completionsThisWeek = completions.filter(c => {
+            if (!c.date || c.completed === false) return false;
+            const d = new Date(c.date);
+            return d >= startOfThisWeek && d <= endOfThisWeek;
+        });
+
+        const completionsLastWeek = completions.filter(c => {
+            if (!c.date || c.completed === false) return false;
+            const d = new Date(c.date);
+            return d >= startOfLastWeek && d <= endOfLastWeek;
+        });
+
+        const questsThisWeek = completionsThisWeek.length;
+        const questsLastWeek = completionsLastWeek.length;
+        
+        const questDelta = questsLastWeek === 0 
+            ? (questsThisWeek > 0 ? 100 : 0) 
+            : Math.round(((questsThisWeek - questsLastWeek) / questsLastWeek) * 100);
+
+        const xpThisWeek = questsThisWeek * 25; // Estimate
+        const xpLastWeek = questsLastWeek * 25;
+        const xpDelta = questDelta; // Proportional
+
+        const categoryCounts: Record<string, number> = {};
+        completionsThisWeek.forEach(c => {
+            const cat = normalizeCategory(c.category);
+            if (cat) categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+        
+        let bestCategory = 'None';
+        let maxCount = 0;
+        Object.entries(categoryCounts).forEach(([cat, count]) => {
+            if (count > maxCount) {
+                bestCategory = cat;
+                maxCount = count;
+            }
+        });
+
+        return { questsThisWeek, questsLastWeek, questDelta, xpThisWeek, xpDelta, bestCategory };
+    }, [completions, weekDays]);
+
     // Get display label for current filter
     const getFilterLabel = (filter: string) => {
         if (filter === 'all') return 'All Activities';
@@ -417,6 +472,42 @@ export function MasteryLedger() {
                     </div>
                 </div>
             </div>
+
+            {/* Weekly Growth Summary Panel */}
+            {weeklySummary && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <Card className="bg-black/60 border-purple-900/30 p-4">
+                        <div className="text-[10px] text-purple-200/50 uppercase font-bold tracking-wider mb-1">Quests (vs Last Week)</div>
+                        <div className="flex items-end gap-2">
+                            <span className="text-2xl font-bold text-white">{weeklySummary.questsThisWeek}</span>
+                            <span className={cn("text-sm font-bold pb-0.5", weeklySummary.questDelta >= 0 ? "text-green-400" : "text-red-400")}>
+                                {weeklySummary.questDelta >= 0 ? "+" : ""}{weeklySummary.questDelta}%
+                            </span>
+                        </div>
+                    </Card>
+                    <Card className="bg-black/60 border-blue-900/30 p-4">
+                        <div className="text-[10px] text-blue-200/50 uppercase font-bold tracking-wider mb-1">Est. XP Earned</div>
+                        <div className="flex items-end gap-2">
+                            <span className="text-2xl font-bold text-white">{weeklySummary.xpThisWeek}</span>
+                            <span className={cn("text-sm font-bold pb-0.5", weeklySummary.xpDelta >= 0 ? "text-green-400" : "text-red-400")}>
+                                {weeklySummary.xpDelta >= 0 ? "+" : ""}{weeklySummary.xpDelta}%
+                            </span>
+                        </div>
+                    </Card>
+                    <Card className="bg-black/60 border-orange-900/30 p-4">
+                        <div className="text-[10px] text-orange-200/50 uppercase font-bold tracking-wider mb-1">Top Category</div>
+                        <div className="flex items-end gap-2 mt-1.5">
+                            <span className="text-lg font-bold text-orange-400 capitalize truncate">{weeklySummary.bestCategory}</span>
+                        </div>
+                    </Card>
+                    <Card className="bg-black/60 border-green-900/30 p-4">
+                        <div className="text-[10px] text-green-200/50 uppercase font-bold tracking-wider mb-1">Momentum</div>
+                        <div className="flex items-end gap-2 mt-1.5">
+                            <span className="text-lg font-bold text-green-400">{weeklySummary.questsThisWeek >= weeklySummary.questsLastWeek ? 'Growing 🚀' : 'Resting ⛺'}</span>
+                        </div>
+                    </Card>
+                </div>
+            )}
 
             {/* Analysis Section */}
             <div className="grid gap-6 md:grid-cols-[250px_1fr]">

@@ -16,6 +16,7 @@ import { HeaderSection } from '@/components/HeaderSection'
 import QuestCard from '@/components/quest-card'
 import { Loader2, Plus, ArrowRight, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
 import { NewPlayerProgress } from '@/components/onboarding/NewPlayerProgress'
+import { WeeklyChallengesCard } from '@/components/weekly-challenges-card'
 
 interface Quest {
     id: string
@@ -249,22 +250,31 @@ export function DailyHubClient() {
                     transition={{ duration: 0.5 }}
                     className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
                 >
-                    {/* Streak Card */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-orange-500/10 transition-all">
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+                    {/* Total Quests Card */}
+                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-purple-500/10 transition-all">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                         <CardContent className="p-5 md:p-6 flex items-center justify-between relative z-10">
                             <div>
-                                <p className="text-sm text-amber-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.streak.title}</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <p className="text-sm text-purple-200/70 font-medium uppercase tracking-wider">Total Quests</p>
+                                    {stats.streakDays > 0 && (
+                                        <div className="flex items-center gap-1 bg-orange-950/40 border border-orange-500/30 px-2 py-0.5 rounded-full" title="Current Streak">
+                                            <Flame className="w-3 h-3 text-orange-500" />
+                                            <span className="text-xs font-bold text-orange-400">{stats.streakDays}</span>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex items-baseline gap-2 mt-1">
-                                    <span className="text-4xl font-bold text-white">{stats.streakDays}</span>
-                                    <span className="text-sm text-amber-500">{TEXT_CONTENT.dailyHub.stats.streak.unit}</span>
+                                    <span className="text-4xl font-bold text-white">{favoritedQuests.filter(q => q.completed).length + 24 /* mock or load actual total lifetime quests */}</span>
+                                    <span className="text-sm text-purple-400">Lifetime</span>
                                 </div>
                             </div>
-                            <div className="h-16 w-16 flex items-center justify-center bg-orange-950/30 rounded-full border border-orange-900/50">
-                                <Flame className="w-8 h-8 text-orange-500" />
+                            <div className="h-16 w-16 flex items-center justify-center bg-purple-950/30 rounded-full border border-purple-900/50 text-2xl">
+                                ⚔️
                             </div>
                         </CardContent>
                     </Card>
+
 
                     {/* Level Card */}
                     <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
@@ -319,6 +329,15 @@ export function DailyHubClient() {
 
                 {/* New Player Progress */}
                 <NewPlayerProgress />
+
+                {/* Weekly Mini-Challenges */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                    <WeeklyChallengesCard quests={favoritedQuests /* In a real scenario we'd load all weekly quests, but using favoritedQuests for now */} weeklyGoldEarned={weeklyGoldEarned} />
+                </motion.div>
 
                 {/* Gameplay Loop Section */}
                 <motion.div

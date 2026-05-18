@@ -51,7 +51,7 @@ import { SyncStatusIndicator } from '@/components/sync-status-indicator'
 import { OfflineQueueIndicator } from '@/components/offline-queue-indicator'
 import { ToastContainer, useQuestToasts } from '@/components/enhanced-toast-system'
 import { MedievalErrorBoundary as EnhancedErrorBoundary } from '@/components/medieval-error-boundary'
-import { DailyProgressCard } from '@/components/daily-progress-card'
+import { ActivityRingsCard } from '@/components/activity-rings-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
 import dynamic from 'next/dynamic';
 const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m => ({ default: m.TarotCardDisplay })), {
@@ -214,6 +214,13 @@ export default function QuestsPage() {
     gold: 0,
     xpToNextLevel: 100
   });
+
+  // User preferences for gamification
+  const [dailyGoal, setDailyGoal] = useState<number>(3);
+  const [prDailyQuests, setPrDailyQuests] = useState<number>(0);
+  const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [tempGoal, setTempGoal] = useState<number>(3);
+
 
   // --- Realtime Sync ---
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -378,6 +385,34 @@ export default function QuestsPage() {
 
     fetchStats();
   }, [userId]);
+
+  // Fetch gamification preferences
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      if (!token || !userId) return;
+      try {
+        const res = await fetch('/api/user-preferences', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.preferences) {
+            if (data.preferences['daily_goal']) {
+              const g = Number(data.preferences['daily_goal']);
+              setDailyGoal(g);
+              setTempGoal(g);
+            }
+            if (data.preferences['pr_daily_quests']) {
+              setPrDailyQuests(Number(data.preferences['pr_daily_quests']));
+            }
+          }
+        }
+      } catch (err) {
+        logger.error('Error fetching preferences:', err);
+      }
+    };
+    fetchPreferences();
+  }, [token, userId]);
 
   // Fetch quests when token is present and user is authenticated
   useEffect(() => {
@@ -995,6 +1030,19 @@ export default function QuestsPage() {
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
       addToCharacterStat('experience', xpReward, `quest-completion:${questId}`);
+
+      // Check Personal Records
+      // We calculate new completion count optimistically
+      const todaysOverallCompleted = quests.filter(q => q.completed).length + 1;
+      if (todaysOverallCompleted > prDailyQuests) {
+        setPrDailyQuests(todaysOverallCompleted);
+        questToasts.showPersonalRecord("Most Quests in a Day", String(todaysOverallCompleted));
+        fetch('/api/user-preferences', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ key: 'pr_daily_quests', value: todaysOverallCompleted })
+        }).catch(err => logger.error('Failed to save PR', err));
+      }
     }
 
     // Persist quest completion to backend using the smart-completion API
@@ -2247,22 +2295,62 @@ export default function QuestsPage() {
                     <div>
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-bold text-amber-500 font-medieval">{TEXT_CONTENT.questBoard.journey.title}</h3>
-                        <StreakIndicator
-                          currentStreak={streakData?.streak_days || 0}
-                          isCompletedToday={quests.some(q => q.completed)}
-                        />
+                        <div className="flex items-center gap-4">
+                          {isEditingGoal ? (
+                            <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-lg border border-amber-900/30">
+                              <span className="text-xs text-amber-200/70">Goal:</span>
+                              <input 
+                                type="number" 
+                                min="1" max="50" 
+                                value={tempGoal} 
+                                onChange={e => setTempGoal(Number(e.target.value) || 1)}
+                                className="w-12 bg-zinc-900 text-white text-center text-sm border-none rounded"
+                              />
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-6 px-2 text-green-400 hover:text-green-300 hover:bg-green-900/20"
+                                onClick={async () => {
+                                  setDailyGoal(tempGoal);
+                                  setIsEditingGoal(false);
+                                  if (token) {
+                                    fetch('/api/user-preferences', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                      body: JSON.stringify({ key: 'daily_goal', value: tempGoal })
+                                    });
+                                  }
+                                }}
+                              >
+                                Save
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-xs font-bold bg-black/40 px-3 py-1.5 rounded-lg border border-amber-900/30">
+                              <span className="text-amber-500">Goal: {dailyGoal}/day</span>
+                              <button onClick={() => setIsEditingGoal(true)} className="text-amber-200/50 hover:text-amber-300 transition-colors">
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+
+                          <StreakIndicator
+                            currentStreak={streakData?.streak_days || 0}
+                            isCompletedToday={quests.filter(q => q.completed).length >= dailyGoal}
+                          />
+                        </div>
                       </div>
                       <GameplayLoopIndicator />
                     </div>
 
-                    {/* Daily Progress Card */}
-                    <DailyProgressCard
+                    {/* Activity Rings Card */}
+                    <ActivityRingsCard
                       completedCount={quests.filter(q => q.completed).length}
-                      totalCount={quests.length}
-                      currentLevel={stats.level}
-                      currentXP={stats.experience}
-                      xpToNextLevel={stats.level * 100}
-                      currentGold={stats.gold}
+                      dailyGoal={dailyGoal}
+                      xpEarnedToday={quests.filter(q => q.completed).reduce((sum, q) => sum + (q.xp || 25), 0)}
+                      xpDailyTarget={dailyGoal * 25}
+                      categoriesTouched={new Set(quests.filter(q => q.completed).map(q => q.category)).size}
+                      totalCategories={8}
                     />
 
                     {/* Chronicles Card */}

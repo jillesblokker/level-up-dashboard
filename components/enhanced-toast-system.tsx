@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 export interface ToastMessage {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info' | 'offline' | 'online';
+  type: 'success' | 'error' | 'warning' | 'info' | 'offline' | 'online' | 'personal-record';
   title: string;
   description?: string;
   duration?: number;
@@ -56,6 +56,8 @@ export function Toast({ message, onDismiss }: ToastProps) {
         return <WifiOff className="h-5 w-5 text-amber-400" />;
       case 'online':
         return <Wifi className="h-5 w-5 text-green-400" />;
+      case 'personal-record':
+        return <CheckCircle className="h-6 w-6 text-yellow-400 animate-pulse" />;
       default:
         return <Info className="h-5 w-5 text-gray-400" />;
     }
@@ -75,6 +77,8 @@ export function Toast({ message, onDismiss }: ToastProps) {
         return 'border-amber-500/30';
       case 'online':
         return 'border-green-500/30';
+      case 'personal-record':
+        return 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]';
       default:
         return 'border-gray-500/30';
     }
@@ -94,6 +98,8 @@ export function Toast({ message, onDismiss }: ToastProps) {
         return 'bg-amber-900/20';
       case 'online':
         return 'bg-green-900/20';
+      case 'personal-record':
+        return 'bg-gradient-to-r from-yellow-900/40 to-amber-900/40';
       default:
         return 'bg-gray-900/20';
     }
@@ -278,12 +284,22 @@ export function useQuestToasts() {
     );
   }, [toast]);
 
+  const showPersonalRecord = React.useCallback((recordType: string, value: string) => {
+    return toast.addToast({
+      type: 'personal-record',
+      title: '🏆 New Personal Record!',
+      description: `You set a new record for ${recordType}: ${value}`,
+      duration: 6000
+    });
+  }, [toast.addToast]);
+
   return {
     showQuestCompleted,
     showQuestError,
     showOfflineQuest,
     showSyncSuccess,
     showSyncError,
+    showPersonalRecord,
     ...toast,
   };
 }
