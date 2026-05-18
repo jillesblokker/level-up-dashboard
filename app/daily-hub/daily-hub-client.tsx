@@ -17,6 +17,7 @@ import QuestCard from '@/components/quest-card'
 import { Loader2, Plus, ArrowRight, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
 import { NewPlayerProgress } from '@/components/onboarding/NewPlayerProgress'
 import { WeeklyChallengesCard } from '@/components/weekly-challenges-card'
+import { formatGold } from '@/lib/utils'
 
 interface Quest {
     id: string
@@ -309,7 +310,7 @@ export function DailyHubClient() {
                                 <div className="flex-1">
                                     <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.treasury.title}</p>
                                     <div className="flex items-baseline gap-2 mt-1">
-                                        <span className="text-3xl font-bold text-white">{stats.gold}</span>
+                                        <span className="text-3xl font-bold text-white" title={`${stats.gold} Gold`}>{formatGold(stats.gold)}</span>
                                         <span className="text-sm text-yellow-500">{TEXT_CONTENT.dailyHub.stats.treasury.unit}</span>
                                     </div>
                                 </div>

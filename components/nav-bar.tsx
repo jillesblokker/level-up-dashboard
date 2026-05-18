@@ -16,6 +16,7 @@ import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useQuickAdd } from "@/components/quick-add-provider"
+import { formatGold } from "@/lib/utils"
 
 interface CustomSession {
   user?: {
@@ -192,7 +193,7 @@ export function NavBar({ session }: NavBarProps) {
               aria-atomic="true"
             >
               <Coins className="h-4 w-4" />
-              <span className="text-sm font-medium">{characterStats.gold}</span>
+              <span className="text-sm font-medium" title={`${characterStats.gold} Gold`}>{formatGold(characterStats.gold)}</span>
             </div>
           </div>
           <div className="flex items-center space-x-1 pr-2 border-r border-gray-800">

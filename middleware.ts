@@ -10,42 +10,26 @@ const isPublicRoute = createRouteMatcher([
   '/manifest.json',
 ]);
 
-const isApiRoute = createRouteMatcher(['/api(.*)']);
-
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
   const { pathname, searchParams } = request.nextUrl;
 
-  // Detect RSC (React Server Component) prefetch requests
-  // These have ?_rsc= in the URL or 'rsc' / 'next-router-prefetch' headers
-  const isRscRequest = searchParams.has('_rsc') || 
-                      request.headers.get('rsc') === '1' || 
-                      request.headers.has('next-router-prefetch');
+  const acceptHeader = request.headers.get('accept') || '';
+  const isNavigational = request.mode === 'navigate' && acceptHeader.includes('text/html');
 
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
     return NextResponse.redirect(new URL('/kingdom', request.url));
   }
 
-  // For API routes: return 401 JSON instead of redirecting (prevents CORS issues)
-  if (!isPublicRoute(request) && isApiRoute(request) && !userId) {
-    return NextResponse.json(
-      { error: 'Unauthorized', message: 'Authentication required' },
-      { 
-        status: 401,
-        headers: { 'X-Auth-Source': 'middleware' }
-      }
-    );
-  }
-
-  // For RSC prefetch requests to protected pages without auth:
-  // Return 401 instead of redirecting to prevent CORS errors
-  if (!isPublicRoute(request) && !userId && isRscRequest) {
+  // Return 401 for non-navigational requests (prefetch, RSC, XHR, etc.) to protected routes when signed out
+  // This prevents CORS preflight errors from Clerk redirecting these requests
+  if (!isPublicRoute(request) && !userId && !isNavigational) {
     return new NextResponse(null, {
       status: 401,
       headers: {
         'Content-Type': 'text/plain',
-        'X-Clerk-Auth-Reason': 'unauthorized',
+        'X-Clerk-Auth-Reason': 'unauthorized-fetch',
       }
     });
   }

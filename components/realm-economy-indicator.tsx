@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Coins, ShoppingCart, TrendingUp, Calculator, AlertCircle } from 'lucide-react'
 import { getCharacterStats } from '@/lib/character-stats-service'
+import { formatGold } from '@/lib/utils'
 
 interface TileCost {
   name: string
@@ -125,8 +126,8 @@ export function RealmEconomyIndicator() {
                   <Coins className="h-5 w-5 text-amber-400" />
                   <h3 className="font-semibold text-white">Current Gold</h3>
                 </div>
-                <div className="text-2xl font-bold text-amber-400 mb-2">
-                  {stats.gold} Gold
+                <div className="text-2xl font-bold text-amber-400 mb-2" title={`${stats.gold} Gold`}>
+                  {formatGold(stats.gold)} Gold
                 </div>
                 <p className="text-sm text-gray-400">
                   Available for tiles

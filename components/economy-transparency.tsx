@@ -10,6 +10,7 @@ import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { format } from 'date-fns'
+import { formatGold } from '@/lib/utils'
 
 interface EconomyTransaction {
   type: 'earned' | 'spent'
@@ -176,8 +177,8 @@ export function EconomyTransparency() {
                   </div>
                   <h3 className="font-medium text-zinc-300">Current Treasury</h3>
                 </div>
-                <div className="text-3xl font-bold text-amber-200 font-serif tracking-tight">
-                  {stats.gold.toLocaleString()} <span className="text-sm font-sans font-normal text-amber-500/70">Gold</span>
+                <div className="text-3xl font-bold text-amber-200 font-serif tracking-tight" title={`${stats.gold.toLocaleString()} Gold`}>
+                  {formatGold(stats.gold)} <span className="text-sm font-sans font-normal text-amber-500/70">Gold</span>
                 </div>
               </CardContent>
             </Card>

@@ -13,6 +13,18 @@ export function formatNumber(num: number) {
   return new Intl.NumberFormat().format(num)
 }
 
+export function formatGold(num: number): string {
+  if (num >= 1_000_000) {
+    const formatted = (num / 1_000_000).toFixed(1);
+    return formatted.endsWith('.0') ? `${formatted.slice(0, -2)}M` : `${formatted}M`;
+  }
+  if (num >= 1_000) {
+    const formatted = (num / 1_000).toFixed(1);
+    return formatted.endsWith('.0') ? `${formatted.slice(0, -2)}K` : `${formatted}K`;
+  }
+  return num.toString();
+}
+
 export function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
