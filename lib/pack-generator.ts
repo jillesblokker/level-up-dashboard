@@ -108,7 +108,7 @@ export const PACK_TYPES = [
     title: "Drift Pack",
     subtitle: "Budget pull with balanced odds",
     shortLabel: "Tier I",
-    price: 40,
+    price: 500,
     rarityShift: 0,
     accent: "starter",
     description: "Best for steady farming. Keeps the classic odds curve.",
@@ -118,7 +118,7 @@ export const PACK_TYPES = [
     title: "Vault Pack",
     subtitle: "Better chance at rarer side cards",
     shortLabel: "Tier II",
-    price: 95,
+    price: 5000,
     rarityShift: 0.38,
     accent: "vault",
     description: "Costs more, trims low-rarity weight, and improves premium filler odds.",
@@ -128,14 +128,53 @@ export const PACK_TYPES = [
     title: "Crown Pack",
     subtitle: "Highest chance for unique high-rarity pulls",
     shortLabel: "Tier III",
-    price: 180,
+    price: 10000,
     rarityShift: 0.76,
     accent: "crown",
     description: "Most expensive tier with the strongest push toward rare winners and elite side cards.",
   },
 ];
 
-export const PACK_TYPE_BY_ID = new Map(PACK_TYPES.map((packType) => [packType.id, packType]));
+export const FREE_PACK_TYPES = [
+  {
+    id: "free_daily",
+    title: "Free Daily Pack",
+    subtitle: "Claim once every day",
+    shortLabel: "Daily",
+    price: 0,
+    rarityShift: 0.1,
+    accent: "starter",
+    description: "Your daily gift! Open to claim random cards.",
+    cooldownType: "daily",
+  },
+  {
+    id: "free_weekly",
+    title: "Free Weekly Pack",
+    subtitle: "Claim once every week",
+    shortLabel: "Weekly",
+    price: 0,
+    rarityShift: 0.4,
+    accent: "vault",
+    description: "Your weekly premium bounty! Open for enhanced odds.",
+    cooldownType: "weekly",
+  },
+  {
+    id: "free_monthly",
+    title: "Free Monthly Pack",
+    subtitle: "Claim once every month",
+    shortLabel: "Monthly",
+    price: 0,
+    rarityShift: 0.8,
+    accent: "crown",
+    description: "An elite monthly treasure chest! High chance of ultra-rare pulls.",
+    cooldownType: "monthly",
+  },
+];
+
+export const PACK_TYPE_BY_ID = new Map<string, typeof PACK_TYPES[0] | typeof FREE_PACK_TYPES[0]>([
+  ...PACK_TYPES.map((packType) => [packType.id, packType] as const),
+  ...FREE_PACK_TYPES.map((packType) => [packType.id, packType] as const),
+]);
 
 export function pickWeightedCard(random = Math.random, excludedNumbers = new Set<number>()) {
   const pool = CARD_TYPES.filter((card) => !excludedNumbers.has(card.number));

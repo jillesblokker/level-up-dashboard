@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileType } from "@/types/tiles"
-import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
+import { PACK_TYPES, FREE_PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
 import { formatGold } from "@/lib/utils"
 
@@ -37,6 +37,79 @@ export default function MarketPage() {
 
   // Transaction state
   const [quantities, setQuantities] = useState<Record<string, number>>({})
+
+  // Free pack claiming and cooldowns state
+  const [claimedTimestamps, setClaimedTimestamps] = useState<Record<string, number>>({})
+  const [currentTime, setCurrentTime] = useState(Date.now())
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("claimed_packs_timestamps")
+      if (stored) {
+        try {
+          setClaimedTimestamps(JSON.parse(stored))
+        } catch (e) {}
+      }
+    }
+
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const isPackOnCooldown = (pack: any) => {
+    if (!pack.cooldownType) return false
+    const lastClaimed = claimedTimestamps[pack.id]
+    if (!lastClaimed) return false
+
+    const diff = currentTime - lastClaimed
+
+    if (pack.cooldownType === 'daily') {
+      return diff < 24 * 60 * 60 * 1000
+    }
+    if (pack.cooldownType === 'weekly') {
+      return diff < 7 * 24 * 60 * 60 * 1000
+    }
+    if (pack.cooldownType === 'monthly') {
+      return diff < 30 * 24 * 60 * 60 * 1000
+    }
+    return false
+  }
+
+  const getCooldownRemaining = (pack: any) => {
+    if (!pack.cooldownType) return ""
+    const lastClaimed = claimedTimestamps[pack.id]
+    if (!lastClaimed) return ""
+
+    const diff = currentTime - lastClaimed
+    let remaining = 0
+
+    if (pack.cooldownType === 'daily') {
+      remaining = 24 * 60 * 60 * 1000 - diff
+    } else if (pack.cooldownType === 'weekly') {
+      remaining = 7 * 24 * 60 * 60 * 1000 - diff
+    } else if (pack.cooldownType === 'monthly') {
+      remaining = 30 * 24 * 60 * 60 * 1000 - diff
+    }
+
+    if (remaining <= 0) return ""
+
+    const totalSeconds = Math.floor(remaining / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const days = Math.floor(hours / 24)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+
+    if (days > 0) {
+      return `${days}d ${hours % 24}h ${minutes}m remaining`
+    }
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s remaining`
+    }
+    return `${minutes}m ${seconds}s remaining`
+  }
 
   useEffect(() => {
     // Initial stats fetch
@@ -135,7 +208,16 @@ export default function MarketPage() {
     setQuantities(prev => ({ ...prev, [material.id]: 0 }))
   }
 
-  const handleBuyPack = (packType: typeof PACK_TYPES[0]) => {
+  const handleBuyPack = (packType: any) => {
+    if (packType.cooldownType && isPackOnCooldown(packType)) {
+      toast({
+        title: "Pack on Cooldown",
+        description: `This pack can only be claimed once per ${packType.cooldownType}.`,
+        variant: "destructive"
+      })
+      return
+    }
+
     if (goldBalance < packType.price) {
       toast({
         title: "Insufficient Gold",
@@ -146,8 +228,19 @@ export default function MarketPage() {
     }
 
     // Deduct gold
-    addToCharacterStat('gold', -packType.price, `market-buy-${packType.id}`)
-    setGoldBalance(prev => prev - packType.price)
+    if (packType.price > 0) {
+      addToCharacterStat('gold', -packType.price, `market-buy-${packType.id}`)
+      setGoldBalance(prev => prev - packType.price)
+    }
+
+    // Update cooldown
+    if (packType.cooldownType) {
+      const updated = { ...claimedTimestamps, [packType.id]: Date.now() }
+      setClaimedTimestamps(updated)
+      if (typeof window !== "undefined") {
+        localStorage.setItem("claimed_packs_timestamps", JSON.stringify(updated))
+      }
+    }
     
     // Generate and open pack
     const pack = generatePack(packType.id)
@@ -198,32 +291,82 @@ export default function MarketPage() {
           </TabsList>
 
           {/* PACKS TAB */}
-          <TabsContent value="packs">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {PACK_TYPES.map(pack => (
-                <Card key={pack.id} className="bg-slate-900 border-purple-900/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
-                  <CardHeader className="text-center relative z-10 pb-4">
-                    <CardTitle className="text-2xl font-black text-purple-300 tracking-wide">{pack.title}</CardTitle>
-                    <CardDescription className="text-purple-200/60 font-bold">{pack.shortLabel}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-1 text-center relative z-10 space-y-4">
-                    <div className="w-32 h-40 mx-auto bg-gradient-to-br from-purple-800 to-indigo-900 rounded-lg shadow-2xl flex items-center justify-center border-2 border-purple-500/30 transform group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500">
-                      <span className="text-5xl drop-shadow-lg">🎴</span>
-                    </div>
-                    <p className="text-sm text-slate-300 px-4">{pack.description}</p>
-                  </CardContent>
-                  <CardFooter className="relative z-10 pt-4">
-                    <Button 
-                      className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50"
-                      onClick={() => handleBuyPack(pack)}
-                      disabled={goldBalance < pack.price}
-                    >
-                      Buy for {pack.price} <Coins className="w-5 h-5 ml-2 text-yellow-400" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+          <TabsContent value="packs" className="space-y-12">
+            {/* Free Packs Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🎁</span>
+                <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Free Chrono Chests</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {FREE_PACK_TYPES.map(pack => {
+                  const onCooldown = isPackOnCooldown(pack);
+                  const remaining = getCooldownRemaining(pack);
+                  return (
+                    <Card key={pack.id} className={`bg-slate-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
+                      <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
+                      <CardHeader className="text-center relative z-10 pb-4">
+                        <CardTitle className="text-2xl font-black text-amber-300 tracking-wide">{pack.title}</CardTitle>
+                        <CardDescription className="text-amber-200/60 font-bold">{pack.shortLabel}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-1 text-center relative z-10 space-y-4">
+                        <div className={`w-32 h-40 mx-auto bg-gradient-to-br from-amber-800/80 to-yellow-950 rounded-lg shadow-2xl flex items-center justify-center border-2 border-amber-500/30 transform transition-transform duration-500 ${onCooldown ? 'grayscale' : 'group-hover:scale-105 group-hover:rotate-3'}`}>
+                          <span className="text-5xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
+                        </div>
+                        <p className="text-sm text-slate-300 px-4">{pack.description}</p>
+                        {onCooldown && remaining && (
+                          <div className="text-xs font-semibold text-amber-400 bg-amber-950/40 py-1 px-3 rounded-full inline-block border border-amber-900/30">
+                            ⏱️ {remaining}
+                          </div>
+                        )}
+                      </CardContent>
+                      <CardFooter className="relative z-10 pt-4">
+                        <Button 
+                          className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${onCooldown ? 'bg-slate-800 text-slate-500 border border-slate-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
+                          onClick={() => handleBuyPack(pack)}
+                          disabled={onCooldown}
+                        >
+                          {onCooldown ? "Claimed" : `Claim Free ${pack.shortLabel}`}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Paid Packs Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🪙</span>
+                <h2 className="text-2xl font-bold tracking-tight text-purple-400 font-serif">Royal Exchange Card Packs</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {PACK_TYPES.map(pack => (
+                  <Card key={pack.id} className="bg-slate-900 border-purple-900/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
+                    <CardHeader className="text-center relative z-10 pb-4">
+                      <CardTitle className="text-2xl font-black text-purple-300 tracking-wide">{pack.title}</CardTitle>
+                      <CardDescription className="text-purple-200/60 font-bold">{pack.shortLabel}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1 text-center relative z-10 space-y-4">
+                      <div className="w-32 h-40 mx-auto bg-gradient-to-br from-purple-800 to-indigo-900 rounded-lg shadow-2xl flex items-center justify-center border-2 border-purple-500/30 transform group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500">
+                        <span className="text-5xl drop-shadow-lg">🎴</span>
+                      </div>
+                      <p className="text-sm text-slate-300 px-4">{pack.description}</p>
+                    </CardContent>
+                    <CardFooter className="relative z-10 pt-4">
+                      <Button 
+                        className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50 rounded-xl"
+                        onClick={() => handleBuyPack(pack)}
+                        disabled={goldBalance < pack.price}
+                      >
+                        Buy for {formatGold(pack.price)} <Coins className="w-5 h-5 ml-2 text-yellow-400" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
 
