@@ -645,17 +645,26 @@ export default function Page() {
       setIsLoading(true);
       setError(null);
 
-      // Run catch-up and fetch achievements IN PARALLEL — halves load time
-      const [catchUpResponse, achievementsResponse] = await Promise.all([
-        fetch('/api/achievements/catch-up', { method: 'POST' }).catch(() => null),
-        fetch(`/api/achievements?userId=${userId}`),
-      ]);
-
-      if (catchUpResponse && !catchUpResponse.ok) {
-        logger.warn('[Achievements Page] Catch-up failed:', catchUpResponse.status);
-      }
-
       try {
+        const token = await getToken();
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+        // Run catch-up, fetch achievements, and fetch mythic cards IN PARALLEL — halves load time
+        const [catchUpResponse, achievementsResponse, mythicsResponse] = await Promise.all([
+          fetch('/api/achievements/catch-up', { method: 'POST', headers }).catch(() => null),
+          fetch(`/api/achievements?userId=${userId}`, { headers }),
+          fetch('/api/packs/mythics', { headers }).catch(() => null),
+        ]);
+
+        if (catchUpResponse && !catchUpResponse.ok) {
+          logger.warn('[Achievements Page] Catch-up failed:', catchUpResponse.status);
+        }
+
+        if (mythicsResponse && mythicsResponse.ok) {
+          const mythicData = await mythicsResponse.json();
+          setMythics(mythicData.mythics || []);
+        }
+
         if (achievementsResponse.ok) {
           const data: DbAchievement[] = await achievementsResponse.json();
           const achievementMap = new Map<string, DbAchievement>();
@@ -669,6 +678,7 @@ export default function Page() {
           setUnlockedAchievements(new Map());
         }
       } catch (error) {
+        logger.error('[Achievements Page] Fetch error:', error);
         setError(TEXT_CONTENT.achievements.ui.genericError);
         setUnlockedAchievements(new Map());
       } finally {
