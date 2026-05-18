@@ -1,4 +1,4 @@
-import { Quest } from "@/lib/types";
+// No import needed for Quest
 
 export interface WeeklyChallenge {
   id: string;
@@ -38,7 +38,8 @@ export function getWeeklyChallenges(seedId: string, weekNumber: number): WeeklyC
   for (let i = 0; i < 3; i++) {
     const r = prng(randomSeed++);
     const idx = Math.floor(r * pool.length);
-    selected.push(pool[idx]);
+    const challenge = pool[idx];
+    if (challenge) selected.push(challenge);
     pool.splice(idx, 1);
   }
   
@@ -52,7 +53,7 @@ export function getCurrentWeekNumber(): number {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
 }
 
-export function calculateChallengeProgress(challenge: WeeklyChallenge, questsThisWeek: Quest[], goldEarnedThisWeek: number): number {
+export function calculateChallengeProgress(challenge: WeeklyChallenge, questsThisWeek: any[], goldEarnedThisWeek: number): number {
   switch (challenge.type) {
     case 'category':
       return questsThisWeek.filter(q => q.category?.toLowerCase() === challenge.value?.toLowerCase() && q.completed).length;

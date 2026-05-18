@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Target, CheckCircle2 } from 'lucide-react'
 import { WeeklyChallenge, getWeeklyChallenges, getCurrentWeekNumber, calculateChallengeProgress } from '@/lib/weekly-challenges'
-import { Quest } from '@/lib/types'
+// No import needed for Quest
 import { useAuth, useUser } from '@clerk/nextjs'
 
 interface WeeklyChallengesCardProps {
-  quests: Quest[]
+  quests: any[]
   weeklyGoldEarned: number
 }
 

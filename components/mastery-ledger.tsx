@@ -327,11 +327,15 @@ export function MasteryLedger() {
 
     // Calculate weekly summary stats
     const weeklySummary = useMemo(() => {
-        if (!weekDays.length) return null;
+        if (!weekDays || weekDays.length < 7) return null;
+        
+        const startDay = weekDays[0];
+        const endDay = weekDays[6];
+        if (!startDay || !endDay) return null;
 
-        const startOfThisWeek = new Date(weekDays[0]);
+        const startOfThisWeek = new Date(startDay);
         startOfThisWeek.setHours(0, 0, 0, 0);
-        const endOfThisWeek = new Date(weekDays[6]);
+        const endOfThisWeek = new Date(endDay);
         endOfThisWeek.setHours(23, 59, 59, 999);
         
         const startOfLastWeek = new Date(startOfThisWeek);
