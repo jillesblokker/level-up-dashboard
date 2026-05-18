@@ -71,6 +71,12 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Completely bypass page navigations and Next.js data/RSC requests
+  // Let the browser handle pages natively to allow Clerk redirects to work correctly
+  if (request.mode === 'navigate' || url.searchParams.has('_rsc') || request.headers.get('rsc') === '1') {
+    return;
+  }
+
   // Completely bypass ALL API requests - let the browser handle them natively
   // This ensures cookies and auth headers are handled correctly by Clerk
   if (url.pathname.startsWith('/api/')) {
