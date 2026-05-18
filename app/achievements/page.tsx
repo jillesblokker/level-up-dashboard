@@ -9,9 +9,10 @@ import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
-import { Trophy, Users, Sword, Crosshair, Coins, Star, Shield, Zap } from 'lucide-react'
+import { Trophy, Users, Sword, Crosshair, Coins, Star, Shield, Zap, Sparkles } from 'lucide-react'
 import { useUser, SignedIn, SignedOut, SignIn, useAuth } from '@clerk/nextjs'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { CARD_TYPES } from '@/lib/pack-generator'
 
 import LoadingAchievements from './loading'
 import { logger } from '@/lib/logger'
@@ -50,6 +51,7 @@ export default function Page() {
   const [showAllUnlocked, setShowAllUnlocked] = useState(false);
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
+  const [mythics, setMythics] = useState<any[]>([]);
 
 
   // Fetch new monster achievement definitions (201-206)
@@ -299,10 +301,106 @@ export default function Page() {
               difficulty: 'hard',
               xp_reward: 500,
               gold_reward: 100,
-              image_url: '/images/achievements/112.webp',
+              image_url: '/images/achievements/304.webp',
               is_hidden: false,
-              unlock_condition: 'Send 10 quests to friends'
+              unlock_condition: 'Reach level 5'
             },
+            {
+              id: '305',
+              name: 'Seasoned Adventurer',
+              description: 'Experience has made you wise. Reach level 10.',
+              category: 'progress',
+              difficulty: 'medium',
+              xp_reward: 300,
+              gold_reward: 150,
+              image_url: '/images/achievements/305.webp',
+              is_hidden: false,
+              unlock_condition: 'Reach level 10'
+            },
+            {
+              id: '306',
+              name: 'Legendary Champion',
+              description: 'Few reach such heights. Reach level 25.',
+              category: 'progress',
+              difficulty: 'hard',
+              xp_reward: 750,
+              gold_reward: 400,
+              image_url: '/images/achievements/306.webp',
+              is_hidden: false,
+              unlock_condition: 'Reach level 25'
+            },
+            {
+              id: '307',
+              name: 'Challenge Seeker',
+              description: 'Embrace difficulty. Complete 5 challenges.',
+              category: 'progress',
+              difficulty: 'easy',
+              xp_reward: 100,
+              gold_reward: 50,
+              image_url: '/images/achievements/307.webp',
+              is_hidden: false,
+              unlock_condition: 'Complete 5 challenges'
+            },
+            {
+              id: '308',
+              name: 'Challenge Conqueror',
+              description: 'Obstacles fuel your resolve. Complete 15 challenges.',
+              category: 'progress',
+              difficulty: 'medium',
+              xp_reward: 250,
+              gold_reward: 125,
+              image_url: '/images/achievements/308.webp',
+              is_hidden: false,
+              unlock_condition: 'Complete 15 challenges'
+            },
+            {
+              id: '309',
+              name: 'Challenge Legend',
+              description: 'Nothing stands in your way. Complete 30 challenges.',
+              category: 'progress',
+              difficulty: 'hard',
+              xp_reward: 500,
+              gold_reward: 250,
+              image_url: '/images/achievements/309.webp',
+              is_hidden: false,
+              unlock_condition: 'Complete 30 challenges'
+            },
+            {
+              id: '310',
+              name: 'Coin Collector',
+              description: 'A growing treasury. Accumulate 1,000 gold total.',
+              category: 'wealth',
+              difficulty: 'easy',
+              xp_reward: 100,
+              gold_reward: 100,
+              image_url: '/images/achievements/310.webp',
+              is_hidden: false,
+              unlock_condition: 'Accumulate 1000 gold'
+            },
+            {
+              id: '311',
+              name: 'Wealthy Merchant',
+              description: 'Your coffers overflow. Accumulate 5,000 gold total.',
+              category: 'wealth',
+              difficulty: 'medium',
+              xp_reward: 250,
+              gold_reward: 250,
+              image_url: '/images/achievements/311.webp',
+              is_hidden: false,
+              unlock_condition: 'Accumulate 5000 gold'
+            },
+            {
+              id: '312',
+              name: 'Golden Sovereign',
+              description: 'A fortune fit for royalty. Accumulate 10,000 gold total.',
+              category: 'wealth',
+              difficulty: 'hard',
+              xp_reward: 500,
+              gold_reward: 500,
+              image_url: '/images/achievements/312.webp',
+              is_hidden: false,
+              unlock_condition: 'Accumulate 10000 gold'
+            }
           ];
           setAchievementDefinitions(fallbackDefinitions);
         }
@@ -639,6 +737,13 @@ export default function Page() {
   const totalProgress = progressAchievementsList.length;
   const unlockedProgressCount = progressAchievementsList.filter(a => isUnlocked(a.id)).length;
   const progressProgress = totalProgress > 0 ? (unlockedProgressCount / totalProgress) * 100 : 0;
+
+  // Mythics
+  const totalMythics = CARD_TYPES.length;
+  const unlockedMythics = new Set(mythics.map(m => m.card_id));
+  const unlockedMythicsCount = unlockedMythics.size;
+  const mythicsProgress = totalMythics > 0 ? (unlockedMythicsCount / totalMythics) * 100 : 0;
+
   return (
     <>
       <SignedIn>
@@ -802,6 +907,52 @@ export default function Page() {
                     </div>
                   );
                 })}
+            </div>
+          </div>
+
+          {/* Mythics Collection Section */}
+          <div className="mb-16">
+            <div className="flex flex-col gap-3 mb-8">
+              <div className="flex justify-between items-end">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-purple-500/10 rounded-xl border border-purple-500/20 shadow-inner">
+                    <Sparkles className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-purple-400 leading-none mb-1">Mythic Cards</h2>
+                    <span className="text-sm text-muted-foreground font-medium">Scratched from Market Packs</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="text-right hidden sm:block">
+                    <div className="text-lg font-bold text-purple-500 leading-none">{unlockedMythicsCount} <span className="text-sm text-muted-foreground font-normal">/ {totalMythics}</span></div>
+                  </div>
+                </div>
+              </div>
+              <Progress value={mythicsProgress} className="h-2.5 bg-secondary/30" indicatorClassName="bg-gradient-to-r from-purple-600 to-purple-400" />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6" role="list">
+              {CARD_TYPES.map(cardDef => {
+                const unlockedCard = mythics.find(m => m.card_id === String(cardDef.number));
+                const isUnlocked = !!unlockedCard;
+
+                return (
+                  <div key={cardDef.number} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg">
+                    {isUnlocked ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 border-2 border-purple-500/50" style={{ background: cardDef.background, color: cardDef.ink }}>
+                        <span className="text-5xl font-black opacity-80">{cardDef.number}</span>
+                        <span className="text-xs font-bold tracking-widest mt-2">Card #{cardDef.number}</span>
+                        <span className="text-[10px] font-bold mt-1 opacity-60 uppercase">{cardDef.rarity}</span>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-900 border-2 border-dashed border-slate-800">
+                        <div className="text-4xl filter drop-shadow-md opacity-20">?</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

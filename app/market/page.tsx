@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileType } from "@/types/tiles"
+import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
+import { PackOpeningModal } from "@/components/pack-opening-modal"
 
 // Define available materials for trade
 const MATERIALS = [
@@ -30,6 +32,7 @@ export default function MarketPage() {
   const [goldBalance, setGoldBalance] = useState(0)
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
   const [activeTab, setActiveTab] = useState("buy")
+  const [openingPack, setOpeningPack] = useState<any>(null)
 
   // Transaction state
   const [quantities, setQuantities] = useState<Record<string, number>>({})
@@ -131,6 +134,25 @@ export default function MarketPage() {
     setQuantities(prev => ({ ...prev, [material.id]: 0 }))
   }
 
+  const handleBuyPack = (packType: typeof PACK_TYPES[0]) => {
+    if (goldBalance < packType.price) {
+      toast({
+        title: "Insufficient Gold",
+        description: `You need ${packType.price} gold to buy this pack.`,
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Deduct gold
+    addToCharacterStat('gold', -packType.price, `market-buy-${packType.id}`)
+    setGoldBalance(prev => prev - packType.price)
+    
+    // Generate and open pack
+    const pack = generatePack(packType.id)
+    setOpeningPack(pack)
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-950 text-white font-sans">
       <main className="flex-1 p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
@@ -151,14 +173,47 @@ export default function MarketPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full h-auto max-w-xl mx-auto grid-cols-2 bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-3 bg-slate-900 border border-slate-800 p-2 rounded-xl">
             <TabsTrigger value="buy" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
               <ShoppingBag className="w-5 h-5 mr-2" /> Buy Materials
             </TabsTrigger>
             <TabsTrigger value="sell" className="text-lg data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-lg transition-all">
               <TrendingUp className="w-5 h-5 mr-2" /> Sell Resources
             </TabsTrigger>
+            <TabsTrigger value="packs" className="text-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg transition-all">
+              <Package className="w-5 h-5 mr-2" /> Card Packs
+            </TabsTrigger>
           </TabsList>
+
+          {/* PACKS TAB */}
+          <TabsContent value="packs">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PACK_TYPES.map(pack => (
+                <Card key={pack.id} className="bg-slate-900 border-purple-900/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
+                  <CardHeader className="text-center relative z-10 pb-4">
+                    <CardTitle className="text-2xl font-black text-purple-300 tracking-wide">{pack.title}</CardTitle>
+                    <CardDescription className="text-purple-200/60 font-bold">{pack.shortLabel}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1 text-center relative z-10 space-y-4">
+                    <div className="w-32 h-40 mx-auto bg-gradient-to-br from-purple-800 to-indigo-900 rounded-lg shadow-2xl flex items-center justify-center border-2 border-purple-500/30 transform group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500">
+                      <span className="text-5xl drop-shadow-lg">🎴</span>
+                    </div>
+                    <p className="text-sm text-slate-300 px-4">{pack.description}</p>
+                  </CardContent>
+                  <CardFooter className="relative z-10 pt-4">
+                    <Button 
+                      className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50"
+                      onClick={() => handleBuyPack(pack)}
+                      disabled={goldBalance < pack.price}
+                    >
+                      Buy for {pack.price} <Coins className="w-5 h-5 ml-2 text-yellow-400" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
           {/* BUY TAB */}
           <TabsContent value="buy">
@@ -280,6 +335,19 @@ export default function MarketPage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {openingPack && (
+        <PackOpeningModal 
+          packData={openingPack} 
+          onClose={() => setOpeningPack(null)} 
+          onClaimed={() => {
+            toast({
+              title: "Card Claimed!",
+              description: "It has been added to your Mythics collection."
+            })
+          }} 
+        />
+      )}
     </div>
   )
 }
