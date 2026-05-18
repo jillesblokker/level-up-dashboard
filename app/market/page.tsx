@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileType } from "@/types/tiles"
 import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
+import { formatGold } from "@/lib/utils"
 
 // Define available materials for trade
 const MATERIALS = [
@@ -163,6 +164,17 @@ export default function MarketPage() {
             <p className="text-slate-400 mt-1">Trade standard construction materials and resources.</p>
           </div>
           <div className="flex items-center gap-4">
+            {/* Current Gold HUD */}
+            <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 p-2.5 px-4 rounded-xl shadow-lg backdrop-blur-md">
+              <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
+              <div className="text-right">
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Your Treasury</p>
+                <p className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
+                  {formatGold(goldBalance)} <span className="text-xs text-amber-600">Gold</span>
+                </p>
+              </div>
+            </div>
+
             <Link href="/">
               <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
                 <ArrowLeft className="mr-2 h-4 w-4" />
