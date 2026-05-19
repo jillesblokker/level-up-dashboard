@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import canvasConfetti from 'canvas-confetti';
+import Image from 'next/image';
 
 interface ScratchCardProps {
   cardData: {
@@ -198,6 +199,11 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     };
   }, [cardData, onReveal, revealed, isWinner]);
 
+  // Image mapping for cards 1-5: #1=Red, #2=Green, #3=Blue, #4=White, #5=Black
+  const colorMap: Record<number, string> = { 1: 'red', 2: 'green', 3: 'blue', 4: 'white', 5: 'black' };
+  const hasImage = cardData.number >= 1 && cardData.number <= 5;
+  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorMap[cardData.number]}.png` : null;
+
   return (
     <article 
       ref={containerRef}
@@ -205,18 +211,38 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
         "relative w-[160px] h-[220px] sm:w-[180px] sm:h-[260px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none",
         isWinner && revealed ? "ring-4 ring-yellow-400 ring-offset-2 ring-offset-black animate-pulse" : "ring-1 ring-white/10"
       )}
-      style={{
+      style={!hasImage ? {
         background: cardData.background,
         color: cardData.ink,
-      }}
+      } : undefined}
     >
       {/* Background Reward Face */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-        <span className="text-4xl font-black opacity-80">{cardData.number}</span>
-        <span className="text-sm font-bold tracking-widest mt-2">{cardData.variantLabel}</span>
-        <span className="text-xs font-bold mt-1 opacity-60 uppercase">{cardData.rarity}</span>
-        <span className="mt-auto text-lg font-bold">{cardData.price} 🪙</span>
-      </div>
+      {hasImage && imagePath ? (
+        <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-950">
+          <Image
+            src={imagePath}
+            alt={`Mythic Card #${cardData.number}`}
+            fill
+            className="object-cover"
+          />
+          {/* Overlay info */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 flex flex-col justify-end h-2/3">
+            <span className="text-[10px] font-bold text-amber-200 tracking-wider mb-0.5">{cardData.variantLabel}</span>
+            <span className="text-[9px] font-bold text-purple-300 uppercase tracking-widest">{cardData.rarity}</span>
+            <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-white/10">
+              <span className="text-xs font-bold text-white flex items-center gap-1">Card #{cardData.number}</span>
+              <span className="text-xs font-bold text-yellow-400">{cardData.price} 🪙</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          <span className="text-4xl font-black opacity-80">{cardData.number}</span>
+          <span className="text-sm font-bold tracking-widest mt-2">{cardData.variantLabel}</span>
+          <span className="text-xs font-bold mt-1 opacity-60 uppercase">{cardData.rarity}</span>
+          <span className="mt-auto text-lg font-bold">{cardData.price} 🪙</span>
+        </div>
+      )}
 
       {/* Canvas Layer */}
       <canvas 
