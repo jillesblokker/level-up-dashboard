@@ -969,18 +969,52 @@ export default function Page() {
                 const unlockedCard = mythics.find(m => m.card_id === String(cardDef.number));
                 const isUnlocked = !!unlockedCard;
 
+                // Image mapping for cards 1-5: #1=Red, #2=Green, #3=Blue, #4=White, #5=Black
+                const colorMap: Record<number, string> = { 1: 'red', 2: 'green', 3: 'blue', 4: 'white', 5: 'black' };
+                const hasImage = cardDef.number >= 1 && cardDef.number <= 5;
+                const imagePath = hasImage ? `/images/Mythics/Mythic${cardDef.number}${colorMap[cardDef.number]}.png` : null;
+
                 return (
-                  <div key={cardDef.number} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg">
+                  <div key={cardDef.number} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
                     {isUnlocked ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 border-2 border-purple-500/50" style={{ background: cardDef.background, color: cardDef.ink }}>
-                        <span className="text-5xl font-black opacity-80">{cardDef.number}</span>
-                        <span className="text-xs font-bold tracking-widest mt-2">Card #{cardDef.number}</span>
-                        <span className="text-[10px] font-bold mt-1 opacity-60 uppercase">{cardDef.rarity}</span>
-                      </div>
+                      hasImage && imagePath ? (
+                        <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden">
+                          <Image
+                            src={imagePath}
+                            alt={`Mythic Card #${cardDef.number}`}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8">
+                            <span className="text-[10px] font-bold opacity-80 uppercase text-purple-200 tracking-widest">{cardDef.rarity}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 border-2 border-purple-500/50 rounded-xl" style={{ background: cardDef.background, color: cardDef.ink }}>
+                          <span className="text-5xl font-black opacity-80">{cardDef.number}</span>
+                          <span className="text-xs font-bold tracking-widest mt-2">Card #{cardDef.number}</span>
+                          <span className="text-[10px] font-bold mt-1 opacity-60 uppercase">{cardDef.rarity}</span>
+                        </div>
+                      )
                     ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-900 border-2 border-dashed border-slate-800">
-                        <div className="text-4xl filter drop-shadow-md opacity-20">?</div>
-                      </div>
+                      hasImage && imagePath ? (
+                        <div className="absolute inset-0 border-2 border-dashed border-slate-800 rounded-xl overflow-hidden bg-slate-900">
+                          <Image
+                            src={imagePath}
+                            alt={`Mythic Card #${cardDef.number} - Locked`}
+                            fill
+                            className="object-cover grayscale opacity-15 blur-[2px]"
+                          />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <div className="text-4xl opacity-30">🔒</div>
+                            <span className="text-[10px] font-bold mt-2 opacity-40 uppercase text-slate-400 tracking-widest">{cardDef.rarity}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-900 border-2 border-dashed border-slate-800 rounded-xl">
+                          <div className="text-4xl filter drop-shadow-md opacity-20">?</div>
+                        </div>
+                      )
                     )}
                   </div>
                 );
