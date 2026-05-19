@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCreatureStore } from '@/stores/creatureStore'
 import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
@@ -52,6 +53,7 @@ export default function Page() {
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
   const [mythics, setMythics] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'creatures' | 'mythic' | 'alliance' | 'monsters' | 'progress'>('creatures');
 
 
   // Fetch new monster achievement definitions (201-206)
@@ -791,7 +793,26 @@ export default function Page() {
             <div className="text-center text-gray-400 mb-8">{TEXT_CONTENT.achievements.ui.empty}</div>
           )}
 
-          {/* Original Creatures Section */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
+            <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-1 mb-8">
+              <TabsTrigger value="creatures" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <Crosshair className="w-4 h-4" /><span>Creatures</span>
+              </TabsTrigger>
+              <TabsTrigger value="mythic" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <Sparkles className="w-4 h-4" /><span>Mythic</span>
+              </TabsTrigger>
+              <TabsTrigger value="alliance" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <Users className="w-4 h-4" /><span>Alliance</span>
+              </TabsTrigger>
+              <TabsTrigger value="monsters" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <Sword className="w-4 h-4" /><span>Monsters</span>
+              </TabsTrigger>
+              <TabsTrigger value="progress" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <Trophy className="w-4 h-4" /><span>Progress</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="creatures">
           <div className="mb-16">
             <div className="flex flex-col gap-3 mb-8">
               <div className="flex justify-between items-end">
@@ -919,8 +940,9 @@ export default function Page() {
                 })}
             </div>
           </div>
+            </TabsContent>
 
-          {/* Mythics Collection Section */}
+            <TabsContent value="mythic">
           <div className="mb-16">
             <div className="flex flex-col gap-3 mb-8">
               <div className="flex justify-between items-end">
@@ -965,8 +987,9 @@ export default function Page() {
               })}
             </div>
           </div>
+            </TabsContent>
 
-          {/* Alliance Achievements Section */}
+            <TabsContent value="alliance">
           {achievementDefinitions.length > 0 && (
             <div className="mb-16">
               <div className="flex flex-col gap-3 mb-8">
@@ -1078,8 +1101,9 @@ export default function Page() {
               </div>
             </div>
           )}
+            </TabsContent>
 
-          {/* New Monster Achievements Section */}
+            <TabsContent value="monsters">
           {achievementDefinitions.length > 0 && (
             <div className="mb-16">
               <div className="flex flex-col gap-3 mb-8">
@@ -1203,8 +1227,9 @@ export default function Page() {
               </div>
             </div>
           )}
+            </TabsContent>
 
-          {/* Progress Achievements Section */}
+            <TabsContent value="progress">
           {progressAchievementsList.length > 0 && (
             <div className="mb-16">
               <div className="flex flex-col gap-3 mb-8">
@@ -1311,6 +1336,8 @@ export default function Page() {
               </div>
             </div>
           )}
+            </TabsContent>
+          </Tabs>
         </main>
         {/* Bottom spacing */}
         <div className="h-8 md:h-12"></div>
