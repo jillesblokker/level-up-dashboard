@@ -751,9 +751,9 @@ export default function Page() {
   const progressProgress = totalProgress > 0 ? (unlockedProgressCount / totalProgress) * 100 : 0;
 
   // Mythics
-  const totalMythics = CARD_TYPES.length;
-  const unlockedMythics = new Set(mythics.map(m => m.card_id));
-  const unlockedMythicsCount = unlockedMythics.size;
+  const totalMythics = CARD_TYPES.length * 5;
+  const uniqueUnlockedMythics = new Set(mythics.map(m => `${m.card_id}-${m.variant_id}`));
+  const unlockedMythicsCount = uniqueUnlockedMythics.size;
   const mythicsProgress = totalMythics > 0 ? (unlockedMythicsCount / totalMythics) * 100 : 0;
 
   return (
@@ -965,59 +965,48 @@ export default function Page() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6" role="list">
-              {CARD_TYPES.map(cardDef => {
-                const unlockedCard = mythics.find(m => m.card_id === String(cardDef.number));
-                const isUnlocked = !!unlockedCard;
+              {CARD_TYPES.flatMap(cardDef => {
+                const colorNames = ['red', 'green', 'blue', 'white', 'black'];
+                return colorNames.map((colorName, variantIndex) => {
+                  const unlockedCard = mythics.find(
+                    m => m.card_id === String(cardDef.number) && m.variant_id === String(variantIndex)
+                  );
+                  const isUnlocked = !!unlockedCard;
+                  const imagePath = `/images/Mythics/Mythic${cardDef.number}${colorName}.png`;
+                  const variantLabel = `${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Edition`;
 
-                // Image mapping for cards 1-5: #1=Red, #2=Green, #3=Blue, #4=White, #5=Black
-                const colorMap: Record<number, string> = { 1: 'red', 2: 'green', 3: 'blue', 4: 'white', 5: 'black' };
-                const hasImage = cardDef.number >= 1 && cardDef.number <= 5;
-                const imagePath = hasImage ? `/images/Mythics/Mythic${cardDef.number}${colorMap[cardDef.number]}.png` : null;
-
-                return (
-                  <div key={cardDef.number} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
-                    {isUnlocked ? (
-                      hasImage && imagePath ? (
+                  return (
+                    <div key={`${cardDef.number}-${variantIndex}`} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
+                      {isUnlocked ? (
                         <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden">
                           <Image
                             src={imagePath}
-                            alt={`Mythic Card #${cardDef.number}`}
+                            alt={`${cardDef.rarity} Card #${cardDef.number} (${colorName})`}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8">
-                            <span className="text-[10px] font-bold opacity-80 uppercase text-purple-200 tracking-widest">{cardDef.rarity}</span>
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 pt-8 flex flex-col justify-end">
+                            <span className="text-[10px] font-bold text-amber-200 uppercase tracking-widest">{variantLabel}</span>
+                            <span className="text-[9px] font-semibold text-purple-300 tracking-wider mt-0.5">{cardDef.rarity}</span>
                           </div>
                         </div>
                       ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 border-2 border-purple-500/50 rounded-xl" style={{ background: cardDef.background, color: cardDef.ink }}>
-                          <span className="text-5xl font-black opacity-80">{cardDef.number}</span>
-                          <span className="text-xs font-bold tracking-widest mt-2">Card #{cardDef.number}</span>
-                          <span className="text-[10px] font-bold mt-1 opacity-60 uppercase">{cardDef.rarity}</span>
-                        </div>
-                      )
-                    ) : (
-                      hasImage && imagePath ? (
-                        <div className="absolute inset-0 border-2 border-dashed border-slate-800 rounded-xl overflow-hidden bg-slate-900">
+                        <div className="absolute inset-0 border-2 border-dashed border-slate-800 rounded-xl overflow-hidden bg-slate-900/50">
                           <Image
                             src={imagePath}
-                            alt={`Mythic Card #${cardDef.number} - Locked`}
+                            alt={`${cardDef.rarity} Card #${cardDef.number} - Locked`}
                             fill
                             className="object-cover grayscale opacity-15 blur-[2px]"
                           />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <div className="text-4xl opacity-30">🔒</div>
-                            <span className="text-[10px] font-bold mt-2 opacity-40 uppercase text-slate-400 tracking-widest">{cardDef.rarity}</span>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                            <div className="text-3xl opacity-30">🔒</div>
+                            <span className="text-[9px] font-bold mt-2 opacity-40 uppercase text-slate-400 tracking-widest">{colorName}</span>
                           </div>
                         </div>
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-900 border-2 border-dashed border-slate-800 rounded-xl">
-                          <div className="text-4xl filter drop-shadow-md opacity-20">?</div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                );
+                      )}
+                    </div>
+                  );
+                });
               })}
             </div>
           </div>

@@ -92,14 +92,12 @@ export const CARD_TYPES = [
   },
 ];
 
-export const VARIANTS_PER_CARD = 3;
+export const VARIANTS_PER_CARD = 5;
 export const CARD_BY_NUMBER = new Map(CARD_TYPES.map((card) => [card.number, card]));
 
 export function variantLabel(number: number, variantIndex: number) {
-    if (variantIndex === 0) return 'Base Edition';
-    if (variantIndex === 1) return 'Holo Foil';
-    if (variantIndex === 2) return 'Gold Plated';
-    return 'Unknown Variant';
+    const colors = ['Red', 'Green', 'Blue', 'White', 'Black'];
+    return colors[variantIndex] ? `${colors[variantIndex]} Edition` : 'Unknown Variant';
 }
 
 export const PACK_TYPES = [
@@ -189,9 +187,11 @@ export function pickWeightedCard(random = Math.random, excludedNumbers = new Set
 
 function pickVariantIndex(random = Math.random) {
     const roll = random();
-    if (roll < 0.8) return 0; // 80% Base
-    if (roll < 0.95) return 1; // 15% Holo
-    return 2; // 5% Gold
+    if (roll < 0.50) return 0; // Red
+    if (roll < 0.75) return 1; // Green
+    if (roll < 0.90) return 2; // Blue
+    if (roll < 0.97) return 3; // White
+    return 4; // Black
 }
 
 export function generatePack(packTypeId = "starter", random = Math.random) {

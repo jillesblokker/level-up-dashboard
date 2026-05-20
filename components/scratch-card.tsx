@@ -15,6 +15,7 @@ interface ScratchCardProps {
     ink: string;
     price: number;
     variantLabel: string;
+    variantIndex: number;
   };
   onReveal?: (cardId: string) => void;
   isWinner?: boolean;
@@ -199,10 +200,11 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     };
   }, [cardData, onReveal, revealed, isWinner]);
 
-  // Image mapping for cards 1-5: #1=Red, #2=Green, #3=Blue, #4=White, #5=Black
-  const colorMap: Record<number, string> = { 1: 'red', 2: 'green', 3: 'blue', 4: 'white', 5: 'black' };
-  const hasImage = cardData.number >= 1 && cardData.number <= 5;
-  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorMap[cardData.number]}.png` : null;
+  // All 10 categories have 5 variants: Red (0), Green (1), Blue (2), White (3), Black (4)
+  const colors = ['red', 'green', 'blue', 'white', 'black'];
+  const colorName = colors[cardData.variantIndex] || 'red';
+  const hasImage = cardData.number >= 1 && cardData.number <= 10;
+  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorName}.png` : null;
 
   return (
     <article 
@@ -211,10 +213,6 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
         "relative w-[160px] h-[220px] sm:w-[180px] sm:h-[260px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none",
         isWinner && revealed ? "ring-4 ring-yellow-400 ring-offset-2 ring-offset-black animate-pulse" : "ring-1 ring-white/10"
       )}
-      style={!hasImage ? {
-        background: cardData.background,
-        color: cardData.ink,
-      } : undefined}
     >
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
@@ -236,7 +234,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
           </div>
         </div>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-950 text-white">
           <span className="text-4xl font-black opacity-80">{cardData.number}</span>
           <span className="text-sm font-bold tracking-widest mt-2">{cardData.variantLabel}</span>
           <span className="text-xs font-bold mt-1 opacity-60 uppercase">{cardData.rarity}</span>
