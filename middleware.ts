@@ -14,8 +14,13 @@ export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
   const { pathname, searchParams } = request.nextUrl;
 
+  const secFetchMode = request.headers.get('sec-fetch-mode');
   const acceptHeader = request.headers.get('accept') || '';
-  const isNavigational = request.mode === 'navigate' && acceptHeader.includes('text/html');
+  const isPrefetch = request.headers.get('purpose') === 'prefetch' || request.headers.get('x-middleware-prefetch') === '1';
+  const isNavigational = 
+    secFetchMode === 'navigate' || 
+    request.mode === 'navigate' || 
+    (acceptHeader.includes('text/html') && !isPrefetch);
 
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
