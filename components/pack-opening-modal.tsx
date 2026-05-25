@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ScratchCard } from './scratch-card';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface PackOpeningModalProps {
   packData: any; // Result from generatePack
@@ -14,6 +15,7 @@ interface PackOpeningModalProps {
 
 export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningModalProps) {
   const { getToken } = useAuth();
+  const router = useRouter();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [claimed, setClaimed] = useState(false);
   
@@ -44,9 +46,9 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
     }
   }, [isWon, claimed, packData, getToken, onClaimed]);
 
-  const handleReveal = (cardId: string) => {
+  const handleReveal = useCallback((cardId: string) => {
     setRevealedIds(prev => new Set(prev).add(cardId));
-  };
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-y-auto">
@@ -80,13 +82,26 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
         </div>
 
         {isWon && (
-          <Button 
-            size="lg" 
-            className="mt-12 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xl px-12 py-6 rounded-full shadow-[0_0_40px_rgba(245,158,11,0.5)] animate-bounce"
-            onClick={onClose}
-          >
-            Collect & Return
-          </Button>
+          <div className="flex gap-4 mt-12 items-center flex-col sm:flex-row">
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20 font-bold text-lg px-8 py-6 rounded-full"
+              onClick={() => {
+                onClose();
+                router.push('/achievements');
+              }}
+            >
+              See achievements
+            </Button>
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xl px-12 py-6 rounded-full shadow-[0_0_40px_rgba(245,158,11,0.5)] animate-bounce"
+              onClick={onClose}
+            >
+              Collect & Return
+            </Button>
+          </div>
         )}
       </div>
     </div>

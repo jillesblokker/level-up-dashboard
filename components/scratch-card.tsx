@@ -32,6 +32,16 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
   const pixelsScratched = useRef(0);
   const totalPixels = useRef(0);
 
+  const onRevealRef = useRef(onReveal);
+  const isWinnerRef = useRef(isWinner);
+  const cardDataRef = useRef(cardData);
+  
+  useEffect(() => {
+    onRevealRef.current = onReveal;
+    isWinnerRef.current = isWinner;
+    cardDataRef.current = cardData;
+  }, [onReveal, isWinner, cardData]);
+
   // Vibrate helper
   const hapticScratch = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -166,7 +176,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
       ctx.clearRect(0, 0, width, height);
       hapticReveal();
       
-      if (isWinner) {
+      if (isWinnerRef.current) {
         canvasConfetti({
           particleCount: 100,
           spread: 70,
@@ -175,8 +185,8 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
         });
       }
 
-      if (onReveal) {
-        onReveal(cardData.id);
+      if (onRevealRef.current) {
+        onRevealRef.current(cardDataRef.current.id);
       }
     };
 
@@ -198,7 +208,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
       canvas.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
     };
-  }, [cardData, onReveal, revealed, isWinner]);
+  }, []);
 
   // All 10 categories have 5 variants: Red (0), Green (1), Blue (2), White (3), Black (4)
   const colors = ['red', 'green', 'blue', 'white', 'black'];
