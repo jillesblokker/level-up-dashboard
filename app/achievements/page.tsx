@@ -983,7 +983,7 @@ export default function Page() {
                             src={imagePath}
                             alt={`${cardDef.rarity} Card #${cardDef.number} (${colorName})`}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                           />
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 pt-8 flex flex-col justify-end">
                             <span className="text-[10px] font-bold text-amber-200 uppercase tracking-widest">{variantLabel}</span>
@@ -996,7 +996,7 @@ export default function Page() {
                             src={imagePath}
                             alt={`${cardDef.rarity} Card #${cardDef.number} - Locked`}
                             fill
-                            className="object-cover grayscale opacity-15 blur-[2px]"
+                            className="object-contain p-4 grayscale opacity-15 blur-[2px]"
                           />
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
                             <div className="text-3xl opacity-30">🔒</div>

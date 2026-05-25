@@ -231,7 +231,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
             src={imagePath}
             alt={`Mythic Card #${cardData.number}`}
             fill
-            className="object-cover"
+            className="object-contain p-2"
           />
           {/* Overlay info */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 flex flex-col justify-end h-2/3">
