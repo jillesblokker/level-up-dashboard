@@ -4,6 +4,13 @@ import { CreatureDefinition, CREATURE_DEFINITIONS } from '@/lib/creature-mapping
 import { CreatureSprite } from './creature-sprite';
 import { Tile } from '@/types/tiles';
 import { useUser } from '@clerk/nextjs';
+import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
+import { getInventory } from '@/lib/inventory-manager';
+import { useToast } from '@/components/ui/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Heart, Sparkles, Star, Clock, Coins } from 'lucide-react';
+import Image from 'next/image';
 
 interface CreatureLayerProps {
     grid: Tile[][];
@@ -27,6 +34,20 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const { user, isLoaded } = useUser();
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const { toast } = useToast();
+    const loadCitizens = useCitizensStore(state => state.loadCitizens);
+    const citizens = useCitizensStore(state => state.citizens);
+    const feedCitizen = useCitizensStore(state => state.feedCitizen);
+    const harvestCitizen = useCitizensStore(state => state.harvestCitizen);
+
+    const [selectedCitizenId, setSelectedCitizenId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [inventoryFoods, setInventoryFoods] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
+    const [isInteracting, setIsInteracting] = useState(false);
+
+    // Get the selected citizen object from the store dynamically
+    const selectedCitizen = citizens.find(c => c.id === selectedCitizenId) || null;
+
     // Update player tile when playerPosition prop changes
     useEffect(() => {
         if (playerPosition) {
@@ -34,106 +55,61 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         }
     }, [playerPosition]);
 
-    const [hiddenCreatures, setHiddenCreatures] = useState<Set<string>>(new Set());
-
-    // 1. Fetch Unlocked Achievements, Spawn Creatures, AND Check Cooldowns
+    // Load citizens when user is available
     useEffect(() => {
-        const fetchUnlockedCreatures = async () => {
-            // logger.debug('[CreatureLayer] Fetching unlocked creatures for map:', mapType);
+        if (isLoaded && user?.id) {
+            loadCitizens(user.id);
+        }
+    }, [isLoaded, user?.id, loadCitizens]);
 
-            try {
-                if (!isLoaded || !user) return;
+    // Sync active, fed citizens to maps (capped at 12, prioritizing favorites)
+    useEffect(() => {
+        if (!isLoaded || !user) return;
+        if (citizens.length === 0) return;
 
-                // Parallel fetch: Achievements AND Recent Interactions
-                const [achievementsRes, interactionsRes] = await Promise.all([
-                    fetch('/api/achievements'),
-                    fetch('/api/creatures/interactions') // New endpoint to get active cooldowns
-                ]);
+        // Get all active and fed citizens (excluding animals, which are handled separately)
+        const activeFed = citizens.filter(c => c.active && !isCitizenHungry(c));
 
-                // Handle Achievements
-                let achievements = [];
-                if (achievementsRes.ok) {
-                    const data = await achievementsRes.json();
-                    achievements = Array.isArray(data) ? data : (data.achievements || []);
-                }
+        // Prioritize favorites and cap at 12
+        const prioritized = [...activeFed].sort((a, b) => {
+            if (a.favorite && !b.favorite) return -1;
+            if (!a.favorite && b.favorite) return 1;
+            return 0;
+        });
+        const capped = prioritized.slice(0, 12);
+        const cappedIds = new Set(capped.map(c => c.id));
 
-                // Handle Interactions/Cooldowns
-                const hiddenIds = new Set<string>();
-                if (interactionsRes.ok) {
-                    const data = await interactionsRes.json();
-                    // data.cooldowns is array of definitionIds that are currently on cooldown
-                    if (data.cooldowns && Array.isArray(data.cooldowns)) {
-                        data.cooldowns.forEach((id: string) => hiddenIds.add(id));
-                    }
-                }
-                setHiddenCreatures(hiddenIds);
+        setActiveCreatures(prev => {
+            // Keep existing creatures that are still active/fed/capped
+            const next = prev.filter(c => cappedIds.has(c.definitionId));
 
+            // Find which capped citizens are NOT yet spawned
+            const spawnedIds = new Set(next.map(c => c.definitionId));
+            const toSpawn = capped.filter(c => !spawnedIds.has(c.id));
 
-                if (!achievements || achievements.length === 0) {
-                    // Test creatures logic...
-                    // (Keep existing test logic but maybe filter by hiddenIds too if testing cooldowns)
-                    const testCreatures: ActiveCreature[] = [];
-                    const testIds = ['001', '004', '007', '010', '013'];
-
-                    testIds.forEach(id => {
-                        // Skip if on cooldown
-                        if (hiddenIds.has(id)) return;
-
-                        const def = CREATURE_DEFINITIONS[id];
-                        if (def) {
-                            const spawnPoint = findRandomSpawnPoint(grid, def.type);
-                            if (spawnPoint) {
-                                testCreatures.push({
-                                    instanceId: `${def.id}-${Date.now()}-${Math.random()}`,
-                                    definitionId: def.id,
-                                    position: spawnPoint,
-                                    targetPosition: spawnPoint,
-                                    state: 'idle'
-                                });
-                            }
-                        }
+            toSpawn.forEach(c => {
+                const spawnPoint = findRandomSpawnPoint(grid, c.type);
+                if (spawnPoint) {
+                    next.push({
+                        instanceId: `${c.id}-${Date.now()}-${Math.random()}`,
+                        definitionId: c.id,
+                        position: spawnPoint,
+                        targetPosition: spawnPoint,
+                        state: 'idle'
                     });
-                    setActiveCreatures(testCreatures);
-                    return;
                 }
+            });
 
-                const unlockedIds = achievements.map((a: any) => a.achievement_id || a.id);
-                const creaturesToSpawn: ActiveCreature[] = [];
+            return next;
+        });
+    }, [citizens, grid, isLoaded, user]);
 
-                unlockedIds.forEach((id: string) => {
-                    // Skip if on cooldown (shaved recently)
-                    if (hiddenIds.has(id)) return;
-
-                    const def = CREATURE_DEFINITIONS[id];
-                    if (def) {
-                        const spawnPoint = findRandomSpawnPoint(grid, def.type);
-                        if (spawnPoint) {
-                            creaturesToSpawn.push({
-                                instanceId: `${def.id}-${Date.now()}-${Math.random()}`,
-                                definitionId: def.id,
-                                position: spawnPoint,
-                                targetPosition: spawnPoint,
-                                state: 'idle'
-                            });
-                        }
-                    }
-                });
-
-                setActiveCreatures(creaturesToSpawn);
-            } catch (error) {
-                logger.error('[CreatureLayer] Unexpected error:', error);
-            }
-        };
-
-        fetchUnlockedCreatures();
-    }, [grid, user, isLoaded, mapType]); // Re-run if grid changes (e.g. new tiles placed)
-
-    // 2. Wandering Logic - Different for Kingdom vs Realm
+    // Wandering Logic - Different for Kingdom vs Realm
     useEffect(() => {
         if (activeCreatures.length === 0) return;
 
         const moveCreature = (creature: ActiveCreature) => {
-            const def = CREATURE_DEFINITIONS[creature.definitionId];
+            const def = citizens.find(c => c.id === creature.definitionId) || CREATURE_DEFINITIONS[creature.definitionId];
             if (!def) return creature;
 
             const neighbors = getNeighbors(creature.position, grid);
@@ -142,7 +118,6 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             if (validNeighbors.length > 0) {
                 const nextTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
                 if (nextTile) {
-                    // logger.debug(`[CreatureLayer] Moving ${def.name} from`, creature.position, 'to', { row: nextTile.row, col: nextTile.col });
                     return {
                         ...creature,
                         position: { row: nextTile.row, col: nextTile.col },
@@ -186,11 +161,9 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
             return () => clearInterval(interval);
         }
-    }, [grid, activeCreatures.length, mapType]);
+    }, [grid, activeCreatures.length, mapType, citizens]);
 
-    // 3. Track Player Position
-    // For Realm: use character position passed via props
-    // For Kingdom: track mouse position relative to container
+    // Track Player Position (Kingdom Mouse Hover or Realm playerPosition)
     useEffect(() => {
         if (mapType === 'realm') return; // Realm uses playerPosition prop
 
@@ -227,12 +200,99 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
     }, [grid, mapType]);
 
+    const handleCreatureClick = async (creature: ActiveCreature) => {
+        // Trigger generic callback if provided
+        onCreatureClick?.(creature);
+
+        const citizen = citizens.find(c => c.id === creature.definitionId);
+        if (!citizen) return;
+
+        setSelectedCitizenId(citizen.id);
+        setIsModalOpen(true);
+
+        if (user?.id) {
+            try {
+                const inv = await getInventory(user.id);
+                const foodItems = inv
+                    .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
+                    .map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        emoji: item.emoji || '🐟'
+                    }));
+                setInventoryFoods(foodItems);
+            } catch (error) {
+                logger.error('Failed to load inventory food for modal:', error);
+            }
+        }
+    };
+
+    const handleFeed = async (foodId: string) => {
+        if (!user?.id || !selectedCitizenId) return;
+        setIsInteracting(true);
+        try {
+            const success = await feedCitizen(user.id, selectedCitizenId, foodId);
+            if (success) {
+                toast({
+                    title: "Citizen Fed 🐟",
+                    description: `${selectedCitizen?.name} has been fed! They are happy and active.`,
+                });
+                
+                // Dispatch event so other pages (like Character inventory) sync up
+                window.dispatchEvent(new Event('character-inventory-update'));
+                
+                // Reload food
+                const inv = await getInventory(user.id);
+                const foodItems = inv
+                    .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
+                    .map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        emoji: item.emoji || '🐟'
+                    }));
+                setInventoryFoods(foodItems);
+            } else {
+                toast({
+                    title: "Feeding Failed",
+                    description: "You don't have enough food in your inventory.",
+                    variant: "destructive"
+                });
+            }
+        } catch (error) {
+            logger.error('Failed to feed citizen:', error);
+        } finally {
+            setIsInteracting(false);
+        }
+    };
+
+    const handleHarvest = async () => {
+        if (!user?.id || !selectedCitizenId || !selectedCitizen) return;
+        setIsInteracting(true);
+        try {
+            const success = await harvestCitizen(user.id, selectedCitizenId);
+            if (success) {
+                toast({
+                    title: "Harvest Collected! 🪙",
+                    description: `Successfully collected daily rewards from ${selectedCitizen.name}!`,
+                });
+                
+                // Dispatch event for any other listeners
+                window.dispatchEvent(new Event('character-inventory-update'));
+                setIsModalOpen(false);
+            }
+        } catch (error) {
+            logger.error('Failed to harvest citizen:', error);
+        } finally {
+            setIsInteracting(false);
+        }
+    };
+
     if (!grid || grid.length === 0 || !grid[0]) return null;
 
     const rows = grid.length;
     const cols = grid[0].length;
-
-    // logger.debug('[CreatureLayer] Rendering with', activeCreatures.length, 'creatures');
 
     return (
         <div
@@ -240,15 +300,14 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             className="absolute inset-0 pointer-events-none z-10"
         >
             {activeCreatures.map(creature => {
-                const def = CREATURE_DEFINITIONS[creature.definitionId];
+                const citizen = citizens.find(c => c.id === creature.definitionId);
+                const def = citizen || CREATURE_DEFINITIONS[creature.definitionId];
                 if (!def) {
                     logger.warn('[CreatureLayer] No definition found for creature:', creature.definitionId);
                     return null;
                 }
 
                 const isPlayerOnTile = !!playerTile && playerTile.row === creature.position.row && playerTile.col === creature.position.col;
-
-                // logger.debug('[CreatureLayer] Rendering creature:', def.name, 'at position:', creature.position);
 
                 return (
                     <div
@@ -264,10 +323,10 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                     >
                         {/* Smaller Hit Area for Interaction */}
                         <div 
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] pointer-events-auto cursor-pointer hover:scale-125 transition-transform z-30 flex items-center justify-center rounded-full"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] pointer-events-auto cursor-pointer hover:scale-125 transition-transform z-30 flex items-center justify-center rounded-full"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onCreatureClick?.(creature);
+                                handleCreatureClick(creature);
                             }}
                         />
 
@@ -276,12 +335,167 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             <CreatureSprite
                                 creature={def}
                                 isPlayerOnTile={isPlayerOnTile}
-                                tileSize={100} 
+                                tileSize={100}
+                                isFavorite={citizen?.favorite || false}
+                                isHarvestReady={citizen ? isHarvestReady(citizen) : false}
                             />
                         </div>
                     </div>
                 );
             })}
+
+            {/* Citizen Interaction Modal */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent 
+                    className="w-[min(90vw,420px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-zinc-950 border border-zinc-800 shadow-amber-500/5 text-white"
+                >
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>{selectedCitizen?.name || "Citizen Interaction"}</DialogTitle>
+                        <DialogDescription>Interact with your realm citizen</DialogDescription>
+                    </DialogHeader>
+
+                    {/* Ambient category glow */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl opacity-20 ${
+                            selectedCitizen?.type === 'fire' ? 'bg-red-500' :
+                            selectedCitizen?.type === 'water' ? 'bg-blue-500' :
+                            selectedCitizen?.type === 'earth' ? 'bg-amber-600' :
+                            selectedCitizen?.type === 'nature' ? 'bg-emerald-500' :
+                            selectedCitizen?.type === 'ice' ? 'bg-cyan-400' :
+                            selectedCitizen?.type === 'monster' ? 'bg-purple-600' : 'bg-yellow-500'
+                        }`} />
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center pt-8 pb-4 px-6">
+                        {/* Portrait */}
+                        <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900/60 rounded-full border-2 border-zinc-800 shadow-xl overflow-hidden p-4">
+                            {selectedCitizen && (
+                                <div className="w-24 h-24 relative">
+                                    <Image
+                                        src={selectedCitizen.isMythic 
+                                            ? `/images/Mythics/${selectedCitizen.filename}` 
+                                            : `/images/creatures/${selectedCitizen.filename}`
+                                        }
+                                        alt={selectedCitizen.name}
+                                        fill
+                                        sizes="96px"
+                                        className="object-contain drop-shadow-md"
+                                        onError={(e) => {
+                                            logger.warn('Failed to load modal citizen image:', selectedCitizen.name);
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            {selectedCitizen?.favorite && (
+                                <div className="absolute top-1 right-1 bg-amber-500 text-black rounded-full p-1 border border-yellow-300 shadow z-20">
+                                    <Star className="w-3 h-3 fill-current" />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Title & Habitat badge */}
+                        <h2 className="mt-4 text-2xl font-serif font-semibold text-center text-amber-500">
+                            {selectedCitizen?.name}
+                        </h2>
+                        
+                        <div className="mt-1 flex items-center gap-1.5">
+                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${
+                                selectedCitizen?.type === 'fire' ? 'bg-red-950/40 text-red-400 border-red-900/50' :
+                                selectedCitizen?.type === 'water' ? 'bg-blue-950/40 text-blue-400 border-blue-900/50' :
+                                selectedCitizen?.type === 'earth' ? 'bg-amber-950/40 text-amber-600 border-amber-900/50' :
+                                selectedCitizen?.type === 'nature' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/50' :
+                                selectedCitizen?.type === 'ice' ? 'bg-cyan-950/40 text-cyan-400 border-cyan-900/50' :
+                                selectedCitizen?.type === 'monster' ? 'bg-purple-950/40 text-purple-400 border-purple-900/50' :
+                                'bg-yellow-950/40 text-yellow-400 border-yellow-900/50'
+                            }`}>
+                                {selectedCitizen?.type} Citizen
+                            </span>
+                            {selectedCitizen?.isMythic && (
+                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 border border-purple-800/50 flex items-center gap-0.5">
+                                    <Sparkles className="w-2.5 h-2.5" /> Mythic
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Speech Bubble / Greeting */}
+                        <div className="mt-4 bg-zinc-900/80 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative">
+                            &ldquo;{selectedCitizen?.greetings[Math.floor(Math.random() * (selectedCitizen?.greetings.length || 1))]}&rdquo;
+                            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-zinc-900 rotate-45 border-t border-l border-zinc-800/60" />
+                        </div>
+                    </div>
+
+                    {/* Actions Panel */}
+                    <div className="relative z-10 px-6 pb-6 flex flex-col gap-2">
+                        {/* Cooldown or Harvest Button */}
+                        {selectedCitizen && isHarvestReady(selectedCitizen) ? (
+                            <Button
+                                onClick={handleHarvest}
+                                disabled={isInteracting}
+                                className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-serif font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 animate-bounce"
+                            >
+                                <Coins className="w-4 h-4" /> Collect Daily Gold 💰
+                            </Button>
+                        ) : selectedCitizen && !isCitizenHungry(selectedCitizen) ? (
+                            <div className="bg-black/30 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-center gap-1">
+                                <span className="text-xs text-zinc-400">Next gold harvest available in:</span>
+                                <div className="text-amber-500 font-semibold text-sm flex items-center gap-1">
+                                    <Clock className="w-3.5 h-3.5" /> 
+                                    {(() => {
+                                        if (!selectedCitizen.lastHarvestedAt) return "Ready!";
+                                        const nextHarvest = new Date(selectedCitizen.lastHarvestedAt).getTime() + 24 * 60 * 60 * 1000;
+                                        const diff = nextHarvest - Date.now();
+                                        if (diff <= 0) return "Ready!";
+                                        const hrs = Math.floor(diff / (1000 * 60 * 60));
+                                        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                        return `${hrs}h ${mins}m`;
+                                    })()}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        {/* Feeding Section if Hungry */}
+                        {selectedCitizen && isCitizenHungry(selectedCitizen) && (
+                            <div className="flex flex-col gap-2">
+                                <div className="text-center text-xs text-red-400 font-semibold mb-1 flex items-center justify-center gap-1">
+                                    😋 Needs Fish Food to wander map & produce gold!
+                                </div>
+                                {inventoryFoods.length === 0 ? (
+                                    <Button disabled className="w-full h-11 bg-zinc-800 text-zinc-500 rounded-xl border border-zinc-700">
+                                        No Fish Food in Inventory 🐟
+                                    </Button>
+                                ) : (
+                                    <div className="flex flex-col gap-1.5">
+                                        {inventoryFoods.map(food => (
+                                            <Button
+                                                key={food.id}
+                                                onClick={() => handleFeed(food.id)}
+                                                disabled={isInteracting}
+                                                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl flex items-center justify-between px-4 shadow border border-orange-500/20"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <span>{food.emoji}</span>
+                                                    <span className="text-xs font-semibold">{food.name} (x{food.quantity})</span>
+                                                </div>
+                                                <span className="text-[10px] bg-black/30 text-orange-200 px-2 py-0.5 rounded-md font-mono">
+                                                    +{FOOD_DAYS_MAP[food.id]} Day{FOOD_DAYS_MAP[food.id] !== 1 ? 's' : ''} Active
+                                                </span>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <Button
+                            variant="ghost"
+                            onClick={() => setIsModalOpen(false)}
+                            className="w-full h-10 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 rounded-xl mt-1 text-xs"
+                        >
+                            Close
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

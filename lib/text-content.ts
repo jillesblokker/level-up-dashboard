@@ -1362,7 +1362,8 @@ export const TEXT_CONTENT = {
                 sections: {
                     titles: { title: "Titles", content: "Earn and equip prestigious titles that reflect your level and accomplishments in the realm." },
                     perks: { title: "Perks", content: "Activate mystical blessings and permanent perks to boost your experience and gold gains." },
-                    strengths: { title: "Strengths", content: "Track your progress across various disciplines like Might, Knowledge, and Honor." }
+                    strengths: { title: "Strengths", content: "Track your progress across various disciplines like Might, Knowledge, and Honor." },
+                    citizens: { title: "Citizens", content: "Manage your unlocked kingdom creatures, feed them to keep them wandering, and collect daily resources!" }
                 }
             }
         },
@@ -1383,7 +1384,8 @@ export const TEXT_CONTENT = {
             tabs: {
                 titles: "Titles",
                 perks: "Perks",
-                strengths: "Strengths"
+                strengths: "Strengths",
+                citizens: "Citizens"
             }
         },
         titles: {

@@ -27,16 +27,21 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(new URL('/kingdom', request.url));
   }
 
-  // Return 401 for non-navigational requests (prefetch, RSC, XHR, etc.) to protected routes when signed out
-  // This prevents CORS preflight errors from Clerk redirecting these requests
-  if (!isPublicRoute(request) && !userId && !isNavigational) {
-    return new NextResponse(null, {
-      status: 401,
-      headers: {
-        'Content-Type': 'text/plain',
-        'X-Clerk-Auth-Reason': 'unauthorized-fetch',
-      }
-    });
+  // Redirect unauthorized non-public routes to local sign-in, except for prefetches which get a 401
+  if (!isPublicRoute(request) && !userId) {
+    if (isPrefetch) {
+      return new NextResponse(null, {
+        status: 401,
+        headers: {
+          'Content-Type': 'text/plain',
+          'X-Clerk-Auth-Reason': 'unauthorized-prefetch',
+        }
+      });
+    }
+    const signInUrl = new URL('/sign-in', request.url);
+    const searchString = searchParams.toString();
+    signInUrl.searchParams.set('redirect_url', pathname + (searchString ? `?${searchString}` : ''));
+    return NextResponse.redirect(signInUrl);
   }
 
   // Protect all non-public routes

@@ -5,13 +5,15 @@ import { CreatureDefinition } from '@/lib/creature-mapping';
 import { cn } from '@/lib/utils';
 
 interface CreatureSpriteProps {
-    creature: CreatureDefinition;
+    creature: CreatureDefinition & { isMythic?: boolean };
     isPlayerOnTile: boolean;
     tileSize: number;
     className?: string;
+    isFavorite?: boolean;
+    isHarvestReady?: boolean;
 }
 
-export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }: CreatureSpriteProps) {
+export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, isFavorite = false, isHarvestReady = false }: CreatureSpriteProps) {
     const [showGreeting, setShowGreeting] = useState(false);
     const [greetingText, setGreetingText] = useState('');
     const [isJumping, setIsJumping] = useState(false);
@@ -39,6 +41,11 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
         }
     }, [isPlayerOnTile, creature.greetings]);
 
+    const isMythic = creature.isMythic || creature.id?.startsWith('mythic-') || creature.filename?.startsWith('Mythic');
+    const imagePath = isMythic 
+        ? `/images/Mythics/${creature.filename}` 
+        : `/images/creatures/${creature.filename}`;
+
     return (
         <div
             className={cn("absolute inset-0 flex items-center justify-center pointer-events-none z-20", className)}
@@ -57,6 +64,22 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                 <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 border-b-2 border-r-2 border-amber-500/50" />
             </div>
 
+            {/* Favorite Glow Ring */}
+            {isFavorite && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                    <div className="w-[60%] h-[15%] rounded-full bg-amber-500/20 border border-amber-400/30 blur-[2px] animate-pulse absolute bottom-1" />
+                </div>
+            )}
+
+            {/* Harvest Ready Indicator */}
+            {isHarvestReady && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none animate-bounce">
+                    <div className="bg-amber-500 text-white rounded-full p-1 border border-yellow-300 shadow-md flex items-center justify-center w-5.5 h-5.5">
+                        <span className="text-[10px] select-none">🪙</span>
+                    </div>
+                </div>
+            )}
+
             {/* Creature Image */}
             <div 
                 className={cn(
@@ -70,13 +93,13 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className }
                 }}
             >
                 <Image
-                    src={`/images/creatures/${creature.filename}`}
+                    src={imagePath}
                     alt={creature.name}
                     fill
                     sizes="100px"
                     className="object-contain drop-shadow-lg"
                     onError={() => {
-                        logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename);
+                        logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename, 'path tried:', imagePath);
                     }}
                 />
             </div>
