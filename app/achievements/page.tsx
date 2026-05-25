@@ -978,7 +978,7 @@ export default function Page() {
                   return (
                     <div key={`${cardDef.number}-${variantIndex}`} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
                       {isUnlocked ? (
-                        <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden">
+                        <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden bg-slate-950">
                           <Image
                             src={imagePath}
                             alt={`${cardDef.rarity} Card #${cardDef.number} (${colorName})`}

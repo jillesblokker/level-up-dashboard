@@ -68,7 +68,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         if (citizens.length === 0) return;
 
         // Get all active and fed citizens (excluding animals, which are handled separately)
-        const activeFed = citizens.filter(c => c.active && !isCitizenHungry(c));
+        const activeFed = citizens.filter(c => c.active);
 
         // Prioritize favorites and cap at 12
         const prioritized = [...activeFed].sort((a, b) => {
