@@ -6,6 +6,7 @@ import { Tile } from '@/types/tiles';
 import { useUser } from '@clerk/nextjs';
 import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
 import { getInventory } from '@/lib/inventory-manager';
+import { loadTileInventory } from '@/lib/data-loaders';
 import { useToast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -200,6 +201,35 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
     }, [grid, mapType]);
 
+    const loadLayerInventoryFood = async (userId: string) => {
+        const inv = await getInventory(userId);
+        const foodItems = inv
+            .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
+            .map(item => ({
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                emoji: item.emoji || '🐟'
+            }));
+
+        const tileInv = await loadTileInventory(userId);
+        if (tileInv && typeof tileInv === 'object') {
+            Object.entries(tileInv).forEach(([key, value]) => {
+                if (FOOD_DAYS_MAP[key] !== undefined && value && value.quantity > 0) {
+                    const name = key === 'material-water' ? 'Water' : (value.name || key);
+                    const emoji = key === 'material-water' ? '💧' : (value.emoji || '📦');
+                    foodItems.push({
+                        id: key,
+                        name,
+                        quantity: value.quantity,
+                        emoji
+                    });
+                }
+            });
+        }
+        return foodItems;
+    };
+
     const handleCreatureClick = async (creature: ActiveCreature) => {
         // Trigger generic callback if provided
         onCreatureClick?.(creature);
@@ -212,15 +242,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
         if (user?.id) {
             try {
-                const inv = await getInventory(user.id);
-                const foodItems = inv
-                    .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
-                    .map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        quantity: item.quantity,
-                        emoji: item.emoji || '🐟'
-                    }));
+                const foodItems = await loadLayerInventoryFood(user.id);
                 setInventoryFoods(foodItems);
             } catch (error) {
                 logger.error('Failed to load inventory food for modal:', error);
@@ -234,8 +256,9 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         try {
             const success = await feedCitizen(user.id, selectedCitizenId, foodId);
             if (success) {
+                const feedEmoji = foodId === 'material-water' ? '💧' : '🐟';
                 toast({
-                    title: "Citizen Fed 🐟",
+                    title: `Citizen Fed ${feedEmoji}`,
                     description: `${selectedCitizen?.name} has been fed! They are happy and active.`,
                 });
                 
@@ -243,15 +266,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                 window.dispatchEvent(new Event('character-inventory-update'));
                 
                 // Reload food
-                const inv = await getInventory(user.id);
-                const foodItems = inv
-                    .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
-                    .map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        quantity: item.quantity,
-                        emoji: item.emoji || '🐟'
-                    }));
+                const foodItems = await loadLayerInventoryFood(user.id);
                 setInventoryFoods(foodItems);
             } else {
                 toast({

@@ -4,6 +4,7 @@ import { getUserPreference, setUserPreference } from '@/lib/user-preferences-man
 import { CARD_TYPES, variantLabel } from '@/lib/pack-generator';
 import { getInventory, removeFromInventory, addToInventory } from '@/lib/inventory-manager';
 import { gainGold } from '@/lib/gold-manager';
+import { loadTileInventory, saveTileInventory } from '@/lib/data-loaders';
 
 export interface CitizenState {
   active: boolean;
@@ -63,12 +64,23 @@ const getMythicType = (cardId: number): 'fire' | 'water' | 'earth' | 'nature' | 
 
 // Map food items to active days
 export const FOOD_DAYS_MAP: Record<string, number> = {
+  // Fish (primary food)
   'food-red': 1,
   'food-red-starter': 1,
   'food-blue': 3,
   'food-silver': 3,
   'food-golden': 7,
   'food-rainbow': 7,
+  // Potions (can also nourish citizens)
+  'potion-health': 1,
+  'potion-health-starter': 1,
+  'potion-mana': 1,
+  'potion-mana-starter': 1,
+  'potion-stamina': 2,
+  'potion-exp': 3,
+  'potion-gold': 3,
+  // Water (essential nourishment)
+  'material-water': 1,
 };
 
 export const useCitizensStore = create<CitizensStore>((set, get) => ({
@@ -233,13 +245,27 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     const citizen = citizens.find((c) => c.id === citizenId);
     if (!citizen) return false;
 
-    // Check inventory for food
-    const inventory = await getInventory(userId);
-    const invItem = inventory.find((i) => i.id === foodItemId && i.quantity > 0);
-    if (!invItem) return false;
+    let hasFood = false;
+    const isTileInventory = foodItemId.startsWith('material-');
 
-    // Deduct food item
-    await removeFromInventory(userId, foodItemId, 1);
+    if (isTileInventory) {
+      const tileInv = await loadTileInventory(userId);
+      const item = tileInv[foodItemId];
+      if (item && item.quantity > 0) {
+        hasFood = true;
+        item.quantity -= 1;
+        await saveTileInventory(userId, tileInv);
+      }
+    } else {
+      const inventory = await getInventory(userId);
+      const invItem = inventory.find((i) => i.id === foodItemId && i.quantity > 0);
+      if (invItem) {
+        hasFood = true;
+        await removeFromInventory(userId, foodItemId, 1);
+      }
+    }
+
+    if (!hasFood) return false;
 
     // Update state
     const daysToAdd = FOOD_DAYS_MAP[foodItemId] || 1;

@@ -41,6 +41,7 @@ import { TEXT_CONTENT } from '@/lib/text-content'
 
 import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
 import { getInventory } from '@/lib/inventory-manager';
+import { loadTileInventory } from '@/lib/data-loaders';
 
 // Character progression types
 interface Title {
@@ -95,16 +96,38 @@ export default function CharacterPage() {
 
   const loadInventoryFood = useCallback(async () => {
     if (!user?.id) return;
-    const inv = await getInventory(user.id);
-    const foodItems = inv
-      .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
-      .map(item => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        emoji: item.emoji || '🐟'
-      }));
-    setInventoryFood(foodItems);
+    try {
+      const inv = await getInventory(user.id);
+      const foodItems = inv
+        .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
+        .map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          emoji: item.emoji || '🐟'
+        }));
+
+      // Load tile inventory for items like material-water
+      const tileInv = await loadTileInventory(user.id);
+      if (tileInv && typeof tileInv === 'object') {
+        Object.entries(tileInv).forEach(([key, value]) => {
+          if (FOOD_DAYS_MAP[key] !== undefined && value && value.quantity > 0) {
+            const name = key === 'material-water' ? 'Water' : (value.name || key);
+            const emoji = key === 'material-water' ? '💧' : (value.emoji || '📦');
+            foodItems.push({
+              id: key,
+              name,
+              quantity: value.quantity,
+              emoji
+            });
+          }
+        });
+      }
+
+      setInventoryFood(foodItems);
+    } catch (error) {
+      logger.error('Failed to load inventory food', error);
+    }
   }, [user?.id]);
 
   useEffect(() => {

@@ -157,29 +157,10 @@ export default function DungeonPage() {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [battleLog]);
 
-  // Load Unlocked Creatures
+  // Load All Available Creatures (all 15 are available for dungeon runs)
   useEffect(() => {
-    async function loadUnlockables() {
-      try {
-        const res = await fetch('/api/achievements');
-        if (res.ok) {
-          const achievements = await res.json();
-          if (Array.isArray(achievements)) {
-            const unlocked = achievements
-              .map((a: any) => CREATURE_DATA[a.achievement_id])
-              .filter((c: CreatureDef | undefined): c is CreatureDef => !!c);
-
-            setUnlockedCreatures(unlocked.length > 0 ? unlocked : [DEFAULT_CREATURE]);
-          }
-        } else {
-          setUnlockedCreatures([DEFAULT_CREATURE]);
-        }
-      } catch (e) {
-        logger.error('Failed to load unlocked creatures', e);
-        setUnlockedCreatures([DEFAULT_CREATURE]);
-      }
-    }
-    loadUnlockables();
+    const allCreatures = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
+    setUnlockedCreatures(allCreatures.length > 0 ? allCreatures : [DEFAULT_CREATURE]);
   }, []);
 
   // Load Run & Fix Legacy Data
