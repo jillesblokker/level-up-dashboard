@@ -35,11 +35,11 @@ export function CreatureCard({ creature, discovered, showCard, previewMode }: Cr
 
   return (
     <div
-      className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg"
+      className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg bg-slate-950"
       onClick={() => setShowStats(!showStats)}
     >
       {/* Card Background */}
-      <div className="absolute inset-0 rounded-lg" />
+      <div className="absolute inset-0 rounded-lg bg-slate-950" />
 
       {/* Creature Image */}
       <div className="relative w-full h-full">

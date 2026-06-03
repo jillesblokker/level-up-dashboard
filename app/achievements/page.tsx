@@ -859,7 +859,7 @@ export default function Page() {
                     >
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
-                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
                               src={unlocked ? creature.image : '/images/undiscovered.webp'}
