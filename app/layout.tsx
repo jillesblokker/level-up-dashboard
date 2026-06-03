@@ -146,6 +146,46 @@ export default function RootLayout({
               `,
             }}
           />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  function isChunkError(msg) {
+                    return msg && (
+                      msg.indexOf('ChunkLoadError') !== -1 ||
+                      msg.indexOf('Loading chunk') !== -1 ||
+                      msg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
+                      msg.indexOf('Importing a module script failed') !== -1
+                    );
+                  }
+                  function safeReload() {
+                    var key = 'chunk_error_ts';
+                    var last = sessionStorage.getItem(key);
+                    var now = Date.now();
+                    if (!last || now - Number(last) > 10000) {
+                      sessionStorage.setItem(key, String(now));
+                      window.location.reload();
+                    }
+                  }
+                  window.addEventListener('unhandledrejection', function(e) {
+                    var reason = e.reason;
+                    if (!reason) return;
+                    var msg = (reason.name || '') + ' ' + (reason.message || '');
+                    if (isChunkError(msg)) {
+                      e.preventDefault();
+                      safeReload();
+                    }
+                  });
+                  window.addEventListener('error', function(e) {
+                    var msg = e && e.message ? e.message : '';
+                    if (isChunkError(msg)) {
+                      safeReload();
+                    }
+                  });
+                })();
+              `,
+            }}
+          />
         </head>
         <body className={cn(
           "min-h-screen font-sans antialiased bg-black text-white",
