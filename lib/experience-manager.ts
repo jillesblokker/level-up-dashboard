@@ -125,11 +125,7 @@ export async function gainExperience(amount: number, source: string, category: s
     const oldLevel = currentStats.level
     if (newLevel > oldLevel) {
       // Level up notification
-      createExperienceGainedNotification(
-        newLevel - oldLevel,
-        'level-up',
-        0
-      )
+      createLevelUpNotification(newLevel)
 
       // Dispatch level up event
       const levelUpEvent = new CustomEvent('level-up', {

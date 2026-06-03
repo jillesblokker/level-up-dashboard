@@ -145,7 +145,10 @@ export default function DungeonPage() {
   const [message, setMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [dailyCount, setDailyCount] = useState<number>(0); // Track daily entries
-  const [unlockedCreatures, setUnlockedCreatures] = useState<CreatureDef[]>([]);
+  const [unlockedCreatures, setUnlockedCreatures] = useState<CreatureDef[]>(() => {
+    const all = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
+    return all.length > 0 ? all : [DEFAULT_CREATURE];
+  });
   const [selectedCreature, setSelectedCreature] = useState<CreatureDef | null>(null);
   const [battlePhase, setBattlePhase] = useState<'select' | 'fight' | 'result'>('select');
   const [battleLog, setBattleLog] = useState<string[]>([]);
@@ -156,12 +159,6 @@ export default function DungeonPage() {
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [battleLog]);
-
-  // Load All Available Creatures (all 15 are available for dungeon runs)
-  useEffect(() => {
-    const allCreatures = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
-    setUnlockedCreatures(allCreatures.length > 0 ? allCreatures : [DEFAULT_CREATURE]);
-  }, []);
 
   // Load Run & Fix Legacy Data
   useEffect(() => {
@@ -174,9 +171,23 @@ export default function DungeonPage() {
           parsed.currentEncounter.creatureId = '001';
           localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
-        // Legacy support: if no party, generate one from unlocked (or defaults if loading fails)
-        if (!parsed.party) {
-          parsed.party = [DEFAULT_CREATURE];
+        // Legacy support: if no party or party is too small, generate/expand to a full group of 6
+        if (!parsed.party || parsed.party.length < 6) {
+          const all = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
+          const pool = [...all];
+          const party: CreatureDef[] = parsed.party && parsed.party.length > 0 ? [...parsed.party] : [];
+          
+          while (party.length < 6 && pool.length > 0) {
+            const randomIndex = Math.floor(Math.random() * pool.length);
+            const creature = pool[randomIndex];
+            if (creature && !party.some(p => p.id === creature.id)) {
+              party.push(creature);
+            }
+            pool.splice(randomIndex, 1);
+          }
+          if (party.length === 0) party.push(DEFAULT_CREATURE);
+          parsed.party = party;
+          localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
         setRun(parsed);
         // Automatically re-select the previous creature if available

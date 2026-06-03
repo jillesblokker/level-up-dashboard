@@ -116,10 +116,13 @@ class NotificationService {
       type === "event" ||
       type === "levelup"
     ) {
-      toast({
-        title: notification.title,
-        description: notification.message,
-      })
+      const isMuted = type === 'quest' && typeof window !== 'undefined' && localStorage.getItem("mute-quest-toasts") === "true";
+      if (!isMuted) {
+        toast({
+          title: notification.title,
+          description: notification.message,
+        })
+      }
     }
   }
 

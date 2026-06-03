@@ -51,26 +51,26 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-6 sm:py-10">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-500 mb-2 drop-shadow-lg">
+        <div className="text-center mb-4 sm:mb-8 px-4">
+          <h2 className="text-xl sm:text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-500 mb-1 sm:mb-2 drop-shadow-lg">
             {isWon ? "YOU WON!" : "SCRATCH 3 TO WIN"}
           </h2>
-          <p className="text-amber-200/70 font-bold uppercase tracking-widest">
+          <p className="text-[10px] sm:text-sm text-amber-200/70 font-bold uppercase tracking-wider sm:tracking-widest">
             {isWon ? "Card added to your Mythics collection!" : "Find 3 matching cards to claim the prize"}
           </p>
         </div>
 
         {/* 3x3 Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mx-auto justify-items-center">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 mx-auto justify-items-center">
           {packData.cards.map((card: any) => (
             <ScratchCard 
               key={card.id} 

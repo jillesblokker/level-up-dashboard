@@ -6,6 +6,7 @@ import { getUserPreference, setUserPreference } from '@/lib/user-preferences-man
 import { getCharacterStats } from '@/lib/character-stats-service';
 import { calculateLevelFromExperience } from '@/types/character';
 import { getCurrentTitle } from '@/lib/title-manager';
+import { notificationService } from '@/lib/notification-service';
 
 export interface TitleEvolution {
   oldTitle: string;
@@ -57,7 +58,7 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
           const currentTitle = getCurrentTitle(currentLevel);
           const previousTitle = getCurrentTitle(lastProcessedLevel || currentLevel - 1);
 
-          if (currentTitle.id !== previousTitle.id && currentLevel % 10 === 0) {
+          if (currentTitle.id !== previousTitle.id) {
             const evolutionData: TitleEvolution = {
               oldTitle: previousTitle.name,
               newTitle: currentTitle.name,
@@ -68,6 +69,13 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
 
             setEvolution(evolutionData);
             setShowModal(true);
+
+            notificationService.addNotification(
+              "👑 Title Earned!",
+              `Congratulations! You have earned the prestigious title of "${currentTitle.name}"!`,
+              "levelup",
+              "high"
+            );
           }
 
           setLastProcessedLevel(currentLevel);

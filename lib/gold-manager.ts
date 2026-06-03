@@ -60,12 +60,32 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
         const tileName = source.split(':')[1] || 'building';
         title = "🏗️ Resources Collected!";
         description = `${tileName} produced ${amount} gold.`;
+      } else if (source.startsWith('citizen-collect:')) {
+        const citizenName = source.split(':')[1] || 'Citizen';
+        title = "🤝 Citizen Contribution!";
+        description = `${citizenName} gathered ${amount} gold for the realm.`;
+      } else if (source === 'sheep-shave') {
+        title = "🐑 Sheep Shaved!";
+        description = `You shivered Shaun! +${amount} gold earned.`;
+      } else if (source === 'penguin-play') {
+        title = "🐧 Noot Noot!";
+        description = `Petting penguin! +${amount} gold found.`;
       }
 
-      toast({
-        title,
-        description,
-      });
+      // Check if gold alerts are muted for minor collections
+      const isMuted = typeof window !== 'undefined' && localStorage.getItem("mute-gold-toasts") === "true";
+      const isMinor = source === 'kingdom-tile-reward' || 
+                      source.startsWith('tile-collect:') || 
+                      source.startsWith('citizen-collect:') || 
+                      source === 'sheep-shave' || 
+                      source === 'penguin-play';
+
+      if (!isMuted || !isMinor) {
+        toast({
+          title,
+          description,
+        });
+      }
     }
 
     return { ...currentStats, gold: currentStats.gold + amount };

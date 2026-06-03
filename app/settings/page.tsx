@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Shield, Play, Palette } from "lucide-react"
+import { ArrowLeft, Save, User, Shield, Play, Palette, Bell } from "lucide-react"
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager"
 import Link from "next/link"
 // import { useSession, signIn, signOut } from "next-auth/react"
@@ -43,6 +43,9 @@ export default function SettingsPage() {
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
   const [dayNightEnabled, setDayNightEnabled] = useState(true)
+  const [muteGoldToasts, setMuteGoldToasts] = useState(false)
+  const [muteXpToasts, setMuteXpToasts] = useState(false)
+  const [muteQuestToasts, setMuteQuestToasts] = useState(false)
 
   // Load user data
   useEffect(() => {
@@ -74,6 +77,24 @@ export default function SettingsPage() {
         setDayNightEnabled(savedDayNight === "true")
       }
 
+      // Load Gold Toast preference
+      const savedMuteGold = localStorage.getItem("mute-gold-toasts")
+      if (savedMuteGold !== null) {
+        setMuteGoldToasts(savedMuteGold === "true")
+      }
+
+      // Load XP Toast preference
+      const savedMuteXp = localStorage.getItem("mute-xp-toasts")
+      if (savedMuteXp !== null) {
+        setMuteXpToasts(savedMuteXp === "true")
+      }
+
+      // Load Quest Toast preference
+      const savedMuteQuest = localStorage.getItem("mute-quest-toasts")
+      if (savedMuteQuest !== null) {
+        setMuteQuestToasts(savedMuteQuest === "true")
+      }
+
       // Sync from Supabase
       getUserPreference("day-night-cycle-enabled").then(val => {
         if (val !== null && val !== undefined) {
@@ -82,25 +103,36 @@ export default function SettingsPage() {
           localStorage.setItem("day-night-cycle-enabled", String(isEnabled))
         }
       })
+
+      getUserPreference("mute-gold-toasts").then(val => {
+        if (val !== null && val !== undefined) {
+          const isMuted = Boolean(val)
+          setMuteGoldToasts(isMuted)
+          localStorage.setItem("mute-gold-toasts", String(isMuted))
+        }
+      })
+
+      getUserPreference("mute-xp-toasts").then(val => {
+        if (val !== null && val !== undefined) {
+          const isMuted = Boolean(val)
+          setMuteXpToasts(isMuted)
+          localStorage.setItem("mute-xp-toasts", String(isMuted))
+        }
+      })
+
+      getUserPreference("mute-quest-toasts").then(val => {
+        if (val !== null && val !== undefined) {
+          const isMuted = Boolean(val)
+          setMuteQuestToasts(isMuted)
+          localStorage.setItem("mute-quest-toasts", String(isMuted))
+        }
+      })
     } catch (error) {
       logger.error("Error loading user data:", error)
     }
   }, [])
 
-  // Polling for settings changes instead of real-time sync
-  useEffect(() => {
-    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : undefined;
-    if (!userId) return;
-
-    const pollInterval = setInterval(() => {
-      // Reload settings
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
-    }, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(pollInterval);
-  }, []);
+  // Removed aggressive polling that reloaded the page every 5 seconds and disrupted typing/editing settings.
 
   const handleSaveProfile = () => {
     try {
@@ -255,6 +287,87 @@ export default function SettingsPage() {
                       toast({
                         title: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.title : TEXT_CONTENT.settings.toasts.dayNightDisabled.title,
                         description: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.desc : TEXT_CONTENT.settings.toasts.dayNightDisabled.desc,
+                      })
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center">
+                      <Bell className="w-4 h-4 mr-2 text-amber-500" />
+                      Mute Gold Collection Alerts
+                    </Label>
+                    <p className="text-sm text-gray-400 max-w-md">
+                      Mute toast alerts for minor gold collections (harvesting tiles, citizen gathering, and animals) to reduce notifications clutter. Milestone alerts will still show.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={muteGoldToasts}
+                    onCheckedChange={(checked) => {
+                      setMuteGoldToasts(checked)
+                      localStorage.setItem("mute-gold-toasts", checked.toString())
+                      setUserPreference("mute-gold-toasts", checked)
+
+                      toast({
+                        title: checked ? "Gold Alerts Muted 🔕" : "Gold Alerts Enabled 🔔",
+                        description: checked 
+                          ? "Minor gold collections will no longer trigger popups." 
+                          : "All gold collections will trigger notifications.",
+                      })
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center">
+                      <Bell className="w-4 h-4 mr-2 text-amber-500" />
+                      Mute XP Collection Alerts
+                    </Label>
+                    <p className="text-sm text-gray-400 max-w-md">
+                      Mute toast alerts for minor experience gains (building activities, event actions, etc.) to reduce screen clutter. Milestone level-ups will still display.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={muteXpToasts}
+                    onCheckedChange={(checked) => {
+                      setMuteXpToasts(checked)
+                      localStorage.setItem("mute-xp-toasts", checked.toString())
+                      setUserPreference("mute-xp-toasts", checked)
+
+                      toast({
+                        title: checked ? "XP Alerts Muted 🔕" : "XP Alerts Enabled 🔔",
+                        description: checked 
+                          ? "Minor experience gains will no longer trigger popups." 
+                          : "All experience gains will trigger notifications.",
+                      })
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center">
+                      <Bell className="w-4 h-4 mr-2 text-amber-500" />
+                      Mute Quest/Task Actions Alerts
+                    </Label>
+                    <p className="text-sm text-gray-400 max-w-md">
+                      Mute toast alerts for quest steps or minor task completions. Major achievements and tier transitions will still notify.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={muteQuestToasts}
+                    onCheckedChange={(checked) => {
+                      setMuteQuestToasts(checked)
+                      localStorage.setItem("mute-quest-toasts", checked.toString())
+                      setUserPreference("mute-quest-toasts", checked)
+
+                      toast({
+                        title: checked ? "Quest Alerts Muted 🔕" : "Quest Alerts Enabled 🔔",
+                        description: checked 
+                          ? "Quest action steps will no longer trigger popups." 
+                          : "All quest actions will trigger notifications.",
                       })
                     }}
                   />

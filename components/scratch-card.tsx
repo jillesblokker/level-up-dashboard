@@ -74,7 +74,8 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     
     // Write text
     ctx.fillStyle = "#888";
-    ctx.font = "bold 16px sans-serif";
+    const fontSize = Math.max(10, Math.floor(width * 0.09));
+    ctx.font = `bold ${fontSize}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("SCRATCH", width / 2, height / 2);
@@ -220,8 +221,8 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     <article 
       ref={containerRef}
       className={cn(
-        "relative w-[160px] h-[220px] sm:w-[180px] sm:h-[260px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none",
-        isWinner && revealed ? "ring-4 ring-yellow-400 ring-offset-2 ring-offset-black animate-pulse" : "ring-1 ring-white/10"
+        "relative w-[92px] h-[130px] min-[360px]:w-[102px] min-[360px]:h-[142px] sm:w-[160px] sm:h-[220px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none",
+        isWinner && revealed ? "ring-2 sm:ring-4 ring-yellow-400 ring-offset-1 sm:ring-offset-2 ring-offset-black animate-pulse" : "ring-1 ring-white/10"
       )}
     >
       {/* Background Reward Face */}
@@ -231,24 +232,24 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
             src={imagePath}
             alt={`Mythic Card #${cardData.number}`}
             fill
-            className="object-contain p-2"
+            className="object-contain p-1 sm:p-2"
           />
           {/* Overlay info */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 flex flex-col justify-end h-2/3">
-            <span className="text-[10px] font-bold text-amber-200 tracking-wider mb-0.5">{cardData.variantLabel}</span>
-            <span className="text-[9px] font-bold text-purple-300 uppercase tracking-widest">{cardData.rarity}</span>
-            <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-white/10">
-              <span className="text-xs font-bold text-white flex items-center gap-1">Card #{cardData.number}</span>
-              <span className="text-xs font-bold text-yellow-400">{cardData.price} 🪙</span>
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-1.5 sm:p-3 flex flex-col justify-end h-2/3">
+            <span className="text-[7px] sm:text-[10px] font-bold text-amber-200 tracking-wider mb-0.5 truncate">{cardData.variantLabel}</span>
+            <span className="text-[6px] sm:text-[9px] font-bold text-purple-300 uppercase tracking-widest truncate">{cardData.rarity}</span>
+            <div className="flex justify-between items-center mt-1 pt-1 sm:mt-1.5 sm:pt-1.5 border-t border-white/10">
+              <span className="text-[8px] sm:text-xs font-bold text-white flex items-center gap-0.5 truncate">#{cardData.number}</span>
+              <span className="text-[8px] sm:text-xs font-bold text-yellow-400 flex items-center gap-0.5 truncate">{cardData.price}🪙</span>
             </div>
           </div>
         </div>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-950 text-white">
-          <span className="text-4xl font-black opacity-80">{cardData.number}</span>
-          <span className="text-sm font-bold tracking-widest mt-2">{cardData.variantLabel}</span>
-          <span className="text-xs font-bold mt-1 opacity-60 uppercase">{cardData.rarity}</span>
-          <span className="mt-auto text-lg font-bold">{cardData.price} 🪙</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950 text-white">
+          <span className="text-xl sm:text-3xl md:text-4xl font-black opacity-80">{cardData.number}</span>
+          <span className="text-[8px] sm:text-sm font-bold tracking-wider sm:tracking-widest mt-1 sm:mt-2 truncate w-full text-center">{cardData.variantLabel}</span>
+          <span className="text-[7px] sm:text-xs font-bold mt-0.5 opacity-60 uppercase truncate">{cardData.rarity}</span>
+          <span className="mt-auto text-[10px] sm:text-lg font-bold">{cardData.price} 🪙</span>
         </div>
       )}
 

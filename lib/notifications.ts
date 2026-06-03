@@ -15,6 +15,9 @@ export function createAchievementNotification(achievementName: string) {
 }
 
 export function createQuestNotification(questName: string, goldReward: number) {
+  const isMuted = typeof window !== 'undefined' && localStorage.getItem("mute-quest-toasts") === "true";
+  if (isMuted) return;
+
   notificationService.addNotification(
     "Quest Completed",
     `You've successfully completed '${questName}' and earned ${goldReward} gold!`,
@@ -50,6 +53,12 @@ export function createLevelUpNotification(toLevel: number) {
 }
 
 export function createExperienceGainedNotification(amount: number, source: string, perkBonus: number = 0) {
+  const isMuted = typeof window !== 'undefined' && localStorage.getItem("mute-xp-toasts") === "true";
+  const isMinor = source === 'kingdom-passive' || 
+                  source.startsWith('tile-collect:') || 
+                  source === 'mystery-events';
+  if (isMuted && isMinor) return;
+
   const totalAmount = amount + perkBonus;
   
   // Check if this is an achievement source and get improved message
@@ -108,6 +117,14 @@ export function createExperienceGainedNotification(amount: number, source: strin
 }
 
 export function createGoldGainedNotification(amount: number, source: string) {
+  const isMuted = typeof window !== 'undefined' && localStorage.getItem("mute-gold-toasts") === "true";
+  const isMinor = source === 'kingdom-tile-reward' || 
+                  source.startsWith('tile-collect:') || 
+                  source.startsWith('citizen-collect:') || 
+                  source === 'sheep-shave' || 
+                  source === 'penguin-play';
+  if (isMuted && isMinor) return;
+
   // Check if this is an achievement source and get improved message
   const achievementId = getAchievementIdFromSource(source);
   const achievementMessage = achievementId ? getAchievementMessage(achievementId) : null;

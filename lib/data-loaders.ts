@@ -161,16 +161,7 @@ export async function loadTileInventory(userId: string): Promise<Record<string, 
     async () => {
       try {
         const result = await apiCall(`?type=inventory&userId=${userId}`);
-        // Convert to the expected format
-        const inventory: Record<string, any> = {};
-        result.data?.forEach((item: any) => {
-          inventory[item.tile_type] = {
-            type: item.tile_type,
-            quantity: item.quantity,
-            cost: item.cost
-          };
-        });
-        return { data: inventory, error: null };
+        return { data: result.data, error: null };
       } catch (error) {
         return { data: null, error };
       }
