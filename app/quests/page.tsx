@@ -1104,24 +1104,49 @@ export default function QuestsPage() {
   const handleQuestFavorite = async (questId: string) => {
     if (!token || !userId) return;
 
+    const isCurrentlyFavorited = favoritedQuests.has(questId);
+
+    // Optimistic local update first
+    setFavoritedQuests(prev => {
+      const newFavorites = new Set(prev);
+      if (isCurrentlyFavorited) {
+        newFavorites.delete(questId);
+      } else {
+        newFavorites.add(questId);
+      }
+      return newFavorites;
+    });
+
     try {
-      // Toggle favorite status in local state
-      setFavoritedQuests(prev => {
-        const newFavorites = new Set(prev);
-        if (newFavorites.has(questId)) {
-          newFavorites.delete(questId);
-        } else {
-          newFavorites.add(questId);
-        }
-        return newFavorites;
+      // Persist to API so favorites survive reload and work with bulk complete
+      const response = await fetch('/api/quests/favorites', {
+        method: isCurrentlyFavorited ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ questId }),
       });
 
-      // Update in Supabase (if you have a favorites table)
-      // For now, we'll just use local state
+      if (!response.ok) {
+        // Revert on failure
+        setFavoritedQuests(prev => {
+          const revert = new Set(prev);
+          if (isCurrentlyFavorited) {
+            revert.add(questId);
+          } else {
+            revert.delete(questId);
+          }
+          return revert;
+        });
+        throw new Error(`API error: ${response.status}`);
+      }
 
       toast({
-        title: TEXT_CONTENT.questBoard.toasts.favorites.updated.title,
-        description: TEXT_CONTENT.questBoard.toasts.favorites.updated.desc,
+        title: isCurrentlyFavorited ? "Removed from Favorites" : "Added to Favorites ⭐",
+        description: isCurrentlyFavorited
+          ? "Quest removed from your bulk-complete list."
+          : "Quest starred — it will be included in bulk complete!",
         duration: 2000,
       });
     } catch (error) {
@@ -1308,91 +1333,167 @@ export default function QuestsPage() {
     if (!token) return;
 
     try {
-      const favoritedQuestsInCategory = quests.filter(q =>
-        q.category === questCategory &&
-        favoritedQuests.has(q.id) &&
-        !q.completed
-      );
+      if (forgeTab === 'quests') {
+        const favoritedQuestsInCategory = quests.filter(q =>
+          q.category === questCategory &&
+          favoritedQuests.has(q.id) &&
+          !q.completed
+        );
 
-      if (favoritedQuestsInCategory.length === 0) return;
+        if (favoritedQuestsInCategory.length === 0) return;
 
-      // Complete each favorited quest in the current category
-      for (const quest of favoritedQuestsInCategory) {
-        // Update local state first (optimistic update)
+        // Optimistic update all at once
+        const questIdsToComplete = new Set(favoritedQuestsInCategory.map(q => q.id));
         setQuests(prevQuests =>
           prevQuests.map(q =>
-            q.id === quest.id
+            questIdsToComplete.has(q.id)
               ? { ...q, completed: true }
               : q
           )
         );
 
-        // Save to database using smart completion API
-        try {
-          // Apply tarot buffs to rewards
-          const { applyTarotBuffs } = await import('@/lib/tarot-buffs');
-          const baseXp = quest.xp || 50;
-          const baseGold = quest.gold || 25;
-          const buffedRewards = applyTarotBuffs(baseXp, baseGold, quest.category);
+        const failedIds: string[] = [];
 
-          // Log if buff was applied
-          if (buffedRewards.buffApplied) {
-            logger.debug(`[Bulk Complete] Tarot buff applied to ${quest.name}:`, {
-              baseXp,
-              baseGold,
-              buffedXp: buffedRewards.xp,
-              buffedGold: buffedRewards.gold,
-              message: buffedRewards.buffMessage
+        // Complete each favorited quest in the current category
+        for (const quest of favoritedQuestsInCategory) {
+          try {
+            // Apply tarot buffs to rewards
+            const { applyTarotBuffs } = await import('@/lib/tarot-buffs');
+            const baseXp = quest.xp || 50;
+            const baseGold = quest.gold || 25;
+            const buffedRewards = applyTarotBuffs(baseXp, baseGold, quest.category);
+
+            if (buffedRewards.buffApplied) {
+              logger.debug(`[Bulk Complete] Tarot buff applied to ${quest.name}:`, {
+                baseXp,
+                baseGold,
+                buffedXp: buffedRewards.xp,
+                buffedGold: buffedRewards.gold,
+                message: buffedRewards.buffMessage
+              });
+            }
+
+            const response = await fetch('/api/quests/smart-completion', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                questId: quest.id,
+                completed: true,
+                xpReward: buffedRewards.xp,
+                goldReward: buffedRewards.gold,
+              }),
             });
-          }
 
-          const response = await fetch('/api/quests/smart-completion', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              questId: quest.id,
-              completed: true,
-              xpReward: buffedRewards.xp,
-              goldReward: buffedRewards.gold,
-            }),
-          });
-
-          if (!response.ok) {
-            logger.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
-            // Revert optimistic update on failure
-            setQuests(prevQuests =>
-              prevQuests.map(q =>
-                q.id === quest.id
-                  ? { ...q, completed: false }
-                  : q
-              )
-            );
-          } else {
-            logger.debug(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
+            if (!response.ok) {
+              logger.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
+              failedIds.push(quest.id);
+            } else {
+              logger.debug(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
+            }
+          } catch (apiError) {
+            logger.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
+            failedIds.push(quest.id);
           }
-        } catch (apiError) {
-          logger.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
-          // Revert optimistic update on error
+        }
+
+        // Revert failed ones if any
+        if (failedIds.length > 0) {
+          const failedSet = new Set(failedIds);
           setQuests(prevQuests =>
             prevQuests.map(q =>
-              q.id === quest.id
+              failedSet.has(q.id)
                 ? { ...q, completed: false }
                 : q
             )
           );
         }
+
+        toast({
+          title: TEXT_CONTENT.questBoard.toasts.completion.bulkFavorites.title,
+          description: TEXT_CONTENT.questBoard.toasts.completion.bulkFavorites.desc
+            .replace('{count}', String(favoritedQuestsInCategory.length - failedIds.length))
+            .replace('{category}', getCategoryLabel(questCategory || '')),
+          duration: 3000,
+        });
+
+      } else {
+        // Complete favorited challenges/tasks in this category
+        const favoritedChallengesInCategory = challenges.filter(c =>
+          c.category === questCategory &&
+          favoritedQuests.has(c.id) &&
+          !c.completed
+        );
+
+        if (favoritedChallengesInCategory.length === 0) return;
+
+        // Optimistic update all at once
+        const challengeIdsToComplete = new Set(favoritedChallengesInCategory.map(c => c.id));
+        setChallenges(prevChallenges =>
+          prevChallenges.map(c =>
+            challengeIdsToComplete.has(c.id)
+              ? { ...c, completed: true }
+              : c
+          )
+        );
+
+        const failedIds: string[] = [];
+
+        // Complete each favorited challenge
+        for (const challenge of favoritedChallengesInCategory) {
+          try {
+            const goldReward = challenge.gold || 50;
+            const xpReward = challenge.xp || 25;
+
+            // Apply rewards locally
+            addToCharacterStat('gold', goldReward, `challenge-completion:${challenge.id}`);
+            addToCharacterStat('experience', xpReward, `challenge-completion:${challenge.id}`);
+
+            const response = await fetch('/api/challenges', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                challengeId: challenge.id,
+                completed: true
+              })
+            });
+
+            if (!response.ok) {
+              logger.error(`[Bulk Complete Challenges] Failed to complete challenge ${challenge.id}`);
+              failedIds.push(challenge.id);
+            } else {
+              logger.debug(`[Bulk Complete Challenges] Successfully completed challenge: ${challenge.name}`);
+            }
+          } catch (apiError) {
+            logger.error(`[Bulk Complete Challenges] API error for challenge ${challenge.id}:`, apiError);
+            failedIds.push(challenge.id);
+          }
+        }
+
+        // Revert failed ones if any
+        if (failedIds.length > 0) {
+          const failedSet = new Set(failedIds);
+          setChallenges(prevChallenges =>
+            prevChallenges.map(c =>
+              failedSet.has(c.id)
+                ? { ...c, completed: false }
+                : c
+            )
+          );
+        }
+
+        toast({
+          title: "Tasks Completed",
+          description: `Successfully completed ${favoritedChallengesInCategory.length - failedIds.length} favorited tasks in ${getCategoryLabel(questCategory || '')}!`,
+          duration: 3000,
+        });
       }
 
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.completion.bulkFavorites.title,
-        description: TEXT_CONTENT.questBoard.toasts.completion.bulkFavorites.desc
-          .replace('{count}', String(favoritedQuestsInCategory.length))
-          .replace('{category}', getCategoryLabel(questCategory || '')),
-        duration: 3000,
-      });
     } catch (error) {
       logger.error('Error bulk completing favorites:', error);
       toast({
@@ -1407,93 +1508,169 @@ export default function QuestsPage() {
     if (!token) return;
 
     try {
-      const allFavoritedQuests = quests.filter(q =>
-        favoritedQuests.has(q.id) &&
-        !q.completed
-      );
+      if (forgeTab === 'quests') {
+        const allFavoritedQuests = quests.filter(q =>
+          favoritedQuests.has(q.id) &&
+          !q.completed
+        );
 
-      if (allFavoritedQuests.length === 0) return;
+        if (allFavoritedQuests.length === 0) return;
 
-      // Complete each favorited quest across all categories
-      for (const quest of allFavoritedQuests) {
-        // Update local state first (optimistic update)
+        // Optimistic update all at once
+        const questIdsToComplete = new Set(allFavoritedQuests.map(q => q.id));
         setQuests(prevQuests =>
           prevQuests.map(q =>
-            q.id === quest.id
+            questIdsToComplete.has(q.id)
               ? { ...q, completed: true }
               : q
           )
         );
 
-        // Save to database using smart completion API
-        try {
-          const response = await fetch('/api/quests/smart-completion', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              questId: quest.id,
-              completed: true,
-              xpReward: quest.xp || 50,
-              goldReward: quest.gold || 25,
-            }),
-          });
+        const failedIds: string[] = [];
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            logger.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
-            // Revert optimistic update on failure
-            setQuests(prevQuests =>
-              prevQuests.map(q =>
-                q.id === quest.id
-                  ? { ...q, completed: false }
-                  : q
-              )
-            );
-          } else {
-            const responseData = await response.json();
-            logger.debug(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
+        // Complete each favorited quest across all categories
+        for (const quest of allFavoritedQuests) {
+          try {
+            const response = await fetch('/api/quests/smart-completion', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                questId: quest.id,
+                completed: true,
+                xpReward: quest.xp || 50,
+                goldReward: quest.gold || 25,
+              }),
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              logger.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
+              failedIds.push(quest.id);
+            } else {
+              const responseData = await response.json();
+              logger.debug(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
+            }
+          } catch (apiError) {
+            logger.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
+            failedIds.push(quest.id);
           }
-        } catch (apiError) {
-          logger.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
-          // Revert optimistic update on error
+        }
+
+        // Revert failed ones if any
+        if (failedIds.length > 0) {
+          const failedSet = new Set(failedIds);
           setQuests(prevQuests =>
             prevQuests.map(q =>
-              q.id === quest.id
+              failedSet.has(q.id)
                 ? { ...q, completed: false }
                 : q
             )
           );
         }
+
+        // Wait a moment for database to update, then refresh quest data
+        setTimeout(async () => {
+          try {
+            logger.debug('[Bulk Complete All] Refreshing quest data after completion...');
+            const response = await fetch(`/api/quests?t=${Date.now()}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              logger.debug('[Bulk Complete All] Refreshed quest data:', data);
+              setQuests(data);
+            }
+          } catch (error) {
+            logger.error('[Bulk Complete All] Error refreshing quest data:', error);
+          }
+        }, 1000);
+
+        toast({
+          title: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.title,
+          description: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.desc.replace('{count}', String(allFavoritedQuests.length - failedIds.length)),
+          duration: 3000,
+        });
+
+      } else {
+        // Complete all favorited challenges/tasks across all categories
+        const allFavoritedChallenges = challenges.filter(c =>
+          favoritedQuests.has(c.id) &&
+          !c.completed
+        );
+
+        if (allFavoritedChallenges.length === 0) return;
+
+        // Optimistic update all at once
+        const challengeIdsToComplete = new Set(allFavoritedChallenges.map(c => c.id));
+        setChallenges(prevChallenges =>
+          prevChallenges.map(c =>
+            challengeIdsToComplete.has(c.id)
+              ? { ...c, completed: true }
+              : c
+          )
+        );
+
+        const failedIds: string[] = [];
+
+        // Complete each favorited challenge
+        for (const challenge of allFavoritedChallenges) {
+          try {
+            const goldReward = challenge.gold || 50;
+            const xpReward = challenge.xp || 25;
+
+            // Apply rewards locally
+            addToCharacterStat('gold', goldReward, `challenge-completion:${challenge.id}`);
+            addToCharacterStat('experience', xpReward, `challenge-completion:${challenge.id}`);
+
+            const response = await fetch('/api/challenges', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                challengeId: challenge.id,
+                completed: true
+              })
+            });
+
+            if (!response.ok) {
+              logger.error(`[Bulk Complete All Challenges] Failed to complete challenge ${challenge.id}`);
+              failedIds.push(challenge.id);
+            } else {
+              logger.debug(`[Bulk Complete All Challenges] Successfully completed challenge: ${challenge.name}`);
+            }
+          } catch (apiError) {
+            logger.error(`[Bulk Complete All Challenges] API error for challenge ${challenge.id}:`, apiError);
+            failedIds.push(challenge.id);
+          }
+        }
+
+        // Revert failed ones if any
+        if (failedIds.length > 0) {
+          const failedSet = new Set(failedIds);
+          setChallenges(prevChallenges =>
+            prevChallenges.map(c =>
+              failedSet.has(c.id)
+                ? { ...c, completed: false }
+                : c
+            )
+          );
+        }
+
+        toast({
+          title: "All Tasks Completed",
+          description: `Successfully completed ${allFavoritedChallenges.length - failedIds.length} favorited tasks across all categories!`,
+          duration: 3000,
+        });
       }
 
-      // Wait a moment for database to update, then refresh quest data
-      setTimeout(async () => {
-        try {
-          logger.debug('[Bulk Complete All] Refreshing quest data after completion...');
-          const response = await fetch(`/api/quests?t=${Date.now()}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            logger.debug('[Bulk Complete All] Refreshed quest data:', data);
-            setQuests(data);
-          }
-        } catch (error) {
-          logger.error('[Bulk Complete All] Error refreshing quest data:', error);
-        }
-      }, 1000);
-
-      toast({
-        title: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.title,
-        description: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.desc.replace('{count}', String(allFavoritedQuests.length)),
-        duration: 3000,
-      });
     } catch (error) {
       logger.error('Error bulk completing all favorites:', error);
       toast({
@@ -2168,21 +2345,27 @@ export default function QuestsPage() {
                   <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
                     <Button
                       onClick={handleBulkCompleteFavorites}
-                      disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
+                      disabled={loading || (forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
                       className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                      aria-label="Complete all favorited quests in this category"
+                      aria-label={forgeTab === 'quests' ? "Complete all favorited quests in this category" : "Complete all favorited tasks in this category"}
                     >
                       <Star className="w-4 h-4 mr-2" />
-                      {TEXT_CONTENT.questBoard.buttons.completeFavorites.replace('{count}', String(quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
+                      {(forgeTab === 'quests' 
+                        ? TEXT_CONTENT.questBoard.buttons.completeFavorites 
+                        : "Complete {count} Starred Tasks"
+                      ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
                     </Button>
                     <Button
                       onClick={handleBulkCompleteAllFavorites}
-                      disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
+                      disabled={loading || (forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
                       className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                      aria-label="Complete all favorited quests across all categories"
+                      aria-label={forgeTab === 'quests' ? "Complete all favorited quests across all categories" : "Complete all favorited tasks across all categories"}
                     >
                       <Star className="w-4 h-4 mr-2" />
-                      {TEXT_CONTENT.questBoard.buttons.completeAllFavorites.replace('{count}', String(quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
+                      {(forgeTab === 'quests'
+                        ? TEXT_CONTENT.questBoard.buttons.completeAllFavorites
+                        : "Complete All {count} Starred Tasks"
+                      ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
                     </Button>
                     <Button
                       onClick={handleManualReset}
@@ -2250,7 +2433,7 @@ export default function QuestsPage() {
                       <QuestOrganization
                         quests={challenges}
                         onQuestToggle={handleChallengeToggle}
-                        onQuestFavorite={() => { }}
+                        onQuestFavorite={handleQuestFavorite}
                         onQuestEdit={handleEditChallenge}
                         onQuestDelete={handleDeleteChallenge}
                         onAddQuest={handleAddChallengeType}

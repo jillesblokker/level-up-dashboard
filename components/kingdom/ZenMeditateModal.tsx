@@ -9,6 +9,7 @@ import { Wind, Sparkles, ScrollText } from 'lucide-react'
 import { updateCharacterStats } from '@/lib/character-stats-service'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { notificationService } from "@/lib/notification-service"
 
 interface ZenMeditateModalProps {
     isOpen: boolean
@@ -96,6 +97,18 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
 
             await updateCharacterStats({ experience: 30 }) // Increased reward to 30 XP
             toast.success("You feel deeply centered.", { description: "+30 XP" })
+            
+            notificationService.addNotification(
+                "Meditation Complete 🧘",
+                "You feel deeply centered and gained +30 XP!",
+                "success",
+                "high",
+                {
+                    label: "View Character",
+                    href: "/character"
+                }
+            );
+
             onClose()
         } catch (error) {
             logger.error("Failed to record meditation:", error);

@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 ;
 
 import { useState, useEffect, useRef } from 'react';
+import { notificationService } from "@/lib/notification-service";
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useRouter } from 'next/navigation';
@@ -486,6 +487,20 @@ export default function DungeonPage() {
 
       if (!response.ok) throw new Error('Failed to save rewards');
       const data = await response.json();
+
+      // Add a notification about dungeon completion/defeat
+      notificationService.addNotification(
+        finalRun.status === 'completed' ? "Dungeon Completed! 🏆" : "Dungeon Run Ended 💀",
+        finalRun.status === 'completed'
+          ? `You successfully cleared the dungeon and earned ${data.rewards?.gold || 0} gold and ${data.rewards?.xp || 0} XP!`
+          : `Your run ended in defeat, but you recovered ${data.rewards?.gold || 0} gold and ${data.rewards?.xp || 0} XP.`,
+        "monster",
+        "high",
+        {
+          label: "Play Again",
+          href: "/dungeon"
+        }
+      );
 
       // Set result state instead of immediate redirect
       setGameResult({

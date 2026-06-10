@@ -353,15 +353,44 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
               {(() => {
                 // Group notifications
                 const groupedNotifications = allNotifications.reduce((acc: any[], current) => {
+                  const date = new Date(current.timestamp);
+                  const isToday = date.toDateString() === new Date().toDateString();
+                  const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
+                  const dayString = isToday ? 'Today' : isYesterday ? 'Yesterday' : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                  
+                  const titleLower = (current.title || '').toLowerCase();
+                  const messageLower = (current.message || '').toLowerCase();
+                  
+                  // Check if this notification is special and must stay individual:
+                  // level up, new title unlocked, meditation complete, dungeon completed, mystery event rewards.
+                  const isKeptSpecial = 
+                    titleLower.includes('level up') ||
+                    titleLower.includes('title earned') ||
+                    titleLower.includes('meditation') ||
+                    titleLower.includes('dungeon') ||
+                    titleLower.includes('shrine') || 
+                    titleLower.includes('discovery') ||
+                    titleLower.includes('scroll') ||
+                    messageLower.includes('meditation') ||
+                    messageLower.includes('dungeon') ||
+                    current.type === 'levelup' ||
+                    current.type === 'monster' ||
+                    current.type === 'social';
+
+                  if (isKeptSpecial) {
+                    acc.push(current);
+                    return acc;
+                  }
+
+                  // Check if it's achievement
                   if (current.type === 'achievement') {
                     const achievementGroup = acc.find(n => n.type === 'achievement_group');
                     if (achievementGroup) {
                       achievementGroup.items.push(current);
-                      // Update group timestamp to most recent
                       if (new Date(current.timestamp) > new Date(achievementGroup.timestamp)) {
                         achievementGroup.timestamp = current.timestamp;
                       }
-                      current.read = true // Mark items as effectively handled in group context for now, but really we count unread in group
+                      current.read = true;
                     } else {
                       acc.push({
                         type: 'achievement_group',
@@ -371,9 +400,82 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                         items: [current]
                       });
                     }
-                  } else {
-                    acc.push(current);
+                    return acc;
                   }
+
+                  // Check for gold candidates
+                  const isGold = messageLower.includes('gold') || titleLower.includes('gold');
+                  if (isGold) {
+                    const goldGroupKey = `gold-group-${dayString}`;
+                    const goldGroup = acc.find(n => n.id === goldGroupKey);
+                    
+                    // Parse gold amount
+                    const goldMatch = current.message.match(/(\d+)\s*gold/i) || current.title.match(/(\d+)\s*gold/i);
+                    const amount = goldMatch ? parseInt(goldMatch[1]) : 0;
+
+                    if (goldGroup) {
+                      goldGroup.items.push(current);
+                      goldGroup.totalGold += amount;
+                      goldGroup.message = `Earned a total of +${goldGroup.totalGold} gold.`;
+                      if (new Date(current.timestamp) > new Date(goldGroup.timestamp)) {
+                        goldGroup.timestamp = current.timestamp;
+                      }
+                    } else {
+                      acc.push({
+                        type: 'gold_group',
+                        id: goldGroupKey,
+                        title: `Gold Gained (${dayString}) 💰`,
+                        message: `Earned +${amount} gold.`,
+                        timestamp: current.timestamp,
+                        totalGold: amount,
+                        items: [current]
+                      });
+                    }
+                    return acc;
+                  }
+
+                  // Check for item candidates
+                  const isItem = messageLower.includes('item') || messageLower.includes('items:') || messageLower.includes('artifact') || messageLower.includes('scroll');
+                  if (isItem) {
+                    const itemGroupKey = `item-group-${dayString}`;
+                    const itemGroup = acc.find(n => n.id === itemGroupKey);
+                    
+                    // Parse items
+                    const parsedItems = extractItems(current.message);
+
+                    if (itemGroup) {
+                      itemGroup.items.push(current);
+                      parsedItems.forEach(pItem => {
+                        const existing = itemGroup.itemsList.find((i: any) => i.name === pItem.name);
+                        if (existing) {
+                          existing.quantity += pItem.quantity;
+                        } else {
+                          itemGroup.itemsList.push(pItem);
+                        }
+                      });
+                      
+                      itemGroup.message = `Gained items:\n${itemGroup.itemsList.map((it: any) => `- ${it.name} (x${it.quantity})`).join('\n')}`;
+                      if (new Date(current.timestamp) > new Date(itemGroup.timestamp)) {
+                        itemGroup.timestamp = current.timestamp;
+                      }
+                    } else {
+                      acc.push({
+                        type: 'item_group',
+                        id: itemGroupKey,
+                        title: `Items Gained (${dayString}) 📦`,
+                        message: parsedItems.length > 0 
+                          ? `Gained items:\n${parsedItems.map(it => `- ${it.name} (x${it.quantity})`).join('\n')}`
+                          : `Gained items from your adventures.`,
+                        timestamp: current.timestamp,
+                        itemsList: parsedItems,
+                        items: [current]
+                      });
+                    }
+                    return acc;
+                  }
+
+                  // Fallback: individual notification
+                  acc.push(current);
                   return acc;
                 }, []);
 
@@ -383,6 +485,28 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                       <AchievementGroup
                         key={notification.id}
                         notification={notification}
+                        handleDelete={handleDelete}
+                      />
+                    );
+                  }
+
+                  if (notification.type === 'gold_group') {
+                    return (
+                      <GoldGroup
+                        key={notification.id}
+                        notification={notification}
+                        handleMarkAsRead={handleMarkAsRead}
+                        handleDelete={handleDelete}
+                      />
+                    );
+                  }
+
+                  if (notification.type === 'item_group') {
+                    return (
+                      <ItemGroup
+                        key={notification.id}
+                        notification={notification}
+                        handleMarkAsRead={handleMarkAsRead}
                         handleDelete={handleDelete}
                       />
                     );
@@ -409,6 +533,252 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
 }
 
 // Sub-components to avoid Rule of Hooks violations in loops
+
+function extractItems(message: string): { name: string; quantity: number }[] {
+  const items: { name: string; quantity: number }[] = [];
+  
+  if (!message) return items;
+
+  // 1. Check for "Items: <item1>, <item2>, ..."
+  const itemsMatch = message.match(/Items:\s*(.+)/i);
+  if (itemsMatch && itemsMatch[1]) {
+    const list = itemsMatch[1].split(',').map(s => s.trim());
+    list.forEach(itemName => {
+      if (itemName) {
+        items.push({ name: itemName, quantity: 1 });
+      }
+    });
+    return items;
+  }
+  
+  // 2. Check for "You found the ancient scroll "<name>""
+  const scrollMatch = message.match(/ancient scroll "([^"]+)"/i);
+  if (scrollMatch && scrollMatch[1]) {
+    items.push({ name: `Ancient Scroll: ${scrollMatch[1]}`, quantity: 1 });
+    return items;
+  }
+  
+  // 3. Check for "You found a mysterious artifact"
+  if (message.includes('mysterious artifact')) {
+    items.push({ name: 'Mysterious Artifact', quantity: 1 });
+    return items;
+  }
+  
+  // 4. Check for "You found an ancient artifact"
+  if (message.includes('ancient artifact')) {
+    items.push({ name: 'Ancient Artifact', quantity: 1 });
+    return items;
+  }
+
+  // 5. Check for "You discovered <CreatureName>"
+  const discoverMatch = message.match(/You've discovered ([^!]+)/i);
+  if (discoverMatch && discoverMatch[1]) {
+    items.push({ name: `${discoverMatch[1]} (Creature Card)`, quantity: 1 });
+    return items;
+  }
+  
+  return items;
+}
+
+function GoldGroup({ notification, handleMarkAsRead, handleDelete }: { notification: any, handleMarkAsRead: (id: string, isServer?: boolean) => void, handleDelete: (id: string) => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const unreadCount = notification.items.filter((n: any) => !n.read).length;
+
+  const handleMarkGroupRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    notification.items.forEach((item: any) => {
+      if (!item.read) {
+        handleMarkAsRead(item.id, item.isServer);
+      }
+    });
+  };
+
+  const handleGroupDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    notification.items.forEach((item: any) => {
+      handleDelete(item.id);
+    });
+  };
+
+  return (
+    <div className="border-b border-amber-800/10">
+      <div
+        className={cn(
+          "p-4 hover:bg-gray-900/50 transition-all duration-200 cursor-pointer flex items-center justify-between",
+          unreadCount > 0 && "bg-gray-800/30"
+        )}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-4">
+          <div className="text-2xl mt-1 text-amber-500">💰</div>
+          <div>
+            <h4 className="font-semibold text-sm text-amber-400">{notification.title}</h4>
+            <p className="text-sm text-gray-300">{notification.message}</p>
+            <span className="text-xs text-gray-500 mt-1 block">
+              {notification.items.length} gold transaction{notification.items.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <button
+              onClick={handleMarkGroupRead}
+              className="text-[10px] uppercase font-bold tracking-wider text-blue-400 hover:text-blue-300 px-2 py-1 rounded border border-blue-600/30 hover:bg-blue-900/20"
+            >
+              Read All
+            </button>
+          )}
+          <button
+            onClick={handleGroupDelete}
+            className="text-sm text-gray-500 hover:text-red-400 p-1"
+          >
+            🗑️
+          </button>
+          <Button variant="ghost" size="sm" className="text-gray-400 p-0 w-8 h-8">
+            {isExpanded ? '▲' : '▼'}
+          </Button>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="bg-gray-900/30 divide-y divide-amber-800/10">
+          {notification.items.map((item: any) => (
+            <div key={item.id} className="p-4 pl-12 relative hover:bg-gray-900/50 transition-all duration-200">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h5 className="font-medium text-white text-sm">{item.title}</h5>
+                  <p className="text-sm text-gray-300 mt-1">{item.message}</p>
+                  <span className="text-xs text-gray-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  {!item.read && (
+                    <button
+                      onClick={() => handleMarkAsRead(item.id, item.isServer)}
+                      className="text-xs text-blue-400 hover:underline"
+                    >
+                      Read
+                    </button>
+                  )}
+                  {!item.isServer && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item.id);
+                      }}
+                      className="text-gray-500 hover:text-red-400 text-sm"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ItemGroup({ notification, handleMarkAsRead, handleDelete }: { notification: any, handleMarkAsRead: (id: string, isServer?: boolean) => void, handleDelete: (id: string) => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const unreadCount = notification.items.filter((n: any) => !n.read).length;
+
+  const handleMarkGroupRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    notification.items.forEach((item: any) => {
+      if (!item.read) {
+        handleMarkAsRead(item.id, item.isServer);
+      }
+    });
+  };
+
+  const handleGroupDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    notification.items.forEach((item: any) => {
+      handleDelete(item.id);
+    });
+  };
+
+  return (
+    <div className="border-b border-amber-800/10">
+      <div
+        className={cn(
+          "p-4 hover:bg-gray-900/50 transition-all duration-200 cursor-pointer flex items-center justify-between",
+          unreadCount > 0 && "bg-gray-800/30"
+        )}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-4">
+          <div className="text-2xl mt-1 text-amber-500">📦</div>
+          <div>
+            <h4 className="font-semibold text-sm text-amber-400">{notification.title}</h4>
+            <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{notification.message}</p>
+            <span className="text-xs text-gray-500 mt-1 block">
+              {notification.items.length} item event{notification.items.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <button
+              onClick={handleMarkGroupRead}
+              className="text-[10px] uppercase font-bold tracking-wider text-blue-400 hover:text-blue-300 px-2 py-1 rounded border border-blue-600/30 hover:bg-blue-900/20"
+            >
+              Read All
+            </button>
+          )}
+          <button
+            onClick={handleGroupDelete}
+            className="text-sm text-gray-500 hover:text-red-400 p-1"
+          >
+            🗑️
+          </button>
+          <Button variant="ghost" size="sm" className="text-gray-400 p-0 w-8 h-8">
+            {isExpanded ? '▲' : '▼'}
+          </Button>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="bg-gray-900/30 divide-y divide-amber-800/10">
+          {notification.items.map((item: any) => (
+            <div key={item.id} className="p-4 pl-12 relative hover:bg-gray-900/50 transition-all duration-200">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h5 className="font-medium text-white text-sm">{item.title}</h5>
+                  <p className="text-sm text-gray-300 mt-1">{item.message}</p>
+                  <span className="text-xs text-gray-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  {!item.read && (
+                    <button
+                      onClick={() => handleMarkAsRead(item.id, item.isServer)}
+                      className="text-xs text-blue-400 hover:underline"
+                    >
+                      Read
+                    </button>
+                  )}
+                  {!item.isServer && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item.id);
+                      }}
+                      className="text-gray-500 hover:text-red-400 text-sm"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AchievementGroup({ notification, handleDelete }: { notification: any, handleDelete: (id: string) => void }) {
   const [isExpanded, setIsExpanded] = useState(false);

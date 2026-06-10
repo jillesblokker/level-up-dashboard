@@ -356,16 +356,19 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     <>
       <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy' | 'guide')} className="w-full h-full flex flex-col">
         <div className="px-6 pt-4 pb-2 shrink-0">
-          <TabsList className="flex h-12 bg-black/40 backdrop-blur-md border border-amber-900/30 rounded-xl p-1.5 w-full">
+          <TabsList
+            className="flex h-12 bg-black/40 backdrop-blur-md border border-amber-900/30 rounded-xl p-1.5 w-full overflow-x-auto overflow-y-hidden"
+            style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
+          >
             <TabsTrigger
               value="place"
-              className="flex-1 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
+              className="flex-1 shrink-0 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap"
             >
               Place Tiles
             </TabsTrigger>
             <TabsTrigger
               value="buy"
-              className="flex-1 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
+              className="flex-1 shrink-0 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap"
             >
               Buy Tiles
             </TabsTrigger>
