@@ -41,6 +41,7 @@ interface CitizensStore {
   loadCitizens: (userId: string) => Promise<void>;
   toggleActive: (userId: string, citizenId: string) => Promise<void>;
   toggleFavorite: (userId: string, citizenId: string) => Promise<void>;
+  bulkToggleFavorite: (userId: string, citizenIds: string[], value: boolean) => Promise<void>;
   feedCitizen: (userId: string, citizenId: string, foodItemId: string) => Promise<boolean>;
   harvestCitizen: (userId: string, citizenId: string) => Promise<boolean>;
 }
@@ -225,6 +226,29 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     );
 
     // Save preferences
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updated.forEach((c) => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+      };
+    });
+
+    set({ citizens: updated });
+    await setUserPreference('citizens_state', citizenPrefs);
+  },
+
+  bulkToggleFavorite: async (userId: string, citizenIds: string[], value: boolean) => {
+    const { citizens } = get();
+    const idSet = new Set(citizenIds);
+    const updated = citizens.map((c) =>
+      idSet.has(c.id) ? { ...c, favorite: value } : c
+    );
+
+    // Build and write prefs in a single operation — no race condition
     const citizenPrefs: Record<string, CitizenState> = {};
     updated.forEach((c) => {
       citizenPrefs[c.id] = {

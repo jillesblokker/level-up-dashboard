@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check } from "lucide-react"
+import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -88,11 +88,13 @@ export default function CharacterPage() {
   const citizens = useCitizensStore(state => state.citizens);
   const toggleActive = useCitizensStore(state => state.toggleActive);
   const toggleFavorite = useCitizensStore(state => state.toggleFavorite);
+  const bulkToggleFavorite = useCitizensStore(state => state.bulkToggleFavorite);
   const feedCitizen = useCitizensStore(state => state.feedCitizen);
   const harvestCitizen = useCitizensStore(state => state.harvestCitizen);
 
   const [citizenFilter, setCitizenFilter] = useState<"all" | "active" | "inactive" | "favorites">("all");
   const [inventoryFood, setInventoryFood] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
+  const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
 
   const loadInventoryFood = useCallback(async () => {
     if (!user?.id) return;
@@ -1630,84 +1632,117 @@ export default function CharacterPage() {
                               </div>
                             </CardContent>
 
-                            <CardFooter className="flex flex-col gap-2 pt-0 pb-4">
+                            <CardFooter className="flex flex-col gap-2 pt-2 pb-4 px-4">
+                              {/* ── Map Toggle ── */}
                               <Button
                                 size="sm"
                                 variant={citizen.active ? "outline" : "default"}
-                                className={`w-full font-serif border ${
-                                  citizen.active 
-                                    ? 'border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-900 hover:text-white' 
-                                    : 'bg-amber-600 text-black hover:bg-amber-700 font-semibold'
+                                className={`w-full font-semibold text-sm ${
+                                  citizen.active
+                                    ? 'border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-red-950/40 hover:border-red-800/60 hover:text-red-300'
+                                    : 'bg-amber-600 text-black hover:bg-amber-500 border-amber-500'
                                 }`}
                                 onClick={() => handleToggleActive(citizen)}
                               >
-                                {citizen.active ? "Set to Tab Only" : "Let Wander Map"}
+                                {citizen.active ? (
+                                  <><X className="w-3.5 h-3.5 mr-1.5 shrink-0" />Set to Tab Only</>
+                                ) : (
+                                  <><Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0" />Let Wander Map</>
+                                )}
                               </Button>
 
-                              <div className="grid grid-cols-2 gap-2 w-full mt-1">
-                                <div className="relative">
-                                  {isHungry ? (
-                                    inventoryFood.length === 0 ? (
-                                      <Button disabled size="sm" variant="outline" className="w-full text-[10px] p-1 border-zinc-800 text-zinc-500 bg-zinc-950">
-                                        No Food
-                                      </Button>
-                                    ) : (
-                                      <select 
-                                        className="w-full bg-zinc-950 text-white text-[11px] border border-zinc-800 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 hover:border-zinc-700 transition-colors cursor-pointer"
-                                        onChange={async (e) => {
-                                          const foodId = e.target.value;
-                                          if (foodId) {
-                                            const success = await feedCitizen(user!.id, citizen.id, foodId);
-                                            if (success) {
-                                              toast({
-                                                title: "Citizen Fed",
-                                                description: `You fed ${citizen.name}! They will now wander the map and produce gold.`,
-                                              });
-                                              loadInventoryFood();
-                                            }
-                                            e.target.value = "";
-                                          }
-                                        }}
-                                        defaultValue=""
-                                      >
-                                        <option value="" disabled>Feed 🥩</option>
+                              {/* ── Feed Section ── */}
+                              {isHungry ? (
+                                <div className="w-full">
+                                  {inventoryFood.length === 0 ? (
+                                    <Button disabled size="sm" className="w-full bg-zinc-900 border border-zinc-800 text-zinc-500 text-xs">
+                                      <Utensils className="w-3.5 h-3.5 mr-1.5 shrink-0" />No Food in Inventory
+                                    </Button>
+                                  ) : feedModalCitizenId === citizen.id ? (
+                                    /* Food picker — open state */
+                                    <div className="w-full rounded-lg border border-amber-800/40 bg-zinc-950 overflow-hidden">
+                                      <div className="flex items-center justify-between px-3 py-2 bg-amber-950/30 border-b border-amber-800/30">
+                                        <span className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                                          <Utensils className="w-3 h-3" />Choose food to feed
+                                        </span>
+                                        <button
+                                          onClick={() => setFeedModalCitizenId(null)}
+                                          className="text-zinc-500 hover:text-white transition-colors p-0.5"
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                      <div className="flex flex-col gap-1 p-2 max-h-48 overflow-y-auto">
                                         {inventoryFood.map(f => (
-                                          <option key={f.id} value={f.id} className="bg-zinc-950 text-white text-xs">
-                                            {f.emoji} {f.name} ({f.quantity})
-                                          </option>
+                                          <button
+                                            key={f.id}
+                                            className="flex items-center justify-between w-full text-left px-3 py-2 rounded-md bg-zinc-900 hover:bg-amber-900/30 border border-zinc-800 hover:border-amber-700/50 transition-all duration-150 group"
+                                            onClick={async () => {
+                                              setFeedModalCitizenId(null);
+                                              const success = await feedCitizen(user!.id, citizen.id, f.id);
+                                              if (success) {
+                                                toast({
+                                                  title: "Citizen Fed! 🍖",
+                                                  description: `${citizen.name} is now fed for ${FOOD_DAYS_MAP[f.id] ?? 1} day(s) and will produce gold!`,
+                                                });
+                                                loadInventoryFood();
+                                              }
+                                            }}
+                                          >
+                                            <span className="flex items-center gap-2 text-sm text-white">
+                                              <span className="text-base">{f.emoji}</span>
+                                              <span className="font-medium">{f.name}</span>
+                                            </span>
+                                            <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
+                                              ×{f.quantity}
+                                            </span>
+                                          </button>
                                         ))}
-                                      </select>
-                                    )
+                                      </div>
+                                    </div>
                                   ) : (
-                                    <Button disabled size="sm" variant="outline" className="w-full text-xs p-1 border-zinc-800 text-zinc-500 bg-zinc-950">
-                                      Fed 💚
+                                    /* Feed trigger button */
+                                    <Button
+                                      size="sm"
+                                      className="w-full bg-red-950/60 border border-red-800/50 text-red-300 hover:bg-red-900/50 hover:border-red-600/70 hover:text-red-200 text-sm font-semibold"
+                                      onClick={() => setFeedModalCitizenId(citizen.id)}
+                                    >
+                                      <Utensils className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                      Feed Citizen
+                                      <ChevronDown className="w-3.5 h-3.5 ml-auto shrink-0 opacity-60" />
                                     </Button>
                                   )}
                                 </div>
+                              ) : (
+                                /* Already fed */
+                                <div className="w-full flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg bg-green-950/30 border border-green-800/30 text-green-400 text-xs font-semibold">
+                                  <Check className="w-3.5 h-3.5 shrink-0" />
+                                  Fed — {fedRemaining} remaining
+                                </div>
+                              )}
 
-                                <Button
-                                  size="sm"
-                                  variant={isReadyToHarvest ? "default" : "outline"}
-                                  disabled={!isReadyToHarvest}
-                                  onClick={async () => {
-                                    const success = await harvestCitizen(user!.id, citizen.id);
-                                    if (success) {
-                                      toast({
-                                        title: "Harvest Successful",
-                                        description: `Gained gold from ${citizen.name}!`,
-                                      });
-                                    }
-                                  }}
-                                  className={`w-full text-xs font-serif ${
-                                    isReadyToHarvest 
-                                      ? 'bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-black font-bold animate-pulse'
-                                      : 'border-zinc-800 text-zinc-500 bg-zinc-950'
-                                  }`}
-                                >
-                                  <Coins className="w-3.5 h-3.5 mr-1" />
-                                  Harvest
-                                </Button>
-                              </div>
+                              {/* ── Harvest Button ── */}
+                              <Button
+                                size="sm"
+                                disabled={!isReadyToHarvest}
+                                onClick={async () => {
+                                  const success = await harvestCitizen(user!.id, citizen.id);
+                                  if (success) {
+                                    toast({
+                                      title: "Gold Harvested! 🪙",
+                                      description: `Collected daily gold from ${citizen.name}!`,
+                                    });
+                                  }
+                                }}
+                                className={`w-full text-sm font-semibold ${
+                                  isReadyToHarvest
+                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black border-none shadow-md shadow-amber-900/30'
+                                    : 'bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed'
+                                }`}
+                              >
+                                <Coins className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                {isReadyToHarvest ? 'Harvest Gold ✨' : `Harvest (${harvestRemaining})`}
+                              </Button>
                             </CardFooter>
                           </Card>
                         );
