@@ -156,6 +156,11 @@ export default function DungeonPage() {
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
+  // Helper values for active fighter combat stats
+  const selectedPartyMember = run?.party.find(c => c.id === selectedCreature?.id) || null;
+  const activeFighterHp = selectedPartyMember?.hp ?? 0;
+  const activeFighterMaxHp = selectedPartyMember?.maxHp ?? 100;
+
   // Auto-scroll log
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -754,36 +759,36 @@ export default function DungeonPage() {
           <div className="flex flex-col items-center justify-center p-6 bg-slate-900/30 rounded-2xl border border-slate-800/50">
             {run.currentEncounter.type === 'monster' && enemyDef ? (
               <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full max-w-sm">
-                <div className="relative group w-full">
+                <div className="relative group w-full flex justify-center">
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-gray-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
-                  <Card className={`w-full border-2 ${getTypeColor(enemyDef.type)} bg-slate-900/80 backdrop-blur-sm relative overflow-visible shadow-2xl`}>
-                    <div className="absolute -top-5 -right-5 text-6xl filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                  <div className={`relative w-full max-w-[285px] aspect-[3/4] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-slate-950 shadow-2xl flex flex-col p-5 justify-between`}>
+                    <div className="absolute top-0 right-0 p-3 bg-black/40 rounded-bl-2xl text-2xl filter drop-shadow-lg z-20">
                       {getTypeEmoji(enemyDef.type)}
                     </div>
-                    <CardContent className="pt-8 pb-6 px-6 text-center space-y-4">
-                      
-                      {/* Creature Image (Achievement-card style) */}
-                      <div className="relative aspect-[4/3] w-full bg-slate-950/60 rounded-lg overflow-hidden border border-slate-800/80 flex items-center justify-center">
-                        <Image
-                          src={`/images/creatures/${enemyId}.png`}
-                          alt={enemyDef.name}
-                          fill
-                          className="object-contain p-2"
-                          unoptimized
-                        />
-                      </div>
 
-                      <div>
-                        <h3 className="text-2xl font-black uppercase tracking-widest text-white">{enemyDef.name}</h3>
-                        <Badge variant="outline" className={`${getTypeColor(enemyDef.type)} mt-2 bg-transparent`}>{enemyDef.type} Type</Badge>
-                      </div>
+                    <div className="border-b border-slate-850/40 pb-2 z-10">
+                      <h3 className="text-lg font-black text-white uppercase tracking-wider truncate max-w-[80%]">{enemyDef.name}</h3>
+                      <Badge variant="outline" className={`${getTypeColor(enemyDef.type)} mt-1 bg-transparent border-opacity-40 text-[9px] px-2 py-0.5`}>{enemyDef.type} Type</Badge>
+                    </div>
 
+                    {/* Creature Image (Achievement-card style) */}
+                    <div className="relative w-full flex-1 my-3 bg-slate-900/40 rounded-xl overflow-hidden flex items-center justify-center border border-slate-850/20">
+                      <Image
+                        src={`/images/creatures/${enemyId}.png`}
+                        alt={enemyDef.name}
+                        fill
+                        className="object-contain p-2"
+                        unoptimized
+                      />
+                    </div>
+
+                    <div className="space-y-2.5 z-10 w-full">
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs text-slate-400 font-medium">
+                        <div className="flex justify-between text-[10px] text-slate-400 font-bold">
                           <span>HP</span>
                           <span>{run.currentEncounter.hp} / {run.currentEncounter.maxHp}</span>
                         </div>
-                        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-red-500 transition-all duration-500"
                             style={{ width: `${((run.currentEncounter.hp || 0) / (run.currentEncounter.maxHp || 1)) * 100}%` }}
@@ -791,23 +796,14 @@ export default function DungeonPage() {
                         </div>
                       </div>
 
-                      {/* Stats Below Image */}
-                      <div className="grid grid-cols-3 gap-2 text-xs opacity-70 border-t border-slate-700/50 pt-4 mt-2">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-300">{enemyDef.stats.atk}</span>
-                          <span className="scale-75">ATK</span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-300">{enemyDef.stats.def}</span>
-                          <span className="scale-75">DEF</span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-300">{enemyDef.stats.spd}</span>
-                          <span className="scale-75">SPD</span>
-                        </div>
+                      {/* Stats Row */}
+                      <div className="grid grid-cols-3 gap-0.5 text-[10px] opacity-90 font-mono text-center border-t border-slate-850/30 pt-1.5">
+                        <span className="flex items-center justify-center gap-0.5"><span className="text-red-300">⚔️</span>{enemyDef.stats.atk}</span>
+                        <span className="flex items-center justify-center gap-0.5"><span className="text-blue-300">🛡️</span>{enemyDef.stats.def}</span>
+                        <span className="flex items-center justify-center gap-0.5"><span className="text-green-300">💨</span>{enemyDef.stats.spd}</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-6 text-slate-500 font-bold text-lg tracking-widest">ENEMY</div>
               </div>
@@ -875,11 +871,11 @@ export default function DungeonPage() {
 
                         // Calculate matchup for improved UX
                         let matchupText = "";
-                        let matchupColor = "text-slate-500";
+                        let matchupColor = "text-slate-500 border-slate-850";
                         if (enemyDef) {
                           const mult = getMatchupMultiplier(creature.type, enemyDef.type);
-                          if (mult > 1) { matchupText = "Strong"; matchupColor = "text-green-400 font-bold"; }
-                          else if (mult < 1) { matchupText = "Weak"; matchupColor = "text-red-400"; }
+                          if (mult > 1) { matchupText = "Strong"; matchupColor = "text-green-400 border-green-500/40 font-bold bg-green-950/90"; }
+                          else if (mult < 1) { matchupText = "Weak"; matchupColor = "text-red-400 border-red-500/40 bg-red-950/90"; }
                         }
 
                         return (
@@ -887,35 +883,42 @@ export default function DungeonPage() {
                             key={`${creature.id}-${idx}`}
                             onClick={() => selectFighter(creature)}
                             disabled={isFainted}
-                            className={`flex-none w-[150px] sm:w-[160px] snap-center snap-always group relative p-3 rounded-lg border-2 text-left transition-all duration-200 ${
+                            className={`flex-none w-[145px] sm:w-[155px] aspect-[3/4] snap-center snap-always group relative rounded-2xl border-2 flex flex-col justify-between p-3.5 text-left transition-all duration-200 overflow-hidden bg-slate-950 ${
                               isFainted 
                                 ? 'border-zinc-800 bg-zinc-950/40 text-zinc-600 opacity-50 cursor-not-allowed shadow-none' 
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
                             } ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
-                            <div className="flex justify-between items-start mb-2">
-                              <span className="font-black text-sm uppercase tracking-wide truncate">{creature.name}</span>
-                              <span className="text-lg filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                            <div className="flex justify-between items-start z-10 w-full">
+                              <span className="font-black text-xs uppercase tracking-wide truncate max-w-[80%] text-amber-200">{creature.name}</span>
+                              <span className="text-sm filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
                             </div>
 
+                            {/* Centered Matchup text overlay inside cards */}
+                            {matchupText && !isFainted && (
+                              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2.5 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 backdrop-blur-sm ${matchupColor}`}>
+                                {matchupText}
+                              </div>
+                            )}
+
                             {/* Creature Image inside deploy buttons */}
-                            <div className="relative w-full h-24 mb-2 bg-slate-950/40 rounded overflow-hidden flex items-center justify-center border border-slate-800/20">
+                            <div className="relative w-full flex-1 my-2 bg-slate-900/40 rounded-xl overflow-hidden flex items-center justify-center border border-slate-850/20">
                               <Image
                                 src={`/images/creatures/${creature.id}.png`}
                                 alt={creature.name}
                                 fill
-                                className="object-contain p-1"
+                                className="object-contain p-2"
                                 unoptimized
                               />
                             </div>
 
                             {/* Health Stats */}
-                            <div className="space-y-1 mb-2">
-                              <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                            <div className="space-y-1 z-10 w-full">
+                              <div className="flex justify-between text-[9px] text-slate-400 font-bold">
                                 <span>HP</span>
-                                <span>{memberHp} / {memberMaxHp}</span>
+                                <span>{memberHp}/{memberMaxHp}</span>
                               </div>
-                              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                              <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full ${isFainted ? 'bg-red-950' : 'bg-green-500'} transition-all duration-300`}
                                   style={{ width: `${(memberHp / memberMaxHp) * 100}%` }}
@@ -923,47 +926,56 @@ export default function DungeonPage() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-1 text-[10px] opacity-80 font-mono mb-2">
-                              <span className="flex items-center gap-0.5"><span className="text-red-300">⚔️</span>{creature.stats.atk}</span>
-                              <span className="flex items-center gap-0.5"><span className="text-blue-300">🛡️</span>{creature.stats.def}</span>
-                              <span className="flex items-center gap-0.5"><span className="text-green-300">💨</span>{creature.stats.spd}</span>
+                            <div className="grid grid-cols-3 gap-0.5 text-[9px] opacity-90 font-mono mt-1.5 z-10 border-t border-slate-850/30 pt-1 text-center w-full">
+                              <span>⚔️{creature.stats.atk}</span>
+                              <span>🛡️{creature.stats.def}</span>
+                              <span>💨{creature.stats.spd}</span>
                             </div>
 
-                            {matchupText && (
-                              <div className={`text-[10px] text-right uppercase tracking-widest ${matchupColor}`}>
-                                {matchupText}
-                              </div>
-                            )}
-
-                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
+                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl pointer-events-none" />
                           </button>
                         );
                       })}
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/10 shadow-inner">
-                      <div className="flex items-center gap-4">
-                        {/* Active fighter image representation */}
-                        <div className="relative w-16 h-16 bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center border border-slate-700 shadow-lg">
-                          <Image
-                            src={`/images/creatures/${selectedCreature!.id}.png`}
-                            alt={selectedCreature!.name}
-                            fill
-                            className="object-contain p-1.5"
-                            unoptimized
-                          />
-                        </div>
-                        <div>
-                          <div className="font-bold text-lg text-white">{selectedCreature!.name}</div>
-                          <div className={`text-xs font-bold uppercase tracking-wider ${getTypeColor(selectedCreature!.type).split(' ')[0]}`}>
-                            {selectedCreature!.type} Type
+                  <div className="space-y-6 flex flex-col items-center">
+                    <div className="flex flex-col items-center justify-center space-y-4 py-2 w-full">
+                      {/* Active Fighter Mini Card */}
+                      <div className="relative group w-full max-w-[190px] aspect-[3/4] animate-in zoom-in-95 duration-300">
+                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-slate-950/95 backdrop-blur-sm relative overflow-hidden shadow-2xl flex flex-col p-4 justify-between rounded-2xl`}>
+                          <div className="flex justify-between items-start z-10 w-full">
+                            <span className="font-black text-xs uppercase tracking-wide truncate max-w-[80%] text-amber-200">{selectedCreature!.name}</span>
+                            <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                          </div>
+
+                          <div className="relative w-full flex-1 my-3 bg-slate-900/40 rounded-xl overflow-hidden flex items-center justify-center border border-slate-850/20">
+                            <Image
+                              src={`/images/creatures/${selectedCreature!.id}.png`}
+                              alt={selectedCreature!.name}
+                              fill
+                              className="object-contain p-2"
+                              unoptimized
+                            />
+                          </div>
+
+                          <div className="space-y-1.5 z-10 w-full">
+                            <div className="flex justify-between text-[9px] text-slate-400 font-bold">
+                              <span>HP</span>
+                              <span>{activeFighterHp} / {activeFighterMaxHp}</span>
+                            </div>
+                            <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-green-500 transition-all duration-300"
+                                style={{ width: `${(activeFighterHp / activeFighterMaxHp) * 100}%` }}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs hover:bg-white/10 text-slate-400 hover:text-white">
-                        Change Fighter
+
+                      <Button variant="outline" size="sm" onClick={() => setBattlePhase('select')} className="text-xs border-amber-900/40 hover:bg-amber-950/20 text-amber-400 font-bold px-4 py-1.5 rounded-xl transition-all shadow-md">
+                        🔄 Change Fighter
                       </Button>
                     </div>
 

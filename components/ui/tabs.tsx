@@ -14,9 +14,10 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-11 items-center justify-center rounded-xl bg-black/40 border border-amber-900/30 p-1 text-white/50 backdrop-blur-md",
+      "flex h-14 items-center justify-start rounded-2xl bg-black/40 border border-amber-900/20 p-1.5 text-white/50 backdrop-blur-md overflow-x-auto overflow-y-hidden justify-start no-scrollbar w-full md:w-auto gap-1",
       className
     )}
+    style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
     {...props}
   />
 ))
@@ -29,7 +30,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-6 py-2 text-xs font-bold uppercase tracking-widest ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:!text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 data-[state=active]:opacity-100",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-xl px-5 py-3 text-xs font-bold uppercase tracking-widest transition-all min-h-[44px] disabled:pointer-events-none disabled:opacity-50 hover:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:!text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 data-[state=active]:opacity-100",
       className
     )}
     {...props}

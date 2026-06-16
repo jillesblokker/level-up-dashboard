@@ -323,19 +323,16 @@ export default function CityLocationPage() {
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList 
-                className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0"
-                style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
-              >
-                <TabsTrigger value="alliances" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+              <TabsList className="w-full md:w-auto mb-12">
+                <TabsTrigger value="alliances">
                   <Users className="w-4 h-4" />
                   Alliances
                 </TabsTrigger>
-                <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <TabsTrigger value="allies">
                   <UserPlus className="w-4 h-4" />
                   Ally Board
                 </TabsTrigger>
-                <TabsTrigger value="leaderboard" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                <TabsTrigger value="leaderboard">
                   <Trophy className="w-4 h-4" />
                   Legends
                 </TabsTrigger>
@@ -365,10 +362,10 @@ export default function CityLocationPage() {
             </div>
 
             <Tabs defaultValue="wares" className="w-full">
-              <TabsList className="bg-black/60 border border-amber-900/20 p-1 rounded-xl mb-6">
-                <TabsTrigger value="wares" className="px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-lg">relics & wares</TabsTrigger>
-                <TabsTrigger value="resources" className="px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-lg">resource trading</TabsTrigger>
-                <TabsTrigger value="packs" className="px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5">
+              <TabsList className="mb-6">
+                <TabsTrigger value="wares">relics & wares</TabsTrigger>
+                <TabsTrigger value="resources">resource trading</TabsTrigger>
+                <TabsTrigger value="packs" className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   scratch packs
                 </TabsTrigger>

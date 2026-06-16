@@ -794,23 +794,20 @@ export default function Page() {
           )}
 
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
-            <TabsList 
-              className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-1 mb-8"
-              style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
-            >
-              <TabsTrigger value="creatures" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+            <TabsList className="w-full mb-8">
+              <TabsTrigger value="creatures">
                 <Crosshair className="w-4 h-4" /><span>Creatures</span>
               </TabsTrigger>
-              <TabsTrigger value="mythic" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+              <TabsTrigger value="mythic">
                 <Sparkles className="w-4 h-4" /><span>Mythic</span>
               </TabsTrigger>
-              <TabsTrigger value="alliance" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+              <TabsTrigger value="alliance">
                 <Users className="w-4 h-4" /><span>Alliance</span>
               </TabsTrigger>
-              <TabsTrigger value="monsters" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+              <TabsTrigger value="monsters">
                 <Sword className="w-4 h-4" /><span>Monsters</span>
               </TabsTrigger>
-              <TabsTrigger value="progress" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+              <TabsTrigger value="progress">
                 <Trophy className="w-4 h-4" /><span>Progress</span>
               </TabsTrigger>
             </TabsList>
@@ -1057,13 +1054,13 @@ export default function Page() {
                       >
                         <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                           {/* FRONT FACE */}
-                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
                                 src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                                 alt={achievement.name}
                                 fill
-                                className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                                className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
                               />
                               <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
@@ -1183,13 +1180,13 @@ export default function Page() {
                       >
                         <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                           {/* FRONT FACE */}
-                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
                                 src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                                 alt={monsterName}
                                 fill
-                                className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                                className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
                               />
                               <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
@@ -1292,13 +1289,13 @@ export default function Page() {
                     >
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
-                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
                               src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                               alt={achievement.name}
                               fill
-                              className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                              className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
                             />
                             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                               {unlocked ? (

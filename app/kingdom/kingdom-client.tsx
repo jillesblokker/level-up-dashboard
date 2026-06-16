@@ -1578,34 +1578,21 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList 
-            className="flex h-12 bg-gray-950/60 p-1.5 rounded-2xl border border-amber-900/20 mb-6 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar"
-            style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
-          >
-            <TabsTrigger
-              value="thrivehaven"
-              className="flex-shrink-0 flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-            >
+          <TabsList className="w-full md:w-auto mb-6">
+            <TabsTrigger value="thrivehaven">
               <LayoutGrid className="w-4 h-4" />
               <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="journey"
-              className="flex-shrink-0 flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-            >
+            <TabsTrigger value="journey">
               <Compass className="w-4 h-4" />
               <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
             </TabsTrigger>
             {!isVisiting && (
-              <TabsTrigger
-                value="inventory"
-                className="flex-shrink-0 flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-              >
+              <TabsTrigger value="inventory">
                 <Backpack className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.inventory}</span>
               </TabsTrigger>
             )}
-
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">

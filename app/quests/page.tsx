@@ -2293,37 +2293,20 @@ export default function QuestsPage() {
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
             <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="w-full mb-8">
-              <TabsList 
-                className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0"
-                style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
-              >
-                <TabsTrigger
-                  value="forge"
-                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-                >
+              <TabsList className="w-full md:w-auto mb-8">
+                <TabsTrigger value="forge">
                   <Sword className="w-4 h-4" />
                   <span>The Forge</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="ledger"
-                  disabled={stats.level < 10}
-                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-                >
+                <TabsTrigger value="ledger" disabled={stats.level < 10}>
                   <Flame className="w-4 h-4" />
                   <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="sanctuary"
-                  disabled={stats.level < 20}
-                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-                >
+                <TabsTrigger value="sanctuary" disabled={stats.level < 20}>
                   <Trophy className="w-4 h-4" />
                   <span>{stats.level < 20 ? 'Sanctuary (Lvl 20)' : 'The Sanctuary'}</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="recovery"
-                  className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"
-                >
+                <TabsTrigger value="recovery">
                   <Heart className="w-4 h-4" />
                   <span>Recovery</span>
                 </TabsTrigger>
