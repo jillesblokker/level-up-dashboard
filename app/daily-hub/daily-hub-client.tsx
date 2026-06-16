@@ -432,7 +432,7 @@ export function DailyHubClient() {
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
-                                        {activePerks.map((perk, index) => (
+                                        {Array.isArray(activePerks) && activePerks.map((perk, index) => (
                                             <div key={perk.id || index} className="p-3 bg-slate-900/40 rounded-xl border border-slate-800/80 flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-2xl">🧪</span>

@@ -4,22 +4,23 @@ import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 
 export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
         .from('active_perks')
         .select('*')
         .eq('user_id', userId)
         .gte('expires_at', new Date().toISOString()); // Only active perks
       
-      return { data, error };
+      if (error) throw error;
+      return data || [];
     });
 
-    if (error) {
-      logger.error('[Active Perks API] Error fetching perks:', error);
-      return NextResponse.json({ error: 'Failed to fetch active perks' }, { status: 500 });
+    if (!result.success) {
+      logger.error('[Active Perks API] Error fetching perks:', result.error);
+      return NextResponse.json({ error: result.error || 'Failed to fetch active perks' }, { status: 500 });
     }
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: result.data });
   } catch (error) {
     logger.error('[Active Perks API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { perk_name, effect, expires_at } = body;
 
-    const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
         .from('active_perks')
         .upsert({
@@ -45,15 +46,16 @@ export async function POST(request: NextRequest) {
         .select()
         .single();
       
-      return { data, error };
+      if (error) throw error;
+      return data;
     });
 
-    if (error) {
-      logger.error('[Active Perks API] Error updating perks:', error);
-      return NextResponse.json({ error: 'Failed to update active perks' }, { status: 500 });
+    if (!result.success) {
+      logger.error('[Active Perks API] Error updating perks:', result.error);
+      return NextResponse.json({ error: result.error || 'Failed to update active perks' }, { status: 500 });
     }
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: result.data });
   } catch (error) {
     logger.error('[Active Perks API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -69,22 +71,23 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Perk name is required' }, { status: 400 });
     }
 
-    const { data, error } = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+    const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
       const { data, error } = await supabase
         .from('active_perks')
         .delete()
         .eq('user_id', userId)
         .eq('perk_name', perkName);
       
-      return { data, error };
+      if (error) throw error;
+      return data;
     });
 
-    if (error) {
-      logger.error('[Active Perks API] Error deleting perk:', error);
-      return NextResponse.json({ error: 'Failed to delete perk' }, { status: 500 });
+    if (!result.success) {
+      logger.error('[Active Perks API] Error deleting perk:', result.error);
+      return NextResponse.json({ error: result.error || 'Failed to delete perk' }, { status: 500 });
     }
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: result.data });
   } catch (error) {
     logger.error('[Active Perks API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
