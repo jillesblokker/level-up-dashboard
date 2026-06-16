@@ -33,16 +33,17 @@ const ROADMAP_DATA: Milestone[] = [
 export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
   return (
     <div className={cn("relative w-full overflow-hidden py-10", className)}>
-      <div className="absolute top-1/2 left-0 w-full h-1 bg-zinc-800 -translate-y-1/2" />
-      
-      {/* Progress Line */}
-      <motion.div 
-        initial={{ width: 0 }}
-        animate={{ width: `${Math.min(100, (currentLevel / 100) * 100)}%` }}
-        className="absolute top-1/2 left-0 h-1 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] -translate-y-1/2 z-10"
-      />
+      <div className="relative flex justify-between items-start px-4 overflow-x-auto no-scrollbar gap-12 min-w-[1000px]">
+        {/* Background track line */}
+        <div className="absolute top-[52px] left-[80px] right-[80px] h-[3px] bg-zinc-800 -translate-y-1/2 z-10 pointer-events-none" />
+        
+        {/* Progress Line */}
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: `${Math.min(100, (currentLevel / 100) * 100)}%` }}
+          className="absolute top-[52px] left-[80px] right-[80px] h-[3px] bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] -translate-y-1/2 z-10 origin-left pointer-events-none"
+        />
 
-      <div className="relative flex justify-between items-center px-4 overflow-x-auto no-scrollbar gap-12 min-w-[1000px]">
         {ROADMAP_DATA.map((milestone, idx) => {
           const isUnlocked = currentLevel >= milestone.level
           const prevMilestone = idx > 0 ? ROADMAP_DATA[idx - 1] : null
@@ -53,7 +54,7 @@ export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
               {/* Level Indicator */}
               <div className={cn(
                 "text-xs font-bold transition-colors duration-300",
-                isUnlocked ? "text-amber-500" : "text-zinc-600"
+                isUnlocked ? "text-amber-500" : "text-zinc-400"
               )}>
                 LVL {milestone.level}
               </div>
@@ -66,8 +67,8 @@ export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
                   isUnlocked 
                     ? "bg-zinc-900 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.3)]" 
                     : isNext 
-                      ? "bg-zinc-900 border-zinc-500 text-zinc-500 animate-pulse" 
-                      : "bg-zinc-950 border-zinc-800 text-zinc-800"
+                      ? "bg-zinc-900 border-zinc-400 text-zinc-400 animate-pulse" 
+                      : "bg-zinc-950 border-zinc-800 text-zinc-700"
                 )}
               >
                 {isUnlocked ? (
@@ -85,11 +86,11 @@ export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
               <div className="text-center w-32">
                 <div className={cn(
                   "text-sm font-bold truncate",
-                  isUnlocked ? "text-white" : "text-zinc-500"
+                  isUnlocked ? "text-white" : "text-zinc-400"
                 )}>
                   {milestone.label}
                 </div>
-                <div className="text-[10px] text-zinc-600 line-clamp-2 mt-1">
+                <div className="text-[10px] text-zinc-400 line-clamp-2 mt-1">
                   {milestone.description}
                 </div>
               </div>
@@ -103,3 +104,4 @@ export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
     </div>
   )
 }
+

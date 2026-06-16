@@ -56,6 +56,16 @@ export async function POST(request: NextRequest) {
             })
         }
 
+        // Fetch streak data for multiplier
+        const { data: streakData } = await supabase
+            .from('streaks')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        const currentStreak = streakData?.current_streak || 0;
+        const streakMultiplier = 1 + Math.min(1.0, currentStreak * 0.1);
+
         // Determine rewards based on difficulty
         const difficultyRewards: Record<string, { xp: number; gold: number }> = {
             easy: { xp: 25, gold: 25 },
@@ -63,7 +73,11 @@ export async function POST(request: NextRequest) {
             hard: { xp: 100, gold: 100 }
         }
 
-        const rewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 }
+        const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 }
+        const rewards = {
+            xp: Math.floor(baseRewards.xp * streakMultiplier),
+            gold: Math.floor(baseRewards.gold * streakMultiplier)
+        }
 
         // Mark quest as complete
         const { error: completionError } = await supabase
@@ -131,21 +145,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to update stats' }, { status: 500 })
         }
 
-        // Update streak
-        const { data: streakData } = await supabase
-            .from('streaks')
-            .select('*')
-            .eq('user_id', userId)
-            .single()
-
         const lastCompletionDate = streakData?.last_completion_date
-        const currentStreak = streakData?.current_streak || 0
+        const currentStreakVal = streakData?.current_streak || 0
 
         const yesterday = new Date()
         yesterday.setDate(yesterday.getDate() - 1)
         yesterday.setHours(0, 0, 0, 0)
 
-        let newStreak = currentStreak
+        let newStreak = currentStreakVal
 
         if (!lastCompletionDate) {
             newStreak = 1
@@ -154,7 +161,7 @@ export async function POST(request: NextRequest) {
             lastDate.setHours(0, 0, 0, 0)
 
             if (lastDate.getTime() === yesterday.getTime()) {
-                newStreak = currentStreak + 1
+                newStreak = currentStreakVal + 1
             } else if (lastDate.getTime() < yesterday.getTime()) {
                 newStreak = 1 // Reset streak
             }

@@ -1,23 +1,26 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-
-import { useEffect, useState } from 'react'
-import NextImage from 'next/image'
-import { useUser } from '@clerk/nextjs'
-import { TEXT_CONTENT } from '@/lib/text-content'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { ChroniclesCard } from '@/components/chronicles-card'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { HeaderSection } from '@/components/HeaderSection'
-import QuestCard from '@/components/quest-card'
-import { Loader2, Plus, ArrowRight, Map, ScrollText, Flame, TrendingUp } from 'lucide-react'
-import { NewPlayerProgress } from '@/components/onboarding/NewPlayerProgress'
-import { WeeklyChallengesCard } from '@/components/weekly-challenges-card'
-import { formatGold } from '@/lib/utils'
+import { useEffect, useState, useCallback, useRef, useMemo } from "react"
+import { useLocalStorage } from "@/lib/hooks/use-local-storage"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
+import { useUser } from "@clerk/nextjs"
+import QuestCard from "@/components/quest-card"
+import { HeaderSection } from "@/components/HeaderSection"
+import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { formatGold } from "@/lib/utils"
+import { motion } from "framer-motion"
+import { TEXT_CONTENT } from "@/lib/text-content"
+import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
+import { WeeklyChallengesCard } from "@/components/weekly-challenges-card"
+import { ChroniclesCard } from "@/components/chronicles-card"
+import NextImage from "next/image"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 interface Quest {
     id: string
@@ -25,9 +28,9 @@ interface Quest {
     description: string
     category: string
     difficulty: 'easy' | 'medium' | 'hard' | 'epic'
-    xpReward: number
-    goldReward: number
     completed: boolean
+    xpReward?: number
+    goldReward?: number
 }
 
 interface CharacterStats {
@@ -39,14 +42,16 @@ interface CharacterStats {
 }
 
 interface GoldTransaction {
+    id: string
     amount: number
-    created_at: string
     transaction_type: 'gain' | 'spend'
+    created_at: string
 }
 
 export function DailyHubClient() {
     const { user } = useUser()
     const router = useRouter()
+
     const [stats, setStats] = useState<CharacterStats>({
         level: 1,
         experience: 0,
@@ -59,13 +64,75 @@ export function DailyHubClient() {
     const [completedQuestIds, setCompletedQuestIds] = useState<Set<string>>(new Set())
     const [weeklyGoldEarned, setWeeklyGoldEarned] = useState(0)
 
+    // Yesterday's Report Card State
+    const [showReportCard, setShowReportCard] = useState(false)
+    const [yesterdayReport, setYesterdayReport] = useState<{
+        completedQuestsCount: number;
+        goldEarned: number;
+        xpEarned: number;
+        milestonesUnlocked: number;
+    } | null>(null)
+
+    // Active Perks State & Timer
+    const [activePerks, setActivePerks] = useState<any[]>([])
+    const [timeState, setTimeState] = useState(Date.now())
+
     useEffect(() => {
         if (user) {
             loadCharacterStats()
             loadFavoritedQuests()
             loadWeeklyGoldStats()
+            loadActivePerks()
         }
     }, [user])
+
+    // Cooldown/Timer Tic
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeState(Date.now())
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [])
+
+    // Daily Login Report Card Check
+    useEffect(() => {
+        const checkDailyReportCard = async () => {
+            if (!user) return;
+            
+            const todayStr = new Date().toISOString().split('T')[0] || '';
+            const lastSeenDay = localStorage.getItem('last_seen_day');
+            
+            if (lastSeenDay !== todayStr) {
+                try {
+                    const res = await fetch('/api/daily-report');
+                    if (res.ok) {
+                        const data = await res.json();
+                        setYesterdayReport(data);
+                        setShowReportCard(true);
+                    }
+                } catch (err) {
+                    logger.error('Failed to load daily login report card:', err);
+                }
+                localStorage.setItem('last_seen_day', todayStr);
+            }
+        };
+        
+        if (user) {
+            checkDailyReportCard();
+        }
+    }, [user]);
+
+    const loadActivePerks = async () => {
+        try {
+            const response = await fetch('/api/active-perks')
+            if (response.ok) {
+                const json = await response.json()
+                setActivePerks(json.data || [])
+            }
+        } catch (error) {
+            logger.error('Failed to load active perks on daily hub:', error)
+        }
+    }
 
     const loadCharacterStats = async () => {
         try {
@@ -87,17 +154,14 @@ export function DailyHubClient() {
 
     const loadWeeklyGoldStats = async () => {
         try {
-            // Get transactions from the last 7 days
             const response = await fetch('/api/gold-transactions?limit=100')
             if (response.ok) {
                 const result = await response.json()
                 const transactions: GoldTransaction[] = result.data || []
 
-                // Calculate date 7 days ago
                 const sevenDaysAgo = new Date()
                 sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-                // Sum up gold gained in the last 7 days
                 const weeklyGold = transactions
                     .filter(t => {
                         const transactionDate = new Date(t.created_at)
@@ -116,40 +180,21 @@ export function DailyHubClient() {
         try {
             logger.debug(`[Daily Hub] ${TEXT_CONTENT.dailyHub.log.loading}`)
 
-            // First, get favorited quest IDs
             const favoritesResponse = await fetch('/api/quests/favorites')
-            logger.debug('[Daily Hub] Favorites response status:', favoritesResponse.status)
-
             if (!favoritesResponse.ok) {
-                logger.error('[Daily Hub] Failed to fetch favorites')
-                setFavoritedQuests([])
-                return
+                throw new Error('Failed to fetch favorite ids')
             }
-
             const favoritesData = await favoritesResponse.json()
-            logger.debug('[Daily Hub] Favorites data:', favoritesData)
             const favoriteIds = favoritesData.favorites || []
-            logger.debug('[Daily Hub] Favorite IDs:', favoriteIds)
 
-            if (favoriteIds.length === 0) {
-                logger.debug('[Daily Hub] No favorite IDs found')
-                setFavoritedQuests([])
-                return
-            }
-
-            // Then, get ALL quests (not just daily) and filter for favorites
-            const questsResponse = await fetch('/api/quests')
-            logger.debug('[Daily Hub] Quests response status:', questsResponse.status)
-
+            const questsResponse = await fetch(`/api/quests?t=${Date.now()}`)
             if (questsResponse.ok) {
-                const allQuests = await questsResponse.json()
-                logger.debug('[Daily Hub] All quests count:', allQuests.length)
-                logger.debug('[Daily Hub] All quests:', allQuests)
+                const questsData = await questsResponse.json()
+                const allQuests = questsData.quests || []
 
                 const favoriteQuests = allQuests
                     .filter((q: any) => {
                         const isFavorite = favoriteIds.includes(q.id)
-                        logger.debug(`[Daily Hub] Quest ${q.id} (${q.name}) is favorite:`, isFavorite)
                         return isFavorite
                     })
                     .slice(0, 6)
@@ -158,10 +203,8 @@ export function DailyHubClient() {
                         difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
                     }))
 
-                logger.debug('[Daily Hub] Filtered favorite quests:', favoriteQuests)
                 setFavoritedQuests(favoriteQuests)
 
-                // Initialize completed set
                 const completed = new Set<string>()
                 favoriteQuests.forEach((q: Quest) => {
                     if (q.completed) completed.add(q.id)
@@ -189,12 +232,10 @@ export function DailyHubClient() {
             if (response.ok) {
                 setCompletedQuestIds(prev => new Set(prev).add(quest.id))
 
-                // Update local state
                 setFavoritedQuests(prev => prev.map(q =>
                     q.id === quest.id ? { ...q, completed: true } : q
                 ))
 
-                // Reload stats after a delay
                 setTimeout(() => {
                     loadCharacterStats()
                     loadWeeklyGoldStats()
@@ -204,6 +245,24 @@ export function DailyHubClient() {
             logger.error('Failed to complete quest:', error)
         }
     }
+
+    const getPerkTimeRemaining = (expiresAt: string) => {
+        const diff = new Date(expiresAt).getTime() - timeState;
+        if (diff <= 0) return "Expired";
+
+        const totalSecs = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSecs / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = totalSecs % 60;
+
+        if (hours > 0) {
+            return `${hours}h ${mins}m ${secs}s`;
+        }
+        if (mins > 0) {
+            return `${mins}m ${secs}s`;
+        }
+        return `${secs}s`;
+    };
 
     if (loading) {
         return (
@@ -239,7 +298,7 @@ export function DailyHubClient() {
                 }
             />
 
-            {/* Spacing between header and content - more on mobile */}
+            {/* Spacing between header and content */}
             <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
@@ -260,13 +319,13 @@ export function DailyHubClient() {
                                     <p className="text-sm text-purple-200/70 font-medium uppercase tracking-wider">Total Quests</p>
                                     {stats.streakDays > 0 && (
                                         <div className="flex items-center gap-1 bg-orange-950/40 border border-orange-500/30 px-2 py-0.5 rounded-full" title="Current Streak">
-                                            <Flame className="w-3 h-3 text-orange-500" />
+                                            <Flame className="w-3 h-3 text-orange-500 animate-pulse" />
                                             <span className="text-xs font-bold text-orange-400">{stats.streakDays}</span>
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex items-baseline gap-2 mt-1">
-                                    <span className="text-4xl font-bold text-white">{favoritedQuests.filter(q => q.completed).length + 24 /* mock or load actual total lifetime quests */}</span>
+                                    <span className="text-4xl font-bold text-white">{favoritedQuests.filter(q => q.completed).length + 24}</span>
                                     <span className="text-sm text-purple-400">Lifetime</span>
                                 </div>
                             </div>
@@ -275,7 +334,6 @@ export function DailyHubClient() {
                             </div>
                         </CardContent>
                     </Card>
-
 
                     {/* Level Card */}
                     <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
@@ -331,13 +389,69 @@ export function DailyHubClient() {
                 {/* New Player Progress */}
                 <NewPlayerProgress />
 
-                {/* Weekly Mini-Challenges */}
+                {/* Challenges & Active Perks Section (Grid Layout) */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
+                    className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                 >
-                    <WeeklyChallengesCard quests={favoritedQuests /* In a real scenario we'd load all weekly quests, but using favoritedQuests for now */} weeklyGoldEarned={weeklyGoldEarned} />
+                    <div className="lg:col-span-2">
+                        <WeeklyChallengesCard quests={favoritedQuests} weeklyGoldEarned={weeklyGoldEarned} />
+                    </div>
+                    
+                    {/* ACTIVE PERKS WIDGET */}
+                    <div className="lg:col-span-1">
+                        <Card className="bg-black/60 border-amber-900/40 backdrop-blur-sm h-full flex flex-col justify-between">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="text-xl font-medieval text-amber-500 flex items-center gap-2">
+                                    <Sparkles className="w-5 h-5 text-amber-400" />
+                                    <span>Active Buffs</span>
+                                </CardTitle>
+                                <CardDescription className="text-slate-400 text-xs">
+                                    Temporary passive bonuses currently active
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="flex-1 space-y-4">
+                                {activePerks.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center text-center py-8 h-full space-y-4">
+                                        <div className="w-12 h-12 rounded-full bg-slate-900/60 border border-amber-900/20 flex items-center justify-center text-xl">
+                                            🧪
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-slate-300 font-semibold">No active buffs</p>
+                                            <p className="text-xs text-slate-500 mt-1 max-w-[200px] mx-auto">
+                                                Drink potions from your inventory or unlock milestones to get buffs.
+                                            </p>
+                                        </div>
+                                        <Link href="/inventory">
+                                          <Button size="sm" variant="outline" className="border-amber-900/40 hover:bg-amber-950/20 text-xs text-amber-400 font-bold">
+                                              Open Backpack
+                                          </Button>
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {activePerks.map((perk, index) => (
+                                            <div key={perk.id || index} className="p-3 bg-slate-900/40 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl">🧪</span>
+                                                    <div>
+                                                        <h5 className="font-bold text-xs text-amber-100">{perk.perk_name}</h5>
+                                                        <p className="text-[10px] text-slate-400 mt-0.5">{perk.effect}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-1 rounded-full">
+                                                    <Clock className="w-3 h-3 animate-spin duration-3000" />
+                                                    <span>{getPerkTimeRemaining(perk.expires_at)}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
                 </motion.div>
 
                 {/* Gameplay Loop Section */}
@@ -405,7 +519,6 @@ export function DailyHubClient() {
                                             priority
                                             className="object-contain p-2"
                                         />
-                                        {/* Cinematic glow effect */}
                                         <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
                                     </div>
                                 </div>
@@ -518,6 +631,63 @@ export function DailyHubClient() {
                     )}
                 </motion.div>
             </div>
+
+            {/* YESTERDAY'S REPORT CARD MODAL */}
+            <Dialog open={showReportCard} onOpenChange={setShowReportCard}>
+                <DialogContent className="border border-amber-900/40 text-white p-6 max-w-md rounded-2xl shadow-2xl bg-slate-900/95 backdrop-blur-md">
+                    <DialogHeader className="text-center space-y-2">
+                        <div className="text-5xl mx-auto animate-bounce mb-2">📜</div>
+                        <DialogTitle className="text-2xl font-medieval text-amber-500 tracking-wider">Yesterday's Report Card</DialogTitle>
+                        <DialogDescription className="text-slate-400 text-sm">
+                            Summary of your realm progress yesterday
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {yesterdayReport && (yesterdayReport.completedQuestsCount > 0 || yesterdayReport.goldEarned > 0 || yesterdayReport.milestonesUnlocked > 0) ? (
+                        <div className="space-y-4 py-4">
+                            <p className="text-center text-sm text-slate-200">
+                                You made excellent progress on your path to glory!
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
+                                    <div className="text-2xl font-bold text-amber-400">⚔️ {yesterdayReport.completedQuestsCount}</div>
+                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">Quests Done</div>
+                                </div>
+                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
+                                    <div className="text-2xl font-bold text-yellow-500">🪙 {yesterdayReport.goldEarned}</div>
+                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">Gold Gained</div>
+                                </div>
+                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
+                                    <div className="text-2xl font-bold text-blue-400">⭐ {yesterdayReport.xpEarned}</div>
+                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">XP Gained</div>
+                                </div>
+                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
+                                    <div className="text-2xl font-bold text-purple-400">🏆 {yesterdayReport.milestonesUnlocked}</div>
+                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">Milestones</div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-4 py-4 text-center">
+                            <p className="text-sm text-slate-300 italic">
+                                "Yesterday was a peaceful rest day, with no active quests completed."
+                            </p>
+                            <p className="text-sm text-amber-400/90 font-bold">
+                                Today is a brand new day! Conquest waits for no one!
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="flex justify-center pt-2">
+                        <Button 
+                            className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 rounded-xl shadow-lg shadow-amber-900/40"
+                            onClick={() => setShowReportCard(false)}
+                        >
+                            Conquer Today!
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

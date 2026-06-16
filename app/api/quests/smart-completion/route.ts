@@ -18,6 +18,21 @@ export async function POST(req: NextRequest) {
 
         // Use authenticated query to ensure user context is set (RLS)
         const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
+            // Fetch daily streak to calculate multiplier
+            let streakDays = 0;
+            try {
+                const { data: streakData } = await supabase
+                    .from('streaks')
+                    .select('current_streak')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+                if (streakData) {
+                    streakDays = streakData.current_streak || 0;
+                }
+            } catch (err) {
+                logger.warn('[Smart Completion] Failed to fetch streak:', err);
+            }
+            const streakMultiplier = 1 + Math.min(1.0, streakDays * 0.1);
 
             // 1. Fetch the quest to get rewards info
             const { data: quest, error: questError } = await supabase
@@ -58,7 +73,11 @@ export async function POST(req: NextRequest) {
                     medium: { xp: 50, gold: 50 },
                     hard: { xp: 100, gold: 100 }
                 };
-                const rewards = difficultyRewards[challenge.difficulty || 'medium'] || { xp: 50, gold: 50 };
+                const baseRewards = difficultyRewards[challenge.difficulty || 'medium'] || { xp: 50, gold: 50 };
+                const rewards = {
+                    xp: Math.floor(baseRewards.xp * streakMultiplier),
+                    gold: Math.floor(baseRewards.gold * streakMultiplier)
+                };
 
                 const { error: insertError } = await supabase
                     .from('quest_completion')
@@ -108,10 +127,10 @@ export async function POST(req: NextRequest) {
             };
             const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
             
-            // Apply Time-of-Day Bonuses
+            // Apply Time-of-Day and Streak Bonuses
             const finalRewards = {
-                gold: isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold,
-                xp: !isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp
+                gold: Math.floor((isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold) * streakMultiplier),
+                xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier)
             };
 
             const { error: insertError } = await supabase

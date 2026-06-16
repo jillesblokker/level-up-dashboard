@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search } from "lucide-react"
 import Link from "next/link"
 import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
@@ -34,6 +34,11 @@ export default function MarketPage() {
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
   const [activeTab, setActiveTab] = useState("buy")
   const [openingPack, setOpeningPack] = useState<any>(null)
+
+  // Search, Filter & Sort State
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortBy, setSortBy] = useState("name-asc")
+  const [filterBy, setFilterBy] = useState("all")
 
   // Transaction state
   const [quantities, setQuantities] = useState<Record<string, number>>({})
@@ -130,7 +135,6 @@ export default function MarketPage() {
 
   const getInventoryQuantity = (materialId: string) => {
     const item = inventoryAsItems.find(i => i.id === materialId || i.id === materialId.replace('material-', ''))
-    // Also check for type match if ID match fails (legacy support)
     if (!item) {
       const byType = inventoryAsItems.find(i => i.type === materialId as any);
       return byType?.quantity || 0;
@@ -166,7 +170,6 @@ export default function MarketPage() {
     addToCharacterStat('gold', -totalCost, 'market-buy-material')
 
     // Update inventory (add)
-    // We explicitly cast to TileType as these are pseudo-tiles
     updateTileQuantity(material.id as TileType, qty)
 
     setGoldBalance(prev => prev - totalCost)
@@ -194,7 +197,6 @@ export default function MarketPage() {
     }
 
     // Process transaction
-    // Update inventory (remove)
     updateTileQuantity(material.id as TileType, -qty)
 
     // Add gold
@@ -247,6 +249,45 @@ export default function MarketPage() {
     setOpeningPack(pack)
   }
 
+  // Filter and sort standard materials dynamically
+  const filteredAndSortedMaterials = useMemo(() => {
+    return MATERIALS.filter(material => {
+      // 1. Search Query filter
+      const matchesSearch = material.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            material.description.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      // 2. Owned/Unowned filter
+      const ownedQty = getInventoryQuantity(material.id);
+      if (filterBy === "owned") return ownedQty > 0;
+      if (filterBy === "unowned") return ownedQty === 0;
+
+      return true;
+    }).sort((a, b) => {
+      // 3. Sorting logic
+      if (sortBy === "name-asc") {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortBy === "name-desc") {
+        return b.name.localeCompare(a.name);
+      }
+      if (sortBy === "price-asc") {
+        const priceA = activeTab === "sell" ? a.sellPrice : a.buyPrice;
+        const priceB = activeTab === "sell" ? b.sellPrice : b.buyPrice;
+        return priceA - priceB;
+      }
+      if (sortBy === "price-desc") {
+        const priceA = activeTab === "sell" ? a.sellPrice : a.buyPrice;
+        const priceB = activeTab === "sell" ? b.sellPrice : b.buyPrice;
+        return priceB - priceA;
+      }
+      if (sortBy === "owned-desc") {
+        return getInventoryQuantity(b.id) - getInventoryQuantity(a.id);
+      }
+      return 0;
+    });
+  }, [searchQuery, sortBy, filterBy, activeTab, inventoryAsItems]);
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-950 text-white font-sans">
       <main className="flex-1 p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
@@ -277,7 +318,7 @@ export default function MarketPage() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
           <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-3 bg-slate-900 border border-slate-800 p-2 rounded-xl">
             <TabsTrigger value="buy" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
               <ShoppingBag className="w-5 h-5 mr-2" /> Buy Materials
@@ -371,122 +412,208 @@ export default function MarketPage() {
           </TabsContent>
 
           {/* BUY TAB */}
-          <TabsContent value="buy">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {MATERIALS.map((material) => (
-                <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
-                  <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <Package className="w-16 h-16 text-amber-500" />
-                    </div>
-                    <CardTitle className="flex items-center justify-between z-10">
-                      <div className="flex items-center gap-3">
-                        <span className="text-4xl filter drop-shadow-md">{material.icon}</span>
-                        <div className="flex flex-col">
-                          <span className="text-xl font-bold text-amber-100">{material.name}</span>
-                          <span className="text-xs text-slate-400 font-normal">{material.description}</span>
-                        </div>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-4 flex-1">
-                    <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
-                      <span>In Inventory:</span>
-                      <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
-                    </div>
+          <TabsContent value="buy" className="space-y-6">
+            {/* Search, Filter & Sort Controls */}
+            <div className="flex flex-col md:flex-row gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800/60">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Search standard materials..."
+                  className="bg-black/40 border-slate-700 focus:border-amber-500 text-white pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-4">
+                <select
+                  value={filterBy}
+                  onChange={(e) => setFilterBy(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Items</option>
+                  <option value="owned">Owned Only</option>
+                  <option value="unowned">Not Owned Only</option>
+                </select>
 
-                    <div className="flex items-end gap-3">
-                      <div className="flex-1 space-y-2">
-                        <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Quantity</label>
-                        <Input
-                          type="number"
-                          min="0"
-                          placeholder="0"
-                          className="bg-black/40 border-slate-700 focus:border-amber-500 text-lg font-mono text-center"
-                          value={quantities[material.id] || ''}
-                          onChange={(e) => handleQuantityChange(material.id, e.target.value)}
-                        />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="name-asc">Name (A-Z)</option>
+                  <option value="name-desc">Name (Z-A)</option>
+                  <option value="price-asc">Price (Low to High)</option>
+                  <option value="price-desc">Price (High to Low)</option>
+                  <option value="owned-desc">Most Owned</option>
+                </select>
+              </div>
+            </div>
+
+            {filteredAndSortedMaterials.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                No materials match the selected filters.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAndSortedMaterials.map((material) => (
+                  <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
+                    <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Package className="w-16 h-16 text-amber-500" />
                       </div>
-                      <div className="flex-1 space-y-2 text-right">
-                        <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Total Cost</label>
-                        <div className="text-lg font-bold text-amber-500 font-mono flex items-center justify-end gap-1 h-10">
-                          {(quantities[material.id] || 0) * material.buyPrice} <Coins className="w-4 h-4" />
+                      <CardTitle className="flex items-center justify-between z-10">
+                        <div className="flex items-center gap-3">
+                          <span className="text-4xl filter drop-shadow-md">{material.icon}</span>
+                          <div className="flex flex-col">
+                            <span className="text-xl font-bold text-amber-100">{material.name}</span>
+                            <span className="text-xs text-slate-400 font-normal">{material.description}</span>
+                          </div>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4 flex-1">
+                      <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
+                        <span>In Inventory:</span>
+                        <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
+                      </div>
+
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1 space-y-2">
+                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Quantity</label>
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            className="bg-black/40 border-slate-700 focus:border-amber-500 text-lg font-mono text-center"
+                            value={quantities[material.id] || ''}
+                            onChange={(e) => handleQuantityChange(material.id, e.target.value)}
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2 text-right">
+                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Total Cost</label>
+                          <div className="text-lg font-bold text-amber-500 font-mono flex items-center justify-end gap-1 h-10">
+                            {(quantities[material.id] || 0) * material.buyPrice} <Coins className="w-4 h-4" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-2">
-                    <Button
-                      className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold h-12 shadow-lg shadow-amber-900/20"
-                      onClick={() => handleBuy(material)}
-                      disabled={(quantities[material.id] || 0) <= 0 || goldBalance < ((quantities[material.id] || 0) * material.buyPrice)}
-                    >
-                      Buy for {material.buyPrice} G / unit
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                    <CardFooter className="pt-2">
+                      <Button
+                        className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold h-12 shadow-lg shadow-amber-900/20"
+                        onClick={() => handleBuy(material)}
+                        disabled={(quantities[material.id] || 0) <= 0 || goldBalance < ((quantities[material.id] || 0) * material.buyPrice)}
+                      >
+                        Buy for {material.buyPrice} G / unit
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* SELL TAB */}
-          <TabsContent value="sell">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {MATERIALS.map((material) => (
-                <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
-                  <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <TrendingUp className="w-16 h-16 text-green-500" />
-                    </div>
-                    <CardTitle className="flex items-center justify-between z-10">
-                      <div className="flex items-center gap-3">
-                        <span className="text-4xl filter drop-shadow-md">{material.icon}</span>
-                        <div className="flex flex-col">
-                          <span className="text-xl font-bold text-slate-100">{material.name}</span>
-                          <span className="text-xs text-slate-400 font-normal">{material.description}</span>
-                        </div>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-4 flex-1">
-                    <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
-                      <span>Available for Sale:</span>
-                      <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
-                    </div>
+          <TabsContent value="sell" className="space-y-6">
+            {/* Search, Filter & Sort Controls */}
+            <div className="flex flex-col md:flex-row gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800/60">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Search resources..."
+                  className="bg-black/40 border-slate-700 focus:border-green-500 text-white pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-4">
+                <select
+                  value={filterBy}
+                  onChange={(e) => setFilterBy(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Items</option>
+                  <option value="owned">Owned Only</option>
+                  <option value="unowned">Not Owned Only</option>
+                </select>
 
-                    <div className="flex items-end gap-3">
-                      <div className="flex-1 space-y-2">
-                        <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Quantity</label>
-                        <Input
-                          type="number"
-                          min="0"
-                          max={getInventoryQuantity(material.id)}
-                          placeholder="0"
-                          className="bg-black/40 border-slate-700 focus:border-green-500 text-lg font-mono text-center"
-                          value={quantities[material.id] || ''}
-                          onChange={(e) => handleQuantityChange(material.id, e.target.value)}
-                        />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="name-asc">Name (A-Z)</option>
+                  <option value="name-desc">Name (Z-A)</option>
+                  <option value="price-asc">Price (Low to High)</option>
+                  <option value="price-desc">Price (High to Low)</option>
+                  <option value="owned-desc">Most Owned</option>
+                </select>
+              </div>
+            </div>
+
+            {filteredAndSortedMaterials.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                No materials match the selected filters.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAndSortedMaterials.map((material) => (
+                  <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
+                    <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <TrendingUp className="w-16 h-16 text-green-500" />
                       </div>
-                      <div className="flex-1 space-y-2 text-right">
-                        <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Total Value</label>
-                        <div className="text-lg font-bold text-green-400 font-mono flex items-center justify-end gap-1 h-10">
-                          {(quantities[material.id] || 0) * material.sellPrice} <Coins className="w-4 h-4" />
+                      <CardTitle className="flex items-center justify-between z-10">
+                        <div className="flex items-center gap-3">
+                          <span className="text-4xl filter drop-shadow-md">{material.icon}</span>
+                          <div className="flex flex-col">
+                            <span className="text-xl font-bold text-slate-100">{material.name}</span>
+                            <span className="text-xs text-slate-400 font-normal">{material.description}</span>
+                          </div>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4 flex-1">
+                      <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
+                        <span>Available for Sale:</span>
+                        <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
+                      </div>
+
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1 space-y-2">
+                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Quantity</label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max={getInventoryQuantity(material.id)}
+                            placeholder="0"
+                            className="bg-black/40 border-slate-700 focus:border-green-500 text-lg font-mono text-center"
+                            value={quantities[material.id] || ''}
+                            onChange={(e) => handleQuantityChange(material.id, e.target.value)}
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2 text-right">
+                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Total Value</label>
+                          <div className="text-lg font-bold text-green-400 font-mono flex items-center justify-end gap-1 h-10">
+                            {(quantities[material.id] || 0) * material.sellPrice} <Coins className="w-4 h-4" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-2">
-                    <Button
-                      className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 text-white font-bold h-12 shadow-lg shadow-green-900/20"
-                      onClick={() => handleSell(material)}
-                      disabled={(quantities[material.id] || 0) <= 0 || getInventoryQuantity(material.id) < (quantities[material.id] || 0)}
-                    >
-                      Sell for {material.sellPrice} G / unit
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                    <CardFooter className="pt-2">
+                      <Button
+                        className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 text-white font-bold h-12 shadow-lg shadow-green-900/20"
+                        onClick={() => handleSell(material)}
+                        disabled={(quantities[material.id] || 0) <= 0 || getInventoryQuantity(material.id) < (quantities[material.id] || 0)}
+                      >
+                        Sell for {material.sellPrice} G / unit
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>

@@ -1176,15 +1176,12 @@ export default function QuestsPage() {
       setQuests(prevQuests => prevQuests.filter(q => q.id !== questId));
 
       // Delete from Supabase
-      const response = await fetch('/api/quests-complete', {
+      const response = await fetch(`/api/quests/${questId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          questId
-        })
+        }
       });
 
       if (!response.ok) {
@@ -2296,7 +2293,10 @@ export default function QuestsPage() {
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
             <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="w-full mb-8">
-              <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
+              <TabsList 
+                className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0"
+                style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
+              >
                 <TabsTrigger
                   value="forge"
                   className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]"

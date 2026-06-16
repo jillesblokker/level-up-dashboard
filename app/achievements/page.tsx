@@ -794,7 +794,10 @@ export default function Page() {
           )}
 
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
-            <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-1 mb-8">
+            <TabsList 
+              className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-1 mb-8"
+              style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
+            >
               <TabsTrigger value="creatures" className="flex items-center gap-2 px-5 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                 <Crosshair className="w-4 h-4" /><span>Creatures</span>
               </TabsTrigger>

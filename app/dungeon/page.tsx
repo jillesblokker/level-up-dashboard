@@ -1,9 +1,8 @@
 'use client'
 
 import { logger } from "@/lib/logger";
-;
-
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { notificationService } from "@/lib/notification-service";
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -40,6 +39,11 @@ interface Encounter {
   loot?: Loot[];
 }
 
+interface DungeonPartyMember extends CreatureDef {
+  hp: number;
+  maxHp: number;
+}
+
 interface DungeonRun {
   currentRoom: number;
   currentHp: number;
@@ -48,7 +52,7 @@ interface DungeonRun {
   currentEncounter: Encounter;
   lootCollected: Loot[];
   maxRooms: number;
-  party: CreatureDef[]; // NEW: The drafted team of 6
+  party: DungeonPartyMember[]; // NEW: The drafted team of 6 with individual health
 }
 
 interface GameResult {
@@ -70,7 +74,6 @@ const DEFAULT_CREATURE: CreatureDef = {
 };
 
 function generateEncounter(roomLevel: number): Encounter {
-  // Treasure rooms removed as per request
   const isTreasure = false;
   if (isTreasure) {
     return {
@@ -81,12 +84,10 @@ function generateEncounter(roomLevel: number): Encounter {
 
   // Pick random creature
   const randomId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)] || '001';
-  // Increase stats based on room level for scaling difficulty
-  // We don't modify the base CREATURE_DATA definition, but the encounter stats below
 
   return {
     type: 'monster',
-    hp: 20 + (roomLevel * 8), // Slightly increased HP scaling
+    hp: 20 + (roomLevel * 8),
     maxHp: 20 + (roomLevel * 8),
     difficulty: roomLevel,
     creatureId: randomId
@@ -98,7 +99,6 @@ function generateLoot(roomLevel: number): Loot | null {
     return { type: 'gold', amount: 50 + (roomLevel * 10), name: 'Gold Coins' };
   }
 
-  // 25% chance to get a crystal specifically in mid-to-high rooms
   if (roomLevel >= 3 && Math.random() < 0.25) {
     const crystal = comprehensiveItems.find(i => i.id === 'material-crystal');
     if (crystal) {
@@ -145,7 +145,7 @@ export default function DungeonPage() {
   const [run, setRun] = useState<DungeonRun | null>(null);
   const [message, setMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [dailyCount, setDailyCount] = useState<number>(0); // Track daily entries
+  const [dailyCount, setDailyCount] = useState<number>(0);
   const [unlockedCreatures, setUnlockedCreatures] = useState<CreatureDef[]>(() => {
     const all = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
     return all.length > 0 ? all : [DEFAULT_CREATURE];
@@ -172,7 +172,8 @@ export default function DungeonPage() {
           parsed.currentEncounter.creatureId = '001';
           localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
-        // Legacy support: if no party or party is too small, generate/expand to a full group of 6
+
+        // Draft new party if missing or too small
         if (!parsed.party || parsed.party.length < 6) {
           const all = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
           const pool = [...all];
@@ -188,14 +189,26 @@ export default function DungeonPage() {
           }
           if (party.length === 0) party.push(DEFAULT_CREATURE);
           parsed.party = party;
-          localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         }
+
+        // Ensure all party members have health attributes
+        parsed.party = parsed.party.map((c: any) => {
+          const memberMaxHp = 50 + Math.floor((c.stats?.def || 10) * 2.5);
+          return {
+            ...c,
+            hp: c.hp !== undefined ? c.hp : memberMaxHp,
+            maxHp: c.maxHp !== undefined ? c.maxHp : memberMaxHp
+          };
+        });
+
+        // Sync overall currentHp / maxHp metrics
+        const totalHp = parsed.party.reduce((s: number, c: any) => s + c.hp, 0);
+        const totalMaxHp = parsed.party.reduce((s: number, c: any) => s + c.maxHp, 0);
+        parsed.currentHp = totalHp;
+        parsed.maxHp = totalMaxHp;
+
+        localStorage.setItem('dungeon_run', JSON.stringify(parsed));
         setRun(parsed);
-        // Automatically re-select the previous creature if available
-        if (parsed.status === 'in_progress' && parsed.party.length > 0) {
-          // Keep selection null to force choice, or restore? 
-          // Better to force choice if phase is select
-        }
       } catch (e) {
         logger.error("Failed to parse dungeon run", e);
         localStorage.removeItem('dungeon_run');
@@ -221,16 +234,22 @@ export default function DungeonPage() {
       data = { date: today, count: 0 };
     }
     setDailyCount(data.count);
-  }, [run]); // Re-check when run state changes (e.g. after a run)
+  }, [run]);
 
   // Reset phase when new monster appears
   useEffect(() => {
     if (run?.currentEncounter.type === 'monster') {
       if (battlePhase !== 'select' && battlePhase !== 'fight') {
-        // Auto-select previous creature if it's still valid, or go to select
         if (selectedCreature) {
-          setBattlePhase('fight');
-          setMessage(`Encounter started! ${selectedCreature.name} is ready!`);
+          const active = run.party.find(c => c.id === selectedCreature.id);
+          if (active && active.hp > 0) {
+            setBattlePhase('fight');
+            setMessage(`Encounter started! ${selectedCreature.name} is ready!`);
+          } else {
+            setSelectedCreature(null);
+            setBattlePhase('select');
+            setMessage('Your active fighter fainted! Deploy a healthy squad member!');
+          }
         } else {
           setBattlePhase('select');
           setMessage('A wild creature appeared! Choose your fighter!');
@@ -243,10 +262,9 @@ export default function DungeonPage() {
     } else if (run?.currentEncounter.type === 'treasure') {
       setMessage('You found a treasure chest!');
     }
-  }, [run?.currentRoom, run?.currentEncounter.type]); // Removed selectedCreature from deps to avoid cycle
+  }, [run?.currentRoom, run?.currentEncounter.type]);
 
   const startRun = () => {
-    // Check Daily Limit (3 times per day)
     const today = new Date().toISOString().split('T')[0];
     const storageKey = 'dungeon_daily_limit';
     const storage = localStorage.getItem(storageKey);
@@ -265,12 +283,9 @@ export default function DungeonPage() {
     data.count++;
     localStorage.setItem(storageKey, JSON.stringify(data));
 
-    const maxHp = 150;
-    const firstEncounter = generateEncounter(1);
-
     // DRAFTING PHASE: Pick 6 random creatures
     const pool = [...unlockedCreatures];
-    const party: CreatureDef[] = [];
+    const party: DungeonPartyMember[] = [];
     const draftSize = Math.min(6, pool.length);
 
     for (let i = 0; i < draftSize; i++) {
@@ -278,18 +293,34 @@ export default function DungeonPage() {
       const randomIndex = Math.floor(Math.random() * pool.length);
       const creature = pool[randomIndex];
       if (creature) {
-        party.push(creature);
+        const memberMaxHp = 50 + Math.floor(creature.stats.def * 2.5);
+        party.push({
+          ...creature,
+          hp: memberMaxHp,
+          maxHp: memberMaxHp
+        });
         pool.splice(randomIndex, 1);
       }
     }
 
     // Fallback
-    if (party.length === 0) party.push(DEFAULT_CREATURE);
+    if (party.length === 0) {
+      const fbMaxHp = 50 + Math.floor(DEFAULT_CREATURE.stats.def * 2.5);
+      party.push({
+        ...DEFAULT_CREATURE,
+        hp: fbMaxHp,
+        maxHp: fbMaxHp
+      });
+    }
+
+    const totalHp = party.reduce((s, c) => s + c.hp, 0);
+    const totalMaxHp = party.reduce((s, c) => s + c.maxHp, 0);
+    const firstEncounter = generateEncounter(1);
 
     const newRun: DungeonRun = {
       currentRoom: 1,
-      currentHp: maxHp,
-      maxHp: maxHp,
+      currentHp: totalHp,
+      maxHp: totalMaxHp,
       status: 'in_progress',
       currentEncounter: firstEncounter,
       lootCollected: [],
@@ -299,6 +330,7 @@ export default function DungeonPage() {
 
     setRun(newRun);
     setGameResult(null);
+    setSelectedCreature(null);
     setBattlePhase('select');
     setBattleLog([
       `Dungeon started!`,
@@ -306,7 +338,11 @@ export default function DungeonPage() {
     ]);
   };
 
-  const selectFighter = (creature: CreatureDef) => {
+  const selectFighter = (creature: DungeonPartyMember) => {
+    if (creature.hp <= 0) {
+      setMessage(`🛑 ${creature.name} has fainted and cannot fight!`);
+      return;
+    }
     setSelectedCreature(creature);
     setBattlePhase('fight');
 
@@ -331,45 +367,38 @@ export default function DungeonPage() {
 
     if (!enemyDef) return;
 
+    const activeFighter = run.party.find(c => c.id === selectedCreature.id);
+    if (!activeFighter || activeFighter.hp <= 0) return;
+
     const logEntries: string[] = [];
 
-    // --- REVISED COMBAT LOGIC ---
-
     // 1. Calculate Stats
-    // Player
-    const playerSpd = selectedCreature.stats.spd;
-    const playerDef = selectedCreature.stats.def;
-    const playerAtk = selectedCreature.stats.atk + (Math.floor(Math.random() * 5)); // Variance
+    const playerSpd = activeFighter.stats.spd;
+    const playerDef = activeFighter.stats.def;
+    const playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5));
     // Enemy
     const enemySpd = enemyDef.stats.spd;
     const enemyDefStat = enemyDef.stats.def;
     const enemyAtk = enemyDef.stats.atk + (Math.floor(Math.random() * 5));
 
     // 2. Type Multipliers
-    const playerTypeMult = getMatchupMultiplier(selectedCreature.type, enemyDef.type);
-    const enemyTypeMult = getMatchupMultiplier(enemyDef.type, selectedCreature.type);
+    const playerTypeMult = getMatchupMultiplier(activeFighter.type, enemyDef.type);
+    const enemyTypeMult = getMatchupMultiplier(enemyDef.type, activeFighter.type);
 
     // 3. Crit & Dodge Checks
-    // Player Crit Chance: 3% per speed point variance, max 50%
     const playerCritChance = Math.max(0, Math.min(0.5, (playerSpd - enemySpd) * 0.03));
     const isPlayerCrit = Math.random() < playerCritChance;
 
-    // Player Dodge Chance: 2% per speed point advantage
     const playerDodgeChance = Math.max(0, Math.min(0.4, (playerSpd - enemySpd) * 0.02));
     const isPlayerDodge = Math.random() < playerDodgeChance;
 
-    // Enemy Crit/Dodge (simpler logic for enemy)
-    const isEnemyCrit = Math.random() < 0.05; // Fixed 5% chance for enemy
+    const isEnemyCrit = Math.random() < 0.05;
 
     // 4. Damage Calculation
-    // Player vs Enemy
     let playerFinalDmg = 0;
     const playerCritMult = isPlayerCrit ? 1.5 : 1.0;
-    // Defense mitigation: Damage - (Def * 0.5)
-    // Ensure at least 1 damage
     playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * playerCritMult) - (enemyDefStat * 0.4)));
 
-    // Enemy vs Player
     let enemyFinalDmg = 0;
     if (!isPlayerDodge) {
       const enemyCritMult = isEnemyCrit ? 1.5 : 1.0;
@@ -377,14 +406,23 @@ export default function DungeonPage() {
     }
 
     // 5. Apply Results
-
-    // Player Attack Log
     if (isPlayerCrit) logEntries.push(`🎯 CRITICAL HIT! You hit for ${playerFinalDmg}!`);
     else logEntries.push(`You hit ${enemyDef.name} for ${playerFinalDmg} damage. ${playerTypeMult > 1 ? '🔥' : ''}`);
 
-    const newMonsterHp = (run.currentEncounter.hp || 0) - playerFinalDmg;
+    const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - playerFinalDmg);
 
-    // Enemy Attack Log
+    // Apply damage to active fighter in party
+    let updatedParty = run.party.map(c => {
+      if (c.id === selectedCreature.id) {
+        const remainingHp = newMonsterHp > 0 && !isPlayerDodge ? Math.max(0, c.hp - enemyFinalDmg) : c.hp;
+        return { ...c, hp: remainingHp };
+      }
+      return c;
+    });
+
+    const activeFighterAfterDamage = updatedParty.find(c => c.id === selectedCreature.id)!;
+    const isFighterFainted = activeFighterAfterDamage.hp <= 0;
+
     if (newMonsterHp > 0) {
       if (isPlayerDodge) {
         logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
@@ -396,8 +434,12 @@ export default function DungeonPage() {
       logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
     }
 
-    const newPlayerHp = run.currentHp - enemyFinalDmg;
-    setBattleLog(prev => [...prev, ...logEntries]);
+    if (isFighterFainted && newMonsterHp > 0) {
+      logEntries.push(`💀 ${selectedCreature.name} fainted!`);
+    }
+
+    const totalTeamHpAfterDamage = updatedParty.reduce((sum, member) => sum + member.hp, 0);
+    const isTeamDefeated = totalTeamHpAfterDamage <= 0;
 
     if (newMonsterHp <= 0) {
       const loot = generateLoot(run.currentRoom);
@@ -421,27 +463,63 @@ export default function DungeonPage() {
         }
       }
 
+      setBattleLog(prev => [...prev, ...logEntries]);
+
       if (run.currentRoom >= run.maxRooms) {
-        completeRun({ ...run, lootCollected: newLoot, status: 'completed' });
+        completeRun({
+          ...run,
+          party: updatedParty,
+          currentHp: totalTeamHpAfterDamage,
+          lootCollected: newLoot,
+          status: 'completed'
+        });
       } else {
         setTimeout(() => {
           setRun({
             ...run,
+            party: updatedParty,
+            currentHp: totalTeamHpAfterDamage,
             currentRoom: run.currentRoom + 1,
             lootCollected: newLoot,
             currentEncounter: generateEncounter(run.currentRoom + 1)
           });
-          // Note: We keep the selected creature by default unless they change it
-          setMessage('Victorious! Continue or swap team member?');
+          
+          if (isFighterFainted) {
+            setSelectedCreature(null);
+            setBattlePhase('select');
+            setMessage(`Victorious, but ${selectedCreature.name} fainted! Deploy a new fighter!`);
+          } else {
+            setMessage('Victorious! Continue or swap team member?');
+          }
         }, 1500);
       }
-    } else if (newPlayerHp <= 0) {
-      setBattleLog(prev => [...prev, '💀 You were defeated...']);
-      completeRun({ ...run, currentHp: 0, status: 'defeated' });
-    } else {
+    } else if (isTeamDefeated) {
+      logEntries.push('💀 All your fighters have fainted... You were defeated...');
+      setBattleLog(prev => [...prev, ...logEntries]);
+      completeRun({
+        ...run,
+        party: updatedParty,
+        currentHp: 0,
+        status: 'defeated'
+      });
+    } else if (isFighterFainted) {
+      logEntries.push(`💀 ${selectedCreature.name} fainted! Deploy another fighter to continue the battle!`);
+      setBattleLog(prev => [...prev, ...logEntries]);
       setRun({
         ...run,
-        currentHp: newPlayerHp,
+        party: updatedParty,
+        currentHp: totalTeamHpAfterDamage,
+        currentEncounter: { ...run.currentEncounter, hp: newMonsterHp }
+      });
+      setSelectedCreature(null);
+      setBattlePhase('select');
+      setMessage(`${selectedCreature.name} fainted! Select another fighter!`);
+    } else {
+      setBattleLog(prev => [...prev, ...logEntries]);
+      setRun({
+        ...run,
+        party: updatedParty,
+        currentHp: totalTeamHpAfterDamage,
         currentEncounter: { ...run.currentEncounter, hp: newMonsterHp }
       });
     }
@@ -488,7 +566,6 @@ export default function DungeonPage() {
       if (!response.ok) throw new Error('Failed to save rewards');
       const data = await response.json();
 
-      // Add a notification about dungeon completion/defeat
       notificationService.addNotification(
         finalRun.status === 'completed' ? "Dungeon Completed! 🏆" : "Dungeon Run Ended 💀",
         finalRun.status === 'completed'
@@ -502,7 +579,6 @@ export default function DungeonPage() {
         }
       );
 
-      // Set result state instead of immediate redirect
       setGameResult({
         success: finalRun.status === 'completed',
         rewards: data.rewards,
@@ -511,7 +587,6 @@ export default function DungeonPage() {
       setRun(null); // Clear active run to show result
     } catch (error) {
       logger.error("Dungeon completion error:", error);
-      // Create a fallback result state for error but still show defeated/completed
       setGameResult({
         success: finalRun.status === 'completed',
         loot: finalRun.lootCollected
@@ -522,14 +597,15 @@ export default function DungeonPage() {
     }
   };
 
-  // --- RENDERING ---
+  // Pre-calculate values
+  const totalTeamHp = run ? run.party.reduce((sum, member) => sum + member.hp, 0) : 0;
+  const totalTeamMaxHp = run ? run.party.reduce((sum, member) => sum + member.maxHp, 0) : 0;
 
   // 1. RESULT SCREEN
   if (gameResult) {
     return (
       <div className={`min-h-screen p-8 flex items-center justify-center ${gameResult.success ? 'bg-gradient-to-br from-green-950 via-green-900 to-black' : 'bg-gradient-to-br from-red-950 via-red-900 to-black'} text-white animate-in fade-in duration-1000`}>
         <div className="max-w-xl w-full text-center space-y-8">
-
           <div className="space-y-4">
             <div className="text-8xl mb-4 animate-bounce">
               {gameResult.success ? '🏆' : '💀'}
@@ -545,8 +621,6 @@ export default function DungeonPage() {
           {gameResult.success && gameResult.rewards && (
             <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-6 shadow-xl">
               <h3 className="text-sm font-bold text-stone-500 uppercase tracking-widest">REWARDS COLLECTED</h3>
-
-              {/* Rewards Grid */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20">
                   <div className="text-2xl font-black text-yellow-400">{gameResult.rewards.gold}</div>
@@ -562,7 +636,6 @@ export default function DungeonPage() {
                 </div>
               </div>
 
-              {/* Loot List */}
               {gameResult.loot && gameResult.loot.length > 0 && (
                 <div className="pt-4 border-t border-white/5">
                   <h4 className="text-xs text-stone-500 mb-3 text-left">Detailed Loot Log</h4>
@@ -655,15 +728,15 @@ export default function DungeonPage() {
             </div>
           </div>
 
-          {/* Player HP */}
+          {/* Team HP (Summed health of all survivors) */}
           <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 backdrop-blur-md">
             <div className="flex justify-between items-end mb-2">
-              <div className="text-slate-400 text-xs font-bold uppercase tracking-wider">Player Health</div>
-              <div className={`font-mono font-bold ${run.currentHp < 50 ? 'text-red-500' : 'text-green-400'}`}>
-                {run.currentHp} / {run.maxHp}
+              <div className="text-slate-400 text-xs font-bold uppercase tracking-wider">Team Health</div>
+              <div className={`font-mono font-bold ${totalTeamHp < (totalTeamMaxHp * 0.3) ? 'text-red-500' : 'text-green-400'}`}>
+                {totalTeamHp} / {totalTeamMaxHp}
               </div>
             </div>
-            <Progress value={(run.currentHp / run.maxHp) * 100} className="h-3 bg-slate-700" indicatorClassName={run.currentHp < 50 ? 'bg-red-500' : 'bg-green-500'} />
+            <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-3 bg-slate-700" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-green-500'} />
           </div>
         </div>
 
@@ -680,15 +753,26 @@ export default function DungeonPage() {
           {/* LEFT: Enemy / Target */}
           <div className="flex flex-col items-center justify-center p-6 bg-slate-900/30 rounded-2xl border border-slate-800/50">
             {run.currentEncounter.type === 'monster' && enemyDef ? (
-              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500">
-                <div className="relative group">
-                  {/* Safe fallbacks for color strings to avoid undefined errors */}
+              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full max-w-sm">
+                <div className="relative group w-full">
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-gray-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
-                  <Card className={`w-64 border-2 ${getTypeColor(enemyDef.type)} bg-slate-900/80 backdrop-blur-sm relative overflow-visible shadow-2xl`}>
+                  <Card className={`w-full border-2 ${getTypeColor(enemyDef.type)} bg-slate-900/80 backdrop-blur-sm relative overflow-visible shadow-2xl`}>
                     <div className="absolute -top-5 -right-5 text-6xl filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                       {getTypeEmoji(enemyDef.type)}
                     </div>
                     <CardContent className="pt-8 pb-6 px-6 text-center space-y-4">
+                      
+                      {/* Creature Image (Achievement-card style) */}
+                      <div className="relative aspect-[4/3] w-full bg-slate-950/60 rounded-lg overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                        <Image
+                          src={`/images/creatures/${enemyId}.png`}
+                          alt={enemyDef.name}
+                          fill
+                          className="object-contain p-2"
+                          unoptimized
+                        />
+                      </div>
+
                       <div>
                         <h3 className="text-2xl font-black uppercase tracking-widest text-white">{enemyDef.name}</h3>
                         <Badge variant="outline" className={`${getTypeColor(enemyDef.type)} mt-2 bg-transparent`}>{enemyDef.type} Type</Badge>
@@ -707,6 +791,7 @@ export default function DungeonPage() {
                         </div>
                       </div>
 
+                      {/* Stats Below Image */}
                       <div className="grid grid-cols-3 gap-2 text-xs opacity-70 border-t border-slate-700/50 pt-4 mt-2">
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-300">{enemyDef.stats.atk}</span>
@@ -738,9 +823,9 @@ export default function DungeonPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-6 order-1 md:order-2">
-            {/* Combat Log - Fixed Height with Scroll */}
-            <div className="flex-none bg-black/40 rounded-xl border border-slate-800 p-4 h-[250px] flex flex-col shadow-inner relative z-10 w-full">
+          <div className="flex flex-col gap-6 order-1 md:order-2 w-full">
+            {/* Combat Log */}
+            <div className="flex-none bg-black/40 rounded-xl border border-slate-800 p-4 h-[220px] flex flex-col shadow-inner relative z-10 w-full">
               <div className="flex justify-between items-center mb-2 flex-none">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battle Log</h4>
                 <div className="flex gap-1">
@@ -765,74 +850,110 @@ export default function DungeonPage() {
                   <div ref={logEndRef} className="h-2" />
                 </div>
               </ScrollArea>
-
-              {/* Fade at bottom of log to indicate more content if scrolling? CSS Mask better but simple for now */}
             </div>
 
-            {/* Controls */}
+            {/* Controls / Fighter Deployment */}
             {run.currentEncounter.type === 'monster' && (
-              <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm shadow-xl flex-1 flex flex-col justify-center w-full">
+              <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm shadow-xl flex-1 flex flex-col justify-center w-full min-h-[300px]">
                 {battlePhase === 'select' ? (
-                  <>
-                    <div className="flex justify-between items-end mb-4">
+                  <div className="w-full space-y-4">
+                    <div className="flex justify-between items-end">
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
                         <span>🛡️ Deploy Fighter</span>
                       </h4>
                       <Badge variant="outline" className="text-xs font-mono bg-slate-900/50">
-                        {run.party ? run.party.length : 0}/6 Ready
+                        {run.party ? run.party.filter(c => c.hp > 0).length : 0}/6 Ready
                       </Badge>
                     </div>
 
-                    <ScrollArea className="h-[240px] pr-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
-                        {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
-                          // Calculate matchup for improved UX
-                          let matchupText = "";
-                          let matchupColor = "text-slate-500";
-                          const enemyDef = run.currentEncounter.creatureId ? CREATURE_DATA[run.currentEncounter.creatureId] : null;
+                    {/* Responsive Horizontal Deck Carousel */}
+                    <div className="flex overflow-x-auto gap-4 pb-4 pt-1 no-scrollbar snap-x snap-mandatory w-full scroll-smooth">
+                      {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
+                        const memberHp = creature.hp;
+                        const memberMaxHp = creature.maxHp;
+                        const isFainted = memberHp <= 0;
 
-                          if (enemyDef) {
-                            const mult = getMatchupMultiplier(creature.type, enemyDef.type);
-                            if (mult > 1) { matchupText = "Strong"; matchupColor = "text-green-400 font-bold"; }
-                            else if (mult < 1) { matchupText = "Weak"; matchupColor = "text-red-400"; }
-                          }
+                        // Calculate matchup for improved UX
+                        let matchupText = "";
+                        let matchupColor = "text-slate-500";
+                        if (enemyDef) {
+                          const mult = getMatchupMultiplier(creature.type, enemyDef.type);
+                          if (mult > 1) { matchupText = "Strong"; matchupColor = "text-green-400 font-bold"; }
+                          else if (mult < 1) { matchupText = "Weak"; matchupColor = "text-red-400"; }
+                        }
 
-                          return (
-                            <button
-                              key={`${creature.id}-${idx}`}
-                              onClick={() => selectFighter(creature)}
-                              className={`group relative p-3 rounded-lg border-2 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-95 ${getTypeColor(creature.type)} ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
-                            >
-                              <div className="flex justify-between items-start mb-2">
-                                <span className="font-black text-sm uppercase tracking-wide truncate">{creature.name}</span>
-                                <span className="text-xl filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                        return (
+                          <button
+                            key={`${creature.id}-${idx}`}
+                            onClick={() => selectFighter(creature)}
+                            disabled={isFainted}
+                            className={`flex-none w-[150px] sm:w-[160px] snap-center snap-always group relative p-3 rounded-lg border-2 text-left transition-all duration-200 ${
+                              isFainted 
+                                ? 'border-zinc-800 bg-zinc-950/40 text-zinc-600 opacity-50 cursor-not-allowed shadow-none' 
+                                : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
+                            } ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="font-black text-sm uppercase tracking-wide truncate">{creature.name}</span>
+                              <span className="text-lg filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                            </div>
+
+                            {/* Creature Image inside deploy buttons */}
+                            <div className="relative w-full h-24 mb-2 bg-slate-950/40 rounded overflow-hidden flex items-center justify-center border border-slate-800/20">
+                              <Image
+                                src={`/images/creatures/${creature.id}.png`}
+                                alt={creature.name}
+                                fill
+                                className="object-contain p-1"
+                                unoptimized
+                              />
+                            </div>
+
+                            {/* Health Stats */}
+                            <div className="space-y-1 mb-2">
+                              <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                                <span>HP</span>
+                                <span>{memberHp} / {memberMaxHp}</span>
                               </div>
-
-                              <div className="grid grid-cols-3 gap-1 text-[10px] opacity-80 font-mono mb-2">
-                                <span className="flex items-center gap-0.5"><span className="text-red-300">⚔️</span>{creature.stats.atk}</span>
-                                <span className="flex items-center gap-0.5"><span className="text-blue-300">🛡️</span>{creature.stats.def}</span>
-                                <span className="flex items-center gap-0.5"><span className="text-green-300">💨</span>{creature.stats.spd}</span>
+                              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full ${isFainted ? 'bg-red-950' : 'bg-green-500'} transition-all duration-300`}
+                                  style={{ width: `${(memberHp / memberMaxHp) * 100}%` }}
+                                />
                               </div>
+                            </div>
 
-                              {matchupText && (
-                                <div className={`text-[10px] text-right uppercase tracking-widest ${matchupColor}`}>
-                                  {matchupText}
-                                </div>
-                              )}
+                            <div className="grid grid-cols-3 gap-1 text-[10px] opacity-80 font-mono mb-2">
+                              <span className="flex items-center gap-0.5"><span className="text-red-300">⚔️</span>{creature.stats.atk}</span>
+                              <span className="flex items-center gap-0.5"><span className="text-blue-300">🛡️</span>{creature.stats.def}</span>
+                              <span className="flex items-center gap-0.5"><span className="text-green-300">💨</span>{creature.stats.spd}</span>
+                            </div>
 
-                              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </ScrollArea>
-                  </>
+                            {matchupText && (
+                              <div className={`text-[10px] text-right uppercase tracking-widest ${matchupColor}`}>
+                                {matchupText}
+                              </div>
+                            )}
+
+                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/10 shadow-inner">
                       <div className="flex items-center gap-4">
-                        <div className="bg-slate-800 p-2 rounded-lg text-3xl shadow-lg border border-slate-700">
-                          {getTypeEmoji(selectedCreature!.type)}
+                        {/* Active fighter image representation */}
+                        <div className="relative w-16 h-16 bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center border border-slate-700 shadow-lg">
+                          <Image
+                            src={`/images/creatures/${selectedCreature!.id}.png`}
+                            alt={selectedCreature!.name}
+                            fill
+                            className="object-contain p-1.5"
+                            unoptimized
+                          />
                         </div>
                         <div>
                           <div className="font-bold text-lg text-white">{selectedCreature!.name}</div>

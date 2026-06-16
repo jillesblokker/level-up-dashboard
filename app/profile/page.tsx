@@ -412,7 +412,10 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="avatar" className="w-full space-y-6">
-        <TabsList className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0">
+        <TabsList 
+          className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0"
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
+        >
           <TabsTrigger value="avatar" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
             <Camera className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.avatar}</span>
