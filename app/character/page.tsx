@@ -1505,7 +1505,7 @@ export default function CharacterPage() {
                         const isHungry = isCitizenHungry(citizen);
                         const isReadyToHarvest = isHarvestReady(citizen);
                         const imageSrc = citizen.isMythic 
-                          ? `/images/Mythics/${citizen.filename}`
+                          ? `/images/Mythics/${citizen.filename}?v=2`
                           : `/images/creatures/${citizen.filename}`;
                         const fedRemaining = getFedTimeRemaining(citizen);
                         const harvestRemaining = getHarvestTimeRemaining(citizen);

@@ -388,7 +388,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 <div className="w-24 h-24 relative">
                                     <Image
                                         src={selectedCitizen.isMythic 
-                                            ? `/images/Mythics/${selectedCitizen.filename}` 
+                                            ? `/images/Mythics/${selectedCitizen.filename}?v=2` 
                                             : `/images/creatures/${selectedCitizen.filename}`
                                         }
                                         alt={selectedCitizen.name}

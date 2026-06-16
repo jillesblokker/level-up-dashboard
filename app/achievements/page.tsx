@@ -972,7 +972,7 @@ export default function Page() {
                     m => m.card_id === String(cardDef.number) && m.variant_id === String(variantIndex)
                   );
                   const isUnlocked = !!unlockedCard;
-                  const imagePath = `/images/Mythics/Mythic${cardDef.number}${colorName}.png`;
+                  const imagePath = `/images/Mythics/Mythic${cardDef.number}${colorName}.png?v=2`;
                   const variantLabel = `${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Edition`;
 
                   return (

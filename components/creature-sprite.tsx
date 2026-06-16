@@ -43,7 +43,7 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
 
     const isMythic = creature.isMythic || creature.id?.startsWith('mythic-') || creature.filename?.startsWith('Mythic');
     const imagePath = isMythic 
-        ? `/images/Mythics/${creature.filename}` 
+        ? `/images/Mythics/${creature.filename}?v=2` 
         : `/images/creatures/${creature.filename}`;
 
     return (

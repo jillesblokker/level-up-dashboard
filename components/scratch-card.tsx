@@ -215,7 +215,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
   const colors = ['red', 'green', 'blue', 'white', 'black'];
   const colorName = colors[cardData.variantIndex] || 'red';
   const hasImage = cardData.number >= 1 && cardData.number <= 10;
-  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorName}.png` : null;
+  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorName}.png?v=2` : null;
 
   return (
     <article 
