@@ -637,7 +637,7 @@ export function DailyHubClient() {
                 <DialogContent className="border border-amber-900/40 text-white p-6 max-w-md rounded-2xl shadow-2xl bg-slate-900/95 backdrop-blur-md">
                     <DialogHeader className="text-center space-y-2">
                         <div className="text-5xl mx-auto animate-bounce mb-2">📜</div>
-                        <DialogTitle className="text-2xl font-medieval text-amber-500 tracking-wider">Yesterday's Report Card</DialogTitle>
+                        <DialogTitle className="text-2xl font-medieval text-amber-500 tracking-wider">Yesterday&apos;s Report Card</DialogTitle>
                         <DialogDescription className="text-slate-400 text-sm">
                             Summary of your realm progress yesterday
                         </DialogDescription>
@@ -670,7 +670,7 @@ export function DailyHubClient() {
                     ) : (
                         <div className="space-y-4 py-4 text-center">
                             <p className="text-sm text-slate-300 italic">
-                                "Yesterday was a peaceful rest day, with no active quests completed."
+                                &quot;Yesterday was a peaceful rest day, with no active quests completed.&quot;
                             </p>
                             <p className="text-sm text-amber-400/90 font-bold">
                                 Today is a brand new day! Conquest waits for no one!
