@@ -11,8 +11,8 @@ async function getAuthToken(): Promise<string | null> {
 
   while (attempts < maxAttempts) {
     try {
-      // Try to access Clerk from window
-      const clerk = (window as any).__clerk;
+      // Try to access Clerk from window (fallback to standard window.Clerk / window.clerk)
+      const clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
       if (!clerk) {
         logger.debug(`[Grid Loader] Clerk not available on window, attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));

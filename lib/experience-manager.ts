@@ -20,7 +20,7 @@ interface Perk {
 async function getEquippedPerks(): Promise<Perk[]> {
   try {
     // Try server preference via API helper
-    const clerk = (typeof window !== 'undefined') ? (window as any).__clerk : undefined;
+    const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
     const uid = clerk?.user?.id;
     if (uid) {
       const res = await fetchWithAuth(`/api/user-preferences?preference_key=character-perks`, { method: 'GET' });

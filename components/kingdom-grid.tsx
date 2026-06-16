@@ -191,7 +191,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       // Include Clerk token for server verification (more reliable than cookies in some environments)
       let authHeader: Record<string, string> = { 'Content-Type': 'application/json' };
       try {
-        const clerk = (window as any).__clerk;
+        const clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
         const token = await clerk?.session?.getToken();
         if (token) {
           authHeader = { ...authHeader, Authorization: `Bearer ${token}` };

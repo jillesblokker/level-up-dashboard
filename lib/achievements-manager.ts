@@ -29,8 +29,8 @@ async function getClerkToken(): Promise<string | null> {
   }
 
   try {
-    // Access Clerk from window if available
-    const clerk = (window as any).__clerk;
+    // Access Clerk from window if available (with standard fallbacks)
+    const clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
     if (!clerk) {
       logger.error('[Achievements Manager] Clerk not available on window');
       return null;

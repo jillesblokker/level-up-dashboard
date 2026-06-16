@@ -2,7 +2,7 @@
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {
   try {
     // Try client-side Clerk first
-    const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk) : undefined;
+    const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
     const token = await clerk?.session?.getToken?.();
     const headers = new Headers(init.headers || {});
     if (token && !headers.has('Authorization')) {
