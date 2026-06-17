@@ -78,18 +78,16 @@ export const KingdomTileItem = React.memo(({
       )}
       style={{ willChange: 'transform, opacity' }} // GPU Acceleration
     >
-      <div className="absolute inset-0 flex items-center justify-center p-0.5 md:p-1">
+      <div 
+        className="absolute inset-0 flex items-center justify-center p-0.5 md:p-1 transition-transform duration-500"
+        style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
+      >
         <Image
           src={tile.image?.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
           alt={tile.name || tile.type}
           fill
           sizes="(max-width: 768px) 10vw, 5vw"
-          className={cn(
-            "object-contain transition-transform duration-500 group-hover:scale-110",
-            (tile.rotation || 0) === 90 && "rotate-90",
-            (tile.rotation || 0) === 180 && "rotate-180",
-            (tile.rotation || 0) === 270 && "rotate-270"
-          )}
+          className="object-contain transition-transform duration-500 group-hover:scale-110"
           unoptimized={tile.image.endsWith('.gif')}
         />
       </div>

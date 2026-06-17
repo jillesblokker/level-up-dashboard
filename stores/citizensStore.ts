@@ -274,7 +274,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     if (isTileInventory) {
       const tileInv = await loadTileInventory(userId);
-      const item = tileInv[foodItemId];
+      const dbKey = foodItemId === 'material-water' ? 'water' : foodItemId;
+      const item = tileInv[dbKey];
       if (item && item.quantity > 0) {
         hasFood = true;
         item.quantity -= 1;

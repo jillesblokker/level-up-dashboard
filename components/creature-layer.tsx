@@ -214,7 +214,8 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
         const tileInv = await loadTileInventory(userId);
         if (tileInv && typeof tileInv === 'object') {
-            Object.entries(tileInv).forEach(([key, value]) => {
+            Object.entries(tileInv).forEach(([rawKey, value]) => {
+                const key = rawKey === 'water' ? 'material-water' : rawKey;
                 if (FOOD_DAYS_MAP[key] !== undefined && value && value.quantity > 0) {
                     const name = key === 'material-water' ? 'Water' : (value.name || key);
                     const emoji = key === 'material-water' ? '💧' : (value.emoji || '📦');

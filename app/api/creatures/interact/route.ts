@@ -31,23 +31,54 @@ export async function POST(request: NextRequest) {
         if (action === 'feed') {
             if (!itemId) return NextResponse.json({ error: 'Missing itemId for feeding' }, { status: 400 });
 
-            // 1. Check Inventory for the food item
-            const { data: item, error: itemError } = await supabase
-                .from('inventory_items')
-                .select('*')
-                .eq('user_id', userId)
-                .eq('item_id', itemId)
-                .single();
+            const isTileInventory = itemId.startsWith('material-');
+            let hasFood = false;
 
-            if (itemError || !item || item.quantity <= 0) {
-                return NextResponse.json({ error: 'You do not have this food item' }, { status: 400 });
+            if (isTileInventory) {
+                const tileType = itemId === 'material-water' ? 'water' : itemId;
+                const { data: item, error: itemError } = await supabase
+                    .from('tile_inventory')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('tile_type', tileType)
+                    .single();
+
+                if (!itemError && item && item.quantity > 0) {
+                    hasFood = true;
+                    if (item.quantity > 1) {
+                        await supabase
+                            .from('tile_inventory')
+                            .update({ quantity: item.quantity - 1 })
+                            .eq('user_id', userId)
+                            .eq('tile_type', tileType);
+                    } else {
+                        await supabase
+                            .from('tile_inventory')
+                            .delete()
+                            .eq('user_id', userId)
+                            .eq('tile_type', tileType);
+                    }
+                }
+            } else {
+                const { data: item, error: itemError } = await supabase
+                    .from('inventory_items')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('item_id', itemId)
+                    .single();
+
+                if (!itemError && item && item.quantity > 0) {
+                    hasFood = true;
+                    if (item.quantity > 1) {
+                        await supabase.from('inventory_items').update({ quantity: item.quantity - 1 }).eq('id', item.id);
+                    } else {
+                        await supabase.from('inventory_items').delete().eq('id', item.id);
+                    }
+                }
             }
 
-            // 2. Deduct Item
-            if (item.quantity > 1) {
-                await supabase.from('inventory_items').update({ quantity: item.quantity - 1 }).eq('id', item.id);
-            } else {
-                await supabase.from('inventory_items').delete().eq('id', item.id);
+            if (!hasFood) {
+                return NextResponse.json({ error: 'You do not have this food item' }, { status: 400 });
             }
 
             // 3. Grant Luck Modifier

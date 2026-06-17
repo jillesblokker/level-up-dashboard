@@ -203,14 +203,34 @@ function RealmPageContent() {
         try {
             const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
             const res = await fetchWithAuth('/api/inventory?category=food');
+            let foodList = [];
             if (res.ok) {
                 const data = await res.json();
-                setAvailableFood(data.data || []);
+                foodList = data.data || [];
             }
+
+            // Check tile inventory for Water
+            if (userId) {
+                const { loadTileInventory } = await import('@/lib/data-loaders');
+                const tileInv = await loadTileInventory(userId);
+                if (tileInv && typeof tileInv === 'object') {
+                    const waterItem = tileInv['water'] || tileInv['material-water'];
+                    if (waterItem && waterItem.quantity > 0) {
+                        foodList.push({
+                            id: 'material-water',
+                            name: 'Water',
+                            quantity: waterItem.quantity,
+                            emoji: '💧'
+                        });
+                    }
+                }
+            }
+
+            setAvailableFood(foodList);
         } catch (err) {
             logger.error('Failed to fetch food for animal:', err);
         }
-    }, []);
+    }, [userId]);
 
     const handleAnimalFeed = async (animalType: string, itemId: string) => {
         try {
