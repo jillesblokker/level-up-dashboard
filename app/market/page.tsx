@@ -14,7 +14,11 @@ import { toast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileType } from "@/types/tiles"
 import { PACK_TYPES, FREE_PACK_TYPES, generatePack } from "@/lib/pack-generator"
-import { PackOpeningModal } from "@/components/pack-opening-modal"
+import dynamic from 'next/dynamic'
+const PackOpeningModal = dynamic(
+  () => import('@/components/pack-opening-modal').then((mod) => mod.PackOpeningModal),
+  { ssr: false }
+)
 import { formatGold } from "@/lib/utils"
 
 // Define available materials for trade

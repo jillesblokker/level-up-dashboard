@@ -843,7 +843,7 @@ export default function Page() {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="creature-cards-grid">
               {creatures
                 .filter(creature => parseInt(creature.id) < 107) // Exclude alliance achievements from creature grid
-                .map(creature => {
+                .map((creature, idx) => {
                   if (!creature) return null;
                   const unlocked = isCreatureUnlocked(creature.id);
                   const isFlipped = flippedCardId === creature.id;
@@ -866,6 +866,8 @@ export default function Page() {
                               fill
                               className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
                               key={unlocked ? 'unlocked' : 'locked'}
+                              priority={idx < 3}
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                             {/* Overlay for Name/Rewards */}
                             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
@@ -964,7 +966,7 @@ export default function Page() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6" role="list">
-              {CARD_TYPES.flatMap(cardDef => {
+              {CARD_TYPES.flatMap((cardDef, cardIdx) => {
                 const colorNames = ['red', 'green', 'blue', 'white', 'black'];
                 return colorNames.map((colorName, variantIndex) => {
                   const unlockedCard = mythics.find(
@@ -973,6 +975,7 @@ export default function Page() {
                   const isUnlocked = !!unlockedCard;
                   const imagePath = `/images/Mythics/Mythic${cardDef.number}${colorName}.png?v=2`;
                   const variantLabel = `${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Edition`;
+                  const overallIdx = (cardIdx * 5) + variantIndex;
 
                   return (
                     <div key={`${cardDef.number}-${variantIndex}`} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
@@ -983,6 +986,8 @@ export default function Page() {
                             alt={`${cardDef.rarity} Card #${cardDef.number} (${colorName})`}
                             fill
                             className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                            priority={overallIdx < 8}
+                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
                           />
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 pt-8 flex flex-col justify-end">
                             <span className="text-[10px] font-bold text-amber-200 uppercase tracking-widest">{variantLabel}</span>
@@ -996,6 +1001,8 @@ export default function Page() {
                             alt={`${cardDef.rarity} Card #${cardDef.number} - Locked`}
                             fill
                             className="object-contain p-4 grayscale opacity-15 blur-[2px]"
+                            priority={overallIdx < 8}
+                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
                           />
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
                             <div className="text-3xl opacity-30">🔒</div>
@@ -1038,7 +1045,7 @@ export default function Page() {
                     const achievementId = parseInt(achievement.id);
                     return achievementId >= 107 && achievementId <= 112;
                   })
-                  .map(achievement => {
+                  .map((achievement, idx) => {
                     if (!achievement) return null;
                     const unlocked = isUnlocked(achievement.id);
                     const isFlipped = flippedCardId === achievement.id;
@@ -1060,6 +1067,8 @@ export default function Page() {
                                 alt={achievement.name}
                                 fill
                                 className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
+                                priority={idx < 3}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               />
                               <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
@@ -1152,7 +1161,7 @@ export default function Page() {
                     const achievementId = parseInt(achievement.id);
                     return achievementId >= 201 && achievementId <= 206;
                   })
-                  .map(achievement => {
+                  .map((achievement, idx) => {
                     if (!achievement) return null;
                     const unlocked = isUnlocked(achievement.id);
                     const isFlipped = flippedCardId === achievement.id;
@@ -1186,6 +1195,8 @@ export default function Page() {
                                 alt={monsterName}
                                 fill
                                 className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
+                                priority={idx < 3}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               />
                               <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
@@ -1273,7 +1284,7 @@ export default function Page() {
               </div>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="progress-achievement-cards-grid">
-                {progressAchievementsList.map(achievement => {
+                {progressAchievementsList.map((achievement, idx) => {
                   if (!achievement) return null;
                   const unlocked = isUnlocked(achievement.id);
                   const isFlipped = flippedCardId === achievement.id;
@@ -1295,6 +1306,8 @@ export default function Page() {
                               alt={achievement.name}
                               fill
                               className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
+                              priority={idx < 3}
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                               {unlocked ? (

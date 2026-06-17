@@ -17,8 +17,15 @@ import { formatGold } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
-import { WeeklyChallengesCard } from "@/components/weekly-challenges-card"
-import { ChroniclesCard } from "@/components/chronicles-card"
+import dynamic from 'next/dynamic'
+const WeeklyChallengesCard = dynamic(
+  () => import('@/components/weekly-challenges-card').then((mod) => mod.WeeklyChallengesCard),
+  { ssr: false }
+)
+const ChroniclesCard = dynamic(
+  () => import('@/components/chronicles-card').then((mod) => mod.ChroniclesCard),
+  { ssr: false }
+)
 import NextImage from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 

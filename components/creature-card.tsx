@@ -9,9 +9,10 @@ interface CreatureCardProps {
   discovered: boolean;
   showCard: boolean;
   previewMode: boolean;
+  priority?: boolean;
 }
 
-export function CreatureCard({ creature, discovered, showCard, previewMode }: CreatureCardProps) {
+export function CreatureCard({ creature, discovered, showCard, previewMode, priority = false }: CreatureCardProps) {
   const [showStats, setShowStats] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -26,7 +27,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode }: Cr
           alt="Undiscovered Creature"
           fill
           className="object-contain"
-          priority
+          priority={priority}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
@@ -49,7 +50,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode }: Cr
             alt={isEffectivelyDiscovered ? creature.name : "Undiscovered Creature"}
             fill
             className="object-contain"
-            priority
+            priority={priority}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={() => setImageError(true)}
           />
