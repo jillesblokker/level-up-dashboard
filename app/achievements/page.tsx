@@ -861,7 +861,7 @@ export default function Page() {
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
-                              src={unlocked ? creature.image : '/images/undiscovered.webp'}
+                              src={unlocked ? `/images/creatures/${creature.id}.png?v=3` : '/images/undiscovered.webp'}
                               alt={creature.name}
                               fill
                               className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
