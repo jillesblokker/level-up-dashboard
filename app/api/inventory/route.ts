@@ -1,17 +1,9 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
 export const dynamic = 'force-dynamic';
-
-function getSupabaseAdmin() {
-  return createClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['SUPABASE_SERVICE_ROLE_KEY']!,
-    { auth: { persistSession: false } }
-  );
-}
 
 export async function GET(request: Request) {
   try {
@@ -26,8 +18,7 @@ export async function GET(request: Request) {
     const itemId = searchParams.get('itemId');
     const equipped = searchParams.get('equipped');
 
-    const supabase = getSupabaseAdmin();
-    let query = supabase
+    let query = supabaseServer
       .from('inventory_items')
       .select('*')
       .eq('user_id', userId);
@@ -76,10 +67,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
     }
 
-    const supabase = getSupabaseAdmin();
-
     // 1. Check if item exists to handle quantity increment
-    const { data: existing, error: fetchError } = await supabase
+    const { data: existing, error: fetchError } = await supabaseServer
       .from('inventory_items')
       .select('*')
       .eq('user_id', userId)
@@ -93,7 +82,7 @@ export async function POST(request: Request) {
 
     if (existing) {
       // 2a. Update quantity
-      const { data, error: updateError } = await supabase
+      const { data, error: updateError } = await supabaseServer
         .from('inventory_items')
         .update({ 
           quantity: existing.quantity + (item.quantity || 1),
@@ -111,7 +100,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, data });
     } else {
       // 2b. Insert new item
-      const { data, error: insertError } = await supabase
+      const { data, error: insertError } = await supabaseServer
         .from('inventory_items')
         .insert({
           user_id: userId,
@@ -165,11 +154,9 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Action and itemId are required' }, { status: 400 });
     }
 
-    const supabase = getSupabaseAdmin();
-
     if (action === 'equip') {
       // Find the item to get its category
-      const { data: item, error: fetchError } = await supabase
+      const { data: item, error: fetchError } = await supabaseServer
         .from('inventory_items')
         .select('*')
         .eq('user_id', userId)
@@ -181,7 +168,7 @@ export async function PATCH(request: Request) {
 
       // Unequip existing item of same category
       if (item.category) {
-        await supabase
+        await supabaseServer
           .from('inventory_items')
           .update({ equipped: false })
           .eq('user_id', userId)
@@ -190,7 +177,7 @@ export async function PATCH(request: Request) {
       }
 
       // Equip the new item
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from('inventory_items')
         .update({ equipped: true, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
@@ -202,7 +189,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json(data);
 
     } else if (action === 'unequip') {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from('inventory_items')
         .update({ equipped: false, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
@@ -231,10 +218,8 @@ export async function DELETE(request: Request) {
     const body = await request.json();
     const { itemId, quantity, clearAll } = body;
 
-    const supabase = getSupabaseAdmin();
-
     if (clearAll) {
-      const { error } = await supabase
+      const { error } = await supabaseServer
         .from('inventory_items')
         .delete()
         .eq('user_id', userId);

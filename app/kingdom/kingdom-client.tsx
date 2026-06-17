@@ -1352,7 +1352,20 @@ export function KingdomClient() {
       setTotalStats(stats || { movement: 0, attack: 0, defense: 0 });
 
     } catch (error) {
-      logger.error('[Kingdom] Inventory load failed:', error);
+      logger.error('[Kingdom] Inventory load failed with exception:', error);
+      try {
+        if ((defaultInventoryItems || []).length > 0) {
+          const defaults = defaultInventoryItems.map(item => ({
+            ...item,
+            stats: item.stats || {},
+            description: item.description || '',
+            equipped: true,
+            type: item.type as any,
+            category: item.type,
+          })) as KingdomInventoryItem[];
+          setEquippedItems(defaults);
+        }
+      } catch (e) {}
     } finally {
       setInventoryLoading(false);
       isInventoryLoadingRef.current = false;
