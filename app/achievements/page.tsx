@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCreatureStore } from '@/stores/creatureStore'
-import { CreatureCard } from '@/components/creature-card'
 import Image from 'next/image'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
