@@ -289,6 +289,14 @@ export function KingdomPropertiesInventory({
           </div>
         )}
 
+        {/* DEBUG INFO OVERLAY */}
+        <div className="bg-red-900 text-white text-[10px] p-2 mx-4 mt-2 mb-0 rounded flex justify-between z-50">
+          <span>DEBUG prop_len: {inventoryItems?.length}</span>
+          <span>equipped: {equippedInventory.length}</span>
+          <span>stored: {storedInventory.length}</span>
+          <span>filtered: {filteredStored.length}</span>
+        </div>
+
         {/* Tabs */}
         <Tabs
           defaultValue="place"
