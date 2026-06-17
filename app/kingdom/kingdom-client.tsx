@@ -1587,12 +1587,6 @@ export function KingdomClient() {
               <Compass className="w-4 h-4" />
               <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
             </TabsTrigger>
-            {!isVisiting && (
-              <TabsTrigger value="inventory">
-                <Backpack className="w-4 h-4" />
-                <span>{TEXT_CONTENT.kingdom.ui.tabs.inventory}</span>
-              </TabsTrigger>
-            )}
           </TabsList>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
@@ -1793,73 +1787,6 @@ export function KingdomClient() {
                 </div>
               )}
             </div>
-          </TabsContent>
-          <TabsContent value="inventory">
-            <Card className="bg-black border-amber-800/50" aria-label="kingdom-bag-card">
-              <CardHeader>
-                <CardTitle className="text-amber-500">{TEXT_CONTENT.kingdom.ui.bag.title}</CardTitle>
-                <CardDescription className="text-gray-400">{TEXT_CONTENT.kingdom.ui.bag.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="equipped" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <div className="mb-4 md:hidden">
-                    <label htmlFor="kingdom-inventory-tab-select" className="sr-only">Select inventory tab</label>
-                    <select
-                      id="kingdom-inventory-tab-select"
-                      aria-label="Kingdom inventory tab selector"
-                      className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
-                      value={activeTab}
-                      onChange={e => setActiveTab(e.target.value)}
-                    >
-                      <option value="equipped">{TEXT_CONTENT.kingdom.ui.bag.tabs.equipped}</option>
-                      <option value="stored">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</option>
-                    </select>
-                  </div>
-                  <TabsList className="grid h-12 w-full grid-cols-2 bg-black/40 border-amber-800/20 p-1.5 hidden md:grid rounded-xl">
-                    <TabsTrigger value="equipped" aria-label="equipped-tab" className="rounded-lg">{TEXT_CONTENT.kingdom.ui.bag.tabs.equipped}</TabsTrigger>
-                    <TabsTrigger value="stored" aria-label="stored-tab" className="rounded-lg">{TEXT_CONTENT.kingdom.ui.bag.tabs.stored}</TabsTrigger>
-                  </TabsList>
-                  {inventoryLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="bg-gray-800/50 rounded-xl p-4 animate-pulse">
-                          <div className="w-full h-32 bg-gray-700/50 rounded-lg mb-3" />
-                          <div className="h-4 bg-gray-700/50 rounded w-2/3 mb-2" />
-                          <div className="h-3 bg-gray-700/50 rounded w-1/2" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <>
-                      <TabsContent value="equipped" className="mt-4">
-                        {equippedItems.length === 0 ? (
-                          <div className="text-center text-gray-400 py-8">
-                            {TEXT_CONTENT.kingdom.ui.emptyBag.noEquipped}
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" aria-label="equipped-items-grid">
-                            {equippedItems.map((item) => renderItemCard(item, true))}
-                          </div>
-                        )}
-                      </TabsContent>
-                      <TabsContent value="stored" className="mt-4">
-                        {storedItems.length === 0 ? (
-                          <EmptyState
-                            icon={Backpack}
-                            title={TEXT_CONTENT.kingdom.ui.emptyBag.title}
-                            description={TEXT_CONTENT.kingdom.ui.emptyBag.description}
-                          />
-                        ) : (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" aria-label="stored-items-grid">
-                            {storedItems.map((item) => renderItemCard(item, false))}
-                          </div>
-                        )}
-                      </TabsContent>
-                    </>
-                  )}
-                </Tabs>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>

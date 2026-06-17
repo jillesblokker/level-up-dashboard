@@ -2068,15 +2068,15 @@ export function KingdomGridWithTimers({
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-3xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group"
+                className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-2xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group"
                 aria-label="Open properties panel"
                 onClick={() => setPropertiesOpen(true)}
               >
-                <span className="filter drop-shadow-md group-hover:block transition-all">+</span>
+                <span className="filter drop-shadow-md group-hover:block transition-all">🎒</span>
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              <p>Open Shop & Inventory</p>
+              <p>Open Bag & Properties</p>
             </TooltipContent>
           </Tooltip>
         </div>
