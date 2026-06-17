@@ -1334,7 +1334,7 @@ export function KingdomClient() {
 
       // If no items are equipped, show default inventory items as a fallback
       if (normEquipped.length === 0) {
-        const defaults = (defaultInventoryItems || []).map(item => ({
+        const defaults = (comprehensiveItems || []).filter(i => i.isDefault).map(item => ({
           ...item,
           stats: item.stats || {},
           description: item.description || '',
@@ -1357,8 +1357,8 @@ export function KingdomClient() {
     } catch (error) {
       logger.error('[Kingdom] Inventory load failed with exception:', error);
       try {
-        if ((defaultInventoryItems || []).length > 0) {
-          const defaults = defaultInventoryItems.map(item => ({
+        if ((comprehensiveItems || []).filter(i => i.isDefault).length > 0) {
+          const defaults = comprehensiveItems.filter(i => i.isDefault).map(item => ({
             ...item,
             stats: item.stats || {},
             description: item.description || '',

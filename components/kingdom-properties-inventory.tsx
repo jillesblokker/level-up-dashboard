@@ -267,9 +267,23 @@ export function KingdomPropertiesInventory({
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
-          <div>
-            <h2 className="text-3xl font-serif text-amber-400 tracking-wide mb-1">Inventory</h2>
-            <p className="text-amber-500/60 text-sm">Kingdom · Bag · Forge</p>
+          <div className="flex items-center gap-6">
+            <div>
+              <h2 className="text-3xl font-serif text-amber-400 tracking-wide mb-1">Inventory</h2>
+              <p className="text-amber-500/60 text-sm">Kingdom · Bag · Forge</p>
+            </div>
+            {onForgeSuccess && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  onForgeSuccess();
+                }} 
+                className="border-amber-700/50 text-amber-500 hover:bg-amber-900/30 text-xs h-7 px-3 flex items-center gap-1.5"
+              >
+                <span className="text-sm">🔄</span> Refresh Data
+              </Button>
+            )}
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} className="text-amber-500 hover:text-amber-300 hover:bg-amber-950/30 rounded-full h-10 w-10">
             <span className="text-2xl">×</span>
