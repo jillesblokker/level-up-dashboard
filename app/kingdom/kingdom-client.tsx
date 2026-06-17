@@ -59,6 +59,7 @@ import {
   loadKingdomTileStates
 } from '@/lib/supabase-persistence-client'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import { supabase, withToken } from '@/lib/supabase/client'
 
 const KingdomStatsBlock = dynamic(() => import("@/components/kingdom-stats-graph").then(m => m.KingdomStatsBlock), { ssr: false });
 const KingStatsBlock = dynamic(() => import("@/components/kingdom-stats-graph").then(m => m.KingStatsBlock), { ssr: false });
@@ -1273,22 +1274,38 @@ export function KingdomClient() {
       // Initial state is true, so initial load is handled. Subsequent syncs stay silent.
 
       // 1. Fetch Parallel Data
-      const [inventoryRes, stats, challengesResponse] = await Promise.all([
-        fetch('/api/inventory').catch(() => null),
+      const [stats, challengesResponse] = await Promise.all([
         getTotalStats(user.id),
         fetch('/api/challenges-ultra-simple').catch(() => null)
       ]);
 
       let allItems = [];
-      if (inventoryRes?.ok) {
-        try {
-          const json = await inventoryRes.json();
-          if (json.success && Array.isArray(json.data)) {
-            allItems = json.data;
-          }
-        } catch (e) {
-          logger.warn('[Kingdom] Failed to parse inventory JSON', e);
+      try {
+        const { data, error } = await withToken(supabase, getToken, async (db) => {
+          return await db.from('inventory_items').select('*').eq('user_id', user.id);
+        });
+        if (error) {
+          logger.error('[Kingdom] Supabase direct inventory fetch error:', error);
+        } else if (data) {
+          allItems = data.map((row: any) => ({
+            ...row,
+            id: row.item_id,
+            stats: row.stats || {},
+          }));
         }
+      } catch (err) {
+        logger.error('[Kingdom] Supabase direct inventory fetch exception:', err);
+        
+        // Fallback to the API if direct supabase fails for some reason
+        try {
+          const inventoryRes = await fetch('/api/inventory');
+          if (inventoryRes.ok) {
+            const json = await inventoryRes.json();
+            if (json.success && Array.isArray(json.data)) {
+              allItems = json.data;
+            }
+          }
+        } catch (fallbackErr) {}
       }
 
       // 2. Handle Challenges safely
@@ -1331,7 +1348,7 @@ export function KingdomClient() {
 
       // If no items are equipped, show default inventory items as a fallback
       if (normEquipped.length === 0) {
-        const defaults = defaultInventoryItems.map(item => ({
+        const defaults = (defaultInventoryItems || []).map(item => ({
           ...item,
           stats: item.stats || {},
           description: item.description || '',
