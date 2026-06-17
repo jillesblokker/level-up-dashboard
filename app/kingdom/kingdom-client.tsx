@@ -58,7 +58,6 @@ import {
   loadKingdomItems,
   loadKingdomTileStates
 } from '@/lib/supabase-persistence-client'
-import { getKingdomInventoryServerAction } from './actions'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 const KingdomStatsBlock = dynamic(() => import("@/components/kingdom-stats-graph").then(m => m.KingdomStatsBlock), { ssr: false });
@@ -859,7 +858,14 @@ export function KingdomClient() {
       setSellingModalOpen(true);
 
       // Refresh inventory from Supabase
-      const allItems = await getKingdomInventoryServerAction();
+      const inventoryRes = await fetch('/api/inventory');
+      let allItems = [];
+      if (inventoryRes.ok) {
+        const json = await inventoryRes.json();
+        if (json.success && Array.isArray(json.data)) {
+          allItems = json.data;
+        }
+      }
       
       const equipped = allItems.filter((i: any) => i.equipped);
       const stored = allItems.filter((i: any) => !i.equipped);
@@ -1267,11 +1273,23 @@ export function KingdomClient() {
       // Initial state is true, so initial load is handled. Subsequent syncs stay silent.
 
       // 1. Fetch Parallel Data
-      const [allItems, stats, challengesResponse] = await Promise.all([
-        getKingdomInventoryServerAction(),
+      const [inventoryRes, stats, challengesResponse] = await Promise.all([
+        fetch('/api/inventory').catch(() => null),
         getTotalStats(user.id),
         fetch('/api/challenges-ultra-simple').catch(() => null)
       ]);
+
+      let allItems = [];
+      if (inventoryRes?.ok) {
+        try {
+          const json = await inventoryRes.json();
+          if (json.success && Array.isArray(json.data)) {
+            allItems = json.data;
+          }
+        } catch (e) {
+          logger.warn('[Kingdom] Failed to parse inventory JSON', e);
+        }
+      }
 
       // 2. Handle Challenges safely
       try {
