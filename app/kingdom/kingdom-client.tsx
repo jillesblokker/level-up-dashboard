@@ -1911,6 +1911,8 @@ export function KingdomClient() {
         tokens={userTokens}
         playerLevel={playerLevel}
         grid={kingdomGrid}
+        inventoryItems={[...equippedItems, ...mergedItems]}
+        userId={user?.id ?? null}
       />
     </div>
   );
