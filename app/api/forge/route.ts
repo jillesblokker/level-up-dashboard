@@ -22,7 +22,7 @@ interface Recipe {
   materials: { itemId: string; quantity: number }[];
 }
 
-export const FORGE_RECIPES: Recipe[] = [
+const FORGE_RECIPES: Recipe[] = [
   {
     id: 'craft-sword-irony',
     targetItemId: 'sword-irony',
