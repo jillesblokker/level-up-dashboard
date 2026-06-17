@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 import QuestCard from "@/components/quest-card"
 import { HeaderSection } from "@/components/HeaderSection"
-import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatGold } from "@/lib/utils"
@@ -634,53 +634,97 @@ export function DailyHubClient() {
 
             {/* YESTERDAY'S REPORT CARD MODAL */}
             <Dialog open={showReportCard} onOpenChange={setShowReportCard}>
-                <DialogContent className="border border-amber-900/40 text-white p-6 max-w-md rounded-2xl shadow-2xl bg-slate-900/95 backdrop-blur-md">
-                    <DialogHeader className="text-center space-y-2">
-                        <div className="text-5xl mx-auto animate-bounce mb-2">📜</div>
-                        <DialogTitle className="text-2xl font-medieval text-amber-500 tracking-wider">Yesterday&apos;s Report Card</DialogTitle>
-                        <DialogDescription className="text-slate-400 text-sm">
-                            Summary of your realm progress yesterday
-                        </DialogDescription>
+                <DialogContent
+                    className="w-[min(90vw,400px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border border-amber-700/30 shadow-amber-500/10 text-white animate-in zoom-in-95 duration-200"
+                    role="dialog"
+                    aria-label="yesterday-report-card-modal"
+                >
+                    {/* Hidden a11y header */}
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Yesterday&apos;s Report Card</DialogTitle>
+                        <DialogDescription>Summary of your realm progress yesterday</DialogDescription>
                     </DialogHeader>
 
-                    {yesterdayReport && (yesterdayReport.completedQuestsCount > 0 || yesterdayReport.goldEarned > 0 || yesterdayReport.milestonesUnlocked > 0) ? (
-                        <div className="space-y-4 py-4">
-                            <p className="text-center text-sm text-slate-200">
-                                You made excellent progress on your path to glory!
-                            </p>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
-                                    <div className="text-2xl font-bold text-amber-400">⚔️ {yesterdayReport.completedQuestsCount}</div>
-                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">Quests Done</div>
-                                </div>
-                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
-                                    <div className="text-2xl font-bold text-yellow-500">🪙 {yesterdayReport.goldEarned}</div>
-                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">Gold Gained</div>
-                                </div>
-                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
-                                    <div className="text-2xl font-bold text-blue-400">⭐ {yesterdayReport.xpEarned}</div>
-                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">XP Gained</div>
-                                </div>
-                                <div className="bg-black/50 p-3 rounded-xl border border-amber-900/20 text-center">
-                                    <div className="text-2xl font-bold text-purple-400">🏆 {yesterdayReport.milestonesUnlocked}</div>
-                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-1">Milestones</div>
+                    {/* Background glow */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl opacity-20 bg-amber-900/30" />
+                    </div>
+
+                    {/* Portrait & Title Section */}
+                    <div className="relative z-10 flex flex-col items-center pt-10 pb-4 px-6">
+                        <div className="relative group">
+                            {/* Pulsing glow */}
+                            <div className="absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 bg-amber-900/30" />
+                            {/* Rotating ring */}
+                            <div
+                                className="absolute -inset-4 border border-dashed rounded-full opacity-30 text-amber-400 border-amber-500"
+                                style={{ animation: 'spin 15s linear infinite' }}
+                            />
+                            {/* Portrait circle */}
+                            <div className="relative w-32 h-32 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-700/30">
+                                <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-zinc-950">
+                                    <span className="text-5xl select-none" role="img" aria-label="Scroll">
+                                        📜
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 pointer-events-none" />
                                 </div>
                             </div>
+                            {/* Sparkle decorations */}
+                            <Sparkles className="absolute -top-3 -right-3 w-5 h-5 animate-pulse opacity-60 text-amber-400" />
+                            <Wind className="absolute -bottom-2 -left-3 w-5 h-5 animate-pulse opacity-40 text-amber-400" style={{ animationDelay: '0.5s' }} />
                         </div>
-                    ) : (
-                        <div className="space-y-4 py-4 text-center">
-                            <p className="text-sm text-slate-300 italic">
-                                &quot;Yesterday was a peaceful rest day, with no active quests completed.&quot;
-                            </p>
-                            <p className="text-sm text-amber-400/90 font-bold">
-                                Today is a brand new day! Conquest waits for no one!
-                            </p>
-                        </div>
-                    )}
 
-                    <div className="flex justify-center pt-2">
-                        <Button 
-                            className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 rounded-xl shadow-lg shadow-amber-900/40"
+                        {/* Name & description */}
+                        <h2 className="mt-6 text-2xl font-serif font-semibold text-center text-amber-400">
+                            Yesterday&apos;s Report Card
+                        </h2>
+                        <p className="mt-2 text-zinc-300/80 text-sm leading-relaxed text-center">
+                            Summary of your yesterday&apos;s achievements in the realm.
+                        </p>
+                    </div>
+
+                    {/* Report Data Grid */}
+                    <div className="relative z-10 px-6 pb-6">
+                        {yesterdayReport && (yesterdayReport.completedQuestsCount > 0 || yesterdayReport.goldEarned > 0 || yesterdayReport.milestonesUnlocked > 0) ? (
+                            <div className="space-y-4">
+                                <p className="text-center text-xs text-amber-200/80 font-mono tracking-wide uppercase">
+                                    ⚔️ excellent progress on your path to glory ⚔️
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                        <div className="text-2xl font-bold text-amber-400">⚔️ {yesterdayReport.completedQuestsCount}</div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Quests Done</div>
+                                    </div>
+                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                        <div className="text-2xl font-bold text-yellow-500">🪙 {yesterdayReport.goldEarned}</div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Gold Gained</div>
+                                    </div>
+                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                        <div className="text-2xl font-bold text-blue-400">⭐ {yesterdayReport.xpEarned}</div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">XP Gained</div>
+                                    </div>
+                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                        <div className="text-2xl font-bold text-purple-400">🏆 {yesterdayReport.milestonesUnlocked}</div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Milestones</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 py-2 text-center">
+                                <p className="text-sm text-zinc-300 italic">
+                                    &quot;Yesterday was a peaceful rest day, with no active quests completed.&quot;
+                                </p>
+                                <p className="text-xs text-amber-400 font-bold tracking-wider uppercase">
+                                    Today is a new day! Conquest awaits!
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Action button */}
+                    <div className="relative z-10 flex flex-col gap-2 px-6 pb-6">
+                        <Button
+                            className="w-full h-11 text-white rounded-xl bg-amber-600 hover:bg-amber-500 shadow-lg font-bold transition-all"
                             onClick={() => setShowReportCard(false)}
                         >
                             Conquer Today!
