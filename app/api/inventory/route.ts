@@ -230,7 +230,7 @@ export async function DELETE(request: Request) {
 
     if (!itemId) return NextResponse.json({ error: 'itemId is required' }, { status: 400 });
 
-    const { data: existing, error: fetchError } = await supabase
+    const { data: existing, error: fetchError } = await supabaseServer
       .from('inventory_items')
       .select('*')
       .eq('user_id', userId)
@@ -243,7 +243,7 @@ export async function DELETE(request: Request) {
     const removeQuantity = quantity || 1;
 
     if (existing.quantity > removeQuantity) {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from('inventory_items')
         .update({ 
           quantity: existing.quantity - removeQuantity,
@@ -257,7 +257,7 @@ export async function DELETE(request: Request) {
       if (error) throw error;
       return NextResponse.json(data);
     } else {
-      const { error } = await supabase
+      const { error } = await supabaseServer
         .from('inventory_items')
         .delete()
         .eq('user_id', userId)
