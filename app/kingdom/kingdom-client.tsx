@@ -858,10 +858,33 @@ export function KingdomClient() {
       setSellingModalOpen(true);
 
       // Refresh inventory from Supabase
-      const equipped = await getEquippedItems(user.id);
-      const stored = await getStoredItems(user.id);
-      setEquippedItems(equipped);
-      setStoredItems(stored);
+      const allItems = await getKingdomInventory(user.id);
+      
+      const equipped = allItems.filter((i: any) => i.equipped);
+      const stored = allItems.filter((i: any) => !i.equipped);
+      
+      const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => ({
+        ...item,
+        stats: item.stats || {},
+        description: item.description || '',
+      }) as KingdomInventoryItem);
+      
+      const normEquipped = normalize(equipped);
+      if (normEquipped.length === 0) {
+        const defaults = defaultInventoryItems.map(item => ({
+          ...item,
+          stats: item.stats || {},
+          description: item.description || '',
+          equipped: true,
+          type: item.type as any,
+          category: item.type,
+        })) as KingdomInventoryItem[];
+        setEquippedItems(defaults);
+      } else {
+        setEquippedItems(normEquipped);
+      }
+      
+      setStoredItems(normalize(stored));
       // Clear local optimistic offsets since server data is now the source of truth
       setLocalItems([]);
     } catch (error) {
@@ -1243,9 +1266,8 @@ export function KingdomClient() {
       // Initial state is true, so initial load is handled. Subsequent syncs stay silent.
 
       // 1. Fetch Parallel Data
-      const [equipped, stored, stats, challengesResponse] = await Promise.all([
-        getEquippedItems(user.id),
-        getStoredItems(user.id),
+      const [allItems, stats, challengesResponse] = await Promise.all([
+        getKingdomInventory(user.id),
         getTotalStats(user.id),
         fetch('/api/challenges-ultra-simple').catch(() => null)
       ]);
@@ -1268,12 +1290,15 @@ export function KingdomClient() {
         setPlayerLevel(freshStats.level || 1);
       }
 
-      // 3. Normalize & Update Items
+      // 3. Filter & Update Items
       const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => ({
         ...item,
         stats: item.stats || {},
         description: item.description || '',
       }) as KingdomInventoryItem);
+
+      const equipped = allItems.filter((i: any) => i.equipped);
+      const stored = allItems.filter((i: any) => !i.equipped);
 
       const normEquipped = normalize(equipped);
 
