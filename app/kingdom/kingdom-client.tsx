@@ -1838,8 +1838,14 @@ export function KingdomClient() {
         tokens={userTokens}
         playerLevel={playerLevel}
         grid={kingdomGrid}
-        inventoryItems={[...equippedItems, ...mergedItems]}
+        inventoryItems={[
+          ...equippedItems.map(i => ({ ...i, equipped: true, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) })),
+          ...mergedItems.map(i => ({ ...i, equipped: false, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) }))
+        ]}
         userId={user?.id ?? null}
+        onEquip={handleEquip}
+        onUnequip={handleUnequip}
+        onSell={handleSellItem}
       />
     </div>
   );

@@ -73,10 +73,12 @@ interface KingdomPropertiesInventoryProps {
   tokens?: number;
   playerLevel?: number;
   grid?: Tile[][];
-  // New props for the Equipped / Stored / Forge tabs
   inventoryItems?: any[];
   userId?: string | null;
   onForgeSuccess?: () => void;
+  onEquip?: (item: any) => void;
+  onUnequip?: (item: any) => void;
+  onSell?: (item: any) => void;
 }
 
 export function KingdomPropertiesInventory({
@@ -94,6 +96,9 @@ export function KingdomPropertiesInventory({
   inventoryItems = [],
   userId,
   onForgeSuccess,
+  onEquip,
+  onUnequip,
+  onSell,
 }: KingdomPropertiesInventoryProps) {
   const [activeTab, setActiveTab] = useState<'place' | 'buy' | 'equipped' | 'stored' | 'forge'>('place');
   const [floatingCosts, setFloatingCosts] = useState<{ id: string; text: string; x: number; y: number }[]>([]);
@@ -229,8 +234,29 @@ export function KingdomPropertiesInventory({
           {item.equipped && <Badge className="text-[9px] py-0 h-4 bg-amber-600">Equipped</Badge>}
         </div>
       </div>
-      <div className="text-right shrink-0">
+      <div className="text-right shrink-0 flex flex-col items-end justify-center gap-2">
         <span className="text-xs font-mono text-amber-400 font-bold">×{item.quantity}</span>
+        <div className="flex gap-1.5">
+          {(item.equipped || item.canEquip || item.canUse) && (
+            <Button
+              size="sm"
+              onClick={() => item.equipped ? onUnequip?.(item) : onEquip?.(item)}
+              className={cn("h-6 px-2 text-[10px] font-bold text-white shadow-md", item.equipped ? 'bg-red-600 hover:bg-red-700' : item.canUse ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700')}
+            >
+              {item.equipped ? 'Unequip' : item.canUse ? 'Use' : 'Equip'}
+            </Button>
+          )}
+          {!item.equipped && item.sellPrice !== undefined && item.sellPrice > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onSell?.(item)}
+              className="h-6 px-2 text-[10px] bg-orange-950/40 hover:bg-orange-900 border-orange-500/50 text-orange-400"
+            >
+              Sell ({item.sellPrice}g)
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
