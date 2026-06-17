@@ -415,8 +415,17 @@ export function KingdomGridWithTimers({
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
   const [pendingHabits, setPendingHabits] = useState<string[]>([]) // List of building types with incomplete quests
+  const [chaosRiftTiles, setChaosRiftTiles] = useState<Set<string>>(new Set()) // Set of tile IDs with chaos rift overlay
 
-  // Fetch Quest Status for Habit Indicators
+  // Producer tile types that can receive a chaos rift
+  const PRODUCER_TILE_TYPES = [
+    'blacksmith', 'sawmill', 'windmill', 'farm', 'lumber_mill', 'market',
+    'bakery', 'brewery', 'stable', 'harvest-barn', 'well', 'fisherman',
+    'fountain', 'grocery', 'foodcourt', 'vegetables', 'farmland', 'inn',
+    'market-stalls', 'house', 'mansion', 'castle'
+  ]
+
+  // Fetch Quest Status for Habit Indicators & Chaos Rift
   useEffect(() => {
     const fetchQuests = async () => {
       try {
@@ -430,6 +439,37 @@ export function KingdomGridWithTimers({
             // Check for specific quest-building links
             const hasPendingMeditation = quests.some((q: any) => q.name === 'Daily Meditation' && !q.completed);
             if (hasPendingMeditation) pending.push('zen-garden');
+
+            // --- CHAOS RIFT LOGIC ---
+            // Count daily quests that were NOT completed today
+            const missedDailyCount = quests.filter((q: any) =>
+              (q.mandate_period === 'daily' || !q.mandate_period) && !q.completed
+            ).length;
+
+            if (missedDailyCount > 10) {
+              // Find all producer tiles currently placed on the grid
+              const producerTilesOnGrid: { tileId: string }[] = [];
+              grid.forEach(row => {
+                row?.forEach(tile => {
+                  if (tile && PRODUCER_TILE_TYPES.includes(tile.type?.toLowerCase()) && tile.type !== 'vacant') {
+                    producerTilesOnGrid.push({ tileId: tile.id });
+                  }
+                });
+              });
+
+              if (producerTilesOnGrid.length > 0) {
+                // Pick one random producer tile to receive the rift
+                const randomIdx = Math.floor(Math.random() * producerTilesOnGrid.length);
+                const chosen = producerTilesOnGrid[randomIdx];
+                if (chosen) {
+                  setChaosRiftTiles(new Set([chosen.tileId]));
+                  logger.warn(`[Kingdom] Chaos Rift triggered on tile ${chosen.tileId} (${missedDailyCount} missed habits)`);
+                }
+              }
+            } else {
+              // Clear chaos rifts if habits are back on track
+              setChaosRiftTiles(prev => (prev.size > 0 ? new Set() : prev));
+            }
           }
           
           setPendingHabits(pending);
@@ -443,7 +483,7 @@ export function KingdomGridWithTimers({
     // Refresh periodically or on focus
     const interval = setInterval(fetchQuests, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [grid]);
   // Tiles affected by winter event bonus
   const WINTER_EVENT_TILE_IDS = new Set([
     'winter-fountain',
@@ -1880,6 +1920,7 @@ export function KingdomGridWithTimers({
                 readOnly={!!readOnly}
                 focusCategory={focusCategory}
                 pendingHabits={pendingHabits}
+                hasChaosRift={chaosRiftTiles.has(tile.id)}
                 onClick={handleTileClick}
                 onMove={handleMoveTile}
                 onDelete={handleDeleteTile}

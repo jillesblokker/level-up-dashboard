@@ -17,6 +17,8 @@ import { getInventory, type InventoryItem } from "@/lib/inventory-manager";
 import { InventorySkeleton } from "@/components/skeletons/inventory-skeleton";
 import { TEXT_CONTENT } from "@/lib/text-content";
 import { getStarDisplay, getStarTierInfo, calculateItemValue } from "@/lib/star-rating";
+import { ForgeModal } from "@/components/forge-modal";
+
 
 const ITEM_TYPES = [
   { value: "resource", label: TEXT_CONTENT.inventory.itemTypes.resource, emoji: "🌿" },
@@ -36,6 +38,8 @@ export default function InventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+  const [isForgeOpen, setIsForgeOpen] = useState(false);
+
   const { toast } = useToast();
   const { user } = useUser();
   const { supabase, isLoading: supabaseLoading } = useSupabase();
@@ -245,14 +249,24 @@ export default function InventoryPage() {
                 {TEXT_CONTENT.inventory.ui.itemsFound.replace("{count}", String(filteredItems.length))}
               </CardDescription>
             </div>
-            <Button
-              onClick={loadItems}
-              variant="outline"
-              className="border-amber-800 text-amber-500 hover:bg-amber-800 hover:text-white"
-              aria-label="Refresh inventory"
-            >
-              🔄 {TEXT_CONTENT.inventory.ui.refresh}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setIsForgeOpen(true)}
+                className="bg-amber-500 hover:bg-amber-600 text-black font-bold flex items-center gap-1.5"
+                aria-label="Open Forge Station"
+              >
+                🔨 Forge Station
+              </Button>
+              <Button
+                onClick={loadItems}
+                variant="outline"
+                className="border-amber-800 text-amber-500 hover:bg-amber-800 hover:text-white"
+                aria-label="Refresh inventory"
+              >
+                🔄 {TEXT_CONTENT.inventory.ui.refresh}
+              </Button>
+            </div>
+
           </div>
         </CardHeader>
 
@@ -298,6 +312,11 @@ export default function InventoryPage() {
           </Tabs>
         </CardContent>
       </Card>
+      <ForgeModal 
+        isOpen={isForgeOpen} 
+        onClose={() => setIsForgeOpen(false)} 
+        onForgeSuccess={loadItems}
+      />
     </div>
   );
 }

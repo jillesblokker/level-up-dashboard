@@ -283,11 +283,41 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         }
     };
 
-    const handleHarvest = async () => {
+    const getCitizenSynergy = useCallback((citizenId: string) => {
+        const citizen = citizens.find(c => c.id === citizenId);
+        if (!citizen) return { multiplier: 1, elementMatch: false, roadMatch: false, tileName: 'Vacant' };
+
+        const creature = activeCreatures.find(c => c.definitionId === citizenId);
+        if (!creature) return { multiplier: 1, elementMatch: false, roadMatch: false, tileName: 'Vacant' };
+
+        const tile = grid[creature.position.row]?.[creature.position.col];
+        if (!tile) return { multiplier: 1, elementMatch: false, roadMatch: false, tileName: 'Vacant' };
+
+        const elementMatch = isHabitatMatch(tile, citizen.type);
+        
+        const neighbors = getNeighbors(creature.position, grid);
+        const roadMatch = neighbors.some(n => n.tile && (
+            n.tile.type?.toLowerCase()?.includes('road') || 
+            n.tile.type?.toLowerCase()?.includes('path')
+        ));
+
+        let multiplier = 1;
+        if (elementMatch) multiplier += 0.25;
+        if (roadMatch) multiplier += 0.10;
+
+        return {
+            multiplier,
+            elementMatch,
+            roadMatch,
+            tileName: tile.name || tile.type || 'Vacant'
+        };
+    }, [citizens, activeCreatures, grid]);
+
+    const handleHarvest = async (multiplier?: number) => {
         if (!user?.id || !selectedCitizenId || !selectedCitizen) return;
         setIsInteracting(true);
         try {
-            const success = await harvestCitizen(user.id, selectedCitizenId);
+            const success = await harvestCitizen(user.id, selectedCitizenId, multiplier);
             if (success) {
                 toast({
                     title: "Harvest Collected! 🪙",
@@ -304,6 +334,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             setIsInteracting(false);
         }
     };
+
 
     if (!grid || grid.length === 0 || !grid[0]) return null;
 
@@ -442,17 +473,49 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
                     {/* Actions Panel */}
                     <div className="relative z-10 px-6 pb-6 flex flex-col gap-2">
+                        {/* Synergy Info */}
+                        {(() => {
+                            const synergy = selectedCitizen ? getCitizenSynergy(selectedCitizen.id) : { multiplier: 1, elementMatch: false, roadMatch: false, tileName: 'Vacant' };
+                            return (
+                                <div className="bg-zinc-900/60 border border-zinc-800/40 rounded-xl p-2.5 flex flex-col gap-1 text-[11px] mb-1">
+                                    <div className="flex justify-between items-center text-zinc-400">
+                                        <span>Current Tile:</span>
+                                        <span className="font-semibold text-zinc-200 capitalize">{synergy.tileName}</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {synergy.elementMatch && (
+                                            <span className="bg-green-950/40 text-green-400 border border-green-900/50 px-1.5 py-0.5 rounded text-[10px] font-medium">
+                                                🌟 Element Synergy (+25%)
+                                            </span>
+                                        )}
+                                        {synergy.roadMatch && (
+                                            <span className="bg-amber-950/40 text-amber-400 border border-amber-900/50 px-1.5 py-0.5 rounded text-[10px] font-medium">
+                                                🛣️ Trade Synergy (+10%)
+                                            </span>
+                                        )}
+                                        {!synergy.elementMatch && !synergy.roadMatch && (
+                                            <span className="text-zinc-500 italic">No active synergies</span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         {/* Cooldown or Harvest Button */}
                         {selectedCitizen && isHarvestReady(selectedCitizen) ? (
                             <Button
-                                onClick={handleHarvest}
+                                onClick={() => {
+                                    const synergy = getCitizenSynergy(selectedCitizen.id);
+                                    handleHarvest(synergy.multiplier);
+                                }}
                                 disabled={isInteracting}
                                 className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-serif font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 animate-bounce"
                             >
-                                <Coins className="w-4 h-4" /> Collect Daily Gold 💰
+                                <Coins className="w-4 h-4" /> Collect Gold 💰
                             </Button>
                         ) : selectedCitizen && !isCitizenHungry(selectedCitizen) ? (
                             <div className="bg-black/30 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-center gap-1">
+
                                 <span className="text-xs text-zinc-400">Next gold harvest available in:</span>
                                 <div className="text-amber-500 font-semibold text-sm flex items-center gap-1">
                                     <Clock className="w-3.5 h-3.5" /> 

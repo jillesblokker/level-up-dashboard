@@ -20,6 +20,7 @@ interface KingdomTileItemProps {
   readOnly: boolean
   focusCategory: string | null
   pendingHabits: string[]
+  hasChaosRift?: boolean
   onClick: (x: number, y: number, tile: Tile) => void
   onMove: (x: number, y: number, tile: Tile) => void
   onDelete: (x: number, y: number, tile: Tile) => void
@@ -38,6 +39,7 @@ export const KingdomTileItem = React.memo(({
   readOnly,
   focusCategory,
   pendingHabits,
+  hasChaosRift = false,
   onClick,
   onMove,
   onDelete,
@@ -115,6 +117,44 @@ export const KingdomTileItem = React.memo(({
         <div className="absolute top-1 left-1 animate-bounce z-40 bg-white/90 rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-amber-200">
            <span className="text-[8px]">📜</span>
         </div>
+      )}
+
+      {/* Chaos Rift Overlay - triggered when >10 daily habits are missed */}
+      {hasChaosRift && (
+        <>
+          {/* Dark pulsing vignette */}
+          <div
+            className="absolute inset-0 z-30 pointer-events-none animate-pulse"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(88,28,135,0.7) 0%, rgba(15,5,35,0.85) 70%)',
+              boxShadow: 'inset 0 0 20px rgba(139,0,255,0.6), inset 0 0 40px rgba(80,0,180,0.4)'
+            }}
+          />
+          {/* Rift cracks (CSS-drawn via borders) */}
+          <div
+            className="absolute inset-0 z-31 pointer-events-none"
+            style={{
+              background:
+                'repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(200,100,255,0.15) 4px, rgba(200,100,255,0.15) 5px)',
+            }}
+          />
+          {/* Chaos icon badge */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center">
+            <span
+              className="text-base md:text-lg drop-shadow-[0_0_8px_rgba(200,0,255,1)] animate-pulse select-none"
+              title="Chaos Rift! Complete your daily habits to restore order."
+            >
+              🌀
+            </span>
+          </div>
+          {/* Tooltip on hover */}
+          <div className="absolute inset-x-0 bottom-0 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="bg-purple-950/95 border border-purple-500/40 rounded-t px-1 py-0.5 text-[8px] text-purple-200 text-center leading-tight">
+              ⚠️ Chaos Rift<br/>
+              <span className="text-purple-400">Complete 10+ habits</span>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Hover Info-Card */}

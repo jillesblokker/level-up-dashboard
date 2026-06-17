@@ -43,7 +43,7 @@ interface CitizensStore {
   toggleFavorite: (userId: string, citizenId: string) => Promise<void>;
   bulkToggleFavorite: (userId: string, citizenIds: string[], value: boolean) => Promise<void>;
   feedCitizen: (userId: string, citizenId: string, foodItemId: string) => Promise<boolean>;
-  harvestCitizen: (userId: string, citizenId: string) => Promise<boolean>;
+  harvestCitizen: (userId: string, citizenId: string, multiplier?: number) => Promise<boolean>;
 }
 
 // Map card types/rarity to habitat types
@@ -323,19 +323,22 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     return true;
   },
 
-  harvestCitizen: async (userId: string, citizenId: string) => {
+  harvestCitizen: async (userId: string, citizenId: string, multiplier?: number) => {
     const { citizens } = get();
     const citizen = citizens.find((c) => c.id === citizenId);
     if (!citizen) return false;
 
     // Calculate reward
     const isMythic = citizen.isMythic;
-    const goldAmount = isMythic
+    const baseGold = isMythic
       ? Math.floor(Math.random() * 36) + 40 // 40-75 gold
       : Math.floor(Math.random() * 11) + 15; // 15-25 gold
 
+    const goldAmount = Math.floor(baseGold * (multiplier || 1));
+
     // Award gold
     await gainGold(goldAmount, `citizen-collect:${citizen.name}`);
+
 
     // Random extra material/food (20% chance)
     if (Math.random() < 0.20) {
