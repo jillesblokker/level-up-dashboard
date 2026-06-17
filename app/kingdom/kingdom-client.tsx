@@ -58,6 +58,7 @@ import {
   loadKingdomItems,
   loadKingdomTileStates
 } from '@/lib/supabase-persistence-client'
+import { getKingdomInventoryServerAction } from './actions'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 const KingdomStatsBlock = dynamic(() => import("@/components/kingdom-stats-graph").then(m => m.KingdomStatsBlock), { ssr: false });
@@ -858,7 +859,7 @@ export function KingdomClient() {
       setSellingModalOpen(true);
 
       // Refresh inventory from Supabase
-      const allItems = await getKingdomInventory(user.id);
+      const allItems = await getKingdomInventoryServerAction();
       
       const equipped = allItems.filter((i: any) => i.equipped);
       const stored = allItems.filter((i: any) => !i.equipped);
@@ -1267,27 +1268,35 @@ export function KingdomClient() {
 
       // 1. Fetch Parallel Data
       const [allItems, stats, challengesResponse] = await Promise.all([
-        getKingdomInventory(user.id),
+        getKingdomInventoryServerAction(),
         getTotalStats(user.id),
         fetch('/api/challenges-ultra-simple').catch(() => null)
       ]);
 
-      // 2. Handle Challenges
-      let finalChallenges = [];
-      if (challengesResponse?.ok) {
-        finalChallenges = await challengesResponse.json();
-        localStorage.setItem('challenges', JSON.stringify(finalChallenges));
-      } else {
-        const saved = localStorage.getItem('challenges');
-        if (saved) finalChallenges = JSON.parse(saved);
+      // 2. Handle Challenges safely
+      try {
+        let finalChallenges = [];
+        if (challengesResponse?.ok) {
+          finalChallenges = await challengesResponse.json();
+          localStorage.setItem('challenges', JSON.stringify(finalChallenges));
+        } else {
+          const saved = localStorage.getItem('challenges');
+          if (saved) finalChallenges = JSON.parse(saved);
+        }
+        setChallenges(finalChallenges);
+      } catch (e) {
+        logger.warn('[Kingdom] Failed to parse challenges:', e);
       }
-      setChallenges(finalChallenges);
 
-      // 2.5 Fetch Fresh Character Stats (Currencies)
-      const freshStats = await fetchFreshCharacterStats();
-      if (freshStats) {
-        setUserTokens(freshStats.streak_tokens || 0);
-        setPlayerLevel(freshStats.level || 1);
+      // 2.5 Fetch Fresh Character Stats (Currencies) safely
+      try {
+        const freshStats = await fetchFreshCharacterStats();
+        if (freshStats) {
+          setUserTokens(freshStats.streak_tokens || 0);
+          setPlayerLevel(freshStats.level || 1);
+        }
+      } catch (e) {
+        logger.warn('[Kingdom] Failed to fetch character stats:', e);
       }
 
       // 3. Filter & Update Items
