@@ -1911,6 +1911,7 @@ export function KingdomClient() {
           ...mergedItems.map(i => ({ ...i, equipped: false, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) }))
         ]}
         userId={user?.id ?? null}
+        onForgeSuccess={loadInventory}
         onEquip={handleEquip}
         onUnequip={handleUnequip}
         onSell={handleSellItem}
