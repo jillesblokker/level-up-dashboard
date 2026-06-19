@@ -17,9 +17,9 @@ export default function ArchiveOfTriumphsPage() {
     setStats(getCharacterStats())
   }, [])
 
-  // Find highest level citizens (top 3)
+  // Find highest affection citizens (top 3)
   const topCitizens = [...citizens]
-    .sort((a, b) => b.level - a.level)
+    .sort((a, b) => b.affection - a.affection)
     .slice(0, 3)
 
   if (!stats) return null
@@ -86,7 +86,7 @@ export default function ArchiveOfTriumphsPage() {
                       </div>
                       
                       <h3 className="text-xl font-bold font-serif text-amber-100 mb-1">{citizen.name}</h3>
-                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider mb-4">Level {citizen.level} {citizen.type}</p>
+                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider mb-4">{citizen.type}</p>
                       
                       <div className="bg-black/40 p-3 rounded-lg w-full border border-white/5">
                         <p className="text-xs text-zinc-400 mb-1">Affection</p>
