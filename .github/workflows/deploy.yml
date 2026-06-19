@@ -103,6 +103,8 @@ jobs:
               
               # Deploy new files
               mkdir -p /var/www/level-up
+              # Specifically delete the hidden .next folder which isn't caught by the * wildcard
+              rm -rf /var/www/level-up/.next
               rm -rf /var/www/level-up/*
               tar -xzf /tmp/deploy.tar.gz -C /var/www/level-up
               chmod -R 755 /var/www/level-up
