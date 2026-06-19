@@ -768,16 +768,15 @@ export default function DungeonPage() {
 
                     <div className="border-b border-slate-850/40 pb-2 z-10">
                       <h3 className="text-lg font-black text-white uppercase tracking-wider truncate max-w-[80%]">{enemyDef.name}</h3>
-                      <Badge variant="outline" className={`${getTypeColor(enemyDef.type)} mt-1 bg-transparent border-opacity-40 text-[9px] px-2 py-0.5`}>{enemyDef.type} Type</Badge>
                     </div>
 
                     {/* Creature Image (Achievement-card style) */}
-                    <div className="relative w-full flex-1 my-3 bg-slate-900/40 rounded-xl overflow-hidden flex items-center justify-center border border-slate-850/20">
+                    <div className="relative w-full flex-1 my-3 flex items-center justify-center">
                       <Image
                         src={`/images/creatures/${enemyId}.png`}
                         alt={enemyDef.name}
                         fill
-                        className="object-contain p-2"
+                        className="object-contain scale-[1.25] drop-shadow-lg"
                         unoptimized
                       />
                     </div>
@@ -949,12 +948,12 @@ export default function DungeonPage() {
                             <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
                           </div>
 
-                          <div className="relative w-full flex-1 my-3 bg-slate-900/40 rounded-xl overflow-hidden flex items-center justify-center border border-slate-850/20">
+                          <div className="relative w-full flex-1 my-3 flex items-center justify-center">
                             <Image
                               src={`/images/creatures/${selectedCreature!.id}.png`}
                               alt={selectedCreature!.name}
                               fill
-                              className="object-contain p-2"
+                              className="object-contain scale-[1.25] drop-shadow-lg"
                               unoptimized
                             />
                           </div>
