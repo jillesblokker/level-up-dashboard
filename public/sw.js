@@ -1,8 +1,8 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v1.2.0 - Fixed: only cache truly static assets to prevent install failures
-const CACHE_NAME = 'level-up-v1.2.0'
-const STATIC_CACHE = 'level-up-static-v1.2.0'
-const DYNAMIC_CACHE = 'level-up-dynamic-v1.2.0'
+// v1.2.2 - Force cache invalidation to load new chunks
+const CACHE_NAME = 'level-up-v1.2.2'
+const STATIC_CACHE = 'level-up-static-v1.2.2'
+const DYNAMIC_CACHE = 'level-up-dynamic-v1.2.2'
 
 // Only cache static assets - NOT app routes (they are SSR/authenticated and will always fail)
 const STATIC_FILES = [
