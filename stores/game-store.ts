@@ -32,7 +32,7 @@ interface GameState {
   title: string
   ascensionLevel: number
   sanctuaryMode: boolean
-  activePartnerId?: string
+  activePartnerId?: string | undefined
 
   // UI state
   isLoading: boolean
