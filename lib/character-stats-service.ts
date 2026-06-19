@@ -30,6 +30,8 @@ export interface CharacterStats {
     display_name?: string;
     title?: string;
     ascension_level?: number;
+    sanctuary_mode?: boolean;
+    active_partner_id?: string;
     updated_at?: string;
 }
 
@@ -88,7 +90,9 @@ class CharacterStatsService {
                     kingdom_expansions: parseInt(getUserScopedItem('kingdom-grid-expansions') || '0', 10),
                     display_name: stats.display_name || 'Adventurer',
                     title: stats.title || 'Novice',
-                    ascension_level: stats.ascension_level || 0
+                    ascension_level: stats.ascension_level || 0,
+                    sanctuary_mode: stats.sanctuary_mode || false,
+                    active_partner_id: stats.active_partner_id || undefined
                 };
             }
         } catch (error) {
@@ -136,6 +140,8 @@ class CharacterStatsService {
         if (updates.display_name !== undefined) newStats.display_name = updates.display_name;
         if (updates.title !== undefined) newStats.title = updates.title;
         if (updates.ascension_level !== undefined) newStats.ascension_level = updates.ascension_level;
+        if (updates.sanctuary_mode !== undefined) newStats.sanctuary_mode = updates.sanctuary_mode;
+        if (updates.active_partner_id !== undefined) newStats.active_partner_id = updates.active_partner_id;
 
         // Save to local storage immediately
         this.saveToLocalStorage(newStats);

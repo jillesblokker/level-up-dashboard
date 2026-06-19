@@ -31,6 +31,8 @@ interface GameState {
   displayName: string
   title: string
   ascensionLevel: number
+  sanctuaryMode: boolean
+  activePartnerId?: string
 
   // UI state
   isLoading: boolean
@@ -63,6 +65,8 @@ interface GameActions {
   setStreakTokens: (tokens: number) => void
   setKingdomExpansions: (count: number) => void
   setLevel: (level: number) => void
+  setSanctuaryMode: (active: boolean) => void
+  setActivePartnerId: (id: string | undefined) => void
 
   // UI
   setActiveTab: (tab: string) => void
@@ -90,6 +94,8 @@ export const useGameStore = create<GameStore>()(
     displayName: 'Adventurer',
     title: 'Novice',
     ascensionLevel: 0,
+    sanctuaryMode: false,
+    activePartnerId: undefined,
     isLoading: true,
     activeTab: 'thrivehaven',
     inventoryCount: 0,
@@ -113,6 +119,8 @@ export const useGameStore = create<GameStore>()(
           displayName: stats.display_name || 'Adventurer',
           title: stats.title || 'Novice',
           ascensionLevel: stats.ascension_level || 0,
+          sanctuaryMode: stats.sanctuary_mode || false,
+          activePartnerId: stats.active_partner_id,
           hydrated: true,
           isLoading: false,
         })
@@ -134,6 +142,8 @@ export const useGameStore = create<GameStore>()(
         displayName: stats.display_name || 'Adventurer',
         title: stats.title || 'Novice',
         ascensionLevel: stats.ascension_level || 0,
+        sanctuaryMode: stats.sanctuary_mode || false,
+        activePartnerId: stats.active_partner_id,
       })
     },
 
@@ -194,6 +204,18 @@ export const useGameStore = create<GameStore>()(
       const { updateCharacterStats } = require('@/lib/character-stats-service')
       set({ level })
       updateCharacterStats({ level }, 'zustand-set-level')
+    },
+
+    setSanctuaryMode: (active) => {
+      const { updateCharacterStats } = require('@/lib/character-stats-service')
+      set({ sanctuaryMode: active })
+      updateCharacterStats({ sanctuary_mode: active }, 'zustand-set-sanctuary')
+    },
+
+    setActivePartnerId: (id) => {
+      const { updateCharacterStats } = require('@/lib/character-stats-service')
+      set({ activePartnerId: id })
+      updateCharacterStats({ active_partner_id: id }, 'zustand-set-partner')
     },
 
     // ------- UI -------

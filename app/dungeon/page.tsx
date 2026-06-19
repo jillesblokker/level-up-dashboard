@@ -14,8 +14,10 @@ import {
   CreatureDef,
   getMatchupMultiplier,
   getTypeEmoji,
-  getTypeColor
+  getTypeColor,
+  getHabitElementMapping
 } from './game-logic';
+import { useAuth } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -155,6 +157,62 @@ export default function DungeonPage() {
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
+
+  const { getToken } = useAuth();
+  const [elementBuffs, setElementBuffs] = useState<Record<string, number>>({});
+  const [buildingBuffs, setBuildingBuffs] = useState<{ atkBuff: number, healingBuff: number }>({ atkBuff: 0, healingBuff: 0 });
+
+  useEffect(() => {
+    async function loadBuffs() {
+      try {
+        const token = await getToken();
+        if (!token) return;
+
+        // Fetch Quests
+        const resQuests = await fetch('/api/quests', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resQuests.ok) {
+          const quests = await resQuests.json();
+          // Filter today's completed quests
+          const today = new Date().toISOString().split('T')[0];
+          const todaysCompleted = quests.filter((q: any) => 
+            q.completed && q.date && q.date.startsWith(today)
+          );
+          
+          const buffs: Record<string, number> = {
+            Fire: 0, Water: 0, Rock: 0, Grass: 0, Ice: 0
+          };
+          
+          todaysCompleted.forEach((q: any) => {
+            const el = getHabitElementMapping(q.category);
+            buffs[el] += 1;
+          });
+          setElementBuffs(buffs);
+        }
+
+        // Fetch Kingdom Grid
+        const resGrid = await fetch('/api/kingdom-grid', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resGrid.ok) {
+          const data = await resGrid.json();
+          if (data.grid) {
+            let atk = 0;
+            let heal = 0;
+            data.grid.forEach((tile: any) => {
+              if (tile.item?.id === 'building-blacksmith') atk += 2;
+              if (tile.item?.id === 'building-bakery') heal += 5;
+            });
+            setBuildingBuffs({ atkBuff: atk, healingBuff: heal });
+          }
+        }
+      } catch (e) {
+        logger.error('[Dungeon] Error loading buffs:', e);
+      }
+    }
+    loadBuffs();
+  }, [getToken]);
 
   // Helper values for active fighter combat stats
   const selectedPartyMember = run?.party.find(c => c.id === selectedCreature?.id) || null;
@@ -378,13 +436,19 @@ export default function DungeonPage() {
     const logEntries: string[] = [];
 
     // 1. Calculate Stats
+    const elementalHabitBuff = (elementBuffs[activeFighter.type] || 0) * 2; // +2 atk per habit
+    const buildingAtkBuff = buildingBuffs.atkBuff;
+
     const playerSpd = activeFighter.stats.spd;
     const playerDef = activeFighter.stats.def;
-    const playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5));
+    const playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff;
     // Enemy
     const enemySpd = enemyDef.stats.spd;
     const enemyDefStat = enemyDef.stats.def;
     const enemyAtk = enemyDef.stats.atk + (Math.floor(Math.random() * 5));
+
+    if (elementalHabitBuff > 0) logEntries.push(`✨ Daily habits empower ${activeFighter.name}! (+${elementalHabitBuff} ATK)`);
+    if (buildingAtkBuff > 0) logEntries.push(`⚔️ Blacksmith sharpens your attack! (+${buildingAtkBuff} ATK)`);
 
     // 2. Type Multipliers
     const playerTypeMult = getMatchupMultiplier(activeFighter.type, enemyDef.type);
@@ -419,7 +483,10 @@ export default function DungeonPage() {
     // Apply damage to active fighter in party
     let updatedParty = run.party.map(c => {
       if (c.id === selectedCreature.id) {
-        const remainingHp = newMonsterHp > 0 && !isPlayerDodge ? Math.max(0, c.hp - enemyFinalDmg) : c.hp;
+        let remainingHp = newMonsterHp > 0 && !isPlayerDodge ? Math.max(0, c.hp - enemyFinalDmg) : c.hp;
+        if (remainingHp > 0 && buildingBuffs.healingBuff > 0) {
+            remainingHp = Math.min(c.maxHp, remainingHp + buildingBuffs.healingBuff);
+        }
         return { ...c, hp: remainingHp };
       }
       return c;
@@ -437,6 +504,10 @@ export default function DungeonPage() {
       }
     } else {
       logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
+    }
+
+    if (!isFighterFainted && buildingBuffs.healingBuff > 0) {
+      logEntries.push(`🍞 Bakery heals ${selectedCreature.name} for ${buildingBuffs.healingBuff} HP!`);
     }
 
     if (isFighterFainted && newMonsterHp > 0) {

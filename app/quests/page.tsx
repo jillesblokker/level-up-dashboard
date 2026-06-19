@@ -64,6 +64,8 @@ import { useQuickAdd } from "@/components/quick-add-provider"
 import { LoadingScreen } from "@/components/loading-screen"
 import { TEXT_CONTENT } from '@/lib/text-content'
 
+import { useCitizensStore } from '@/stores/citizensStore'
+import { useGameStore } from '@/stores/game-store'
 
 interface Quest {
   id: string;
@@ -142,6 +144,8 @@ export default function QuestsPage() {
   const { openQuickAdd } = useQuickAdd();
   const searchParams = useSearchParams();
   const { stats } = useCharacterStats();
+  const activePartnerId = useGameStore(s => s.activePartnerId);
+  const citizens = useCitizensStore(s => s.citizens);
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
 
@@ -178,6 +182,9 @@ export default function QuestsPage() {
     xp: 0,
     gold: 0,
   });
+
+  const activePartner = citizens.find(c => c.id === activePartnerId);
+  const [isPartnerAnimating, setIsPartnerAnimating] = useState(false);
 
   // Add missing state variables
   const [streakData, setStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
@@ -1026,6 +1033,12 @@ export default function QuestsPage() {
 
     if (newCompleted) {
       logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
+
+      // Trigger partner animation
+      if (activePartner) {
+        setIsPartnerAnimating(true);
+        setTimeout(() => setIsPartnerAnimating(false), 1000);
+      }
 
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
@@ -2616,6 +2629,23 @@ export default function QuestsPage() {
 
           </MobileContentWrapper>
         </MobileLayoutWrapper>
+
+        {/* Partner Creature Display */}
+        {activePartner && (
+          <div 
+            className={`fixed bottom-24 right-4 z-40 transition-transform duration-300 pointer-events-none ${isPartnerAnimating ? 'scale-125 -translate-y-4' : 'scale-100 hover:scale-110'} md:bottom-8 md:right-8`}
+          >
+            <div className="relative w-24 h-24 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+              <Image
+                src={activePartner.isMythic ? `/images/Mythics/${activePartner.filename}?v=2` : `/images/creatures/${activePartner.filename}`}
+                alt={activePartner.name}
+                fill
+                className={`object-contain ${isPartnerAnimating ? 'animate-bounce' : 'animate-float'}`}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Bottom spacing */}
         <div className="h-8 md:h-12"></div>
         {/* Edit Quest Modal */}

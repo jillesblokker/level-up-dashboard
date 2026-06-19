@@ -25,6 +25,7 @@ import { AnimatePresence } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
 import { TileActionSheet } from '@/components/tile-action-sheet'
 import { KingdomSummaryModal } from './kingdom-summary-modal'
+import { useGameStore } from '@/stores/game-store'
 
 
 // Game managers will be loaded dynamically to keep the initial bundle light
@@ -135,6 +136,9 @@ export function KingdomGridWithTimers({
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
   const [movingTileSource, setMovingTileSource] = useState<{ x: number, y: number } | null>(null)
   const [focusCategory, setFocusCategory] = useState<string | null>(null)
+
+  const sanctuaryMode = useGameStore(s => s.sanctuaryMode)
+  const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode)
 
   // -- Hoisted Properties Search/Logic for Type Safety --
   // Seasonal event flags (hoisted for property filtering)
@@ -450,7 +454,8 @@ export function KingdomGridWithTimers({
               (q.mandate_period === 'daily' || !q.mandate_period) && !q.completed
             ).length;
 
-            if (missedDailyCount > 10) {
+            // In Sanctuary mode, we do not spawn chaos rifts
+            if (missedDailyCount > 10 && !useGameStore.getState().sanctuaryMode) {
               // Find all producer tiles currently placed on the grid
               const producerTilesOnGrid: { tileId: string }[] = [];
               grid.forEach(row => {
@@ -471,7 +476,7 @@ export function KingdomGridWithTimers({
                 }
               }
             } else {
-              // Clear chaos rifts if habits are back on track
+              // Clear chaos rifts if habits are back on track or Sanctuary mode is active
               setChaosRiftTiles(prev => (prev.size > 0 ? new Set() : prev));
             }
           }
@@ -1995,6 +2000,29 @@ export function KingdomGridWithTimers({
               );
             })}
           </div>
+
+          {/* Sanctuary Toggle Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setSanctuaryMode(!sanctuaryMode)}
+                className={cn(
+                  "p-1.5 rounded transition-all flex items-center gap-1.5 border border-white/5",
+                  sanctuaryMode 
+                    ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]" 
+                    : "bg-black/20 text-slate-500 hover:text-slate-300 hover:bg-white/5 grayscale"
+                )}
+              >
+                <span className="text-sm">🛡️</span>
+                <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">Sanctuary</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs text-xs">
+                <strong>Sanctuary Mode:</strong> {sanctuaryMode ? 'Active. Necrion\'s wards repel the ruins.' : 'Inactive. Activate to freeze streaks and prevent Ruins from creeping into your kingdom when you need a break.'}
+              </p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Center: Resource HUD */}

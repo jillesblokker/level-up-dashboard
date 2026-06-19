@@ -42,6 +42,7 @@ import { TEXT_CONTENT } from '@/lib/text-content'
 import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
 import { getInventory } from '@/lib/inventory-manager';
 import { loadTileInventory } from '@/lib/data-loaders';
+import { useGameStore } from '@/stores/game-store';
 
 // Character progression types
 interface Title {
@@ -84,6 +85,8 @@ const categoryMeta = {
 
 export default function CharacterPage() {
   const { user } = useUser()
+  const activePartnerId = useGameStore(state => state.activePartnerId);
+  const setActivePartnerId = useGameStore(state => state.setActivePartnerId);
   const loadCitizens = useCitizensStore(state => state.loadCitizens);
   const citizens = useCitizensStore(state => state.citizens);
   const toggleActive = useCitizensStore(state => state.toggleActive);
@@ -1144,19 +1147,6 @@ export default function CharacterPage() {
             </CardContent>
           </Card>
 
-          {/* Legacy Roadmap - Future Unlocks */}
-          <Card className="medieval-card overflow-hidden">
-            <CardHeader className="pb-0">
-              <CardTitle className="text-sm font-serif text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                <Crown className="w-4 h-4" />
-                Legendary Roadmap
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <LegacyRoadmap currentLevel={characterStats.level} />
-            </CardContent>
-          </Card>
-
           {/* Titles and Perks */}
           <div className="flex justify-center w-full">
             <Tabs defaultValue="titles" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -1549,21 +1539,31 @@ export default function CharacterPage() {
                               citizen.favorite ? 'ring-1 ring-amber-500/30 shadow-md shadow-amber-500/5' : ''
                             }`}
                           >
-                            <button
-                              onClick={() => toggleFavorite(user!.id, citizen.id)}
-                              className="absolute top-3 right-3 z-10 p-1 rounded-full bg-black/60 border border-zinc-800 text-amber-500 hover:scale-110 transition-transform duration-200"
-                              aria-label={citizen.favorite ? "Unfavorite citizen" : "Favorite citizen"}
-                            >
-                              <Star className={`w-4 h-4 ${citizen.favorite ? 'fill-amber-500' : 'text-zinc-400'}`} />
-                            </button>
+                            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+                              <button
+                                onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
+                                className={`p-1 rounded-full border hover:scale-110 transition-transform duration-200 ${
+                                  activePartnerId === citizen.id 
+                                    ? 'bg-amber-500 border-amber-400 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]' 
+                                    : 'bg-black/60 border-zinc-800 text-zinc-400'
+                                }`}
+                                title={activePartnerId === citizen.id ? "Current Partner" : "Set as Partner"}
+                              >
+                                <Heart className={`w-4 h-4 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
+                              </button>
+                              <button
+                                onClick={() => toggleFavorite(user!.id, citizen.id)}
+                                className="p-1 rounded-full bg-black/60 border border-zinc-800 text-amber-500 hover:scale-110 transition-transform duration-200"
+                                aria-label={citizen.favorite ? "Unfavorite citizen" : "Favorite citizen"}
+                              >
+                                <Star className={`w-4 h-4 ${citizen.favorite ? 'fill-amber-500' : 'text-zinc-400'}`} />
+                              </button>
+                            </div>
 
                             <CardHeader className="pb-2 pt-4">
                               <div className="flex justify-between items-start">
                                 <div>
                                   <CardTitle className="font-serif text-base text-white line-clamp-1">{citizen.name}</CardTitle>
-                                  <Badge className={`text-xs mt-1 capitalize font-serif ${habitatBadgeColor}`}>
-                                    {citizen.type} Habitat
-                                  </Badge>
                                 </div>
                               </div>
                             </CardHeader>

@@ -92,3 +92,24 @@ export function getTypeColor(type: CreatureType): string {
         default: return 'text-gray-500 border-gray-500 bg-gray-950/30';
     }
 }
+
+// Map habit categories to creature elements
+export function getHabitElementMapping(category: string): CreatureType {
+    switch (category.toLowerCase()) {
+        case 'might':
+        case 'vitality':
+            return 'Fire';
+        case 'wellness':
+        case 'exploration':
+            return 'Water';
+        case 'castle':
+        case 'honor':
+            return 'Rock';
+        case 'knowledge':
+            return 'Ice';
+        case 'craft':
+            return 'Grass';
+        default:
+            return 'Rock'; // fallback
+    }
+}
