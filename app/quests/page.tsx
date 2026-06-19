@@ -147,8 +147,15 @@ export default function QuestsPage() {
   const { stats } = useCharacterStats();
   const activePartnerId = useGameStore(s => s.activePartnerId);
   const citizens = useCitizensStore(s => s.citizens);
+  const loadCitizens = useCitizensStore(s => s.loadCitizens);
   const userId = user?.id;
   const isUserLoaded = isClerkLoaded;
+
+  useEffect(() => {
+    if (userId) {
+      loadCitizens(userId);
+    }
+  }, [userId, loadCitizens]);
 
   logger.debug('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
