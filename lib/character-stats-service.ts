@@ -31,7 +31,7 @@ export interface CharacterStats {
     title?: string;
     ascension_level?: number;
     sanctuary_mode?: boolean;
-    active_partner_id?: string;
+    active_partner_id?: string | undefined;
     updated_at?: string;
 }
 
