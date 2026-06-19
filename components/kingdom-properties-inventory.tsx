@@ -209,9 +209,22 @@ export function KingdomPropertiesInventory({
 
   // ─── Item card renderer (Equipped / Stored) ───────────────────────────────
   const renderItemCard = (item: any) => {
-    const compItem = comprehensiveItems.find(i => i.id === item.id);
+    // Try to match by item.id first, then fallback to item.name (since some DB items store the ID string in the name column)
+    const compItem = comprehensiveItems.find(i => 
+      i.id === item.id || 
+      i.id === item.name || 
+      i.id === item.name?.toLowerCase() ||
+      i.id === item.name?.toLowerCase().replace(/\s+/g, '-')
+    );
     const emoji = item.emoji || compItem?.emoji;
     const image = item.image || compItem?.image;
+    
+    // Use the official comprehensive name if found, otherwise fallback to the raw DB name.
+    // Also, specifically format based on user request if they prefer shorter names, but official names are better.
+    let displayName = compItem?.name || item.name;
+    if (displayName === 'Blanko Armor' || item.name === 'armor-blanko') displayName = 'Blanko';
+    if (displayName === 'Wooden Logs' || item.name === 'material-logs') displayName = 'Logs';
+
     return (
     <div
       key={item.id}
@@ -226,13 +239,13 @@ export function KingdomPropertiesInventory({
         {emoji ? (
           <span className="text-2xl">{emoji}</span>
         ) : image ? (
-          <Image src={image} alt={item.name} fill sizes="48px" className="object-contain rounded-lg" />
+          <Image src={image} alt={displayName} fill sizes="48px" className="object-contain rounded-lg" />
         ) : (
           <span className="text-xl">📦</span>
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className={cn('font-semibold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{item.name}</p>
+        <p className={cn('font-semibold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <Badge variant="secondary" className="text-[9px] py-0 h-4 capitalize">{item.type}</Badge>
           {item.equipped && <Badge className="text-[9px] py-0 h-4 bg-amber-600">Equipped</Badge>}
