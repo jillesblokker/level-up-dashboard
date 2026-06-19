@@ -311,7 +311,9 @@ class CharacterStatsService {
                     kingdom_expansions: currentStats.kingdom_expansions,
                     display_name: currentStats.display_name,
                     title: currentStats.title,
-                    ascension_level: currentStats.ascension_level
+                    ascension_level: currentStats.ascension_level,
+                    sanctuary_mode: currentStats.sanctuary_mode,
+                    active_partner_id: currentStats.active_partner_id
                 }
             };
 
@@ -369,7 +371,9 @@ class CharacterStatsService {
             streak_tokens: stats.streak_tokens,
             display_name: stats.display_name,
             title: stats.title,
-            ascension_level: stats.ascension_level
+            ascension_level: stats.ascension_level,
+            sanctuary_mode: stats.sanctuary_mode,
+            active_partner_id: stats.active_partner_id
         };
 
         setUserScopedItem('character-stats', JSON.stringify(localStorageStats));
@@ -396,7 +400,9 @@ class CharacterStatsService {
             kingdom_expansions: 0,
             display_name: 'Adventurer',
             title: 'Novice',
-            ascension_level: 0
+            ascension_level: 0,
+            sanctuary_mode: false,
+            active_partner_id: undefined
         };
     }
 }
