@@ -98,7 +98,7 @@ export const KingdomTileItem = React.memo(({
       {type === 'castle' && (
         <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
           <p className="text-[10px] text-amber-200 text-center font-serif leading-tight">
-            "The world fell to ruin, but with Necrion's aid, the King's legacy shall be rebuilt."
+            &quot;The world fell to ruin, but with Necrion&apos;s aid, the King&apos;s legacy shall be rebuilt.&quot;
           </p>
         </div>
       )}
