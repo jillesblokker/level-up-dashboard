@@ -1541,17 +1541,6 @@ export default function CharacterPage() {
                           >
                             <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
                               <button
-                                onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
-                                className={`p-1 rounded-full border hover:scale-110 transition-transform duration-200 ${
-                                  activePartnerId === citizen.id 
-                                    ? 'bg-amber-500 border-amber-400 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]' 
-                                    : 'bg-black/60 border-zinc-800 text-zinc-400'
-                                }`}
-                                title={activePartnerId === citizen.id ? "Current Partner" : "Set as Partner"}
-                              >
-                                <Heart className={`w-4 h-4 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
-                              </button>
-                              <button
                                 onClick={() => toggleFavorite(user!.id, citizen.id)}
                                 className="p-1 rounded-full bg-black/60 border border-zinc-800 text-amber-500 hover:scale-110 transition-transform duration-200"
                                 aria-label={citizen.favorite ? "Unfavorite citizen" : "Favorite citizen"}
@@ -1634,6 +1623,21 @@ export default function CharacterPage() {
                             </CardContent>
 
                             <CardFooter className="flex flex-col gap-2 pt-2 pb-4 px-4">
+                              {/* ── Partner Toggle ── */}
+                              <Button
+                                size="sm"
+                                variant={activePartnerId === citizen.id ? "default" : "outline"}
+                                className={`w-full font-semibold text-sm ${
+                                  activePartnerId === citizen.id
+                                    ? 'bg-amber-500 text-black hover:bg-amber-400 border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                                    : 'border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-amber-900/40 hover:border-amber-700/50 hover:text-amber-200'
+                                }`}
+                                onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
+                              >
+                                <Heart className={`w-3.5 h-3.5 mr-1.5 shrink-0 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
+                                {activePartnerId === citizen.id ? "Partnered" : "Set as Partner"}
+                              </Button>
+
                               {/* ── Map Toggle ── */}
                               <Button
                                 size="sm"
