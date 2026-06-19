@@ -242,10 +242,16 @@ export const KingdomTileItem = React.memo(({
             "min-h-[16px] md:min-h-[24px] flex items-center justify-center shrink-0"
           )}>
             {isReady ? (
-              <div className="flex items-center justify-center gap-1">
+              <div className="flex items-center justify-center gap-1 relative">
+                {type === 'bakery' && <span className="absolute -top-6 animate-bounce text-xl drop-shadow-md z-50">🍞</span>}
+                {type === 'blacksmith' && <span className="absolute -top-6 animate-bounce text-xl drop-shadow-md z-50">🔨</span>}
                 <Check className="w-3 h-3 md:hidden" />
                 <Sparkles className="hidden md:block w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="whitespace-nowrap hidden md:inline">Ready!</span>
+                <span className="whitespace-nowrap hidden md:inline">
+                  {type === 'bakery' ? 'Food Ready!' : 
+                   type === 'blacksmith' ? 'Crafting Ready!' : 
+                   'Ready!'}
+                </span>
               </div>
             ) : (
               <div className="flex items-center justify-center gap-0.5 md:gap-1">

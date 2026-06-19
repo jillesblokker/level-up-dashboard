@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Shield, Play, Palette, Bell } from "lucide-react"
+import { ArrowLeft, Save, User, Shield, Play, Palette, Bell, HeartPulse, Gamepad2 } from "lucide-react"
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager"
 import Link from "next/link"
 // import { useSession, signIn, signOut } from "next-auth/react"
@@ -46,6 +46,7 @@ export default function SettingsPage() {
   const [muteGoldToasts, setMuteGoldToasts] = useState(false)
   const [muteXpToasts, setMuteXpToasts] = useState(false)
   const [muteQuestToasts, setMuteQuestToasts] = useState(false)
+  const [sanctuaryModeActive, setSanctuaryModeActive] = useState(false)
 
   // Load user data
   useEffect(() => {
@@ -101,6 +102,12 @@ export default function SettingsPage() {
           const isEnabled = Boolean(val)
           setDayNightEnabled(isEnabled)
           localStorage.setItem("day-night-cycle-enabled", String(isEnabled))
+        }
+      })
+
+      getUserPreference("sanctuary_mode_active").then(val => {
+        if (val !== null && val !== undefined) {
+          setSanctuaryModeActive(Boolean(val))
         }
       })
 
@@ -194,6 +201,7 @@ export default function SettingsPage() {
               onChange={e => setActiveTab(e.target.value)}
             >
               <option value="profile">{TEXT_CONTENT.settings.tabs.profile}</option>
+              <option value="gameplay">Gameplay</option>
               <option value="appearance">{TEXT_CONTENT.settings.tabs.appearance}</option>
               <option value="account">{TEXT_CONTENT.settings.tabs.account}</option>
             </select>
@@ -202,6 +210,10 @@ export default function SettingsPage() {
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-amber-900/20">
               <User className="mr-2 h-4 w-4" />
               {TEXT_CONTENT.settings.tabs.profile}
+            </TabsTrigger>
+            <TabsTrigger value="gameplay" className="text-white data-[state=active]:bg-amber-900/20">
+              <Gamepad2 className="mr-2 h-4 w-4" />
+              Gameplay
             </TabsTrigger>
             <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-amber-900/20">
               <Palette className="mr-2 h-4 w-4" />
@@ -254,6 +266,44 @@ export default function SettingsPage() {
                   {TEXT_CONTENT.settings.profile.save}
                 </Button>
               </CardFooter>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="gameplay" className="space-y-6">
+            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-white flex items-center">
+                  <Gamepad2 className="w-5 h-5 mr-2 text-amber-500" />
+                  Gameplay Features
+                </CardTitle>
+                <CardDescription className="text-gray-400">Manage mechanics that affect your daily play.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center">
+                      <HeartPulse className="w-4 h-4 mr-2 text-pink-500" />
+                      Sanctuary Mode
+                    </Label>
+                    <p className="text-sm text-gray-400 max-w-md">
+                      Activate this when you are sick, on vacation, or need a break. It freezes all your streaks and prevents negative consequences (like Chaos Rifts) for missing habits.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={sanctuaryModeActive}
+                    onCheckedChange={(checked) => {
+                      setSanctuaryModeActive(checked)
+                      localStorage.setItem("pref:sanctuary_mode_active", checked.toString())
+                      setUserPreference("sanctuary_mode_active", checked)
+
+                      toast({
+                        title: checked ? "Sanctuary Mode Enabled 🛡️" : "Sanctuary Mode Disabled",
+                        description: checked ? "Your streaks and kingdom are safe." : "Welcome back to the journey!",
+                      })
+                    }}
+                  />
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
 

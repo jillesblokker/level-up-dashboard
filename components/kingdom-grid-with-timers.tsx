@@ -424,6 +424,7 @@ export function KingdomGridWithTimers({
   const [buildTokens, setBuildTokens] = useState(0)
   const [pendingHabits, setPendingHabits] = useState<string[]>([]) // List of building types with incomplete quests
   const [chaosRiftTiles, setChaosRiftTiles] = useState<Set<string>>(new Set()) // Set of tile IDs with chaos rift overlay
+  const [momentumState, setMomentumState] = useState<'high' | 'neutral' | 'low'>('neutral')
 
   // Producer tile types that can receive a chaos rift
   const PRODUCER_TILE_TYPES = [
@@ -448,11 +449,20 @@ export function KingdomGridWithTimers({
             const hasPendingMeditation = quests.some((q: any) => q.name === 'Daily Meditation' && !q.completed);
             if (hasPendingMeditation) pending.push('zen-garden');
 
-            // --- CHAOS RIFT LOGIC ---
+            // --- CHAOS RIFT & MOMENTUM LOGIC ---
             // Count daily quests that were NOT completed today
-            const missedDailyCount = quests.filter((q: any) =>
-              (q.mandate_period === 'daily' || !q.mandate_period) && !q.completed
-            ).length;
+            const dailyQuests = quests.filter((q: any) => q.mandate_period === 'daily' || !q.mandate_period);
+            const missedDailyCount = dailyQuests.filter((q: any) => !q.completed).length;
+            const completedDailyCount = dailyQuests.filter((q: any) => q.completed).length;
+            
+            // Calculate Momentum Score
+            const totalDaily = missedDailyCount + completedDailyCount;
+            if (totalDaily > 0) {
+              const completionRatio = completedDailyCount / totalDaily;
+              if (completionRatio >= 0.8) setMomentumState('high');
+              else if (completionRatio <= 0.3) setMomentumState('low');
+              else setMomentumState('neutral');
+            }
 
             // In Sanctuary mode, we do not spawn chaos rifts
             if (missedDailyCount > 10 && !useGameStore.getState().sanctuaryMode) {
@@ -1903,6 +1913,14 @@ export function KingdomGridWithTimers({
         }}
         aria-label="thrivehaven-grid"
       >
+        {/* Momentum Weather Overlays */}
+        {momentumState === 'high' && (
+          <div className="absolute inset-0 pointer-events-none z-10 bg-gradient-to-tr from-amber-500/10 via-transparent to-amber-300/10 mix-blend-overlay animate-pulse shadow-[inset_0_0_50px_rgba(245,158,11,0.2)]" />
+        )}
+        {momentumState === 'low' && (
+          <div className="absolute inset-0 pointer-events-none z-10 bg-slate-900/40 mix-blend-multiply transition-opacity duration-1000 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]" />
+        )}
+
         {/* Living World Creature Layer */}
         <CreatureLayer grid={grid} mapType="kingdom" />
 

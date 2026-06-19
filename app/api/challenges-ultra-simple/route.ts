@@ -215,6 +215,19 @@ export async function PUT(request: Request) {
                   newStreak = (existingStreak.current_streak || 0) + 1;
                 } else if (lastCheckIn === today) {
                   newStreak = existingStreak.current_streak || 1;
+                } else {
+                  // Check sanctuary mode
+                  const { data: pref } = await serviceClient
+                    .from('user_preferences')
+                    .select('value')
+                    .eq('user_id', userId)
+                    .eq('key', 'sanctuary_mode_active')
+                    .single();
+                  
+                  if (pref && String(pref.value) === 'true') {
+                    newStreak = (existingStreak.current_streak || 0) + 1;
+                    logger.debug(`[Streak] Sanctuary mode active for ${userId}, preserving streak.`);
+                  }
                 }
               }
 

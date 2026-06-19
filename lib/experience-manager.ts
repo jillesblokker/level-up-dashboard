@@ -7,6 +7,7 @@ import { getCharacterStats, addToCharacterStat, updateCharacterStats } from "@/l
 import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import { loadKingdomGrid } from '@/lib/supabase-persistence-client'
 
 interface Perk {
   id: string;
@@ -97,7 +98,21 @@ export async function gainExperience(amount: number, source: string, category: s
     // Get equipped perks and calculate bonus
     const equippedPerks = await getEquippedPerks()
     const perkBonus = calculatePerkBonus(amount, category, equippedPerks)
-    const totalAmount = amount + perkBonus
+    let totalAmount = amount + perkBonus
+
+    // Library synergy check: +10% EXP
+    try {
+      const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
+      const uid = clerk?.user?.id;
+      if (uid) {
+        const gridData = await loadKingdomGrid(uid);
+        if (gridData && gridData.some(g => g.tile.id === 'library')) {
+          totalAmount = Math.floor(totalAmount * 1.1);
+        }
+      }
+    } catch (e) {
+      logger.error('Failed to check kingdom synergy for EXP:', e);
+    }
 
     // Calculate new stats locally
     const newExperience = currentStats.experience + totalAmount

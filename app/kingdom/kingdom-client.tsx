@@ -38,10 +38,11 @@ import {
 } from "@/components/ui/dialog"
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { EmptyState } from "@/components/ui/empty-state"
-import { Backpack, Sword, LayoutGrid, Compass, Gift, BookOpen, Flame, Skull } from "lucide-react";
+import { Backpack, Sword, LayoutGrid, Compass, Gift, BookOpen, Flame, Skull, Trophy } from "lucide-react";
 import type { InventoryItem as DefaultInventoryItem } from "@/app/lib/default-inventory"
 import type { InventoryItem as ManagerInventoryItem } from "@/lib/inventory-manager"
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import type { Tile, TileType, ConnectionDirection } from '@/types/core-interfaces';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
@@ -1646,16 +1647,25 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <TabsList className="w-full md:w-auto mb-6">
-            <TabsTrigger value="thrivehaven">
-              <LayoutGrid className="w-4 h-4" />
-              <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
-            </TabsTrigger>
-            <TabsTrigger value="journey">
-              <Compass className="w-4 h-4" />
-              <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex w-full md:w-auto mb-6 gap-2">
+            <TabsList className="w-full md:w-auto">
+              <TabsTrigger value="thrivehaven">
+                <LayoutGrid className="w-4 h-4 mr-2" />
+                <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
+              </TabsTrigger>
+              <TabsTrigger value="journey">
+                <Compass className="w-4 h-4 mr-2" />
+                <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <Link href="/kingdom/archive">
+              <Button variant="outline" className="border-amber-900/30 text-amber-500 hover:bg-amber-950/30 hover:text-amber-400">
+                <Trophy className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Archive of Triumphs</span>
+              </Button>
+            </Link>
+          </div>
           <TabsContent value="thrivehaven">
             <div className="flex flex-col items-center justify-center w-full">
               {gridLoading ? (
