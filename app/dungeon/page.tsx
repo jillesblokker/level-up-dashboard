@@ -766,9 +766,7 @@ export default function DungeonPage() {
                       {getTypeEmoji(enemyDef.type)}
                     </div>
 
-                    <div className="border-b border-slate-850/40 pb-2 z-10">
-                      <h3 className="text-lg font-black text-white uppercase tracking-wider truncate max-w-[80%]">{enemyDef.name}</h3>
-                    </div>
+
 
                     {/* Creature Image (Achievement-card style) */}
                     <div className="relative w-full flex-1 my-3 flex items-center justify-center">
@@ -796,7 +794,7 @@ export default function DungeonPage() {
                       </div>
 
                       {/* Stats Row */}
-                      <div className="grid grid-cols-3 gap-0.5 text-[10px] opacity-90 font-mono text-center border-t border-slate-850/30 pt-1.5">
+                      <div className="grid grid-cols-3 gap-0.5 text-[10px] opacity-90 font-mono text-center">
                         <span className="flex items-center justify-center gap-0.5"><span className="text-red-300">⚔️</span>{enemyDef.stats.atk}</span>
                         <span className="flex items-center justify-center gap-0.5"><span className="text-blue-300">🛡️</span>{enemyDef.stats.def}</span>
                         <span className="flex items-center justify-center gap-0.5"><span className="text-green-300">💨</span>{enemyDef.stats.spd}</span>
@@ -888,8 +886,7 @@ export default function DungeonPage() {
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
                             } ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
-                            <div className="flex justify-between items-start z-10 w-full">
-                              <span className="font-black text-xs uppercase tracking-wide truncate max-w-[80%] text-amber-200">{creature.name}</span>
+                            <div className="flex justify-end items-start z-10 w-full">
                               <span className="text-sm filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
                             </div>
 
@@ -901,12 +898,12 @@ export default function DungeonPage() {
                             )}
 
                             {/* Creature Image inside deploy buttons */}
-                            <div className="relative w-full flex-1 my-2 bg-slate-900/40 rounded-xl overflow-hidden flex items-center justify-center border border-slate-850/20">
+                            <div className="relative w-full flex-1 my-2 flex items-center justify-center">
                               <Image
                                 src={`/images/creatures/${creature.id}.png`}
                                 alt={creature.name}
                                 fill
-                                className="object-contain p-2"
+                                className="object-contain scale-[1.25] drop-shadow-lg"
                                 unoptimized
                               />
                             </div>
@@ -925,7 +922,7 @@ export default function DungeonPage() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-0.5 text-[9px] opacity-90 font-mono mt-1.5 z-10 border-t border-slate-850/30 pt-1 text-center w-full">
+                            <div className="grid grid-cols-3 gap-0.5 text-[9px] opacity-90 font-mono mt-1.5 z-10 text-center w-full">
                               <span>⚔️{creature.stats.atk}</span>
                               <span>🛡️{creature.stats.def}</span>
                               <span>💨{creature.stats.spd}</span>
@@ -943,8 +940,7 @@ export default function DungeonPage() {
                       {/* Active Fighter Mini Card */}
                       <div className="relative group w-full max-w-[190px] aspect-[3/4] animate-in zoom-in-95 duration-300">
                         <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-slate-950/95 backdrop-blur-sm relative overflow-hidden shadow-2xl flex flex-col p-4 justify-between rounded-2xl`}>
-                          <div className="flex justify-between items-start z-10 w-full">
-                            <span className="font-black text-xs uppercase tracking-wide truncate max-w-[80%] text-amber-200">{selectedCreature!.name}</span>
+                          <div className="flex justify-end items-start z-10 w-full">
                             <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
                           </div>
 
