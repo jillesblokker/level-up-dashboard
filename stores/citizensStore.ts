@@ -12,6 +12,7 @@ export interface CitizenState {
   lastFedAt: string | null; // ISO String
   activeDays: number; // Duration in days (e.g. 1, 3, 7)
   lastHarvestedAt: string | null; // ISO String
+  affection: number;
 }
 
 export interface Citizen {
@@ -32,6 +33,7 @@ export interface Citizen {
   lastFedAt: string | null;
   activeDays: number;
   lastHarvestedAt: string | null;
+  affection: number;
 }
 
 interface CitizensStore {
@@ -44,6 +46,8 @@ interface CitizensStore {
   bulkToggleFavorite: (userId: string, citizenIds: string[], value: boolean) => Promise<void>;
   feedCitizen: (userId: string, citizenId: string, foodItemId: string) => Promise<boolean>;
   harvestCitizen: (userId: string, citizenId: string, multiplier?: number) => Promise<boolean>;
+  increaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
+  decreaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
 }
 
 // Map card types/rarity to habitat types
@@ -131,12 +135,13 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         if (id.startsWith('9')) return; // Exclude animal companions
         if (unlockedAchievementIds.has(id)) {
           const def = CREATURE_DEFINITIONS[id]!;
-          const state = savedPrefs[id] || {
+          const state: CitizenState = savedPrefs[id] || {
             active: false,
             favorite: false,
             lastFedAt: null,
             activeDays: 0,
-            lastHarvestedAt: null
+            lastHarvestedAt: null,
+            affection: 0
           };
 
           updatedCitizens.push({
@@ -162,12 +167,13 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         const colorNames = ['red', 'green', 'blue', 'white', 'black'];
         const colorName = colorNames[variantId] || 'red';
         const citizenId = `mythic-${cardId}-${variantId}`;
-        const state = savedPrefs[citizenId] || {
+        const state: CitizenState = savedPrefs[citizenId] || {
           active: false,
           favorite: false,
           lastFedAt: null,
           activeDays: 0,
-          lastHarvestedAt: null
+          lastHarvestedAt: null,
+          affection: 0
         };
 
         updatedCitizens.push({
@@ -212,6 +218,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         lastFedAt: c.lastFedAt,
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
       };
     });
 
@@ -234,6 +241,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         lastFedAt: c.lastFedAt,
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
       };
     });
 
@@ -257,6 +265,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         lastFedAt: c.lastFedAt,
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
       };
     });
 
@@ -315,6 +324,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         lastFedAt: c.lastFedAt,
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
       };
     });
 
@@ -378,6 +388,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         lastFedAt: c.lastFedAt,
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
       };
     });
 
@@ -385,6 +396,64 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     await setUserPreference('citizens_state', citizenPrefs);
     return true;
   },
+
+  increaseAffection: async (userId: string, citizenId: string, amount: number) => {
+    if (!userId || !citizenId) return;
+    const { citizens } = get();
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (!citizen) return;
+
+    const newAffection = Math.min(100, (citizen.affection || 0) + amount);
+    
+    // Optimistic update
+    set(state => ({
+      citizens: state.citizens.map(c => 
+        c.id === citizenId ? { ...c, affection: newAffection } : c
+      )
+    }));
+
+    // Update backend
+    const citizenState: CitizenState = {
+      active: citizen.active,
+      favorite: citizen.favorite,
+      lastFedAt: citizen.lastFedAt,
+      activeDays: citizen.activeDays,
+      lastHarvestedAt: citizen.lastHarvestedAt,
+      affection: newAffection
+    };
+
+    const currentPrefs = await getUserPreference('citizens_state') || {};
+    await setUserPreference('citizens_state', { ...currentPrefs, [citizen.id]: citizenState });
+  },
+
+  decreaseAffection: async (userId: string, citizenId: string, amount: number) => {
+    if (!userId || !citizenId) return;
+    const { citizens } = get();
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (!citizen) return;
+
+    const newAffection = Math.max(0, (citizen.affection || 0) - amount);
+    
+    // Optimistic update
+    set(state => ({
+      citizens: state.citizens.map(c => 
+        c.id === citizenId ? { ...c, affection: newAffection } : c
+      )
+    }));
+
+    // Update backend
+    const citizenState: CitizenState = {
+      active: citizen.active,
+      favorite: citizen.favorite,
+      lastFedAt: citizen.lastFedAt,
+      activeDays: citizen.activeDays,
+      lastHarvestedAt: citizen.lastHarvestedAt,
+      affection: newAffection
+    };
+
+    const currentPrefs = await getUserPreference('citizens_state') || {};
+    await setUserPreference('citizens_state', { ...currentPrefs, [citizen.id]: citizenState });
+  }
 }));
 
 // Helper to determine if a citizen is currently hungry

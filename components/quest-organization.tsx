@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag, Crown } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -46,6 +46,8 @@ interface QuestOrganizationProps {
   hideCategoryOverview?: boolean
   onlyShowOverviews?: boolean
   isLoading?: boolean
+  bossQuestId?: string | undefined
+  onToggleBossQuest?: ((questId: string) => void) | undefined
 }
 
 const categoryConfig = {
@@ -201,7 +203,9 @@ export function QuestOrganization({
   hideOverview = false,
   hideCategoryOverview = false,
   onlyShowOverviews = false,
-  isLoading = false
+  isLoading = false,
+  bossQuestId,
+  onToggleBossQuest
 }: QuestOrganizationProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
@@ -639,6 +643,20 @@ export function QuestOrganization({
                           )}
                         </div>
                         <div className="flex items-center gap-1">
+                          {context === 'quests' && onToggleBossQuest && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleBossQuest(quest.id);
+                              }}
+                              title={bossQuestId === quest.id ? "Remove Boss Habit" : "Set as Boss Habit"}
+                            >
+                              <Crown className={`h-4 w-4 ${bossQuestId === quest.id ? 'text-amber-500 fill-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-gray-500 hover:text-amber-400'}`} />
+                            </Button>
+                          )}
                           {quest.favorited && <Star className="h-4 w-4 text-amber-400 fill-current" />}
                           <QuestToggleButton
                             questId={quest.id}

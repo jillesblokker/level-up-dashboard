@@ -186,6 +186,10 @@ export async function POST(request: Request) {
           display_name: stats.display_name || existingData?.display_name || 'Adventurer',
           character_name: stats.display_name || existingData?.character_name || 'Adventurer',
           title: stats.title || existingData?.title || 'Novice',
+          ember_essence: Math.max(ensureNumber(stats.ember_essence, 0), ensureNumber(existingJson.ember_essence, 0)),
+          frost_essence: Math.max(ensureNumber(stats.frost_essence, 0), ensureNumber(existingJson.frost_essence, 0)),
+          tide_essence: Math.max(ensureNumber(stats.tide_essence, 0), ensureNumber(existingJson.tide_essence, 0)),
+          verdant_essence: Math.max(ensureNumber(stats.verdant_essence, 0), ensureNumber(existingJson.verdant_essence, 0)),
         }
       };
 

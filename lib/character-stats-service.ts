@@ -32,6 +32,10 @@ export interface CharacterStats {
     ascension_level?: number;
     sanctuary_mode?: boolean;
     active_partner_id?: string | undefined;
+    ember_essence?: number;
+    frost_essence?: number;
+    tide_essence?: number;
+    verdant_essence?: number;
     updated_at?: string;
 }
 
@@ -92,7 +96,11 @@ class CharacterStatsService {
                     title: stats.title || 'Novice',
                     ascension_level: stats.ascension_level || 0,
                     sanctuary_mode: stats.sanctuary_mode || false,
-                    active_partner_id: stats.active_partner_id || undefined
+                    active_partner_id: stats.active_partner_id || undefined,
+                    ember_essence: stats.ember_essence || 0,
+                    frost_essence: stats.frost_essence || 0,
+                    tide_essence: stats.tide_essence || 0,
+                    verdant_essence: stats.verdant_essence || 0
                 };
             }
         } catch (error) {
@@ -206,6 +214,10 @@ class CharacterStatsService {
                         display_name: serverStats.display_name || localStats.display_name || 'Adventurer',
                         title: serverStats.title || localStats.title || 'Novice',
                         ascension_level: Math.max(serverStats.ascension_level || 0, localStats.ascension_level || 0),
+                        ember_essence: Math.max(serverStats.ember_essence || 0, localStats.ember_essence || 0),
+                        frost_essence: Math.max(serverStats.frost_essence || 0, localStats.frost_essence || 0),
+                        tide_essence: Math.max(serverStats.tide_essence || 0, localStats.tide_essence || 0),
+                        verdant_essence: Math.max(serverStats.verdant_essence || 0, localStats.verdant_essence || 0),
                         updated_at: serverStats.updated_at
                     };
 
@@ -313,7 +325,11 @@ class CharacterStatsService {
                     title: currentStats.title,
                     ascension_level: currentStats.ascension_level,
                     sanctuary_mode: currentStats.sanctuary_mode,
-                    active_partner_id: currentStats.active_partner_id
+                    active_partner_id: currentStats.active_partner_id,
+                    ember_essence: currentStats.ember_essence,
+                    frost_essence: currentStats.frost_essence,
+                    tide_essence: currentStats.tide_essence,
+                    verdant_essence: currentStats.verdant_essence
                 }
             };
 
@@ -373,7 +389,11 @@ class CharacterStatsService {
             title: stats.title,
             ascension_level: stats.ascension_level,
             sanctuary_mode: stats.sanctuary_mode,
-            active_partner_id: stats.active_partner_id
+            active_partner_id: stats.active_partner_id,
+            ember_essence: stats.ember_essence,
+            frost_essence: stats.frost_essence,
+            tide_essence: stats.tide_essence,
+            verdant_essence: stats.verdant_essence
         };
 
         setUserScopedItem('character-stats', JSON.stringify(localStorageStats));
@@ -402,7 +422,11 @@ class CharacterStatsService {
             title: 'Novice',
             ascension_level: 0,
             sanctuary_mode: false,
-            active_partner_id: undefined
+            active_partner_id: undefined,
+            ember_essence: 0,
+            frost_essence: 0,
+            tide_essence: 0,
+            verdant_essence: 0
         };
     }
 }

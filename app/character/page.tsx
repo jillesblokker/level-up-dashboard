@@ -43,6 +43,7 @@ import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citiz
 import { getInventory } from '@/lib/inventory-manager';
 import { loadTileInventory } from '@/lib/data-loaders';
 import { useGameStore } from '@/stores/game-store';
+import { CREATURE_DATA, CreatureDef } from '@/app/dungeon/game-logic';
 
 // Character progression types
 interface Title {
@@ -178,6 +179,50 @@ export default function CharacterPage() {
     });
   };
 
+  const handleEvolve = async (citizen: Citizen, requirement: NonNullable<CreatureDef['evolutionRequirement']>) => {
+    if (!user?.id) return;
+    
+    // Check essence
+    const essenceKey = requirement.essenceType as keyof CharacterStats;
+    const currentEssence = (characterStats as any)[essenceKey] || 0;
+    
+    if (currentEssence < requirement.amount) {
+        toast({ title: "Not enough Essence", description: `You need ${requirement.amount} ${requirement.essenceType.replace('_', ' ')}`, variant: "destructive" });
+        return;
+    }
+    
+    try {
+        setIsLoading(true);
+        // Deduct Essence locally
+        const newStats = { ...characterStats, [essenceKey]: currentEssence - requirement.amount };
+        setCharacterStats(newStats);
+        
+        // Deduct remotely
+        await fetch('/api/character-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stats_data: newStats })
+        });
+        
+        // Unlock Evolved Form
+        await fetch('/api/achievements/unlock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ achievementId: requirement.evolvesTo })
+        });
+        
+        toast({ title: "Evolution Complete! ✨", description: `${citizen.name} has evolved into a new form!` });
+        
+        // Reload citizens
+        await loadCitizens(user.id);
+    } catch (e) {
+        logger.error("Failed to evolve", e);
+        toast({ title: "Evolution Failed", description: "Something went wrong.", variant: "destructive" });
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
   const getFedTimeRemaining = (citizen: Citizen): string => {
     if (!citizen.lastFedAt) return "Hungry";
     const fedTime = new Date(citizen.lastFedAt).getTime();
@@ -291,7 +336,11 @@ export default function CharacterPage() {
           gold: stats.gold,
           ascension_level: stats.ascension_level || 0,
           titles: { equipped: '', unlocked: 0, total: 0 },
-          perks: { active: 0, total: 0 }
+          perks: { active: 0, total: 0 },
+          ember_essence: stats.ember_essence || 0,
+          frost_essence: stats.frost_essence || 0,
+          tide_essence: stats.tide_essence || 0,
+          verdant_essence: stats.verdant_essence || 0,
         })
       } catch (error) {
         logger.error('Error loading character stats:', error)
@@ -985,6 +1034,33 @@ export default function CharacterPage() {
                           </AlertDialogContent>
                         </AlertDialog>
                       )}
+                    </div>
+
+                    {/* Essence Inventory */}
+                    <div className="pt-4 mt-4 border-t border-amber-900/20">
+                      <h4 className="text-sm font-medium text-amber-500 mb-3">Essence Inventory</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="flex items-center gap-2 p-2 bg-orange-950/30 rounded-md border border-orange-900/50">
+                          <span className="text-orange-500">🔥</span>
+                          <span className="text-zinc-300 flex-1">Ember</span>
+                          <span className="font-bold text-orange-400">{characterStats.ember_essence || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-cyan-950/30 rounded-md border border-cyan-900/50">
+                          <span className="text-cyan-500">❄️</span>
+                          <span className="text-zinc-300 flex-1">Frost</span>
+                          <span className="font-bold text-cyan-400">{characterStats.frost_essence || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-blue-950/30 rounded-md border border-blue-900/50">
+                          <span className="text-blue-500">💧</span>
+                          <span className="text-zinc-300 flex-1">Tide</span>
+                          <span className="font-bold text-blue-400">{characterStats.tide_essence || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-green-950/30 rounded-md border border-green-900/50">
+                          <span className="text-green-500">🍃</span>
+                          <span className="text-zinc-300 flex-1">Verdant</span>
+                          <span className="font-bold text-green-400">{characterStats.verdant_essence || 0}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -1748,7 +1824,33 @@ export default function CharacterPage() {
                                 <Coins className="w-3.5 h-3.5 mr-1.5 shrink-0" />
                                 {isReadyToHarvest ? 'Harvest Gold ✨' : `Harvest (${harvestRemaining})`}
                               </Button>
-                            </CardFooter>
+
+                                {/* ── Evolve Button ── */}
+                                {(() => {
+                                  const creatureData = CREATURE_DATA[citizen.id];
+                                  if (creatureData && creatureData.evolutionRequirement) {
+                                    const req = creatureData.evolutionRequirement;
+                                    const currentEssence = (characterStats as any)[req.essenceType] || 0;
+                                    const canEvolve = currentEssence >= req.amount;
+                                    return (
+                                      <Button
+                                        size="sm"
+                                        disabled={!canEvolve}
+                                        onClick={() => handleEvolve(citizen, req)}
+                                        className={`w-full mt-2 text-sm font-semibold border-none ${
+                                          canEvolve
+                                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.4)]'
+                                            : 'bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed'
+                                        }`}
+                                      >
+                                        <Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                        Evolve ({req.amount} {req.essenceType.split('_')[0]})
+                                      </Button>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                              </CardFooter>
                           </Card>
                         );
                       })}

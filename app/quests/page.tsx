@@ -99,6 +99,24 @@ const categoryIcons = {
 
 const categoryLabels = TEXT_CONTENT.quests.categories;
 
+function getEssenceTypeForCategory(category: string): 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence' {
+  switch (category.toLowerCase()) {
+    case 'might':
+    case 'vitality':
+      return 'ember_essence';
+    case 'knowledge':
+    case 'exploration':
+      return 'frost_essence';
+    case 'wellness':
+    case 'honor':
+      return 'tide_essence';
+    case 'craft':
+    case 'castle':
+    default:
+      return 'verdant_essence';
+  }
+}
+
 const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
 
 const categoryColorMap: Record<string, string> = {
@@ -193,6 +211,8 @@ export default function QuestsPage() {
 
   const activePartner = citizens.find(c => c.id === activePartnerId);
   const [isPartnerAnimating, setIsPartnerAnimating] = useState(false);
+  const [partnerSpeech, setPartnerSpeech] = useState<string | null>(null);
+  const [bossQuestId, setBossQuestId] = useState<string | undefined>();
 
   // Add missing state variables
   const [streakData, setStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
@@ -686,6 +706,14 @@ export default function QuestsPage() {
     localStorage.setItem(CHALLENGE_LAST_COMPLETED_KEY, JSON.stringify(challengeLastCompleted));
   }, [challengeLastCompleted]);
 
+  useEffect(() => {
+    if (bossQuestId) {
+      localStorage.setItem('boss-quest-id-v1', bossQuestId);
+    } else {
+      localStorage.removeItem('boss-quest-id-v1');
+    }
+  }, [bossQuestId]);
+
   // Fetch streak from Supabase (now via API route)
   useEffect(() => {
     if (!token || !userId || !questCategory) return;
@@ -1036,8 +1064,9 @@ export default function QuestsPage() {
       )
     );
 
-    const goldReward = questObj.gold || 50;
-    const xpReward = questObj.xp || 25;
+    const isBossHabit = questId === bossQuestId;
+    const goldReward = (questObj.gold || 50) * (isBossHabit ? 3 : 1);
+    const xpReward = (questObj.xp || 25) * (isBossHabit ? 3 : 1);
 
     if (newCompleted) {
       logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
@@ -1045,12 +1074,51 @@ export default function QuestsPage() {
       // Trigger partner animation
       if (activePartner) {
         setIsPartnerAnimating(true);
-        setTimeout(() => setIsPartnerAnimating(false), 1000);
+        setPartnerSpeech(Math.random() > 0.5 ? "Woohoo!" : "Yeah!");
+        setTimeout(() => {
+          setIsPartnerAnimating(false);
+          setPartnerSpeech(null);
+        }, 2000);
+
+        // Companion Bonus Loot
+        if (Math.random() < 0.25) { // 25% chance for companion loot
+          if (Math.random() > 0.5) {
+            // Standard Item Drop
+            const extraGold = Math.floor(Math.random() * 20) + 10;
+            addToCharacterStat('gold', extraGold, 'companion-bonus');
+            toast({
+              title: `${activePartner.name} found something!`,
+              description: `Your companion found an extra ${extraGold} Gold!`,
+              duration: 3000,
+            });
+          } else {
+            // Companion Gift (Affection boost)
+            useCitizensStore.getState().increaseAffection(userId, activePartner.id, 5);
+            toast({
+              title: "Companion Gift! 🎁",
+              description: `${activePartner.name} gave you a gift! Affection +5`,
+              duration: 3000,
+            });
+          }
+        }
       }
 
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `quest-completion:${questId}`);
       addToCharacterStat('experience', xpReward, `quest-completion:${questId}`);
+
+      if (isBossHabit) {
+        toast({
+          title: "👑 Boss Habit Defeated! 👑",
+          description: "Massive rewards earned! +3x Gold, EXP, and Essence!",
+          duration: 4000,
+        });
+      }
+
+      // Award Specific Essence based on category
+      const essenceType = getEssenceTypeForCategory(questObj.category);
+      const essenceReward = Math.max(5, Math.floor(xpReward / 2)); // Give essence proportional to XP
+      addToCharacterStat(essenceType, essenceReward, `quest-completion-essence:${questId}`);
 
       // Check Personal Records
       // We calculate new completion count optimistically
@@ -2432,6 +2500,8 @@ export default function QuestsPage() {
                         hideOverview={true}
                         hideCategoryOverview={true}
                         isLoading={loading}
+                        bossQuestId={bossQuestId}
+                        onToggleBossQuest={(id) => setBossQuestId(prev => prev === id ? undefined : id)}
                       />
                     ) : (
                       <QuestOrganization
@@ -2641,8 +2711,14 @@ export default function QuestsPage() {
         {/* Partner Creature Display */}
         {activePartner && (
           <div 
-            className={`fixed bottom-24 right-4 z-40 transition-transform duration-300 pointer-events-none ${isPartnerAnimating ? 'scale-125 -translate-y-4' : 'scale-100 hover:scale-110'} md:bottom-8 md:right-8`}
+            className={`fixed bottom-24 right-4 z-40 transition-transform duration-300 pointer-events-none ${isPartnerAnimating ? 'scale-125 -translate-y-4' : 'scale-100 hover:scale-110'} md:bottom-8 md:right-8 flex flex-col items-center`}
           >
+            {partnerSpeech && (
+              <div className="mb-2 bg-white text-black px-3 py-1 rounded-2xl shadow-lg relative animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300">
+                <p className="text-sm font-bold">{partnerSpeech}</p>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
+              </div>
+            )}
             <div className="relative w-24 h-24 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
               <Image
                 src={activePartner.isMythic ? `/images/Mythics/${activePartner.filename}?v=2` : `/images/creatures/${activePartner.filename}`}

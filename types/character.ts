@@ -13,6 +13,10 @@ export interface CharacterStats {
     active: number;
     total: number;
   };
+  ember_essence?: number;
+  frost_essence?: number;
+  tide_essence?: number;
+  verdant_essence?: number;
 }
 
 export interface ExperienceGain {
