@@ -208,7 +208,11 @@ export function KingdomPropertiesInventory({
   };
 
   // ─── Item card renderer (Equipped / Stored) ───────────────────────────────
-  const renderItemCard = (item: any) => (
+  const renderItemCard = (item: any) => {
+    const compItem = comprehensiveItems.find(i => i.id === item.id);
+    const emoji = item.emoji || compItem?.emoji;
+    const image = item.image || compItem?.image;
+    return (
     <div
       key={item.id}
       className={cn(
@@ -219,10 +223,10 @@ export function KingdomPropertiesInventory({
       )}
     >
       <div className="w-12 h-12 shrink-0 relative bg-black/40 rounded-lg flex items-center justify-center border border-white/5">
-        {item.emoji ? (
-          <span className="text-2xl">{item.emoji}</span>
-        ) : item.image ? (
-          <Image src={item.image} alt={item.name} fill sizes="48px" className="object-contain rounded-lg" />
+        {emoji ? (
+          <span className="text-2xl">{emoji}</span>
+        ) : image ? (
+          <Image src={image} alt={item.name} fill sizes="48px" className="object-contain rounded-lg" />
         ) : (
           <span className="text-xl">📦</span>
         )}
@@ -259,7 +263,8 @@ export function KingdomPropertiesInventory({
         </div>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
@@ -272,18 +277,6 @@ export function KingdomPropertiesInventory({
               <h2 className="text-3xl font-serif text-amber-400 tracking-wide mb-1">Inventory</h2>
               <p className="text-amber-500/60 text-sm">Kingdom · Bag · Forge</p>
             </div>
-            {onForgeSuccess && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => {
-                  onForgeSuccess();
-                }} 
-                className="border-amber-700/50 text-amber-500 hover:bg-amber-900/30 text-xs h-7 px-3 flex items-center gap-1.5"
-              >
-                <span className="text-sm">🔄</span> Refresh Data
-              </Button>
-            )}
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} className="text-amber-500 hover:text-amber-300 hover:bg-amber-950/30 rounded-full h-10 w-10">
             <span className="text-2xl">×</span>
@@ -303,13 +296,7 @@ export function KingdomPropertiesInventory({
           </div>
         )}
 
-        {/* DEBUG INFO OVERLAY */}
-        <div className="bg-red-900 text-white text-[10px] p-2 mx-4 mt-2 mb-0 rounded flex justify-between z-50">
-          <span>DEBUG prop_len: {inventoryItems?.length}</span>
-          <span>equipped: {equippedInventory.length}</span>
-          <span>stored: {storedInventory.length}</span>
-          <span>filtered: {filteredStored.length}</span>
-        </div>
+
 
         {/* Tabs */}
         <Tabs
@@ -384,15 +371,6 @@ export function KingdomPropertiesInventory({
                   <span className="text-5xl mb-4">⚔️</span>
                   <h3 className="text-lg font-medium text-amber-500/80 mb-1">Nothing Equipped</h3>
                   <p className="text-sm max-w-xs mb-4">Equip weapons, armor, and shields from your stored items.</p>
-                  {onForgeSuccess && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => onForgeSuccess()} 
-                      className="border-amber-700/50 text-amber-500 hover:bg-amber-900/30"
-                    >
-                      <span className="mr-2">🔄</span> Force Refresh Data
-                    </Button>
-                  )}
                 </div>
               ) : (
                 <div className="space-y-2 pb-8">
@@ -428,15 +406,6 @@ export function KingdomPropertiesInventory({
                     {storedFilter === 'all' ? 'Bag is Empty' : `No ${storedFilter} items`}
                   </h3>
                   <p className="text-sm max-w-xs mb-4">Complete quests, collect from tiles and dungeons to fill your bag.</p>
-                  {onForgeSuccess && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => onForgeSuccess()} 
-                      className="border-amber-700/50 text-amber-500 hover:bg-amber-900/30"
-                    >
-                      <span className="mr-2">🔄</span> Force Refresh Data
-                    </Button>
-                  )}
                 </div>
               ) : (
                 <div className="space-y-2 pb-8">
