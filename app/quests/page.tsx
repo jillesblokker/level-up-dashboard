@@ -25,6 +25,7 @@ import QuestCard from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
