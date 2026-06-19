@@ -186,7 +186,7 @@ export default function DungeonPage() {
           
           todaysCompleted.forEach((q: any) => {
             const el = getHabitElementMapping(q.category);
-            buffs[el] += 1;
+            buffs[el] = (buffs[el] || 0) + 1;
           });
           setElementBuffs(buffs);
         }
