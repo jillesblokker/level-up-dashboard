@@ -95,6 +95,8 @@ interface KingdomGridWithTimersProps {
   onTileMove?: ((updatedGrid: Tile[][], x: number, y: number, tile: Tile) => void) | undefined
   onTileStash?: ((updatedGrid: Tile[][], x: number, y: number, tileId: string) => void) | undefined
   playerLevel?: number
+  inventoryItems?: any[]
+  onForgeSuccess?: () => void
 }
 
 interface TileTimer {
@@ -122,7 +124,9 @@ export function KingdomGridWithTimers({
   onInventoryUpdate,
   onTileMove,
   onTileStash,
-  playerLevel = 1
+  playerLevel = 1,
+  inventoryItems = [],
+  onForgeSuccess,
 }: KingdomGridWithTimersProps) {
   const { toast } = useToast()
   const router = useRouter()
@@ -2103,12 +2107,13 @@ export function KingdomGridWithTimers({
         )}
       </AnimatePresence>
 
-      {/* Properties Inventory Panel (Replaced inline code with component) */}
       <KingdomPropertiesInventory
         open={propertiesOpen}
         onClose={() => setPropertiesOpen(false)}
         inventory={inventory}
         grid={grid}
+        inventoryItems={inventoryItems}
+        onForgeSuccess={onForgeSuccess}
         tiles={getAvailableProperties().map(p => ({ ...p, image: p.image?.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
         selectedTile={selectedInventoryTile}
         setSelectedTile={(tile) => {

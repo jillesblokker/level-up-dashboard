@@ -1687,6 +1687,11 @@ export function KingdomClient() {
                       userId={user?.id || null}
                       playerLevel={playerLevel}
                       onInventoryUpdate={isVisiting ? undefined : handleInventoryUpdate}
+                      inventoryItems={[
+                        ...equippedItems.map(i => ({ ...i, equipped: true, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) })),
+                        ...storedItems.map(i => ({ ...i, equipped: false, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) }))
+                      ]}
+                      onForgeSuccess={loadInventory}
                     />
                   </MedievalErrorBoundary>
                 </div>
