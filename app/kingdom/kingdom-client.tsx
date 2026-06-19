@@ -1908,7 +1908,7 @@ export function KingdomClient() {
         grid={kingdomGrid}
         inventoryItems={[
           ...equippedItems.map(i => ({ ...i, equipped: true, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) })),
-          ...mergedItems.map(i => ({ ...i, equipped: false, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) }))
+          ...storedItems.map(i => ({ ...i, equipped: false, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) }))
         ]}
         userId={user?.id ?? null}
         onForgeSuccess={loadInventory}

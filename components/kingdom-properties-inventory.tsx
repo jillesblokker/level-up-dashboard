@@ -383,7 +383,16 @@ export function KingdomPropertiesInventory({
                 <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400 border border-dashed border-gray-700 rounded-xl bg-black/20">
                   <span className="text-5xl mb-4">⚔️</span>
                   <h3 className="text-lg font-medium text-amber-500/80 mb-1">Nothing Equipped</h3>
-                  <p className="text-sm max-w-xs">Equip weapons, armor, and shields from your stored items.</p>
+                  <p className="text-sm max-w-xs mb-4">Equip weapons, armor, and shields from your stored items.</p>
+                  {onForgeSuccess && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => onForgeSuccess()} 
+                      className="border-amber-700/50 text-amber-500 hover:bg-amber-900/30"
+                    >
+                      <span className="mr-2">🔄</span> Force Refresh Data
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2 pb-8">
@@ -418,7 +427,16 @@ export function KingdomPropertiesInventory({
                   <h3 className="text-lg font-medium text-amber-500/80 mb-1">
                     {storedFilter === 'all' ? 'Bag is Empty' : `No ${storedFilter} items`}
                   </h3>
-                  <p className="text-sm max-w-xs">Complete quests, collect from tiles and dungeons to fill your bag.</p>
+                  <p className="text-sm max-w-xs mb-4">Complete quests, collect from tiles and dungeons to fill your bag.</p>
+                  {onForgeSuccess && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => onForgeSuccess()} 
+                      className="border-amber-700/50 text-amber-500 hover:bg-amber-900/30"
+                    >
+                      <span className="mr-2">🔄</span> Force Refresh Data
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2 pb-8">
