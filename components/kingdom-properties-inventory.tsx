@@ -73,9 +73,9 @@ interface KingdomPropertiesInventoryProps {
   tokens?: number;
   playerLevel?: number;
   grid?: Tile[][];
-  inventoryItems?: any[];
+  inventoryItems?: any[] | undefined;
   userId?: string | null;
-  onForgeSuccess?: () => void;
+  onForgeSuccess?: (() => void) | undefined;
   onEquip?: (item: any) => void;
   onUnequip?: (item: any) => void;
   onSell?: (item: any) => void;

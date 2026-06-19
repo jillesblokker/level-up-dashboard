@@ -95,8 +95,8 @@ interface KingdomGridWithTimersProps {
   onTileMove?: ((updatedGrid: Tile[][], x: number, y: number, tile: Tile) => void) | undefined
   onTileStash?: ((updatedGrid: Tile[][], x: number, y: number, tileId: string) => void) | undefined
   playerLevel?: number
-  inventoryItems?: any[]
-  onForgeSuccess?: () => void
+  inventoryItems?: any[] | undefined
+  onForgeSuccess?: (() => void) | undefined
 }
 
 interface TileTimer {
