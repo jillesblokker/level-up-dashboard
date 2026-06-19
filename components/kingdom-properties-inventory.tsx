@@ -209,21 +209,39 @@ export function KingdomPropertiesInventory({
 
   // ─── Item card renderer (Equipped / Stored) ───────────────────────────────
   const renderItemCard = (item: any) => {
-    // Try to match by item.id first, then fallback to item.name (since some DB items store the ID string in the name column)
+    const rawName = typeof item.name === 'string' ? item.name : '';
+    const cleanName = rawName.replace(/\.(webp|png|jpg|jpeg)$/i, '').trim();
+
+    // Try to match by item.id first, then fallback to cleanName (since some DB items store the ID string in the name column)
     const compItem = comprehensiveItems.find(i => 
       i.id === item.id || 
-      i.id === item.name || 
-      i.id === item.name?.toLowerCase() ||
-      i.id === item.name?.toLowerCase().replace(/\s+/g, '-')
+      i.id === cleanName || 
+      i.id === cleanName.toLowerCase() ||
+      i.id === cleanName.toLowerCase().replace(/\s+/g, '-')
     );
     const emoji = item.emoji || compItem?.emoji;
-    const image = item.image || compItem?.image;
+    
+    let defaultImage = '';
+    if (!compItem && cleanName.startsWith('material-')) {
+      defaultImage = `/images/items/materials/${cleanName}.webp`;
+    } else if (!compItem && cleanName.startsWith('armor-')) {
+      defaultImage = `/images/items/armor/${cleanName}.webp`;
+    } else if (!compItem && cleanName.startsWith('potion-')) {
+      defaultImage = `/images/items/potion/${cleanName}.webp`;
+    }
+    
+    const image = item.image || compItem?.image || defaultImage;
     
     // Use the official comprehensive name if found, otherwise fallback to the raw DB name.
     // Also, specifically format based on user request if they prefer shorter names, but official names are better.
-    let displayName = compItem?.name || item.name;
-    if (displayName === 'Blanko Armor' || item.name === 'armor-blanko') displayName = 'Blanko';
-    if (displayName === 'Wooden Logs' || item.name === 'material-logs') displayName = 'Logs';
+    let displayName = compItem?.name || cleanName;
+    if (displayName === 'Blanko Armor' || cleanName === 'armor-blanko') displayName = 'Blanko';
+    if (displayName === 'Wooden Logs' || cleanName === 'material-logs') displayName = 'Logs';
+    if (displayName === 'Wooden Planks' || cleanName === 'material-planks') displayName = 'Planks';
+    if (displayName === 'Normalo Armor' || cleanName === 'armor-normalo') displayName = 'Normalo';
+    if (cleanName === 'material-stone-block') displayName = 'Stone';
+
+    const displayType = compItem?.type || item.type;
 
     return (
     <div
@@ -247,7 +265,7 @@ export function KingdomPropertiesInventory({
       <div className="flex-1 min-w-0">
         <p className={cn('font-semibold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <Badge variant="secondary" className="text-[9px] py-0 h-4 capitalize">{item.type}</Badge>
+          {displayType !== 'item' && <Badge variant="secondary" className="text-[9px] py-0 h-4 capitalize">{displayType}</Badge>}
           {item.equipped && <Badge className="text-[9px] py-0 h-4 bg-amber-600">Equipped</Badge>}
         </div>
       </div>
