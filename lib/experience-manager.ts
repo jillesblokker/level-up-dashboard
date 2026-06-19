@@ -106,7 +106,7 @@ export async function gainExperience(amount: number, source: string, category: s
       const uid = clerk?.user?.id;
       if (uid) {
         const gridData = await loadKingdomGrid(uid);
-        if (gridData && gridData.some(g => g.tile.id === 'library')) {
+        if (gridData && gridData.some((g: any) => g.tile && g.tile.id === 'library')) {
           totalAmount = Math.floor(totalAmount * 1.1);
         }
       }
