@@ -65,6 +65,7 @@ export async function GET() {
       streakDays: streakData?.current_streak ?? 0,
       updatedAt: data.updated_at ?? statsJson.updated_at,
       stats: {
+        ...statsJson, // Include all fields saved in stats_data
         gold: data.gold ?? statsJson.gold ?? 0,
         experience: data.experience ?? statsJson.experience ?? 0,
         level: data.level ?? statsJson.level ?? 1,
@@ -72,7 +73,11 @@ export async function GET() {
         max_health: data.max_health ?? statsJson.max_health ?? 100,
         build_tokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
         kingdom_expansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
-        updated_at: data.updated_at ?? statsJson.updated_at
+        updated_at: data.updated_at ?? statsJson.updated_at,
+        active_partner_id: data.active_partner_id ?? statsJson.active_partner_id,
+        sanctuary_mode: data.sanctuary_mode ?? statsJson.sanctuary_mode ?? false,
+        display_name: data.display_name ?? statsJson.display_name ?? 'Adventurer',
+        title: data.title ?? statsJson.title ?? 'Novice'
       }
     });
   } catch (error) {

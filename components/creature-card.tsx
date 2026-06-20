@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Creature } from '@/stores/creatureStore';
+import { useCitizensStore } from '@/stores/citizensStore';
+import { Star } from 'lucide-react';
 
 interface CreatureCardProps {
   creature: Creature;
@@ -18,6 +20,8 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
 
   // Consider a card as effectively discovered if it's actually discovered or in preview mode
   const isEffectivelyDiscovered = discovered || previewMode;
+  const citizens = useCitizensStore(state => state.citizens);
+  const citizen = citizens.find(c => c.id === creature.id);
 
   if (!showCard) {
     return (
@@ -85,6 +89,24 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
               <p className="text-white font-semibold">{creature.stats.type}</p>
             </div>
           </div>
+
+          {citizen && (
+            <div className="mt-3 p-2 bg-amber-950/40 border border-amber-900/50 rounded flex justify-between items-center">
+              <div>
+                <p className="text-amber-500/80 text-[10px] uppercase font-bold tracking-wider">Bond</p>
+                <div className="flex gap-0.5 mt-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className={`w-3 h-3 ${i < Math.floor((citizen.affection || 0) / 20) ? 'fill-amber-400 text-amber-400' : 'text-zinc-700'}`} />
+                  ))}
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-amber-500/80 text-[10px] uppercase font-bold tracking-wider">Citizen</p>
+                <p className="text-amber-400 text-xs font-semibold">{citizen.active ? 'Wandering' : 'Resting'}</p>
+              </div>
+            </div>
+          )}
+
           <div className="mt-3 sm:mt-4">
             <p className="text-gray-400 text-xs sm:text-sm">Description</p>
             <p className="text-white text-xs sm:text-sm leading-relaxed mt-0.5">{creature.description}</p>
