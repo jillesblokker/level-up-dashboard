@@ -17,8 +17,11 @@ export default function ArchiveOfTriumphsPage() {
     setStats(getCharacterStats())
   }, [])
 
-  // Find highest affection citizens (top 3)
-  const topCitizens = [...citizens]
+  // Find citizens that have a history of being a partner (affection > 0)
+  const partnerCitizens = citizens.filter(c => c.affection > 0)
+  
+  // Get top 3 highest affection
+  const topCitizens = [...partnerCitizens]
     .sort((a, b) => b.affection - a.affection)
     .slice(0, 3)
 
@@ -57,7 +60,7 @@ export default function ArchiveOfTriumphsPage() {
           </div>
           
           {topCitizens.length === 0 ? (
-            <p className="text-zinc-500 italic">Your hall stands empty. Befriend citizens in your journey.</p>
+            <p className="text-zinc-500 italic">Your hall stands empty. Befriend citizens in your journey to see your most loyal partners here.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {topCitizens.map((citizen, idx) => (
@@ -78,10 +81,10 @@ export default function ArchiveOfTriumphsPage() {
                         {/* Simulate a stone statue filter */}
                         <div className="w-full h-full bg-zinc-700/50 rounded-full animate-pulse absolute inset-0 -z-10 blur-xl" />
                         <img 
-                          src={`/images/citizens/${citizen.type}.webp`} 
+                          src={citizen.isMythic ? `/images/Mythics/${citizen.filename}?v=2` : `/images/creatures/${citizen.filename}`} 
                           alt={citizen.name} 
                           className="w-full h-full object-contain filter contrast-125 sepia-[0.3]" 
-                          onError={(e) => { e.currentTarget.src = "/images/citizens/villager.webp" }}
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
                         />
                       </div>
                       
