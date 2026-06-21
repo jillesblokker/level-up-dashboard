@@ -28,6 +28,8 @@ interface KingdomTileItemProps {
   formatTimeRemaining: (endTime: number) => string
 }
 
+import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
+
 export const KingdomTileItem = React.memo(({
   x,
   y,
@@ -50,6 +52,10 @@ export const KingdomTileItem = React.memo(({
   const isKingdomTile = tile.type !== 'vacant'
   const type = tile.type?.toLowerCase()
   
+  // Use KINGDOM_TILES as the source of truth for the image to bypass stale paths in DB
+  const libraryTile = KINGDOM_TILES.find(t => t.id === type)
+  const actualImage = libraryTile?.image || tile.image || ''
+
   // Synergy Aura logic hoisted for efficiency
   let auraColor = ''
   let synergyLabel = ''
@@ -84,14 +90,16 @@ export const KingdomTileItem = React.memo(({
         className="absolute inset-0 flex items-center justify-center p-0.5 md:p-1 transition-transform duration-500"
         style={{ transform: `rotate(${tile.rotation || 0}deg)` }}
       >
-        <Image
-          src={tile.image?.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-          alt={tile.name || tile.type}
-          fill
-          sizes="(max-width: 768px) 10vw, 5vw"
-          className="object-contain transition-transform duration-500 group-hover:scale-110"
-          unoptimized={tile.image.endsWith('.gif')}
-        />
+        {actualImage && (
+          <Image
+            src={actualImage.startsWith('/') ? actualImage : `/images/kingdom-tiles/${actualImage}`}
+            alt={tile.name || tile.type}
+            fill
+            sizes="(max-width: 768px) 10vw, 5vw"
+            className="object-contain transition-transform duration-500 group-hover:scale-110"
+            unoptimized={actualImage.endsWith('.gif')}
+          />
+        )}
       </div>
 
       {/* Castle Story Overlay */}

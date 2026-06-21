@@ -178,7 +178,10 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
   }
 
   const getTileImage = () => {
-    return `/images/kingdom-tiles/${tile.name}.webp`
+    if (tile.image) {
+      return tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`
+    }
+    return `/images/kingdom-tiles/${tile.name.replace(/ /g, '')}.webp`
   }
 
   return (
