@@ -476,6 +476,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     alt={tile.name}
                                     fill
                                     className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                    unoptimized={true}
                                   />
                                   <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                                     {tile.quantity}
@@ -632,6 +633,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     alt={tile.name}
                                     fill
                                     className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                    unoptimized={true}
                                   />
                                   <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                                     {tile.quantity}

@@ -202,6 +202,7 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
                 alt={tile.name}
                 fill
                 className="object-contain"
+                unoptimized={true}
               />
             </div>
 

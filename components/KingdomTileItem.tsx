@@ -97,7 +97,7 @@ export const KingdomTileItem = React.memo(({
             fill
             sizes="(max-width: 768px) 10vw, 5vw"
             className="object-contain transition-transform duration-500 group-hover:scale-110"
-            unoptimized={actualImage.endsWith('.gif')}
+            unoptimized={true}
           />
         )}
       </div>
