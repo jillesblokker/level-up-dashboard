@@ -11,6 +11,7 @@ import { useUser } from "@clerk/nextjs"
 import QuestCard from "@/components/quest-card"
 import { HeaderSection } from "@/components/HeaderSection"
 import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind, Star } from "lucide-react"
+import { useGameStore } from "@/stores/game-store"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatGold } from "@/lib/utils"
@@ -59,6 +60,7 @@ interface GoldTransaction {
 export function DailyHubClient() {
     const { user } = useUser()
     const router = useRouter()
+    const activePartnerId = useGameStore(state => state.activePartnerId)
 
     const [stats, setStats] = useState<CharacterStats>({
         level: 1,
@@ -319,7 +321,7 @@ export function DailyHubClient() {
                 
                 {/* Active Partner Widget (Fixed Bottom Left) */}
                 {(() => {
-                    const activePartner = citizens.find(c => c.active);
+                    const activePartner = citizens.find(c => c.id === activePartnerId);
                     if (!activePartner) return null;
                     const bondLevel = Math.floor(activePartner.affection / 100) + 1;
                     const bondProgress = activePartner.affection % 100;
@@ -788,7 +790,7 @@ export function DailyHubClient() {
                             <h3 className="text-[11px] uppercase tracking-widest text-amber-500/70 text-center mb-3 font-semibold">Overnight Chronicle</h3>
                             <div className="bg-black/40 rounded-lg p-4 border border-zinc-800/50 flex flex-col gap-3">
                                 {(() => {
-                                    const activePartner = citizens.find(c => c.active);
+                                    const activePartner = citizens.find(c => c.id === activePartnerId);
                                     if (activePartner) {
                                         const bondLevel = Math.floor(activePartner.affection / 100) + 1;
                                         return (
