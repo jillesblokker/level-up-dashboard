@@ -24,7 +24,7 @@ const nextConfig = {
       },
     ],
     dangerouslyAllowSVG: true,
-    unoptimized: false,
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'], // AVIF first — better compression
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days — static art assets don't change
   },
