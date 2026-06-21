@@ -1,26 +1,40 @@
 "use client"
 
-import React, { useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { motion } from 'framer-motion'
 
 export function ConsistencyChart() {
-  // Mock data for the last 7 days of consistency
-  // In a real app, this would be computed from the user's completed quests/habits history
-  const data = useMemo(() => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const today = new Date().getDay(); // 0 = Sun, 1 = Mon, etc.
-    
-    // Generate a satisfying upwards trend for the demo
-    return Array.from({ length: 7 }).map((_, i) => {
-      const dayIndex = (today - 6 + i + 7) % 7;
-      return {
-        name: days[dayIndex === 0 ? 6 : dayIndex - 1], // Map to Mon-Sun
-        quests: Math.floor(Math.random() * 3) + 2 + (i * 0.5), // Upward trend
-      }
-    });
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
   }, []);
+
+  const data = [
+    { name: 'Mon', quests: 2 },
+    { name: 'Tue', quests: 3 },
+    { name: 'Wed', quests: 2 },
+    { name: 'Thu', quests: 4 },
+    { name: 'Fri', quests: 5 },
+    { name: 'Sat', quests: 4 },
+    { name: 'Sun', quests: 6 },
+  ];
+
+  if (!isMounted) {
+    return (
+      <Card className="border-amber-900/30 bg-zinc-950 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.05)]">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold text-amber-500 font-medieval tracking-wide">7-Day Consistency</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[200px] w-full mt-4 flex items-center justify-center text-zinc-600">
+            Loading...
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="border-amber-900/30 bg-zinc-950 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.05)]">
