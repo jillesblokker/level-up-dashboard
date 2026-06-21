@@ -150,6 +150,12 @@ class CharacterStatsService {
         if (updates.ascension_level !== undefined) newStats.ascension_level = updates.ascension_level;
         if (updates.sanctuary_mode !== undefined) newStats.sanctuary_mode = updates.sanctuary_mode;
         if (updates.active_partner_id !== undefined) newStats.active_partner_id = updates.active_partner_id;
+        
+        // Handle essence
+        if (updates.ember_essence !== undefined) newStats.ember_essence = updates.ember_essence;
+        if (updates.frost_essence !== undefined) newStats.frost_essence = updates.frost_essence;
+        if (updates.tide_essence !== undefined) newStats.tide_essence = updates.tide_essence;
+        if (updates.verdant_essence !== undefined) newStats.verdant_essence = updates.verdant_essence;
 
         // Save to local storage immediately
         this.saveToLocalStorage(newStats);

@@ -34,6 +34,7 @@ export async function GET(request: Request) {
         const completion = completionMap.get(String(m.id));
         return {
           ...m,
+          experience: m.xp,
           completed: completion?.completed ?? false,
           completionId: completion?.id,
           date: completion?.date,
