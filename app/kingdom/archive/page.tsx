@@ -94,6 +94,13 @@ export default function ArchiveOfTriumphsPage() {
                     <CardContent className="p-6 flex flex-col items-center text-center relative z-10">
                       {idx === 0 && <Crown className="absolute top-4 left-4 w-6 h-6 text-amber-400 drop-shadow-md" />}
                       
+                      {/* Bond Level in Upper Right */}
+                      <div className="absolute top-4 right-4 bg-zinc-950/80 px-2 py-1 rounded border border-white/5 flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={cn("w-3 h-3", i < Math.floor((citizen.affection || 0) / 20) ? "text-amber-400 fill-amber-400" : "text-zinc-700")} />
+                        ))}
+                      </div>
+
                       <div className="w-32 h-32 mb-6 relative">
                         {/* Simulate a stone statue filter */}
                         <div className="w-full h-full bg-zinc-700/50 rounded-full animate-pulse absolute inset-0 -z-10 blur-xl" />
@@ -106,16 +113,7 @@ export default function ArchiveOfTriumphsPage() {
                       </div>
                       
                       <h3 className="text-xl font-bold font-serif text-amber-100 mb-1">{citizen.name}</h3>
-                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider mb-4">{citizen.type}</p>
-                      
-                      <div className="bg-zinc-950 p-3 rounded-lg w-full border border-white/5">
-                        <p className="text-xs text-zinc-400 mb-1">Affection</p>
-                        <div className="flex items-center justify-center gap-1">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className={cn("w-3 h-3", i < Math.floor((citizen.affection || 0) / 20) ? "text-amber-400 fill-amber-400" : "text-zinc-700")} />
-                          ))}
-                        </div>
-                      </div>
+                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider">{citizen.type}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -160,7 +158,13 @@ export default function ArchiveOfTriumphsPage() {
               </div>
               <CardContent className="p-6 relative z-10">
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Titles Unlocked</p>
-                <div className="text-3xl font-mono text-amber-400 font-bold">{stats.titles?.unlocked || 0} / {stats.titles?.total || 10}</div>
+                <div className="text-3xl font-mono text-amber-400 font-bold">
+                  {(() => {
+                    const { TITLES } = require('@/lib/title-manager');
+                    const unlocked = TITLES.filter((t: any) => stats.level >= t.level).length;
+                    return `${unlocked} / ${TITLES.length}`;
+                  })()}
+                </div>
                 <div className="mt-4 h-1 w-12 bg-amber-600/50" />
               </CardContent>
             </Card>

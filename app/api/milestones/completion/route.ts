@@ -63,7 +63,7 @@ export async function PUT(request: Request) {
     if (completed) {
       const { data: milestone, error: milestoneError } = await supabaseServer
         .from('milestones')
-        .select('id, name, xp, gold')
+        .select('id, name, xp, gold, category')
         .eq('id', milestoneId)
         .single();
       if (milestoneError || !milestone) {
@@ -79,6 +79,38 @@ export async function PUT(request: Request) {
           relatedId: milestoneId,
           amount: milestone.xp,
           context: { gold: milestone.gold || 0, source: 'milestone_completion' }
+        });
+        
+        // Also grant Essence based on category and XP
+        const category = (milestone.category || '').toLowerCase();
+        let essenceType: 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
+        switch (category) {
+          case 'might':
+          case 'vitality':
+            essenceType = 'ember_essence';
+            break;
+          case 'knowledge':
+          case 'exploration':
+            essenceType = 'frost_essence';
+            break;
+          case 'wellness':
+          case 'honor':
+            essenceType = 'tide_essence';
+            break;
+          case 'craft':
+          case 'castle':
+          default:
+            essenceType = 'verdant_essence';
+            break;
+        }
+        
+        const essenceReward = Math.max(5, Math.floor(milestone.xp / 2));
+        await grantReward({
+          userId,
+          type: essenceType,
+          relatedId: milestoneId,
+          amount: essenceReward,
+          context: { source: 'milestone_completion' }
         });
       }
       if (milestone.gold && milestone.gold > 0) {

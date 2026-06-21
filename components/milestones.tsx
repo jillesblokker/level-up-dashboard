@@ -511,33 +511,61 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       setStreaks(prev => ({ ...prev, [id]: 0 }));
       setCompletionDates(prev => { const copy = { ...prev }; delete copy[id]; return copy; });
     }
-    // Persist to backend if milestone exists in backend
-    const milestone = milestones.find(m => m.id === id);
-    if (milestone && token) {
-      try {
-        // Upsert completion row
-        await fetch('/api/milestones/completion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ milestoneId: milestone.id }),
-        });
-        // Update completed status
-        await fetch('/api/milestones/completion', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ milestoneId: milestone.id, completed: isNowComplete }),
-        });
-        // Emit kingdom event for stats
-        if (isNowComplete) {
-          import('@/lib/kingdom-events').then(mod => {
-            mod.emitQuestCompletedWithRewards(milestone.name, milestone.gold, milestone.experience, 'milestone');
+      // Persist to backend if milestone exists in backend
+      const milestone = milestones.find(m => m.id === id);
+      if (milestone && token) {
+        try {
+          // Upsert completion row
+          await fetch('/api/milestones/completion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ milestoneId: milestone.id }),
           });
+          // Update completed status
+          await fetch('/api/milestones/completion', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ milestoneId: milestone.id, completed: isNowComplete }),
+          });
+          // Emit kingdom event for stats
+          if (isNowComplete) {
+            import('@/lib/kingdom-events').then(mod => {
+              mod.emitQuestCompletedWithRewards(milestone.name, milestone.gold, milestone.experience, 'milestone');
+            });
+            // Award local essence if applicable
+            if (milestone.experience && milestone.experience > 0) {
+              const category = (milestone.category || '').toLowerCase();
+              let essenceType: 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
+              switch (category) {
+                case 'might':
+                case 'vitality':
+                  essenceType = 'ember_essence';
+                  break;
+                case 'knowledge':
+                case 'exploration':
+                  essenceType = 'frost_essence';
+                  break;
+                case 'wellness':
+                case 'honor':
+                  essenceType = 'tide_essence';
+                  break;
+                case 'craft':
+                case 'castle':
+                default:
+                  essenceType = 'verdant_essence';
+                  break;
+              }
+              const essenceReward = Math.max(5, Math.floor(milestone.experience / 2));
+              import('@/lib/character-stats-service').then(mod => {
+                mod.addToCharacterStat(essenceType, essenceReward, 'milestone_completion');
+              });
+            }
+          }
+        } catch (err) {
+          logger.error('Failed to persist milestone completion:', err);
         }
-      } catch (err) {
-        logger.error('Failed to persist milestone completion:', err);
       }
-    }
-  };
+    };
 
   // Polling for milestone changes using centralized service
   useEffect(() => {

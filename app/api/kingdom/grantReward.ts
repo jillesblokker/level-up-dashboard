@@ -2,7 +2,7 @@ import { logger } from "@/lib/logger";
 import { logKingdomEvent } from './logKingdomEvent';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
-export type RewardType = 'exp' | 'gold' | 'item' | 'achievement' | 'custom' | 'challenge' | 'quest';
+export type RewardType = 'exp' | 'gold' | 'item' | 'achievement' | 'custom' | 'challenge' | 'quest' | 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
 
 function mapRewardTypeToEventType(type: RewardType): 'quest' | 'challenge' | 'gold' | 'exp' | 'reward' {
   switch (type) {
@@ -40,7 +40,7 @@ export async function grantReward({
       // Fetch current stats
       const { data: currentStats } = await supabaseServer
         .from('character_stats')
-        .select('gold, experience, level')
+        .select('*')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -81,6 +81,20 @@ export async function grantReward({
             onConflict: 'user_id'
           });
         logger.debug('[grantReward] XP updated:', { old: currentXP, new: newXP, added: amount, level: newLevel });
+      } else if (['ember_essence', 'frost_essence', 'tide_essence', 'verdant_essence'].includes(type)) {
+        const currentEssence = currentStats?.[type] || 0;
+        const newEssence = currentEssence + amount;
+        
+        await supabaseServer
+          .from('character_stats')
+          .upsert({
+            user_id: userId,
+            [type]: newEssence,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+        logger.debug(`[grantReward] ${type} updated:`, { old: currentEssence, new: newEssence, added: amount });
       }
     } catch (error) {
       logger.error('[grantReward] Error updating character stats:', error);
