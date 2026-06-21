@@ -41,10 +41,12 @@ export interface ButtonProps
 
 import { motion } from "framer-motion"
 
+const MotionButton = motion.create("button")
+const MotionSlot = motion.create(Slot as any)
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
-    const MotionComp = motion.create(Comp as any)
+    const MotionComp = asChild ? MotionSlot : MotionButton
     return (
       <MotionComp
         whileTap={!props.disabled ? { scale: 0.97 } : {}}
