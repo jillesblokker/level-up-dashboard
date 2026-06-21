@@ -27,45 +27,45 @@ import { getUserScopedItem } from "@/lib/user-scoped-storage"
 // Static definition of all possible tiles to prevent re-creation on every render
 const allPossibleTiles: Tile[] = [
   // Foundation Tiles (Level 0-20)
-  { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.png' },
-  { id: 'crossroad', name: 'Crossroad', type: 'crossroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crossroad tile', image: '/images/kingdom-tiles/Crossroad.png' },
-  { id: 'straightroad', name: 'Straight Road', type: 'straightroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Straight Road tile', image: '/images/kingdom-tiles/Straightroad.png' },
-  { id: 'cornerroad', name: 'Corner Road', type: 'cornerroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Corner Road tile', image: '/images/kingdom-tiles/Cornerroad.png' },
-  { id: 'tsplitroad', name: 'T-Split Road', type: 'tsplitroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'T-Split Road tile', image: '/images/kingdom-tiles/Tsplitroad.png' },
-  { id: 'water', name: 'Water', type: 'water', quantity: 0, cost: 50, connections: [], description: 'Water body', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Water tile', image: '/images/tiles/water-tile.png' },
-  { id: 'forest', name: 'Forest', type: 'forest', quantity: 0, cost: 75, connections: [], description: 'Dense woodland', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Forest tile', image: '/images/tiles/forest-tile.png' },
-  { id: 'mountain', name: 'Mountain', type: 'mountain', quantity: 0, cost: 100, connections: [], description: 'Rocky terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mountain tile', image: '/images/tiles/mountain-tile.png' },
-  { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 125, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.png' },
-  { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 150, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.png' },
+  { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.webp' },
+  { id: 'crossroad', name: 'Crossroad', type: 'crossroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crossroad tile', image: '/images/kingdom-tiles/Crossroad.webp' },
+  { id: 'straightroad', name: 'Straight Road', type: 'straightroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Straight Road tile', image: '/images/kingdom-tiles/Straightroad.webp' },
+  { id: 'cornerroad', name: 'Corner Road', type: 'cornerroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Corner Road tile', image: '/images/kingdom-tiles/Cornerroad.webp' },
+  { id: 'tsplitroad', name: 'T-Split Road', type: 'tsplitroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'T-Split Road tile', image: '/images/kingdom-tiles/Tsplitroad.webp' },
+  { id: 'water', name: 'Water', type: 'water', quantity: 0, cost: 50, connections: [], description: 'Water body', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Water tile', image: '/images/tiles/water-tile.webp' },
+  { id: 'forest', name: 'Forest', type: 'forest', quantity: 0, cost: 75, connections: [], description: 'Dense woodland', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Forest tile', image: '/images/tiles/forest-tile.webp' },
+  { id: 'mountain', name: 'Mountain', type: 'mountain', quantity: 0, cost: 100, connections: [], description: 'Rocky terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mountain tile', image: '/images/tiles/mountain-tile.webp' },
+  { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 125, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.webp' },
+  { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 150, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.webp' },
 
   // Settlement Tiles (Level 20-40)
-  { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.png' },
-  { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.png' },
+  { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.webp' },
+  { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.webp' },
 
   // Development Tiles (Level 40-60)
-  { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.png' },
-  { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.png' },
-  { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.png' },
-  { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.png' },
+  { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.webp' },
+  { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.webp' },
+  { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
+  { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
 
   // Advanced Tiles (Level 60-80)
-  { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.png' },
-  { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.png' },
-  { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.png' },
-  { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.png' },
+  { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.webp' },
+  { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.webp' },
+  { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.webp' },
+  { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.webp' },
 
   // Consumables
-  { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.png', unlocked: true },
+  { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.webp', unlocked: true },
 
   // New Realm Tiles (Adventure & Mystic)
-  { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.png' },
-  { id: 'jungle', name: 'Jungle', type: 'jungle', quantity: 0, cost: 100, connections: [], description: 'Dense tropical jungle', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jungle tile', image: '/images/tiles/jungle-tile.png' },
-  { id: 'oasis', name: 'Oasis', type: 'oasis', quantity: 0, cost: 120, connections: [], description: 'A refreshing desert oasis', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Oasis tile', image: '/images/tiles/oasis-tile.png' },
-  { id: 'coral_reef', name: 'Mermaid', type: 'coral_reef', quantity: 0, cost: 150, connections: [], description: 'A mermaid resting on a rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mermaid tile', image: '/images/tiles/coral_reef-tile.png' },
-  { id: 'graveyard', name: 'Graveyard', type: 'graveyard', quantity: 0, cost: 150, connections: [], description: 'Spooky resting place', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Graveyard tile', image: '/images/tiles/graveyard-tile.png' },
-  { id: 'ruins', name: 'Ancient Ruins', type: 'ruins', quantity: 0, cost: 150, connections: [], description: 'Ancient mysterious ruins', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ancient Ruins tile', image: '/images/tiles/ruins-tile.png' },
-  { id: 'crystal_cavern', name: 'Crystal Cavern', type: 'crystal_cavern', quantity: 0, cost: 200, connections: [], description: 'Cave filled with magical crystals', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crystal Cavern tile', image: '/images/tiles/crystal_cavern-tile.png' },
-  { id: 'floating_island', name: 'Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious island accessible by boat', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.png' }
+  { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.webp' },
+  { id: 'jungle', name: 'Jungle', type: 'jungle', quantity: 0, cost: 100, connections: [], description: 'Dense tropical jungle', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jungle tile', image: '/images/tiles/jungle-tile.webp' },
+  { id: 'oasis', name: 'Oasis', type: 'oasis', quantity: 0, cost: 120, connections: [], description: 'A refreshing desert oasis', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Oasis tile', image: '/images/tiles/oasis-tile.webp' },
+  { id: 'coral_reef', name: 'Mermaid', type: 'coral_reef', quantity: 0, cost: 150, connections: [], description: 'A mermaid resting on a rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mermaid tile', image: '/images/tiles/coral_reef-tile.webp' },
+  { id: 'graveyard', name: 'Graveyard', type: 'graveyard', quantity: 0, cost: 150, connections: [], description: 'Spooky resting place', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Graveyard tile', image: '/images/tiles/graveyard-tile.webp' },
+  { id: 'ruins', name: 'Ancient Ruins', type: 'ruins', quantity: 0, cost: 150, connections: [], description: 'Ancient mysterious ruins', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ancient Ruins tile', image: '/images/tiles/ruins-tile.webp' },
+  { id: 'crystal_cavern', name: 'Crystal Cavern', type: 'crystal_cavern', quantity: 0, cost: 200, connections: [], description: 'Cave filled with magical crystals', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crystal Cavern tile', image: '/images/tiles/crystal_cavern-tile.webp' },
+  { id: 'floating_island', name: 'Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious island accessible by boat', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.webp' }
 ];
 
 // Tile categories with logical organization
@@ -336,19 +336,19 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     switch (type) {
       case 'city':
-        return '/images/tiles/city-tile.png'
+        return '/images/tiles/city-tile.webp'
       case 'town':
-        return '/images/tiles/town-tile.png'
+        return '/images/tiles/town-tile.webp'
       case 'crossroad':
-        return '/images/kingdom-tiles/Crossroad.png'
+        return '/images/kingdom-tiles/Crossroad.webp'
       case 'straightroad':
-        return '/images/kingdom-tiles/Straightroad.png'
+        return '/images/kingdom-tiles/Straightroad.webp'
       case 'cornerroad':
-        return '/images/kingdom-tiles/Cornerroad.png'
+        return '/images/kingdom-tiles/Cornerroad.webp'
       case 'tsplitroad':
-        return '/images/kingdom-tiles/Tsplitroad.png'
+        return '/images/kingdom-tiles/Tsplitroad.webp'
       default:
-        return `/images/tiles/${type}-tile.png`
+        return `/images/tiles/${type}-tile.webp`
     }
   }
 
@@ -727,7 +727,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-100 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/farm-tile.png" alt="Farm" width={40} height={40} className="object-cover" />
+                      <Image src="/images/tiles/farm-tile.webp" alt="Farm" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Farm</h4>
@@ -746,7 +746,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-800 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/lumber_mill-tile.png" alt="Lumber Mill" width={40} height={40} className="object-cover" />
+                      <Image src="/images/tiles/lumber_mill-tile.webp" alt="Lumber Mill" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Lumber Mill</h4>
@@ -765,7 +765,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-red-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/market-tile.png" alt="Market" width={40} height={40} className="object-cover" />
+                      <Image src="/images/tiles/market-tile.webp" alt="Market" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Market</h4>
@@ -784,7 +784,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-zinc-700 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/castle-tile.png" alt="Castle" width={40} height={40} className="object-cover" />
+                      <Image src="/images/tiles/castle-tile.webp" alt="Castle" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Castle</h4>
@@ -803,7 +803,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/fountain-tile.png" alt="Fountain" width={40} height={40} className="object-cover" />
+                      <Image src="/images/tiles/fountain-tile.webp" alt="Fountain" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Water Buildings</h4>
@@ -825,7 +825,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/blacksmith-tile.png" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/blacksmith-tile.webp" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Blacksmith</h4>
@@ -844,7 +844,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-700 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/inn-tile.png" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/inn-tile.webp" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Shops & Inns</h4>
@@ -866,7 +866,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-purple-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/wizard-tile.png" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/wizard-tile.webp" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Magic & Study</h4>
@@ -888,7 +888,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-green-800 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/vegetables-tile.png" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/tiles/vegetables-tile.webp" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Crops</h4>
