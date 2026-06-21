@@ -7,9 +7,10 @@ interface AnimatedNumberProps {
   value: number;
   formatFn?: (val: number) => string | number;
   className?: string;
+  title?: string;
 }
 
-export function AnimatedNumber({ value, formatFn, className }: AnimatedNumberProps) {
+export function AnimatedNumber({ value, formatFn, className, title }: AnimatedNumberProps) {
   const [displayValue, setDisplayValue] = useState(value);
   
   // A snappy but lightweight spring config
@@ -33,7 +34,7 @@ export function AnimatedNumber({ value, formatFn, className }: AnimatedNumberPro
   const formatted = formatFn ? formatFn(displayValue) : displayValue;
 
   return (
-    <motion.span className={className}>
+    <motion.span className={className} title={title}>
       {formatted}
     </motion.span>
   );
