@@ -839,11 +839,11 @@ export function isLucky(chance: number): boolean {
 
 export function getRarityColor(rarity: string): string {
   switch (rarity) {
-    case 'common': return 'bg-gray-500 text-white'
+    case 'common': return 'bg-zinc-500 text-white'
     case 'uncommon': return 'bg-green-500 text-white'
     case 'rare': return 'bg-blue-500 text-white'
     case 'epic': return 'bg-purple-500 text-white'
     case 'legendary': return 'bg-amber-500 text-white'
-    default: return 'bg-gray-500 text-white'
+    default: return 'bg-zinc-500 text-white'
   }
 } 
