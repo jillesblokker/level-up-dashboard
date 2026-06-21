@@ -12,6 +12,7 @@ import QuestCard from "@/components/quest-card"
 import { HeaderSection } from "@/components/HeaderSection"
 import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind, Star } from "lucide-react"
 import { useGameStore } from "@/stores/game-store"
+import { ConsistencyChart } from "@/components/consistency-chart"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatGold } from "@/lib/utils"
@@ -632,6 +633,15 @@ export function DailyHubClient() {
                             <span className="text-purple-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.newQuest}</span>
                         </Button>
                     </Link>
+                </motion.div>
+
+                {/* Data Visualizations */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.18 }}
+                >
+                    <ConsistencyChart />
                 </motion.div>
 
                 {/* Favorited Quests */}

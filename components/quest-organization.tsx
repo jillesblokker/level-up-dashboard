@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -612,16 +613,36 @@ export function QuestOrganization({
                 className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800"
               />
             ) : (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
-                {sortedQuests.map((quest) => (
-                  <Card
-                    key={quest.id}
-                    className={`border transition-all duration-300 hover:shadow-lg ${quest.completed
-                      ? 'border-green-800/30 bg-green-900/10'
-                      : 'border-amber-800/20 bg-zinc-900 hover:border-amber-500/40'
-                      }`}
-                    aria-label={`Quest card: ${quest.name}`}
-                  >
+              <motion.div 
+                className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.05 }
+                  }
+                }}
+                initial="hidden"
+                animate="show"
+              >
+                <AnimatePresence mode="popLayout">
+                  {sortedQuests.map((quest) => (
+                    <motion.div 
+                      key={quest.id} 
+                      layout
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+                      }}
+                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                    >
+                      <Card
+                        className={`border transition-all duration-300 hover:shadow-lg ${quest.completed
+                          ? 'border-green-800/30 bg-green-900/10'
+                          : 'border-amber-800/20 bg-zinc-900 hover:border-amber-500/40'
+                          }`}
+                        aria-label={`Quest card: ${quest.name}`}
+                      >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -768,27 +789,37 @@ export function QuestOrganization({
                       </div>
                     </CardContent>
                   </Card>
+                </motion.div>
                 ))}
 
                 {/* Add Quest Card */}
-                <Card
-                  className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-zinc-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group"
-                  onClick={onAddQuest}
-                  aria-label="Add new quest"
+                <motion.div 
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+                  }}
                 >
-                  <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center min-h-[200px]">
-                    <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-800/30 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 group-hover:border-amber-600/50 group-hover:scale-110 transition-all">
-                      <Plus className="h-8 w-8 text-amber-500 group-hover:text-amber-400" />
-                    </div>
-                    <h3 className="font-semibold text-amber-400 mb-2 group-hover:text-amber-300">
-                      {currentLabels.addButton}
-                    </h3>
-                    <p className="text-sm text-zinc-400 group-hover:text-zinc-300">
-                      Create a new {context === 'quests' ? 'quest' : context === 'challenges' ? 'challenge' : 'milestone'} to track
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
+                  <Card
+                    className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-zinc-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group"
+                    onClick={onAddQuest}
+                    aria-label="Add new quest"
+                  >
+                    <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center min-h-[200px]">
+                      <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-800/30 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 group-hover:border-amber-600/50 group-hover:scale-110 transition-all">
+                        <Plus className="h-8 w-8 text-amber-500 group-hover:text-amber-400" />
+                      </div>
+                      <h3 className="font-semibold text-amber-400 mb-2 group-hover:text-amber-300">
+                        {currentLabels.addButton}
+                      </h3>
+                      <p className="text-sm text-zinc-400 group-hover:text-zinc-300">
+                        Create a new {context === 'quests' ? 'quest' : context === 'challenges' ? 'challenge' : 'milestone'} to track
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+                </AnimatePresence>
+              </motion.div>
             )}
           </div>
         </>

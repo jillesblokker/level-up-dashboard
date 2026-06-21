@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { audioManager } from '@/lib/audio-manager'
 
 interface AudioSettings {
   masterVolume: number
@@ -338,31 +339,37 @@ export function useAudio() {
 
   // Quest completion sound
   const playQuestComplete = useCallback(() => {
+    audioManager.playSuccess()
     playSFX('quest-complete')
   }, [playSFX])
 
   // Level up sound
   const playLevelUp = useCallback(() => {
+    audioManager.playSuccess()
     playSFX('level-up')
   }, [playSFX])
 
   // Gold earned sound
   const playGoldEarned = useCallback(() => {
+    audioManager.playCoin()
     playSFX('gold-earned')
   }, [playSFX])
 
   // XP earned sound
   const playXPEarned = useCallback(() => {
+    audioManager.playCoin()
     playSFX('xp-earned')
   }, [playSFX])
 
   // Button click sound
   const playButtonClick = useCallback(() => {
+    audioManager.playClick()
     playSFX('button-click')
   }, [playSFX])
 
   // Page navigation sound
   const playPageTurn = useCallback(() => {
+    audioManager.playClick()
     playSFX('page-turn')
   }, [playSFX])
 

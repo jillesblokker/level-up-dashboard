@@ -5,10 +5,12 @@ import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
-import { Castle, Coins, Star } from "lucide-react"
+import { Castle, Coins, Star, Volume2, VolumeX } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
+import { AnimatedNumber } from "@/components/ui/animated-number"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { UserNav } from "@/components/user-nav"
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character"
 import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-service"
@@ -17,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useQuickAdd } from "@/components/quick-add-provider"
 import { formatGold } from "@/lib/utils"
+import { audioManager } from "@/lib/audio-manager"
 
 interface CustomSession {
   user?: {
@@ -34,6 +37,7 @@ export function NavBar({ session }: NavBarProps) {
   const { isSignedIn, isLoaded } = useUser()
   const { openQuickAdd } = useQuickAdd()
   const [isClient, setIsClient] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
   const [characterStats, setCharacterStats] = useState({
     level: 1,
     experience: 0,
@@ -152,14 +156,21 @@ export function NavBar({ session }: NavBarProps) {
     }
   }, [characterStats.level]);
 
-  // Load initial notifications
+  // Load initial notifications and mute state
   useEffect(() => {
-    // No need to set notifications as they are already set in the INITIAL_NOTIFICATIONS constant
+    setIsMuted(audioManager.getMuted());
   }, [])
 
   if (!isClient) {
     return null; // Return null on server-side to prevent hydration mismatch
   }
+
+  const toggleMute = () => {
+    const newState = !isMuted;
+    audioManager.setMuted(newState);
+    setIsMuted(newState);
+    if (!newState) audioManager.playClick();
+  };
 
   const levelProgress = calculateLevelProgress(characterStats.experience)
 
@@ -193,7 +204,12 @@ export function NavBar({ session }: NavBarProps) {
               aria-atomic="true"
             >
               <Coins className="h-4 w-4" />
-              <span className="text-sm font-medium" title={`${characterStats.gold} Gold`}>{formatGold(characterStats.gold)}</span>
+              <AnimatedNumber 
+                value={characterStats.gold} 
+                formatFn={(val) => formatGold(val)} 
+                className="text-sm font-medium" 
+                title={`${characterStats.gold} Gold`}
+              />
             </div>
           </div>
           <div className="flex items-center space-x-1 pr-2 border-r border-zinc-800">
@@ -203,11 +219,21 @@ export function NavBar({ session }: NavBarProps) {
               className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full"
               onClick={() => {
                 logger.debug('[NavBar] Quick Add clicked')
+                audioManager.playClick();
                 openQuickAdd()
               }}
               title="Quick Add Quest (N)"
             >
               <Plus className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-zinc-500 hover:text-zinc-400 hover:bg-zinc-800/50 rounded-full ml-1"
+              onClick={toggleMute}
+              title={isMuted ? "Unmute Sounds" : "Mute Sounds"}
+            >
+              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </Button>
           </div>
           <div className="relative">
