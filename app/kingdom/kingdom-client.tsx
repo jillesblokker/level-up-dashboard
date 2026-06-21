@@ -1647,7 +1647,7 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <div className="flex w-full md:w-auto mb-6 gap-2">
+          <div className="flex w-full mb-6 justify-between items-center gap-2">
             <TabsList className="w-full md:w-auto">
               <TabsTrigger value="thrivehaven">
                 <LayoutGrid className="w-4 h-4 mr-2" />

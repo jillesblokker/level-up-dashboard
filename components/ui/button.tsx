@@ -39,22 +39,14 @@ export interface ButtonProps
   asChild?: boolean
 }
 
-import { motion } from "framer-motion"
-
-const MotionButton = motion.create("button")
-const MotionSlot = motion.create(Slot as any)
-
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const MotionComp = asChild ? MotionSlot : MotionButton
+    const Comp = asChild ? Slot : "button"
     return (
-      <MotionComp
-        whileTap={!props.disabled ? { scale: 0.97 } : {}}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-        aria-label={props["aria-label"] || props.title || "button"}
       />
     )
   }
