@@ -73,9 +73,9 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
 
             {/* Harvest Ready Indicator */}
             {isHarvestReady && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none animate-bounce">
-                    <div className="bg-amber-500 text-white rounded-full p-1 border border-yellow-300 shadow-md flex items-center justify-center w-5.5 h-5.5">
-                        <span className="text-[10px] select-none">🪙</span>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none animate-pulse drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]">
+                    <div className="bg-amber-500 text-white rounded-full p-1 border border-yellow-300 shadow-md flex items-center justify-center w-6 h-6">
+                        <span className="text-xs select-none">🪙</span>
                     </div>
                 </div>
             )}

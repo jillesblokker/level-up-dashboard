@@ -1914,12 +1914,18 @@ export function KingdomGridWithTimers({
         aria-label="thrivehaven-grid"
       >
         {/* Momentum Weather Overlays */}
-        {momentumState === 'high' && (
-          <div className="absolute inset-0 pointer-events-none z-10 bg-gradient-to-tr from-amber-500/10 via-transparent to-amber-300/10 mix-blend-overlay animate-pulse shadow-[inset_0_0_50px_rgba(245,158,11,0.2)]" />
-        )}
-        {momentumState === 'low' && (
-          <div className="absolute inset-0 pointer-events-none z-10 bg-slate-900/40 mix-blend-multiply transition-opacity duration-1000 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]" />
-        )}
+        <div 
+          className={cn(
+            "absolute inset-0 pointer-events-none z-10 bg-gradient-to-tr from-amber-500/10 via-transparent to-amber-300/10 mix-blend-overlay animate-pulse shadow-[inset_0_0_50px_rgba(245,158,11,0.2)] transition-opacity duration-1000 ease-in-out",
+            momentumState === 'high' ? "opacity-100" : "opacity-0"
+          )}
+        />
+        <div 
+          className={cn(
+            "absolute inset-0 pointer-events-none z-10 bg-slate-900/40 mix-blend-multiply transition-opacity duration-1000 ease-in-out shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]",
+            momentumState === 'low' ? "opacity-100" : "opacity-0"
+          )}
+        />
 
         {/* Living World Creature Layer */}
         <CreatureLayer grid={grid} mapType="kingdom" />

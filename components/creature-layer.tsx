@@ -45,9 +45,24 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [inventoryFoods, setInventoryFoods] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
     const [isInteracting, setIsInteracting] = useState(false);
+    const [quoteIndex, setQuoteIndex] = useState(0);
 
     // Get the selected citizen object from the store dynamically
     const selectedCitizen = citizens.find(c => c.id === selectedCitizenId) || null;
+
+    // Rotate quotes every 2 seconds when modal is open
+    useEffect(() => {
+        if (!isModalOpen || !selectedCitizen || !selectedCitizen.greetings || selectedCitizen.greetings.length <= 1) {
+            return;
+        }
+        
+        // Reset to 0 when opening a new citizen
+        const interval = setInterval(() => {
+            setQuoteIndex(prev => (prev + 1) % selectedCitizen.greetings.length);
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, [isModalOpen, selectedCitizen]);
 
     // Update player tile when playerPosition prop changes
     useEffect(() => {
@@ -239,6 +254,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         if (!citizen) return;
 
         setSelectedCitizenId(citizen.id);
+        setQuoteIndex(0); // Reset quote when opening
         setIsModalOpen(true);
 
         if (user?.id) {
@@ -465,8 +481,8 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         </div>
 
                         {/* Speech Bubble / Greeting */}
-                        <div className="mt-4 bg-zinc-900/80 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative">
-                            &ldquo;{selectedCitizen?.greetings[Math.floor(Math.random() * (selectedCitizen?.greetings.length || 1))]}&rdquo;
+                        <div className="mt-4 bg-zinc-900/80 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative transition-opacity duration-300">
+                            &ldquo;{selectedCitizen?.greetings[quoteIndex % (selectedCitizen?.greetings.length || 1)]}&rdquo;
                             <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-zinc-900 rotate-45 border-t border-l border-zinc-800/60" />
                         </div>
                     </div>
@@ -509,7 +525,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                     handleHarvest(synergy.multiplier);
                                 }}
                                 disabled={isInteracting}
-                                className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-serif font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 animate-bounce"
+                                className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-serif font-bold rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.5)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)] transition-all hover:-translate-y-0.5"
                             >
                                 <Coins className="w-4 h-4" /> Collect Gold 💰
                             </Button>

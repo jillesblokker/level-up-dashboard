@@ -10,13 +10,14 @@ import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 import QuestCard from "@/components/quest-card"
 import { HeaderSection } from "@/components/HeaderSection"
-import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind, Star } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatGold } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
+import { useCitizensStore, isHarvestReady } from "@/stores/citizensStore"
 import dynamic from 'next/dynamic'
 const WeeklyChallengesCard = dynamic(
   () => import('@/components/weekly-challenges-card').then((mod) => mod.WeeklyChallengesCard),
@@ -84,12 +85,18 @@ export function DailyHubClient() {
     const [activePerks, setActivePerks] = useState<any[]>([])
     const [timeState, setTimeState] = useState(Date.now())
 
+    // Citizens State
+    const citizens = useCitizensStore(state => state.citizens);
+    const loadCitizens = useCitizensStore(state => state.loadCitizens);
+    const citizensReadyCount = useMemo(() => citizens.filter(isHarvestReady).length, [citizens, timeState]);
+
     useEffect(() => {
         if (user) {
             loadCharacterStats()
             loadFavoritedQuests()
             loadWeeklyGoldStats()
             loadActivePerks()
+            loadCitizens(user.id)
         }
     }, [user])
 
@@ -309,6 +316,55 @@ export function DailyHubClient() {
             <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
+                
+                {/* Active Partner Widget (Fixed Bottom Left) */}
+                {(() => {
+                    const activePartner = citizens.find(c => c.active);
+                    if (!activePartner) return null;
+                    const bondLevel = Math.floor(activePartner.affection / 100) + 1;
+                    const bondProgress = activePartner.affection % 100;
+                    return (
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[9999] w-[calc(100vw-32px)] md:w-[320px] bg-zinc-950/95 border border-amber-700/50 rounded-2xl p-3 flex flex-col gap-3 backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] hover:shadow-[0_0_50px_rgba(245,158,11,0.15)] hover:border-amber-500/80 transition-all group pointer-events-auto"
+                        >
+                            <div className="flex items-center gap-3 w-full">
+                                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-amber-500/50 bg-black flex-shrink-0 group-hover:border-amber-400 transition-colors shadow-inner">
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/40 to-transparent opacity-50 pointer-events-none" />
+                                    <NextImage src={`/images/creatures/${activePartner.filename}`} alt={activePartner.name} fill className="object-contain p-1 relative z-10" />
+                                    <div className="absolute inset-0 bg-amber-500/20 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none" />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-amber-400 font-bold text-sm flex items-center justify-between">
+                                        {activePartner.name}
+                                        <span className="flex text-yellow-400 drop-shadow-md">
+                                            {Array.from({ length: Math.min(5, bondLevel) }).map((_, i) => (
+                                                <Star key={i} className="w-3 h-3 fill-current" />
+                                            ))}
+                                        </span>
+                                    </h3>
+                                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold mt-0.5">Active Partner</p>
+                                </div>
+                            </div>
+                            <div className="w-full bg-black/60 rounded-xl p-2 border border-white/5">
+                                <div className="flex justify-between text-[10px] mb-1 font-bold">
+                                    <span className="text-amber-500/90 tracking-wide uppercase">Bond Progress</span>
+                                    <span className="text-amber-400">{bondProgress} <span className="text-amber-600/70">/ 100</span></span>
+                                </div>
+                                <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden shadow-inner relative">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-amber-600 to-yellow-400 transition-all duration-1000 ease-out relative"
+                                        style={{ width: `${bondProgress}%` }}
+                                    >
+                                        <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    );
+                })()}
 
                 {/* Stats Overview */}
                 <motion.div
@@ -642,7 +698,7 @@ export function DailyHubClient() {
             {/* YESTERDAY'S REPORT CARD MODAL */}
             <Dialog open={showReportCard} onOpenChange={setShowReportCard}>
                 <DialogContent
-                    className="w-[min(90vw,400px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border border-amber-700/30 shadow-amber-500/10 text-white animate-in zoom-in-95 duration-200"
+                    className="w-[min(90vw,400px)] max-h-[90vh] overflow-y-auto p-0 shadow-2xl rounded-2xl bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border border-amber-700/30 shadow-amber-500/10 text-white animate-in zoom-in-95 duration-200"
                     role="dialog"
                     aria-label="yesterday-report-card-modal"
                 >
@@ -726,6 +782,58 @@ export function DailyHubClient() {
                                 </p>
                             </div>
                         )}
+
+                        {/* Daily Chronicle (Passive Generation & Weather) */}
+                        <div className="mt-6 pt-5 border-t border-amber-900/30">
+                            <h3 className="text-[11px] uppercase tracking-widest text-amber-500/70 text-center mb-3 font-semibold">Overnight Chronicle</h3>
+                            <div className="bg-black/40 rounded-lg p-4 border border-zinc-800/50 flex flex-col gap-3">
+                                {(() => {
+                                    const activePartner = citizens.find(c => c.active);
+                                    if (activePartner) {
+                                        const bondLevel = Math.floor(activePartner.affection / 100) + 1;
+                                        return (
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-purple-900/30 flex items-center justify-center shrink-0 border border-purple-700/50">
+                                                    <span className="text-lg">💖</span>
+                                                </div>
+                                                <p className="text-sm text-zinc-300">
+                                                    Your partner <strong className="text-purple-400">{activePartner.name}</strong> is currently at <strong className="text-purple-400">Bond Level {bondLevel}</strong>. Keep completing quests to grow your bond!
+                                                </p>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
+                                
+                                {citizensReadyCount > 0 ? (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-amber-900/30 flex items-center justify-center shrink-0 border border-amber-700/50">
+                                            <span className="text-lg">🪙</span>
+                                        </div>
+                                        <p className="text-sm text-zinc-300">
+                                            Your Citizens are awake! You have <strong className="text-amber-400">{citizensReadyCount} {citizensReadyCount === 1 ? 'Citizen' : 'Citizens'}</strong> ready to be harvested in the Kingdom.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-zinc-900/50 flex items-center justify-center shrink-0 border border-zinc-800">
+                                            <span className="text-lg opacity-50">💤</span>
+                                        </div>
+                                        <p className="text-sm text-zinc-500">
+                                            Your Citizens are resting or still gathering resources. Check back later!
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-blue-900/30 flex items-center justify-center shrink-0 border border-blue-700/50">
+                                        <span className="text-lg">☀️</span>
+                                    </div>
+                                    <p className="text-sm text-zinc-300">
+                                        Current Kingdom Weather is based on your recent momentum. Visit the Realm to see the sky!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Action button */}

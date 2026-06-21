@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export function GameplayLoopIndicator(props: any) {
   return (
-    <Card className="bg-gradient-to-r from-amber-900/20 to-amber-800/20 border-amber-800/30 animate-pulse">
+    <Card className="bg-gradient-to-r from-amber-900/20 to-amber-800/20 border-amber-800/30 shadow-md shadow-amber-900/5">
       <CardContent className="p-4">
         <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-amber-300 font-serif">
           <div className="flex items-center gap-1">
