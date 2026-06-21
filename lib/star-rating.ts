@@ -32,9 +32,9 @@ export const STAR_TIER_NAMES: Record<number, string> = {
 // Colors for each tier (tailwind classes)
 export const STAR_TIER_COLORS: Record<number, { text: string; bg: string; border: string; glow: string }> = {
     0: {
-        text: 'text-zinc-400',
-        bg: 'bg-zinc-800',
-        border: 'border-zinc-700',
+        text: 'text-gray-400',
+        bg: 'bg-gray-800',
+        border: 'border-gray-700',
         glow: ''
     },
     1: {

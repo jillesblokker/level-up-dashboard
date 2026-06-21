@@ -1,4 +1,172 @@
-"use client" import { useEffect, useState, useRef } from 'react';
+"use client"
+
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils'; function Page() { const [doorOpen, setDoorOpen] = useState(false); const [hideBackground, setHideBackground] = useState(false); const [fadeBackground, setFadeBackground] = useState(false); const [scaleBackground, setScaleBackground] = useState(false); const [showOverlay, setShowOverlay] = useState(true); const [announce, setAnnounce] = useState(''); const [isMobilePortrait, setIsMobilePortrait] = useState(false); const [blockInteractions, setBlockInteractions] = useState(true); const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches; const containerRef = useRef<HTMLDivElement>(null); // Detect mobile portrait mode useEffect(() => { function checkMobilePortrait() { if (typeof window === 'undefined') return; const isPortrait = window.matchMedia('(orientation: portrait)').matches; const isMobile = window.innerWidth <= 600; // You can adjust this threshold setIsMobilePortrait(isMobile && isPortrait); } checkMobilePortrait(); window.addEventListener('resize', checkMobilePortrait); window.addEventListener('orientationchange', checkMobilePortrait); return () => { window.removeEventListener('resize', checkMobilePortrait); window.removeEventListener('orientationchange', checkMobilePortrait); }; }, []); // Always show the animation on mount useEffect(() => { setShowOverlay(true); }, []); useEffect(() => { if (!showOverlay) return; if (prefersReducedMotion) { setDoorOpen(true); setFadeBackground(true); setHideBackground(true); setAnnounce('World revealed.'); setTimeout(() => setShowOverlay(false), 500); // Remove overlay quickly return; } // Door animation: 1.5s, background scale starts after 0.5s and lasts 1.5s const INITIAL_DELAY = 1000; // Show start for 1 second const DOOR_ANIMATION_DURATION = 1500; const BG_SCALE_START = INITIAL_DELAY + 200; // Start scaling shortly after door starts const timer = setTimeout(() => { setDoorOpen(true); setAnnounce('The door is opening.'); // Wait for door animation, then remove overlay setTimeout(() => { setFadeBackground(true); setHideBackground(true); // Add a small extra delay before actually unmounting to allow fade to finish setTimeout(() => { setShowOverlay(false); setBlockInteractions(false); }, 800); }, DOOR_ANIMATION_DURATION); }, INITIAL_DELAY); // Camera move-forward effect const scaleTimer = setTimeout(() => { setScaleBackground(true); }, BG_SCALE_START); return () => { clearTimeout(timer); clearTimeout(scaleTimer); }; }, [prefersReducedMotion, showOverlay]); // Accessibility: ARIA live region useEffect(() => { if (announce && containerRef.current) { containerRef.current.setAttribute('aria-live', 'polite'); } }, [announce]); if (!showOverlay || isMobilePortrait) return null; return ( <div ref={containerRef} className={cn( "fixed inset-0 min-h-screen min-w-screen flex items-center justify-center overflow-hidden z-[100]", blockInteractions ? "pointer-events-auto" : "pointer-events-none" )} aria-label="reveal-animation-container" > {/* ARIA live region for screen readers */} <div className="sr-only" aria-live="polite">{announce}</div> {/* Static image as the very bottom layer, always visible until overlay is removed */} <div className="absolute inset-0 z-0 pointer-events-none w-full h-full"> <Image src="/images/Reveal/reveal-static.webp" alt="Reveal Static Background" fill priority className="object-cover" draggable={false} /> </div> {/* Door image as the middle layer, animating upwards */} <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none" style={{ transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)', opacity: doorOpen ? 0 : 1, transitionProperty: 'transform, opacity', transitionDuration: prefersReducedMotion ? '0ms' : '1500ms', transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.7, 0, 0.3, 1)', willChange: 'transform, opacity', width: '100%', height: '100%' }} > <Image src="/images/Reveal/reveal-door.webp" alt="Reveal Door" fill priority className="object-cover" draggable={false} /> </div> {/* Main background image above door, fade out after animation */} {!hideBackground && ( <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity ${fadeBackground ? 'opacity-0' : 'opacity-100'}`} style={{ transitionDuration: '800ms' }} > <Image src="/images/Reveal/reveal-background.webp" alt="Reveal Background" fill priority className={cn( "object-cover transition-transform ease-in-out", scaleBackground ? "scale-[12]" : "scale-100" )} draggable={false} style={{ transition: 'opacity 0.8s, transform 1.5s cubic-bezier(0.7, 0, 0.3, 1)', transitionDuration: '1500ms' }} /> </div> )} {/* Fade-in animation keyframes */} <style jsx global>{` @keyframes fade-in { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } } .animate-fade-in { animation: fade-in 1.2s cubic-bezier(0.32, 0.72, 0, 1) both; } `}</style> </div> );
-} export default Page; 
+import { cn } from '@/lib/utils';
+
+function Page() {
+  const [doorOpen, setDoorOpen] = useState(false);
+  const [hideBackground, setHideBackground] = useState(false);
+  const [fadeBackground, setFadeBackground] = useState(false);
+  const [scaleBackground, setScaleBackground] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [announce, setAnnounce] = useState('');
+  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
+  const [blockInteractions, setBlockInteractions] = useState(true);
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile portrait mode
+  useEffect(() => {
+    function checkMobilePortrait() {
+      if (typeof window === 'undefined') return;
+      const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+      const isMobile = window.innerWidth <= 600; // You can adjust this threshold
+      setIsMobilePortrait(isMobile && isPortrait);
+    }
+    checkMobilePortrait();
+    window.addEventListener('resize', checkMobilePortrait);
+    window.addEventListener('orientationchange', checkMobilePortrait);
+    return () => {
+      window.removeEventListener('resize', checkMobilePortrait);
+      window.removeEventListener('orientationchange', checkMobilePortrait);
+    };
+  }, []);
+
+  // Always show the animation on mount
+  useEffect(() => {
+    setShowOverlay(true);
+  }, []);
+
+  useEffect(() => {
+    if (!showOverlay) return;
+    if (prefersReducedMotion) {
+      setDoorOpen(true);
+      setFadeBackground(true);
+      setHideBackground(true);
+      setAnnounce('World revealed.');
+      setTimeout(() => setShowOverlay(false), 500); // Remove overlay quickly
+      return;
+    }
+    // Door animation: 1.5s, background scale starts after 0.5s and lasts 1.5s
+    const INITIAL_DELAY = 1000; // Show start for 1 second
+    const DOOR_ANIMATION_DURATION = 1500;
+    const BG_SCALE_START = INITIAL_DELAY + 200; // Start scaling shortly after door starts
+
+    const timer = setTimeout(() => {
+      setDoorOpen(true);
+      setAnnounce('The door is opening.');
+      // Wait for door animation, then remove overlay
+      setTimeout(() => {
+        setFadeBackground(true);
+        setHideBackground(true);
+        // Add a small extra delay before actually unmounting to allow fade to finish
+        setTimeout(() => {
+          setShowOverlay(false);
+          setBlockInteractions(false);
+        }, 800);
+      }, DOOR_ANIMATION_DURATION);
+    }, INITIAL_DELAY);
+
+    // Camera move-forward effect
+    const scaleTimer = setTimeout(() => {
+      setScaleBackground(true);
+    }, BG_SCALE_START);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(scaleTimer);
+    };
+  }, [prefersReducedMotion, showOverlay]);
+
+  // Accessibility: ARIA live region
+  useEffect(() => {
+    if (announce && containerRef.current) {
+      containerRef.current.setAttribute('aria-live', 'polite');
+    }
+  }, [announce]);
+
+  if (!showOverlay || isMobilePortrait) return null;
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "fixed inset-0 min-h-screen min-w-screen flex items-center justify-center overflow-hidden z-[100]",
+        blockInteractions ? "pointer-events-auto" : "pointer-events-none"
+      )}
+      aria-label="reveal-animation-container"
+    >
+      {/* ARIA live region for screen readers */}
+      <div className="sr-only" aria-live="polite">{announce}</div>
+      {/* Static image as the very bottom layer, always visible until overlay is removed */}
+      <div className="absolute inset-0 z-0 pointer-events-none w-full h-full">
+        <Image
+          src="/images/Reveal/reveal-static.webp"
+          alt="Reveal Static Background"
+          fill
+          priority
+          className="object-cover"
+          draggable={false}
+        />
+      </div>
+      {/* Door image as the middle layer, animating upwards */}
+      <div
+        className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+        style={{
+          transform: doorOpen ? 'translateY(-100%)' : 'translateY(0)',
+          opacity: doorOpen ? 0 : 1,
+          transitionProperty: 'transform, opacity',
+          transitionDuration: prefersReducedMotion ? '0ms' : '1500ms',
+          transitionTimingFunction: prefersReducedMotion ? 'linear' : 'cubic-bezier(0.7, 0, 0.3, 1)',
+          willChange: 'transform, opacity',
+          width: '100%',
+          height: '100%'
+        }}
+      >
+        <Image
+          src="/images/Reveal/reveal-door.webp"
+          alt="Reveal Door"
+          fill
+          priority
+          className="object-cover"
+          draggable={false}
+        />
+      </div>
+      {/* Main background image above door, fade out after animation */}
+      {!hideBackground && (
+        <div
+          className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-hidden w-full h-full transition-opacity ${fadeBackground ? 'opacity-0' : 'opacity-100'}`}
+          style={{ transitionDuration: '800ms' }}
+        >
+          <Image
+            src="/images/Reveal/reveal-background.webp"
+            alt="Reveal Background"
+            fill
+            priority
+            className={cn(
+              "object-cover transition-transform ease-in-out",
+              scaleBackground ? "scale-[12]" : "scale-100"
+            )}
+            draggable={false}
+            style={{
+              transition: 'opacity 0.8s, transform 1.5s cubic-bezier(0.7, 0, 0.3, 1)',
+              transitionDuration: '1500ms'
+            }}
+          />
+        </div>
+      )}
+      {/* Fade-in animation keyframes */}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+          animation: fade-in 1.2s cubic-bezier(0.32, 0.72, 0, 1) both;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default Page; 

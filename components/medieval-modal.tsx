@@ -1,6 +1,66 @@
-"use client"; import { ReactNode } from 'react';
+"use client";
+
+import { ReactNode } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils'; interface MedievalModalProps { open: boolean; onOpenChange: (open: boolean) => void; title?: ReactNode; description?: ReactNode; icon?: ReactNode; children: ReactNode; footer?: ReactNode; className?: string;
-} export function MedievalModal({ open, onOpenChange, title, description, icon, children, footer, className
-}: MedievalModalProps) { return ( <Dialog open={open} onOpenChange={onOpenChange}> <DialogContent className={cn("sm:max-w-[425px] bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border-amber-700/30 shadow-2xl shadow-amber-500/10 overflow-hidden", className)}> {/* Background Glow */} <div className="absolute inset-0 pointer-events-none"> <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/5 rounded-full blur-3xl" /> </div> {(title || description || icon) && ( <DialogHeader className="relative z-10"> {title && ( <div className="flex items-center justify-center gap-2 mb-1"> {icon} <DialogTitle className="text-xl font-serif text-amber-200"> {title} </DialogTitle> </div> )} {description && ( <DialogDescription className="text-amber-300/60 text-sm italic text-center"> {description} </DialogDescription> )} </DialogHeader> )} <div className="relative z-10 grid gap-5 py-4"> {children} </div> {footer && ( <DialogFooter className="relative z-10 flex flex-row gap-3"> {footer} </DialogFooter> )} </DialogContent> </Dialog> );
+import { cn } from '@/lib/utils';
+
+interface MedievalModalProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    title?: ReactNode;
+    description?: ReactNode;
+    icon?: ReactNode;
+    children: ReactNode;
+    footer?: ReactNode;
+    className?: string;
+}
+
+export function MedievalModal({
+    open,
+    onOpenChange,
+    title,
+    description,
+    icon,
+    children,
+    footer,
+    className
+}: MedievalModalProps) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className={cn("sm:max-w-[425px] bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border-amber-700/30 shadow-2xl shadow-amber-500/10 overflow-hidden", className)}>
+                {/* Background Glow */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/5 rounded-full blur-3xl" />
+                </div>
+
+                {(title || description || icon) && (
+                    <DialogHeader className="relative z-10">
+                        {title && (
+                            <div className="flex items-center justify-center gap-2 mb-1">
+                                {icon}
+                                <DialogTitle className="text-xl font-serif text-amber-200">
+                                    {title}
+                                </DialogTitle>
+                            </div>
+                        )}
+                        {description && (
+                            <DialogDescription className="text-amber-300/60 text-sm italic text-center">
+                                {description}
+                            </DialogDescription>
+                        )}
+                    </DialogHeader>
+                )}
+
+                <div className="relative z-10 grid gap-5 py-4">
+                    {children}
+                </div>
+
+                {footer && (
+                    <DialogFooter className="relative z-10 flex flex-row gap-3">
+                        {footer}
+                    </DialogFooter>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
 }

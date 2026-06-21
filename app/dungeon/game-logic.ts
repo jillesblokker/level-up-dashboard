@@ -92,9 +92,9 @@ export function getTypeColor(type: CreatureType): string {
         case 'Fire': return 'text-orange-500 border-orange-500 bg-orange-950/30';
         case 'Water': return 'text-blue-500 border-blue-500 bg-blue-950/30';
         case 'Grass': return 'text-green-500 border-green-500 bg-green-950/30';
-        case 'Rock': return 'text-zinc-500 border-zinc-500 bg-zinc-950/30';
+        case 'Rock': return 'text-stone-500 border-stone-500 bg-stone-950/30';
         case 'Ice': return 'text-cyan-400 border-cyan-400 bg-cyan-950/30';
-        default: return 'text-zinc-500 border-zinc-500 bg-zinc-950/30';
+        default: return 'text-gray-500 border-gray-500 bg-gray-950/30';
     }
 }
 

@@ -1,7 +1,107 @@
-"use client" import { logger } from "@/lib/logger"; import React from 'react';
+"use client"
+
+import { logger } from "@/lib/logger";
+
+import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MedievalModal } from '@/components/medieval-modal'; interface TitleEvolutionModalProps { isOpen: boolean; onClose: () => void; oldTitle: string; newTitle: string; oldTitleImage: string; newTitleImage: string;
-} export function TitleEvolutionModal({ isOpen, onClose, oldTitle, newTitle, oldTitleImage, newTitleImage
-}: TitleEvolutionModalProps) { logger.debug('🎪 TitleEvolutionModal render:', { isOpen, oldTitle, newTitle }); if (!isOpen) return null; return ( <MedievalModal open={isOpen} onOpenChange={(val: boolean) => !val && onClose()} title="New title earned" className="max-h-[85vh]" footer={ <div className="flex w-full justify-end gap-3 mt-4"> <Button variant="outline" className="border-amber-700/30 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20" onClick={onClose} > Cancel </Button> <Button className="bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20" onClick={onClose} > Enter Realm </Button> </div> } > <div className="flex flex-col items-center gap-6 py-2"> <div className="flex items-center justify-center gap-8 w-full"> {/* Old Character */} <div className="flex flex-col items-center gap-3"> <div className="relative w-28 h-28 sm:w-32 sm:h-32"> <Image src={oldTitleImage} alt={`${oldTitle} character`} fill className="object-contain" onError={(e) => { const target = e.target as HTMLImageElement; target.src = '/images/character/squire.webp'; }} /> </div> <span className="text-zinc-400 text-sm font-medium">{oldTitle}</span> </div> {/* Evolution Arrows */} <div className="flex items-center justify-center"> <span className="text-amber-600 text-3xl font-bold animate-pulse">»»</span> </div> {/* New Character */} <div className="flex flex-col items-center gap-3"> <div className="relative w-28 h-28 sm:w-32 sm:h-32"> <Image src={newTitleImage} alt={`${newTitle} character`} fill className="object-contain" onError={(e) => { const target = e.target as HTMLImageElement; target.src = '/images/character/squire.webp'; }} /> </div> <span className="text-amber-300 text-sm font-bold">{newTitle}</span> </div> </div> {/* Text Content */} <div className="flex flex-col items-center gap-2 mt-4"> <h3 className="text-amber-500 text-xl font-serif">You gained a new rank</h3> <p className="text-zinc-400 text-center text-sm leading-relaxed max-w-sm"> You are moving up in the world. Keep this up. Your character has evolved. </p> </div> </div> </MedievalModal> );
+import { MedievalModal } from '@/components/medieval-modal';
+
+interface TitleEvolutionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  oldTitle: string;
+  newTitle: string;
+  oldTitleImage: string;
+  newTitleImage: string;
+}
+
+export function TitleEvolutionModal({
+  isOpen,
+  onClose,
+  oldTitle,
+  newTitle,
+  oldTitleImage,
+  newTitleImage
+}: TitleEvolutionModalProps) {
+  logger.debug('🎪 TitleEvolutionModal render:', { isOpen, oldTitle, newTitle });
+
+  if (!isOpen) return null;
+
+  return (
+    <MedievalModal
+      open={isOpen}
+      onOpenChange={(val: boolean) => !val && onClose()}
+      title="New title earned"
+      className="max-h-[85vh]"
+      footer={
+        <div className="flex w-full justify-end gap-3 mt-4">
+          <Button
+            variant="outline"
+            className="border-amber-700/30 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20"
+            onClick={onClose}
+          >
+            Enter Realm
+          </Button>
+        </div>
+      }
+    >
+      <div className="flex flex-col items-center gap-6 py-2">
+        <div className="flex items-center justify-center gap-8 w-full">
+          {/* Old Character */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32">
+              <Image
+                src={oldTitleImage}
+                alt={`${oldTitle} character`}
+                fill
+                className="object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/character/squire.webp';
+                }}
+              />
+            </div>
+            <span className="text-zinc-400 text-sm font-medium">{oldTitle}</span>
+          </div>
+
+          {/* Evolution Arrows */}
+          <div className="flex items-center justify-center">
+            <span className="text-amber-600 text-3xl font-bold animate-pulse">»»</span>
+          </div>
+
+          {/* New Character */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32">
+              <Image
+                src={newTitleImage}
+                alt={`${newTitle} character`}
+                fill
+                className="object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/character/squire.webp';
+                }}
+              />
+            </div>
+            <span className="text-amber-300 text-sm font-bold">{newTitle}</span>
+          </div>
+        </div>
+
+        {/* Text Content */}
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <h3 className="text-amber-500 text-xl font-serif">You gained a new rank</h3>
+          <p className="text-zinc-400 text-center text-sm leading-relaxed max-w-sm">
+            You are moving up in the world. Keep this up. Your character has evolved.
+          </p>
+        </div>
+      </div>
+    </MedievalModal>
+  );
 }

@@ -1,6 +1,68 @@
-"use client" import { Map, Shield, Compass, Navigation } from "lucide-react"
+"use client"
+
+import { Map, Shield, Compass, Navigation } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip" interface StreakIndicatorProps { currentStreak: number isCompletedToday: boolean
-} function getExpeditionDetails(streak: number) { if (streak <= 7) return { name: "Whispering Woods", icon: <Compass className="w-4 h-4" /> } if (streak <= 14) return { name: "Crystal Peaks", icon: <Map className="w-4 h-4" /> } if (streak <= 30) return { name: "Sunken Sea", icon: <Navigation className="w-4 h-4" /> } return { name: "Astral Realms", icon: <Compass className="w-4 h-4" /> }
-} export function StreakIndicator({ currentStreak, isCompletedToday }: StreakIndicatorProps) { const isPaused = currentStreak === 0 && !isCompletedToday; const displayStreak = Math.max(1, currentStreak); const exp = getExpeditionDetails(displayStreak); return ( <TooltipProvider> <Tooltip> <TooltipTrigger asChild> <div className={cn( "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300", isCompletedToday ? "bg-indigo-950/40 border-indigo-500/50 text-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.2)]" : isPaused ? "bg-amber-950/40 border-amber-700/50 text-amber-500" : "bg-zinc-900 border-zinc-700 text-zinc-400" )}> <div className="relative"> <div className={cn( "transition-all duration-500", isCompletedToday ? "text-indigo-500 animate-pulse" : isPaused ? "text-amber-500" : "text-zinc-500" )}> {exp.icon} </div> </div> <span className="font-bold font-serif text-sm"> {isPaused ? "Expedition Paused" : `Day ${displayStreak}`} </span> {!isPaused && <span className="text-xs tracking-wider opacity-80 hidden sm:inline">of the {exp.name}</span>} </div> </TooltipTrigger> <TooltipContent className="bg-black border border-indigo-900 text-indigo-100 p-3 max-w-xs"> <div className="space-y-2"> <div className="font-bold flex items-center gap-2"> {exp.icon} <span>{exp.name} Expedition</span> </div> <p className="text-xs text-zinc-300"> {isCompletedToday ? "You've continued your journey today. Great work!" : isPaused ? "Your journey is paused. Complete a habit to resume travel." : "Complete at least one quest today to continue your journey."} </p> </div> </TooltipContent> </Tooltip> </TooltipProvider> )
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
+interface StreakIndicatorProps {
+    currentStreak: number
+    isCompletedToday: boolean
+}
+
+function getExpeditionDetails(streak: number) {
+    if (streak <= 7) return { name: "Whispering Woods", icon: <Compass className="w-4 h-4" /> }
+    if (streak <= 14) return { name: "Crystal Peaks", icon: <Map className="w-4 h-4" /> }
+    if (streak <= 30) return { name: "Sunken Sea", icon: <Navigation className="w-4 h-4" /> }
+    return { name: "Astral Realms", icon: <Compass className="w-4 h-4" /> }
+}
+
+export function StreakIndicator({ currentStreak, isCompletedToday }: StreakIndicatorProps) {
+    const isPaused = currentStreak === 0 && !isCompletedToday;
+    const displayStreak = Math.max(1, currentStreak);
+    const exp = getExpeditionDetails(displayStreak);
+
+    return (
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div className={cn(
+                        "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300",
+                        isCompletedToday
+                            ? "bg-indigo-950/40 border-indigo-500/50 text-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.2)]"
+                            : isPaused 
+                                ? "bg-amber-950/40 border-amber-700/50 text-amber-500" 
+                                : "bg-gray-900/40 border-gray-700 text-gray-400"
+                    )}>
+                        <div className="relative">
+                            <div className={cn(
+                                "transition-all duration-500",
+                                isCompletedToday ? "text-indigo-500 animate-pulse" : isPaused ? "text-amber-500" : "text-gray-500"
+                            )}>
+                                {exp.icon}
+                            </div>
+                        </div>
+                        <span className="font-bold font-serif text-sm">
+                            {isPaused ? "Expedition Paused" : `Day ${displayStreak}`}
+                        </span>
+                        {!isPaused && <span className="text-xs tracking-wider opacity-80 hidden sm:inline">of the {exp.name}</span>}
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black border border-indigo-900 text-indigo-100 p-3 max-w-xs">
+                    <div className="space-y-2">
+                        <div className="font-bold flex items-center gap-2">
+                            {exp.icon}
+                            <span>{exp.name} Expedition</span>
+                        </div>
+                        <p className="text-xs text-gray-300">
+                            {isCompletedToday
+                                ? "You've continued your journey today. Great work!"
+                                : isPaused 
+                                    ? "Your journey is paused. Complete a habit to resume travel."
+                                    : "Complete at least one quest today to continue your journey."}
+                        </p>
+                    </div>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    )
 }

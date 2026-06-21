@@ -1,3 +1,34 @@
-"use client" import { ArrowRight, Trophy, Castle, Sword, Heart } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card' export function GameplayLoopIndicator(props: any) { return ( <Card className="bg-gradient-to-r from-amber-900/20 to-amber-800/20 border-amber-800/30 shadow-md shadow-amber-900/5"> <CardContent className="p-4"> <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-amber-300 font-serif"> <div className="flex items-center gap-1"> <Trophy className="w-4 h-4" /> <span>Complete Habits</span> </div> <ArrowRight className="w-4 h-4 hidden sm:block" /> <div className="flex items-center gap-1"> <Castle className="w-4 h-4" /> <span>Build Kingdom</span> </div> <ArrowRight className="w-4 h-4 hidden sm:block" /> <div className="flex items-center gap-1"> <Heart className="w-4 h-4" /> <span>Empower Creatures</span> </div> <ArrowRight className="w-4 h-4 hidden sm:block" /> <div className="flex items-center gap-1"> <Sword className="w-4 h-4" /> <span>Conquer Dungeon</span> </div> </div> </CardContent> </Card> )
+"use client"
+
+import { ArrowRight, Trophy, Castle, Sword, Heart } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+
+export function GameplayLoopIndicator(props: any) {
+  return (
+    <Card className="bg-gradient-to-r from-amber-900/20 to-amber-800/20 border-amber-800/30 shadow-md shadow-amber-900/5">
+      <CardContent className="p-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-amber-300 font-serif">
+          <div className="flex items-center gap-1">
+            <Trophy className="w-4 h-4" />
+            <span>Complete Habits</span>
+          </div>
+          <ArrowRight className="w-4 h-4 hidden sm:block" />
+          <div className="flex items-center gap-1">
+            <Castle className="w-4 h-4" />
+            <span>Build Kingdom</span>
+          </div>
+          <ArrowRight className="w-4 h-4 hidden sm:block" />
+          <div className="flex items-center gap-1">
+            <Heart className="w-4 h-4" />
+            <span>Empower Creatures</span>
+          </div>
+          <ArrowRight className="w-4 h-4 hidden sm:block" />
+          <div className="flex items-center gap-1">
+            <Sword className="w-4 h-4" />
+            <span>Conquer Dungeon</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }

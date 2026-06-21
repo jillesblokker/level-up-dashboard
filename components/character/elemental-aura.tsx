@@ -1,4 +1,102 @@
-"use client" import { cn } from "@/lib/utils"
-import { motion } from "framer-motion" interface ElementalAuraProps { type: 'might' | 'knowledge' | 'vitality' | 'balanced' intensity: 'low' | 'medium' | 'high' className?: string
-} export function ElementalAura({ type, intensity, className }: ElementalAuraProps) { const configs = { might: { color: "from-red-500/40 via-orange-500/20 to-transparent", glow: "shadow-[0_0_30px_rgba(239,68,68,0.3)]", particles: "bg-red-400", }, knowledge: { color: "from-blue-500/40 via-purple-500/20 to-transparent", glow: "shadow-[0_0_30px_rgba(59,130,246,0.3)]", particles: "bg-blue-400", }, vitality: { color: "from-emerald-500/40 via-green-500/20 to-transparent", glow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]", particles: "bg-emerald-400", }, balanced: { color: "from-amber-500/40 via-yellow-500/20 to-transparent", glow: "shadow-[0_0_30px_rgba(245,158,11,0.3)]", particles: "bg-amber-400", } } const config = configs[type] || configs.balanced const particleCount = intensity === 'high' ? 12 : intensity === 'medium' ? 8 : 4 return ( <div className={cn("absolute inset-0 pointer-events-none z-[-1]", className)}> {/* Central Glow */} <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5], }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", }} className={cn( "absolute inset-[-20%] rounded-full bg-gradient-radial blur-2xl", config.color, config.glow )} /> {/* Floating Particles */} {[...Array(particleCount)].map((_, i) => ( <motion.div key={i} initial={{ x: Math.random() * 100 - 50, y: Math.random() * 100 - 50, opacity: 0, scale: 0 }} animate={{ y: [0, -100], opacity: [0, 0.6, 0], scale: [0, 1, 0], x: (Math.random() * 40 - 20) }} transition={{ duration: 2 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2, ease: "easeOut", }} className={cn( "absolute left-1/2 bottom-1/2 w-1.5 h-1.5 rounded-full blur-[1px]", config.particles )} /> ))} {/* Ring Effect */} <motion.div animate={{ rotate: 360, scale: [1, 1.05, 1], }} transition={{ rotate: { duration: 10, repeat: Infinity, ease: "linear" }, scale: { duration: 4, repeat: Infinity, ease: "easeInOut" } }} className="absolute inset-[-10%] rounded-full border border-white/5 border-dashed" /> </div> )
+"use client"
+
+import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+
+interface ElementalAuraProps {
+  type: 'might' | 'knowledge' | 'vitality' | 'balanced'
+  intensity: 'low' | 'medium' | 'high'
+  className?: string
+}
+
+export function ElementalAura({ type, intensity, className }: ElementalAuraProps) {
+  const configs = {
+    might: {
+      color: "from-red-500/40 via-orange-500/20 to-transparent",
+      glow: "shadow-[0_0_30px_rgba(239,68,68,0.3)]",
+      particles: "bg-red-400",
+    },
+    knowledge: {
+      color: "from-blue-500/40 via-purple-500/20 to-transparent",
+      glow: "shadow-[0_0_30px_rgba(59,130,246,0.3)]",
+      particles: "bg-blue-400",
+    },
+    vitality: {
+      color: "from-emerald-500/40 via-green-500/20 to-transparent",
+      glow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]",
+      particles: "bg-emerald-400",
+    },
+    balanced: {
+      color: "from-amber-500/40 via-yellow-500/20 to-transparent",
+      glow: "shadow-[0_0_30px_rgba(245,158,11,0.3)]",
+      particles: "bg-amber-400",
+    }
+  }
+
+  const config = configs[type] || configs.balanced
+  const particleCount = intensity === 'high' ? 12 : intensity === 'medium' ? 8 : 4
+
+  return (
+    <div className={cn("absolute inset-0 pointer-events-none z-[-1]", className)}>
+      {/* Central Glow */}
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.5, 0.8, 0.5],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className={cn(
+          "absolute inset-[-20%] rounded-full bg-gradient-radial blur-2xl",
+          config.color,
+          config.glow
+        )}
+      />
+
+      {/* Floating Particles */}
+      {[...Array(particleCount)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ 
+            x: Math.random() * 100 - 50, 
+            y: Math.random() * 100 - 50,
+            opacity: 0,
+            scale: 0 
+          }}
+          animate={{
+            y: [0, -100],
+            opacity: [0, 0.6, 0],
+            scale: [0, 1, 0],
+            x: (Math.random() * 40 - 20)
+          }}
+          transition={{
+            duration: 2 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+            ease: "easeOut",
+          }}
+          className={cn(
+            "absolute left-1/2 bottom-1/2 w-1.5 h-1.5 rounded-full blur-[1px]",
+            config.particles
+          )}
+        />
+      ))}
+
+      {/* Ring Effect */}
+      <motion.div
+        animate={{
+          rotate: 360,
+          scale: [1, 1.05, 1],
+        }}
+        transition={{
+          rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+          scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+        }}
+        className="absolute inset-[-10%] rounded-full border border-white/5 border-dashed"
+      />
+    </div>
+  )
 }
