@@ -2711,11 +2711,11 @@ export default function QuestsPage() {
         {/* Partner Creature Display */}
         {activePartner && (
           <div 
-            className={`fixed bottom-24 right-4 z-40 transition-transform duration-300 pointer-events-none ${isPartnerAnimating ? 'scale-125 -translate-y-4' : 'scale-100 hover:scale-110'} md:bottom-8 md:right-8 flex flex-col items-center`}
+            className={`fixed bottom-24 left-4 z-[9999] transition-transform duration-300 pointer-events-none ${isPartnerAnimating ? 'scale-125 -translate-y-4' : 'scale-100 hover:scale-110'} md:bottom-8 md:left-8 flex flex-col items-center`}
           >
             {partnerSpeech && (
               <div className="mb-2 bg-white text-black px-3 py-1 rounded-2xl shadow-lg relative animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300">
-                <p className="text-sm font-bold">{partnerSpeech}</p>
+                <p className="text-sm font-bold text-black">{partnerSpeech}</p>
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
               </div>
             )}
