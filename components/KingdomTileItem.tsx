@@ -179,7 +179,7 @@ export const KingdomTileItem = React.memo(({
         tile.type === 'dungeon' ||
         tile.type === 'monument' || auraColor ||
         tile.type?.toLowerCase() === 'market-stalls') && (
-          <div className="absolute inset-0 bg-zinc-950 group-hover:bg-zinc-950 transition-all pointer-events-none flex flex-col items-center justify-center p-1">
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none flex flex-col items-center justify-center p-1 z-50">
             <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
               <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{tile.name || tile.type}</p>
               <div className="h-px bg-white/10 my-1 w-full" />
