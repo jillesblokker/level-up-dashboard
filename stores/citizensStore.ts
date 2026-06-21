@@ -205,20 +205,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
   toggleActive: async (userId: string, citizenId: string) => {
     const { citizens } = get();
-    
-    // Check if we are activating or deactivating
-    const targetCitizen = citizens.find(c => c.id === citizenId);
-    const isActivating = !targetCitizen?.active;
-
-    const updated = citizens.map((c) => {
-      if (c.id === citizenId) {
-        return { ...c, active: isActivating };
-      } else if (isActivating) {
-        // If we are activating a new partner, deactivate all others
-        return { ...c, active: false };
-      }
-      return c;
-    });
+    const updated = citizens.map((c) =>
+      c.id === citizenId ? { ...c, active: !c.active } : c
+    );
 
     // Save preferences
     const citizenPrefs: Record<string, CitizenState> = {};

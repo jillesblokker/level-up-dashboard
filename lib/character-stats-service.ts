@@ -214,6 +214,8 @@ class CharacterStatsService {
                         display_name: serverStats.display_name || localStats.display_name || 'Adventurer',
                         title: serverStats.title || localStats.title || 'Novice',
                         ascension_level: Math.max(serverStats.ascension_level || 0, localStats.ascension_level || 0),
+                        sanctuary_mode: serverStats.sanctuary_mode !== undefined ? serverStats.sanctuary_mode : localStats.sanctuary_mode,
+                        active_partner_id: serverStats.active_partner_id || localStats.active_partner_id || undefined,
                         ember_essence: Math.max(serverStats.ember_essence || 0, localStats.ember_essence || 0),
                         frost_essence: Math.max(serverStats.frost_essence || 0, localStats.frost_essence || 0),
                         tide_essence: Math.max(serverStats.tide_essence || 0, localStats.tide_essence || 0),

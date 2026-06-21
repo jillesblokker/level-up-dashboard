@@ -12,17 +12,34 @@ import { cn } from "@/lib/utils"
 export default function ArchiveOfTriumphsPage() {
   const [stats, setStats] = useState<any>(null)
   const citizens = useCitizensStore(state => state.citizens)
+  // Ensure we mount gameStore correctly, skipping hydration mismatch
+  const [activePartnerId, setActivePartnerId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setStats(getCharacterStats())
+    // We can safely grab it from game store directly on mount/client-side
+    const { useGameStore } = require('@/stores/game-store');
+    setActivePartnerId(useGameStore.getState().activePartnerId);
+    
+    // Subscribe to changes
+    const unsub = useGameStore.subscribe(
+      (state: any) => state.activePartnerId,
+      (id: string | undefined) => setActivePartnerId(id)
+    );
+    return () => unsub();
   }, [])
 
-  // Find citizens that have a history of being a partner (affection > 0)
-  const partnerCitizens = citizens.filter(c => c.affection > 0)
+  // Find citizens that have a history of being a partner (affection > 0) OR are the current partner
+  const partnerCitizens = citizens.filter(c => c.affection > 0 || c.id === activePartnerId)
   
-  // Get top 3 highest affection
+  // Get top 3 highest affection (current partner may be at the bottom if affection is 0, but will be included if <= 3 total)
+  // Let's ensure activePartnerId is prioritized if they are currently set as partner!
   const topCitizens = [...partnerCitizens]
-    .sort((a, b) => b.affection - a.affection)
+    .sort((a, b) => {
+      if (a.id === activePartnerId) return -1;
+      if (b.id === activePartnerId) return 1;
+      return b.affection - a.affection;
+    })
     .slice(0, 3)
 
   if (!stats) return null
