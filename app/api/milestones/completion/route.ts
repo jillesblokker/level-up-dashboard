@@ -104,7 +104,7 @@ export async function PUT(request: Request) {
             break;
         }
         
-        const essenceReward = Math.max(5, Math.floor(milestone.xp / 2));
+        const essenceReward = 1; // Milestones are big achievements and give exactly 1 essence
         await grantReward({
           userId,
           type: essenceType,

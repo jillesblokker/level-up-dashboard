@@ -555,7 +555,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                   essenceType = 'verdant_essence';
                   break;
               }
-              const essenceReward = Math.max(5, Math.floor(milestone.experience / 2));
+              const essenceReward = 1;
               import('@/lib/character-stats-service').then(mod => {
                 mod.addToCharacterStat(essenceType, essenceReward, 'milestone_completion');
               });
