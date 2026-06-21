@@ -32,7 +32,7 @@ export function FullPageLoading({ message = "Summoning the Realm..." }: { messag
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+        className="fixed inset-0 bg-zinc-950 " 
         aria-hidden="true"
       />
       
@@ -77,7 +77,7 @@ export function DataLoadingState({
         <CardContent className="p-6 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="text-red-400 text-lg font-semibold">{errorMessage}</div>
-            <div className="text-gray-300 text-sm">{error}</div>
+            <div className="text-zinc-300 text-sm">{error}</div>
             {onRetry && (
               <Button onClick={onRetry} variant="outline" size="sm">
                 <RefreshCw className="w-4 h-4 mr-2" />
@@ -104,7 +104,7 @@ export function Skeleton({ className = "", lines = 1 }: SkeletonProps) {
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className="h-4 bg-gray-700 rounded mb-2"
+          className="h-4 bg-zinc-700 rounded mb-2"
           style={{ width: `${Math.random() * 40 + 60}%` }}
         />
       ))}

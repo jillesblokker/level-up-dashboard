@@ -301,8 +301,8 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                       className={cn(
                         "flex items-center justify-between gap-3 p-3 rounded-xl border transition-all cursor-pointer group",
                         task.completed
-                          ? "bg-zinc-900/40 border-emerald-500/20"
-                          : "bg-zinc-900/60 border-white/5 hover:border-white/10"
+                          ? "bg-zinc-900 border-emerald-500/20"
+                          : "bg-zinc-900 border-white/5 hover:border-white/10"
                       )}
                       onClick={() => handleTaskToggle(task.id)}
                     >
@@ -409,7 +409,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                           "relative flex items-center justify-between gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer group/item overflow-hidden",
                           task.completed
                             ? "bg-emerald-500/5 border-emerald-500/20"
-                            : "bg-zinc-900/40 border-white/5 hover:bg-zinc-900/60 hover:border-white/10"
+                            : "bg-zinc-900 border-white/5 hover:bg-zinc-900 hover:border-white/10"
                         )}
                         onClick={() => handleTaskToggle(task.id)}
                       >
@@ -505,7 +505,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                     value={newTaskTitle}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.target.value)}
                     placeholder="e.g., Slay the morning fog (10 min meditation)..."
-                    className="bg-zinc-900/60 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all"
+                    className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all"
                   />
                 </div>
               </div>
@@ -518,7 +518,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                     aria-label="Task Category"
                     value={newTaskCategory}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskCategory(e.target.value)}
-                    className="w-full h-12 px-4 bg-zinc-900/60 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-amber-500/50 appearance-none transition-all cursor-pointer"
+                    className="w-full h-12 px-4 bg-zinc-900 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-amber-500/50 appearance-none transition-all cursor-pointer"
                   >
                     <option value="strength">Might</option>
                     <option value="condition">Endurance</option>
@@ -535,7 +535,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                     aria-label="Task Priority"
                     value={newTaskPriority}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTaskPriority(e.target.value)}
-                    className="w-full h-12 px-4 bg-zinc-900/60 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-amber-500/50 appearance-none transition-all cursor-pointer"
+                    className="w-full h-12 px-4 bg-zinc-900 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-amber-500/50 appearance-none transition-all cursor-pointer"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>

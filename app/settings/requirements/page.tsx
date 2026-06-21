@@ -155,10 +155,10 @@ export default function RequirementsPage() {
           </Link>
         </div>
 
-        <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+        <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20">
           <CardHeader>
             <CardTitle className="font-serif text-2xl text-white">Requirements</CardTitle>
-            <CardDescription className="text-gray-400">Core features and functionality of the application</CardDescription>
+            <CardDescription className="text-zinc-400">Core features and functionality of the application</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
@@ -186,7 +186,7 @@ export default function RequirementsPage() {
                           </div>
                           <div className="flex-1">
                             <h3 className="text-white font-medium mb-1">{item.title}</h3>
-                            <p className="text-gray-400">{item.description}</p>
+                            <p className="text-zinc-400">{item.description}</p>
                           </div>
                         </div>
                       ))

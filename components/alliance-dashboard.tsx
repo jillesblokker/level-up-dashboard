@@ -164,22 +164,22 @@ export function AllianceDashboard() {
                 &ldquo;Each dawn, a true ally reaffirms their bond. Speak the oath daily and your treasury shall grow — miss a day and your fire dims.&rdquo;
             </p>
             <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="bg-black/30 rounded-lg p-2.5 border border-amber-900/30">
+                <div className="bg-zinc-950 rounded-lg p-2.5 border border-amber-900/30">
                     <div className="text-lg font-bold text-amber-400">+50</div>
                     <div className="text-[10px] text-amber-500/60 uppercase tracking-wide font-semibold">XP</div>
-                    <div className="text-[9px] text-gray-600 mt-0.5">per oath</div>
+                    <div className="text-[9px] text-zinc-600 mt-0.5">per oath</div>
                 </div>
-                <div className="bg-black/30 rounded-lg p-2.5 border border-amber-900/30">
+                <div className="bg-zinc-950 rounded-lg p-2.5 border border-amber-900/30">
                     <div className="text-lg font-bold text-yellow-400">+10</div>
                     <div className="text-[10px] text-amber-500/60 uppercase tracking-wide font-semibold">Gold</div>
-                    <div className="text-[9px] text-gray-600 mt-0.5">per oath</div>
+                    <div className="text-[9px] text-zinc-600 mt-0.5">per oath</div>
                 </div>
-                <div className={`rounded-lg p-2.5 border ${streak >= 7 ? "bg-orange-950/40 border-orange-700/50" : "bg-black/30 border-amber-900/30"}`}>
+                <div className={`rounded-lg p-2.5 border ${streak >= 7 ? "bg-orange-950/40 border-orange-700/50" : "bg-zinc-950 border-amber-900/30"}`}>
                     <div className="text-lg font-bold text-orange-400 flex items-center justify-center gap-0.5">
-                        {streak > 0 ? <><Flame className="w-4 h-4" />{streak}</> : <span className="text-gray-600">—</span>}
+                        {streak > 0 ? <><Flame className="w-4 h-4" />{streak}</> : <span className="text-zinc-600">—</span>}
                     </div>
                     <div className="text-[10px] text-amber-500/60 uppercase tracking-wide font-semibold">Streak</div>
-                    <div className="text-[9px] text-gray-600 mt-0.5">days kept</div>
+                    <div className="text-[9px] text-zinc-600 mt-0.5">days kept</div>
                 </div>
             </div>
             {streak >= 7 && (
@@ -202,8 +202,8 @@ export function AllianceDashboard() {
             threshold: 0.25,
             label: "Iron Chest",
             emoji: "🗝️",
-            color: "border-gray-600/50 bg-gray-900/30",
-            headerColor: "text-gray-400",
+            color: "border-zinc-600/50 bg-zinc-900/30",
+            headerColor: "text-zinc-400",
             rewards: [
                 { icon: "⚔️", name: "Shared XP Boost", desc: "+10% XP from all quests for 48 h" },
                 { icon: "🪙", name: "Gold Cache", desc: "200 gold split equally between members" },
@@ -224,8 +224,8 @@ export function AllianceDashboard() {
             threshold: 0.75,
             label: "Silver Chest",
             emoji: "🪙",
-            color: "border-slate-500/50 bg-slate-900/20",
-            headerColor: "text-slate-300",
+            color: "border-zinc-500/50 bg-zinc-900/20",
+            headerColor: "text-zinc-300",
             rewards: [
                 { icon: "🌟", name: "Rare Kingdom Tile", desc: "One random rare tile added to each member's stash" },
                 { icon: "💰", name: "Treasury Surge", desc: "+25% gold from kingdom visits for 72 h" },
@@ -261,7 +261,7 @@ export function AllianceDashboard() {
                     <Progress value={pct} className="h-2.5 bg-amber-950/50" indicatorClassName="bg-gradient-to-r from-amber-600 to-yellow-500" />
                     <div className="flex justify-between mt-1">
                         {[25, 50, 75, 100].map(t => (
-                            <span key={t} className={`text-[9px] font-bold ${pct >= t ? "text-yellow-500" : "text-gray-700"}`}>{t}%</span>
+                            <span key={t} className={`text-[9px] font-bold ${pct >= t ? "text-yellow-500" : "text-zinc-700"}`}>{t}%</span>
                         ))}
                     </div>
                 </div>
@@ -276,18 +276,18 @@ export function AllianceDashboard() {
                                 key={tier.label}
                                 className={`rounded-lg border p-3 transition-all ${unlocked
                                     ? tier.color
-                                    : "border-gray-800/30 bg-black/20 opacity-50 grayscale"
+                                    : "border-zinc-800/30 bg-zinc-950 opacity-50 grayscale"
                                 }`}
                             >
                                 <div className="flex items-center gap-2 mb-1.5">
                                     <span className="text-base">{tier.emoji}</span>
-                                    <span className={`text-xs font-bold uppercase tracking-wide ${unlocked ? tier.headerColor : "text-gray-600"}`}>
+                                    <span className={`text-xs font-bold uppercase tracking-wide ${unlocked ? tier.headerColor : "text-zinc-600"}`}>
                                         {tier.label}
                                     </span>
                                     <span className="ml-auto text-[10px] font-semibold">
                                         {unlocked
                                             ? <span className="text-green-500">✓ Unlocked</span>
-                                            : <span className="text-gray-600">at {Math.round(tier.threshold * 100)}% Might</span>
+                                            : <span className="text-zinc-600">at {Math.round(tier.threshold * 100)}% Might</span>
                                         }
                                     </span>
                                 </div>
@@ -296,8 +296,8 @@ export function AllianceDashboard() {
                                         <div key={r.name} className="flex items-start gap-1.5 text-[11px]">
                                             <span>{r.icon}</span>
                                             <div>
-                                                <span className={`font-semibold ${unlocked ? "text-amber-200/80" : "text-gray-600"}`}>{r.name}</span>
-                                                <span className={`ml-1 ${unlocked ? "text-gray-400" : "text-gray-700"}`}>— {r.desc}</span>
+                                                <span className={`font-semibold ${unlocked ? "text-amber-200/80" : "text-zinc-600"}`}>{r.name}</span>
+                                                <span className={`ml-1 ${unlocked ? "text-zinc-400" : "text-zinc-700"}`}>— {r.desc}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -313,7 +313,7 @@ export function AllianceDashboard() {
     return (
         <div className="space-y-4 h-full flex flex-col">
             {alliances.length === 0 ? (
-                <Card className="border-amber-900/40 bg-black/40 h-full flex flex-col justify-center min-h-[500px] relative overflow-hidden group">
+                <Card className="border-amber-900/40 bg-zinc-950 h-full flex flex-col justify-center min-h-[500px] relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-black pointer-events-none" />
                     <CardHeader className="relative z-10 pb-2">
                         <CardTitle className="flex items-center justify-center gap-2 text-amber-500/80 font-medieval text-2xl">
@@ -383,7 +383,7 @@ export function AllianceDashboard() {
                         </Button>
                     </div>
                     {alliances.map(alliance => (
-                        <Card key={alliance.id} className="border-amber-500/30 bg-black/60 shadow-lg shadow-amber-900/10 mb-4">
+                        <Card key={alliance.id} className="border-amber-500/30 bg-zinc-950 shadow-lg shadow-amber-900/10 mb-4">
                             <CardHeader className="pb-2">
                                 <div className="flex justify-between items-start">
                                     <div>
@@ -391,7 +391,7 @@ export function AllianceDashboard() {
                                             <Shield className="w-4 h-4" />
                                             {alliance.name}
                                         </CardTitle>
-                                        <CardDescription className="text-gray-500 text-xs mt-1">
+                                        <CardDescription className="text-zinc-500 text-xs mt-1">
                                             {alliance.description || "A band of noble adventurers."}
                                         </CardDescription>
                                     </div>
@@ -468,7 +468,7 @@ export function AllianceDashboard() {
                                 value={createForm.name}
                                 onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
                                 placeholder="e.g. The Iron Vanguard"
-                                className="bg-black/50 border-amber-900/30"
+                                className="bg-zinc-950 border-amber-900/30"
                             />
                         </div>
                         <div className="space-y-2">
@@ -477,7 +477,7 @@ export function AllianceDashboard() {
                                 value={createForm.description}
                                 onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
                                 placeholder="A brief motto..."
-                                className="bg-black/50 border-amber-900/30"
+                                className="bg-zinc-950 border-amber-900/30"
                             />
                         </div>
                     </div>
@@ -501,17 +501,17 @@ export function AllianceDashboard() {
                     </SheetHeader>
                     <div className="space-y-4 py-4">
                         {loadingFriends ? (
-                            <div className="text-center text-sm text-gray-500">Loading allies...</div>
+                            <div className="text-center text-sm text-zinc-500">Loading allies...</div>
                         ) : friends.length === 0 ? (
-                            <div className="text-center text-sm text-gray-500">No allies found to invite.</div>
+                            <div className="text-center text-sm text-zinc-500">No allies found to invite.</div>
                         ) : (
                             <div className="space-y-2">
                                 <Label>Select Ally</Label>
                                 <Select value={selectedFriendId} onValueChange={setSelectedFriendId}>
-                                    <SelectTrigger className="bg-black/50 border-amber-900/30">
+                                    <SelectTrigger className="bg-zinc-950 border-amber-900/30">
                                         <SelectValue placeholder="Choose a friend" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-amber-900/30 text-amber-100">
+                                    <SelectContent className="bg-zinc-900 border-amber-900/30 text-amber-100">
                                         {friends.map(f => (
                                             <SelectItem key={f.friendId} value={f.friendId}>
                                                 {f.username}

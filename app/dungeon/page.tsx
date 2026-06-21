@@ -689,14 +689,14 @@ export default function DungeonPage() {
             <h1 className={`text-6xl font-black uppercase tracking-tighter ${gameResult.success ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]'}`}>
               {gameResult.success ? 'VICTORY!' : 'DEFEATED'}
             </h1>
-            <p className="text-xl text-stone-300 font-medium">
+            <p className="text-xl text-zinc-300 font-medium">
               {gameResult.success ? 'You have cleared the dungeon and returned with your spoils.' : 'You fell in battle and were forced to retreat.'}
             </p>
           </div>
 
           {gameResult.success && gameResult.rewards && (
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-6 shadow-xl">
-              <h3 className="text-sm font-bold text-stone-500 uppercase tracking-widest">REWARDS COLLECTED</h3>
+            <div className="bg-zinc-950  rounded-2xl p-6 border border-white/10 space-y-6 shadow-xl">
+              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest">REWARDS COLLECTED</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20">
                   <div className="text-2xl font-black text-yellow-400">{gameResult.rewards.gold}</div>
@@ -714,13 +714,13 @@ export default function DungeonPage() {
 
               {gameResult.loot && gameResult.loot.length > 0 && (
                 <div className="pt-4 border-t border-white/5">
-                  <h4 className="text-xs text-stone-500 mb-3 text-left">Detailed Loot Log</h4>
+                  <h4 className="text-xs text-zinc-500 mb-3 text-left">Detailed Loot Log</h4>
                   <ScrollArea className="h-32 w-full pr-4">
                     <div className="space-y-2 text-left">
                       {gameResult.loot.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm text-stone-300 bg-white/5 p-2 rounded">
+                        <div key={idx} className="flex items-center justify-between text-sm text-zinc-300 bg-white/5 p-2 rounded">
                           <span className={item.type === 'item' ? 'text-purple-300' : 'text-amber-200'}>{item.name}</span>
-                          {item.amount && <span className="text-stone-500">x{item.amount}</span>}
+                          {item.amount && <span className="text-zinc-500">x{item.amount}</span>}
                         </div>
                       ))}
                     </div>
@@ -731,7 +731,7 @@ export default function DungeonPage() {
           )}
 
           <div className="flex gap-4 justify-center pt-4">
-            <Button onClick={() => router.push('/kingdom')} size="lg" className="w-full max-w-xs bg-slate-700 hover:bg-slate-600 text-white font-bold h-14">
+            <Button onClick={() => router.push('/kingdom')} size="lg" className="w-full max-w-xs bg-zinc-700 hover:bg-zinc-600 text-white font-bold h-14">
               Return to Kingdom
             </Button>
             {!gameResult.success && (
@@ -752,11 +752,11 @@ export default function DungeonPage() {
         <div className="max-w-md w-full text-center space-y-8">
           <div className="space-y-2">
             <h1 className="text-6xl font-black text-red-600 tracking-tighter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">DUNGEON</h1>
-            <p className="text-stone-400 text-lg">Brave the depths, fight creatures, earn loot.</p>
+            <p className="text-zinc-400 text-lg">Brave the depths, fight creatures, earn loot.</p>
           </div>
 
-          <div className="bg-stone-900/50 p-6 rounded-2xl border border-stone-800 backdrop-blur-sm">
-            <div className="text-sm font-medium text-stone-500 mb-1">DAILY ENTRIES</div>
+          <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 ">
+            <div className="text-sm font-medium text-zinc-500 mb-1">DAILY ENTRIES</div>
             <div className={`text-3xl font-bold ${dailyCount >= 3 ? 'text-red-500' : 'text-green-400'}`}>
               {Math.max(0, 3 - dailyCount)} / 3 LEFT
             </div>
@@ -766,13 +766,13 @@ export default function DungeonPage() {
             onClick={startRun}
             disabled={dailyCount >= 3}
             size="lg"
-            className={`w-full h-16 text-xl font-bold tracking-wide transition-all ${dailyCount >= 3 ? 'bg-stone-800 text-stone-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 hover:scale-105'}`}
+            className={`w-full h-16 text-xl font-bold tracking-wide transition-all ${dailyCount >= 3 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 hover:scale-105'}`}
           >
             {dailyCount >= 3 ? '🔒 LOCKED UNTIL TOMORROW' : '⚔️ ENTER DUNGEON'}
           </Button>
 
-          <div className="text-stone-500 text-sm">
-            <Button variant="link" onClick={() => router.push('/kingdom')} className="text-stone-500 hover:text-stone-300">
+          <div className="text-zinc-500 text-sm">
+            <Button variant="link" onClick={() => router.push('/kingdom')} className="text-zinc-500 hover:text-zinc-300">
               &larr; Back to Kingdom
             </Button>
           </div>
@@ -786,18 +786,18 @@ export default function DungeonPage() {
   const enemyDef = CREATURE_DATA[enemyId];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 p-4 text-white font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-950 p-4 text-white font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* Header Stats */}
         <div className="grid grid-cols-2 gap-4">
           {/* Room Info */}
-          <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 backdrop-blur-md">
-            <div className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Location</div>
+          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-700 ">
+            <div className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-1">Location</div>
             <div className="text-2xl font-black flex items-center gap-2">
               <span>Room {run.currentRoom}</span>
-              <span className="text-slate-600">/</span>
-              <span className="text-slate-500">{run.maxRooms}</span>
+              <span className="text-zinc-600">/</span>
+              <span className="text-zinc-500">{run.maxRooms}</span>
             </div>
             <div className="mt-2 text-sm text-yellow-500 font-medium">
               💰 Loot Found: {run.lootCollected.length}
@@ -805,20 +805,20 @@ export default function DungeonPage() {
           </div>
 
           {/* Team HP (Summed health of all survivors) */}
-          <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 backdrop-blur-md">
+          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-700 ">
             <div className="flex justify-between items-end mb-2">
-              <div className="text-slate-400 text-xs font-bold uppercase tracking-wider">Team Health</div>
+              <div className="text-zinc-400 text-xs font-bold uppercase tracking-wider">Team Health</div>
               <div className={`font-mono font-bold ${totalTeamHp < (totalTeamMaxHp * 0.3) ? 'text-red-500' : 'text-green-400'}`}>
                 {totalTeamHp} / {totalTeamMaxHp}
               </div>
             </div>
-            <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-3 bg-slate-700" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-green-500'} />
+            <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-3 bg-zinc-700" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-green-500'} />
           </div>
         </div>
 
         {/* Status Message */}
         {message && (
-          <div className="bg-gradient-to-r from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-3 rounded-lg text-center text-blue-200 text-sm font-medium animate-in fade-in slide-in-from-top-2">
+          <div className="bg-gradient-to-r from-blue-900/40 to-zinc-900/40 border border-blue-500/30 p-3 rounded-lg text-center text-blue-200 text-sm font-medium animate-in fade-in slide-in-from-top-2">
             {message}
           </div>
         )}
@@ -827,13 +827,13 @@ export default function DungeonPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[400px]">
 
           {/* LEFT: Enemy / Target */}
-          <div className="flex flex-col items-center justify-center p-6 bg-slate-900/30 rounded-2xl border border-slate-800/50">
+          <div className="flex flex-col items-center justify-center p-6 bg-zinc-900/30 rounded-2xl border border-zinc-800/50">
             {run.currentEncounter.type === 'monster' && enemyDef ? (
               <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full max-w-sm">
                 <div className="relative group w-full flex justify-center">
-                  <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-gray-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
-                  <div className={`relative w-full max-w-[285px] aspect-[3/4] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-slate-950 shadow-2xl flex flex-col p-5 justify-between`}>
-                    <div className="absolute top-0 right-0 p-3 bg-black/40 rounded-bl-2xl text-2xl filter drop-shadow-lg z-20">
+                  <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
+                  <div className={`relative w-full max-w-[285px] aspect-[3/4] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col p-5 justify-between`}>
+                    <div className="absolute top-0 right-0 p-3 bg-zinc-950 rounded-bl-2xl text-2xl filter drop-shadow-lg z-20">
                       {getTypeEmoji(enemyDef.type)}
                     </div>
 
@@ -852,11 +852,11 @@ export default function DungeonPage() {
 
                     <div className="space-y-2.5 z-10 w-full">
                       <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] text-slate-400 font-bold">
+                        <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
                           <span>HP</span>
                           <span>{run.currentEncounter.hp} / {run.currentEncounter.maxHp}</span>
                         </div>
-                        <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-red-500 transition-all duration-500"
                             style={{ width: `${((run.currentEncounter.hp || 0) / (run.currentEncounter.maxHp || 1)) * 100}%` }}
@@ -873,13 +873,13 @@ export default function DungeonPage() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-6 text-slate-500 font-bold text-lg tracking-widest">ENEMY</div>
+                <div className="mt-6 text-zinc-500 font-bold text-lg tracking-widest">ENEMY</div>
               </div>
             ) : (
               <div className="text-center">
                 <div className="text-8xl mb-4 animate-bounce">📦</div>
                 <h3 className="text-2xl font-bold text-amber-400 mb-2">Treasure Room!</h3>
-                <p className="text-slate-400 mb-6">A reward for your bravery.</p>
+                <p className="text-zinc-400 mb-6">A reward for your bravery.</p>
                 <Button onClick={openTreasure} size="lg" className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-8">
                   Open Chest
                 </Button>
@@ -889,9 +889,9 @@ export default function DungeonPage() {
 
           <div className="flex flex-col gap-6 order-1 md:order-2 w-full">
             {/* Combat Log */}
-            <div className="flex-none bg-black/40 rounded-xl border border-slate-800 p-4 h-[220px] flex flex-col shadow-inner relative z-10 w-full">
+            <div className="flex-none bg-zinc-950 rounded-xl border border-zinc-800 p-4 h-[220px] flex flex-col shadow-inner relative z-10 w-full">
               <div className="flex justify-between items-center mb-2 flex-none">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battle Log</h4>
+                <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Battle Log</h4>
                 <div className="flex gap-1">
                   <span className="w-2 h-2 rounded-full bg-green-500/20"></span>
                   <span className="w-2 h-2 rounded-full bg-red-500/20"></span>
@@ -899,15 +899,15 @@ export default function DungeonPage() {
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 w-full rounded-md bg-black/20 border border-white/5 mx-[-4px] sm:mx-0">
+              <ScrollArea className="flex-1 w-full rounded-md bg-zinc-950 border border-white/5 mx-[-4px] sm:mx-0">
                 <div className="p-3 space-y-2 text-sm font-mono">
                   {battleLog.length === 0 && (
-                    <div className="text-slate-600 italic text-center text-xs py-8 opacity-50">
+                    <div className="text-zinc-600 italic text-center text-xs py-8 opacity-50">
                       Waiting for combat to begin...
                     </div>
                   )}
                   {battleLog.map((log, i) => (
-                    <div key={i} className={`p-2 rounded text-xs md:text-sm border-l-2 shadow-sm animate-in slide-in-from-left-2 duration-300 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/20 text-yellow-200' : log.includes('hit you') ? 'border-red-500 bg-red-900/20 text-red-200' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/20 text-cyan-200' : 'border-blue-500 bg-blue-900/10 text-slate-300'} border-opacity-60`}>
+                    <div key={i} className={`p-2 rounded text-xs md:text-sm border-l-2 shadow-sm animate-in slide-in-from-left-2 duration-300 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/20 text-yellow-200' : log.includes('hit you') ? 'border-red-500 bg-red-900/20 text-red-200' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/20 text-cyan-200' : 'border-blue-500 bg-blue-900/10 text-zinc-300'} border-opacity-60`}>
                       {log}
                     </div>
                   ))}
@@ -918,14 +918,14 @@ export default function DungeonPage() {
 
             {/* Controls / Fighter Deployment */}
             {run.currentEncounter.type === 'monster' && (
-              <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm shadow-xl flex-1 flex flex-col justify-center w-full min-h-[300px]">
+              <div className="bg-zinc-800/40 p-5 rounded-xl border border-zinc-700/50  shadow-xl flex-1 flex flex-col justify-center w-full min-h-[300px]">
                 {battlePhase === 'select' ? (
                   <div className="w-full space-y-4">
                     <div className="flex justify-between items-end">
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
                         <span>🛡️ Deploy Fighter</span>
                       </h4>
-                      <Badge variant="outline" className="text-xs font-mono bg-slate-900/50">
+                      <Badge variant="outline" className="text-xs font-mono bg-zinc-900">
                         {run.party ? run.party.filter(c => c.hp > 0).length : 0}/6 Ready
                       </Badge>
                     </div>
@@ -939,7 +939,7 @@ export default function DungeonPage() {
 
                         // Calculate matchup for improved UX
                         let matchupText = "";
-                        let matchupColor = "text-slate-500 border-slate-850";
+                        let matchupColor = "text-zinc-500 border-zinc-850";
                         if (enemyDef) {
                           const mult = getMatchupMultiplier(creature.type, enemyDef.type);
                           if (mult > 1) { matchupText = "Strong"; matchupColor = "text-green-400 border-green-500/40 font-bold bg-green-950/90"; }
@@ -951,9 +951,9 @@ export default function DungeonPage() {
                             key={`${creature.id}-${idx}`}
                             onClick={() => selectFighter(creature)}
                             disabled={isFainted}
-                            className={`flex-none w-[145px] sm:w-[155px] aspect-[3/4] snap-center snap-always group relative rounded-2xl border-2 flex flex-col justify-between p-3.5 text-left transition-all duration-200 overflow-hidden bg-slate-950 ${
+                            className={`flex-none w-[145px] sm:w-[155px] aspect-[3/4] snap-center snap-always group relative rounded-2xl border-2 flex flex-col justify-between p-3.5 text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
                               isFainted 
-                                ? 'border-zinc-800 bg-zinc-950/40 text-zinc-600 opacity-50 cursor-not-allowed shadow-none' 
+                                ? 'border-zinc-800 bg-zinc-950 text-zinc-600 opacity-50 cursor-not-allowed shadow-none' 
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
                             } ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
@@ -963,7 +963,7 @@ export default function DungeonPage() {
 
                             {/* Centered Matchup text overlay inside cards */}
                             {matchupText && !isFainted && (
-                              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2.5 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 backdrop-blur-sm ${matchupColor}`}>
+                              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2.5 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110  ${matchupColor}`}>
                                 {matchupText}
                               </div>
                             )}
@@ -981,11 +981,11 @@ export default function DungeonPage() {
 
                             {/* Health Stats */}
                             <div className="space-y-1 z-10 w-full">
-                              <div className="flex justify-between text-[9px] text-slate-400 font-bold">
+                              <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
                                 <span>HP</span>
                                 <span>{memberHp}/{memberMaxHp}</span>
                               </div>
-                              <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                              <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full ${isFainted ? 'bg-red-950' : 'bg-green-500'} transition-all duration-300`}
                                   style={{ width: `${(memberHp / memberMaxHp) * 100}%` }}
@@ -1010,7 +1010,7 @@ export default function DungeonPage() {
                     <div className="flex flex-col items-center justify-center space-y-4 py-2 w-full">
                       {/* Active Fighter Mini Card */}
                       <div className="relative group w-full max-w-[190px] aspect-[3/4] animate-in zoom-in-95 duration-300">
-                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-slate-950/95 backdrop-blur-sm relative overflow-hidden shadow-2xl flex flex-col p-4 justify-between rounded-2xl`}>
+                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950/95  relative overflow-hidden shadow-2xl flex flex-col p-4 justify-between rounded-2xl`}>
                           <div className="flex justify-end items-start z-10 w-full">
                             <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
                           </div>
@@ -1026,11 +1026,11 @@ export default function DungeonPage() {
                           </div>
 
                           <div className="space-y-1.5 z-10 w-full">
-                            <div className="flex justify-between text-[9px] text-slate-400 font-bold">
+                            <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
                               <span>HP</span>
                               <span>{activeFighterHp} / {activeFighterMaxHp}</span>
                             </div>
-                            <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                            <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-green-500 transition-all duration-300"
                                 style={{ width: `${(activeFighterHp / activeFighterMaxHp) * 100}%` }}
@@ -1049,7 +1049,7 @@ export default function DungeonPage() {
                       <Button onClick={fight} className="col-span-2 h-14 text-xl bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400">
                         ⚔️ Attack
                       </Button>
-                      <Button onClick={flee} variant="secondary" className="col-span-1 h-14 bg-slate-700 hover:bg-slate-600 font-bold border-t border-slate-500 text-slate-200">
+                      <Button onClick={flee} variant="secondary" className="col-span-1 h-14 bg-zinc-700 hover:bg-zinc-600 font-bold border-t border-zinc-500 text-zinc-200">
                         🏃 Flee
                       </Button>
                     </div>

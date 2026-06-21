@@ -56,9 +56,9 @@ export function TileCard({ tile, owned, onPurchase }: TileCardProps) {
         )
       case "mountain":
         return (
-          <div className="w-full h-full bg-gray-800 flex items-center justify-center relative">
+          <div className="w-full h-full bg-zinc-800 flex items-center justify-center relative">
             {/* Base ground */}
-            <div className="w-full h-full bg-gray-700"></div>
+            <div className="w-full h-full bg-zinc-700"></div>
             {/* Mountains */}
             <div className="absolute bottom-0 left-1/4 w-0 h-0 border-l-[15px] border-r-[15px] border-b-[25px] border-l-transparent border-r-transparent border-b-gray-600"></div>
             <div className="absolute bottom-0 right-1/4 w-0 h-0 border-l-[20px] border-r-[20px] border-b-[35px] border-l-transparent border-r-transparent border-b-gray-500"></div>
@@ -92,8 +92,8 @@ export function TileCard({ tile, owned, onPurchase }: TileCardProps) {
         )
       default:
         return (
-          <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-            <span className="text-gray-700">Unknown</span>
+          <div className="w-full h-full bg-zinc-300 flex items-center justify-center">
+            <span className="text-zinc-700">Unknown</span>
           </div>
         )
     }
@@ -106,7 +106,7 @@ export function TileCard({ tile, owned, onPurchase }: TileCardProps) {
       </div>
       <div className="p-3">
         <div className="font-medium text-white mb-1">{tile.name}</div>
-        <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
+        <div className="text-sm text-zinc-400 mb-2">{tile.description}</div>
         <div className="flex justify-between items-center">
           <div className="text-amber-500 font-medium">{tile.price} Gold</div>
           {owned ? (

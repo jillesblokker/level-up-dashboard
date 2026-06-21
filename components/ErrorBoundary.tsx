@@ -47,16 +47,16 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
     }
 
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-4 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-zinc-900 text-white p-4 flex flex-col items-center justify-center">
         <div className="text-red-500 text-6xl mb-4">⚠️</div>
         <h1 className="text-2xl font-bold mb-2 text-center">Quest Failed</h1>
-        <p className="text-gray-300 mb-6 text-center max-w-md">
+        <p className="text-zinc-300 mb-6 text-center max-w-md">
           A mysterious error has occurred in your adventure. Don&apos;t worry, your progress is safe.
         </p>
         
-        <div className="bg-gray-800 rounded-lg p-4 mb-6 max-w-md w-full">
+        <div className="bg-zinc-800 rounded-lg p-4 mb-6 max-w-md w-full">
           <div className="text-yellow-400 text-sm font-semibold mb-2">Error Details</div>
-          <div className="text-gray-300 text-xs font-mono break-all">
+          <div className="text-zinc-300 text-xs font-mono break-all">
             {error.message}
           </div>
         </div>
@@ -70,13 +70,13 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
           </button>
           <button
             onClick={() => window.location.reload()}
-            className="w-full bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-zinc-700 hover:bg-zinc-600 px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
           >
             🔄 Reload Page
           </button>
           <button
             onClick={() => window.location.href = '/'}
-            className="w-full bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-zinc-700 hover:bg-zinc-600 px-4 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
           >
             🏠 Return Home
           </button>

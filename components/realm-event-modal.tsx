@@ -142,7 +142,7 @@ const IslandGame = ({ setGameState, onWeatherChange }: MinigameProps) => {
 
     return (
         <div className="flex flex-col items-center gap-6 py-4">
-            <p className="text-center text-gray-300">You stand above the clouds. What weather do you command?</p>
+            <p className="text-center text-zinc-300">You stand above the clouds. What weather do you command?</p>
             <div className="flex gap-4">
                 <Button variant="outline" className="flex flex-col h-24 w-24 gap-2 hover:bg-yellow-900/20" onClick={() => setWeather('sunny')}>
                     <CloudSun className="w-8 h-8 text-yellow-500" />
@@ -224,10 +224,10 @@ const GeodeGame = ({ gameState, setGameState, setReward }: MinigameProps) => {
     return (
         <div className="flex flex-col items-center gap-6 py-4">
             <div className="text-4xl font-bold mb-4">{Math.max(0, timeLeft).toFixed(1)}s</div>
-            <div className="w-full max-w-xs bg-gray-700 h-4 rounded-full overflow-hidden">
+            <div className="w-full max-w-xs bg-zinc-700 h-4 rounded-full overflow-hidden">
                 <div className="bg-purple-500 h-full transition-all duration-75" style={{ width: `${Math.min(100, (clicks / TARGET_CLICKS) * 100)}%` }}></div>
             </div>
-            <p className="text-sm text-gray-400">{clicks} / {TARGET_CLICKS} Clicks</p>
+            <p className="text-sm text-zinc-400">{clicks} / {TARGET_CLICKS} Clicks</p>
 
             {gameState === 'intro' || (gameState === 'playing' && timeLeft > 0) ? (
                 <Button
@@ -301,8 +301,8 @@ const VineGame = ({ gameState, setGameState, setReward }: MinigameProps) => {
 
     return (
         <div className="flex flex-col items-center gap-6 py-4">
-            <p className="text-gray-300">Jump when the marker is in the <span className="text-green-400 font-bold">Green Zone</span>!</p>
-            <div className="w-full relative h-8 bg-gray-700 rounded-full overflow-hidden">
+            <p className="text-zinc-300">Jump when the marker is in the <span className="text-green-400 font-bold">Green Zone</span>!</p>
+            <div className="w-full relative h-8 bg-zinc-700 rounded-full overflow-hidden">
                 {/* Target Zone */}
                 <div className="absolute top-0 bottom-0 left-[70%] width-[20%] bg-green-500/50 border-x border-green-400 z-0 h-full w-[20%]"></div>
                 {/* Marker */}
@@ -634,7 +634,7 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
                                     <Trophy className="w-8 h-8 text-green-400" />
                                 </div>
                                 <h3 className="text-2xl font-serif font-bold text-white mb-2">Success!</h3>
-                                <div className="bg-zinc-900/60 rounded-xl p-3 mb-6 border border-white/5">
+                                <div className="bg-zinc-900 rounded-xl p-3 mb-6 border border-white/5">
                                     <p className="text-lg text-amber-200 font-medium">{reward}</p>
                                 </div>
                                 <Button onClick={onClose} className="w-full h-12 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg">

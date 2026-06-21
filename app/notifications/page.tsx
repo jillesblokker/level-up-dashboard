@@ -222,10 +222,10 @@ export default function NotificationsPage() {
             <div className="w-56 h-56 mx-auto relative">
               {/* Castle background */}
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-24">
-                <div className="absolute bottom-0 left-0 w-10 h-20 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
-                <div className="absolute bottom-0 left-10 w-10 h-16 bg-gradient-to-b from-gray-500 to-gray-700 rounded-t-lg border border-gray-600"></div>
-                <div className="absolute bottom-0 left-20 w-10 h-22 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-lg border border-gray-700"></div>
-                <div className="absolute bottom-0 left-30 w-10 h-18 bg-gradient-to-b from-gray-500 to-gray-700 rounded-t-lg border border-gray-600"></div>
+                <div className="absolute bottom-0 left-0 w-10 h-20 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded-t-lg border border-zinc-700"></div>
+                <div className="absolute bottom-0 left-10 w-10 h-16 bg-gradient-to-b from-zinc-500 to-zinc-700 rounded-t-lg border border-zinc-600"></div>
+                <div className="absolute bottom-0 left-20 w-10 h-22 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded-t-lg border border-zinc-700"></div>
+                <div className="absolute bottom-0 left-30 w-10 h-18 bg-gradient-to-b from-zinc-500 to-zinc-700 rounded-t-lg border border-zinc-600"></div>
                 {/* Castle towers */}
                 <div className="absolute top-0 left-2 w-6 h-8 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
                 <div className="absolute top-0 left-12 w-6 h-10 bg-gradient-to-b from-amber-800 to-amber-900 rounded-t-full border border-amber-700"></div>
@@ -240,7 +240,7 @@ export default function NotificationsPage() {
                 {/* Mailbox door */}
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-24 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-md border border-amber-500"></div>
                 {/* Mailbox post */}
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-10 bg-gradient-to-b from-gray-700 to-gray-800 rounded"></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-5 h-10 bg-gradient-to-b from-zinc-700 to-zinc-800 rounded"></div>
                 {/* Empty interior glow */}
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-amber-200/20 to-transparent rounded-t-sm"></div>
                 {/* Mailbox flag */}
@@ -290,10 +290,10 @@ export default function NotificationsPage() {
           </div>
 
           <div className="max-w-lg mx-auto space-y-4">
-            <p className="text-gray-200 leading-relaxed font-medium text-xl">
+            <p className="text-zinc-200 leading-relaxed font-medium text-xl">
               {message}
             </p>
-            <p className="text-gray-400 leading-relaxed text-lg">
+            <p className="text-zinc-400 leading-relaxed text-lg">
               {description}
             </p>
           </div>
@@ -327,7 +327,7 @@ export default function NotificationsPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-serif text-amber-400">{TEXT_CONTENT.notifications.header.title}</h1>
-                <p className="text-gray-400 font-medium">{TEXT_CONTENT.notifications.header.subtitle}</p>
+                <p className="text-zinc-400 font-medium">{TEXT_CONTENT.notifications.header.subtitle}</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -344,7 +344,7 @@ export default function NotificationsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           {/* Enhanced Sidebar */}
           <div className="space-y-6 lg:block hidden">
-            <Card className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 shadow-lg">
+            <Card className="bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 shadow-lg">
               <CardHeader>
                 <CardTitle className="font-serif text-amber-400 flex items-center">
                   <Search className="w-5 h-5 mr-2" />
@@ -353,12 +353,12 @@ export default function NotificationsPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-300">{TEXT_CONTENT.notifications.filters.searchLabel}</label>
+                  <label className="text-sm font-medium text-zinc-300">{TEXT_CONTENT.notifications.filters.searchLabel}</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
                     <Input
                       placeholder={TEXT_CONTENT.notifications.filters.searchPlaceholder}
-                      className="pl-10 bg-gray-900/50 border-amber-800/30 focus:border-amber-500/50"
+                      className="pl-10 bg-zinc-900 border-amber-800/30 focus:border-amber-500/50"
                       value={searchQuery}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                     />
@@ -366,7 +366,7 @@ export default function NotificationsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-300">{TEXT_CONTENT.notifications.filters.typeLabel}</label>
+                  <label className="text-sm font-medium text-zinc-300">{TEXT_CONTENT.notifications.filters.typeLabel}</label>
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       variant={selectedType === null ? "default" : "outline"}
@@ -427,7 +427,7 @@ export default function NotificationsPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 shadow-lg">
+            <Card className="bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 shadow-lg">
               <CardHeader>
                 <CardTitle className="font-serif text-amber-400 flex items-center">
                   <Scroll className="w-5 h-5 mr-2" />
@@ -467,7 +467,7 @@ export default function NotificationsPage() {
                 <select
                   id="notifications-tab-select"
                   aria-label="Notifications tab selector"
-                  className="w-full rounded-lg border border-amber-800/30 bg-gray-900/50 text-white p-3 focus:border-amber-500/50"
+                  className="w-full rounded-lg border border-amber-800/30 bg-zinc-900 text-white p-3 focus:border-amber-500/50"
                   value={activeTab}
                   onChange={e => setActiveTab(e.target.value)}
                 >
@@ -476,7 +476,7 @@ export default function NotificationsPage() {
                 </select>
               </div>
 
-              <TabsList className="w-full hidden md:flex bg-gray-900/50 border-amber-800/30">
+              <TabsList className="w-full hidden md:flex bg-zinc-900 border-amber-800/30">
                 <TabsTrigger value="all" className="flex-1 data-[state=active]:bg-amber-900/20 data-[state=active]:text-amber-400">
                   {TEXT_CONTENT.notifications.tabs.all}
                 </TabsTrigger>
@@ -496,13 +496,13 @@ export default function NotificationsPage() {
                     {filteredNotifications.map((notification) => (
                       <Card
                         key={notification.id}
-                        className={`bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${!notification.read ? "border-l-4 border-l-amber-500" : ""
+                        className={`bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${!notification.read ? "border-l-4 border-l-amber-500" : ""
                           }`}
                         onClick={() => markAsRead(notification.id)}
                       >
                         <CardContent className="p-6 h-full flex flex-col justify-center">
                           <div className="flex items-start gap-4">
-                            <div className="mt-1 p-2 bg-gray-800/50 rounded-lg">
+                            <div className="mt-1 p-2 bg-zinc-800/50 rounded-lg">
                               {getNotificationIcon(notification.type)}
                             </div>
                             <div className="flex-1">
@@ -527,7 +527,7 @@ export default function NotificationsPage() {
                                   </Button>
                                 </div>
                               </div>
-                              <p className="text-gray-300 mt-2 leading-relaxed">{notification.message}</p>
+                              <p className="text-zinc-300 mt-2 leading-relaxed">{notification.message}</p>
 
                               {notification.action && (
                                 <div className="mt-4">
@@ -566,12 +566,12 @@ export default function NotificationsPage() {
                       .map((notification) => (
                         <Card
                           key={notification.id}
-                          className="bg-gradient-to-b from-gray-900/50 to-black/50 border-amber-800/30 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                          className="bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 border-l-4 border-l-amber-500 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                           onClick={() => markAsRead(notification.id)}
                         >
                           <CardContent className="p-6 h-full flex flex-col justify-center">
                             <div className="flex items-start gap-4">
-                              <div className="mt-1 p-2 bg-gray-800/50 rounded-lg">
+                              <div className="mt-1 p-2 bg-zinc-800/50 rounded-lg">
                                 {getNotificationIcon(notification.type)}
                               </div>
                               <div className="flex-1">
@@ -596,7 +596,7 @@ export default function NotificationsPage() {
                                     </Button>
                                   </div>
                                 </div>
-                                <p className="text-gray-300 mt-2 leading-relaxed">{notification.message}</p>
+                                <p className="text-zinc-300 mt-2 leading-relaxed">{notification.message}</p>
 
                                 {notification.action && (
                                   <div className="mt-4">

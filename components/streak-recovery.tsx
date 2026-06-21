@@ -396,10 +396,10 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 {/* Safety Net Status */}
                 <div className="text-center p-4 rounded-lg bg-green-900/20 border border-green-800/30">
                   <div className="flex items-center justify-center gap-2 mb-3">
-                    <Shield className={`w-5 h-5 ${safetyNetUsed ? 'text-gray-400' : 'text-green-400'}`} />
+                    <Shield className={`w-5 h-5 ${safetyNetUsed ? 'text-zinc-400' : 'text-green-400'}`} />
                     <span className="text-sm font-semibold text-green-200">Safety Net</span>
                   </div>
-                  <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={`mb-2 ${safetyNetUsed ? 'text-gray-400 border-gray-600' : 'text-green-400 bg-green-900/50 border-green-600'}`}>
+                  <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={`mb-2 ${safetyNetUsed ? 'text-zinc-400 border-zinc-600' : 'text-green-400 bg-green-900/50 border-green-600'}`}>
                     {safetyNetUsed ? 'Used This Week' : 'Available'}
                   </Badge>
                   <div className="text-xs text-green-300/70 leading-relaxed">
@@ -464,8 +464,8 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-400">Cost: 5 Build Tokens</span>
-                <span className="text-sm text-gray-300">You have: {buildTokens}</span>
+                <span className="text-sm text-zinc-400">Cost: 5 Build Tokens</span>
+                <span className="text-sm text-zinc-300">You have: {buildTokens}</span>
               </div>
               <Button
                 onClick={handleReconstructStreak}

@@ -330,7 +330,7 @@ export function DailyHubClient() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[9999] w-[calc(100vw-32px)] md:w-[320px] bg-zinc-950/95 border border-amber-700/50 rounded-2xl p-3 flex flex-col gap-3 backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] hover:shadow-[0_0_50px_rgba(245,158,11,0.15)] hover:border-amber-500/80 transition-all group pointer-events-auto"
+                            className="fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[9999] w-[calc(100vw-32px)] md:w-[320px] bg-zinc-950/95 border border-amber-700/50 rounded-2xl p-3 flex flex-col gap-3  shadow-[0_0_40px_rgba(0,0,0,0.8)] hover:shadow-[0_0_50px_rgba(245,158,11,0.15)] hover:border-amber-500/80 transition-all group pointer-events-auto"
                         >
                             <div className="flex items-center gap-3 w-full">
                                 <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-amber-500/50 bg-black flex-shrink-0 group-hover:border-amber-400 transition-colors shadow-inner">
@@ -350,7 +350,7 @@ export function DailyHubClient() {
                                     <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold mt-0.5">Active Partner</p>
                                 </div>
                             </div>
-                            <div className="w-full bg-black/60 rounded-xl p-2 border border-white/5">
+                            <div className="w-full bg-zinc-950 rounded-xl p-2 border border-white/5">
                                 <div className="flex justify-between text-[10px] mb-1 font-bold">
                                     <span className="text-amber-500/90 tracking-wide uppercase">Bond Progress</span>
                                     <span className="text-amber-400">{bondProgress} <span className="text-amber-600/70">/ 100</span></span>
@@ -376,7 +376,7 @@ export function DailyHubClient() {
                     className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
                 >
                     {/* Total Quests Card */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-purple-500/10 transition-all">
+                    <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-purple-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                         <CardContent className="p-5 md:p-6 flex items-center justify-between relative z-10">
                             <div>
@@ -401,7 +401,7 @@ export function DailyHubClient() {
                     </Card>
 
                     {/* Level Card */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
+                    <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                         <CardContent className="p-5 md:p-6 relative z-10">
                             <div className="flex items-center justify-between mb-2">
@@ -416,7 +416,7 @@ export function DailyHubClient() {
                                     ⭐
                                 </div>
                             </div>
-                            <div className="mt-2 h-2 bg-black/50 rounded-full overflow-hidden">
+                            <div className="mt-2 h-2 bg-zinc-950 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
                                     style={{ width: `${(stats.experience / stats.experienceToNextLevel) * 100}%` }}
@@ -426,7 +426,7 @@ export function DailyHubClient() {
                     </Card>
 
                     {/* Gold Card with Weekly Stats */}
-                    <Card className="bg-black/80 border-amber-900/50 backdrop-blur-sm shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-yellow-500/10 transition-all">
+                    <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-yellow-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                         <CardContent className="p-5 md:p-6 relative z-10">
                             <div className="flex items-center justify-between mb-2">
@@ -467,25 +467,25 @@ export function DailyHubClient() {
                     
                     {/* ACTIVE PERKS WIDGET */}
                     <div className="lg:col-span-1">
-                        <Card className="bg-black/60 border-amber-900/40 backdrop-blur-sm h-full flex flex-col justify-between">
+                        <Card className="bg-zinc-950 border-amber-900/40  h-full flex flex-col justify-between">
                             <CardHeader className="pb-4">
                                 <CardTitle className="text-xl font-medieval text-amber-500 flex items-center gap-2">
                                     <Sparkles className="w-5 h-5 text-amber-400" />
                                     <span>Active Buffs</span>
                                 </CardTitle>
-                                <CardDescription className="text-slate-400 text-xs">
+                                <CardDescription className="text-zinc-400 text-xs">
                                     Temporary passive bonuses currently active
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex-1 space-y-4">
                                 {activePerks.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center text-center py-8 h-full space-y-4">
-                                        <div className="w-12 h-12 rounded-full bg-slate-900/60 border border-amber-900/20 flex items-center justify-center text-xl">
+                                        <div className="w-12 h-12 rounded-full bg-zinc-900 border border-amber-900/20 flex items-center justify-center text-xl">
                                             🧪
                                         </div>
                                         <div>
-                                            <p className="text-sm text-slate-300 font-semibold">No active buffs</p>
-                                            <p className="text-xs text-slate-500 mt-1 max-w-[200px] mx-auto">
+                                            <p className="text-sm text-zinc-300 font-semibold">No active buffs</p>
+                                            <p className="text-xs text-zinc-500 mt-1 max-w-[200px] mx-auto">
                                                 Drink potions from your inventory or unlock milestones to get buffs.
                                             </p>
                                         </div>
@@ -498,12 +498,12 @@ export function DailyHubClient() {
                                 ) : (
                                     <div className="space-y-3">
                                         {Array.isArray(activePerks) && activePerks.map((perk, index) => (
-                                            <div key={perk.id || index} className="p-3 bg-slate-900/40 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                                            <div key={perk.id || index} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/80 flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-2xl">🧪</span>
                                                     <div>
                                                         <h5 className="font-bold text-xs text-amber-100">{perk.perk_name}</h5>
-                                                        <p className="text-[10px] text-slate-400 mt-0.5">{perk.effect}</p>
+                                                        <p className="text-[10px] text-zinc-400 mt-0.5">{perk.effect}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-1 rounded-full">
@@ -526,7 +526,7 @@ export function DailyHubClient() {
                     transition={{ duration: 0.5, delay: 0.05 }}
                     className="relative"
                 >
-                    <Card className="bg-black/60 border-amber-900/40 backdrop-blur-sm overflow-hidden">
+                    <Card className="bg-zinc-950 border-amber-900/40  overflow-hidden">
                         <CardContent className="p-6 md:p-8">
                             <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to Build Habits</h2>
 
@@ -537,7 +537,7 @@ export function DailyHubClient() {
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
                                         <div>
                                             <h3 className="text-amber-400 font-bold text-lg mb-1">Daily Habits</h3>
-                                            <p className="text-sm text-gray-300 leading-relaxed">Completing tasks to earn resources.</p>
+                                            <p className="text-sm text-zinc-300 leading-relaxed">Completing tasks to earn resources.</p>
                                         </div>
                                     </div>
 
@@ -545,7 +545,7 @@ export function DailyHubClient() {
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
                                         <div>
                                             <h3 className="text-amber-400 font-bold text-lg mb-1">Expanding Realm</h3>
-                                            <p className="text-sm text-gray-300 leading-relaxed">Using resources to grow your map.</p>
+                                            <p className="text-sm text-zinc-300 leading-relaxed">Using resources to grow your map.</p>
                                         </div>
                                     </div>
 
@@ -553,7 +553,7 @@ export function DailyHubClient() {
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
                                         <div>
                                             <h3 className="text-amber-400 font-bold text-lg mb-1">Daily Kingdom</h3>
-                                            <p className="text-sm text-gray-300 leading-relaxed">Managing and maintaining your new territory.</p>
+                                            <p className="text-sm text-zinc-300 leading-relaxed">Managing and maintaining your new territory.</p>
                                         </div>
                                     </div>
 
@@ -561,7 +561,7 @@ export function DailyHubClient() {
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
                                         <div>
                                             <h3 className="text-amber-400 font-bold text-lg mb-1">Competitive Allies</h3>
-                                            <p className="text-sm text-gray-300 leading-relaxed">Engaging with friends and rivals.</p>
+                                            <p className="text-sm text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
                                         </div>
                                     </div>
 
@@ -569,14 +569,14 @@ export function DailyHubClient() {
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
                                         <div>
                                             <h3 className="text-amber-400 font-bold text-lg mb-1">Building Character</h3>
-                                            <p className="text-sm text-gray-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
+                                            <p className="text-sm text-zinc-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Right Side: Image */}
                                 <div className="flex-1 w-full max-w-md">
-                                    <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-black/40">
+                                    <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
                                         <NextImage
                                             src="/images/gameplay-loop.webp"
                                             alt="Level Up Gameplay Loop"
@@ -609,25 +609,25 @@ export function DailyHubClient() {
                     className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
                 >
                     <Link href="/quests" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <ScrollText className="w-6 h-6 text-amber-500 group-hover:scale-110 transition-transform" />
                             <span className="text-amber-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.questBoard}</span>
                         </Button>
                     </Link>
                     <Link href="/kingdom" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <span className="text-2xl group-hover:scale-110 transition-transform">👑</span>
                             <span className="text-green-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.kingdom}</span>
                         </Button>
                     </Link>
                     <Link href="/realm" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Map className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" />
                             <span className="text-blue-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.realm}</span>
                         </Button>
                     </Link>
                     <Link href="/quests?new=true" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-black/40 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
+                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Plus className="w-6 h-6 text-purple-500 group-hover:scale-110 transition-transform" />
                             <span className="text-purple-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.newQuest}</span>
                         </Button>
@@ -650,13 +650,13 @@ export function DailyHubClient() {
                     </div>
 
                     {favoritedQuests.length === 0 ? (
-                        <Card className="bg-black/40 border-amber-900/30 border-dashed">
+                        <Card className="bg-zinc-950 border-amber-900/30 border-dashed">
                             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                                 <div className="w-16 h-16 bg-amber-950/30 rounded-full flex items-center justify-center mb-4">
                                     <ScrollText className="w-8 h-8 text-amber-700" />
                                 </div>
                                 <h3 className="text-xl font-bold text-amber-500 mb-2">{TEXT_CONTENT.dailyHub.favorites.empty.title}</h3>
-                                <p className="text-gray-400 max-w-md mb-6">
+                                <p className="text-zinc-400 max-w-md mb-6">
                                     {TEXT_CONTENT.dailyHub.favorites.empty.description}
                                 </p>
                                 <Link href="/quests">
@@ -756,19 +756,19 @@ export function DailyHubClient() {
                                     ⚔️ excellent progress on your path to glory ⚔️
                                 </p>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
                                         <div className="text-2xl font-bold text-amber-400">⚔️ {yesterdayReport.completedQuestsCount}</div>
                                         <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Quests Done</div>
                                     </div>
-                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
                                         <div className="text-2xl font-bold text-yellow-500">🪙 {yesterdayReport.goldEarned}</div>
                                         <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Gold Gained</div>
                                     </div>
-                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
                                         <div className="text-2xl font-bold text-blue-400">⭐ {yesterdayReport.xpEarned}</div>
                                         <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">XP Gained</div>
                                     </div>
-                                    <div className="bg-zinc-900/80 p-3 rounded-xl border border-amber-900/20 text-center backdrop-blur-sm">
+                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
                                         <div className="text-2xl font-bold text-purple-400">🏆 {yesterdayReport.milestonesUnlocked}</div>
                                         <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Milestones</div>
                                     </div>
@@ -788,7 +788,7 @@ export function DailyHubClient() {
                         {/* Daily Chronicle (Passive Generation & Weather) */}
                         <div className="mt-6 pt-5 border-t border-amber-900/30">
                             <h3 className="text-[11px] uppercase tracking-widest text-amber-500/70 text-center mb-3 font-semibold">Overnight Chronicle</h3>
-                            <div className="bg-black/40 rounded-lg p-4 border border-zinc-800/50 flex flex-col gap-3">
+                            <div className="bg-zinc-950 rounded-lg p-4 border border-zinc-800/50 flex flex-col gap-3">
                                 {(() => {
                                     const activePartner = citizens.find(c => c.id === activePartnerId);
                                     if (activePartner) {
@@ -818,7 +818,7 @@ export function DailyHubClient() {
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-900/50 flex items-center justify-center shrink-0 border border-zinc-800">
+                                        <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center shrink-0 border border-zinc-800">
                                             <span className="text-lg opacity-50">💤</span>
                                         </div>
                                         <p className="text-sm text-zinc-500">

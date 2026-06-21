@@ -45,7 +45,7 @@ export function QuestStep({ onNext }: QuestStepProps) {
           {questCategories.map((category) => {
             const Icon = category.icon
             return (
-              <Card key={category.id} className="bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/40 transition-all duration-300">
+              <Card key={category.id} className="bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/40 transition-all duration-300">
                               <CardContent className="p-2 md:p-3 text-center">
                 <div className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-1 md:mb-2 ${category.bgColor} rounded-lg flex items-center justify-center`}>
                   <Icon className={`h-3 w-3 md:h-4 md:w-4 ${category.color}`} />
@@ -70,7 +70,7 @@ export function QuestStep({ onNext }: QuestStepProps) {
             return (
               <Card 
                 key={quest.id} 
-                className={`bg-gray-800/50 border transition-all duration-300 cursor-pointer ${
+                className={`bg-zinc-800/50 border transition-all duration-300 cursor-pointer ${
                   isCompleted 
                     ? 'border-green-500/50 bg-green-500/10' 
                     : 'border-amber-800/20 hover:border-amber-500/40'
@@ -108,7 +108,7 @@ export function QuestStep({ onNext }: QuestStepProps) {
 
       {/* Interactive Demo */}
       <div className="text-center space-y-3">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-zinc-400">
           Click on a quest to complete it and see your rewards!
         </p>
         {completedQuests.size > 0 && (

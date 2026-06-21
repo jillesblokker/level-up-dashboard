@@ -32,7 +32,7 @@ export function MedievalTooltip({
         <TooltipContent 
           side={side} 
           align={align}
-          className="bg-gradient-to-r from-amber-900 to-amber-800 border border-amber-600/30 text-amber-100 shadow-xl backdrop-blur-sm max-w-xs"
+          className="bg-gradient-to-r from-amber-900 to-amber-800 border border-amber-600/30 text-amber-100 shadow-xl  max-w-xs"
         >
           <div className="flex items-start space-x-2">
             <Scroll className="h-4 w-4 text-amber-300 mt-0.5 flex-shrink-0" />
@@ -90,7 +90,7 @@ export function QuestTooltip({
       case 'nutrition':
         return <Crown className="h-3 w-3 text-purple-400" />;
       default:
-        return <Info className="h-3 w-3 text-gray-400" />;
+        return <Info className="h-3 w-3 text-zinc-400" />;
     }
   };
 
@@ -105,7 +105,7 @@ export function QuestTooltip({
       case 'nutrition':
         return 'text-purple-300';
       default:
-        return 'text-gray-300';
+        return 'text-zinc-300';
     }
   };
 
@@ -166,7 +166,7 @@ export function KingdomTileTooltip({
   const getRarityColor = () => {
     switch (rarity) {
       case 'common':
-        return 'text-gray-300';
+        return 'text-zinc-300';
       case 'uncommon':
         return 'text-green-300';
       case 'rare':
@@ -176,7 +176,7 @@ export function KingdomTileTooltip({
       case 'legendary':
         return 'text-yellow-300';
       default:
-        return 'text-gray-300';
+        return 'text-zinc-300';
     }
   };
 
@@ -330,7 +330,7 @@ export function MedievalTutorialStep({
       {children}
       
       {/* Tutorial overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
+      <div className="fixed inset-0 bg-zinc-950  z-50">
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div className="bg-gradient-to-r from-amber-900 to-amber-800 border border-amber-600/30 rounded-xl shadow-2xl max-w-md w-full p-6">
             <div className="text-center space-y-4">

@@ -71,7 +71,7 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
         variant="ghost"
         size="sm"
         onClick={handleSkipClick}
-        className="text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
+        className="text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10"
         aria-label="Skip tutorial"
         tabIndex={-1}
         disabled={!canClick}
@@ -91,7 +91,7 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
       </Button>
 
       <AlertDialog open={isSkipping} onOpenChange={onSkipCancel}>
-        <AlertDialogContent className="bg-gray-900/95 backdrop-blur-sm border border-amber-800/30 max-w-sm mx-auto shadow-2xl">
+        <AlertDialogContent className="bg-zinc-900/95  border border-amber-800/30 max-w-sm mx-auto shadow-2xl">
           <AlertDialogHeader className="text-center pb-6">
             <div className="mx-auto mb-4 w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center">
               <X className="h-6 w-6 text-amber-400" />
@@ -99,14 +99,14 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
             <AlertDialogTitle className="text-lg font-bold text-white mb-3">
               Skip Tutorial?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300 text-sm leading-relaxed px-2">
+            <AlertDialogDescription className="text-zinc-300 text-sm leading-relaxed px-2">
               You can always access the tutorial later from the Guide menu in your account settings.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 pt-2">
             <AlertDialogCancel 
               onClick={handleSkipCancel}
-              className="flex-1 bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-200"
+              className="flex-1 bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 border border-zinc-600/50 hover:border-zinc-500/50 transition-all duration-200"
             >
               Continue Tutorial
             </AlertDialogCancel>

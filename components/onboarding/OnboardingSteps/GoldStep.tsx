@@ -53,13 +53,13 @@ export function GoldStep({ onNext }: GoldStepProps) {
           <span className="text-3xl font-bold text-amber-400">{goldBalance}</span>
         </div>
         <h3 className="text-lg font-semibold text-white">Your Gold Balance</h3>
-        <p className="text-gray-300">
+        <p className="text-zinc-300">
           Gold is your kingdom&apos;s currency. Earn it by completing quests, spend it on tiles and items.
         </p>
       </div>
 
       {/* Earning Gold */}
-      <Card className="bg-gray-800/50 border border-amber-800/20">
+      <Card className="bg-zinc-800/50 border border-amber-800/20">
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-3">
             <TrendingUp className="h-5 w-5 text-amber-400" />
@@ -67,15 +67,15 @@ export function GoldStep({ onNext }: GoldStepProps) {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-300">Morning Exercise</span>
+              <span className="text-zinc-300">Morning Exercise</span>
               <span className="text-amber-400">+15 gold</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-300">Read 30 Minutes</span>
+              <span className="text-zinc-300">Read 30 Minutes</span>
               <span className="text-amber-400">+10 gold</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-300">Help Someone</span>
+              <span className="text-zinc-300">Help Someone</span>
               <span className="text-amber-400">+20 gold</span>
             </div>
             {showEarning && (
@@ -92,7 +92,7 @@ export function GoldStep({ onNext }: GoldStepProps) {
 
       {/* Spending Gold */}
       {showSpending && (
-        <Card className="bg-gray-800/50 border border-amber-800/20">
+        <Card className="bg-zinc-800/50 border border-amber-800/20">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3 mb-3">
               <ShoppingCart className="h-5 w-5 text-amber-400" />
@@ -100,7 +100,7 @@ export function GoldStep({ onNext }: GoldStepProps) {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-300">Grass Tile</span>
+                <span className="text-zinc-300">Grass Tile</span>
                 <span className="text-red-400">-25 gold</span>
               </div>
               <div className="border-t border-amber-800/20 pt-2 mt-2">
@@ -120,13 +120,13 @@ export function GoldStep({ onNext }: GoldStepProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Earning</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Complete quests to earn gold. Different quests give different rewards.
             </p>
           </div>
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Spending</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Use gold to buy tiles, items, and unlock new content for your kingdom.
             </p>
           </div>
@@ -136,7 +136,7 @@ export function GoldStep({ onNext }: GoldStepProps) {
       {/* Interactive Demo Status */}
       {!showEarning && (
         <div className="text-center">
-          <p className="text-sm text-gray-400">Watch as you earn gold from completing quests...</p>
+          <p className="text-sm text-zinc-400">Watch as you earn gold from completing quests...</p>
         </div>
       )}
     </div>

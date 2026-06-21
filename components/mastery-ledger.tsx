@@ -416,7 +416,7 @@ export function MasteryLedger() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-amber-900/20 pb-6">
                 <div className="flex-1">
                     <h2 className="text-2xl font-bold font-serif text-amber-500 tracking-tight">Mastery Ledger</h2>
-                    <p className="text-gray-500 text-sm mt-1">A historical record of your quests and challenges.</p>
+                    <p className="text-zinc-500 text-sm mt-1">A historical record of your quests and challenges.</p>
 
                     {/* Date Navigation Toolbar */}
                     <div className="flex items-center gap-2 mt-4">
@@ -459,15 +459,15 @@ export function MasteryLedger() {
                 {/* Global Stats */}
                 <div className="flex items-center gap-6">
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Quests</div>
+                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Quests</div>
                         <div className="text-xl font-bold text-purple-400">{typeCounts.quests}</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Challenges</div>
+                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Challenges</div>
                         <div className="text-xl font-bold text-orange-400">{typeCounts.challenges}</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Avg Prowess</div>
+                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Avg Prowess</div>
                         <div className="text-xl font-bold text-white">
                             {habits.length > 0
                                 ? Math.round(habits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / habits.length)
@@ -480,7 +480,7 @@ export function MasteryLedger() {
             {/* Weekly Growth Summary Panel */}
             {weeklySummary && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <Card className="bg-black/60 border-purple-900/30 p-4">
+                    <Card className="bg-zinc-950 border-purple-900/30 p-4">
                         <div className="text-[10px] text-purple-200/50 uppercase font-bold tracking-wider mb-1">Quests (vs Last Week)</div>
                         <div className="flex items-end gap-2">
                             <span className="text-2xl font-bold text-white">{weeklySummary.questsThisWeek}</span>
@@ -489,7 +489,7 @@ export function MasteryLedger() {
                             </span>
                         </div>
                     </Card>
-                    <Card className="bg-black/60 border-blue-900/30 p-4">
+                    <Card className="bg-zinc-950 border-blue-900/30 p-4">
                         <div className="text-[10px] text-blue-200/50 uppercase font-bold tracking-wider mb-1">Est. XP Earned</div>
                         <div className="flex items-end gap-2">
                             <span className="text-2xl font-bold text-white">{weeklySummary.xpThisWeek}</span>
@@ -498,13 +498,13 @@ export function MasteryLedger() {
                             </span>
                         </div>
                     </Card>
-                    <Card className="bg-black/60 border-orange-900/30 p-4">
+                    <Card className="bg-zinc-950 border-orange-900/30 p-4">
                         <div className="text-[10px] text-orange-200/50 uppercase font-bold tracking-wider mb-1">Top Category</div>
                         <div className="flex items-end gap-2 mt-1.5">
                             <span className="text-lg font-bold text-orange-400 capitalize truncate">{weeklySummary.bestCategory}</span>
                         </div>
                     </Card>
-                    <Card className="bg-black/60 border-green-900/30 p-4">
+                    <Card className="bg-zinc-950 border-green-900/30 p-4">
                         <div className="text-[10px] text-green-200/50 uppercase font-bold tracking-wider mb-1">Momentum</div>
                         <div className="flex items-end gap-2 mt-1.5">
                             <span className="text-lg font-bold text-green-400">{weeklySummary.questsThisWeek >= weeklySummary.questsLastWeek ? 'Growing 🚀' : 'Resting ⛺'}</span>
@@ -517,12 +517,12 @@ export function MasteryLedger() {
             <div className="grid gap-6 md:grid-cols-[250px_1fr]">
                 {/* Filters */}
                 <div className="space-y-4">
-                    <Card className="p-4 bg-black/40 border-amber-900/20">
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+                    <Card className="p-4 bg-zinc-950 border-amber-900/20">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
                             Filter by Type & Category
                         </label>
                         <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                            <SelectTrigger className="w-full bg-zinc-900/80 border-amber-900/30 text-amber-100">
+                            <SelectTrigger className="w-full bg-zinc-900 border-amber-900/30 text-amber-100">
                                 <SelectValue placeholder="All Activities" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100 max-h-[300px]">
@@ -557,11 +557,11 @@ export function MasteryLedger() {
 
                         <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
                             <div className="flex justify-between items-center text-xs">
-                                <span className="text-gray-500 uppercase font-bold tracking-wider">Shown</span>
+                                <span className="text-zinc-500 uppercase font-bold tracking-wider">Shown</span>
                                 <span className="font-mono text-white text-lg font-bold">{filteredHabits.length}</span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
-                                <span className="text-gray-500 uppercase font-bold tracking-wider">Avg Yield</span>
+                                <span className="text-zinc-500 uppercase font-bold tracking-wider">Avg Yield</span>
                                 <span style={{ color: getFilterColor() }} className="font-mono text-lg font-bold">
                                     {filteredHabits.length > 0
                                         ? Math.round(filteredHabits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / filteredHabits.length)
@@ -573,11 +573,11 @@ export function MasteryLedger() {
                 </div>
 
                 {/* Graph */}
-                <Card className="bg-black/40 border-amber-900/10 p-6 min-h-[300px] flex flex-col">
+                <Card className="bg-zinc-950 border-amber-900/10 p-6 min-h-[300px] flex flex-col">
                     <div className="mb-6 flex justify-between items-center">
                         <div className="flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-amber-500" />
-                            <h3 className="text-sm font-bold text-gray-300">Weekly Activity</h3>
+                            <h3 className="text-sm font-bold text-zinc-300">Weekly Activity</h3>
                         </div>
                     </div>
 
@@ -620,7 +620,7 @@ export function MasteryLedger() {
             {/* Habit List */}
             <div className="grid gap-4 mt-6">
                 {filteredHabits.map((habit, idx) => (
-                    <Card key={habit.id} className="bg-zinc-950/40 border-amber-900/10 hover:bg-zinc-900/60 hover:border-amber-500/20 transition-all p-3 group relative overflow-hidden">
+                    <Card key={habit.id} className="bg-zinc-950 border-amber-900/10 hover:bg-zinc-900 hover:border-amber-500/20 transition-all p-3 group relative overflow-hidden">
                         {/* Subtle highlight for high performers */}
                         {habit.stats.fulfillment >= 80 && (
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-green-500 to-green-600" />
@@ -677,7 +677,7 @@ export function MasteryLedger() {
                                                         ? habit.habitType === 'quest'
                                                             ? "bg-purple-500/20 border border-purple-500/30 text-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.1)]"
                                                             : "bg-orange-500/20 border border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.1)]"
-                                                        : "bg-zinc-900/50 border border-zinc-800/50",
+                                                        : "bg-zinc-900 border border-zinc-800/50",
                                                     isToday && !hasCompletions && "border-zinc-700 ring-1 ring-zinc-700"
                                                 )}
                                             >
@@ -722,10 +722,10 @@ export function MasteryLedger() {
                 ))}
 
                 {filteredHabits.length === 0 && (
-                    <div className="text-center py-12 bg-gray-950/20 border-2 border-dashed border-amber-900/20 rounded-2xl">
-                        <PersonStanding className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                        <h3 className="text-lg font-bold text-gray-400 mb-2">The Ledger is Empty</h3>
-                        <p className="text-gray-600 max-w-md mx-auto">
+                    <div className="text-center py-12 bg-zinc-950/20 border-2 border-dashed border-amber-900/20 rounded-2xl">
+                        <PersonStanding className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                        <h3 className="text-lg font-bold text-zinc-400 mb-2">The Ledger is Empty</h3>
+                        <p className="text-zinc-600 max-w-md mx-auto">
                             No active quests or challenges found for this category. Adjust the filters or begin a new journey.
                         </p>
                     </div>

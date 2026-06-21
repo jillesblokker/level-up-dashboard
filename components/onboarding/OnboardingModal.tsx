@@ -225,7 +225,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       data-modal-container="onboarding-standalone"
       className={cn(
         "fixed inset-0 z-[9999] flex items-center justify-center",
-        "bg-black/80 backdrop-blur-sm",
+        "bg-zinc-950 ",
         "transition-all duration-300 ease-in-out",
         isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
       )}
@@ -234,11 +234,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
 
       <div className="relative w-full max-w-4xl mx-4 flex flex-col items-center justify-center h-full max-h-[90vh]">
-        <Card className="relative w-full overflow-hidden flex flex-col bg-gray-950 border-amber-900/40 shadow-2xl text-gray-100">
+        <Card className="relative w-full overflow-hidden flex flex-col bg-zinc-950 border-amber-900/40 shadow-2xl text-zinc-100">
           {/* Header */}
           <div className="flex-none flex items-center justify-between p-4 md:p-6 border-b border-amber-900/30 bg-gradient-to-r from-amber-900/80 to-black/80">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <div className="w-8 h-8 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center ">
                 <BookOpen className="w-4 h-4 text-amber-400" />
               </div>
               <div>
@@ -258,14 +258,14 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
           </div>
 
           {/* Content - Scrollable Area */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar bg-black/40">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar bg-zinc-950">
             <div className="min-h-[300px] flex flex-col justify-center">
               {currentStepComponent}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex-none flex items-center justify-between p-4 md:p-6 border-t border-amber-900/30 bg-black/60 backdrop-blur-sm">
+          <div className="flex-none flex items-center justify-between p-4 md:p-6 border-t border-amber-900/30 bg-zinc-950 ">
             <div className="flex items-center space-x-3">
               <div className="flex space-x-1.5">
                 {ONBOARDING_STEPS.map((_, index) => (
@@ -275,7 +275,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
                       "w-1.5 h-1.5 rounded-full transition-all duration-300",
                       index === currentStep
                         ? "bg-amber-500 w-4 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                        : "bg-gray-700"
+                        : "bg-zinc-700"
                     )}
                   />
                 ))}

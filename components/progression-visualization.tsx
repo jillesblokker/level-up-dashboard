@@ -107,13 +107,13 @@ export function ProgressionVisualization() {
   return (
     <div className="space-y-6">
       {/* Main Progression Loop */}
-      <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+      <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-amber-400">
             <TrendingUp className="h-5 w-5" />
             Your Kingdom Journey
           </CardTitle>
-          <CardDescription className="text-gray-300">
+          <CardDescription className="text-zinc-300">
             See how your quests lead to kingdom expansion
           </CardDescription>
         </CardHeader>
@@ -130,13 +130,13 @@ export function ProgressionVisualization() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-white">{step.title}</h3>
-                        <p className="text-sm text-gray-400">{step.description}</p>
+                        <p className="text-sm text-zinc-400">{step.description}</p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Progress</span>
+                        <span className="text-zinc-300">Progress</span>
                         <span className={`font-semibold ${step.color}`}>
                           {step.value} / {step.target}
                         </span>
@@ -163,7 +163,7 @@ export function ProgressionVisualization() {
 
           {/* Current Status */}
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+            <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <Trophy className="h-5 w-5 text-amber-400" />
@@ -172,13 +172,13 @@ export function ProgressionVisualization() {
                 <div className="text-2xl font-bold text-amber-400 mb-2">
                   Level {stats.level}
                 </div>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-zinc-400">
                   {stats.experience} XP earned
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+            <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <Coins className="h-5 w-5 text-amber-400" />
@@ -187,7 +187,7 @@ export function ProgressionVisualization() {
                 <div className="text-2xl font-bold text-amber-400 mb-2" title={`${stats.gold} Gold`}>
                   {formatGold(stats.gold)} Gold
                 </div>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-zinc-400">
                   Ready to expand your realm
                 </p>
               </CardContent>
@@ -197,7 +197,7 @@ export function ProgressionVisualization() {
           {/* Progression Tips */}
           <div className="bg-amber-900/20 border border-amber-800/30 rounded-lg p-4">
             <h4 className="font-semibold text-amber-400 mb-2">Progression Tips</h4>
-            <div className="space-y-2 text-sm text-gray-300">
+            <div className="space-y-2 text-sm text-zinc-300">
               <p>• Complete daily quests to earn gold and experience</p>
               <p>• Use your gold to purchase tiles for your kingdom</p>
               <p>• Place tiles strategically to expand your realm</p>

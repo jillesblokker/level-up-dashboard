@@ -621,7 +621,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
               </div>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
                 {allMilestones.length === 0 ? (
-                  <div className="text-gray-400 col-span-full">No milestones for this category yet.</div>
+                  <div className="text-zinc-400 col-span-full">No milestones for this category yet.</div>
                 ) : (
                   allMilestones.map(milestone => (
                     <MilestoneCard
@@ -635,7 +635,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
                 )}
                 {/* Add Custom Milestone Card */}
                 <Card
-                  className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-black/20 shadow-md cursor-pointer hover:bg-black/30 min-h-[180px]"
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-amber-800 bg-zinc-950 shadow-md cursor-pointer hover:bg-zinc-950 min-h-[180px]"
                   role="button"
                   aria-label="add-custom-milestone-card"
                   tabIndex={0}
@@ -706,8 +706,8 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       {/* Edit Milestone Modal (simple version) */}
       {editModalOpen && editingMilestone && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseEditModal} />
-          <div className="relative z-10 bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg">
+          <div className="fixed inset-0 bg-zinc-950 " onClick={handleCloseEditModal} />
+          <div className="relative z-10 bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Edit Milestone</h2>
             <form
               onSubmit={e => {
@@ -839,12 +839,12 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
           "hover:scale-110 hover:shadow-lg",
           completed
             ? "bg-amber-500 border-amber-500 text-white"
-            : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
+            : "bg-transparent border-zinc-400 text-transparent hover:border-amber-400"
         )}>
           {completed ? (
             <CheckCircle className="h-4 w-4" />
           ) : (
-            <div className="w-3 h-3 rounded border border-gray-400" />
+            <div className="w-3 h-3 rounded border border-zinc-400" />
           )}
         </div>
       </div>
@@ -854,7 +854,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-gray-500 hover:text-amber-500 bg-black/50 hover:bg-black/70 rounded-full"
+          className="h-6 w-6 text-zinc-500 hover:text-amber-500 bg-zinc-950 hover:bg-zinc-950 rounded-full"
           aria-label={`Edit milestone: ${milestone.name}`}
           onClick={(e) => {
             e.stopPropagation();
@@ -867,7 +867,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-red-500 hover:text-red-400 bg-black/50 hover:bg-black/70 rounded-full"
+          className="h-6 w-6 text-red-500 hover:text-red-400 bg-zinc-950 hover:bg-zinc-950 rounded-full"
           aria-label={`Delete milestone: ${milestone.name}`}
           onClick={(e) => {
             e.stopPropagation();
@@ -885,7 +885,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
             <CardTitle className="text-lg font-bold text-white line-clamp-2 group-hover:text-amber-400 transition-colors duration-300">
               {milestone.name}
             </CardTitle>
-            <CardDescription className="text-sm text-gray-400 line-clamp-2 mt-1">
+            <CardDescription className="text-sm text-zinc-400 line-clamp-2 mt-1">
               {milestone.description || `${milestone.icon} ${milestone.experience} XP, ${milestone.gold} Gold`}
             </CardDescription>
           </div>
@@ -896,14 +896,14 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
         {/* Progress Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Progress</span>
+            <span className="text-zinc-400">Progress</span>
             <span className="text-amber-400 font-medium">
               {milestone.progress} / 100
             </span>
           </div>
           <Progress
             value={progressPercentage}
-            className="h-2 bg-gray-700"
+            className="h-2 bg-zinc-700"
           />
         </div>
 
@@ -912,7 +912,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
           <div className="flex items-center gap-2">
             <div className={cn(
               "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium",
-              "bg-gray-800/50 border border-gray-700/50"
+              "bg-zinc-800/50 border border-zinc-700/50"
             )}>
               <Shield className="h-3 w-3" />
               <span className="text-yellow-400">Milestone</span>
@@ -922,7 +922,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
 
         {/* Rewards */}
         <div className="space-y-2">
-          <div className="text-sm text-gray-400">Rewards</div>
+          <div className="text-sm text-zinc-400">Rewards</div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-amber-400">
               <Star className="h-4 w-4" />

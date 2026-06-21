@@ -72,7 +72,7 @@ export default function AccountPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Account Settings</h1>
-          <p className="text-gray-400">Manage your profile and preferences</p>
+          <p className="text-zinc-400">Manage your profile and preferences</p>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ export default function AccountPage() {
           const Icon = item.icon
           return (
             <Link key={item.href} href={item.href}>
-              <Card className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all duration-300 cursor-pointer touch-manipulation">
+              <Card className="bg-gradient-to-r from-zinc-800/50 to-zinc-700/50 border border-zinc-700/50 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all duration-300 cursor-pointer touch-manipulation">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -91,10 +91,10 @@ export default function AccountPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-white">{item.label}</h3>
-                        <p className="text-sm text-gray-400">{item.description}</p>
+                        <p className="text-sm text-zinc-400">{item.description}</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                    <ChevronRight className="h-5 w-5 text-zinc-400" />
                   </div>
                 </CardContent>
               </Card>

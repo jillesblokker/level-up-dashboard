@@ -154,7 +154,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.titleLabel}</label>
                 <div className="group relative">
                     <input
-                        className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/30 rounded-xl focus:border-amber-500/50 focus:bg-gray-900/80 outline-none transition-all duration-300 text-lg placeholder:text-gray-600 shadow-inner"
+                        className="w-full p-4 bg-zinc-950 border-2 border-amber-900/30 rounded-xl focus:border-amber-500/50 focus:bg-zinc-900 outline-none transition-all duration-300 text-lg placeholder:text-zinc-600 shadow-inner"
                         value={newQuest.name}
                         onChange={handleQuestNameChange}
                         placeholder={TEXT_CONTENT.quests.form.titlePlaceholder}
@@ -168,7 +168,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             <div className="space-y-2">
                 <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.descriptionLabel}</label>
                 <textarea
-                    className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-gray-900/80 outline-none transition-all duration-300 min-h-[120px] resize-none text-gray-200 placeholder:text-gray-700"
+                    className="w-full p-4 bg-zinc-950 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-zinc-900 outline-none transition-all duration-300 min-h-[120px] resize-none text-zinc-200 placeholder:text-zinc-700"
                     value={newQuest.description}
                     onChange={e => setNewQuest({ ...newQuest, description: e.target.value })}
                     placeholder={TEXT_CONTENT.quests.form.descriptionPlaceholder}
@@ -182,10 +182,10 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         value={newQuest.category}
                         onValueChange={(val) => setNewQuest({ ...newQuest, category: val })}
                     >
-                        <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
+                        <SelectTrigger className="h-14 bg-zinc-950 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
                             <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
-                        <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                        <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                             {questCategories.map((cat) => (
                                 <SelectItem key={cat} value={cat} className="focus:bg-amber-500/10 focus:text-amber-200">
                                     <div className="flex items-center gap-3 py-1">
@@ -206,19 +206,19 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         value={newQuest.difficulty}
                         onValueChange={(val) => setNewQuest({ ...newQuest, difficulty: val })}
                     >
-                        <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
+                        <SelectTrigger className="h-14 bg-zinc-950 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
                             <SelectValue placeholder="Select Difficulty" />
                         </SelectTrigger>
-                        <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                        <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                             {Object.entries(difficultySettings).map(([key, value]) => (
                                 <SelectItem key={key} value={key} className="focus:bg-amber-500/10 focus:text-amber-200">
                                     <div className="flex items-center gap-3 py-1">
-                                        <div className={`p-2 bg-gray-800 rounded-lg ${value.color}`}>
+                                        <div className={`p-2 bg-zinc-800 rounded-lg ${value.color}`}>
                                             {value.icon}
                                         </div>
                                         <div>
-                                            <div className="font-bold text-gray-200">{value.label}</div>
-                                            <div className="text-[10px] text-gray-500 uppercase flex gap-2">
+                                            <div className="font-bold text-zinc-200">{value.label}</div>
+                                            <div className="text-[10px] text-zinc-500 uppercase flex gap-2">
                                                 <span>+{value.gold} Gold</span>
                                                 <span>+{value.xp} XP</span>
                                             </div>
@@ -232,7 +232,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             </div>
 
             {/* Strategic Mandate Section */}
-            <div className="space-y-4 p-5 bg-gray-950/40 border-2 border-amber-900/20 rounded-2xl">
+            <div className="space-y-4 p-5 bg-zinc-950 border-2 border-amber-900/20 rounded-2xl">
                 <div className="flex items-center justify-between">
                     <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
                     <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">NEW SYSTEM</div>
@@ -240,15 +240,15 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
                         <Select
                             value={newQuest.mandatePeriod}
                             onValueChange={(val) => setNewQuest({ ...newQuest, mandatePeriod: val as any })}
                         >
-                            <SelectTrigger className="h-12 bg-gray-900/50 border border-amber-900/30 rounded-xl transition-all hover:border-amber-500/30">
+                            <SelectTrigger className="h-12 bg-zinc-900 border border-amber-900/30 rounded-xl transition-all hover:border-amber-500/30">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                            <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                                 <SelectItem value="daily">{TEXT_CONTENT.quests.mastery.form.periods.daily}</SelectItem>
                                 <SelectItem value="weekly">{TEXT_CONTENT.quests.mastery.form.periods.weekly}</SelectItem>
                                 <SelectItem value="monthly">{TEXT_CONTENT.quests.mastery.form.periods.monthly}</SelectItem>
@@ -257,22 +257,22 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"
                                 min="1"
                                 max={newQuest.mandatePeriod === 'weekly' ? 7 : 31}
-                                className="h-12 w-full bg-gray-900/50 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all"
+                                className="h-12 w-full bg-zinc-900 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all"
                                 value={newQuest.mandateCount}
                                 onChange={(e) => setNewQuest({ ...newQuest, mandateCount: parseInt(e.target.value) || 1 })}
                             />
-                            <div className="text-xs font-bold text-gray-600 uppercase">Times</div>
+                            <div className="text-xs font-bold text-zinc-600 uppercase">Times</div>
                         </div>
                     </div>
                 </div>
 
-                <p className="text-[10px] text-gray-600 italic px-1">
+                <p className="text-[10px] text-zinc-600 italic px-1">
                     {newQuest.mandatePeriod === 'daily'
                         ? "This duty must be fulfilled every single day to maintain its legend."
                         : `A ritual to be performed ${newQuest.mandateCount} times throughout the ${newQuest.mandatePeriod === 'weekly' ? 'week' : 'month'}.`}
@@ -280,9 +280,9 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             </div>
 
             {/* Reward Preview Card */}
-            <div className="bg-gradient-to-br from-amber-900/20 to-gray-900/50 border border-amber-500/20 rounded-2xl p-4 flex items-center justify-between shadow-lg">
+            <div className="bg-gradient-to-br from-amber-900/20 to-zinc-900/50 border border-amber-500/20 rounded-2xl p-4 flex items-center justify-between shadow-lg">
                 <div className="flex items-center gap-4">
-                    <div className={`p-4 rounded-2xl bg-gray-950/80 border border-amber-500/30 shadow-inner ${difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].color}`}>
+                    <div className={`p-4 rounded-2xl bg-zinc-950 border border-amber-500/30 shadow-inner ${difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].color}`}>
                         {difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].icon}
                     </div>
                     <div>
@@ -313,7 +313,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                     variant="ghost"
                     onClick={onCancel}
                     disabled={loading}
-                    className="h-12 px-8 text-gray-400 hover:text-white hover:bg-white/5"
+                    className="h-12 px-8 text-zinc-400 hover:text-white hover:bg-white/5"
                 >
                     {TEXT_CONTENT.quests.form.abandon}
                 </Button>

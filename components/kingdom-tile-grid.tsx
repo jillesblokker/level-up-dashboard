@@ -107,8 +107,8 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
               <Crown className="h-8 w-8 text-amber-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Kingdom Tiles Loading...</h3>
-            <p className="text-gray-600 text-sm">
+            <h3 className="text-lg font-semibold text-zinc-800 mb-2">Kingdom Tiles Loading...</h3>
+            <p className="text-zinc-600 text-sm">
               Setting up your kingdom tiles. Please wait a moment...
             </p>
           </div>
@@ -142,7 +142,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Placed Tiles:</span>
+              <span className="text-sm text-zinc-600">Placed Tiles:</span>
               <Badge variant="outline">{placedTiles.length}</Badge>
             </div>
           </div>
@@ -166,7 +166,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Placed Tiles:</span>
+              <span className="text-sm text-zinc-600">Placed Tiles:</span>
               <Badge variant="outline">{placedTiles.length}</Badge>
             </div>
           </div>
@@ -210,7 +210,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
             {/* Mobile Layout - Vertical Stack */}
             <div className="block sm:hidden space-y-2">
               {itemsFound.slice(-6).map((item, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
                   <div className="relative w-10 h-10 flex-shrink-0">
                     <NextImage
                       src={item.image}
@@ -225,7 +225,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{item.type}</p>
+                    <p className="text-xs text-zinc-500 capitalize">{item.type}</p>
                   </div>
                 </div>
               ))}
@@ -234,7 +234,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
             {/* Desktop Layout - Horizontal Grid */}
             <div className="hidden sm:flex flex-wrap gap-2">
               {itemsFound.slice(-6).map((item, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center gap-2 p-2 bg-zinc-50 rounded-lg">
                   <div className="relative w-8 h-8">
                     <NextImage
                       src={item.image}
@@ -249,7 +249,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
                   </div>
                   <div>
                     <p className="text-sm font-medium">{item.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{item.type}</p>
+                    <p className="text-xs text-zinc-500 capitalize">{item.type}</p>
                   </div>
                 </div>
               ))}

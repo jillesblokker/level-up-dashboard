@@ -78,22 +78,22 @@ export function UserProfile({ userId, userName, userEmail, userImage, isAdmin }:
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1">
-          <p className="text-sm text-gray-400">Email</p>
-          <p className="text-gray-300">{userEmail || "No email provided"}</p>
+          <p className="text-sm text-zinc-400">Email</p>
+          <p className="text-zinc-300">{userEmail || "No email provided"}</p>
         </div>
         
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-400">Level</p>
+            <p className="text-sm text-zinc-400">Level</p>
             <p className="text-amber-500 font-bold">{level}</p>
           </div>
-          <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-amber-600 to-amber-500" 
               style={{ width: `${(experience / nextLevelXp) * 100}%` }}
             />
           </div>
-          <p className="text-xs text-gray-500 text-right">
+          <p className="text-xs text-zinc-500 text-right">
             {experience} / {nextLevelXp} XP
           </p>
         </div>

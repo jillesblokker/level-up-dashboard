@@ -137,7 +137,7 @@ export function ProgressDashboard() {
                 Loading progress...
               </div>
             ) : (
-              <div className="text-gray-400">No progress data available</div>
+              <div className="text-zinc-400">No progress data available</div>
             )}
           </div>
         </CardContent>
@@ -157,7 +157,7 @@ export function ProgressDashboard() {
               <Trophy className="w-6 h-6" />
               Progress Dashboard
             </CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardDescription className="text-zinc-300">
               Track your quest completion progress and achievements
             </CardDescription>
           </div>
@@ -194,7 +194,7 @@ export function ProgressDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Today's Progress */}
-            <Card className="bg-black/50 border-amber-800/30">
+            <Card className="bg-zinc-950 border-amber-800/30">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg text-amber-400 flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
@@ -203,7 +203,7 @@ export function ProgressDashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Quest Progress</span>
+                  <span className="text-zinc-300">Quest Progress</span>
                   <span className="text-amber-400 font-bold">
                     {progressData.today.completed}/{progressData.today.total}
                   </span>
@@ -216,11 +216,11 @@ export function ProgressDashboard() {
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="text-center p-3 bg-amber-800/20 rounded-lg">
                     <div className="text-2xl font-bold text-amber-400">{progressData.today.xp}</div>
-                    <div className="text-sm text-gray-300">XP Earned</div>
+                    <div className="text-sm text-zinc-300">XP Earned</div>
                   </div>
                   <div className="text-center p-3 bg-amber-800/20 rounded-lg">
                     <div className="text-2xl font-bold text-amber-400">{progressData.today.gold}</div>
-                    <div className="text-sm text-gray-300">Gold Earned</div>
+                    <div className="text-sm text-zinc-300">Gold Earned</div>
                   </div>
                 </div>
               </CardContent>
@@ -228,23 +228,23 @@ export function ProgressDashboard() {
 
             {/* Streak & Weekly Summary */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="bg-black/50 border-amber-800/30">
+              <Card className="bg-zinc-950 border-amber-800/30">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
                     <Flame className="w-8 h-8 text-amber-500" />
                   </div>
                   <div className="text-3xl font-bold text-amber-400">{progressData.streak}</div>
-                  <div className="text-sm text-gray-300">Day Streak</div>
+                  <div className="text-sm text-zinc-300">Day Streak</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/50 border-amber-800/30">
+              <Card className="bg-zinc-950 border-amber-800/30">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
                     <TrendingUp className="w-8 h-8 text-amber-500" />
                   </div>
                   <div className="text-3xl font-bold text-amber-400">{progressData.week.completed}</div>
-                  <div className="text-sm text-gray-300">This Week</div>
+                  <div className="text-sm text-zinc-300">This Week</div>
                 </CardContent>
               </Card>
             </div>
@@ -252,7 +252,7 @@ export function ProgressDashboard() {
 
           {/* Daily Tab */}
           <TabsContent value="daily" className="space-y-4">
-            <Card className="bg-black/50 border-amber-800/30">
+            <Card className="bg-zinc-950 border-amber-800/30">
               <CardHeader>
                 <CardTitle className="text-lg text-amber-400">Daily Breakdown</CardTitle>
               </CardHeader>
@@ -260,13 +260,13 @@ export function ProgressDashboard() {
                 <div className="space-y-3">
                   {progressData.week.dailyBreakdown.map((day, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-amber-800/10 rounded-lg">
-                      <span className="text-gray-300 font-medium">{day.day}</span>
+                      <span className="text-zinc-300 font-medium">{day.day}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-amber-400 font-bold">{day.count}</span>
                         {day.count > 0 ? (
                           <CheckCircle className="w-4 h-4 text-green-500" />
                         ) : (
-                          <Clock className="w-4 h-4 text-gray-500" />
+                          <Clock className="w-4 h-4 text-zinc-500" />
                         )}
                       </div>
                     </div>
@@ -278,13 +278,13 @@ export function ProgressDashboard() {
 
           {/* Weekly Tab */}
           <TabsContent value="weekly" className="space-y-4">
-            <Card className="bg-black/50 border-amber-800/30">
+            <Card className="bg-zinc-950 border-amber-800/30">
               <CardHeader>
                 <CardTitle className="text-lg text-amber-400">Weekly Progress</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Weekly Goal</span>
+                  <span className="text-zinc-300">Weekly Goal</span>
                   <span className="text-amber-400 font-bold">
                     {progressData.week.completed}/{progressData.week.total}
                   </span>
@@ -297,11 +297,11 @@ export function ProgressDashboard() {
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="text-center p-3 bg-amber-800/20 rounded-lg">
                     <div className="text-2xl font-bold text-amber-400">{progressData.week.xp}</div>
-                    <div className="text-sm text-gray-300">Total XP</div>
+                    <div className="text-sm text-zinc-300">Total XP</div>
                   </div>
                   <div className="text-center p-3 bg-amber-800/20 rounded-lg">
                     <div className="text-2xl font-bold text-amber-400">{progressData.week.gold}</div>
-                    <div className="text-sm text-gray-300">Total Gold</div>
+                    <div className="text-sm text-zinc-300">Total Gold</div>
                   </div>
                 </div>
               </CardContent>
@@ -317,7 +317,7 @@ export function ProgressDashboard() {
                   className={`border transition-all duration-300 ${
                     achievement.unlocked 
                       ? 'bg-amber-800/20 border-amber-500' 
-                      : 'bg-black/50 border-amber-800/30'
+                      : 'bg-zinc-950 border-amber-800/30'
                   }`}
                 >
                   <CardContent className="p-4 text-center">
@@ -325,16 +325,16 @@ export function ProgressDashboard() {
                       {achievement.unlocked ? (
                         <Award className="w-8 h-8 text-amber-400" />
                       ) : (
-                        <Target className="w-8 h-8 text-gray-500" />
+                        <Target className="w-8 h-8 text-zinc-500" />
                       )}
                     </div>
                     <div className={`font-bold mb-1 ${
-                      achievement.unlocked ? 'text-amber-400' : 'text-gray-400'
+                      achievement.unlocked ? 'text-amber-400' : 'text-zinc-400'
                     }`}>
                       {achievement.name}
                     </div>
                     <div className={`text-sm ${
-                      achievement.unlocked ? 'text-amber-300' : 'text-gray-500'
+                      achievement.unlocked ? 'text-amber-300' : 'text-zinc-500'
                     }`}>
                       {achievement.description}
                     </div>

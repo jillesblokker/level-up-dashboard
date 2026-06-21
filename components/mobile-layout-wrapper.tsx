@@ -176,7 +176,7 @@ export function MobileCardWrapper({
   return (
     <div
       className={cn(
-        "bg-gradient-to-br from-gray-900 to-gray-800",
+        "bg-gradient-to-br from-zinc-900 to-zinc-800",
         "border border-amber-800/20 rounded-lg",
         "shadow-lg",
         padding && "p-4", // Consistent mobile padding

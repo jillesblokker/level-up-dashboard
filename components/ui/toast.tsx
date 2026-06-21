@@ -29,7 +29,7 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-amber-800/30 bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-amber-500/10",
+        default: "border-amber-800/30 bg-gradient-to-r from-zinc-900 to-zinc-800 text-white shadow-amber-500/10",
         destructive:
           "border-red-600/30 bg-gradient-to-r from-red-900 to-red-800 text-red-100 shadow-red-500/10",
         success: "border-emerald-600/30 bg-gradient-to-r from-emerald-900 to-emerald-800 text-emerald-100 shadow-emerald-500/10",
@@ -83,7 +83,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-md p-1 text-gray-400 opacity-0 transition-all hover:text-white hover:bg-gray-800/50 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 group-hover:opacity-100 group-[.destructive]:text-red-400 group-[.destructive]:hover:text-red-300 group-[.destructive]:hover:bg-red-800/50 group-[.destructive]:focus:ring-red-500 group-[.success]:text-emerald-400 group-[.success]:hover:text-emerald-300 group-[.success]:hover:bg-emerald-800/50 group-[.success]:focus:ring-emerald-500 group-[.warning]:text-amber-400 group-[.warning]:hover:text-amber-300 group-[.warning]:hover:bg-amber-800/50 group-[.warning]:focus:ring-amber-500 group-[.info]:text-blue-400 group-[.info]:hover:text-blue-300 group-[.info]:hover:bg-blue-800/50 group-[.info]:focus:ring-blue-500 group-[.achievement]:text-amber-400 group-[.achievement]:hover:text-amber-300 group-[.achievement]:hover:bg-amber-800/50 group-[.achievement]:focus:ring-amber-400 group-[.quest]:text-amber-400 group-[.quest]:hover:text-amber-300 group-[.quest]:hover:bg-amber-800/50 group-[.quest]:focus:ring-amber-500 group-[.levelup]:text-purple-400 group-[.levelup]:hover:text-purple-300 group-[.levelup]:hover:bg-purple-800/50 group-[.levelup]:focus:ring-purple-500",
+      "absolute right-2 top-2 rounded-md p-1 text-zinc-400 opacity-0 transition-all hover:text-white hover:bg-zinc-800/50 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 group-hover:opacity-100 group-[.destructive]:text-red-400 group-[.destructive]:hover:text-red-300 group-[.destructive]:hover:bg-red-800/50 group-[.destructive]:focus:ring-red-500 group-[.success]:text-emerald-400 group-[.success]:hover:text-emerald-300 group-[.success]:hover:bg-emerald-800/50 group-[.success]:focus:ring-emerald-500 group-[.warning]:text-amber-400 group-[.warning]:hover:text-amber-300 group-[.warning]:hover:bg-amber-800/50 group-[.warning]:focus:ring-amber-500 group-[.info]:text-blue-400 group-[.info]:hover:text-blue-300 group-[.info]:hover:bg-blue-800/50 group-[.info]:focus:ring-blue-500 group-[.achievement]:text-amber-400 group-[.achievement]:hover:text-amber-300 group-[.achievement]:hover:bg-amber-800/50 group-[.achievement]:focus:ring-amber-400 group-[.quest]:text-amber-400 group-[.quest]:hover:text-amber-300 group-[.quest]:hover:bg-amber-800/50 group-[.quest]:focus:ring-amber-500 group-[.levelup]:text-purple-400 group-[.levelup]:hover:text-purple-300 group-[.levelup]:hover:bg-purple-800/50 group-[.levelup]:focus:ring-purple-500",
       className
     )}
     toast-close=""
@@ -112,7 +112,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn("text-sm text-gray-300 leading-relaxed mt-1", className)}
+    className={cn("text-sm text-zinc-300 leading-relaxed mt-1", className)}
     {...props}
   />
 ))

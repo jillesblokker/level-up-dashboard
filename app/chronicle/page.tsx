@@ -127,7 +127,7 @@ export default function ChroniclePage() {
                 </div>
 
                 {/* Filters */}
-                <div className="flex items-center gap-4 mb-6 bg-zinc-900/50 p-3 rounded-xl border border-amber-900/10 w-fit">
+                <div className="flex items-center gap-4 mb-6 bg-zinc-900 p-3 rounded-xl border border-amber-900/10 w-fit">
                     <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Filter by Month</span>
                     <input
                         type="month"
@@ -145,7 +145,7 @@ export default function ChroniclePage() {
                 {/* List Content */}
                 {isLoading ? (
                     <div className="space-y-4">
-                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full bg-zinc-900/50 rounded-xl" />)}
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full bg-zinc-900 rounded-xl" />)}
                     </div>
                 ) : filteredEntries.length > 0 ? (
                     <div className="space-y-4">
@@ -153,7 +153,7 @@ export default function ChroniclePage() {
                             <Card
                                 key={entry.id}
                                 onClick={() => handleEdit(entry)}
-                                className="bg-zinc-900/30 border-amber-900/10 hover:border-amber-500/30 hover:bg-zinc-900/50 transition-all cursor-pointer group"
+                                className="bg-zinc-900/30 border-amber-900/10 hover:border-amber-500/30 hover:bg-zinc-900 transition-all cursor-pointer group"
                             >
                                 <CardContent className="p-4 md:p-6 flex flex-col md:flex-row gap-4 md:items-center">
                                     <div className="flex-1 space-y-2">
@@ -161,7 +161,7 @@ export default function ChroniclePage() {
                                             <span className="text-amber-500 font-serif font-bold text-lg">
                                                 {formatDate(entry.entry_date)}
                                             </span>
-                                            <div className="bg-black/40 p-1.5 rounded-lg border border-amber-900/10 flex items-center gap-1.5" title="Mood">
+                                            <div className="bg-zinc-950 p-1.5 rounded-lg border border-amber-900/10 flex items-center gap-1.5" title="Mood">
                                                 {getMoodIcon(entry.mood_score)}
                                             </div>
                                         </div>
@@ -178,8 +178,8 @@ export default function ChroniclePage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-zinc-800 rounded-3xl bg-black/20">
-                        <div className="bg-zinc-900/50 p-4 rounded-full mb-4">
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-zinc-800 rounded-3xl bg-zinc-950">
+                        <div className="bg-zinc-900 p-4 rounded-full mb-4">
                             <BookOpen className="w-8 h-8 text-zinc-600" />
                         </div>
                         <h3 className="text-xl font-serif text-zinc-300 mb-2">No Entries Found</h3>

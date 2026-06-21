@@ -132,7 +132,7 @@ export default function TownClient({ slug }: Props) {
               className="block"
             >
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer rounded-lg">
-                <div className="relative aspect-[3/2] w-full overflow-hidden rounded-t-lg bg-gray-900">
+                <div className="relative aspect-[3/2] w-full overflow-hidden rounded-t-lg bg-zinc-900">
                   <Image
                     src={location.image}
                     alt={location.name}
@@ -146,7 +146,7 @@ export default function TownClient({ slug }: Props) {
                   <div className="mr-3" aria-hidden="true">{getIcon(location.icon)}</div>
                   <div>
                     <CardTitle className="text-xl font-medievalsharp text-white mb-1">{location.name}</CardTitle>
-                    <CardDescription className="text-gray-400">{location.description}</CardDescription>
+                    <CardDescription className="text-zinc-400">{location.description}</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent />

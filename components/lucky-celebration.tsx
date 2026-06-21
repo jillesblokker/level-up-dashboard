@@ -35,7 +35,7 @@ export function LuckyCelebration({ onComplete, amount }: LuckyCelebrationProps) 
             className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
         >
             {/* Background Overlay */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-zinc-950 " />
 
             {/* Main Container */}
             <div className="relative flex flex-col items-center justify-center">
@@ -69,7 +69,7 @@ export function LuckyCelebration({ onComplete, amount }: LuckyCelebrationProps) 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.5, type: "spring" }}
-                        className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-8 py-4 rounded-2xl border-2 border-amber-400/50 shadow-2xl mt-4"
+                        className="flex items-center gap-3 bg-zinc-950  px-8 py-4 rounded-2xl border-2 border-amber-400/50 shadow-2xl mt-4"
                     >
                         <Coins className="w-10 h-10 text-amber-400" />
                         <span className="text-4xl font-bold text-amber-100">+{amount} Gold</span>

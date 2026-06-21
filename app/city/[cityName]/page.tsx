@@ -64,7 +64,7 @@ export default function CityPage() {
           {cityData.locations.map((location: CityLocation) => (
             <Link key={location.id} href={`/city/${params['cityName']}/${location.id}`} aria-label={`Enter ${location.name}`} className="block">
               <Card className="overflow-hidden bg-black border border-amber-800/20 hover:border-amber-500 transition-colors cursor-pointer" aria-label={`${location.name}-card`}>
-                <div className="relative aspect-[3/2] w-full overflow-hidden bg-gray-900 border-b border-amber-800/20">
+                <div className="relative aspect-[3/2] w-full overflow-hidden bg-zinc-900 border-b border-amber-800/20">
                   <Image
                     src={location.image}
                     alt={location.name}
@@ -76,10 +76,10 @@ export default function CityPage() {
                 </div>
                 <CardHeader>
                   <CardTitle className="text-white">{location.name}</CardTitle>
-                  <CardDescription className="text-gray-400">{location.subtitle}</CardDescription>
+                  <CardDescription className="text-zinc-400">{location.subtitle}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-300">{location.description}</p>
+                  <p className="text-sm text-zinc-300">{location.description}</p>
                 </CardContent>
               </Card>
             </Link>

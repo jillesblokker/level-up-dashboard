@@ -142,13 +142,13 @@ export function SyncLoadingState({
     
     const timeSinceLastSync = Date.now() - lastSync;
     if (timeSinceLastSync < 60000) return <Wifi className="h-3 w-3 text-green-400" />;
-    return <Clock className="h-3 w-3 text-gray-400" />;
+    return <Clock className="h-3 w-3 text-zinc-400" />;
   };
 
   return (
     <div className={cn('flex items-center gap-1', className)}>
       {getStatusIcon()}
-      <span className="text-xs text-gray-400">{getStatusMessage()}</span>
+      <span className="text-xs text-zinc-400">{getStatusMessage()}</span>
     </div>
   );
 }
@@ -174,19 +174,19 @@ export function ProgressIndicator({
     <div className={cn('space-y-2', className)}>
       {label && (
         <div className="flex justify-between text-sm">
-          <span className="text-gray-300">{label}</span>
+          <span className="text-zinc-300">{label}</span>
           {showPercentage && (
-            <span className="text-gray-400">{percentage}%</span>
+            <span className="text-zinc-400">{percentage}%</span>
           )}
         </div>
       )}
-      <div className="w-full bg-gray-700 rounded-full h-2">
+      <div className="w-full bg-zinc-700 rounded-full h-2">
         <div
           className="bg-amber-500 h-2 rounded-full transition-all duration-300"
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <div className="flex justify-between text-xs text-gray-400">
+      <div className="flex justify-between text-xs text-zinc-400">
         <span>{progress}</span>
         <span>{total}</span>
       </div>

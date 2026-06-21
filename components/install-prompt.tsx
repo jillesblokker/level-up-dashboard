@@ -123,7 +123,7 @@ export function InstallPrompt() {
                     "relative overflow-hidden rounded-lg shadow-2xl",
                     "bg-gradient-to-br from-amber-950 via-amber-900 to-orange-950",
                     "border-2 border-amber-600/40",
-                    "backdrop-blur-md"
+                    ""
                 )}>
                     {/* Parchment texture overlay */}
                     <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuOSIgbnVtT2N0YXZlcz0iNCIgLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiAvPjwvc3ZnPg==')]" />
@@ -155,7 +155,7 @@ export function InstallPrompt() {
                         </div>
 
                         {/* Benefits list */}
-                        <div className="mb-4 space-y-2 bg-black/20 rounded-lg p-3 border border-amber-700/30">
+                        <div className="mb-4 space-y-2 bg-zinc-950 rounded-lg p-3 border border-amber-700/30">
                             <div className="flex items-center gap-2 text-sm text-amber-100">
                                 <span className="text-amber-500">⚔️</span>
                                 <span>Quick access from your home screen</span>

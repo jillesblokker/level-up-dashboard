@@ -309,7 +309,7 @@ export default function CityLocationPage() {
           </Link>
 
           {/* Current Gold HUD */}
-          <div className="flex items-center gap-3 bg-zinc-950/80 border border-amber-900/50 p-2.5 px-4 rounded-xl shadow-lg backdrop-blur-md">
+          <div className="flex items-center gap-3 bg-zinc-950 border border-amber-900/50 p-2.5 px-4 rounded-xl shadow-lg ">
             <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
             <div className="text-right">
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
@@ -375,15 +375,15 @@ export default function CityLocationPage() {
               <TabsContent value="wares" className="mt-0 outline-none">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   {marketplaceWares.map((item) => (
-                    <Card key={item.id} className="border-amber-900/20 bg-zinc-950/40 hover:bg-zinc-950/80 transition-all hover:border-amber-500/30 flex flex-col group relative overflow-hidden shadow-lg">
-                      <div className="h-44 flex items-center justify-center bg-black/40 text-6xl relative border-b border-amber-900/10 group-hover:scale-105 transition-transform duration-300">
+                    <Card key={item.id} className="border-amber-900/20 bg-zinc-950 hover:bg-zinc-950 transition-all hover:border-amber-500/30 flex flex-col group relative overflow-hidden shadow-lg">
+                      <div className="h-44 flex items-center justify-center bg-zinc-950 text-6xl relative border-b border-amber-900/10 group-hover:scale-105 transition-transform duration-300">
                         {item.emoji}
                       </div>
                       <CardHeader className="p-4 flex-1">
                         <CardTitle className="text-amber-200 text-lg group-hover:text-amber-400 transition-colors">{item.name}</CardTitle>
                         <CardDescription className="text-zinc-400 text-xs mt-1 leading-relaxed">{item.description}</CardDescription>
                       </CardHeader>
-                      <CardFooter className="p-4 border-t border-amber-900/10 bg-black/20 flex items-center justify-between gap-3">
+                      <CardFooter className="p-4 border-t border-amber-900/10 bg-zinc-950 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-1">
                           <Coins className="w-4 h-4 text-amber-500" />
                           <span className="font-bold font-serif text-amber-200 text-sm">{item.price}</span>
@@ -410,7 +410,7 @@ export default function CityLocationPage() {
                     const isQtyValid = qty > 0
 
                     return (
-                      <Card key={material.id} className="border-amber-900/20 bg-zinc-950/40 flex flex-col shadow-lg">
+                      <Card key={material.id} className="border-amber-900/20 bg-zinc-950 flex flex-col shadow-lg">
                         <CardHeader className="p-4 pb-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -425,7 +425,7 @@ export default function CityLocationPage() {
                         </CardHeader>
                         
                         <CardContent className="p-4 pt-2 flex-1 flex flex-col justify-end space-y-4">
-                          <div className="flex items-center justify-between bg-black/40 border border-amber-900/10 p-2 rounded-xl">
+                          <div className="flex items-center justify-between bg-zinc-950 border border-amber-900/10 p-2 rounded-xl">
                             <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider pl-2">Quantity</span>
                             <div className="flex items-center gap-1">
                               <Button
@@ -498,7 +498,7 @@ export default function CityLocationPage() {
                         <p className="text-zinc-400 text-xs leading-relaxed italic">{pack.description}</p>
                       </CardContent>
 
-                      <CardFooter className="p-6 border-t border-amber-900/10 bg-black/30 flex flex-col gap-3">
+                      <CardFooter className="p-6 border-t border-amber-900/10 bg-zinc-950 flex flex-col gap-3">
                         <div className="flex items-center justify-center gap-1.5">
                           <Coins className="w-4 h-4 text-amber-400" />
                           <span className="font-serif font-bold text-amber-200 text-lg">{pack.price}</span>
@@ -530,8 +530,8 @@ export default function CityLocationPage() {
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {blacksmithWares.map((item) => (
-                <Card key={item.id} className="border-red-900/20 bg-zinc-950/40 hover:bg-zinc-950/80 transition-all hover:border-red-500/30 flex flex-col group relative overflow-hidden shadow-lg">
-                  <div className="h-44 flex items-center justify-center bg-black/40 text-6xl relative border-b border-red-900/10 group-hover:scale-105 transition-transform duration-300">
+                <Card key={item.id} className="border-red-900/20 bg-zinc-950 hover:bg-zinc-950 transition-all hover:border-red-500/30 flex flex-col group relative overflow-hidden shadow-lg">
+                  <div className="h-44 flex items-center justify-center bg-zinc-950 text-6xl relative border-b border-red-900/10 group-hover:scale-105 transition-transform duration-300">
                     {item.emoji}
                   </div>
                   <CardHeader className="p-4 flex-1">
@@ -556,7 +556,7 @@ export default function CityLocationPage() {
                       )}
                     </div>
                   </CardHeader>
-                  <CardFooter className="p-4 border-t border-red-900/10 bg-black/20 flex items-center justify-between gap-3">
+                  <CardFooter className="p-4 border-t border-red-900/10 bg-zinc-950 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-1">
                       <Coins className="w-4 h-4 text-amber-500" />
                       <span className="font-bold font-serif text-amber-200 text-sm">{item.price}</span>
@@ -582,8 +582,8 @@ export default function CityLocationPage() {
 
             <div className="grid gap-6 sm:grid-cols-3">
               {stablesWares.map((item) => (
-                <Card key={item.id} className="border-amber-900/20 bg-zinc-950/40 hover:bg-zinc-950/80 transition-all hover:border-amber-500/30 flex flex-col group relative overflow-hidden shadow-lg">
-                  <div className="h-48 flex items-center justify-center bg-black/40 text-7xl relative border-b border-amber-900/10 group-hover:scale-105 transition-transform duration-300">
+                <Card key={item.id} className="border-amber-900/20 bg-zinc-950 hover:bg-zinc-950 transition-all hover:border-amber-500/30 flex flex-col group relative overflow-hidden shadow-lg">
+                  <div className="h-48 flex items-center justify-center bg-zinc-950 text-7xl relative border-b border-amber-900/10 group-hover:scale-105 transition-transform duration-300">
                     {item.emoji}
                   </div>
                   <CardHeader className="p-5 flex-1">
@@ -603,7 +603,7 @@ export default function CityLocationPage() {
                       )}
                     </div>
                   </CardHeader>
-                  <CardFooter className="p-5 border-t border-amber-900/10 bg-black/20 flex items-center justify-between gap-3">
+                  <CardFooter className="p-5 border-t border-amber-900/10 bg-zinc-950 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-1.5">
                       <Coins className="w-4 h-4 text-amber-500" />
                       <span className="font-bold font-serif text-amber-200 text-base">{item.price}</span>
@@ -627,7 +627,7 @@ export default function CityLocationPage() {
               <TavernBannerIcon className="w-12 h-12 text-amber-900/40" />
             </div>
             <h2 className="text-3xl font-medieval text-amber-500">{location.name}</h2>
-            <p className="text-gray-500 max-w-sm font-serif leading-relaxed italic">
+            <p className="text-zinc-500 max-w-sm font-serif leading-relaxed italic">
               {location.description}
             </p>
             <div className="pt-8 flex flex-col items-center gap-1">

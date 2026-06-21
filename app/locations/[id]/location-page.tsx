@@ -41,7 +41,7 @@ export default function LocationPage({ id }: { id: string }) {
                 <li key={item.name} className="flex justify-between items-center">
                   <div>
                     <span className="font-medium">{item.name}</span>
-                    <p className="text-sm text-gray-600">{item.description}</p>
+                    <p className="text-sm text-zinc-600">{item.description}</p>
                   </div>
                   <span className="text-amber-600">{item.price} gold</span>
                 </li>

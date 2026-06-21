@@ -216,7 +216,7 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
                 </>
               ) : (
                 <>
-                  <Clock className="h-4 w-4 text-gray-500" />
+                  <Clock className="h-4 w-4 text-zinc-500" />
                   <Badge variant="outline" className="text-xs">
                     {formatTime(state.timeRemaining)}
                   </Badge>

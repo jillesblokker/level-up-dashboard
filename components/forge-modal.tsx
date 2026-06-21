@@ -219,19 +219,19 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-slate-900 text-white border border-slate-800 rounded-2xl p-6">
+      <DialogContent className="max-w-2xl bg-zinc-900 text-white border border-zinc-800 rounded-2xl p-6">
         <DialogHeader>
           <DialogTitle className="text-amber-500 font-serif text-3xl font-bold flex items-center gap-2">
             🔨 The Royal Forge
           </DialogTitle>
-          <DialogDescription className="text-slate-400 text-sm">
+          <DialogDescription className="text-zinc-400 text-sm">
             Combine your harvested kingdom materials and gold to forge equipment and items.
           </DialogDescription>
         </DialogHeader>
 
         {/* Player Gold Balance Display */}
-        <div className="bg-slate-950 border border-slate-850/40 rounded-xl p-3 flex justify-between items-center my-2">
-          <span className="text-slate-400 text-sm font-medium">Your Wealth:</span>
+        <div className="bg-zinc-950 border border-zinc-850/40 rounded-xl p-3 flex justify-between items-center my-2">
+          <span className="text-zinc-400 text-sm font-medium">Your Wealth:</span>
           <span className="text-amber-400 font-bold text-lg flex items-center gap-1">
             🪙 {playerGold} Gold
           </span>
@@ -251,11 +251,11 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
                 return (
                   <div 
                     key={recipe.id}
-                    className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-amber-500/30 transition-all"
+                    className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-amber-500/30 transition-all"
                   >
                     {/* Item Metadata */}
                     <div className="flex gap-4 items-start max-w-sm">
-                      <div className="text-4xl bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center justify-center shrink-0">
+                      <div className="text-4xl bg-zinc-900 border border-zinc-800 p-3 rounded-lg flex items-center justify-center shrink-0">
                         {item.emoji}
                       </div>
                       <div>
@@ -266,12 +266,12 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
                             item.rarity === 'epic' ? 'border-purple-500 text-purple-400 bg-purple-950/20' :
                             item.rarity === 'rare' ? 'border-blue-500 text-blue-400 bg-blue-950/20' :
                             item.rarity === 'uncommon' ? 'border-green-500 text-green-400 bg-green-950/20' :
-                            'border-slate-500 text-slate-400 bg-slate-950/20'
+                            'border-zinc-500 text-zinc-400 bg-zinc-950/20'
                           }`}>
                             {item.rarity}
                           </Badge>
                         </div>
-                        <p className="text-slate-400 text-xs mt-1 leading-snug">{item.description}</p>
+                        <p className="text-zinc-400 text-xs mt-1 leading-snug">{item.description}</p>
                         
                         {/* Stats Row */}
                         {item.stats && Object.keys(item.stats).length > 0 && (
@@ -287,7 +287,7 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
                     </div>
 
                     {/* Requirements & Craft Button */}
-                    <div className="flex flex-col items-end gap-3 w-full md:w-auto border-t md:border-t-0 border-slate-800 pt-3 md:pt-0">
+                    <div className="flex flex-col items-end gap-3 w-full md:w-auto border-t md:border-t-0 border-zinc-800 pt-3 md:pt-0">
                       {/* Materials requirements grid */}
                       <div className="flex flex-wrap md:flex-col gap-2 items-end justify-end w-full">
                         {recipe.materials.map(req => {
@@ -321,7 +321,7 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
                         className={`h-9 w-full md:w-28 font-semibold rounded-lg text-xs ${
                           canCraft 
                             ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/10' 
-                            : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                            : 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700'
                         }`}
                       >
                         {isCrafting === recipe.id ? '🔨 Forging...' : '🔨 Forge'}

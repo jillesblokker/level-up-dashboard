@@ -105,7 +105,7 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                                 "relative overflow-hidden rounded-2xl border transition-all duration-500 group",
                                                 isUnlocked
                                                     ? "bg-gradient-to-br from-yellow-950/20 via-zinc-900 to-zinc-900/50 border-yellow-500/30 shadow-lg shadow-yellow-900/5"
-                                                    : "bg-zinc-900/40 border-zinc-800 opacity-90"
+                                                    : "bg-zinc-900 border-zinc-800 opacity-90"
                                             )}
                                         >
                                             {/* Hover Glow effect */}
@@ -128,7 +128,7 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                                             )}
                                                         />
                                                         {!isUnlocked && (
-                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+                                                            <div className="absolute inset-0 flex items-center justify-center bg-zinc-950 backdrop-blur-[1px]">
                                                                 <Lock className="w-8 h-8 text-zinc-600 animate-pulse" />
                                                             </div>
                                                         )}
@@ -167,7 +167,7 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                                                 <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Progress</span>
                                                                 <span className="text-xs font-mono text-zinc-400">{progress} <span className="text-zinc-600">/</span> {achievement.requirement}</span>
                                                             </div>
-                                                            <div className="relative h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5">
+                                                            <div className="relative h-2 w-full bg-zinc-950 rounded-full overflow-hidden border border-white/5">
                                                                 <div
                                                                     className={cn(
                                                                         "absolute inset-y-0 left-0 transition-all duration-1000",
@@ -206,7 +206,7 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                         )}
                     </div>
 
-                    <div className="p-4 border-t border-zinc-900 bg-zinc-950/50">
+                    <div className="p-4 border-t border-zinc-900 bg-zinc-950">
                         <Button
                             onClick={() => onOpenChange(false)}
                             className="w-full h-11 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl border border-zinc-800 transition-all duration-300"

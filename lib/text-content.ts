@@ -2188,8 +2188,8 @@ export const TEXT_CONTENT = {
                     textColors: {
                         title: "Text Colors",
                         primary: "Primary text (text-white)",
-                        secondary: "Secondary text (text-gray-300)",
-                        muted: "Muted text (text-gray-400)",
+                        secondary: "Secondary text (text-zinc-300)",
+                        muted: "Muted text (text-zinc-400)",
                         accent: "Accent text (text-amber-400)",
                         success: "Success text (text-green-400)",
                         error: "Error text (text-red-400)"

@@ -225,17 +225,17 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-amber-500 text-2xl font-bold">Kingdom Grid</CardTitle>
-              <CardDescription className="text-gray-300">
+              <CardDescription className="text-zinc-300">
                 Build your kingdom by placing tiles and expanding your realm
               </CardDescription>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-center">
-                <div className="text-sm text-gray-400">Level Required</div>
+                <div className="text-sm text-zinc-400">Level Required</div>
                 <div className="text-lg font-bold text-amber-500">{nextExpansionLevel}</div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-gray-400">Your Level</div>
+                <div className="text-sm text-zinc-400">Your Level</div>
                 <div className={`text-lg font-bold ${playerLevel >= nextExpansionLevel ? 'text-green-500' : 'text-red-500'}`}>
                   {playerLevel}
                 </div>
@@ -253,16 +253,16 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400">Build Tokens</div>
+            <div className="text-center p-3 bg-zinc-800 rounded-lg">
+              <div className="text-sm text-zinc-400">Build Tokens</div>
               <div className="text-xl font-bold text-amber-500">{buildTokens}</div>
             </div>
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400">Expansions</div>
+            <div className="text-center p-3 bg-zinc-800 rounded-lg">
+              <div className="text-sm text-zinc-400">Expansions</div>
               <div className="text-xl font-bold text-blue-500">{kingdomExpansions}</div>
             </div>
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400">Grid Size</div>
+            <div className="text-center p-3 bg-zinc-800 rounded-lg">
+              <div className="text-sm text-zinc-400">Grid Size</div>
               <div className="text-xl font-bold text-green-500">{grid.length}x{grid[0]?.length || 0}</div>
             </div>
           </div>
@@ -290,7 +290,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
             row.map((tile, x) => (
               <div
                 key={`${x}-${y}`}
-                className="w-16 h-16 border border-gray-700 bg-gray-800 flex items-center justify-center cursor-pointer hover:border-amber-500 transition-colors"
+                className="w-16 h-16 border border-zinc-700 bg-zinc-800 flex items-center justify-center cursor-pointer hover:border-amber-500 transition-colors"
                 onClick={() => selectedTile && handleTilePlacement(x, y, selectedTile)}
                 aria-label={`Grid position ${x}, ${y}${tile && tile.type !== 'empty' ? ` - ${tile.type} tile` : ' - empty'}`}
                 role="button"
@@ -307,7 +307,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                     />
                   </div>
                 ) : (
-                  <div className="w-8 h-8 bg-gray-700 rounded opacity-50" />
+                  <div className="w-8 h-8 bg-zinc-700 rounded opacity-50" />
                 )}
               </div>
             ))
@@ -344,7 +344,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                     {propertyInventory.map(tile => (
                       <div
                         key={tile.id}
-                        className="p-3 border border-gray-700 rounded-lg text-center"
+                        className="p-3 border border-zinc-700 rounded-lg text-center"
                         aria-label={`${tile.name} property tile`}
                       >
                         <div className="relative w-16 h-16 mx-auto mb-2">
@@ -357,7 +357,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                           />
                         </div>
                         <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
-                        <div className="text-sm text-gray-400 mb-2">{tile.description}</div>
+                        <div className="text-sm text-zinc-400 mb-2">{tile.description}</div>
                         <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
                         {propertyTab === 'buy' ? (
                           <button
@@ -370,7 +370,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                           </button>
                         ) : (
                           <button
-                            className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-gray-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
+                            className={`w-full px-3 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold ${selectedTile?.id === tile.id ? 'bg-amber-800 text-white' : 'bg-zinc-800 text-amber-300 hover:bg-amber-700 hover:text-white'}`}
                             aria-label={`Select ${tile.name} to place`}
                             onClick={() => setSelectedTile(tile)}
                           >
@@ -401,10 +401,10 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
 
       {/* Loading State */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
+        <div className="fixed inset-0 bg-zinc-950 flex items-center justify-center z-50">
+          <div className="bg-zinc-800 p-6 rounded-lg text-center">
             <div className="text-white text-lg mb-2">Saving Kingdom Grid...</div>
-            <div className="text-gray-400 text-sm">Please wait while we sync with the database</div>
+            <div className="text-zinc-400 text-sm">Please wait while we sync with the database</div>
           </div>
         </div>
       )}

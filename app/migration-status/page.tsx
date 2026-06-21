@@ -113,16 +113,16 @@ export default function MigrationStatusPage() {
         {Object.keys(status.userPreferences).length > 0 ? (
           <div className="space-y-2">
             {Object.entries(status.userPreferences).map(([key, value]) => (
-              <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={key} className="flex justify-between items-center p-2 bg-zinc-50 rounded">
                 <span className="font-mono text-sm">{key}</span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-zinc-600">
                   {typeof value === 'object' ? JSON.stringify(value).substring(0, 50) + '...' : String(value)}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">{TEXT_CONTENT.migration.userPreferences.empty}</p>
+          <p className="text-zinc-500">{TEXT_CONTENT.migration.userPreferences.empty}</p>
         )}
       </div>
 
@@ -132,16 +132,16 @@ export default function MigrationStatusPage() {
         {Object.keys(status.realmData).length > 0 ? (
           <div className="space-y-2">
             {Object.entries(status.realmData).map(([key, value]) => (
-              <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={key} className="flex justify-between items-center p-2 bg-zinc-50 rounded">
                 <span className="font-mono text-sm">{key}</span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-zinc-600">
                   {typeof value === 'object' ? JSON.stringify(value).substring(0, 50) + '...' : String(value)}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">{TEXT_CONTENT.migration.realmData.empty}</p>
+          <p className="text-zinc-500">{TEXT_CONTENT.migration.realmData.empty}</p>
         )}
       </div>
 
@@ -151,16 +151,16 @@ export default function MigrationStatusPage() {
         {Object.keys(status.kingdomData).length > 0 ? (
           <div className="space-y-2">
             {Object.entries(status.kingdomData).map(([key, value]) => (
-              <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={key} className="flex justify-between items-center p-2 bg-zinc-50 rounded">
                 <span className="font-mono text-sm">{key}</span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-zinc-600">
                   {typeof value === 'object' ? JSON.stringify(value).substring(0, 50) + '...' : String(value)}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">{TEXT_CONTENT.migration.kingdomData.empty}</p>
+          <p className="text-zinc-500">{TEXT_CONTENT.migration.kingdomData.empty}</p>
         )}
       </div>
 

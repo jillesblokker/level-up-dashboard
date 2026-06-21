@@ -179,7 +179,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight font-serif text-white">{TEXT_CONTENT.settings.header.title}</h1>
-            <p className="text-gray-400">{TEXT_CONTENT.settings.header.subtitle}</p>
+            <p className="text-zinc-400">{TEXT_CONTENT.settings.header.subtitle}</p>
           </div>
           <Link href="/kingdom">
             <Button variant="outline" className="text-white border-amber-800/20 hover:bg-amber-900/20">
@@ -206,7 +206,7 @@ export default function SettingsPage() {
               <option value="account">{TEXT_CONTENT.settings.tabs.account}</option>
             </select>
           </div>
-          <TabsList className="bg-gray-900 border-amber-800/20 hidden md:flex">
+          <TabsList className="bg-zinc-900 border-amber-800/20 hidden md:flex">
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-amber-900/20">
               <User className="mr-2 h-4 w-4" />
               {TEXT_CONTENT.settings.tabs.profile}
@@ -226,10 +226,10 @@ export default function SettingsPage() {
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20">
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20">
               <CardHeader>
                 <CardTitle className="font-serif text-white">{TEXT_CONTENT.settings.profile.title}</CardTitle>
-                <CardDescription className="text-gray-400">{TEXT_CONTENT.settings.profile.subtitle}</CardDescription>
+                <CardDescription className="text-zinc-400">{TEXT_CONTENT.settings.profile.subtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                     placeholder={TEXT_CONTENT.settings.profile.namePlaceholder}
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
-                    className="bg-gray-900 border-amber-800/20 text-white"
+                    className="bg-zinc-900 border-amber-800/20 text-white"
                   />
                 </div>
                 <div className="space-y-2">
@@ -250,9 +250,9 @@ export default function SettingsPage() {
                     placeholder={TEXT_CONTENT.settings.profile.emailPlaceholder}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-900 border-amber-800/20 text-white"
+                    className="bg-zinc-900 border-amber-800/20 text-white"
                   />
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-zinc-400">
                     {TEXT_CONTENT.settings.profile.emailNote}
                   </p>
                 </div>
@@ -270,22 +270,22 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="gameplay" className="space-y-6">
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 text-white">
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
               <CardHeader>
                 <CardTitle className="font-serif text-white flex items-center">
                   <Gamepad2 className="w-5 h-5 mr-2 text-amber-500" />
                   Gameplay Features
                 </CardTitle>
-                <CardDescription className="text-gray-400">Manage mechanics that affect your daily play.</CardDescription>
+                <CardDescription className="text-zinc-400">Manage mechanics that affect your daily play.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
                       <HeartPulse className="w-4 h-4 mr-2 text-pink-500" />
                       Sanctuary Mode
                     </Label>
-                    <p className="text-sm text-gray-400 max-w-md">
+                    <p className="text-sm text-zinc-400 max-w-md">
                       Activate this when you are sick, on vacation, or need a break. It freezes all your streaks and prevents negative consequences (like Chaos Rifts) for missing habits.
                     </p>
                   </div>
@@ -308,19 +308,19 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="appearance" className="space-y-6">
-            <Card className="bg-gradient-to-b from-black to-gray-900 border-amber-800/20 text-white">
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
               <CardHeader>
                 <CardTitle className="font-serif text-white">{TEXT_CONTENT.settings.appearance.title}</CardTitle>
-                <CardDescription className="text-gray-400">{TEXT_CONTENT.settings.appearance.subtitle}</CardDescription>
+                <CardDescription className="text-zinc-400">{TEXT_CONTENT.settings.appearance.subtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
                       <Palette className="w-4 h-4 mr-2 text-amber-500" />
                       {TEXT_CONTENT.settings.appearance.dayNight.label}
                     </Label>
-                    <p className="text-sm text-gray-400 max-w-md">
+                    <p className="text-sm text-zinc-400 max-w-md">
                       {TEXT_CONTENT.settings.appearance.dayNight.description}
                     </p>
                   </div>
@@ -342,13 +342,13 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
                       <Bell className="w-4 h-4 mr-2 text-amber-500" />
                       Mute Gold Collection Alerts
                     </Label>
-                    <p className="text-sm text-gray-400 max-w-md">
+                    <p className="text-sm text-zinc-400 max-w-md">
                       Mute toast alerts for minor gold collections (harvesting tiles, citizen gathering, and animals) to reduce notifications clutter. Milestone alerts will still show.
                     </p>
                   </div>
@@ -369,13 +369,13 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
                       <Bell className="w-4 h-4 mr-2 text-amber-500" />
                       Mute XP Collection Alerts
                     </Label>
-                    <p className="text-sm text-gray-400 max-w-md">
+                    <p className="text-sm text-zinc-400 max-w-md">
                       Mute toast alerts for minor experience gains (building activities, event actions, etc.) to reduce screen clutter. Milestone level-ups will still display.
                     </p>
                   </div>
@@ -396,13 +396,13 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
                       <Bell className="w-4 h-4 mr-2 text-amber-500" />
                       Mute Quest/Task Actions Alerts
                     </Label>
-                    <p className="text-sm text-gray-400 max-w-md">
+                    <p className="text-sm text-zinc-400 max-w-md">
                       Mute toast alerts for quest steps or minor task completions. Major achievements and tier transitions will still notify.
                     </p>
                   </div>
@@ -435,7 +435,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold">{TEXT_CONTENT.settings.account.github.title}</h2>
-              <p className="text-gray-500">
+              <p className="text-zinc-500">
                 {isGithubConnected
                   ? TEXT_CONTENT.settings.account.github.connected
                   : TEXT_CONTENT.settings.account.github.disconnected}
@@ -450,9 +450,9 @@ export default function SettingsPage() {
           </div>
 
           {isGithubConnected && (
-            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+            <div className="mt-4 p-4 bg-zinc-100 rounded-lg">
               <p className="font-medium">{TEXT_CONTENT.settings.account.github.userInfo}</p>
-              <p className="text-sm text-gray-600">user@example.com</p>
+              <p className="text-sm text-zinc-600">user@example.com</p>
             </div>
           )}
         </Card>

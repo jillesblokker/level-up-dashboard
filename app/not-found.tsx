@@ -6,7 +6,7 @@ import { TEXT_CONTENT } from "@/lib/text-content";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-black border-2 border-amber-800/50 rounded-lg p-8 text-center">
         <div className="mb-6 flex justify-center">
           <div className="relative">
@@ -23,7 +23,7 @@ export default function NotFound() {
           </p>
         </div>
 
-        <p className="text-gray-400 mb-8">
+        <p className="text-zinc-400 mb-8">
           {TEXT_CONTENT.errorPage.notFound.subtext}
         </p>
 

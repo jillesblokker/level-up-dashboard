@@ -13,7 +13,7 @@ export default function RequireSignIn() {
         priority
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-amber-900/30" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-md p-8 rounded-lg shadow-lg bg-black/80 border border-amber-800/30">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-md p-8 rounded-lg shadow-lg bg-zinc-950 border border-amber-800/30">
         <h2 className="text-2xl font-medieval text-amber-500 drop-shadow mb-4 text-center">
           Welcome to the world of Thrivehaven.<br />
           <span className="text-base font-normal text-amber-200 block mt-4">

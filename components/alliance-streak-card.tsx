@@ -66,7 +66,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
         >
             <Card className={`relative overflow-hidden ${isActive
                     ? 'bg-gradient-to-br from-orange-950/40 to-black border-orange-500/50 shadow-lg shadow-orange-500/20'
-                    : 'bg-gradient-to-br from-gray-950/40 to-black border-gray-700/50'
+                    : 'bg-gradient-to-br from-zinc-950/40 to-black border-zinc-700/50'
                 }`}>
                 {/* Animated background effect */}
                 {isActive && (
@@ -77,15 +77,15 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                                <Flame className={`w-5 h-5 ${isActive ? 'text-orange-500' : 'text-gray-500'}`} />
-                                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+                                <Flame className={`w-5 h-5 ${isActive ? 'text-orange-500' : 'text-zinc-500'}`} />
+                                <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
                                     Alliance Streak
                                 </h3>
                             </div>
 
                             <div className="flex items-baseline gap-3">
                                 <motion.span
-                                    className={`text-5xl font-bold ${isActive ? 'text-orange-400' : 'text-gray-500'}`}
+                                    className={`text-5xl font-bold ${isActive ? 'text-orange-400' : 'text-zinc-500'}`}
                                     key={streak.current}
                                     initial={{ scale: 1.2, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
@@ -93,7 +93,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                                 >
                                     {streak.current}
                                 </motion.span>
-                                <span className="text-sm text-gray-400">
+                                <span className="text-sm text-zinc-400">
                                     {streak.current === 1 ? 'day' : 'days'}
                                 </span>
                             </div>
@@ -110,7 +110,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                             )}
 
                             {!isActive && (
-                                <p className="text-xs text-gray-500 mt-2">
+                                <p className="text-xs text-zinc-500 mt-2">
                                     Interact with allies to start your streak
                                 </p>
                             )}
@@ -118,11 +118,11 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
 
                         {/* Longest streak badge */}
                         {streak.longest > 0 && (
-                            <div className="flex flex-col items-center gap-1 px-4 py-3 bg-black/40 rounded-lg border border-gray-700/50">
+                            <div className="flex flex-col items-center gap-1 px-4 py-3 bg-zinc-950 rounded-lg border border-zinc-700/50">
                                 <Trophy className="w-5 h-5 text-amber-500" />
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-amber-400">{streak.longest}</div>
-                                    <div className="text-[10px] text-gray-400 uppercase tracking-wider">Best</div>
+                                    <div className="text-[10px] text-zinc-400 uppercase tracking-wider">Best</div>
                                 </div>
                             </div>
                         )}
@@ -131,7 +131,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                     {/* Milestone progress */}
                     {isActive && (
                         <div className="mt-4 pt-4 border-t border-orange-900/30">
-                            <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                            <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
                                 <span>Next milestone</span>
                                 <span className="font-semibold">
                                     {streak.current < 7 ? `${7 - streak.current} days to "Loyal Ally"` :
@@ -140,7 +140,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                                                 'All milestones achieved! 🎉'}
                                 </span>
                             </div>
-                            <div className="h-2 bg-black/50 rounded-full overflow-hidden">
+                            <div className="h-2 bg-zinc-950 rounded-full overflow-hidden">
                                 <motion.div
                                     className="h-full bg-gradient-to-r from-orange-600 to-orange-400"
                                     initial={{ width: 0 }}

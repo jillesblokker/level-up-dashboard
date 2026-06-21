@@ -170,7 +170,7 @@ export function MysteryEventModal({
                                             className={cn(
                                                 "w-full h-12 text-md font-medium tracking-wide transition-all duration-300 rounded-xl",
                                                 !isSecondary && cn("text-white shadow-lg", style.button),
-                                                isSecondary && "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+                                                isSecondary && "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
                                             )}
                                         >
                                             {choice}

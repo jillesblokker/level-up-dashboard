@@ -80,7 +80,7 @@ export function NotificationAlert() {
       case "discovery":
         return "bg-cyan-500"
       default:
-        return "bg-gray-500"
+        return "bg-zinc-500"
     }
   }
 

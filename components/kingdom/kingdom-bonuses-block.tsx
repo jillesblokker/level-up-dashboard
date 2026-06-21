@@ -34,7 +34,7 @@ export function KingdomBonusesBlock({ grid, className }: KingdomBonusesBlockProp
     if (bonusItems.length === 0) return null;
 
     return (
-        <Card className={cn("bg-black/40 border-amber-900/30", className)}>
+        <Card className={cn("bg-zinc-950 border-amber-900/30", className)}>
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
                     <Shield className="w-4 h-4" /> Kingdom Passive Bonuses

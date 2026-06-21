@@ -31,7 +31,7 @@ interface Weapon {
 const weapons: Weapon[] = [
   { id: 'shield', name: 'Shield', icon: <Shield className="w-8 h-8" />, color: 'bg-blue-500' },
   { id: 'sword', name: 'Sword', icon: <Sword className="w-8 h-8" />, color: 'bg-red-500' },
-  { id: 'armor', name: 'Armor', icon: <Armor className="w-8 h-8" />, color: 'bg-gray-500' },
+  { id: 'armor', name: 'Armor', icon: <Armor className="w-8 h-8" />, color: 'bg-zinc-500' },
   { id: 'artifact', name: 'Artifact', icon: <Zap className="w-8 h-8" />, color: 'bg-purple-500' },
   { id: 'potion', name: 'Potion', icon: <Heart className="w-8 h-8" />, color: 'bg-green-500' },
 ]
@@ -305,13 +305,13 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black backdrop-blur-sm">
-      <Card className="monster-battle-container w-full max-w-2xl bg-gray-900 border-amber-800/30 text-white transition-all duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black ">
+      <Card className="monster-battle-container w-full max-w-2xl bg-zinc-900 border-amber-800/30 text-white transition-all duration-300">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-400">
             {TEXT_CONTENT.monsterBattle.ui.battleAgainst.replace('{monsterName}', monster.name)}
           </CardTitle>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-zinc-400">
             {TEXT_CONTENT.monsterBattle.ui.roundDifficulty
               .replace('{round}', currentRound.toString())
               .replace('{difficulty}', monster.difficulty)}
@@ -320,8 +320,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
         <CardContent className="space-y-6">
           {/* Monster Card */}
-          <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-amber-800">
-            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden relative">
+          <div className="flex items-center gap-4 p-4 bg-zinc-800 rounded-lg border border-amber-800">
+            <div className="w-16 h-16 bg-zinc-700 rounded-lg flex items-center justify-center overflow-hidden relative">
               <Image
                 src={monster.image}
                 alt={monster.name}
@@ -338,7 +338,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
             </div>
             <div>
               <h3 className="font-bold text-lg">{monster.name}</h3>
-              <p className="text-sm text-gray-400">{monster.description}</p>
+              <p className="text-sm text-zinc-400">{monster.description}</p>
             </div>
           </div>
 
@@ -399,7 +399,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           {/* Player Progress */}
           {isPlayerTurn && (
             <div className="text-center">
-              <div className="text-sm text-gray-400 mb-2">
+              <div className="text-sm text-zinc-400 mb-2">
                 {TEXT_CONTENT.monsterBattle.ui.yourSequence
                   .replace('{current}', playerSequence.length.toString())
                   .replace('{total}', sequence.length.toString())}
@@ -415,7 +415,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 {Array.from({ length: sequence.length - playerSequence.length }).map((_, index) => (
                   <div
                     key={`empty-${index}`}
-                    className="w-4 h-4 rounded-full bg-gray-600"
+                    className="w-4 h-4 rounded-full bg-zinc-600"
                     aria-label={`Remaining item ${index + 1}`}
                   />
                 ))}

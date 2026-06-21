@@ -402,7 +402,7 @@ export default function AdminPage() {
             <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">Game Admin</h1>
             <p className="text-zinc-400">Manage players, economy, and game content.</p>
           </div>
-          <div className="flex items-center gap-3 bg-zinc-900/50 px-4 py-2 rounded-full border border-zinc-800">
+          <div className="flex items-center gap-3 bg-zinc-900 px-4 py-2 rounded-full border border-zinc-800">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-sm font-medium text-zinc-300">Admin: {user?.primaryEmailAddress?.emailAddress}</span>
           </div>
@@ -411,7 +411,7 @@ export default function AdminPage() {
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-8">
 
           {/* Navigation */}
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto p-1 bg-zinc-900/50 border border-zinc-800 rounded-lg gap-2">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto p-1 bg-zinc-900 border border-zinc-800 rounded-lg gap-2">
             <TabsTrigger value="stats" className="h-12 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-zinc-400 gap-2">
               <BarChart3 className="w-4 h-4" /> Player Stats
             </TabsTrigger>
@@ -452,7 +452,7 @@ export default function AdminPage() {
                     </Button>
                   </div>
 
-                  <div className="border border-zinc-800 rounded-md bg-zinc-950/50 min-h-[300px] max-h-[500px] overflow-y-auto p-2 space-y-2">
+                  <div className="border border-zinc-800 rounded-md bg-zinc-950 min-h-[300px] max-h-[500px] overflow-y-auto p-2 space-y-2">
                     {foundUsers.length === 0 && !isSearching && (
                       <div className="flex flex-col items-center justify-center h-40 text-muted-foreground gap-2">
                         <User className="w-8 h-8 opacity-20" />
@@ -786,7 +786,7 @@ export default function AdminPage() {
                           <SelectItem value="might"><div className="flex items-center gap-2"><Sword className="w-4 h-4 text-red-500" /> Might</div></SelectItem>
                           <SelectItem value="knowledge"><div className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-blue-500" /> Knowledge</div></SelectItem>
                           <SelectItem value="honor"><div className="flex items-center gap-2"><Crown className="w-4 h-4 text-amber-500" /> Honor</div></SelectItem>
-                          <SelectItem value="castle"><div className="flex items-center gap-2"><ShieldAlert className="w-4 h-4 text-slate-500" /> Castle</div></SelectItem>
+                          <SelectItem value="castle"><div className="flex items-center gap-2"><ShieldAlert className="w-4 h-4 text-zinc-500" /> Castle</div></SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -824,7 +824,7 @@ export default function AdminPage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="bg-zinc-950/50 p-6 flex justify-end border-t border-zinc-800">
+              <CardFooter className="bg-zinc-950 p-6 flex justify-end border-t border-zinc-800">
                 <Button onClick={createQuest} disabled={isCreatingQuest} size="lg" className="bg-amber-600 hover:bg-amber-500 text-white font-bold w-full md:w-auto px-10">
                   {isCreatingQuest ? <Loader2 className="animate-spin mr-2" /> : <PlusCircle className="mr-2 w-5 h-5" />}
                   Create Quest

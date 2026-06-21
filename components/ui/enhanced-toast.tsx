@@ -143,8 +143,8 @@ export function EnhancedToast({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg border backdrop-blur-sm transition-all duration-300",
-        "bg-gradient-to-br from-gray-900/95 to-gray-800/95",
+        "relative overflow-hidden rounded-lg border  transition-all duration-300",
+        "bg-gradient-to-br from-zinc-900/95 to-zinc-800/95",
         config.borderColor,
         "transform translate-x-0 opacity-100",
         "hover:scale-105 hover:shadow-lg",
@@ -164,7 +164,7 @@ export function EnhancedToast({
       
       {/* Progress bar */}
       {showProgress && (
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-700">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-700">
           <div 
             className={cn("h-full transition-all duration-100", config.bgColor)}
             style={{ width: `${progress}%` }}
@@ -176,7 +176,7 @@ export function EnhancedToast({
         <div className="flex items-start gap-3">
           {/* Icon */}
           <div className={cn(
-            "flex-shrink-0 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50",
+            "flex-shrink-0 p-2 rounded-lg bg-zinc-800/50 border border-zinc-700/50",
             "group-hover:bg-amber-500/20 group-hover:border-amber-500/30 transition-all duration-300"
           )}>
             <Icon className={cn("h-5 w-5", config.iconColor)} />
@@ -189,11 +189,11 @@ export function EnhancedToast({
                 <h3 className={cn("text-sm font-semibold", config.textColor)}>
                   {config.title}
                 </h3>
-                <p className="text-sm text-gray-300 mt-1 line-clamp-2">
+                <p className="text-sm text-zinc-300 mt-1 line-clamp-2">
                   {title}
                 </p>
                 {description && (
-                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
                     {description}
                   </p>
                 )}
@@ -204,7 +204,7 @@ export function EnhancedToast({
                 variant="ghost"
                 size="sm"
                 onClick={handleClose}
-                className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-gray-700/50"
+                className="h-6 w-6 p-0 text-zinc-400 hover:text-white hover:bg-zinc-700/50"
                 aria-label="Close notification"
               >
                 <X className="h-4 w-4" />

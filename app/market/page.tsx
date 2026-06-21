@@ -293,20 +293,20 @@ export default function MarketPage() {
   }, [searchQuery, sortBy, filterBy, activeTab, inventoryAsItems]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 text-white font-sans">
+    <div className="flex min-h-screen flex-col bg-zinc-950 text-white font-sans">
       <main className="flex-1 p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-amber-500 font-serif">Royal Exchange</h1>
-            <p className="text-slate-400 mt-1">Trade standard construction materials and resources.</p>
+            <p className="text-zinc-400 mt-1">Trade standard construction materials and resources.</p>
           </div>
           <div className="flex items-center gap-4">
             {/* Current Gold HUD */}
-            <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 p-2.5 px-4 rounded-xl shadow-lg backdrop-blur-md">
+            <div className="flex items-center gap-3 bg-zinc-950 border border-zinc-800 p-2.5 px-4 rounded-xl shadow-lg ">
               <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
               <div className="text-right">
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Your Treasury</p>
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
                 <p className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
                   {formatGold(goldBalance)} <span className="text-xs text-amber-600">Gold</span>
                 </p>
@@ -314,7 +314,7 @@ export default function MarketPage() {
             </div>
 
             <Link href="/">
-              <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
+              <Button variant="outline" className="border-zinc-700 hover:bg-zinc-800 text-zinc-300">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Return to Kingdom
               </Button>
@@ -323,7 +323,7 @@ export default function MarketPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
-          <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-3 bg-slate-900 border border-slate-800 p-2 rounded-xl">
+          <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-3 bg-zinc-900 border border-zinc-800 p-2 rounded-xl">
             <TabsTrigger value="buy" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
               <ShoppingBag className="w-5 h-5 mr-2" /> Buy Materials
             </TabsTrigger>
@@ -348,7 +348,7 @@ export default function MarketPage() {
                   const onCooldown = isPackOnCooldown(pack);
                   const remaining = getCooldownRemaining(pack);
                   return (
-                    <Card key={pack.id} className={`bg-slate-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
+                    <Card key={pack.id} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
                       <CardHeader className="text-center relative z-10 pb-4">
                         <CardTitle className="text-2xl font-black text-amber-300 tracking-wide">{pack.title}</CardTitle>
@@ -358,7 +358,7 @@ export default function MarketPage() {
                         <div className={`w-32 h-40 mx-auto bg-gradient-to-br from-amber-800/80 to-yellow-950 rounded-lg shadow-2xl flex items-center justify-center border-2 border-amber-500/30 transform transition-transform duration-500 ${onCooldown ? 'grayscale' : 'group-hover:scale-105 group-hover:rotate-3'}`}>
                           <span className="text-5xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
                         </div>
-                        <p className="text-sm text-slate-300 px-4">{pack.description}</p>
+                        <p className="text-sm text-zinc-300 px-4">{pack.description}</p>
                         {onCooldown && remaining && (
                           <div className="text-xs font-semibold text-amber-400 bg-amber-950/40 py-1 px-3 rounded-full inline-block border border-amber-900/30">
                             ⏱️ {remaining}
@@ -367,7 +367,7 @@ export default function MarketPage() {
                       </CardContent>
                       <CardFooter className="relative z-10 pt-4">
                         <Button 
-                          className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${onCooldown ? 'bg-slate-800 text-slate-500 border border-slate-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
+                          className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${onCooldown ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
                           onClick={() => handleBuyPack(pack)}
                           disabled={onCooldown}
                         >
@@ -388,7 +388,7 @@ export default function MarketPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {PACK_TYPES.map(pack => (
-                  <Card key={pack.id} className="bg-slate-900 border-purple-900/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden">
+                  <Card key={pack.id} className="bg-zinc-900 border-purple-900/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
                     <CardHeader className="text-center relative z-10 pb-4">
                       <CardTitle className="text-2xl font-black text-purple-300 tracking-wide">{pack.title}</CardTitle>
@@ -398,7 +398,7 @@ export default function MarketPage() {
                       <div className="w-32 h-40 mx-auto bg-gradient-to-br from-purple-800 to-indigo-900 rounded-lg shadow-2xl flex items-center justify-center border-2 border-purple-500/30 transform group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500">
                         <span className="text-5xl drop-shadow-lg">🎴</span>
                       </div>
-                      <p className="text-sm text-slate-300 px-4">{pack.description}</p>
+                      <p className="text-sm text-zinc-300 px-4">{pack.description}</p>
                     </CardContent>
                     <CardFooter className="relative z-10 pt-4">
                       <Button 
@@ -418,13 +418,13 @@ export default function MarketPage() {
           {/* BUY TAB */}
           <TabsContent value="buy" className="space-y-6">
             {/* Search, Filter & Sort Controls */}
-            <div className="flex flex-col md:flex-row gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800/60">
+            <div className="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800/60">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                 <Input
                   type="text"
                   placeholder="Search standard materials..."
-                  className="bg-black/40 border-slate-700 focus:border-amber-500 text-white pl-10"
+                  className="bg-zinc-950 border-zinc-700 focus:border-amber-500 text-white pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -433,7 +433,7 @@ export default function MarketPage() {
                 <select
                   value={filterBy}
                   onChange={(e) => setFilterBy(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
+                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
                 >
                   <option value="all">All Items</option>
                   <option value="owned">Owned Only</option>
@@ -443,7 +443,7 @@ export default function MarketPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
+                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
                 >
                   <option value="name-asc">Name (A-Z)</option>
                   <option value="name-desc">Name (Z-A)</option>
@@ -455,14 +455,14 @@ export default function MarketPage() {
             </div>
 
             {filteredAndSortedMaterials.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-zinc-500">
                 No materials match the selected filters.
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAndSortedMaterials.map((material) => (
-                  <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
-                    <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
+                  <Card key={material.id} className="bg-zinc-900 border-zinc-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
+                    <CardHeader className="pb-3 border-b border-zinc-800 bg-zinc-900 relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Package className="w-16 h-16 text-amber-500" />
                       </div>
@@ -471,31 +471,31 @@ export default function MarketPage() {
                           <span className="text-4xl filter drop-shadow-md">{material.icon}</span>
                           <div className="flex flex-col">
                             <span className="text-xl font-bold text-amber-100">{material.name}</span>
-                            <span className="text-xs text-slate-400 font-normal">{material.description}</span>
+                            <span className="text-xs text-zinc-400 font-normal">{material.description}</span>
                           </div>
                         </div>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6 space-y-4 flex-1">
-                      <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
+                      <div className="flex justify-between items-center text-sm text-zinc-400 bg-zinc-950 p-2 rounded-lg">
                         <span>In Inventory:</span>
                         <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
                       </div>
 
                       <div className="flex items-end gap-3">
                         <div className="flex-1 space-y-2">
-                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Quantity</label>
+                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Quantity</label>
                           <Input
                             type="number"
                             min="0"
                             placeholder="0"
-                            className="bg-black/40 border-slate-700 focus:border-amber-500 text-lg font-mono text-center"
+                            className="bg-zinc-950 border-zinc-700 focus:border-amber-500 text-lg font-mono text-center"
                             value={quantities[material.id] || ''}
                             onChange={(e) => handleQuantityChange(material.id, e.target.value)}
                           />
                         </div>
                         <div className="flex-1 space-y-2 text-right">
-                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Total Cost</label>
+                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Total Cost</label>
                           <div className="text-lg font-bold text-amber-500 font-mono flex items-center justify-end gap-1 h-10">
                             {(quantities[material.id] || 0) * material.buyPrice} <Coins className="w-4 h-4" />
                           </div>
@@ -520,13 +520,13 @@ export default function MarketPage() {
           {/* SELL TAB */}
           <TabsContent value="sell" className="space-y-6">
             {/* Search, Filter & Sort Controls */}
-            <div className="flex flex-col md:flex-row gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800/60">
+            <div className="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800/60">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                 <Input
                   type="text"
                   placeholder="Search resources..."
-                  className="bg-black/40 border-slate-700 focus:border-green-500 text-white pl-10"
+                  className="bg-zinc-950 border-zinc-700 focus:border-green-500 text-white pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -535,7 +535,7 @@ export default function MarketPage() {
                 <select
                   value={filterBy}
                   onChange={(e) => setFilterBy(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
+                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
                 >
                   <option value="all">All Items</option>
                   <option value="owned">Owned Only</option>
@@ -545,7 +545,7 @@ export default function MarketPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
+                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
                 >
                   <option value="name-asc">Name (A-Z)</option>
                   <option value="name-desc">Name (Z-A)</option>
@@ -557,14 +557,14 @@ export default function MarketPage() {
             </div>
 
             {filteredAndSortedMaterials.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-zinc-500">
                 No materials match the selected filters.
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAndSortedMaterials.map((material) => (
-                  <Card key={material.id} className="bg-slate-900 border-slate-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
-                    <CardHeader className="pb-3 border-b border-slate-800 bg-slate-900/50 relative overflow-hidden">
+                  <Card key={material.id} className="bg-zinc-900 border-zinc-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
+                    <CardHeader className="pb-3 border-b border-zinc-800 bg-zinc-900 relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                         <TrendingUp className="w-16 h-16 text-green-500" />
                       </div>
@@ -572,33 +572,33 @@ export default function MarketPage() {
                         <div className="flex items-center gap-3">
                           <span className="text-4xl filter drop-shadow-md">{material.icon}</span>
                           <div className="flex flex-col">
-                            <span className="text-xl font-bold text-slate-100">{material.name}</span>
-                            <span className="text-xs text-slate-400 font-normal">{material.description}</span>
+                            <span className="text-xl font-bold text-zinc-100">{material.name}</span>
+                            <span className="text-xs text-zinc-400 font-normal">{material.description}</span>
                           </div>
                         </div>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6 space-y-4 flex-1">
-                      <div className="flex justify-between items-center text-sm text-slate-400 bg-black/20 p-2 rounded-lg">
+                      <div className="flex justify-between items-center text-sm text-zinc-400 bg-zinc-950 p-2 rounded-lg">
                         <span>Available for Sale:</span>
                         <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
                       </div>
 
                       <div className="flex items-end gap-3">
                         <div className="flex-1 space-y-2">
-                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Quantity</label>
+                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Quantity</label>
                           <Input
                             type="number"
                             min="0"
                             max={getInventoryQuantity(material.id)}
                             placeholder="0"
-                            className="bg-black/40 border-slate-700 focus:border-green-500 text-lg font-mono text-center"
+                            className="bg-zinc-950 border-zinc-700 focus:border-green-500 text-lg font-mono text-center"
                             value={quantities[material.id] || ''}
                             onChange={(e) => handleQuantityChange(material.id, e.target.value)}
                           />
                         </div>
                         <div className="flex-1 space-y-2 text-right">
-                          <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Total Value</label>
+                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Total Value</label>
                           <div className="text-lg font-bold text-green-400 font-mono flex items-center justify-end gap-1 h-10">
                             {(quantities[material.id] || 0) * material.sellPrice} <Coins className="w-4 h-4" />
                           </div>

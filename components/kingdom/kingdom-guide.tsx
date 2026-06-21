@@ -36,7 +36,7 @@ export function KingdomGuide({ open: controlledOpen, onOpenChange }: KingdomGuid
             <Button
                 variant="ghost"
                 size="icon"
-                className="bg-black/50 hover:bg-black/70 text-amber-200 border border-amber-500/20 backdrop-blur-sm rounded-full w-10 h-10 transition-all hover:scale-110"
+                className="bg-zinc-950 hover:bg-zinc-950 text-amber-200 border border-amber-500/20  rounded-full w-10 h-10 transition-all hover:scale-110"
                 onClick={() => handleOpenChange(true)}
             >
                 <HelpCircle className="h-6 w-6" />
@@ -59,7 +59,7 @@ export function KingdomGuide({ open: controlledOpen, onOpenChange }: KingdomGuid
                                     <Map className="h-5 w-5" />
                                     <h3>Thrivehaven (Your Kingdom)</h3>
                                 </div>
-                                <p className="text-gray-300">
+                                <p className="text-zinc-300">
                                     This is your domain. Click on &quot;Vacant&quot; tiles to build new structures. Each building provides unique benefits and generates resources over time.
                                 </p>
                             </section>
@@ -69,7 +69,7 @@ export function KingdomGuide({ open: controlledOpen, onOpenChange }: KingdomGuid
                                     <Construction className="h-5 w-5" />
                                     <h3>Building & Expansion</h3>
                                 </div>
-                                <p className="text-gray-300">
+                                <p className="text-zinc-300">
                                     To build, you need <strong>Build Tokens</strong> and sometimes Gold.
                                     Tokens are earned by completing real-life Quests and Challenges.
                                     Click on an existing building to view its details or collect rewards when ready.
@@ -81,7 +81,7 @@ export function KingdomGuide({ open: controlledOpen, onOpenChange }: KingdomGuid
                                     <Coins className="h-5 w-5" />
                                     <h3>Economy & Rewards</h3>
                                 </div>
-                                <p className="text-gray-300">
+                                <p className="text-zinc-300">
                                     Buildings generate Gold and XP (Experience) automatically.
                                     Visit regularly! When a building&apos;s timer completes, a reward icon will appear.
                                     Click the tile to collect your earnings.
@@ -93,7 +93,7 @@ export function KingdomGuide({ open: controlledOpen, onOpenChange }: KingdomGuid
                                     <User className="h-5 w-5" />
                                     <h3>Character & Inventory</h3>
                                 </div>
-                                <p className="text-gray-300">
+                                <p className="text-zinc-300">
                                     Your &quot;Journey&quot; tab shows your character&apos;s stats.
                                     The &quot;Bag&quot; holds your items. Equip weapons and armor to boost your stats (Movement, Attack, Defense), which will be important for future battles!
                                 </p>

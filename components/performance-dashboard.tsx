@@ -112,7 +112,7 @@ const PerformanceDashboard: React.FC = () => {
     switch (trend) {
       case 'up': return <TrendingUp className="h-4 w-4 text-red-500" />;
       case 'down': return <TrendingDown className="h-4 w-4 text-green-500" />;
-      case 'stable': return <Minus className="h-4 w-4 text-gray-500" />;
+      case 'stable': return <Minus className="h-4 w-4 text-zinc-500" />;
     }
   };
 
@@ -220,7 +220,7 @@ const PerformanceDashboard: React.FC = () => {
               <span className="text-2xl font-bold text-blue-600">{overallScore}%</span>
             </div>
             <Progress value={overallScore} className="h-2" />
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-zinc-500">
               <span>Poor (0-59)</span>
               <span>Fair (60-79)</span>
               <span>Good (80-100)</span>
@@ -246,7 +246,7 @@ const PerformanceDashboard: React.FC = () => {
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold">{Math.round(metric.value)}</span>
-                  <span className="text-sm text-gray-500">{metric.unit}</span>
+                  <span className="text-sm text-zinc-500">{metric.unit}</span>
                 </div>
                 
                 <Progress value={progressValue} className="h-2" />
@@ -255,7 +255,7 @@ const PerformanceDashboard: React.FC = () => {
                   <Badge className={getStatusColor(status)}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </Badge>
-                  <span className="text-gray-500">
+                  <span className="text-zinc-500">
                     {metric.threshold.warning}ms / {metric.threshold.critical}ms
                   </span>
                 </div>
@@ -300,7 +300,7 @@ const PerformanceDashboard: React.FC = () => {
                       <span>{metric.label}</span>
                       <div className="flex items-center space-x-1">
                         {getTrendIcon(metric.trend)}
-                        <span className={metric.trend === 'up' ? 'text-red-500' : metric.trend === 'down' ? 'text-green-500' : 'text-gray-500'}>
+                        <span className={metric.trend === 'up' ? 'text-red-500' : metric.trend === 'down' ? 'text-green-500' : 'text-zinc-500'}>
                           {metric.trend === 'up' ? 'Worsening' : metric.trend === 'down' ? 'Improving' : 'Stable'}
                         </span>
                       </div>
@@ -330,7 +330,7 @@ const PerformanceDashboard: React.FC = () => {
             {/* Recommendations */}
             <div className="border-t pt-4">
               <h4 className="font-medium text-sm mb-2">Performance Recommendations</h4>
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-zinc-600">
                 {performanceMetrics.some(m => getPerformanceStatus(m) === 'critical') && (
                   <div className="flex items-start space-x-2 p-2 bg-red-50 rounded">
                     <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
@@ -393,7 +393,7 @@ const PerformanceDashboard: React.FC = () => {
                   aria-label="Performance tracking status"
                   title="Performance tracking is always enabled"
                 />
-                <span className="text-sm text-gray-500">Always enabled</span>
+                <span className="text-sm text-zinc-500">Always enabled</span>
               </div>
             </div>
           </div>

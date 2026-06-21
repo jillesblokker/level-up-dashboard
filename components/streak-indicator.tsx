@@ -31,12 +31,12 @@ export function StreakIndicator({ currentStreak, isCompletedToday }: StreakIndic
                             ? "bg-indigo-950/40 border-indigo-500/50 text-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.2)]"
                             : isPaused 
                                 ? "bg-amber-950/40 border-amber-700/50 text-amber-500" 
-                                : "bg-gray-900/40 border-gray-700 text-gray-400"
+                                : "bg-zinc-900 border-zinc-700 text-zinc-400"
                     )}>
                         <div className="relative">
                             <div className={cn(
                                 "transition-all duration-500",
-                                isCompletedToday ? "text-indigo-500 animate-pulse" : isPaused ? "text-amber-500" : "text-gray-500"
+                                isCompletedToday ? "text-indigo-500 animate-pulse" : isPaused ? "text-amber-500" : "text-zinc-500"
                             )}>
                                 {exp.icon}
                             </div>
@@ -53,7 +53,7 @@ export function StreakIndicator({ currentStreak, isCompletedToday }: StreakIndic
                             {exp.icon}
                             <span>{exp.name} Expedition</span>
                         </div>
-                        <p className="text-xs text-gray-300">
+                        <p className="text-xs text-zinc-300">
                             {isCompletedToday
                                 ? "You've continued your journey today. Great work!"
                                 : isPaused 

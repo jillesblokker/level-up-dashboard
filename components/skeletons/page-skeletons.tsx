@@ -24,7 +24,7 @@ function Skeleton({ className, style }: SkeletonProps) {
  */
 export function KingdomPageSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-950 to-black p-4 space-y-6">
+        <div className="min-h-screen bg-gradient-to-b from-zinc-950 to-black p-4 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <Skeleton className="h-8 w-48" />
@@ -53,7 +53,7 @@ export function KingdomPageSkeleton() {
  */
 export function QuestsPageSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-950 to-black p-4 space-y-6">
+        <div className="min-h-screen bg-gradient-to-b from-zinc-950 to-black p-4 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <Skeleton className="h-8 w-32" />
@@ -70,7 +70,7 @@ export function QuestsPageSkeleton() {
             {/* Quest cards */}
             <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-4 p-4 rounded-lg border border-amber-800/20 bg-black/40">
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-lg border border-amber-800/20 bg-zinc-950">
                         <Skeleton className="h-12 w-12 rounded-full flex-shrink-0" />
                         <div className="flex-1 space-y-2">
                             <Skeleton className="h-5 w-3/4" />
@@ -89,7 +89,7 @@ export function QuestsPageSkeleton() {
  */
 export function ProfilePageSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-950 to-black p-4 space-y-6">
+        <div className="min-h-screen bg-gradient-to-b from-zinc-950 to-black p-4 space-y-6">
             {/* Avatar and name */}
             <div className="flex flex-col items-center gap-4">
                 <Skeleton className="h-24 w-24 rounded-full" />
@@ -100,7 +100,7 @@ export function ProfilePageSkeleton() {
             {/* Stats cards */}
             <div className="grid grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-4 rounded-lg border border-amber-800/20 bg-black/40 text-center">
+                    <div key={i} className="p-4 rounded-lg border border-amber-800/20 bg-zinc-950 text-center">
                         <Skeleton className="h-8 w-16 mx-auto mb-2" />
                         <Skeleton className="h-4 w-12 mx-auto" />
                     </div>
@@ -129,7 +129,7 @@ export function ProfilePageSkeleton() {
  */
 export function SocialPageSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-950 to-black p-4 space-y-6">
+        <div className="min-h-screen bg-gradient-to-b from-zinc-950 to-black p-4 space-y-6">
             {/* Header */}
             <Skeleton className="h-8 w-40" />
 
@@ -143,7 +143,7 @@ export function SocialPageSkeleton() {
             {/* Friends list */}
             <div className="space-y-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-4 p-4 rounded-lg border border-amber-800/20 bg-black/40">
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-lg border border-amber-800/20 bg-zinc-950">
                         <Skeleton className="h-12 w-12 rounded-full" />
                         <div className="flex-1 space-y-2">
                             <Skeleton className="h-5 w-1/3" />
@@ -166,7 +166,7 @@ export function CardSkeleton({ count = 1 }: { count?: number }) {
             {Array.from({ length: count }).map((_, i) => (
                 <div
                     key={i}
-                    className="p-4 rounded-lg border border-amber-800/20 bg-black/40 space-y-3"
+                    className="p-4 rounded-lg border border-amber-800/20 bg-zinc-950 space-y-3"
                 >
                     <div className="flex items-center gap-3">
                         <Skeleton className="h-10 w-10 rounded-full" />
@@ -187,7 +187,7 @@ export function StatsCardSkeleton() {
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="p-4 rounded-lg border border-amber-800/20 bg-black/40 text-center">
+                <div key={i} className="p-4 rounded-lg border border-amber-800/20 bg-zinc-950 text-center">
                     <Skeleton className="h-6 w-12 mx-auto mb-2" />
                     <Skeleton className="h-4 w-16 mx-auto" />
                 </div>
@@ -201,7 +201,7 @@ export function StatsCardSkeleton() {
  */
 export function ChartSkeleton() {
     return (
-        <div className="p-4 rounded-lg border border-amber-800/20 bg-black/40">
+        <div className="p-4 rounded-lg border border-amber-800/20 bg-zinc-950">
             <Skeleton className="h-6 w-40 mb-4" />
             <div className="flex items-end justify-around h-48 gap-2">
                 {Array.from({ length: 7 }).map((_, i) => (

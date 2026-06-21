@@ -95,7 +95,7 @@ export function DayNightCycle() {
         <div className={cn(
             "fixed top-4 right-4 lg:landscape:bottom-4 lg:landscape:left-4 lg:landscape:top-auto lg:landscape:right-auto z-50 p-2 rounded-full border transition-all duration-1000",
             isNight
-                ? "bg-slate-900/80 border-slate-700 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                ? "bg-zinc-900 border-zinc-700 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
                 : "bg-amber-100/80 border-amber-300 text-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
         )}>
             {isNight ? (

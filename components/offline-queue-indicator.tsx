@@ -95,7 +95,7 @@ export function OfflineQueueIndicator({
       {queueStats.total > 0 && (
         <div className="flex items-center gap-1">
           {queueStats.oldestItem && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-zinc-400">
               {formatAge(queueStats.oldestItem)}
             </span>
           )}
@@ -116,7 +116,7 @@ export function OfflineQueueIndicator({
               size="sm"
               variant="ghost"
               onClick={onClearQueue}
-              className="h-6 px-2 text-xs text-gray-400 hover:text-red-400"
+              className="h-6 px-2 text-xs text-zinc-400 hover:text-red-400"
             >
               Clear
             </Button>

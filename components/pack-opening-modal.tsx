@@ -51,7 +51,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950  p-2 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-6 sm:py-10">
         <button 
           onClick={onClose}

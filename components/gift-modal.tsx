@@ -103,7 +103,7 @@ export function GiftModal({ open, onOpenChange, recipientId, recipientName, user
             <div className="grid gap-2">
                 <Label className="text-amber-200/80 text-sm">Gift Type</Label>
                 <Select value={itemType} onValueChange={setItemType}>
-                    <SelectTrigger className="bg-zinc-900/80 border-amber-700/30 text-amber-100 focus:ring-amber-500/30">
+                    <SelectTrigger className="bg-zinc-900 border-amber-700/30 text-amber-100 focus:ring-amber-500/30">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-amber-700/30">
@@ -132,7 +132,7 @@ export function GiftModal({ open, onOpenChange, recipientId, recipientName, user
                             max={userGold}
                             value={amount}
                             onChange={(e) => setAmount(parseInt(e.target.value))}
-                            className="pl-10 bg-zinc-900/80 border-amber-700/30 text-amber-100 focus:ring-amber-500/30 focus:border-amber-500/50"
+                            className="pl-10 bg-zinc-900 border-amber-700/30 text-amber-100 focus:ring-amber-500/30 focus:border-amber-500/50"
                         />
                     </div>
                 </div>
@@ -149,7 +149,7 @@ export function GiftModal({ open, onOpenChange, recipientId, recipientName, user
                     placeholder="A token of our friendship..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="bg-zinc-900/80 border-amber-700/30 text-amber-100 placeholder:text-amber-300/30 focus:ring-amber-500/30 focus:border-amber-500/50 min-h-[80px]"
+                    className="bg-zinc-900 border-amber-700/30 text-amber-100 placeholder:text-amber-300/30 focus:ring-amber-500/30 focus:border-amber-500/50 min-h-[80px]"
                 />
             </div>
         </MedievalModal>

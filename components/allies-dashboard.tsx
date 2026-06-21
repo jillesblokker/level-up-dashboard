@@ -332,13 +332,13 @@ export function AlliesDashboard() {
                             }}
                           />
                         </div>
-                        <Badge className="px-5 py-1.5 bg-amber-900/40 border-amber-500/30 text-amber-200 uppercase tracking-[0.25em] font-medieval text-[10px] shadow-inner backdrop-blur-sm">
+                        <Badge className="px-5 py-1.5 bg-amber-900/40 border-amber-500/30 text-amber-200 uppercase tracking-[0.25em] font-medieval text-[10px] shadow-inner ">
                           {titleInfo.name}
                         </Badge>
                       </div>
 
                       {/* Stats Grid */}
-                      <div className="grid grid-cols-4 divide-x divide-amber-900/20 border-y border-amber-900/30 bg-black/20">
+                      <div className="grid grid-cols-4 divide-x divide-amber-900/20 border-y border-amber-900/30 bg-zinc-950">
                         <div className="p-3 text-center group-hover/card:bg-amber-950/10 transition-colors">
                           <div className="text-[9px] uppercase tracking-widest text-amber-500/50 font-black mb-1">Level</div>
                           <div className="font-medieval text-lg text-white flex items-center justify-center gap-1">
@@ -370,7 +370,7 @@ export function AlliesDashboard() {
                       </div>
 
                       {/* Action Row */}
-                      <div className="p-4 grid grid-cols-2 gap-3 bg-black/30">
+                      <div className="p-4 grid grid-cols-2 gap-3 bg-zinc-950">
                         <Button
                           variant="outline"
                           size="sm"
@@ -452,7 +452,7 @@ export function AlliesDashboard() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="bg-black/80 border-amber-900/30 text-amber-100 pl-10 h-12 rounded-xl focus:border-amber-500 focus:ring-0"
+                    className="bg-zinc-950 border-amber-900/30 text-amber-100 pl-10 h-12 rounded-xl focus:border-amber-500 focus:ring-0"
                   />
                   <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-900/40" />
                 </div>
@@ -467,7 +467,7 @@ export function AlliesDashboard() {
 
               <div className="grid gap-4 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
                 {searchResults.map(u => (
-                  <div key={u.id} className="flex items-center justify-between p-4 border border-amber-900/20 rounded-2xl bg-black/40 hover:bg-amber-950/20 transition-all group/result">
+                  <div key={u.id} className="flex items-center justify-between p-4 border border-amber-900/20 rounded-2xl bg-zinc-950 hover:bg-amber-950/20 transition-all group/result">
                     <div className="flex items-center gap-4">
                       <Avatar className="h-12 w-12 border-2 border-amber-900/30 group-hover/result:border-amber-500/40 transition-colors">
                         <AvatarImage src={u.imageUrl} />
@@ -506,7 +506,7 @@ export function AlliesDashboard() {
         {/* REGISTRY TAB */}
         <TabsContent value="requests" className="space-y-4 mt-0">
           {requests.length === 0 ? (
-            <div className="text-center py-24 bg-black/20 border border-dashed border-amber-950/40 rounded-3xl space-y-4">
+            <div className="text-center py-24 bg-zinc-950 border border-dashed border-amber-950/40 rounded-3xl space-y-4">
               <Mail className="w-12 h-12 mx-auto mb-4 text-amber-950/20" />
               <p className="text-amber-950/40 font-serif italic text-lg tracking-wide">Your mailbox is quiet tonight.</p>
                <Button onClick={() => setActiveTab("add")} variant="ghost" className="text-amber-500/30 hover:text-amber-500 hover:bg-transparent font-medieval tracking-widest text-xs uppercase">Seek New Bonds</Button>
@@ -578,7 +578,7 @@ export function AlliesDashboard() {
                           value={questForm.title}
                           onChange={e => setQuestForm({ ...questForm, title: e.target.value })}
                           placeholder="e.g. Cleansing the Mist..."
-                          className="bg-black/60 border-amber-900/30 focus:border-amber-500 text-amber-100"
+                          className="bg-zinc-950 border-amber-900/30 focus:border-amber-500 text-amber-100"
                       />
                   </div>
                   <div className="space-y-2">
@@ -587,14 +587,14 @@ export function AlliesDashboard() {
                       value={questForm.description}
                       onChange={e => setQuestForm({...questForm, description: e.target.value})}
                       placeholder="Specify the terms of this challenge..."
-                      className="bg-black/60 border-amber-900/30 focus:border-amber-500 text-amber-100 min-h-[100px]"
+                      className="bg-zinc-950 border-amber-900/30 focus:border-amber-500 text-amber-100 min-h-[100px]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-amber-500/70 font-medieval uppercase text-[10px] tracking-widest">Path Category</Label>
                       <Select value={questForm.category} onValueChange={v => setQuestForm({...questForm, category: v})}>
-                        <SelectTrigger className="bg-black/60 border-amber-900/30 text-amber-100">
+                        <SelectTrigger className="bg-zinc-950 border-amber-900/30 text-amber-100">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-900 border-amber-900/40 text-amber-100">
@@ -608,7 +608,7 @@ export function AlliesDashboard() {
                     <div className="space-y-2">
                       <Label className="text-amber-500/70 font-medieval uppercase text-[10px] tracking-widest">Difficulty</Label>
                       <Select value={questForm.difficulty} onValueChange={v => setQuestForm({...questForm, difficulty: v})}>
-                        <SelectTrigger className="bg-black/60 border-amber-900/30 text-amber-100">
+                        <SelectTrigger className="bg-zinc-950 border-amber-900/30 text-amber-100">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-900 border-amber-900/40 text-amber-100">
@@ -671,7 +671,7 @@ export function AlliesDashboard() {
                       </div>
                    </div>
 
-                   <div className="space-y-4 bg-black/40 p-6 rounded-2xl border border-amber-900/20 shadow-inner">
+                   <div className="space-y-4 bg-zinc-950 p-6 rounded-2xl border border-amber-900/20 shadow-inner">
                       <div className="flex justify-between items-center text-xs uppercase tracking-[0.2em] text-amber-500/50 font-black mb-4">
                         <span>The Archive</span>
                         <div className="flex gap-2">

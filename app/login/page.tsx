@@ -31,7 +31,7 @@ export default function LoginPage() {
       </div>
       {/* Login Form Section */}
       <div className="flex-1 flex items-center justify-center bg-black">
-        <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-black/80 border border-amber-800/30">
+        <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-zinc-950 border border-amber-800/30">
           <div className="flex flex-col space-y-2 text-center mb-6">
             <h1 className="text-3xl font-medieval text-amber-500 drop-shadow">Welcome back</h1>
             <p className="text-md text-amber-200">Enter your credentials to continue</p>

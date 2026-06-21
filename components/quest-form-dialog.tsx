@@ -137,7 +137,7 @@ export function QuestFormDialog({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="border-dashed border-gray-700 justify-start h-auto py-2 px-3">
+                <Button variant="outline" className="border-dashed border-zinc-700 justify-start h-auto py-2 px-3">
                     <Plus className="h-4 w-4 mr-2" />
                     <span>Add {category.charAt(0).toUpperCase() + category.slice(1)} Quest</span>
                 </Button>
@@ -176,7 +176,7 @@ export function QuestFormDialog({
                                 value={questName}
                                 onChange={(e) => onQuestNameChange(e.target.value)}
                                 placeholder={config.placeholder}
-                                className={`bg-zinc-900/60 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all`}
+                                className={`bg-zinc-900 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all`}
                             />
                         </div>
 
@@ -189,7 +189,7 @@ export function QuestFormDialog({
                                     id={`quest-icon-${category}`}
                                     value={questIcon}
                                     onChange={(e) => onQuestIconChange(e.target.value)}
-                                    className={`bg-zinc-900/60 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
+                                    className={`bg-zinc-900 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
                                     placeholder={config.iconPlaceholder}
                                 />
                             </div>
@@ -201,7 +201,7 @@ export function QuestFormDialog({
                                     id={`quest-frequency-${category}`}
                                     value={questFrequency}
                                     onChange={(e) => onQuestFrequencyChange(e.target.value)}
-                                    className={`bg-zinc-900/60 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
+                                    className={`bg-zinc-900 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
                                     placeholder="Daily"
                                 />
                             </div>
@@ -217,7 +217,7 @@ export function QuestFormDialog({
                                     type="number"
                                     value={questExperience}
                                     onChange={(e) => onQuestExperienceChange(Number(e.target.value))}
-                                    className={`bg-zinc-900/60 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
+                                    className={`bg-zinc-900 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -229,7 +229,7 @@ export function QuestFormDialog({
                                     type="number"
                                     value={questGold}
                                     onChange={(e) => onQuestGoldChange(Number(e.target.value))}
-                                    className={`bg-zinc-900/60 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
+                                    className={`bg-zinc-900 border-white/5 ${config.focusColor} h-12 rounded-xl px-4 text-zinc-200`}
                                 />
                             </div>
                         </div>

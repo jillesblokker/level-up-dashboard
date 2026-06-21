@@ -34,7 +34,7 @@ export function MobileQuestActions({
           <Button
             onClick={onBulkCompleteFavorites}
             disabled={loading || favoritesCount === 0}
-            className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
+            className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
             aria-label="Complete all favorited quests in this category"
           >
             <Star className="w-4 h-4 mr-2" />
@@ -49,7 +49,7 @@ export function MobileQuestActions({
           <Button
             onClick={onBulkCompleteAllFavorites}
             disabled={loading || allFavoritesCount === 0}
-            className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
+            className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
             aria-label="Complete all favorited quests across all categories"
           >
             <Star className="w-4 h-4 mr-2" />
@@ -64,7 +64,7 @@ export function MobileQuestActions({
           <Button
             onClick={onManualReset}
             disabled={manualResetLoading || !token}
-            className="w-full bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500 min-h-[48px] touch-manipulation"
+            className="w-full bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500 min-h-[48px] touch-manipulation"
             aria-label="Manually reset today's quests"
           >
             {manualResetLoading ? (
@@ -83,7 +83,7 @@ export function MobileQuestActions({
       </div>
 
       {/* Mobile-optimized info text */}
-      <div className="text-center text-xs text-gray-400 px-2">
+      <div className="text-center text-xs text-zinc-400 px-2">
         Tap and hold buttons for quick actions • Swipe quests to favorite
       </div>
     </div>

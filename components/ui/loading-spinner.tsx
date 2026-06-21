@@ -77,7 +77,7 @@ export function LoadingSpinner({
           <p className="text-sm text-amber-400 font-medium">
             {text}{dots}
           </p>
-          <div className="mt-1 h-1 w-16 bg-gray-700 rounded-full overflow-hidden">
+          <div className="mt-1 h-1 w-16 bg-zinc-700 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full animate-pulse" />
           </div>
         </div>
@@ -135,9 +135,9 @@ export function InventoryLoadingSpinner({ className }: { className?: string }) {
 export function LoadingSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("animate-pulse", className || undefined)}>
-      <div className="h-4 bg-gray-700 rounded mb-2" />
-      <div className="h-4 bg-gray-700 rounded mb-2 w-3/4" />
-      <div className="h-4 bg-gray-700 rounded w-1/2" />
+      <div className="h-4 bg-zinc-700 rounded mb-2" />
+      <div className="h-4 bg-zinc-700 rounded mb-2 w-3/4" />
+      <div className="h-4 bg-zinc-700 rounded w-1/2" />
     </div>
   )
 }
@@ -150,15 +150,15 @@ export function CardSkeleton({ className }: { className?: string }) {
       className || undefined
     )}>
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-12 h-12 bg-gray-700 rounded-lg animate-pulse" />
+        <div className="w-12 h-12 bg-zinc-700 rounded-lg animate-pulse" />
         <div className="flex-1">
-          <div className="h-4 bg-gray-700 rounded mb-2" />
-          <div className="h-3 bg-gray-700 rounded w-3/4" />
+          <div className="h-4 bg-zinc-700 rounded mb-2" />
+          <div className="h-3 bg-zinc-700 rounded w-3/4" />
         </div>
       </div>
       <div className="space-y-2">
-        <div className="h-2 bg-gray-700 rounded" />
-        <div className="h-2 bg-gray-700 rounded w-2/3" />
+        <div className="h-2 bg-zinc-700 rounded" />
+        <div className="h-2 bg-zinc-700 rounded w-2/3" />
       </div>
     </div>
   )

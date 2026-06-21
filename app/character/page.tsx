@@ -1092,7 +1092,7 @@ export default function CharacterPage() {
                                 type={auraType} 
                                 intensity={characterStats.level > 50 ? 'high' : characterStats.level > 20 ? 'medium' : 'low'} 
                               />
-                              <div className="relative w-full h-full rounded-full border-2 border-amber-500/20 bg-zinc-900/80 p-2 overflow-hidden shadow-lg transition-all duration-500 group-hover:border-amber-500/40">
+                              <div className="relative w-full h-full rounded-full border-2 border-amber-500/20 bg-zinc-900 p-2 overflow-hidden shadow-lg transition-all duration-500 group-hover:border-amber-500/40">
                                 <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-500/5 to-transparent">
                                   <Image
                                     src={`/images/character/${titleInfo.current.id}.webp`}
@@ -1152,7 +1152,7 @@ export default function CharacterPage() {
                       .map((perk) => (
                         <Card
                           key={perk.id}
-                          className="bg-black/50 border-amber-800/30"
+                          className="bg-zinc-950 border-amber-800/30"
                           aria-label={`active-bonus-${perk.id}`}
                         >
                           <CardHeader className="pb-2">
@@ -1242,7 +1242,7 @@ export default function CharacterPage() {
                   <option value="citizens">Citizens</option>
                 </select>
               </div>
-              <TabsList className="grid h-12 w-auto grid-cols-4 bg-black/40 border border-amber-900/20 p-1 rounded-xl mb-8 hidden md:grid shadow-inner backdrop-blur-md">
+              <TabsList className="grid h-12 w-auto grid-cols-4 bg-zinc-950 border border-amber-900/20 p-1 rounded-xl mb-8 hidden md:grid shadow-inner ">
                 <TabsTrigger value="titles" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.titles}</TabsTrigger>
                 <TabsTrigger value="perks" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.perks}</TabsTrigger>
                 <TabsTrigger value="strengths" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
@@ -1293,7 +1293,7 @@ export default function CharacterPage() {
                                 <Badge
                                   className={
                                     rarity === "common"
-                                      ? "bg-gray-500 h-fit"
+                                      ? "bg-zinc-500 h-fit"
                                       : rarity === "uncommon"
                                         ? "bg-green-500 h-fit"
                                         : rarity === "rare"
@@ -1344,7 +1344,7 @@ export default function CharacterPage() {
                     ) : (
                       <div className="col-span-full text-center py-12">
                         <Loader2 className="h-8 w-8 animate-spin mx-auto text-amber-500 mb-2" />
-                        <p className="text-gray-400">Loading titles...</p>
+                        <p className="text-zinc-400">Loading titles...</p>
                       </div>
                     )}
                   </div>
@@ -1378,7 +1378,7 @@ export default function CharacterPage() {
                             </div>
                             <Badge
                               variant={perk.unlocked ? "default" : "secondary"}
-                              className={perk.unlocked ? "" : "bg-gray-500"}
+                              className={perk.unlocked ? "" : "bg-zinc-500"}
                             >
                               {perk.unlocked ? TEXT_CONTENT.character.perks.levelMax.replace("{level}", String(perk.level)).replace("{max}", String(perk.maxLevel)) : TEXT_CONTENT.character.perks.levelReq.replace("{level}", String(perk.requiredLevel))}
                             </Badge>
@@ -1414,8 +1414,8 @@ export default function CharacterPage() {
                             </div>
                           ) : (
                             <div className="text-center py-4">
-                              <Lock className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                              <p className="text-sm text-gray-500">
+                              <Lock className="h-8 w-8 mx-auto text-zinc-400 mb-2" />
+                              <p className="text-sm text-zinc-500">
                                 {TEXT_CONTENT.character.perks.locked.replace("{level}", String(perk.requiredLevel))}
                               </p>
                             </div>
@@ -1511,7 +1511,7 @@ export default function CharacterPage() {
               </TabsContent>
               <TabsContent value="citizens" className="mt-6 w-full animate-fadeIn">
                 <div className="max-w-6xl mx-auto w-full">
-                  <Card className="medieval-card p-6 mb-8 border border-amber-900/30 bg-zinc-950/70">
+                  <Card className="medieval-card p-6 mb-8 border border-amber-900/30 bg-zinc-950">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                       <div className="space-y-2">
                         <h2 className="text-2xl font-serif text-amber-500">Kingdom & Realm Citizens</h2>
@@ -1521,7 +1521,7 @@ export default function CharacterPage() {
                           Remember to feed them to keep them active, and harvest gold coins daily!
                         </p>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-black/50 p-4 rounded-xl border border-amber-900/20 text-center shrink-0">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-zinc-950 p-4 rounded-xl border border-amber-900/20 text-center shrink-0">
                         <div>
                           <div className="text-xs text-zinc-400">Active Citizens</div>
                           <div className="text-lg font-bold text-amber-500 font-serif">
@@ -1554,7 +1554,7 @@ export default function CharacterPage() {
                         className={`capitalize font-serif border border-amber-900/30 ${
                           citizenFilter === filter 
                             ? "bg-amber-600 hover:bg-amber-700 text-black font-semibold" 
-                            : "bg-black/40 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                            : "bg-zinc-950 text-zinc-300 hover:bg-zinc-900 hover:text-white"
                         }`}
                       >
                         {filter === "favorites" ? "⭐ Favorites" : filter}
@@ -1563,7 +1563,7 @@ export default function CharacterPage() {
                   </div>
 
                   {filteredCitizens.length === 0 ? (
-                    <Card className="bg-black/50 border border-amber-900/30 p-12 text-center">
+                    <Card className="bg-zinc-950 border border-amber-900/30 p-12 text-center">
                       <p className="text-zinc-500 font-serif">No citizens found matching this filter.</p>
                     </Card>
                   ) : (
@@ -1577,7 +1577,7 @@ export default function CharacterPage() {
                         const fedRemaining = getFedTimeRemaining(citizen);
                         const harvestRemaining = getHarvestTimeRemaining(citizen);
                         
-                        let habitatColorClass = "border-zinc-800 bg-zinc-900/80";
+                        let habitatColorClass = "border-zinc-800 bg-zinc-900";
                         let habitatBadgeColor = "bg-zinc-700 text-zinc-200";
                         
                         switch (citizen.type) {
@@ -1618,7 +1618,7 @@ export default function CharacterPage() {
                             <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
                               <button
                                 onClick={() => toggleFavorite(user!.id, citizen.id)}
-                                className="p-1 rounded-full bg-black/60 border border-zinc-800 text-amber-500 hover:scale-110 transition-transform duration-200"
+                                className="p-1 rounded-full bg-zinc-950 border border-zinc-800 text-amber-500 hover:scale-110 transition-transform duration-200"
                                 aria-label={citizen.favorite ? "Unfavorite citizen" : "Favorite citizen"}
                               >
                                 <Star className={`w-4 h-4 ${citizen.favorite ? 'fill-amber-500' : 'text-zinc-400'}`} />
@@ -1634,7 +1634,7 @@ export default function CharacterPage() {
                             </CardHeader>
 
                             <CardContent className="flex-grow flex flex-col justify-between items-center py-4">
-                              <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-950/40 rounded-xl border border-zinc-800/30 p-4 mb-4 overflow-hidden w-full">
+                              <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-950 rounded-xl border border-zinc-800/30 p-4 mb-4 overflow-hidden w-full">
                                 <div className={`absolute inset-0 opacity-10 bg-radial-gradient ${
                                   citizen.type === 'fire' ? 'from-red-500' :
                                   citizen.type === 'water' ? 'from-blue-500' :
@@ -1659,7 +1659,7 @@ export default function CharacterPage() {
                               </div>
 
                               <div className="w-full space-y-2 mt-auto text-xs">
-                                <div className="flex justify-between items-center bg-black/40 p-2 rounded border border-zinc-800/20">
+                                <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
                                   <span className="text-zinc-400">Map Status:</span>
                                   <Badge variant={citizen.active ? "default" : "secondary"} className={`font-semibold ${
                                     citizen.active ? 'bg-green-600/95 text-white' : 'bg-zinc-850 text-zinc-400'
@@ -1668,7 +1668,7 @@ export default function CharacterPage() {
                                   </Badge>
                                 </div>
 
-                                <div className="flex justify-between items-center bg-black/40 p-2 rounded border border-zinc-800/20">
+                                <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
                                   <span className="text-zinc-400">Fed Duration:</span>
                                   {isHungry ? (
                                     <span className="text-red-400 font-semibold flex items-center gap-1">
@@ -1681,7 +1681,7 @@ export default function CharacterPage() {
                                   )}
                                 </div>
                                 
-                                <div className="flex justify-between items-center bg-black/40 p-2 rounded border border-zinc-800/20">
+                                <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
                                   <span className="text-zinc-400">Daily Gold:</span>
                                   {isHungry ? (
                                     <span className="text-zinc-500">Requires Feed</span>

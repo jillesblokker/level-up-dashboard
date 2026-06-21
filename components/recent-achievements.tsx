@@ -33,7 +33,7 @@ export function RecentAchievements() {
     <div className="space-y-4">
       {achievements.map((achievement) => (
         <div key={achievement.id} className="flex items-start gap-3">
-          <div className="flex-shrink-0 p-1 bg-gray-800 rounded-md">{achievement.icon}</div>
+          <div className="flex-shrink-0 p-1 bg-zinc-800 rounded-md">{achievement.icon}</div>
           <div>
             <h4 className="font-medium">{achievement.title}</h4>
             <p className="text-sm text-muted-foreground">{achievement.description}</p>

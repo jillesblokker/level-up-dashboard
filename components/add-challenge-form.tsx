@@ -86,7 +86,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Trial Title</Label>
                 <Input
-                    className="bg-zinc-900/60 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all font-serif italic text-lg shadow-inner"
+                    className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all font-serif italic text-lg shadow-inner"
                     value={newChallenge.name}
                     onChange={e => setNewChallenge({ ...newChallenge, name: e.target.value })}
                     placeholder="e.g., The Titan's Grip (Heavy Deadlifts)..."
@@ -98,7 +98,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">The Ritual (Instructions)</Label>
                 <Textarea
-                    className="bg-zinc-900/60 border-white/5 focus:border-red-500/30 min-h-[100px] rounded-xl p-4 text-zinc-300 placeholder:text-zinc-700 resize-none font-serif italic"
+                    className="bg-zinc-900 border-white/5 focus:border-red-500/30 min-h-[100px] rounded-xl p-4 text-zinc-300 placeholder:text-zinc-700 resize-none font-serif italic"
                     value={newChallenge.instructions}
                     onChange={e => setNewChallenge({ ...newChallenge, instructions: e.target.value })}
                     placeholder="Enumerate the steps of this trial..."
@@ -111,7 +111,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                         <History className="w-3 h-3" /> Repetitions
                     </Label>
                     <Input
-                        className="bg-zinc-900/60 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
+                        className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
                         value={newChallenge.setsReps}
                         onChange={e => setNewChallenge({ ...newChallenge, setsReps: e.target.value })}
                         placeholder="e.g. 5x10"
@@ -122,7 +122,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                         <Dumbbell className="w-3 h-3" /> Burden (Weight)
                     </Label>
                     <Input
-                        className="bg-zinc-900/60 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
+                        className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
                         value={newChallenge.weight}
                         onChange={e => setNewChallenge({ ...newChallenge, weight: e.target.value })}
                         placeholder="e.g. 100kg"
@@ -135,7 +135,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     <Info className="w-3 h-3" /> Sage Advice (Tips)
                 </Label>
                 <Input
-                    className="bg-zinc-900/60 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
+                    className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
                     value={newChallenge.tips}
                     onChange={e => setNewChallenge({ ...newChallenge, tips: e.target.value })}
                     placeholder="Knowledge to survive the trial..."
@@ -156,7 +156,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                             value={newChallenge.mandatePeriod}
                             onValueChange={(val) => setNewChallenge({ ...newChallenge, mandatePeriod: val as any })}
                         >
-                            <SelectTrigger className="h-12 bg-zinc-900/40 border-red-900/30 rounded-xl transition-all hover:border-red-500/30 text-zinc-200">
+                            <SelectTrigger className="h-12 bg-zinc-900 border-red-900/30 rounded-xl transition-all hover:border-red-500/30 text-zinc-200">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
@@ -174,7 +174,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                                 type="number"
                                 min="1"
                                 max={newChallenge.mandatePeriod === 'weekly' ? 7 : 31}
-                                className="h-12 w-full bg-zinc-900/40 border-red-900/30 rounded-xl px-4 focus:border-red-500/50 text-zinc-200 outline-none transition-all"
+                                className="h-12 w-full bg-zinc-900 border-red-900/30 rounded-xl px-4 focus:border-red-500/50 text-zinc-200 outline-none transition-all"
                                 value={newChallenge.mandateCount}
                                 onChange={(e) => setNewChallenge({ ...newChallenge, mandateCount: parseInt(e.target.value) || 1 })}
                             />
@@ -191,7 +191,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             </div>
 
             <div className="p-4 bg-red-900/10 border border-red-500/20 rounded-2xl flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-zinc-950/80 border border-red-500/30">
+                <div className="p-3 rounded-xl bg-zinc-950 border border-red-500/30">
                     <Flame className="w-5 h-5 text-red-500 animate-pulse" />
                 </div>
                 <div>

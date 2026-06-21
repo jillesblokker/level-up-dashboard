@@ -60,7 +60,7 @@ export function TileActionSheet({
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/70 backdrop-blur-md z-[9999]"
+                className="fixed inset-0 bg-zinc-950  z-[9999]"
                 onClick={onClose}
             />
 

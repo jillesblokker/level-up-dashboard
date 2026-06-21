@@ -59,7 +59,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
       case 'personal-record':
         return <CheckCircle className="h-6 w-6 text-yellow-400 animate-pulse" />;
       default:
-        return <Info className="h-5 w-5 text-gray-400" />;
+        return <Info className="h-5 w-5 text-zinc-400" />;
     }
   };
 
@@ -80,7 +80,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
       case 'personal-record':
         return 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]';
       default:
-        return 'border-gray-500/30';
+        return 'border-zinc-500/30';
     }
   };
 
@@ -101,7 +101,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
       case 'personal-record':
         return 'bg-gradient-to-r from-yellow-900/40 to-amber-900/40';
       default:
-        return 'bg-gray-900/20';
+        return 'bg-zinc-900/20';
     }
   };
 
@@ -117,7 +117,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
     >
       <div
         className={cn(
-          'border rounded-lg p-4 shadow-lg backdrop-blur-sm',
+          'border rounded-lg p-4 shadow-lg ',
           getBorderColor(),
           getBackgroundColor()
         )}
@@ -129,7 +129,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
               {message.title}
             </h4>
             {message.description && (
-              <p className="text-sm text-gray-300 mt-1">
+              <p className="text-sm text-zinc-300 mt-1">
                 {message.description}
               </p>
             )}
@@ -144,7 +144,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
           </div>
           <button
             onClick={handleDismiss}
-            className="text-gray-400 hover:text-gray-300 transition-colors"
+            className="text-zinc-400 hover:text-zinc-300 transition-colors"
             aria-label="Dismiss notification"
             title="Dismiss notification"
           >

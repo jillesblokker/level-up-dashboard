@@ -40,11 +40,11 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
 
   return (
     <div
-      className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg bg-slate-950"
+      className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-lg bg-zinc-950"
       onClick={() => setShowStats(!showStats)}
     >
       {/* Card Background */}
-      <div className="absolute inset-0 rounded-lg bg-slate-950" />
+      <div className="absolute inset-0 rounded-lg bg-zinc-950" />
 
       {/* Creature Image */}
       <div className="relative w-full h-full">
@@ -65,27 +65,27 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
 
       {/* Stats Overlay */}
       {showStats && isEffectivelyDiscovered && (
-        <div className="absolute inset-0 bg-slate-900/95 p-4 sm:p-6 overflow-y-auto flex flex-col z-30 no-scrollbar">
+        <div className="absolute inset-0 bg-zinc-900/95 p-4 sm:p-6 overflow-y-auto flex flex-col z-30 no-scrollbar">
           <h3 className="text-base sm:text-lg font-bold text-amber-500 mb-2 sm:mb-4 truncate">{creature.name}</h3>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
             <div>
-              <p className="text-gray-400">HP</p>
+              <p className="text-zinc-400">HP</p>
               <p className="text-white font-semibold">{creature.stats.hp}</p>
             </div>
             <div>
-              <p className="text-gray-400">Attack</p>
+              <p className="text-zinc-400">Attack</p>
               <p className="text-white font-semibold">{creature.stats.attack}</p>
             </div>
             <div>
-              <p className="text-gray-400">Defense</p>
+              <p className="text-zinc-400">Defense</p>
               <p className="text-white font-semibold">{creature.stats.defense}</p>
             </div>
             <div>
-              <p className="text-gray-400">Speed</p>
+              <p className="text-zinc-400">Speed</p>
               <p className="text-white font-semibold">{creature.stats.speed}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-gray-400">Type</p>
+              <p className="text-zinc-400">Type</p>
               <p className="text-white font-semibold">{creature.stats.type}</p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
           )}
 
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-400 text-xs sm:text-sm">Description</p>
+            <p className="text-zinc-400 text-xs sm:text-sm">Description</p>
             <p className="text-white text-xs sm:text-sm leading-relaxed mt-0.5">{creature.description}</p>
           </div>
         </div>

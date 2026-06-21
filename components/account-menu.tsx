@@ -144,8 +144,8 @@ export function AccountMenu() {
           {avatarType === 'uploaded' && user?.imageUrl ? (
             <AvatarImage src={user.imageUrl} alt="Profile" style={{ objectFit: 'cover', objectPosition: 'center' }} />
           ) : avatarType === 'default' ? (
-            <div className="h-12 w-12 md:h-8 md:w-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
-              <User className="h-6 w-6 md:h-4 md:w-4 text-gray-400" />
+            <div className="h-12 w-12 md:h-8 md:w-8 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700">
+              <User className="h-6 w-6 md:h-4 md:w-4 text-zinc-400" />
             </div>
           ) : (
             <AvatarFallback style={{ backgroundColor: avatarBgColor, color: avatarTextColor }}>
@@ -157,7 +157,7 @@ export function AccountMenu() {
 
       {/* Mobile-friendly dropdown */}
       {isOpen && (
-        <div className="absolute right-0 bottom-full mb-2 w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-amber-800/20 backdrop-blur-xl rounded-lg shadow-2xl z-50">
+        <div className="absolute right-0 bottom-full mb-2 w-72 md:w-64 max-h-[80vh] overflow-y-auto bg-gradient-to-br from-zinc-900/95 to-zinc-800/95 border border-amber-800/20  rounded-lg shadow-2xl z-50">
           {/* Enhanced Header */}
           <div className="p-4 border-b border-amber-800/20 bg-gradient-to-r from-amber-900/10 to-transparent">
             <div className="flex flex-col space-y-2">
@@ -183,7 +183,7 @@ export function AccountMenu() {
               <User className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Profile</span>
-                <p className="text-xs text-gray-400">Manage your profile</p>
+                <p className="text-xs text-zinc-400">Manage your profile</p>
               </div>
             </Link>
 
@@ -196,7 +196,7 @@ export function AccountMenu() {
               <FileText className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Requirements</span>
-                <p className="text-xs text-gray-400">View system requirements</p>
+                <p className="text-xs text-zinc-400">View system requirements</p>
               </div>
             </Link>
 
@@ -209,7 +209,7 @@ export function AccountMenu() {
               <Crown className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Design System</span>
-                <p className="text-xs text-gray-400">View design components</p>
+                <p className="text-xs text-zinc-400">View design components</p>
               </div>
             </Link>
 
@@ -222,7 +222,7 @@ export function AccountMenu() {
               <Database className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Admin</span>
-                <p className="text-xs text-gray-400">Manage data & settings</p>
+                <p className="text-xs text-zinc-400">Manage data & settings</p>
               </div>
             </Link>
 
@@ -235,7 +235,7 @@ export function AccountMenu() {
               <Monitor className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Monitoring</span>
-                <p className="text-xs text-gray-400">View performance metrics</p>
+                <p className="text-xs text-zinc-400">View performance metrics</p>
               </div>
             </Link>
 
@@ -248,7 +248,7 @@ export function AccountMenu() {
               <Settings className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Settings</span>
-                <p className="text-xs text-gray-400">App preferences</p>
+                <p className="text-xs text-zinc-400">App preferences</p>
               </div>
             </Link>
 
@@ -261,7 +261,7 @@ export function AccountMenu() {
               <Calendar className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Daily Hub</span>
-                <p className="text-xs text-gray-400">View streaks and news</p>
+                <p className="text-xs text-zinc-400">View streaks and news</p>
               </div>
             </Link>
 
@@ -274,7 +274,7 @@ export function AccountMenu() {
               <ShoppingBag className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Market</span>
-                <p className="text-xs text-gray-400">Buy card packs and materials</p>
+                <p className="text-xs text-zinc-400">Buy card packs and materials</p>
               </div>
             </Link>
           </div>
@@ -291,7 +291,7 @@ export function AccountMenu() {
             <Bug className="h-5 w-5 text-amber-400" />
             <div className="flex-1 text-left">
               <span className="text-base font-medium text-white">Log Center</span>
-              <p className="text-xs text-gray-400">View debug logs</p>
+              <p className="text-xs text-zinc-400">View debug logs</p>
             </div>
           </Link>
 
@@ -325,7 +325,7 @@ export function AccountMenu() {
               <span className="text-base font-medium text-white">
                 {isLoading ? "Signing out..." : "Log out"}
               </span>
-              <p className="text-xs text-gray-400">Sign out of your account</p>
+              <p className="text-xs text-zinc-400">Sign out of your account</p>
             </div>
           </button>
         </div>

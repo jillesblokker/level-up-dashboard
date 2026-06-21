@@ -713,14 +713,14 @@ export default function Page() {
   }
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-red-400">
+      <div className="flex items-center justify-center h-screen bg-zinc-900 text-red-400">
         <p>{error}</p>
       </div>
     );
   }
   if (!creatures || creatures.length === 0) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+      <div className="flex items-center justify-center h-screen bg-zinc-900 text-white">
         <p>{TEXT_CONTENT.achievements.ui.noCreatures}</p>
       </div>
     );
@@ -789,7 +789,7 @@ export default function Page() {
         />
         <main className="container mx-auto p-6" aria-label="achievements-section">
           {!hasAnyUnlocked && !showAllUnlocked && (
-            <div className="text-center text-gray-400 mb-8">{TEXT_CONTENT.achievements.ui.empty}</div>
+            <div className="text-center text-zinc-400 mb-8">{TEXT_CONTENT.achievements.ui.empty}</div>
           )}
 
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
@@ -858,7 +858,7 @@ export default function Page() {
                     >
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
-                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
                               src={unlocked ? `/images/creatures/${creature.id}.png?v=3` : '/images/undiscovered.webp'}
@@ -883,9 +883,9 @@ export default function Page() {
                                 </>
                               ) : (
                                 <>
-                                  <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Crosshair className="w-8 h-8 text-gray-500" /></div>
-                                  <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{creature.name}</h3>
-                                  <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">LOCKED CONTENT</p>
+                                  <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Crosshair className="w-8 h-8 text-zinc-500" /></div>
+                                  <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{creature.name}</h3>
+                                  <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">LOCKED CONTENT</p>
                                 </>
                               )}
                             </div>
@@ -894,8 +894,8 @@ export default function Page() {
 
                         {/* BACK FACE */}
                         {unlocked && (
-                          <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-amber-500/50 overflow-hidden flex flex-col shadow-2xl">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-slate-950 to-slate-950" />
+                          <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-zinc-950 border-2 border-amber-500/50 overflow-hidden flex flex-col shadow-2xl">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-zinc-950 to-zinc-950" />
 
                             <div className="relative z-10 flex flex-col h-full p-8">
                               <div className="flex items-center justify-between mb-8 border-b border-amber-500/10 pb-6">
@@ -904,33 +904,33 @@ export default function Page() {
                               </div>
 
                               <div className="grid grid-cols-2 gap-y-8 gap-x-6 mb-8">
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 ">
                                   <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Health</div>
                                   <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" />{creature.stats.hp}</div>
                                 </div>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 ">
                                   <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Attack</div>
                                   <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]" />{creature.stats.attack}</div>
                                 </div>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 ">
                                   <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Defense</div>
                                   <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />{creature.stats.defense}</div>
                                 </div>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5 ">
                                   <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">Speed</div>
                                   <div className="text-2xl font-mono text-white flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />{creature.stats.speed}</div>
                                 </div>
                               </div>
 
-                              <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                              <div className="bg-zinc-950 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
                                 <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">“</div>
-                                <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                <p className="text-base text-zinc-300 italic leading-relaxed relative z-10 font-serif text-center">
                                   {creature.description}
                                 </p>
                               </div>
 
                               <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Tap to flip back</p>
                               </div>
                             </div>
                           </Card>
@@ -980,7 +980,7 @@ export default function Page() {
                   return (
                     <div key={`${cardDef.number}-${variantIndex}`} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
                       {isUnlocked ? (
-                        <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden bg-slate-950">
+                        <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden bg-zinc-950">
                           <Image
                             src={imagePath}
                             alt={`${cardDef.rarity} Card #${cardDef.number} (${colorName})`}
@@ -995,7 +995,7 @@ export default function Page() {
                           </div>
                         </div>
                       ) : (
-                        <div className="absolute inset-0 border-2 border-dashed border-slate-800 rounded-xl overflow-hidden bg-slate-900/50">
+                        <div className="absolute inset-0 border-2 border-dashed border-zinc-800 rounded-xl overflow-hidden bg-zinc-900">
                           <Image
                             src={imagePath}
                             alt={`${cardDef.rarity} Card #${cardDef.number} - Locked`}
@@ -1004,9 +1004,9 @@ export default function Page() {
                             priority={overallIdx < 8}
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
                           />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950">
                             <div className="text-3xl opacity-30">🔒</div>
-                            <span className="text-[9px] font-bold mt-2 opacity-40 uppercase text-slate-400 tracking-widest">{colorName}</span>
+                            <span className="text-[9px] font-bold mt-2 opacity-40 uppercase text-zinc-400 tracking-widest">{colorName}</span>
                           </div>
                         </div>
                       )}
@@ -1060,13 +1060,13 @@ export default function Page() {
                       >
                         <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                           {/* FRONT FACE */}
-                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
                                 src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                                 alt={achievement.name}
                                 fill
-                                className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
+                                className={`object-cover ${unlocked ? 'mix-blend-multiply bg-zinc-950' : 'opacity-20 blur-sm scale-90'}`}
                                 priority={idx < 3}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               />
@@ -1076,19 +1076,19 @@ export default function Page() {
                                     <Badge className="mb-3 bg-blue-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
                                     <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{achievement.name}</h3>
                                     <div className="flex items-center gap-3 mt-1">
-                                      <Badge variant="secondary" className="bg-black/40 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
+                                      <Badge variant="secondary" className="bg-zinc-950 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
                                         <Zap className="w-3 h-3" /> +{achievement.xp_reward} XP
                                       </Badge>
-                                      <Badge variant="secondary" className="bg-black/40 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
+                                      <Badge variant="secondary" className="bg-zinc-950 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
                                         <Coins className="w-3 h-3" /> +{achievement.gold_reward} G
                                       </Badge>
                                     </div>
                                   </>
                                 ) : (
                                   <>
-                                    <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Users className="w-8 h-8 text-gray-500" /></div>
-                                    <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
-                                    <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
+                                    <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Users className="w-8 h-8 text-zinc-500" /></div>
+                                    <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
+                                    <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
                                     <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
                                   </>
                                 )}
@@ -1098,8 +1098,8 @@ export default function Page() {
 
                           {/* BACK FACE */}
                           {unlocked && (
-                            <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-blue-500/50 overflow-hidden flex flex-col shadow-2xl">
-                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-slate-950 to-slate-950" />
+                            <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-zinc-950 border-2 border-blue-500/50 overflow-hidden flex flex-col shadow-2xl">
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-zinc-950 to-zinc-950" />
 
                               <div className="relative z-10 flex flex-col h-full p-8">
                                 <div className="flex items-center justify-between mb-8 border-b border-blue-500/10 pb-6">
@@ -1107,20 +1107,20 @@ export default function Page() {
                                   <Users className="w-5 h-5 text-blue-500/50" />
                                 </div>
 
-                                <div className="bg-white/5 p-6 rounded-xl border border-white/5 backdrop-blur-sm mb-6">
+                                <div className="bg-white/5 p-6 rounded-xl border border-white/5  mb-6">
                                   <p className="text-sm font-semibold text-blue-200 uppercase tracking-widest mb-2">Condition Met</p>
                                   <p className="text-lg text-white font-medium">{achievement.unlock_condition}</p>
                                 </div>
 
-                                <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                                <div className="bg-zinc-950 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
                                   <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">“</div>
-                                  <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                  <p className="text-base text-zinc-300 italic leading-relaxed relative z-10 font-serif text-center">
                                     {achievement.description}
                                   </p>
                                 </div>
 
                                 <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
-                                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                                  <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Tap to flip back</p>
                                 </div>
                               </div>
                             </Card>
@@ -1188,13 +1188,13 @@ export default function Page() {
                       >
                         <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                           {/* FRONT FACE */}
-                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                          <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
                                 src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                                 alt={monsterName}
                                 fill
-                                className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
+                                className={`object-cover ${unlocked ? 'mix-blend-multiply bg-zinc-950' : 'opacity-20 blur-sm scale-90'}`}
                                 priority={idx < 3}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               />
@@ -1204,19 +1204,19 @@ export default function Page() {
                                     <Badge className="mb-3 bg-red-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
                                     <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{monsterName}</h3>
                                     <div className="flex items-center gap-3 mt-1">
-                                      <Badge variant="secondary" className="bg-black/40 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
+                                      <Badge variant="secondary" className="bg-zinc-950 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
                                         <Zap className="w-3 h-3" /> +{achievement.xp_reward} XP
                                       </Badge>
-                                      <Badge variant="secondary" className="bg-black/40 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
+                                      <Badge variant="secondary" className="bg-zinc-950 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
                                         <Coins className="w-3 h-3" /> +{achievement.gold_reward} G
                                       </Badge>
                                     </div>
                                   </>
                                 ) : (
                                   <>
-                                    <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Sword className="w-8 h-8 text-gray-500" /></div>
-                                    <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{monsterName}</h3>
-                                    <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">DEFEAT TO UNLOCK</p>
+                                    <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Sword className="w-8 h-8 text-zinc-500" /></div>
+                                    <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{monsterName}</h3>
+                                    <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">DEFEAT TO UNLOCK</p>
                                     <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
                                   </>
                                 )}
@@ -1226,8 +1226,8 @@ export default function Page() {
 
                           {/* BACK FACE */}
                           {unlocked && (
-                            <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-red-500/50 overflow-hidden flex flex-col shadow-2xl">
-                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/10 via-slate-950 to-slate-950" />
+                            <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-zinc-950 border-2 border-red-500/50 overflow-hidden flex flex-col shadow-2xl">
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/10 via-zinc-950 to-zinc-950" />
 
                               <div className="relative z-10 flex flex-col h-full p-8">
                                 <div className="flex items-center justify-between mb-8 border-b border-red-500/10 pb-6">
@@ -1235,20 +1235,20 @@ export default function Page() {
                                   <Sword className="w-5 h-5 text-red-500/50" />
                                 </div>
 
-                                <div className="bg-white/5 p-6 rounded-xl border border-white/5 backdrop-blur-sm mb-6">
+                                <div className="bg-white/5 p-6 rounded-xl border border-white/5  mb-6">
                                   <p className="text-sm font-semibold text-red-200 uppercase tracking-widest mb-2">Victory Condition</p>
                                   <p className="text-lg text-white font-medium">{achievement.unlock_condition}</p>
                                 </div>
 
-                                <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                                <div className="bg-zinc-950 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
                                   <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">“</div>
-                                  <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                  <p className="text-base text-zinc-300 italic leading-relaxed relative z-10 font-serif text-center">
                                     {achievement.description}
                                   </p>
                                 </div>
 
                                 <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
-                                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                                  <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Tap to flip back</p>
                                 </div>
                               </div>
                             </Card>
@@ -1299,13 +1299,13 @@ export default function Page() {
                     >
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
-                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-slate-950 border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-gray-800 bg-black/40 grayscale opacity-80'}`}>
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
                               src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
                               alt={achievement.name}
                               fill
-                              className={`object-cover ${unlocked ? 'mix-blend-multiply bg-slate-950' : 'opacity-20 blur-sm scale-90'}`}
+                              className={`object-cover ${unlocked ? 'mix-blend-multiply bg-zinc-950' : 'opacity-20 blur-sm scale-90'}`}
                               priority={idx < 3}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
@@ -1315,19 +1315,19 @@ export default function Page() {
                                   <Badge className="mb-3 bg-emerald-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
                                   <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{achievement.name}</h3>
                                   <div className="flex items-center gap-3 mt-1">
-                                    <Badge variant="secondary" className="bg-black/40 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
+                                    <Badge variant="secondary" className="bg-zinc-950 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
                                       <Zap className="w-3 h-3" /> +{achievement.xp_reward} XP
                                     </Badge>
-                                    <Badge variant="secondary" className="bg-black/40 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
+                                    <Badge variant="secondary" className="bg-zinc-950 border border-yellow-500/30 text-yellow-400 flex items-center gap-1.5 px-2">
                                       <Coins className="w-3 h-3" /> +{achievement.gold_reward} G
                                     </Badge>
                                   </div>
                                 </>
                               ) : (
                                 <>
-                                  <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Trophy className="w-8 h-8 text-gray-500" /></div>
-                                  <h3 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
-                                  <p className="text-[10px] text-gray-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
+                                  <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Trophy className="w-8 h-8 text-zinc-500" /></div>
+                                  <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
+                                  <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
                                   <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
                                 </>
                               )}
@@ -1337,8 +1337,8 @@ export default function Page() {
 
                         {/* BACK FACE */}
                         {unlocked && (
-                          <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-slate-950 border-2 border-emerald-500/50 overflow-hidden flex flex-col shadow-2xl">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-900/10 via-slate-950 to-slate-950" />
+                          <Card className="absolute inset-0 w-full h-full [transform:rotateY(180deg)] [backface-visibility:hidden] bg-zinc-950 border-2 border-emerald-500/50 overflow-hidden flex flex-col shadow-2xl">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-900/10 via-zinc-950 to-zinc-950" />
 
                             <div className="relative z-10 flex flex-col h-full p-8">
                               <div className="flex items-center justify-between mb-8 border-b border-emerald-500/10 pb-6">
@@ -1346,20 +1346,20 @@ export default function Page() {
                                 <Trophy className="w-5 h-5 text-emerald-500/50" />
                               </div>
 
-                              <div className="bg-white/5 p-6 rounded-xl border border-white/5 backdrop-blur-sm mb-6">
+                              <div className="bg-white/5 p-6 rounded-xl border border-white/5  mb-6">
                                 <p className="text-sm font-semibold text-emerald-200 uppercase tracking-widest mb-2">Milestone Reached</p>
                                 <p className="text-lg text-white font-medium">{achievement.unlock_condition}</p>
                               </div>
 
-                              <div className="bg-black/30 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
+                              <div className="bg-zinc-950 p-6 rounded-xl border border-white/5 mb-auto relative overflow-hidden">
                                 <div className="absolute top-0 left-0 text-6xl text-white/5 font-serif transform -translate-x-2 -translate-y-4">&ldquo;</div>
-                                <p className="text-base text-gray-300 italic leading-relaxed relative z-10 font-serif text-center">
+                                <p className="text-base text-zinc-300 italic leading-relaxed relative z-10 font-serif text-center">
                                   {achievement.description}
                                 </p>
                               </div>
 
                               <div className="mt-8 pt-4 border-t border-white/5 text-center flex flex-col items-center gap-2">
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Tap to flip back</p>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Tap to flip back</p>
                               </div>
                             </div>
                           </Card>

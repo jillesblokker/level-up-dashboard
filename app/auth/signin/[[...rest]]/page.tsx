@@ -47,7 +47,7 @@ export default function SignInPage() {
   // Show custom sign-in UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#000428] to-[#004e92]">
-      <div className="w-full max-w-md p-8 bg-black/80 rounded-lg shadow-2xl border border-amber-900/50">
+      <div className="w-full max-w-md p-8 bg-zinc-950 rounded-lg shadow-2xl border border-amber-900/50">
         <h2 className="text-2xl font-bold text-amber-500 mb-6 text-center">Sign In</h2>
         <div className="space-y-4">
           <button

@@ -36,14 +36,14 @@ interface MobileQuestCardProps {
 
 const difficultyConfig = {
   easy: { color: 'bg-amber-500', icon: Target, label: 'Easy' },
-  medium: { color: 'bg-gray-500', icon: Shield, label: 'Medium' },
+  medium: { color: 'bg-zinc-500', icon: Shield, label: 'Medium' },
   hard: { color: 'bg-amber-600', icon: Sword, label: 'Hard' },
   epic: { color: 'bg-amber-700', icon: Trophy, label: 'Epic' }
 }
 
 const categoryConfig = {
   'physical': { icon: Heart, color: 'text-amber-400' },
-  'mental': { icon: BookOpen, color: 'text-gray-400' },
+  'mental': { icon: BookOpen, color: 'text-zinc-400' },
   'social': { icon: Star, color: 'text-amber-500' },
   'creative': { icon: Zap, color: 'text-amber-400' },
   'productivity': { icon: Target, color: 'text-amber-400' },
@@ -79,7 +79,7 @@ export default function MobileQuestCard({
   const [isPressed, setIsPressed] = useState(false)
 
   const difficultyInfo = difficultyConfig[difficulty]
-  const categoryInfo = categoryConfig[category as keyof typeof categoryConfig] || { icon: Target, color: 'text-gray-400' }
+  const categoryInfo = categoryConfig[category as keyof typeof categoryConfig] || { icon: Target, color: 'text-zinc-400' }
   const CategoryIcon = categoryInfo.icon
   const DifficultyIcon = difficultyInfo.icon
 
@@ -119,7 +119,7 @@ export default function MobileQuestCard({
             "hover:scale-110 hover:shadow-lg",
             status === 'completed'
               ? "bg-green-500 border-green-500 text-white"
-              : "bg-transparent border-gray-400 text-transparent hover:border-amber-400",
+              : "bg-transparent border-zinc-400 text-transparent hover:border-amber-400",
             // Enhanced mobile touch target
             "min-w-[44px] min-h-[44px]",
             "touch-manipulation"
@@ -144,7 +144,7 @@ export default function MobileQuestCard({
               "hover:scale-110 hover:shadow-lg",
               isFavorited
                 ? "bg-amber-500 text-white"
-                : "bg-gray-800/50 text-gray-400 hover:bg-amber-500/20",
+                : "bg-zinc-800/50 text-zinc-400 hover:bg-amber-500/20",
               // Enhanced mobile touch target
               "min-w-[44px] min-h-[44px]",
               "touch-manipulation"
@@ -181,7 +181,7 @@ export default function MobileQuestCard({
             <h3 className="font-bold text-white text-lg leading-tight mb-1 truncate">
               {title}
             </h3>
-            <div className="text-gray-300 text-sm leading-relaxed h-[2.5em] overflow-hidden relative">
+            <div className="text-zinc-300 text-sm leading-relaxed h-[2.5em] overflow-hidden relative">
               <MarkdownRenderer content={description} />
               <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-black to-transparent" />
             </div>
@@ -192,21 +192,21 @@ export default function MobileQuestCard({
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           <div className="flex items-center gap-1">
             <CategoryIcon className={cn("w-4 h-4", categoryInfo.color)} />
-            <span className="text-xs text-gray-400 capitalize">{category}</span>
+            <span className="text-xs text-zinc-400 capitalize">{category}</span>
           </div>
           <div className="flex items-center gap-1">
-            <DifficultyIcon className="w-4 h-4 text-gray-400" />
-            <span className="text-xs text-gray-400">{difficultyInfo.label}</span>
+            <DifficultyIcon className="w-4 h-4 text-zinc-400" />
+            <span className="text-xs text-zinc-400">{difficultyInfo.label}</span>
           </div>
         </div>
 
         {/* Progress Bar - Mobile Optimized */}
         <div className="mb-3">
           <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-gray-400">Progress</span>
-            <span className="text-xs text-gray-400">{progress}/{maxProgress}</span>
+            <span className="text-xs text-zinc-400">Progress</span>
+            <span className="text-xs text-zinc-400">{progress}/{maxProgress}</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-zinc-700 rounded-full h-2">
             <div
               className={cn(
                 "h-2 rounded-full transition-all duration-500",
@@ -214,7 +214,7 @@ export default function MobileQuestCard({
                   ? "bg-green-500"
                   : status === 'in-progress'
                     ? "bg-amber-500"
-                    : "bg-gray-600"
+                    : "bg-zinc-600"
               )}
               style={{ width: `${Math.min(progressPercentage, 100)}%` }}
             />
@@ -253,8 +253,8 @@ export default function MobileQuestCard({
         {/* Time Remaining */}
         {timeRemaining && (
           <div className="flex items-center gap-1 mb-3">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-xs text-gray-400">{timeRemaining}</span>
+            <Clock className="w-4 h-4 text-zinc-400" />
+            <span className="text-xs text-zinc-400">{timeRemaining}</span>
           </div>
         )}
 
@@ -269,7 +269,7 @@ export default function MobileQuestCard({
                 ? "bg-green-600 hover:bg-green-700 text-white"
                 : status === 'in-progress'
                   ? "bg-amber-600 hover:bg-amber-700 text-white"
-                  : "bg-gray-700 hover:bg-gray-600 text-white"
+                  : "bg-zinc-700 hover:bg-zinc-600 text-white"
             )}
             onClick={(e) => {
               e.stopPropagation()

@@ -332,7 +332,7 @@ export function MapGrid({
   if (!grid || !Array.isArray(grid) || grid.length === 0) {
     return (
       <div className="relative w-full h-full overflow-hidden flex items-center justify-center" aria-label="map-container">
-        <div className="text-gray-500" role="status" aria-live="polite">Loading map...</div>
+        <div className="text-zinc-500" role="status" aria-live="polite">Loading map...</div>
       </div>
     );
   }
@@ -340,7 +340,7 @@ export function MapGrid({
   return (
     <div className="relative w-full h-full overflow-hidden" aria-label="map-container">
       {isLoading && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center z-50">
           <div className="text-white text-lg">Loading realm map...</div>
         </div>
       )}

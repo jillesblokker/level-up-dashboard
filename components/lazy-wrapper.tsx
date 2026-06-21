@@ -24,7 +24,7 @@ function GenericLoading({ message }: { message?: string | undefined }) {
     <div className="flex items-center justify-center p-8">
       <div className="flex items-center space-x-2">
         <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
-        <span className="text-gray-400 text-sm">{message ?? "Loading..."}</span>
+        <span className="text-zinc-400 text-sm">{message ?? "Loading..."}</span>
       </div>
     </div>
   );

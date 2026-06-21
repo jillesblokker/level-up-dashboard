@@ -37,15 +37,15 @@ import dynamic from 'next/dynamic'
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
 const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard").then(mod => mod.AllianceDashboard), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-black/20 rounded-xl">Loading Alliances...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Alliances...</div>
 })
 const Leaderboard = dynamic(() => import("@/components/leaderboard").then(mod => mod.Leaderboard), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-black/20 rounded-xl">Loading Leaderboards...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Leaderboards...</div>
 })
 const ActivityFeed = dynamic(() => import("@/components/activity-feed").then(mod => mod.ActivityFeed), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-black/20 rounded-xl">Loading Activity Record...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Activity Record...</div>
 })
 import { GiftModal } from "@/components/gift-modal"
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -97,7 +97,7 @@ const CATEGORY_COLORS: Record<string, string> = {
     might: "text-red-500",
     knowledge: "text-blue-500",
     honor: "text-amber-500",
-    castle: "text-slate-500",
+    castle: "text-zinc-500",
     craft: "text-orange-500",
     vitality: "text-green-500",
     wellness: "text-cyan-500",
@@ -428,7 +428,7 @@ export default function AlliesPage() {
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList 
-                        className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0"
+                        className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar  gap-2 md:gap-0"
                         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
                     >
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
@@ -481,7 +481,7 @@ export default function AlliesPage() {
                                     const titleInfo = getCurrentTitle(level);
 
                                     return (
-                                        <Card key={friend.id} className="overflow-hidden border border-primary/10 hover:border-primary/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-card/50 backdrop-blur-sm">
+                                        <Card key={friend.id} className="overflow-hidden border border-primary/10 hover:border-primary/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-card/50 ">
                                             <CardContent className="p-0 flex-1 flex flex-col">
                                                 {/* Header */}
                                                 <div className="p-4 flex items-center gap-4 border-b border-primary/5 relative bg-gradient-to-r from-muted/20 to-transparent">
@@ -492,9 +492,9 @@ export default function AlliesPage() {
                                                         </Avatar>
                                                         <div className={cn(
                                                             "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background",
-                                                            !friend.lastSeen ? "bg-slate-300" :
+                                                            !friend.lastSeen ? "bg-zinc-300" :
                                                                 (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
-                                                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-amber-400" : "bg-slate-300"
+                                                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-amber-400" : "bg-zinc-300"
                                                         )} title={friend.lastSeen ? TEXT_CONTENT.social.friendCard.status.lastSeen.replace('{date}', new Date(friend.lastSeen).toLocaleString()) : TEXT_CONTENT.social.friendCard.status.offline} />
                                                     </div>
 
@@ -1010,7 +1010,7 @@ export default function AlliesPage() {
                                                 if (myCount === 0 && friendCount === 0) return null;
 
                                                 const Icon = CATEGORY_ICONS[category] || Star;
-                                                const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const colorClass = CATEGORY_COLORS[category] || "text-zinc-500";
                                                 const total = myCount + friendCount;
                                                 const myPercent = total > 0 ? (myCount / total) * 100 : 0;
                                                 const friendPercent = total > 0 ? (friendCount / total) * 100 : 0;
@@ -1078,7 +1078,7 @@ export default function AlliesPage() {
                                                 if (myCount === 0 && friendCount === 0) return null;
 
                                                 const Icon = CATEGORY_ICONS[category] || Star;
-                                                const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const colorClass = CATEGORY_COLORS[category] || "text-zinc-500";
                                                 const total = myCount + friendCount;
                                                 const myPercent = total > 0 ? (myCount / total) * 100 : 0;
                                                 const friendPercent = total > 0 ? (friendCount / total) * 100 : 0;
@@ -1146,7 +1146,7 @@ export default function AlliesPage() {
                                                 if (myCount === 0 && friendCount === 0) return null;
 
                                                 const Icon = CATEGORY_ICONS[category] || Star;
-                                                const colorClass = CATEGORY_COLORS[category] || "text-gray-500";
+                                                const colorClass = CATEGORY_COLORS[category] || "text-zinc-500";
                                                 const total = myCount + friendCount;
                                                 const myPercent = total > 0 ? (myCount / total) * 100 : 0;
                                                 const friendPercent = total > 0 ? (friendCount / total) * 100 : 0;

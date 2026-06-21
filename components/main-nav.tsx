@@ -26,7 +26,7 @@ export function MainNav() {
   return (
     <div className="mr-4 hidden md:flex pl-6">
       <NavigationMenu>
-        <NavigationMenuList className="gap-1 bg-gray-900/30 backdrop-blur-sm rounded-lg p-1">
+        <NavigationMenuList className="gap-1 bg-zinc-900/30  rounded-lg p-1">
           <NavigationMenuItem>
             <Link
               href="/kingdom"

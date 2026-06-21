@@ -70,7 +70,7 @@ export function EnterLocationModal({
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
 
           {/* Location Badge */}
-          <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-amber-900/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-amber-600/30">
+          <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-amber-900/80  px-3 py-1.5 rounded-full border border-amber-600/30">
             <LocationIcon className="w-4 h-4 text-amber-300" />
             <span className="text-sm font-medium text-amber-100 capitalize">{locationType}</span>
           </div>
@@ -90,7 +90,7 @@ export function EnterLocationModal({
           </DialogHeader>
 
           {/* What you can do */}
-          <div className="mt-4 p-3 bg-zinc-900/50 rounded-lg border border-amber-800/20">
+          <div className="mt-4 p-3 bg-zinc-900 rounded-lg border border-amber-800/20">
             <p className="text-xs text-amber-300/60 uppercase tracking-wide mb-2">Available Activities</p>
             <div className="flex flex-wrap gap-2">
               {locationType === 'city' ? (

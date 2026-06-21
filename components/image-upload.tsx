@@ -108,7 +108,7 @@ export function ImageUpload({
         aria-label="Upload image"
       />
       
-      <div className={`${aspectRatio} w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700`}>
+      <div className={`${aspectRatio} w-full bg-zinc-800 rounded-lg overflow-hidden border border-zinc-700`}>
         {previewUrl ? (
           <div className="relative h-full">
             <Image
@@ -133,7 +133,7 @@ export function ImageUpload({
           <button
             onClick={triggerFileInput}
             disabled={isUploading}
-            className="flex flex-col items-center justify-center h-full w-full space-y-2 text-gray-400 hover:text-gray-300 transition-colors"
+            className="flex flex-col items-center justify-center h-full w-full space-y-2 text-zinc-400 hover:text-zinc-300 transition-colors"
           >
             <Upload className="h-8 w-8" />
             <span className="text-sm">Upload Image</span>
@@ -142,7 +142,7 @@ export function ImageUpload({
       </div>
       
       {isUploading && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg z-10">
+        <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center rounded-lg z-10">
           <div className="text-white">Uploading...</div>
         </div>
       )}

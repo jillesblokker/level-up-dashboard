@@ -54,7 +54,7 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
             {/* Speech Bubble */}
             <div
                 className={cn(
-                    "absolute z-50 bg-white/95 text-slate-900 px-3 py-2 rounded-xl shadow-xl border-2 border-amber-500/50 text-xs font-bold whitespace-nowrap pointer-events-none transition-all duration-300 transform",
+                    "absolute z-50 bg-white/95 text-zinc-900 px-3 py-2 rounded-xl shadow-xl border-2 border-amber-500/50 text-xs font-bold whitespace-nowrap pointer-events-none transition-all duration-300 transform",
                     showGreeting ? "opacity-100 -translate-y-8 scale-100" : "opacity-0 translate-y-0 scale-75"
                 )}
                 style={{ bottom: '100%' }}

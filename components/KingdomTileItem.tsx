@@ -72,8 +72,8 @@ export const KingdomTileItem = React.memo(({
       className={cn(
         "relative aspect-square border group transition-all duration-300 overflow-hidden shadow-sm hover:shadow-xl",
         tile.type === 'vacant' 
-          ? "bg-slate-900/40 border-white/5 hover:bg-slate-800/60" 
-          : "bg-slate-800 border-white/10 hover:border-amber-500/50",
+          ? "bg-zinc-900 border-white/5 hover:bg-zinc-800/60" 
+          : "bg-zinc-800 border-white/10 hover:border-amber-500/50",
         placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 animate-pulse bg-amber-500/10",
         isFocused && "ring-2 ring-amber-400 z-10 shadow-[0_0_15px_rgba(245,158,11,0.4)]",
         focusCategory && !isFocused && "opacity-40 grayscale-[0.5]"
@@ -96,7 +96,7 @@ export const KingdomTileItem = React.memo(({
 
       {/* Castle Story Overlay */}
       {type === 'castle' && (
-        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
+        <div className="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
           <p className="text-[10px] text-amber-200 text-center font-serif leading-tight">
             &quot;The world fell to ruin, but with Necrion&apos;s aid, the King&apos;s legacy shall be rebuilt.&quot;
           </p>
@@ -105,7 +105,7 @@ export const KingdomTileItem = React.memo(({
 
       {/* Efficiency Badge */}
       {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(tile.type) && (
-        <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
+        <div className="absolute bottom-1 right-1 bg-zinc-950 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
           {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
         </div>
       )}
@@ -171,11 +171,11 @@ export const KingdomTileItem = React.memo(({
         tile.type === 'dungeon' ||
         tile.type === 'monument' || auraColor ||
         tile.type?.toLowerCase() === 'market-stalls') && (
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all pointer-events-none flex flex-col items-center justify-center p-1">
-            <div className="bg-slate-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md">
+          <div className="absolute inset-0 bg-zinc-950 group-hover:bg-zinc-950 transition-all pointer-events-none flex flex-col items-center justify-center p-1">
+            <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
               <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{tile.name || tile.type}</p>
               <div className="h-px bg-white/10 my-1 w-full" />
-              <p className="text-[8px] text-slate-400 text-center italic">
+              <p className="text-[8px] text-zinc-400 text-center italic">
                 {tile.type === 'quest-board' ? 'Portal: Tasks' :
                  tile.type === 'market' ? 'Portal: Shop' :
                  tile.type === 'dungeon' ? 'Portal: Combat' :
@@ -183,7 +183,7 @@ export const KingdomTileItem = React.memo(({
                  auraColor ? synergyLabel : 'Interaction Available'}
               </p>
               
-              <div className="flex items-center justify-between text-[10px] text-slate-400 border-t border-white/5 pt-2 mt-2">
+              <div className="flex items-center justify-between text-[10px] text-zinc-400 border-t border-white/5 pt-2 mt-2">
                 <span>Current Tier</span>
                 <span className="text-amber-500">Tier {currentTier}</span>
               </div>
@@ -237,8 +237,8 @@ export const KingdomTileItem = React.memo(({
           (timer.endTime - Date.now() > 3 * 60 * 1000 && !isReady) ? "opacity-0 md:opacity-0" : "opacity-100 md:opacity-0"
         )}>
           <div className={cn(
-            "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded text-center font-mono shadow-sm backdrop-blur-sm",
-            isReady ? "bg-green-500/90 text-white" : "bg-black/80 text-white",
+            "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded text-center font-mono shadow-sm ",
+            isReady ? "bg-green-500/90 text-white" : "bg-zinc-950 text-white",
             "min-h-[16px] md:min-h-[24px] flex items-center justify-center shrink-0"
           )}>
             {isReady ? (

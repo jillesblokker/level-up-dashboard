@@ -106,7 +106,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
               {getIcon()}
               {eventConfig.name}
             </DialogTitle>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-zinc-400 mt-1">
               You found a seasonal item! Click to collect your reward.
             </p>
           </DialogHeader>
@@ -116,21 +116,21 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
               <div className="text-2xl font-bold text-amber-400 mb-2">
                 🎉 Item Found!
               </div>
-              <p className="text-gray-300 mb-4">
+              <p className="text-zinc-300 mb-4">
                 You found a {currentEvent === 'easter' ? 'egg' : currentEvent === 'christmas' ? 'present' : 'pumpkin'} and earned {eventConfig.goldReward} gold!
               </p>
             </div>
 
             {progress && (
-              <div className="bg-gray-900/50 rounded-lg p-4">
+              <div className="bg-zinc-900 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-300">Progress:</span>
+                  <span className="text-sm text-zinc-300">Progress:</span>
                   <span className="text-sm font-medium text-amber-400">
                     {progress.found} / {progress.total}
                   </span>
                 </div>
                 
-                <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-zinc-700 rounded-full h-2">
                   <div 
                     className="bg-amber-400 h-2 rounded-full transition-all duration-500"
                     style={{ width: `${(progress.found / progress.total) * 100}%` }}
@@ -138,7 +138,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
                 </div>
                 
                 <div className="mt-2 text-center">
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-zinc-400">
                     {progress.remaining} items remaining
                   </span>
                 </div>

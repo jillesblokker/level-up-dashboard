@@ -1901,7 +1901,7 @@ export function KingdomGridWithTimers({
 
     return (
       <div
-        className="grid gap-0 border-4 border-gray-700 rounded-lg overflow-hidden shadow-2xl relative"
+        className="grid gap-0 border-4 border-zinc-700 rounded-lg overflow-hidden shadow-2xl relative"
         style={{
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
           gridTemplateRows: `repeat(${rows}, 1fr)`,
@@ -1922,7 +1922,7 @@ export function KingdomGridWithTimers({
         />
         <div 
           className={cn(
-            "absolute inset-0 pointer-events-none z-10 bg-slate-900/40 mix-blend-multiply transition-opacity duration-1000 ease-in-out shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]",
+            "absolute inset-0 pointer-events-none z-10 bg-zinc-900 mix-blend-multiply transition-opacity duration-1000 ease-in-out shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]",
             momentumState === 'low' ? "opacity-100" : "opacity-0"
           )}
         />
@@ -1932,7 +1932,7 @@ export function KingdomGridWithTimers({
 
         {grid.map((row, y) => 
           row?.map((tile, x) => {
-            if (!tile) return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-black/40" />;
+            if (!tile) return <div key={`empty-${x}-${y}`} className="w-full h-full aspect-square bg-zinc-950" />;
 
             const timer = tileTimers.find(t => t.x === x && t.y === y);
             const kingdomTile = KINGDOM_TILES.find(kt => 
@@ -1971,7 +1971,7 @@ export function KingdomGridWithTimers({
     <div className="w-full flex flex-col items-center gap-4">
       {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
       {/* Kingdom Control Bar - Grounded visual style */}
-      <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-slate-950/50 border border-slate-800/50 backdrop-blur-md shadow-xl">
+      <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-zinc-950 border border-zinc-800/50  shadow-xl">
         {/* Left: Weather Info & Focus Mode */}
         <div className="flex items-center gap-4">
           <Tooltip>
@@ -1983,7 +1983,7 @@ export function KingdomGridWithTimers({
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
-                    <span className="text-[10px] text-slate-400 italic">{getWeatherDescription(weather)}</span>
+                    <span className="text-[10px] text-zinc-400 italic">{getWeatherDescription(weather)}</span>
                   </div>
                 </div>
               </div>
@@ -1994,7 +1994,7 @@ export function KingdomGridWithTimers({
           </Tooltip>
 
           {/* 3. Category Focus Mode Toggles */}
-          <div className="hidden lg:flex items-center gap-1 bg-black/20 p-1 rounded-lg border border-white/5">
+          <div className="hidden lg:flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-white/5">
             {[
               { id: 'might', icon: '⚔️', label: 'Might', types: ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'] },
               { id: 'knowledge', icon: '📖', label: 'Knowledge', types: ['library', 'wizard', 'temple', 'monument'] },
@@ -2010,7 +2010,7 @@ export function KingdomGridWithTimers({
                     "p-1.5 rounded transition-all flex items-center gap-1.5",
                     focusCategory === cat.id 
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
-                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5 opacity-50 grayscale"
+                      : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 opacity-50 grayscale"
                   )}
                   title={`Filter for ${cat.label} synergy`}
                 >
@@ -2018,7 +2018,7 @@ export function KingdomGridWithTimers({
                   <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">{cat.label}</span>
                   <span className={cn(
                     "text-[8px] px-1 rounded-full",
-                    focusCategory === cat.id ? "bg-amber-500 text-black" : "bg-white/10 text-slate-400"
+                    focusCategory === cat.id ? "bg-amber-500 text-black" : "bg-white/10 text-zinc-400"
                   )}>x{count}</span>
                 </button>
               );
@@ -2034,7 +2034,7 @@ export function KingdomGridWithTimers({
                   "p-1.5 rounded transition-all flex items-center gap-1.5 border border-white/5",
                   sanctuaryMode 
                     ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]" 
-                    : "bg-black/20 text-slate-500 hover:text-slate-300 hover:bg-white/5 grayscale"
+                    : "bg-zinc-950 text-zinc-500 hover:text-zinc-300 hover:bg-white/5 grayscale"
                 )}
               >
                 <span className="text-sm">🛡️</span>
@@ -2050,7 +2050,7 @@ export function KingdomGridWithTimers({
         </div>
 
         {/* Center: Resource HUD */}
-        <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap">
+        <div className="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap">
           {/* Build Tokens */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -2085,12 +2085,12 @@ export function KingdomGridWithTimers({
                 <TooltipTrigger asChild>
                   <div className={`flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help ${qty === 0 ? 'opacity-50 grayscale' : ''}`}>
                     <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{mat.icon}</span>
-                    <span className="font-bold font-mono text-slate-200 text-sm">{qty}</span>
+                    <span className="font-bold font-mono text-zinc-200 text-sm">{qty}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="font-bold text-amber-400">{mat.label}</p>
-                  <p className="text-xs text-gray-300">Start with 0? Collect from tiles!</p>
+                  <p className="text-xs text-zinc-300">Start with 0? Collect from tiles!</p>
                 </TooltipContent>
               </Tooltip>
             );
@@ -2102,7 +2102,7 @@ export function KingdomGridWithTimers({
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-slate-600 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95"
+                className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-zinc-900 border border-zinc-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95"
                 onClick={expandKingdomGrid}
                 disabled={!canExpand}
                 aria-label="Expand kingdom grid"
@@ -2112,7 +2112,7 @@ export function KingdomGridWithTimers({
             </TooltipTrigger>
             <TooltipContent
               side="left"
-              className="bg-gray-900 text-white border-amber-800/30 max-w-xs break-words"
+              className="bg-zinc-900 text-white border-amber-800/30 max-w-xs break-words"
             >
               {canExpand
                 ? `Expand kingdom (Level ${playerLevel} required: ${nextExpansionLevel})`

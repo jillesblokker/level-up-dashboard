@@ -166,7 +166,7 @@ export function StreakFlame({ streakDays, className = '' }: StreakFlameProps) {
                 <p className="text-amber-300 text-sm font-semibold">
                     {streakDays === 1 ? '1 Day' : `${streakDays} Days`}
                 </p>
-                <p className="text-gray-400 text-xs">Streak</p>
+                <p className="text-zinc-400 text-xs">Streak</p>
             </div>
         </div>
     )

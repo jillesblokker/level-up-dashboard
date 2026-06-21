@@ -45,7 +45,7 @@ export function SoundSettings({
   if (!isOpen) return null;
 
   return (
-    <div className={cn('fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4', className)}>
+    <div className={cn('fixed inset-0 bg-zinc-950  z-50 flex items-center justify-center p-4', className)}>
       <Card className="w-full max-w-md bg-gradient-to-br from-amber-900 to-amber-800 border border-amber-600/30 shadow-2xl">
         <CardHeader className="border-b border-amber-700/30">
           <div className="flex items-center justify-between">
@@ -73,7 +73,7 @@ export function SoundSettings({
               {isEnabled ? (
                 <Volume2 className="h-5 w-5 text-amber-300" />
               ) : (
-                <VolumeX className="h-5 w-5 text-gray-400" />
+                <VolumeX className="h-5 w-5 text-zinc-400" />
               )}
               <div>
                 <h3 className="text-lg font-semibold text-amber-100">
@@ -251,7 +251,7 @@ export function QuickSoundToggle({ className }: QuickSoundToggleProps) {
         'transition-all duration-200',
         isEnabled 
           ? 'text-amber-300 hover:text-amber-100 hover:bg-amber-800/30' 
-          : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/30',
+          : 'text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800/30',
         className
       )}
       aria-label={isEnabled ? 'Disable sounds' : 'Enable sounds'}

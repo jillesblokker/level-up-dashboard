@@ -68,7 +68,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
           onClick={toggleMusicEnabled}
           className={cn(
             "w-8 h-8 p-0",
-            settings.musicEnabled ? "text-amber-400" : "text-gray-500"
+            settings.musicEnabled ? "text-amber-400" : "text-zinc-500"
           )}
           aria-label={settings.musicEnabled ? "Disable music" : "Enable music"}
         >
@@ -81,7 +81,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
           onClick={toggleSFXEnabled}
           className={cn(
             "w-8 h-8 p-0",
-            settings.sfxEnabled ? "text-amber-400" : "text-gray-500"
+            settings.sfxEnabled ? "text-amber-400" : "text-zinc-500"
           )}
           aria-label={settings.sfxEnabled ? "Disable sound effects" : "Enable sound effects"}
         >
@@ -104,7 +104,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
   }
 
   return (
-    <Card className={cn("bg-gray-900 border-amber-800/20", className)}>
+    <Card className={cn("bg-zinc-900 border-amber-800/20", className)}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-amber-400">
           <Music className="w-5 h-5" />
@@ -125,8 +125,8 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
         {/* Master Volume */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-300">Master Volume</label>
-            <span className="text-xs text-gray-400">{Math.round(settings.masterVolume * 100)}%</span>
+            <label className="text-sm font-medium text-zinc-300">Master Volume</label>
+            <span className="text-xs text-zinc-400">{Math.round(settings.masterVolume * 100)}%</span>
           </div>
           <Slider
             value={[settings.masterVolume * 100]}
@@ -140,7 +140,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
         {/* Music Controls */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-300">Music</label>
+            <label className="text-sm font-medium text-zinc-300">Music</label>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -148,7 +148,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
                 onClick={toggleMusicEnabled}
                 className={cn(
                   "w-8 h-8 p-0",
-                  settings.musicEnabled ? "text-amber-400" : "text-gray-500"
+                  settings.musicEnabled ? "text-amber-400" : "text-zinc-500"
                 )}
                 aria-label={settings.musicEnabled ? "Disable music" : "Enable music"}
               >
@@ -171,8 +171,8 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
           {settings.musicEnabled && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Volume</span>
-                <span className="text-xs text-gray-400">{Math.round(settings.musicVolume * 100)}%</span>
+                <span className="text-xs text-zinc-400">Volume</span>
+                <span className="text-xs text-zinc-400">{Math.round(settings.musicVolume * 100)}%</span>
               </div>
               <Slider
                 value={[settings.musicVolume * 100]}
@@ -187,7 +187,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
           {/* Music Track Selection */}
           {isExpanded && settings.musicEnabled && (
             <div className="space-y-2">
-              <label className="text-xs text-gray-400">Background Music</label>
+              <label className="text-xs text-zinc-400">Background Music</label>
               <div className="grid grid-cols-1 gap-1">
                 {audioTracks.map((track) => (
                   <Button
@@ -199,7 +199,7 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
                       "justify-start text-xs h-8",
                       currentMusic === track.id 
                         ? "bg-amber-600 text-white" 
-                        : "text-gray-300 hover:text-white hover:bg-gray-800"
+                        : "text-zinc-300 hover:text-white hover:bg-zinc-800"
                     )}
                   >
                     {track.name}
@@ -213,14 +213,14 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
         {/* Sound Effects */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-300">Sound Effects</label>
+            <label className="text-sm font-medium text-zinc-300">Sound Effects</label>
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleSFXEnabled}
               className={cn(
                 "w-8 h-8 p-0",
-                settings.sfxEnabled ? "text-amber-400" : "text-gray-500"
+                settings.sfxEnabled ? "text-amber-400" : "text-zinc-500"
               )}
               aria-label={settings.sfxEnabled ? "Disable sound effects" : "Enable sound effects"}
             >
@@ -231,8 +231,8 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
           {settings.sfxEnabled && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Volume</span>
-                <span className="text-xs text-gray-400">{Math.round(settings.sfxVolume * 100)}%</span>
+                <span className="text-xs text-zinc-400">Volume</span>
+                <span className="text-xs text-zinc-400">{Math.round(settings.sfxVolume * 100)}%</span>
               </div>
               <Slider
                 value={[settings.sfxVolume * 100]}
@@ -247,8 +247,8 @@ export function AudioControls({ className, compact = false }: AudioControlsProps
 
         {/* Current Track Info */}
         {currentMusic && (
-          <div className="pt-2 border-t border-gray-700">
-            <div className="text-xs text-gray-400">
+          <div className="pt-2 border-t border-zinc-700">
+            <div className="text-xs text-zinc-400">
               Now Playing: <span className="text-amber-400">{audioTracks.find(t => t.id === currentMusic)?.name}</span>
             </div>
           </div>

@@ -105,7 +105,7 @@ export function NotificationsBell() {
     return (
         <Popover open={isOpen} onOpenChange={handleOpenChange}>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative text-gray-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="relative text-zinc-400 hover:text-white">
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
                         <span className="absolute top-1 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-black" />
@@ -118,7 +118,7 @@ export function NotificationsBell() {
                     <h4 className="font-medieval text-lg text-amber-500">Notifications</h4>
                     <div className="flex flex-col items-end gap-1">
                         {unreadCount > 0 && (
-                            <Button variant="ghost" size="sm" onClick={markAllRead} className="h-auto px-2 py-1 text-[10px] uppercase tracking-wider text-gray-400 hover:text-white">
+                            <Button variant="ghost" size="sm" onClick={markAllRead} className="h-auto px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-400 hover:text-white">
                                 Mark all read
                             </Button>
                         )}
@@ -131,7 +131,7 @@ export function NotificationsBell() {
                 </div>
                 <ScrollArea className="h-[300px]">
                     {notifications.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500 text-sm">
+                        <div className="p-8 text-center text-zinc-500 text-sm">
                             No news from the realm...
                         </div>
                     ) : (
@@ -147,13 +147,13 @@ export function NotificationsBell() {
                                 >
                                     <div className="flex justify-between items-start gap-3">
                                         <div className="space-y-1">
-                                            <p className={cn("text-sm font-medium leading-none", !notification.is_read ? "text-amber-200" : "text-gray-300")}>
+                                            <p className={cn("text-sm font-medium leading-none", !notification.is_read ? "text-amber-200" : "text-zinc-300")}>
                                                 {notification.title}
                                             </p>
-                                            <p className="text-xs text-gray-500 line-clamp-2">
+                                            <p className="text-xs text-zinc-500 line-clamp-2">
                                                 {notification.message}
                                             </p>
-                                            <p className="text-[10px] text-gray-600">
+                                            <p className="text-[10px] text-zinc-600">
                                                 {new Date(notification.created_at).toLocaleDateString()}
                                             </p>
                                         </div>

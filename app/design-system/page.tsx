@@ -76,10 +76,10 @@ export default function DesignSystemPage() {
     { name: "Primary", class: "bg-amber-500", description: "Main accent color for buttons, links, and highlights", value: "#f59e0b" },
     { name: "Secondary", class: "bg-amber-900/20", description: "Secondary accent for subtle backgrounds", value: "#78350f33" },
     { name: "Background", class: "bg-black", description: "Main application background", value: "#000000" },
-    { name: "Card Background", class: "bg-gray-900", description: "Card and component backgrounds", value: "#111827" },
+    { name: "Card Background", class: "bg-zinc-900", description: "Card and component backgrounds", value: "#111827" },
     { name: "Border", class: "border-amber-800/20", description: "Border color for components and dividers", value: "#92400e33" },
     { name: "Text Primary", class: "text-white", description: "Primary text for headings and important content", value: "#ffffff" },
-    { name: "Text Secondary", class: "text-gray-400", description: "Secondary text for descriptions and captions", value: "#9ca3af" },
+    { name: "Text Secondary", class: "text-zinc-400", description: "Secondary text for descriptions and captions", value: "#9ca3af" },
   ])
 
   const [gradients, setGradients] = useState<GradientItem[]>([
@@ -189,10 +189,10 @@ export default function DesignSystemPage() {
             <h1 className="font-serif text-5xl font-bold text-amber-400 tracking-wide">
               {TEXT_CONTENT.designSystem.title}
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-zinc-300 max-w-3xl mx-auto leading-relaxed">
               {TEXT_CONTENT.designSystem.desc}
             </p>
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
+            <div className="flex items-center justify-center space-x-6 text-sm text-zinc-400">
               {TEXT_CONTENT.designSystem.features.map((feature, index) => (
                 <span key={index}>{feature}</span>
               ))}
@@ -207,7 +207,7 @@ export default function DesignSystemPage() {
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
-              <Card className="bg-gray-900/50 border-amber-800/20">
+              <Card className="bg-zinc-900 border-amber-800/20">
                 <CardHeader>
                   <CardTitle className="text-lg text-amber-400">{TEXT_CONTENT.designSystem.navigation.title}</CardTitle>
                 </CardHeader>
@@ -216,7 +216,7 @@ export default function DesignSystemPage() {
                     onClick={() => setActiveTab("overview")}
                     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "overview"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "text-gray-300 hover:bg-gray-800/50"
+                      : "text-zinc-300 hover:bg-zinc-800/50"
                       }`}
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[0]}
@@ -225,7 +225,7 @@ export default function DesignSystemPage() {
                     onClick={() => setActiveTab("colors")}
                     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "colors"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "text-gray-300 hover:bg-gray-800/50"
+                      : "text-zinc-300 hover:bg-zinc-800/50"
                       }`}
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[1]}
@@ -234,7 +234,7 @@ export default function DesignSystemPage() {
                     onClick={() => setActiveTab("typography")}
                     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "typography"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "text-gray-300 hover:bg-gray-800/50"
+                      : "text-zinc-300 hover:bg-zinc-800/50"
                       }`}
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[2]}
@@ -243,7 +243,7 @@ export default function DesignSystemPage() {
                     onClick={() => setActiveTab("spacing")}
                     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "spacing"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "text-gray-300 hover:bg-gray-800/50"
+                      : "text-zinc-300 hover:bg-zinc-800/50"
                       }`}
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[3]}
@@ -252,7 +252,7 @@ export default function DesignSystemPage() {
                     onClick={() => setActiveTab("tokens")}
                     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "tokens"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "text-gray-300 hover:bg-gray-800/50"
+                      : "text-zinc-300 hover:bg-zinc-800/50"
                       }`}
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[4]}
@@ -261,7 +261,7 @@ export default function DesignSystemPage() {
                     onClick={() => setActiveTab("components")}
                     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${activeTab === "components"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "text-gray-300 hover:bg-gray-800/50"
+                      : "text-zinc-300 hover:bg-zinc-800/50"
                       }`}
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[5]}
@@ -273,7 +273,7 @@ export default function DesignSystemPage() {
 
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            <Card className="bg-gradient-to-b from-gray-900/50 to-black border-amber-800/20">
+            <Card className="bg-gradient-to-b from-zinc-900/50 to-black border-amber-800/20">
               <CardContent className="p-8">
                 {/* Content Sections */}
                 {activeTab === "overview" && (
@@ -281,42 +281,42 @@ export default function DesignSystemPage() {
                     <div>
                       <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.overview.title}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="bg-gray-900/50 border-amber-800/20">
+                        <Card className="bg-zinc-900 border-amber-800/20">
                           <CardHeader>
                             <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.philosophy.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <p className="text-gray-300 leading-relaxed">
+                            <p className="text-zinc-300 leading-relaxed">
                               {TEXT_CONTENT.designSystem.overview.philosophy.desc}
                             </p>
                           </CardContent>
                         </Card>
-                        <Card className="bg-gray-900/50 border-amber-800/20">
+                        <Card className="bg-zinc-900 border-amber-800/20">
                           <CardHeader>
                             <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.mobile.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <p className="text-gray-300 leading-relaxed">
+                            <p className="text-zinc-300 leading-relaxed">
                               {TEXT_CONTENT.designSystem.overview.mobile.desc}
                             </p>
                           </CardContent>
                         </Card>
-                        <Card className="bg-gray-900/50 border-amber-800/20">
+                        <Card className="bg-zinc-900 border-amber-800/20">
                           <CardHeader>
                             <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.accessibility.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <p className="text-gray-300 leading-relaxed">
+                            <p className="text-zinc-300 leading-relaxed">
                               {TEXT_CONTENT.designSystem.overview.accessibility.desc}
                             </p>
                           </CardContent>
                         </Card>
-                        <Card className="bg-gray-900/50 border-amber-800/20">
+                        <Card className="bg-zinc-900 border-amber-800/20">
                           <CardHeader>
                             <CardTitle className="text-amber-400">{TEXT_CONTENT.designSystem.overview.performance.title}</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <p className="text-gray-300 leading-relaxed">
+                            <p className="text-zinc-300 leading-relaxed">
                               {TEXT_CONTENT.designSystem.overview.performance.desc}
                             </p>
                           </CardContent>
@@ -330,7 +330,7 @@ export default function DesignSystemPage() {
                   <div className="space-y-8">
                     <div>
                       <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.colors.title}</h2>
-                      <p className="text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-zinc-300 mb-8 leading-relaxed">
                         {TEXT_CONTENT.designSystem.colors.desc}
                       </p>
 
@@ -339,16 +339,16 @@ export default function DesignSystemPage() {
                         <h3 className="text-xl font-semibold text-white mb-4">Primary Brand Colors</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {colors.map((color: ColorItem, index) => (
-                            <Card key={index} className="bg-gray-900/50 border-amber-800/20">
+                            <Card key={index} className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className={`w-8 h-8 rounded-lg ${color.class} border border-gray-700`}></div>
+                                  <div className={`w-8 h-8 rounded-lg ${color.class} border border-zinc-700`}></div>
                                   <div>
                                     <h4 className="font-medium text-white">{color.name}</h4>
-                                    <p className="text-sm text-gray-400">{color.value}</p>
+                                    <p className="text-sm text-zinc-400">{color.value}</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">{color.description}</p>
+                                <p className="text-sm text-zinc-300">{color.description}</p>
                               </CardContent>
                             </Card>
                           ))}
@@ -358,7 +358,7 @@ export default function DesignSystemPage() {
                       {/* Complete Color Audit */}
                       <div className="mb-8">
                         <h3 className="text-xl font-semibold text-white mb-4">Complete Color Inventory</h3>
-                        <p className="text-gray-300 mb-6 leading-relaxed">
+                        <p className="text-zinc-300 mb-6 leading-relaxed">
                           Below is a comprehensive overview of all colors used in the app, including usage statistics and consolidation recommendations.
                         </p>
 
@@ -366,42 +366,42 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">🔴 Amber/Gold Colors (Frequently Used)</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Primary Amber</h4>
-                                    <p className="text-sm text-gray-400">#F59E0B (25+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#F59E0B (25+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Quest buttons, dropdown borders, streak bonus text</p>
+                                <p className="text-sm text-zinc-300">Quest buttons, dropdown borders, streak bonus text</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Core brand color</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#D97706] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#D97706] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Amber Hover</h4>
-                                    <p className="text-sm text-gray-400">#D97706 (8+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#D97706 (8+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Button hover states</p>
+                                <p className="text-sm text-zinc-300">Button hover states</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Proper hover state</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#92400E] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#92400E] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Amber Disabled</h4>
-                                    <p className="text-sm text-gray-400">#92400E (5+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#92400E (5+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Button disabled states</p>
+                                <p className="text-sm text-zinc-300">Button disabled states</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Proper disabled state</p>
                               </CardContent>
                             </Card>
@@ -412,42 +412,42 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-green-300 mb-3">🟢 Green Colors (Frequently Used)</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#0D7200] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#0D7200] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Primary Green</h4>
-                                    <p className="text-sm text-gray-400">#0D7200 (10+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#0D7200 (10+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Progress bars, flame icons</p>
+                                <p className="text-sm text-zinc-300">Progress bars, flame icons</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Core success color</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#7CB342] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#7CB342] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Grass Green</h4>
-                                    <p className="text-sm text-gray-400">#7CB342 (3 uses)</p>
+                                    <p className="text-sm text-zinc-400">#7CB342 (3 uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Tile backgrounds</p>
+                                <p className="text-sm text-zinc-300">Tile backgrounds</p>
                                 <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #0D7200</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#8BC34A] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#8BC34A] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Light Grass</h4>
-                                    <p className="text-sm text-gray-400">#8BC34A (2 uses)</p>
+                                    <p className="text-sm text-zinc-400">#8BC34A (2 uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Tile highlights</p>
+                                <p className="text-sm text-zinc-300">Tile highlights</p>
                                 <p className="text-xs text-yellow-400 mt-2">⚠️ CONSIDER - Use lighter #0D7200</p>
                               </CardContent>
                             </Card>
@@ -456,44 +456,44 @@ export default function DesignSystemPage() {
 
                         {/* Neutral Colors */}
                         <div className="mb-6">
-                          <h4 className="text-lg font-medium text-gray-300 mb-3">⚫ Neutral Colors (Frequently Used)</h4>
+                          <h4 className="text-lg font-medium text-zinc-300 mb-3">⚫ Neutral Colors (Frequently Used)</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#000000] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#000000] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Pure Black</h4>
-                                    <p className="text-sm text-gray-400">#000000 (30+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#000000 (30+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Card backgrounds, buttons, dropdowns</p>
+                                <p className="text-sm text-zinc-300">Card backgrounds, buttons, dropdowns</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Core neutral</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#F0F0F0] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#F0F0F0] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Light Grey Text</h4>
-                                    <p className="text-sm text-gray-400">#F0F0F0 (15+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#F0F0F0 (15+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Primary text, streak bonus text</p>
+                                <p className="text-sm text-zinc-300">Primary text, streak bonus text</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Core text color</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#f4f4f4] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#f4f4f4] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Light Grey Border</h4>
-                                    <p className="text-sm text-gray-400">#f4f4f4 (3+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#f4f4f4 (3+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Card borders, quest card defaults</p>
+                                <p className="text-sm text-zinc-300">Card borders, quest card defaults</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Design requirement</p>
                               </CardContent>
                             </Card>
@@ -504,42 +504,42 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-red-300 mb-3">🔴 Red Colors (Frequently Used)</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#4D0000] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#4D0000] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Dark Red Start</h4>
-                                    <p className="text-sm text-gray-400">#4D0000 (5+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#4D0000 (5+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Streak card gradients</p>
+                                <p className="text-sm text-zinc-300">Streak card gradients</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Core streak color</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#3D0000] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#3D0000] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Dark Red End</h4>
-                                    <p className="text-sm text-gray-400">#3D0000 (5+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#3D0000 (5+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Streak card gradients</p>
+                                <p className="text-sm text-zinc-300">Streak card gradients</p>
                                 <p className="text-xs text-green-400 mt-2">✅ KEEP - Core streak color</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#240014] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#240014] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Purple Red</h4>
-                                    <p className="text-sm text-gray-400">#240014 (3+ uses)</p>
+                                    <p className="text-sm text-zinc-400">#240014 (3+ uses)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Quest card backgrounds</p>
+                                <p className="text-sm text-zinc-300">Quest card backgrounds</p>
                                 <p className="text-xs text-yellow-400 mt-2">⚠️ CONSIDER - Use #4D0000</p>
                               </CardContent>
                             </Card>
@@ -549,59 +549,59 @@ export default function DesignSystemPage() {
                         {/* Consolidated Tile Colors */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-green-300 mb-3">🎨 Consolidated Tile Colors (Updated)</h4>
-                          <p className="text-gray-300 mb-4 text-sm">
+                          <p className="text-zinc-300 mb-4 text-sm">
                             These colors have been successfully consolidated with design system colors for better consistency.
                           </p>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#0D7200] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#0D7200] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Green</h4>
-                                    <p className="text-sm text-gray-400">#0D7200 (Updated)</p>
+                                    <p className="text-sm text-zinc-400">#0D7200 (Updated)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Special tiles</p>
+                                <p className="text-sm text-zinc-300">Special tiles</p>
                                 <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #0D7200</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#1e90ff] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#1e90ff] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Blue</h4>
-                                    <p className="text-sm text-gray-400">#1e90ff (Updated)</p>
+                                    <p className="text-sm text-zinc-400">#1e90ff (Updated)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Water tiles</p>
+                                <p className="text-sm text-zinc-300">Water tiles</p>
                                 <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #1e90ff</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#9932cc] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#9932cc] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Purple</h4>
-                                    <p className="text-sm text-gray-400">#9932cc (Updated)</p>
+                                    <p className="text-sm text-zinc-400">#9932cc (Updated)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Magic tiles</p>
+                                <p className="text-sm text-zinc-300">Magic tiles</p>
                                 <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #9932cc</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B] border border-gray-700"></div>
+                                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B] border border-zinc-700"></div>
                                   <div>
                                     <h4 className="font-medium text-white">Tile Orange</h4>
-                                    <p className="text-sm text-gray-400">#F59E0B (Updated)</p>
+                                    <p className="text-sm text-zinc-400">#F59E0B (Updated)</p>
                                   </div>
                                 </div>
-                                <p className="text-sm text-gray-300">Fire tiles</p>
+                                <p className="text-sm text-zinc-300">Fire tiles</p>
                                 <p className="text-xs text-green-400 mt-2">✅ UPDATED - Now uses #F59E0B</p>
                               </CardContent>
                             </Card>
@@ -612,18 +612,18 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-purple-300 mb-3">🌈 Gradients</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="w-full h-16 rounded-lg bg-gradient-to-br from-[#000428] to-[#004E92] mb-3"></div>
                                 <h4 className="font-medium text-white mb-1">Page Background</h4>
-                                <p className="text-sm text-gray-400">linear-gradient(135deg, #000428 0%, #004E92 100%)</p>
+                                <p className="text-sm text-zinc-400">linear-gradient(135deg, #000428 0%, #004E92 100%)</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="w-full h-16 rounded-lg bg-gradient-to-br from-[#4D0000] to-[#3D0000] mb-3"></div>
                                 <h4 className="font-medium text-white mb-1">Streak Cards</h4>
-                                <p className="text-sm text-gray-400">linear-gradient(148.59deg, #4D0000 0%, #3D0000 100%)</p>
+                                <p className="text-sm text-zinc-400">linear-gradient(148.59deg, #4D0000 0%, #3D0000 100%)</p>
                               </CardContent>
                             </Card>
                           </div>
@@ -633,24 +633,24 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-yellow-300 mb-3">🎯 Consolidation Recommendations</h4>
                           <div className="space-y-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">1. Standardize Greys ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Replaced #6b7280 and #9ca3af with #f4f4f4 for consistency</p>
+                                <p className="text-sm text-zinc-300 mb-2">Replaced #6b7280 and #9ca3af with #f4f4f4 for consistency</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - 13+ color instances updated</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">2. Consolidate Reds ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Replaced #240014 and #2d1300 with #4D0000 for consistency</p>
+                                <p className="text-sm text-zinc-300 mb-2">Replaced #240014 and #2d1300 with #4D0000 for consistency</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - 6+ color instances updated</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">3. Consolidate Tile Colors ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Replaced single-use tile colors with design system equivalents</p>
+                                <p className="text-sm text-zinc-300 mb-2">Replaced single-use tile colors with design system equivalents</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - 6+ color instances updated</p>
                               </CardContent>
                             </Card>
@@ -661,73 +661,73 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-green-300 mb-3">🆕 Recent UI Improvements</h4>
                           <div className="space-y-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">1. API Endpoints & Authentication ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Added PUT methods to challenges and milestones APIs, fixed inventory API error handling</p>
+                                <p className="text-sm text-zinc-300 mb-2">Added PUT methods to challenges and milestones APIs, fixed inventory API error handling</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - All completion updates now work properly</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">2. Kingdom Stats Graphs ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Fixed kingdom stats and gains graphs with proper authentication and test data</p>
+                                <p className="text-sm text-zinc-300 mb-2">Fixed kingdom stats and gains graphs with proper authentication and test data</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Graphs now display data correctly with proper API integration</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">3. Inventory System Updates ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Fixed inventory API to handle missing item properties gracefully</p>
+                                <p className="text-sm text-zinc-300 mb-2">Fixed inventory API to handle missing item properties gracefully</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Kingdom tile items now properly stored in database</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">4. Quest Category Filter ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Added category filter to quests page with proper quest-specific categories</p>
+                                <p className="text-sm text-zinc-300 mb-2">Added category filter to quests page with proper quest-specific categories</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Quest categories: Might, Knowledge, Honor, Castle, Craft, Vitality, Wellness, Exploration</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">5. Achievements Layout Fix ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Fixed achievements page layout (2 columns on desktop/tablet, 1 on mobile) and removed polling</p>
+                                <p className="text-sm text-zinc-300 mb-2">Fixed achievements page layout (2 columns on desktop/tablet, 1 on mobile) and removed polling</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Responsive layout with no unintended page reloads</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">6. Dropdown Border Consistency ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Removed double amber borders from all dropdowns (border-2 → border)</p>
+                                <p className="text-sm text-zinc-300 mb-2">Removed double amber borders from all dropdowns (border-2 → border)</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - All quest page dropdowns updated</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">7. Disabled Button Transparency ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Fixed disabled button transparency by removing disabled:opacity-50</p>
+                                <p className="text-sm text-zinc-300 mb-2">Fixed disabled button transparency by removing disabled:opacity-50</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Buttons now use darker backgrounds with lighter text</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">8. Notification Center Updates ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Removed emojis, simplified buttons, changed title to &quot;New achievement&quot;</p>
+                                <p className="text-sm text-zinc-300 mb-2">Removed emojis, simplified buttons, changed title to &quot;New achievement&quot;</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Cleaner notification interface with better UX</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">9. Page Padding Optimization ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Removed horizontal padding for better space utilization</p>
+                                <p className="text-sm text-zinc-300 mb-2">Removed horizontal padding for better space utilization</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Full-width content with minimal element spacing</p>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">10. Kingdom Properties System ✅ COMPLETED</h5>
-                                <p className="text-sm text-gray-300 mb-2">Fixed property placement system to separate placeable buildings from functional reward tiles</p>
+                                <p className="text-sm text-zinc-300 mb-2">Fixed property placement system to separate placeable buildings from functional reward tiles</p>
                                 <p className="text-xs text-green-400">✅ IMPLEMENTED - Properties now stay on map, functional tiles generate rewards properly</p>
                               </CardContent>
                             </Card>
@@ -738,33 +738,33 @@ export default function DesignSystemPage() {
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-blue-300 mb-3">🔧 Recent API & Component Updates</h4>
                           <div className="space-y-4">
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">Challenges & Milestones APIs</h5>
-                                <p className="text-sm text-gray-300 mb-2">Added PUT methods to handle completion updates with proper error handling</p>
-                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">PUT /api/challenges</code>
-                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded ml-2">PUT /api/milestones</code>
+                                <p className="text-sm text-zinc-300 mb-2">Added PUT methods to handle completion updates with proper error handling</p>
+                                <code className="text-amber-400 text-xs bg-zinc-800 px-2 py-1 rounded">PUT /api/challenges</code>
+                                <code className="text-amber-400 text-xs bg-zinc-800 px-2 py-1 rounded ml-2">PUT /api/milestones</code>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">Inventory API Improvements</h5>
-                                <p className="text-sm text-gray-300 mb-2">Enhanced error handling and graceful property handling for missing item data</p>
-                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">POST /api/inventory</code>
+                                <p className="text-sm text-zinc-300 mb-2">Enhanced error handling and graceful property handling for missing item data</p>
+                                <code className="text-amber-400 text-xs bg-zinc-800 px-2 py-1 rounded">POST /api/inventory</code>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">Kingdom Stats Graph Component</h5>
-                                <p className="text-sm text-gray-300 mb-2">Fixed authentication and data display with proper API integration</p>
-                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">components/kingdom-stats-graph.tsx</code>
+                                <p className="text-sm text-zinc-300 mb-2">Fixed authentication and data display with proper API integration</p>
+                                <code className="text-amber-400 text-xs bg-zinc-800 px-2 py-1 rounded">components/kingdom-stats-graph.tsx</code>
                               </CardContent>
                             </Card>
-                            <Card className="bg-gray-900/50 border-amber-800/20">
+                            <Card className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <h5 className="font-medium text-white mb-2">Quest Organization Component</h5>
-                                <p className="text-sm text-gray-300 mb-2">Added category filtering with quest-specific categories</p>
-                                <code className="text-amber-400 text-xs bg-gray-800 px-2 py-1 rounded">components/quest-organization.tsx</code>
+                                <p className="text-sm text-zinc-300 mb-2">Added category filtering with quest-specific categories</p>
+                                <code className="text-amber-400 text-xs bg-zinc-800 px-2 py-1 rounded">components/quest-organization.tsx</code>
                               </CardContent>
                             </Card>
                           </div>
@@ -773,36 +773,36 @@ export default function DesignSystemPage() {
                         {/* Color Reference System */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-cyan-300 mb-3">📋 Color Reference System</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <h5 className="font-medium text-white mb-2">Primary Colors</h5>
                                   <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
-                                      <span className="text-gray-300">--color-amber-primary:</span>
+                                      <span className="text-zinc-300">--color-amber-primary:</span>
                                       <span className="text-amber-400">#F59E0B</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-300">--color-green-primary:</span>
+                                      <span className="text-zinc-300">--color-green-primary:</span>
                                       <span className="text-green-400">#0D7200</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-300">--color-red-primary:</span>
+                                      <span className="text-zinc-300">--color-red-primary:</span>
                                       <span className="text-red-400">#4D0000</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-300">--color-black:</span>
-                                      <span className="text-gray-400">#000000</span>
+                                      <span className="text-zinc-300">--color-black:</span>
+                                      <span className="text-zinc-400">#000000</span>
                                     </div>
                                   </div>
                                 </div>
                                 <div>
                                   <h5 className="font-medium text-white mb-2">Usage Examples</h5>
                                   <div className="space-y-2 text-sm">
-                                    <code className="text-amber-400 bg-gray-800 px-2 py-1 rounded">bg-[#F59E0B] hover:bg-[#D97706]</code>
-                                    <code className="text-amber-400 bg-gray-800 px-2 py-1 rounded">border-2 border-[#f4f4f4] bg-[#000000]</code>
-                                    <code className="text-amber-400 bg-gray-800 px-2 py-1 rounded">text-[#F0F0F0]</code>
+                                    <code className="text-amber-400 bg-zinc-800 px-2 py-1 rounded">bg-[#F59E0B] hover:bg-[#D97706]</code>
+                                    <code className="text-amber-400 bg-zinc-800 px-2 py-1 rounded">border-2 border-[#f4f4f4] bg-[#000000]</code>
+                                    <code className="text-amber-400 bg-zinc-800 px-2 py-1 rounded">text-[#F0F0F0]</code>
                                   </div>
                                 </div>
                               </div>
@@ -815,32 +815,32 @@ export default function DesignSystemPage() {
                       <div>
                         <h3 className="text-xl font-semibold text-white mb-4">Semantic Colors</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <div className="w-12 h-12 bg-green-500 rounded-lg mx-auto mb-3"></div>
                               <h4 className="font-medium text-white mb-1">Success</h4>
-                              <p className="text-sm text-gray-400">Positive actions and achievements</p>
+                              <p className="text-sm text-zinc-400">Positive actions and achievements</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <div className="w-12 h-12 bg-amber-500 rounded-lg mx-auto mb-3"></div>
                               <h4 className="font-medium text-white mb-1">Warning</h4>
-                              <p className="text-sm text-gray-400">Important notices and alerts</p>
+                              <p className="text-sm text-zinc-400">Important notices and alerts</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <div className="w-12 h-12 bg-red-500 rounded-lg mx-auto mb-3"></div>
                               <h4 className="font-medium text-white mb-1">Error</h4>
-                              <p className="text-sm text-gray-400">Errors and destructive actions</p>
+                              <p className="text-sm text-zinc-400">Errors and destructive actions</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <div className="w-12 h-12 bg-blue-500 rounded-lg mx-auto mb-3"></div>
                               <h4 className="font-medium text-white mb-1">Info</h4>
-                              <p className="text-sm text-gray-400">Informational content</p>
+                              <p className="text-sm text-zinc-400">Informational content</p>
                             </CardContent>
                           </Card>
                         </div>
@@ -853,7 +853,7 @@ export default function DesignSystemPage() {
                   <div className="space-y-8">
                     <div>
                       <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.typography.title}</h2>
-                      <p className="text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-zinc-300 mb-8 leading-relaxed">
                         {TEXT_CONTENT.designSystem.typography.desc}
                       </p>
 
@@ -872,12 +872,12 @@ export default function DesignSystemPage() {
                             { key: 'sm', value: `text-sm`, label: TEXT_CONTENT.designSystem.typography.scale.items.sm.label, example: TEXT_CONTENT.designSystem.typography.scale.items.sm.example },
                             { key: 'xs', value: `text-xs`, label: TEXT_CONTENT.designSystem.typography.scale.items.xs.label, example: TEXT_CONTENT.designSystem.typography.scale.items.xs.example },
                           ].map(({ key, value, label, example }) => (
-                            <Card key={key} className="bg-gray-900/50 border-amber-800/20">
+                            <Card key={key} className="bg-zinc-900 border-amber-800/20">
                               <CardContent className="p-4">
                                 <div className="flex items-center justify-between">
                                   <div>
                                     <h4 className="font-medium text-white mb-1">{label}</h4>
-                                    <p className="text-sm text-gray-400">{key} • {value}</p>
+                                    <p className="text-sm text-zinc-400">{key} • {value}</p>
                                   </div>
                                   <div className={`${value} text-white max-w-md`}>{example}</div>
                                 </div>
@@ -891,22 +891,22 @@ export default function DesignSystemPage() {
                       <div>
                         <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.typography.families.title}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <h4 className="font-serif text-2xl text-amber-400 mb-2">{TEXT_CONTENT.designSystem.typography.families.serif.title}</h4>
-                              <p className="text-sm text-gray-400">{TEXT_CONTENT.designSystem.typography.families.serif.desc}</p>
+                              <p className="text-sm text-zinc-400">{TEXT_CONTENT.designSystem.typography.families.serif.desc}</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <h4 className="font-sans text-2xl text-amber-400 mb-2">{TEXT_CONTENT.designSystem.typography.families.sans.title}</h4>
-                              <p className="text-sm text-gray-400">{TEXT_CONTENT.designSystem.typography.families.sans.desc}</p>
+                              <p className="text-sm text-zinc-400">{TEXT_CONTENT.designSystem.typography.families.sans.desc}</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <h4 className="font-mono text-2xl text-amber-400 mb-2">{TEXT_CONTENT.designSystem.typography.families.mono.title}</h4>
-                              <p className="text-sm text-gray-400">{TEXT_CONTENT.designSystem.typography.families.mono.desc}</p>
+                              <p className="text-sm text-zinc-400">{TEXT_CONTENT.designSystem.typography.families.mono.desc}</p>
                             </CardContent>
                           </Card>
                         </div>
@@ -919,13 +919,13 @@ export default function DesignSystemPage() {
                   <div className="space-y-8">
                     <div>
                       <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.spacing.title}</h2>
-                      <p className="text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-zinc-300 mb-8 leading-relaxed">
                         {TEXT_CONTENT.designSystem.spacing.desc}
                       </p>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {Object.entries(spacing).slice(0, 12).map(([key, value]) => (
-                          <Card key={key} className="bg-gray-900/50 border-amber-800/20">
+                          <Card key={key} className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4 text-center">
                               <div
                                 className="bg-amber-500 rounded mx-auto mb-2"
@@ -935,7 +935,7 @@ export default function DesignSystemPage() {
                                 }}
                               />
                               <p className="text-sm font-medium text-white">{key}</p>
-                              <p className="text-xs text-gray-400">{value}</p>
+                              <p className="text-xs text-zinc-400">{value}</p>
                             </CardContent>
                           </Card>
                         ))}
@@ -948,7 +948,7 @@ export default function DesignSystemPage() {
                   <div className="space-y-8">
                     <div>
                       <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.tokens.title}</h2>
-                      <p className="text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-zinc-300 mb-8 leading-relaxed">
                         {TEXT_CONTENT.designSystem.tokens.desc}
                       </p>
 
@@ -956,22 +956,22 @@ export default function DesignSystemPage() {
                       <div className="mb-8">
                         <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.tokens.animation.title}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-1">{TEXT_CONTENT.designSystem.tokens.animation.fast}</h4>
-                              <p className="text-sm text-gray-400">150ms</p>
+                              <p className="text-sm text-zinc-400">150ms</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-1">{TEXT_CONTENT.designSystem.tokens.animation.normal}</h4>
-                              <p className="text-sm text-gray-400">300ms</p>
+                              <p className="text-sm text-zinc-400">300ms</p>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-1">{TEXT_CONTENT.designSystem.tokens.animation.slow}</h4>
-                              <p className="text-sm text-gray-400">500ms</p>
+                              <p className="text-sm text-zinc-400">500ms</p>
                             </CardContent>
                           </Card>
                         </div>
@@ -981,18 +981,18 @@ export default function DesignSystemPage() {
                       <div>
                         <h3 className="text-xl font-semibold text-white mb-4">{TEXT_CONTENT.designSystem.tokens.example.title}</h3>
                         <div className="space-y-4">
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-2">{TEXT_CONTENT.designSystem.tokens.example.typography}</h4>
-                              <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
+                              <code className="text-amber-400 text-sm block bg-zinc-800 p-3 rounded">
                                 text-2xl font-bold
                               </code>
                             </CardContent>
                           </Card>
-                          <Card className="bg-gray-900/50 border-amber-800/20">
+                          <Card className="bg-zinc-900 border-amber-800/20">
                             <CardContent className="p-4">
                               <h4 className="font-medium text-white mb-2">{TEXT_CONTENT.designSystem.tokens.example.colorSpacing}</h4>
-                              <code className="text-amber-400 text-sm block bg-gray-800 p-3 rounded">
+                              <code className="text-amber-400 text-sm block bg-zinc-800 p-3 rounded">
                                 text-green-500 p-4
                               </code>
                             </CardContent>
@@ -1007,7 +1007,7 @@ export default function DesignSystemPage() {
                   <div className="space-y-8">
                     <div>
                       <h2 className="text-3xl font-bold text-amber-400 mb-6">{TEXT_CONTENT.designSystem.components.title}</h2>
-                      <p className="text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-zinc-300 mb-8 leading-relaxed">
                         {TEXT_CONTENT.designSystem.components.desc}
                       </p>
 
@@ -1018,7 +1018,7 @@ export default function DesignSystemPage() {
                         {/* Buttons */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.buttons.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex flex-wrap gap-3">
                                 <Button>Default Button</Button>
@@ -1032,7 +1032,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.basic.buttons.desc}
                           </p>
                         </div>
@@ -1040,7 +1040,7 @@ export default function DesignSystemPage() {
                         {/* Inputs */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.inputs.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4 space-y-4">
                               <div>
                                 <Label htmlFor="example-input">{TEXT_CONTENT.designSystem.components.basic.inputs.inputLabel}</Label>
@@ -1056,7 +1056,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.basic.inputs.desc}
                           </p>
                         </div>
@@ -1064,10 +1064,10 @@ export default function DesignSystemPage() {
                         {/* Cards */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.cards.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Card className="bg-gray-800/50 border-amber-800/20">
+                                <Card className="bg-zinc-800/50 border-amber-800/20">
                                   <CardHeader>
                                     <CardTitle>Card Title</CardTitle>
                                     <CardDescription>Card description text</CardDescription>
@@ -1076,7 +1076,7 @@ export default function DesignSystemPage() {
                                     <p>Card content goes here</p>
                                   </CardContent>
                                 </Card>
-                                <Card className="bg-gray-800/50 border-amber-800/20">
+                                <Card className="bg-zinc-800/50 border-amber-800/20">
                                   <CardContent className="p-4">
                                     <p>Simple card with just content</p>
                                   </CardContent>
@@ -1084,7 +1084,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.basic.cards.desc}
                           </p>
                         </div>
@@ -1092,7 +1092,7 @@ export default function DesignSystemPage() {
                         {/* Badges */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.badges.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex flex-wrap gap-2">
                                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">Default</span>
@@ -1102,7 +1102,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.basic.badges.desc}
                           </p>
                         </div>
@@ -1110,7 +1110,7 @@ export default function DesignSystemPage() {
                         {/* Progress */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.progress.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4 space-y-4">
                               <div>
                                 <div className="flex justify-between text-sm mb-2">
@@ -1126,11 +1126,11 @@ export default function DesignSystemPage() {
                                   <span>Loading State</span>
                                   <span>Loading...</span>
                                 </div>
-                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-full"></div>
+                                <div className="animate-pulse rounded-md bg-zinc-800/50 h-4 w-full"></div>
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.basic.progress.desc}
                           </p>
                         </div>
@@ -1138,7 +1138,7 @@ export default function DesignSystemPage() {
                         {/* Checkboxes */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.checkboxes.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex items-center space-x-4">
                                 <div className="flex items-center space-x-2">
@@ -1156,7 +1156,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.basic.checkboxes.desc}
                           </p>
                         </div>
@@ -1169,7 +1169,7 @@ export default function DesignSystemPage() {
                         {/* Tabs */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.navigation.tabs.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <Tabs defaultValue="overview" className="w-full">
                                 <TabsList className="grid w-full grid-cols-3">
@@ -1178,18 +1178,18 @@ export default function DesignSystemPage() {
                                   <TabsTrigger value="profile">Profile</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="overview" className="mt-4">
-                                  <p className="text-sm text-gray-300">Overview content goes here</p>
+                                  <p className="text-sm text-zinc-300">Overview content goes here</p>
                                 </TabsContent>
                                 <TabsContent value="settings" className="mt-4">
-                                  <p className="text-sm text-gray-300">Settings content goes here</p>
+                                  <p className="text-sm text-zinc-300">Settings content goes here</p>
                                 </TabsContent>
                                 <TabsContent value="profile" className="mt-4">
-                                  <p className="text-sm text-gray-300">Profile content goes here</p>
+                                  <p className="text-sm text-zinc-300">Profile content goes here</p>
                                 </TabsContent>
                               </Tabs>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.navigation.tabs.desc}
                           </p>
                         </div>
@@ -1197,7 +1197,7 @@ export default function DesignSystemPage() {
                         {/* Tooltips */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.navigation.tooltips.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <TooltipProvider>
                                 <div className="flex space-x-4">
@@ -1221,7 +1221,7 @@ export default function DesignSystemPage() {
                               </TooltipProvider>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.navigation.tooltips.desc}
                           </p>
                         </div>
@@ -1229,13 +1229,13 @@ export default function DesignSystemPage() {
                         {/* Scroll Area */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.navigation.scrollArea.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="relative overflow-hidden h-32 w-full rounded-[inherit]">
                                 <div className="h-full w-full rounded-[inherit]">
                                   <div className="space-y-2">
                                     {Array.from({ length: 10 }).map((_, i) => (
-                                      <div key={i} className="h-8 bg-gray-800 rounded flex items-center px-3">
+                                      <div key={i} className="h-8 bg-zinc-800 rounded flex items-center px-3">
                                         Scrollable Item {i + 1}
                                       </div>
                                     ))}
@@ -1247,7 +1247,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.navigation.scrollArea.desc}
                           </p>
                         </div>
@@ -1260,7 +1260,7 @@ export default function DesignSystemPage() {
                         {/* HeaderSection Component */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.header.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <HeaderSection
                                 title="KINGDOM"
@@ -1270,7 +1270,7 @@ export default function DesignSystemPage() {
                               />
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.game.header.desc}
                           </p>
                         </div>
@@ -1278,7 +1278,7 @@ export default function DesignSystemPage() {
                         {/* TileVisual Component */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.tile.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex space-x-4">
                                 <TileVisual
@@ -1328,7 +1328,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.game.tile.desc}
                           </p>
                         </div>
@@ -1336,7 +1336,7 @@ export default function DesignSystemPage() {
                         {/* CreatureCard Component */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.creature.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className={styles['creatureCardBox']}>
                                 <CreatureCard
@@ -1358,7 +1358,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.game.creature.desc}
                           </p>
                         </div>
@@ -1366,7 +1366,7 @@ export default function DesignSystemPage() {
                         {/* Quest Card */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.game.quest.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <QuestCard
                                 title="Defeat the Dragon"
@@ -1394,7 +1394,7 @@ export default function DesignSystemPage() {
                               />
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.game.quest.desc}
                           </p>
                         </div>
@@ -1407,12 +1407,12 @@ export default function DesignSystemPage() {
                         {/* Toast Notifications */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.toast.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <Button onClick={showToastExample} aria-label="Show toast notification example">{TEXT_CONTENT.designSystem.components.feedback.toast.button}</Button>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.feedback.toast.desc}
                           </p>
                         </div>
@@ -1420,7 +1420,7 @@ export default function DesignSystemPage() {
                         {/* Alerts */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.alerts.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4 space-y-4">
                               <div className="relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground bg-background text-foreground">
                                 <div className="text-sm [&_p]:leading-relaxed">{TEXT_CONTENT.designSystem.components.feedback.alerts.default}</div>
@@ -1430,7 +1430,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.feedback.alerts.desc}
                           </p>
                         </div>
@@ -1438,16 +1438,16 @@ export default function DesignSystemPage() {
                         {/* Skeleton Loading */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.skeleton.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="space-y-3">
-                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-3/4"></div>
-                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-1/2"></div>
-                                <div className="animate-pulse rounded-md bg-gray-800/50 h-4 w-5/6"></div>
+                                <div className="animate-pulse rounded-md bg-zinc-800/50 h-4 w-3/4"></div>
+                                <div className="animate-pulse rounded-md bg-zinc-800/50 h-4 w-1/2"></div>
+                                <div className="animate-pulse rounded-md bg-zinc-800/50 h-4 w-5/6"></div>
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.feedback.skeleton.desc}
                           </p>
                         </div>
@@ -1455,7 +1455,7 @@ export default function DesignSystemPage() {
                         {/* Dialog/Modal */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.feedback.dialog.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="space-y-4">
                                 <div className="rounded-lg border bg-background p-6 shadow-lg">
@@ -1471,7 +1471,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.feedback.dialog.desc}
                           </p>
                         </div>
@@ -1479,7 +1479,7 @@ export default function DesignSystemPage() {
                         {/* Select Dropdown */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.formExtend.select.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 pr-8 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                                 <span>{TEXT_CONTENT.designSystem.components.formExtend.select.placeholder}</span>
@@ -1489,7 +1489,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.formExtend.select.desc}
                           </p>
                         </div>
@@ -1497,7 +1497,7 @@ export default function DesignSystemPage() {
                         {/* Hover Card */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.overlays.hoverCard.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex items-center space-x-2">
                                 <span className="text-sm font-medium">{TEXT_CONTENT.designSystem.components.overlays.hoverCard.trigger}</span>
@@ -1512,7 +1512,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.overlays.hoverCard.desc}
                           </p>
                         </div>
@@ -1520,22 +1520,22 @@ export default function DesignSystemPage() {
                         {/* Sheet/Sidebar */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.overlays.sheet.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
-                              <div className="border border-amber-800/20 rounded-lg p-4 bg-gray-800/50">
+                              <div className="border border-amber-800/20 rounded-lg p-4 bg-zinc-800/50">
                                 <div className="flex items-center justify-between mb-4">
                                   <h3 className="text-lg font-semibold">{TEXT_CONTENT.designSystem.components.overlays.sheet.contentTitle}</h3>
-                                  <button className="text-gray-400 hover:text-white">×</button>
+                                  <button className="text-zinc-400 hover:text-white">×</button>
                                 </div>
                                 <div className="space-y-2">
-                                  <div className="h-4 bg-gray-700 rounded"></div>
-                                  <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                                  <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                                  <div className="h-4 bg-zinc-700 rounded"></div>
+                                  <div className="h-4 bg-zinc-700 rounded w-3/4"></div>
+                                  <div className="h-4 bg-zinc-700 rounded w-1/2"></div>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.overlays.sheet.desc}
                           </p>
                         </div>
@@ -1543,7 +1543,7 @@ export default function DesignSystemPage() {
                         {/* Command Palette */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.overlays.command.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="rounded-md bg-popover text-popover-foreground p-2">
                                 <div className="flex items-center border-b px-3 py-2">
@@ -1563,7 +1563,7 @@ export default function DesignSystemPage() {
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.overlays.command.desc}
                           </p>
                         </div>
@@ -1571,31 +1571,31 @@ export default function DesignSystemPage() {
                         {/* Kingdom Properties System */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.placeable}</span>
+                                  <span className="text-zinc-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.placeable}</span>
                                   <span className="text-green-400">1</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.functional}</span>
+                                  <span className="text-zinc-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.functional}</span>
                                   <span className="text-blue-400">20+</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.material}</span>
+                                  <span className="text-zinc-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.material}</span>
                                   <span className="text-amber-400">5 Materials</span>
                                 </div>
-                                <div className="text-xs text-gray-400 mt-2">
+                                <div className="text-xs text-zinc-400 mt-2">
                                   <strong>{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.current}</strong> House (5 logs + 3 planks)
                                 </div>
-                                <div className="text-xs text-gray-400">
+                                <div className="text-xs text-zinc-400">
                                   <strong>{TEXT_CONTENT.designSystem.components.kingdomExtend.properties.materials}</strong> Logs → Planks → Steel → Silver → Gold
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.kingdomExtend.properties.desc}
                           </p>
                         </div>
@@ -1607,31 +1607,31 @@ export default function DesignSystemPage() {
                           {/* Card Background Guidelines */}
                           <div className="mb-6">
                             <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.rules.backgrounds.title}</h4>
-                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                               <CardContent className="p-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div className="space-y-3">
                                     <div className="p-3 bg-black border border-amber-800/20 rounded-lg">
                                       <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.black.title}</h5>
-                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.black.desc}</p>
+                                      <p className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.black.desc}</p>
                                     </div>
                                     <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
                                       <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.red.title}</h5>
-                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.red.desc}</p>
+                                      <p className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.red.desc}</p>
                                     </div>
                                     <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
                                       <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.blue.title}</h5>
-                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.blue.desc}</p>
+                                      <p className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.blue.desc}</p>
                                     </div>
                                   </div>
                                   <div className="space-y-3">
-                                    <div className="p-3 bg-gray-900/50 border border-gray-700/30 rounded-lg">
+                                    <div className="p-3 bg-zinc-900 border border-zinc-700/30 rounded-lg">
                                       <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.gray.title}</h5>
-                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.gray.desc}</p>
+                                      <p className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.gray.desc}</p>
                                     </div>
                                     <div className="p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg">
                                       <h5 className="font-semibold text-white">{TEXT_CONTENT.designSystem.components.rules.backgrounds.amber.title}</h5>
-                                      <p className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.amber.desc}</p>
+                                      <p className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.rules.backgrounds.amber.desc}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -1642,24 +1642,24 @@ export default function DesignSystemPage() {
                           {/* Component Usage Rules */}
                           <div className="mb-6">
                             <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.rules.usage.title}</h4>
-                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                               <CardContent className="p-4">
                                 <div className="space-y-4">
                                   <div>
                                     <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.buttons.title}</h5>
                                     <div className="flex flex-wrap gap-2">
                                       <Button className="bg-amber-600 hover:bg-amber-700">Primary</Button>
-                                      <Button className="bg-gray-700 hover:bg-gray-600">Secondary</Button>
+                                      <Button className="bg-zinc-700 hover:bg-zinc-600">Secondary</Button>
                                       <Button className="bg-red-600 hover:bg-red-700">Destructive</Button>
-                                      <Button disabled className="bg-gray-600 text-gray-400">Disabled</Button>
+                                      <Button disabled className="bg-zinc-600 text-zinc-400">Disabled</Button>
                                     </div>
                                   </div>
                                   <div>
                                     <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.title}</h5>
                                     <div className="space-y-1 text-sm">
                                       <p className="text-white">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.primary}</p>
-                                      <p className="text-gray-300">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.secondary}</p>
-                                      <p className="text-gray-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.muted}</p>
+                                      <p className="text-zinc-300">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.secondary}</p>
+                                      <p className="text-zinc-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.muted}</p>
                                       <p className="text-amber-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.accent}</p>
                                       <p className="text-green-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.success}</p>
                                       <p className="text-red-400">{TEXT_CONTENT.designSystem.components.rules.usage.textColors.error}</p>
@@ -1667,7 +1667,7 @@ export default function DesignSystemPage() {
                                   </div>
                                   <div>
                                     <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.spacing.title}</h5>
-                                    <ul className="text-sm text-gray-300 space-y-1">
+                                    <ul className="text-sm text-zinc-300 space-y-1">
                                       <li><strong>{TEXT_CONTENT.designSystem.components.rules.usage.spacing.cards}</strong> {TEXT_CONTENT.designSystem.components.rules.usage.spacing.cardsVal}</li>
                                       <li><strong>{TEXT_CONTENT.designSystem.components.rules.usage.spacing.sections}</strong> {TEXT_CONTENT.designSystem.components.rules.usage.spacing.sectionsVal}</li>
                                       <li><strong>{TEXT_CONTENT.designSystem.components.rules.usage.spacing.grid}</strong> {TEXT_CONTENT.designSystem.components.rules.usage.spacing.gridVal}</li>
@@ -1681,9 +1681,9 @@ export default function DesignSystemPage() {
                           {/* Accessibility Guidelines */}
                           <div className="mb-6">
                             <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.rules.accessibility.title}</h4>
-                            <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                            <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                               <CardContent className="p-4">
-                                <ul className="text-sm text-gray-300 space-y-2">
+                                <ul className="text-sm text-zinc-300 space-y-2">
                                   {TEXT_CONTENT.designSystem.components.rules.accessibility.items.map((item, index) => (
                                     <li key={index}>{item}</li>
                                   ))}
@@ -1696,21 +1696,21 @@ export default function DesignSystemPage() {
                         {/* Kingdom Stats Graph Component */}
                         <div className="mb-6">
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.title}</h4>
-                          <Card className="bg-gray-900/50 border-amber-800/20 mb-4">
+                          <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
                               <div className="flex space-x-4">
                                 <div className="text-center">
                                   <div className="text-2xl font-bold text-amber-400">📊</div>
-                                  <div className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.statsGraph}</div>
+                                  <div className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.statsGraph}</div>
                                 </div>
                                 <div className="text-center">
                                   <div className="text-2xl font-bold text-amber-400">📈</div>
-                                  <div className="text-sm text-gray-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.gainsGraph}</div>
+                                  <div className="text-sm text-zinc-300">{TEXT_CONTENT.designSystem.components.kingdomExtend.stats.gainsGraph}</div>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
-                          <p className="text-sm text-gray-400 mb-4">
+                          <p className="text-sm text-zinc-400 mb-4">
                             {TEXT_CONTENT.designSystem.components.kingdomExtend.stats.desc}
                           </p>
                         </div>

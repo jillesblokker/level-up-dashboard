@@ -89,7 +89,7 @@ export function GameFeatures() {
             )}
           </div>
           {discovered000 && card000.requirement && (
-            <div className="mt-4 text-lg text-gray-700" aria-label="special-card-requirement">
+            <div className="mt-4 text-lg text-zinc-700" aria-label="special-card-requirement">
               <span>Requirement: {card000.requirement}</span>
             </div>
           )}
@@ -118,11 +118,11 @@ export function GameFeatures() {
       </div>
       <div className="mb-6">
         {achievementsLoading ? (
-          <div className="text-center text-gray-500">Loading achievements...</div>
+          <div className="text-center text-zinc-500">Loading achievements...</div>
         ) : achievementsError ? (
           <div className="text-center text-red-500">{achievementsError}</div>
         ) : achievements.length === 0 ? (
-          <div className="text-center text-gray-500">No achievements or cards available.</div>
+          <div className="text-center text-zinc-500">No achievements or cards available.</div>
         ) : (
           <>
             {card000Node}
@@ -175,14 +175,14 @@ export function GameFeatures() {
                         <CardDescription className="text-sm md:text-base text-center">{creature.description}</CardDescription>
                         {/* Show achievement points and unlock date if available */}
                         {achievement?.isUnlocked && (
-                          <div className="mt-2 text-base text-gray-500">
+                          <div className="mt-2 text-base text-zinc-500">
                             <span>Points: {achievement.points}</span><br />
                             {achievement.unlockDate && <span>Unlocked on {new Date(achievement.unlockDate).toLocaleDateString()}</span>}
                           </div>
                         )}
                         {/* Show requirement only for discovered cards */}
                         {discovered && creature.requirement && (
-                          <div className="mt-4 text-base text-gray-700" aria-label={`creature-card-${creature.id}-requirement`}>
+                          <div className="mt-4 text-base text-zinc-700" aria-label={`creature-card-${creature.id}-requirement`}>
                             <span>Requirement: {creature.requirement}</span>
                           </div>
                         )}

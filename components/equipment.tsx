@@ -165,7 +165,7 @@ export function Equipment() {
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case "common":
-        return "text-gray-200"
+        return "text-zinc-200"
       case "uncommon":
         return "text-green-400"
       case "rare":
@@ -175,7 +175,7 @@ export function Equipment() {
       case "legendary":
         return "text-amber-400"
       default:
-        return "text-gray-200"
+        return "text-zinc-200"
     }
   }
 
@@ -210,15 +210,15 @@ export function Equipment() {
             <CardDescription>Your equipped items and stats</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="aspect-square relative bg-gradient-to-b from-gray-800/50 to-gray-900/50 rounded-lg border border-amber-800/20 flex items-center justify-center">
+            <div className="aspect-square relative bg-gradient-to-b from-zinc-800/50 to-zinc-900/50 rounded-lg border border-amber-800/20 flex items-center justify-center">
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 {/* Character silhouette */}
                 <div className="w-32 h-64 relative">
                   {/* Body */}
-                  <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-20 h-32 bg-gray-700 rounded-lg"></div>
+                  <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-20 h-32 bg-zinc-700 rounded-lg"></div>
 
                   {/* Head */}
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gray-700 rounded-full">
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-zinc-700 rounded-full">
                     {/* Helmet */}
                     {getEquippedItem("helmet") && (
                       <div className="absolute -top-2 -left-2 -right-2 -bottom-2 border-2 rounded-full border-amber-500/70"></div>
@@ -226,12 +226,12 @@ export function Equipment() {
                   </div>
 
                   {/* Arms */}
-                  <div className="absolute top-16 left-0 w-6 h-24 bg-gray-700 rounded-lg"></div>
-                  <div className="absolute top-16 right-0 w-6 h-24 bg-gray-700 rounded-lg"></div>
+                  <div className="absolute top-16 left-0 w-6 h-24 bg-zinc-700 rounded-lg"></div>
+                  <div className="absolute top-16 right-0 w-6 h-24 bg-zinc-700 rounded-lg"></div>
 
                   {/* Legs */}
-                  <div className="absolute top-48 left-6 w-8 h-24 bg-gray-700 rounded-lg"></div>
-                  <div className="absolute top-48 right-6 w-8 h-24 bg-gray-700 rounded-lg"></div>
+                  <div className="absolute top-48 left-6 w-8 h-24 bg-zinc-700 rounded-lg"></div>
+                  <div className="absolute top-48 right-6 w-8 h-24 bg-zinc-700 rounded-lg"></div>
 
                   {/* Weapon */}
                   {getEquippedItem("weapon") && (
@@ -249,19 +249,19 @@ export function Equipment() {
             <div className="space-y-2">
               <h3 className="text-lg font-medium">Stats</h3>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-800/50 p-2 rounded-md">
+                <div className="bg-zinc-800/50 p-2 rounded-md">
                   <div className="text-sm text-muted-foreground">Attack</div>
                   <div className="text-lg font-medium text-amber-500">{totalStats.attack}</div>
                 </div>
-                <div className="bg-gray-800/50 p-2 rounded-md">
+                <div className="bg-zinc-800/50 p-2 rounded-md">
                   <div className="text-sm text-muted-foreground">Defense</div>
                   <div className="text-lg font-medium text-amber-500">{totalStats.defense}</div>
                 </div>
-                <div className="bg-gray-800/50 p-2 rounded-md">
+                <div className="bg-zinc-800/50 p-2 rounded-md">
                   <div className="text-sm text-muted-foreground">Magic</div>
                   <div className="text-lg font-medium text-amber-500">{totalStats.magic}</div>
                 </div>
-                <div className="bg-gray-800/50 p-2 rounded-md">
+                <div className="bg-zinc-800/50 p-2 rounded-md">
                   <div className="text-sm text-muted-foreground">Health</div>
                   <div className="text-lg font-medium text-amber-500">{totalStats.health}</div>
                 </div>
@@ -271,7 +271,7 @@ export function Equipment() {
             <div className="space-y-2">
               <h3 className="text-lg font-medium">Equipped Items</h3>
               <div className="space-y-2">
-                <div className="flex items-center justify-between bg-gray-800/50 p-2 rounded-md">
+                <div className="flex items-center justify-between bg-zinc-800/50 p-2 rounded-md">
                   <div className="flex items-center gap-2">
                     <Sword className="h-5 w-5 text-amber-500" />
                     <span>
@@ -291,7 +291,7 @@ export function Equipment() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between bg-gray-800/50 p-2 rounded-md">
+                <div className="flex items-center justify-between bg-zinc-800/50 p-2 rounded-md">
                   <div className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-amber-500" />
                     <span>
@@ -311,7 +311,7 @@ export function Equipment() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between bg-gray-800/50 p-2 rounded-md">
+                <div className="flex items-center justify-between bg-zinc-800/50 p-2 rounded-md">
                   <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-amber-500" />
                     <span>
@@ -355,8 +355,8 @@ export function Equipment() {
                       .map((item) => (
                         <Card
                           key={item.id}
-                          className={`cursor-pointer hover:bg-gray-800/30 transition-colors ${
-                            equippedItems[item.type] === item.id ? "border-amber-500" : "border-gray-800"
+                          className={`cursor-pointer hover:bg-zinc-800/30 transition-colors ${
+                            equippedItems[item.type] === item.id ? "border-amber-500" : "border-zinc-800"
                           }`}
                           onClick={() => equipItem(item)}
                         >
@@ -372,7 +372,7 @@ export function Equipment() {
                             <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
                             <div className="flex flex-wrap gap-2 mt-2">
                               {Object.entries(item.stats).map(([stat, value]) => (
-                                <span key={stat} className="text-xs bg-gray-800/70 px-2 py-0.5 rounded-full">
+                                <span key={stat} className="text-xs bg-zinc-800/70 px-2 py-0.5 rounded-full">
                                   {stat.charAt(0).toUpperCase() + stat.slice(1)}: +{value}
                                 </span>
                               ))}

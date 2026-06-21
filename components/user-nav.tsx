@@ -96,7 +96,7 @@ export function UserNav() {
           </DropdownMenuTrigger>
         </div>
         <DropdownMenuContent
-          className="w-full h-[100dvh] md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:relative z-[100] bg-gray-900/95 md:bg-gradient-to-br md:from-gray-900/95 md:to-gray-800/95 border-none md:border md:border-amber-800/20 backdrop-blur-xl overflow-y-auto"
+          className="w-full h-[100dvh] md:w-64 md:h-auto md:max-h-[80vh] fixed top-0 left-0 md:top-auto md:left-auto md:relative z-[100] bg-zinc-900/95 md:bg-gradient-to-br md:from-zinc-900/95 md:to-zinc-800/95 border-none md:border md:border-amber-800/20  overflow-y-auto"
           align="end"
           sideOffset={8}
           onInteractOutside={(e) => {
@@ -132,7 +132,7 @@ export function UserNav() {
                 <User className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
                   <span className="text-base font-medium text-white">Profile</span>
-                  <p className="text-xs text-gray-400">Manage your character and settings</p>
+                  <p className="text-xs text-zinc-400">Manage your character and settings</p>
                 </div>
               </DropdownMenuItem>
             </Link>
@@ -141,7 +141,7 @@ export function UserNav() {
                 <Scroll className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
                   <span className="text-base font-medium text-white">My Chronicle</span>
-                  <p className="text-xs text-gray-400">View your daily journals</p>
+                  <p className="text-xs text-zinc-400">View your daily journals</p>
                 </div>
               </DropdownMenuItem>
             </Link>
@@ -150,7 +150,7 @@ export function UserNav() {
                 <ClipboardCheck className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
                   <span className="text-base font-medium text-white">Adventurer&apos;s Guide</span>
-                  <p className="text-xs text-gray-400">View system requirements</p>
+                  <p className="text-xs text-zinc-400">View system requirements</p>
                 </div>
               </DropdownMenuItem>
             </Link>
@@ -159,7 +159,7 @@ export function UserNav() {
                 <Calendar className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
                   <span className="text-base font-medium text-white">Daily Hub</span>
-                  <p className="text-xs text-gray-400">View streaks and news</p>
+                  <p className="text-xs text-zinc-400">View streaks and news</p>
                 </div>
               </DropdownMenuItem>
             </Link>
@@ -168,7 +168,7 @@ export function UserNav() {
                 <ShoppingBag className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
                   <span className="text-base font-medium text-white">Market</span>
-                  <p className="text-xs text-gray-400">Buy card packs and materials</p>
+                  <p className="text-xs text-zinc-400">Buy card packs and materials</p>
                 </div>
               </DropdownMenuItem>
             </Link>
@@ -179,7 +179,7 @@ export function UserNav() {
                     <Palette className="h-5 w-5 text-amber-400" />
                     <div className="flex-1 text-left">
                       <span className="text-base font-medium text-white">Design System</span>
-                      <p className="text-xs text-gray-400">View design components</p>
+                      <p className="text-xs text-zinc-400">View design components</p>
                     </div>
                   </DropdownMenuItem>
                 </Link>
@@ -188,7 +188,7 @@ export function UserNav() {
                     <Database className="h-5 w-5 text-amber-400" />
                     <div className="flex-1 text-left">
                       <span className="text-base font-medium text-white">Stored Data</span>
-                      <p className="text-xs text-gray-400">Manage local data</p>
+                      <p className="text-xs text-zinc-400">Manage local data</p>
                     </div>
                   </DropdownMenuItem>
                 </Link>
@@ -204,7 +204,7 @@ export function UserNav() {
                   <Keyboard className="h-5 w-5 text-amber-400" />
                   <div className="flex-1">
                     <span className="text-base font-medium text-white">Shortcuts</span>
-                    <p className="text-xs text-gray-400">View keyboard commands</p>
+                    <p className="text-xs text-zinc-400">View keyboard commands</p>
                   </div>
                 </DropdownMenuItem>
               }
@@ -223,13 +223,13 @@ export function UserNav() {
               {settings.musicEnabled ? (
                 <Volume2 className="h-5 w-5 text-amber-400" />
               ) : (
-                <VolumeX className="h-5 w-5 text-gray-400" />
+                <VolumeX className="h-5 w-5 text-zinc-400" />
               )}
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">
                   {settings.musicEnabled ? 'Disable Audio' : 'Enable Audio'}
                 </span>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-zinc-400">
                   {settings.musicEnabled ? 'Turn off background music and sounds' : 'Turn on background music and sounds'}
                 </p>
               </div>
@@ -254,7 +254,7 @@ export function UserNav() {
                 <span className="text-base font-medium text-white">
                   Disable All Audio
                 </span>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-zinc-400">
                   Turn off all music and sound effects completely
                 </p>
               </div>
@@ -268,7 +268,7 @@ export function UserNav() {
                 <Settings className="h-5 w-5 text-red-400" />
                 <div className="flex-1">
                   <span className="text-base font-medium text-white">Log out</span>
-                  <p className="text-xs text-gray-400">Sign out of your account</p>
+                  <p className="text-xs text-zinc-400">Sign out of your account</p>
                 </div>
               </button>
             </DropdownMenuItem>

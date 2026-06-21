@@ -47,7 +47,7 @@ export function BottomNav() {
 
     return (
         <nav
-            className="lg:landscape:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-gray-900 via-gray-900/98 to-gray-900/95 border-t border-amber-800/20 backdrop-blur-xl pb-safe"
+            className="lg:landscape:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-zinc-900 via-zinc-900/98 to-zinc-900/95 border-t border-amber-800/20  pb-safe"
             style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}
         >
             <div className="flex items-center justify-around px-1 py-1">
@@ -67,7 +67,7 @@ export function BottomNav() {
                                 "flex flex-col items-center justify-center min-w-[56px] px-2 py-1 rounded-lg transition-all duration-200 touch-manipulation",
                                 active
                                     ? "bg-amber-900/30 text-amber-400"
-                                    : "text-gray-400 hover:text-amber-400 hover:bg-amber-900/10 active:bg-amber-900/20"
+                                    : "text-zinc-400 hover:text-amber-400 hover:bg-amber-900/10 active:bg-amber-900/20"
                             )}
                             aria-label={`Navigate to ${item.label}`}
                         >

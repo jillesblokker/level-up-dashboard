@@ -431,7 +431,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
                     <div className="relative z-10 flex flex-col items-center pt-8 pb-4 px-6">
                         {/* Portrait */}
-                        <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900/60 rounded-full border-2 border-zinc-800 shadow-xl overflow-hidden p-4">
+                        <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900 rounded-full border-2 border-zinc-800 shadow-xl overflow-hidden p-4">
                             {selectedCitizen && (
                                 <div className="w-24 h-24 relative">
                                     <Image
@@ -481,7 +481,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         </div>
 
                         {/* Speech Bubble / Greeting */}
-                        <div className="mt-4 bg-zinc-900/80 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative transition-opacity duration-300">
+                        <div className="mt-4 bg-zinc-900 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative transition-opacity duration-300">
                             &ldquo;{selectedCitizen?.greetings[quoteIndex % (selectedCitizen?.greetings.length || 1)]}&rdquo;
                             <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-zinc-900 rotate-45 border-t border-l border-zinc-800/60" />
                         </div>
@@ -493,7 +493,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         {(() => {
                             const synergy = selectedCitizen ? getCitizenSynergy(selectedCitizen.id) : { multiplier: 1, elementMatch: false, roadMatch: false, tileName: 'Vacant' };
                             return (
-                                <div className="bg-zinc-900/60 border border-zinc-800/40 rounded-xl p-2.5 flex flex-col gap-1 text-[11px] mb-1">
+                                <div className="bg-zinc-900 border border-zinc-800/40 rounded-xl p-2.5 flex flex-col gap-1 text-[11px] mb-1">
                                     <div className="flex justify-between items-center text-zinc-400">
                                         <span>Current Tile:</span>
                                         <span className="font-semibold text-zinc-200 capitalize">{synergy.tileName}</span>
@@ -530,7 +530,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 <Coins className="w-4 h-4" /> Collect Gold 💰
                             </Button>
                         ) : selectedCitizen && !isCitizenHungry(selectedCitizen) ? (
-                            <div className="bg-black/30 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-center gap-1">
+                            <div className="bg-zinc-950 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-center gap-1">
 
                                 <span className="text-xs text-zinc-400">Next gold harvest available in:</span>
                                 <div className="text-amber-500 font-semibold text-sm flex items-center gap-1">
@@ -571,7 +571,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                                     <span>{food.emoji}</span>
                                                     <span className="text-xs font-semibold">{food.name} (x{food.quantity})</span>
                                                 </div>
-                                                <span className="text-[10px] bg-black/30 text-orange-200 px-2 py-0.5 rounded-md font-mono">
+                                                <span className="text-[10px] bg-zinc-950 text-orange-200 px-2 py-0.5 rounded-md font-mono">
                                                     +{FOOD_DAYS_MAP[food.id]} Day{FOOD_DAYS_MAP[food.id] !== 1 ? 's' : ''} Active
                                                 </span>
                                             </Button>

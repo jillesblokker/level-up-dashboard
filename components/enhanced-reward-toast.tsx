@@ -45,7 +45,7 @@ export function showEnhancedRewardToast(reward: RewardData) {
               <span>{achievement}</span>
             </div>
           )}
-          <div className="text-xs text-gray-400 mt-1">from {source}</div>
+          <div className="text-xs text-zinc-400 mt-1">from {source}</div>
         </div>
       </div>
     ),

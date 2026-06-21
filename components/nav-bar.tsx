@@ -164,7 +164,7 @@ export function NavBar({ session }: NavBarProps) {
   const levelProgress = calculateLevelProgress(characterStats.experience)
 
   return (
-    <div className="hidden lg:landscape:block md:border-b bg-black md:border-gray-800 z-10 relative">
+    <div className="hidden lg:landscape:block md:border-b bg-black md:border-zinc-800 z-10 relative">
       <div className="flex h-16 items-center pt-0 md:pt-0 safe-area-inset-top">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
@@ -196,7 +196,7 @@ export function NavBar({ session }: NavBarProps) {
               <span className="text-sm font-medium" title={`${characterStats.gold} Gold`}>{formatGold(characterStats.gold)}</span>
             </div>
           </div>
-          <div className="flex items-center space-x-1 pr-2 border-r border-gray-800">
+          <div className="flex items-center space-x-1 pr-2 border-r border-zinc-800">
             <Button
               variant="ghost"
               size="icon"

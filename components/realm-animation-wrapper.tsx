@@ -233,7 +233,7 @@ export function RealmAnimationWrapper({
       {/* Animation overlay */}
       {animationState === 'animating' && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[9999] pointer-events-none"
+          className="fixed inset-0 bg-zinc-950  z-[9999] pointer-events-none"
           style={{
             animation: 'fadeInOut 0.5s ease-in-out'
           }}
@@ -251,7 +251,7 @@ export function RealmAnimationWrapper({
 
       {/* Scroll progress bar */}
       {animationState === 'animating' && (
-        <div className="fixed top-0 left-0 w-full h-1 bg-gray-800 z-50">
+        <div className="fixed top-0 left-0 w-full h-1 bg-zinc-800 z-50">
           <div
             className="h-full bg-amber-500 transition-all duration-100 ease-out"
             style={{ width: `${scrollProgress}%` }}

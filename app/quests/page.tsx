@@ -56,7 +56,7 @@ import { ActivityRingsCard } from '@/components/activity-rings-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
 import dynamic from 'next/dynamic';
 const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m => ({ default: m.TarotCardDisplay })), {
-  loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />,
+  loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" />,
   ssr: false,
 });
 import { StreakIndicator } from "@/components/streak-indicator"
@@ -123,7 +123,7 @@ const categoryColorMap: Record<string, string> = {
   might: 'text-red-500 border-red-800/30 bg-red-900/10',
   knowledge: 'text-blue-500 border-blue-800/30 bg-blue-900/10',
   honor: 'text-purple-500 border-purple-800/30 bg-purple-900/10',
-  castle: 'text-stone-400 border-stone-700/30 bg-stone-900/10',
+  castle: 'text-zinc-400 border-zinc-700/30 bg-zinc-900/10',
   craft: 'text-orange-500 border-orange-800/30 bg-orange-900/10',
   vitality: 'text-green-500 border-green-800/30 bg-green-900/10',
   wellness: 'text-teal-500 border-teal-800/30 bg-teal-900/10',
@@ -2418,7 +2418,7 @@ export default function QuestsPage() {
                     <Button
                       onClick={handleBulkCompleteFavorites}
                       disabled={loading || (forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                       aria-label={forgeTab === 'quests' ? "Complete all favorited quests in this category" : "Complete all favorited tasks in this category"}
                     >
                       <Star className="w-4 h-4 mr-2" />
@@ -2430,7 +2430,7 @@ export default function QuestsPage() {
                     <Button
                       onClick={handleBulkCompleteAllFavorites}
                       disabled={loading || (forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                       aria-label={forgeTab === 'quests' ? "Complete all favorited quests across all categories" : "Complete all favorited tasks across all categories"}
                     >
                       <Star className="w-4 h-4 mr-2" />
@@ -2442,7 +2442,7 @@ export default function QuestsPage() {
                     <Button
                       onClick={handleManualReset}
                       disabled={manualResetLoading || !token}
-                      className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800/50 disabled:text-gray-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-gray-500"
+                      className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500"
                       aria-label="Manually reset today's quests"
                     >
                       {manualResetLoading ? (
@@ -2461,14 +2461,14 @@ export default function QuestsPage() {
                   {/* Simple Toggle for Daily Quests / Challenges */}
                   <div className="space-y-6">
                     {/* Toggle Buttons */}
-                    <div className="flex gap-2 p-1 bg-gray-900/50 rounded-lg border border-gray-800 w-fit">
+                    <div className="flex gap-2 p-1 bg-zinc-900 rounded-lg border border-zinc-800 w-fit">
                       <button
                         onClick={() => setForgeTab('quests')}
                         className={cn(
                           "px-6 py-2 rounded-md text-sm font-bold transition-all",
                           forgeTab === 'quests'
                             ? "bg-orange-500 text-white shadow-lg"
-                            : "text-gray-400 hover:text-gray-200"
+                            : "text-zinc-400 hover:text-zinc-200"
                         )}
                       >
                         Daily Quests
@@ -2479,7 +2479,7 @@ export default function QuestsPage() {
                           "px-6 py-2 rounded-md text-sm font-bold transition-all",
                           forgeTab === 'challenges'
                             ? "bg-blue-500 text-white shadow-lg"
-                            : "text-gray-400 hover:text-gray-200"
+                            : "text-zinc-400 hover:text-zinc-200"
                         )}
                       >
                         Challenges
@@ -2528,7 +2528,7 @@ export default function QuestsPage() {
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-amber-400 font-serif">Journey Progress</h2>
-                        <p className="text-xs text-gray-500">Track your path and achievements</p>
+                        <p className="text-xs text-zinc-500">Track your path and achievements</p>
                       </div>
                     </div>
 
@@ -2554,7 +2554,7 @@ export default function QuestsPage() {
                         <h3 className="text-lg font-bold text-amber-500 font-medieval">{TEXT_CONTENT.questBoard.journey.title}</h3>
                         <div className="flex items-center gap-4">
                           {isEditingGoal ? (
-                            <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-lg border border-amber-900/30">
+                            <div className="flex items-center gap-2 bg-zinc-950 p-1.5 rounded-lg border border-amber-900/30">
                               <span className="text-xs text-amber-200/70">Goal:</span>
                               <input 
                                 type="number" 
@@ -2583,7 +2583,7 @@ export default function QuestsPage() {
                               </Button>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-2 text-xs font-bold bg-black/40 px-3 py-1.5 rounded-lg border border-amber-900/30">
+                            <div className="flex items-center gap-2 text-xs font-bold bg-zinc-950 px-3 py-1.5 rounded-lg border border-amber-900/30">
                               <span className="text-amber-500">Goal: {dailyGoal}/day</span>
                               <button onClick={() => setIsEditingGoal(true)} className="text-amber-200/50 hover:text-amber-300 transition-colors">
                                 <Pencil className="w-3 h-3" />
@@ -2630,7 +2630,7 @@ export default function QuestsPage() {
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-blue-400 font-serif">The Sanctuary</h2>
-                      <p className="text-sm text-gray-500">Epic milestones and legendary achievements</p>
+                      <p className="text-sm text-zinc-500">Epic milestones and legendary achievements</p>
                     </div>
                   </div>
                   <QuestOrganization
@@ -2660,7 +2660,7 @@ export default function QuestsPage() {
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-green-400 font-serif">Recovery</h2>
-                      <p className="text-sm text-gray-500">Restore your streaks and momentum</p>
+                      <p className="text-sm text-zinc-500">Restore your streaks and momentum</p>
                     </div>
                   </div>
                   <div className="mb-6">
@@ -2743,7 +2743,7 @@ export default function QuestsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Name</label>
                 <input
-                  className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-gray-900/80 outline-none transition-all duration-300 text-white placeholder:text-gray-700"
+                  className="w-full p-4 bg-zinc-950 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-zinc-900 outline-none transition-all duration-300 text-white placeholder:text-zinc-700"
                   value={editingQuest.name}
                   onChange={e => setEditingQuest({ ...editingQuest, name: e.target.value })}
                   placeholder="Quest name"
@@ -2754,7 +2754,7 @@ export default function QuestsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Description</label>
                 <textarea
-                  className="w-full p-4 bg-gray-950/50 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-gray-900/80 outline-none transition-all duration-300 min-h-[100px] resize-none text-gray-200 placeholder:text-gray-700"
+                  className="w-full p-4 bg-zinc-950 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-zinc-900 outline-none transition-all duration-300 min-h-[100px] resize-none text-zinc-200 placeholder:text-zinc-700"
                   value={editingQuest.description}
                   onChange={e => setEditingQuest({ ...editingQuest, description: e.target.value })}
                   placeholder="Quest description"
@@ -2768,10 +2768,10 @@ export default function QuestsPage() {
                     value={editingQuest.category}
                     onValueChange={(val) => setEditingQuest({ ...editingQuest, category: val })}
                   >
-                    <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full text-white">
+                    <SelectTrigger className="h-14 bg-zinc-950 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full text-white">
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
-                    <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                    <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                       {questCategories.map((cat) => (
                         <SelectItem key={cat} value={cat} className="focus:bg-amber-500/10 focus:text-amber-200">
                           <div className="flex items-center gap-3 py-1">
@@ -2792,19 +2792,19 @@ export default function QuestsPage() {
                     value={editingQuest.difficulty}
                     onValueChange={(val) => setEditingQuest({ ...editingQuest, difficulty: val })}
                   >
-                    <SelectTrigger className="h-14 bg-gray-950/50 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full text-white">
+                    <SelectTrigger className="h-14 bg-zinc-950 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full text-white">
                       <SelectValue placeholder="Select Difficulty" />
                     </SelectTrigger>
-                    <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                    <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                       {Object.entries(difficultySettings).map(([key, value]) => (
                         <SelectItem key={key} value={key} className="focus:bg-amber-500/10 focus:text-amber-200">
                           <div className="flex items-center gap-3 py-1">
-                            <div className={`p-2 bg-gray-800 rounded-lg ${value.color}`}>
+                            <div className={`p-2 bg-zinc-800 rounded-lg ${value.color}`}>
                               {value.icon}
                             </div>
                             <div>
-                              <div className="font-bold text-gray-200">{value.label}</div>
-                              <div className="text-[10px] text-gray-500 uppercase flex gap-2">
+                              <div className="font-bold text-zinc-200">{value.label}</div>
+                              <div className="text-[10px] text-zinc-500 uppercase flex gap-2">
                                 <span>+{value.gold} Gold</span>
                                 <span>+{value.xp} XP</span>
                               </div>
@@ -2818,22 +2818,22 @@ export default function QuestsPage() {
               </div>
 
               {/* Strategic Mandate Section */}
-              <div className="space-y-4 p-5 bg-gray-950/40 border-2 border-amber-900/20 rounded-2xl">
+              <div className="space-y-4 p-5 bg-zinc-950 border-2 border-amber-900/20 rounded-2xl">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
                     <Select
                       value={editingQuest.mandate_period || 'daily'}
                       onValueChange={(val) => setEditingQuest({ ...editingQuest, mandate_period: val as any })}
                     >
-                      <SelectTrigger className="h-12 bg-gray-900/50 border border-amber-900/30 rounded-xl transition-all hover:border-amber-500/30 text-white text-xs">
+                      <SelectTrigger className="h-12 bg-zinc-900 border border-amber-900/30 rounded-xl transition-all hover:border-amber-500/30 text-white text-xs">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent side="top" className="bg-gray-900 border-amber-900/50">
+                      <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                         <SelectItem value="daily">{TEXT_CONTENT.quests.mastery.form.periods.daily}</SelectItem>
                         <SelectItem value="weekly">{TEXT_CONTENT.quests.mastery.form.periods.weekly}</SelectItem>
                         <SelectItem value="monthly">{TEXT_CONTENT.quests.mastery.form.periods.monthly}</SelectItem>
@@ -2842,13 +2842,13 @@ export default function QuestsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         min="1"
                         max={editingQuest.mandate_period === 'weekly' ? 7 : 31}
-                        className="h-12 w-full bg-gray-900/50 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all text-white text-sm"
+                        className="h-12 w-full bg-zinc-900 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all text-white text-sm"
                         value={editingQuest.mandate_count || 1}
                         onChange={(e) => setEditingQuest({ ...editingQuest, mandate_count: parseInt(e.target.value) || 1 })}
                       />
@@ -2889,7 +2889,7 @@ export default function QuestsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 ml-1">Name</label>
                 <input
-                  className="w-full p-4 bg-zinc-950/50 border-2 border-red-900/10 rounded-xl focus:border-red-500/30 focus:bg-zinc-900/80 outline-none transition-all duration-300 text-white placeholder:text-zinc-800"
+                  className="w-full p-4 bg-zinc-950 border-2 border-red-900/10 rounded-xl focus:border-red-500/30 focus:bg-zinc-900 outline-none transition-all duration-300 text-white placeholder:text-zinc-800"
                   value={editingChallenge.name}
                   onChange={e => setEditingChallenge({ ...editingChallenge, name: e.target.value })}
                   placeholder="Challenge name"
@@ -2900,7 +2900,7 @@ export default function QuestsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 ml-1">Description</label>
                 <textarea
-                  className="w-full p-4 bg-zinc-950/50 border-2 border-red-900/10 rounded-xl focus:border-red-500/30 focus:bg-zinc-900/80 outline-none transition-all duration-300 min-h-[100px] resize-none text-zinc-200 placeholder:text-zinc-800"
+                  className="w-full p-4 bg-zinc-950 border-2 border-red-900/10 rounded-xl focus:border-red-500/30 focus:bg-zinc-900 outline-none transition-all duration-300 min-h-[100px] resize-none text-zinc-200 placeholder:text-zinc-800"
                   value={editingChallenge.description}
                   onChange={e => setEditingChallenge({ ...editingChallenge, description: e.target.value })}
                   placeholder="Challenge description"
@@ -2914,7 +2914,7 @@ export default function QuestsPage() {
                     value={editingChallenge.category}
                     onValueChange={(val) => setEditingChallenge({ ...editingChallenge, category: val })}
                   >
-                    <SelectTrigger className="h-14 bg-zinc-950/50 border-2 border-red-900/20 rounded-xl transition-all hover:border-red-500/30 w-full text-white">
+                    <SelectTrigger className="h-14 bg-zinc-950 border-2 border-red-900/20 rounded-xl transition-all hover:border-red-500/30 w-full text-white">
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
@@ -2931,7 +2931,7 @@ export default function QuestsPage() {
                     value={editingChallenge.difficulty}
                     onValueChange={(val) => setEditingChallenge({ ...editingChallenge, difficulty: val })}
                   >
-                    <SelectTrigger className="h-14 bg-zinc-950/50 border-2 border-red-900/20 rounded-xl transition-all hover:border-red-500/30 w-full text-white">
+                    <SelectTrigger className="h-14 bg-zinc-950 border-2 border-red-900/20 rounded-xl transition-all hover:border-red-500/30 w-full text-white">
                       <SelectValue placeholder="Select Difficulty" />
                     </SelectTrigger>
                     <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
@@ -2957,7 +2957,7 @@ export default function QuestsPage() {
                       value={editingChallenge.mandate_period || 'daily'}
                       onValueChange={(val) => setEditingChallenge({ ...editingChallenge, mandate_period: val as any })}
                     >
-                      <SelectTrigger className="h-12 bg-zinc-900/50 border border-red-900/30 rounded-xl transition-all hover:border-red-500/30 text-white text-xs">
+                      <SelectTrigger className="h-12 bg-zinc-900 border border-red-900/30 rounded-xl transition-all hover:border-red-500/30 text-white text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent side="top" className="bg-zinc-900 border-red-900/50">
@@ -2975,7 +2975,7 @@ export default function QuestsPage() {
                         type="number"
                         min="1"
                         max={editingChallenge.mandate_period === 'weekly' ? 7 : 31}
-                        className="h-12 w-full bg-zinc-900/50 border border-red-900/30 rounded-xl px-4 focus:border-red-500/50 outline-none transition-all text-white text-sm"
+                        className="h-12 w-full bg-zinc-900 border border-red-900/30 rounded-xl px-4 focus:border-red-500/50 outline-none transition-all text-white text-sm"
                         value={editingChallenge.mandate_count || 1}
                         onChange={(e) => setEditingChallenge({ ...editingChallenge, mandate_count: parseInt(e.target.value) || 1 })}
                       />
@@ -3144,7 +3144,7 @@ export default function QuestsPage() {
           }
         >
           <p>{TEXT_CONTENT.questBoard.modals.delete.confirmMilestone.replace('{name}', milestoneToDelete?.name)}</p>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
             {TEXT_CONTENT.questBoard.modals.delete.warning}
           </p>
         </ResponsiveModal>
@@ -3278,7 +3278,7 @@ export default function QuestsPage() {
           }
         >
           <p>{TEXT_CONTENT.questBoard.modals.delete.confirm.replace('{name}', questToDelete?.name || '')}</p>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
             {TEXT_CONTENT.questBoard.modals.delete.warning}
           </p>
         </ResponsiveModal>

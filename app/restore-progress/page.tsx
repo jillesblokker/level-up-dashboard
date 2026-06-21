@@ -54,7 +54,7 @@ export default function RestoreProgressPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-blue-900 to-purple-900 p-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link href="/quests" className="inline-flex items-center text-amber-400 hover:text-amber-300 mb-4">
@@ -62,12 +62,12 @@ export default function RestoreProgressPage() {
             {TEXT_CONTENT.restoreProgress.backLink}
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">{TEXT_CONTENT.restoreProgress.title}</h1>
-          <p className="text-gray-300">
+          <p className="text-zinc-300">
             {TEXT_CONTENT.restoreProgress.description}
           </p>
         </div>
 
-        <Card className="bg-gray-800/50 border-gray-700">
+        <Card className="bg-zinc-800/50 border-zinc-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <RotateCcw className="w-5 h-5 mr-2" />
@@ -75,11 +75,11 @@ export default function RestoreProgressPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-gray-300">
+            <div className="text-zinc-300">
               <p className="mb-2">
                 {TEXT_CONTENT.restoreProgress.explanation.main}
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-zinc-400">
                 {TEXT_CONTENT.restoreProgress.explanation.sub}
               </p>
             </div>
@@ -108,7 +108,7 @@ export default function RestoreProgressPage() {
                   <CheckCircle className="w-5 h-5 mr-2" />
                   <span className="font-semibold">{TEXT_CONTENT.restoreProgress.result.success}</span>
                 </div>
-                <div className="text-sm text-gray-300 space-y-1">
+                <div className="text-sm text-zinc-300 space-y-1">
                   <p>• {TEXT_CONTENT.restoreProgress.result.restored.replace('{count}', restoreResult.restored)}</p>
                   <p>• {TEXT_CONTENT.restoreProgress.result.xpAdded.replace('{xp}', restoreResult.totalXP)}</p>
                   <p>• {TEXT_CONTENT.restoreProgress.result.goldAdded.replace('{gold}', restoreResult.totalGold)}</p>

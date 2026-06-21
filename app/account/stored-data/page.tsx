@@ -329,7 +329,7 @@ export default function StoredDataPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Stored Data Management</h1>
-          <p className="text-gray-400 mt-2">View and manage your local storage data</p>
+          <p className="text-zinc-400 mt-2">View and manage your local storage data</p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -423,7 +423,7 @@ export default function StoredDataPage() {
                 id="category"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-1 border rounded bg-gray-800 text-white"
+                className="px-3 py-1 border rounded bg-zinc-800 text-white"
                 aria-label="category-filter"
               >
                 {categories.map(category => (
@@ -536,11 +536,11 @@ export default function StoredDataPage() {
                               <span className="font-medium text-white">{item.key}</span>
                               <Badge variant="outline">{item.category}</Badge>
                               <Badge variant="secondary">{item.type}</Badge>
-                              <span className="text-sm text-gray-400">{formatSize(item.size)}</span>
+                              <span className="text-sm text-zinc-400">{formatSize(item.size)}</span>
                             </div>
                             {showValues && (
                               <div className="mt-2">
-                                <pre className="text-xs bg-gray-900 p-2 rounded overflow-x-auto max-h-32 overflow-y-auto">
+                                <pre className="text-xs bg-zinc-900 p-2 rounded overflow-x-auto max-h-32 overflow-y-auto">
                                   {JSON.stringify(item.value, null, 2)}
                                 </pre>
                               </div>

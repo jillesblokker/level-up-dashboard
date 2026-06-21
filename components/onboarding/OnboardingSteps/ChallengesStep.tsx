@@ -84,7 +84,7 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
       {/* Challenges Section */}
       <div className="space-y-3 md:space-y-4">
         <h3 className="text-base md:text-lg font-semibold text-white">Challenges</h3>
-        <p className="text-sm text-gray-400 mb-3">
+        <p className="text-sm text-zinc-400 mb-3">
           Higher stakes quests with greater rewards. Complete challenges to earn bonus experience and gold.
         </p>
         <div className="space-y-2 md:space-y-3">
@@ -95,7 +95,7 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
             return (
               <Card 
                 key={challenge.id} 
-                className={`bg-gray-800/50 border transition-all duration-300 cursor-pointer ${
+                className={`bg-zinc-800/50 border transition-all duration-300 cursor-pointer ${
                   isCompleted 
                     ? 'border-green-500/50 bg-green-500/10' 
                     : 'border-amber-800/20 hover:border-amber-500/40'
@@ -110,7 +110,7 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
                       </div>
                       <div>
                         <h4 className="font-medium text-white text-sm md:text-base">{challenge.name}</h4>
-                        <p className="text-xs md:text-sm text-gray-400">{challenge.description}</p>
+                        <p className="text-xs md:text-sm text-zinc-400">{challenge.description}</p>
                         <div className="flex items-center space-x-2 mt-1">
                           <Badge variant="secondary" className="text-xs">
                             {challenge.difficulty}
@@ -137,7 +137,7 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
       {/* Milestones Section */}
       <div className="space-y-3 md:space-y-4">
         <h3 className="text-base md:text-lg font-semibold text-white">Milestones</h3>
-        <p className="text-sm text-gray-400 mb-3">
+        <p className="text-sm text-zinc-400 mb-3">
           Long-term goals to work towards. Milestones unlock new features and content.
         </p>
         <div className="space-y-2 md:space-y-3">
@@ -146,7 +146,7 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
             const progress = (milestone.progress / milestone.total) * 100
             
             return (
-              <Card key={milestone.id} className="bg-gray-800/50 border border-amber-800/20">
+              <Card key={milestone.id} className="bg-zinc-800/50 border border-amber-800/20">
                 <CardContent className="p-3 md:p-4">
                   <div className="flex items-center space-x-2 md:space-x-3">
                     <div className={`w-8 h-8 md:w-10 md:h-10 ${milestone.bgColor} rounded-lg flex items-center justify-center`}>
@@ -154,13 +154,13 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-white text-sm md:text-base">{milestone.name}</h4>
-                      <p className="text-xs md:text-sm text-gray-400">{milestone.description}</p>
+                      <p className="text-xs md:text-sm text-zinc-400">{milestone.description}</p>
                       <div className="mt-2">
-                        <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                        <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
                           <span>Progress</span>
                           <span>{milestone.progress} / {milestone.total}</span>
                         </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div className="w-full bg-zinc-700 rounded-full h-2">
                           <div 
                             className="bg-amber-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${progress}%` }}
@@ -178,7 +178,7 @@ export function ChallengesStep({ onNext }: ChallengesStepProps) {
 
       {/* Interactive Demo */}
       <div className="text-center space-y-3">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-zinc-400">
           Click on a challenge to complete it and see your rewards!
         </p>
         {completedChallenges.size > 0 && (

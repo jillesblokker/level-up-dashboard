@@ -75,7 +75,7 @@ export function KingdomTileModal({ isOpen, onClose, reward, onCollectAll, hasBat
                 "relative rounded-xl p-4 border transition-all duration-300",
                 reward.isLucky
                   ? "bg-gradient-to-r from-amber-900/40 to-amber-800/20 border-amber-500/50 shadow-lg shadow-amber-500/10"
-                  : "bg-zinc-900/50 border-amber-700/20"
+                  : "bg-zinc-900 border-amber-700/20"
               )}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">

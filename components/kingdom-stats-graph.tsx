@@ -80,12 +80,12 @@ function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
         height={300}
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div className="absolute inset-0 bg-zinc-950" aria-hidden="true" />
       <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
         <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-stats-empty-title">
           {title}
         </div>
-        <div className="text-gray-100 text-base" aria-label="kingdom-stats-empty-desc">
+        <div className="text-zinc-100 text-base" aria-label="kingdom-stats-empty-desc">
           {description}
         </div>
         <Link href={href} passHref legacyBehavior>
@@ -174,14 +174,14 @@ function ChartTypeToggle({ chartType, setChartType }: { chartType: 'bar' | 'line
   return (
     <div className="flex gap-2 items-center">
       <button
-        className={`px-3 py-1 rounded-md text-xl font-semibold transition-colors duration-200 ${chartType === 'bar' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
+        className={`px-3 py-1 rounded-md text-xl font-semibold transition-colors duration-200 ${chartType === 'bar' ? 'bg-amber-700 text-white' : 'bg-zinc-800 text-zinc-300'}`}
         onClick={() => setChartType('bar')}
         aria-label="Bar chart view"
       >
         <span role="img" aria-label="Bar chart">📊</span>
       </button>
       <button
-        className={`px-3 py-1 rounded-md text-xl font-semibold transition-colors duration-200 ${chartType === 'line' ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-300'}`}
+        className={`px-3 py-1 rounded-md text-xl font-semibold transition-colors duration-200 ${chartType === 'line' ? 'bg-amber-700 text-white' : 'bg-zinc-800 text-zinc-300'}`}
         onClick={() => setChartType('line')}
         aria-label="Line chart view"
       >
@@ -212,25 +212,25 @@ function CustomTooltip({ active, payload, label }: any) {
     const categories = dataPoint?.categories || {};
 
     return (
-      <div className="rounded-lg border border-amber-700 bg-black/90 p-3 shadow-lg">
+      <div className="rounded-lg border border-amber-700 bg-zinc-950 p-3 shadow-lg">
         <div className="text-xs text-amber-400 font-bold mb-2">{label}</div>
 
         {/* Show total value */}
         <div className="flex items-center gap-2 mb-2">
           <span className="w-2 h-2 rounded-full inline-block bg-amber-500" />
           <span className="text-white text-sm font-semibold">{payload[0]?.value}</span>
-          <span className="text-gray-400 text-xs">total</span>
+          <span className="text-zinc-400 text-xs">total</span>
         </div>
 
         {/* Show category breakdown if available */}
         {Object.keys(categories).length > 0 && (
           <div className="space-y-1">
-            <div className="text-xs text-gray-400 mb-1">Categories:</div>
+            <div className="text-xs text-zinc-400 mb-1">Categories:</div>
             {Object.entries(categories).map(([category, count]) => (
               <div key={category} className="flex items-center gap-2">
                 <span className="text-sm">{categoryEmojis[category] || '❓'}</span>
                 <span className="text-white text-xs font-medium">{category}</span>
-                <span className="text-gray-400 text-xs">({count as number})</span>
+                <span className="text-zinc-400 text-xs">({count as number})</span>
               </div>
             ))}
           </div>
@@ -477,7 +477,7 @@ function ChartBlock({ graphData, timePeriod, highlightCurrent, ariaLabel, chartT
 
       {/* Year display below the chart */}
       <div className="text-center">
-        <h5 className="text-gray-400 text-sm font-medium">{getYearRange()}</h5>
+        <h5 className="text-zinc-400 text-sm font-medium">{getYearRange()}</h5>
       </div>
 
       <style jsx>{`
@@ -695,7 +695,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
           {/* Header with title and description - KingdomStatsBlock */}
           <div className="flex flex-col space-y-2">
             <h3 className="text-2xl font-bold text-amber-500">Kingdom stats</h3>
-            <p className="text-gray-400">Track your realm&apos;s growth</p>
+            <p className="text-zinc-400">Track your realm&apos;s growth</p>
           </div>
 
           {/* Control bar - grouped logically for mobile/web */}
@@ -870,7 +870,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
             </TabsList>
           </Tabs>
           {isLoading ? (
-            <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
+            <div className="h-64 flex items-center justify-center text-zinc-400">Loading...</div>
           ) : !hasData ? (
             activeTab === 'quests' ? (
               <EmptyState title="No quests yet" description="Start habit building now to see your kingdom flourish!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
@@ -1078,7 +1078,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           {/* Header with title and description */}
           <div className="flex flex-col space-y-2">
             <h3 className="text-2xl font-bold text-amber-500">Gains</h3>
-            <p className="text-gray-400">Track your gold, experience, and level progression</p>
+            <p className="text-zinc-400">Track your gold, experience, and level progression</p>
           </div>
 
           {/* Control bar - grouped logically for mobile/web */}
@@ -1256,7 +1256,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
             </TabsList>
           </Tabs>
           {isLoading ? (
-            <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
+            <div className="h-64 flex items-center justify-center text-zinc-400">Loading...</div>
           ) : !hasData ? (
             activeTab === 'gold-gained' || activeTab === 'gold-spent' ? (
               <EmptyState title="No gold earned yet" description="Complete quests to earn gold!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />

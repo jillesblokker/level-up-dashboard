@@ -41,7 +41,7 @@ export default function Error({
   // If it's a chunk error we're about to reload — show a brief loading state
   if (isChunkLoadError(error)) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-black border-2 border-amber-800/50 rounded-lg p-8 text-center">
           <h1 className="text-2xl font-bold text-amber-500 mb-4">🔄 Updating…</h1>
           <p className="text-amber-300">A new version is available. Reloading the app…</p>
@@ -51,7 +51,7 @@ export default function Error({
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-black border-2 border-amber-800/50 rounded-lg p-8 text-center">
         <h1 className="text-4xl font-bold text-amber-500 mb-4">{TEXT_CONTENT.errorPage.generic.title}</h1>
 
@@ -64,7 +64,7 @@ export default function Error({
           </p>
         </div>
 
-        <p className="text-gray-400 mb-8">
+        <p className="text-zinc-400 mb-8">
           {TEXT_CONTENT.errorPage.generic.investigate}
         </p>
 

@@ -57,7 +57,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
           <Star className="h-8 w-8 text-amber-400" />
           <span className="text-3xl font-bold text-amber-400">Level {currentLevel}</span>
         </div>
-        <p className="text-gray-300">
+        <p className="text-zinc-300">
           Gain experience by completing quests and unlock new content as you level up.
         </p>
       </div>
@@ -65,22 +65,22 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
       {/* Experience Progress */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-white">Experience Progress</h3>
-        <Card className="bg-gray-800/50 border border-amber-800/20">
+        <Card className="bg-zinc-800/50 border border-amber-800/20">
           <CardContent className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-300">Experience</span>
+                <span className="text-zinc-300">Experience</span>
                 <span className="text-amber-400">{currentXP} / {maxXP} XP</span>
               </div>
               <Progress
                 value={progress}
-                className="h-3 bg-gray-700"
+                className="h-3 bg-zinc-700"
                 style={{
                   '--progress-background': 'rgb(245 158 11)',
                   '--progress-foreground': 'rgb(245 158 11)'
                 } as React.CSSProperties}
               />
-              <div className="text-center text-sm text-gray-400">
+              <div className="text-center text-sm text-zinc-400">
                 {showLevelUp ? 'Level Up!' : `${maxXP - currentXP} XP to next level`}
               </div>
             </div>
@@ -133,17 +133,17 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
                 key={index}
                 className={`border transition-all duration-300 ${isUnlocked
                     ? 'bg-amber-500/10 border-amber-500/20'
-                    : 'bg-gray-800/50 border-gray-700/50'
+                    : 'bg-zinc-800/50 border-zinc-700/50'
                   }`}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isUnlocked ? 'bg-amber-500/20' : 'bg-gray-700/50'
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isUnlocked ? 'bg-amber-500/20' : 'bg-zinc-700/50'
                       }`}>
-                      <Icon className={`h-4 w-4 ${isUnlocked ? 'text-amber-400' : 'text-gray-500'}`} />
+                      <Icon className={`h-4 w-4 ${isUnlocked ? 'text-amber-400' : 'text-zinc-500'}`} />
                     </div>
                     <div className="flex-1">
-                      <h5 className={`font-medium ${isUnlocked ? 'text-white' : 'text-gray-400'}`}>
+                      <h5 className={`font-medium ${isUnlocked ? 'text-white' : 'text-zinc-400'}`}>
                         {feature.name}
                       </h5>
                       <div className="flex items-center space-x-2 mt-1">
@@ -174,13 +174,13 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Level Up Rewards</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Each level unlocks new quests, tiles, and special features for your kingdom.
             </p>
           </div>
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Experience Gain</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Complete quests to earn experience points and advance your character.
             </p>
           </div>
@@ -190,7 +190,7 @@ export function ProgressionStep({ onNext }: ProgressionStepProps) {
       {/* Progress Status */}
       {!showLevelUp && (
         <div className="text-center">
-          <p className="text-sm text-gray-400">Watch your experience grow as you complete quests...</p>
+          <p className="text-sm text-zinc-400">Watch your experience grow as you complete quests...</p>
         </div>
       )}
     </div>

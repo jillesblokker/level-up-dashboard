@@ -80,14 +80,14 @@ export function MedievalButton({
       ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-amber-50 border border-amber-500/30 shadow-lg hover:shadow-xl focus:ring-amber-500' 
       : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
     secondary: medieval
-      ? 'bg-gradient-to-r from-stone-600 to-stone-700 hover:from-stone-700 hover:to-stone-800 text-stone-100 border border-stone-500/30 shadow-lg hover:shadow-xl focus:ring-stone-500'
-      : 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500',
+      ? 'bg-gradient-to-r from-zinc-600 to-zinc-700 hover:from-zinc-700 hover:to-zinc-800 text-zinc-100 border border-zinc-500/30 shadow-lg hover:shadow-xl focus:ring-zinc-500'
+      : 'bg-zinc-600 hover:bg-zinc-700 text-white focus:ring-zinc-500',
     danger: medieval
       ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-red-50 border border-red-500/30 shadow-lg hover:shadow-xl focus:ring-red-500'
       : 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
     ghost: medieval
       ? 'text-amber-200 hover:bg-amber-800/30 border border-amber-600/30 hover:border-amber-500/50 focus:ring-amber-500'
-      : 'text-gray-600 hover:bg-gray-100 focus:ring-gray-500'
+      : 'text-zinc-600 hover:bg-zinc-100 focus:ring-zinc-500'
   };
 
   const sizeClasses = {
@@ -127,8 +127,8 @@ export function MedievalInput({
   ...props
 }: MedievalInputProps) {
   const inputClasses = medieval
-    ? 'bg-amber-50/10 border-amber-600/30 text-amber-100 placeholder-amber-300/50 focus:border-amber-500 focus:ring-amber-500/20 backdrop-blur-sm'
-    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20';
+    ? 'bg-amber-50/10 border-amber-600/30 text-amber-100 placeholder-amber-300/50 focus:border-amber-500 focus:ring-amber-500/20 '
+    : 'bg-white border-zinc-300 text-zinc-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20';
 
   return (
     <div className="space-y-2">
@@ -171,8 +171,8 @@ export function MedievalCard({
   glow = false
 }: MedievalCardProps) {
   const cardClasses = medieval
-    ? 'bg-gradient-to-br from-amber-900/20 to-amber-800/10 border border-amber-700/30 backdrop-blur-sm shadow-xl'
-    : 'bg-white border border-gray-200 shadow-sm';
+    ? 'bg-gradient-to-br from-amber-900/20 to-amber-800/10 border border-amber-700/30  shadow-xl'
+    : 'bg-white border border-zinc-200 shadow-sm';
 
   return (
     <Card className={cn(
@@ -182,13 +182,13 @@ export function MedievalCard({
       className
     )}>
       {title && (
-        <CardHeader className={medieval ? 'border-b border-amber-700/30' : 'border-b border-gray-200'}>
-          <CardTitle className={medieval ? 'text-amber-100 font-serif' : 'text-gray-900'}>
+        <CardHeader className={medieval ? 'border-b border-amber-700/30' : 'border-b border-zinc-200'}>
+          <CardTitle className={medieval ? 'text-amber-100 font-serif' : 'text-zinc-900'}>
             {title}
           </CardTitle>
         </CardHeader>
       )}
-      <CardContent className={medieval ? 'text-amber-200' : 'text-gray-700'}>
+      <CardContent className={medieval ? 'text-amber-200' : 'text-zinc-700'}>
         {children}
       </CardContent>
     </Card>
@@ -211,8 +211,8 @@ export function MedievalBadge({
 }: MedievalBadgeProps) {
   const variantClasses = {
     common: medieval 
-      ? 'bg-gray-600/80 text-gray-100 border border-gray-500/30' 
-      : 'bg-gray-100 text-gray-800',
+      ? 'bg-zinc-600/80 text-zinc-100 border border-zinc-500/30' 
+      : 'bg-zinc-100 text-zinc-800',
     uncommon: medieval
       ? 'bg-green-600/80 text-green-100 border border-green-500/30'
       : 'bg-green-100 text-green-800',
@@ -231,7 +231,7 @@ export function MedievalBadge({
     <Badge className={cn(
       'font-medium transition-all duration-200',
       variantClasses[variant],
-      medieval && 'backdrop-blur-sm shadow-sm',
+      medieval && ' shadow-sm',
       className
     )}>
       {children}
@@ -299,17 +299,17 @@ export function MedievalProgress({
     <div className={cn('space-y-2', className)}>
       {showLabel && (
         <div className="flex justify-between text-sm">
-          <span className={medieval ? 'text-amber-200' : 'text-gray-700'}>
+          <span className={medieval ? 'text-amber-200' : 'text-zinc-700'}>
             {label || 'Progress'}
           </span>
-          <span className={medieval ? 'text-amber-300' : 'text-gray-500'}>
+          <span className={medieval ? 'text-amber-300' : 'text-zinc-500'}>
             {Math.round(percentage)}%
           </span>
         </div>
       )}
       <div className={cn(
         'w-full rounded-full overflow-hidden',
-        medieval ? 'bg-amber-900/30 border border-amber-700/30' : 'bg-gray-200'
+        medieval ? 'bg-amber-900/30 border border-amber-700/30' : 'bg-zinc-200'
       )}>
         <div
           className={cn(

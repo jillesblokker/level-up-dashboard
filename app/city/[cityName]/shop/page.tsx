@@ -155,7 +155,7 @@ export default function ShopPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-black/70">
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
               <h2 className="text-4xl font-bold mb-2 font-serif text-amber-500 drop-shadow-lg">City Market</h2>
-              <p className="text-lg text-gray-300 max-w-2xl text-center">Browse wares from local merchants in {cityName}</p>
+              <p className="text-lg text-zinc-300 max-w-2xl text-center">Browse wares from local merchants in {cityName}</p>
             </div>
           </div>
         </div>

@@ -76,7 +76,7 @@ export function TileVisual({
           'opacity-75': isHovered,
           'cursor-pointer': onClick
         },
-        !tile.revealed && 'bg-gray-800',
+        !tile.revealed && 'bg-zinc-800',
         className
       )}
       onClick={onClick}

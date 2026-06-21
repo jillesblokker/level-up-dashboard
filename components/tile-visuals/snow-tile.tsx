@@ -63,7 +63,7 @@ export function SnowTile({ onClick, className, ariaLabel = "Snow tile" }: SnowTi
       </div>
 
       {/* Snow tile label */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black/30 py-1 px-1 text-center" aria-hidden="true">
+      <div className="absolute bottom-0 left-0 right-0 bg-zinc-950 py-1 px-1 text-center" aria-hidden="true">
         <span className="text-xs text-white truncate">Snow</span>
       </div>
     </div>

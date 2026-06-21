@@ -69,7 +69,7 @@ const KingdomGridWithTimers = dynamic(() => import("@/components/kingdom-grid-wi
   loading: () => <div className="w-full flex flex-col items-center justify-center py-8 gap-4 animate-pulse">
     <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, 64px)' }}>
       {Array.from({ length: 36 }).map((_, i) => (
-        <div key={i} className="w-16 h-16 bg-gray-700/50 rounded" />
+        <div key={i} className="w-16 h-16 bg-zinc-700/50 rounded" />
       ))}
     </div>
   </div>
@@ -83,11 +83,11 @@ import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 
 const ProgressionVisualization = dynamic(
   () => import('@/components/progression-visualization').then(m => ({ default: m.ProgressionVisualization })),
-  { loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />, ssr: false }
+  { loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" />, ssr: false }
 );
 const EconomyTransparency = dynamic(
   () => import('@/components/economy-transparency').then(m => ({ default: m.EconomyTransparency })),
-  { loading: () => <div className="animate-pulse h-40 bg-gray-900/50 rounded-xl border border-gray-800" />, ssr: false }
+  { loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" />, ssr: false }
 );
 import { Users, Crown, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -1129,12 +1129,12 @@ export function KingdomClient() {
                 )}
               </CardTitle>
               {item.type && (
-                <Badge className="text-xs bg-gray-700 text-gray-300 mb-2">
+                <Badge className="text-xs bg-zinc-700 text-zinc-300 mb-2">
                   {item.type}
                 </Badge>
               )}
               {item.description && (
-                <CardDescription className="text-gray-400 text-sm leading-relaxed">
+                <CardDescription className="text-zinc-400 text-sm leading-relaxed">
                   {item.description}
                 </CardDescription>
               )}
@@ -1165,7 +1165,7 @@ export function KingdomClient() {
                 </div>
               )}
               {item.quantity && item.quantity > 1 && (
-                <span className="text-gray-400 text-sm">
+                <span className="text-zinc-400 text-sm">
                   {TEXT_CONTENT.kingdom.ui.inventory.status.qty.replace('{quantity}', item.quantity.toString())}
                 </span>
               )}
@@ -1592,7 +1592,7 @@ export function KingdomClient() {
       "min-h-screen relative"
     )}>
       {isVisiting && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-slate-900/90 text-white px-6 py-3 rounded-2xl border-2 border-amber-500/30 backdrop-blur-xl shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-zinc-900 text-white px-6 py-3 rounded-2xl border-2 border-amber-500/30  shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
             <Users className="w-6 h-6 text-amber-500" />
           </div>
@@ -1672,10 +1672,10 @@ export function KingdomClient() {
                 <div className="w-full flex flex-col items-center justify-center py-8 gap-4">
                   <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, 64px)' }}>
                     {Array.from({ length: 36 }).map((_, i) => (
-                      <div key={i} className="w-16 h-16 bg-gray-700/50 animate-pulse rounded" />
+                      <div key={i} className="w-16 h-16 bg-zinc-700/50 animate-pulse rounded" />
                     ))}
                   </div>
-                  <span className="text-gray-400 text-sm">{TEXT_CONTENT.kingdom.ui.loadingGrid}</span>
+                  <span className="text-zinc-400 text-sm">{TEXT_CONTENT.kingdom.ui.loadingGrid}</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center w-full">
@@ -1743,7 +1743,7 @@ export function KingdomClient() {
               </div>
 
               {/* Dungeon History */}
-              <Card className="bg-black/40 border-amber-900/30">
+              <Card className="bg-zinc-950 border-amber-900/30">
                 <CardHeader>
                   <CardTitle className="text-lg text-amber-500 flex items-center gap-2">
                     <Skull className="w-5 h-5" /> Recent Dungeon History
@@ -1773,7 +1773,7 @@ export function KingdomClient() {
                           epic: 'border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.3)] bg-purple-900/10',
                           rare: 'border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)] bg-blue-900/10',
                           uncommon: 'border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.1)] bg-green-900/5',
-                          common: 'border-amber-900/10 bg-zinc-900/50'
+                          common: 'border-amber-900/10 bg-zinc-900'
                         };
 
                         return (
@@ -1811,7 +1811,7 @@ export function KingdomClient() {
                                 {run.loot_obtained.filter((l: any) => l.type === 'item').map((lootItem: any, idx: number) => (
                                   <div 
                                     key={idx} 
-                                    className="w-6 h-6 rounded-full border border-amber-900/50 bg-gray-950 flex items-center justify-center p-0.5"
+                                    className="w-6 h-6 rounded-full border border-amber-900/50 bg-zinc-950 flex items-center justify-center p-0.5"
                                     title={lootItem.name}
                                   >
                                     <span className="text-[10px] leading-none" role="img" aria-label={lootItem.name}>
@@ -1878,13 +1878,13 @@ export function KingdomClient() {
 
       {/* Selling Confirmation Modal */}
       <Dialog open={sellingModalOpen} onOpenChange={setSellingModalOpen}>
-        <DialogContent className="bg-gray-900 border-amber-800/20" role="dialog" aria-label="selling-confirmation-modal">
+        <DialogContent className="bg-zinc-900 border-amber-800/20" role="dialog" aria-label="selling-confirmation-modal">
           <DialogDescription id="selling-confirmation-modal-desc">Item sold confirmation</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-2xl font-cardo text-amber-500">
               {TEXT_CONTENT.kingdom.ui.sellSuccess.title}
             </DialogTitle>
-            <DialogDescription className="text-gray-300">
+            <DialogDescription className="text-zinc-300">
               {TEXT_CONTENT.kingdom.ui.sellSuccess.description}
             </DialogDescription>
           </DialogHeader>

@@ -220,10 +220,10 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       case 'quest': return 'text-amber-400'
       case 'levelup': return 'text-amber-500'
       case 'success': return 'text-amber-400'
-      case 'event': return 'text-gray-400'
+      case 'event': return 'text-zinc-400'
       case 'discovery': return 'text-amber-500'
       case 'monster': return 'text-red-600'
-      case 'system': return 'text-gray-400'
+      case 'system': return 'text-zinc-400'
       default: return 'text-amber-400'
     }
   }
@@ -258,10 +258,10 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
           </div>
 
           <div className="space-y-2">
-            <p className="text-gray-200 leading-relaxed font-medium">
+            <p className="text-zinc-200 leading-relaxed font-medium">
               The courier has not yet arrived with news from your kingdom.
             </p>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-zinc-400 text-sm leading-relaxed">
               Complete quests and explore your realm to receive notifications from your loyal subjects.
             </p>
           </div>
@@ -287,7 +287,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       </SheetTrigger>
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 bg-black border-l border-amber-800/20 p-0" aria-modal="true">
         {/* Enhanced Header */}
-        <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-gray-900 to-gray-800">
+        <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-zinc-900 to-zinc-800">
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
@@ -296,7 +296,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                 </div>
                 <div>
                   <SheetTitle className="text-xl font-bold text-amber-400 font-serif tracking-wide">Notifications</SheetTitle>
-                  <p className="text-gray-400 text-sm font-medium line-clamp-1">Kingdom Messages & Updates</p>
+                  <p className="text-zinc-400 text-sm font-medium line-clamp-1">Kingdom Messages & Updates</p>
                 </div>
               </div>
 
@@ -338,10 +338,10 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
             <div className="p-4 space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="flex gap-4 p-2">
-                  <Skeleton className="h-10 w-10 rounded-lg bg-gray-800" />
+                  <Skeleton className="h-10 w-10 rounded-lg bg-zinc-800" />
                   <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4 bg-gray-800" />
-                    <Skeleton className="h-3 w-1/2 bg-gray-800/50" />
+                    <Skeleton className="h-4 w-3/4 bg-zinc-800" />
+                    <Skeleton className="h-3 w-1/2 bg-zinc-800/50" />
                   </div>
                 </div>
               ))}
@@ -604,8 +604,8 @@ function GoldGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
     <div className="border-b border-amber-800/10">
       <div
         className={cn(
-          "p-4 hover:bg-gray-900/50 transition-all duration-200 cursor-pointer flex items-center justify-between",
-          unreadCount > 0 && "bg-gray-800/30"
+          "p-4 hover:bg-zinc-900 transition-all duration-200 cursor-pointer flex items-center justify-between",
+          unreadCount > 0 && "bg-zinc-800/30"
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -613,8 +613,8 @@ function GoldGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
           <div className="text-2xl mt-1 text-amber-500">💰</div>
           <div>
             <h4 className="font-semibold text-sm text-amber-400">{notification.title}</h4>
-            <p className="text-sm text-gray-300">{notification.message}</p>
-            <span className="text-xs text-gray-500 mt-1 block">
+            <p className="text-sm text-zinc-300">{notification.message}</p>
+            <span className="text-xs text-zinc-500 mt-1 block">
               {notification.items.length} gold transaction{notification.items.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -630,25 +630,25 @@ function GoldGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
           )}
           <button
             onClick={handleGroupDelete}
-            className="text-sm text-gray-500 hover:text-red-400 p-1"
+            className="text-sm text-zinc-500 hover:text-red-400 p-1"
           >
             🗑️
           </button>
-          <Button variant="ghost" size="sm" className="text-gray-400 p-0 w-8 h-8">
+          <Button variant="ghost" size="sm" className="text-zinc-400 p-0 w-8 h-8">
             {isExpanded ? '▲' : '▼'}
           </Button>
         </div>
       </div>
 
       {isExpanded && (
-        <div className="bg-gray-900/30 divide-y divide-amber-800/10">
+        <div className="bg-zinc-900/30 divide-y divide-amber-800/10">
           {notification.items.map((item: any) => (
-            <div key={item.id} className="p-4 pl-12 relative hover:bg-gray-900/50 transition-all duration-200">
+            <div key={item.id} className="p-4 pl-12 relative hover:bg-zinc-900 transition-all duration-200">
               <div className="flex justify-between items-start">
                 <div>
                   <h5 className="font-medium text-white text-sm">{item.title}</h5>
-                  <p className="text-sm text-gray-300 mt-1">{item.message}</p>
-                  <span className="text-xs text-gray-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
+                  <p className="text-sm text-zinc-300 mt-1">{item.message}</p>
+                  <span className="text-xs text-zinc-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   {!item.read && (
@@ -665,7 +665,7 @@ function GoldGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
                         e.stopPropagation();
                         handleDelete(item.id);
                       }}
-                      className="text-gray-500 hover:text-red-400 text-sm"
+                      className="text-zinc-500 hover:text-red-400 text-sm"
                     >
                       🗑️
                     </button>
@@ -704,8 +704,8 @@ function ItemGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
     <div className="border-b border-amber-800/10">
       <div
         className={cn(
-          "p-4 hover:bg-gray-900/50 transition-all duration-200 cursor-pointer flex items-center justify-between",
-          unreadCount > 0 && "bg-gray-800/30"
+          "p-4 hover:bg-zinc-900 transition-all duration-200 cursor-pointer flex items-center justify-between",
+          unreadCount > 0 && "bg-zinc-800/30"
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -713,8 +713,8 @@ function ItemGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
           <div className="text-2xl mt-1 text-amber-500">📦</div>
           <div>
             <h4 className="font-semibold text-sm text-amber-400">{notification.title}</h4>
-            <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{notification.message}</p>
-            <span className="text-xs text-gray-500 mt-1 block">
+            <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-line">{notification.message}</p>
+            <span className="text-xs text-zinc-500 mt-1 block">
               {notification.items.length} item event{notification.items.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -730,25 +730,25 @@ function ItemGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
           )}
           <button
             onClick={handleGroupDelete}
-            className="text-sm text-gray-500 hover:text-red-400 p-1"
+            className="text-sm text-zinc-500 hover:text-red-400 p-1"
           >
             🗑️
           </button>
-          <Button variant="ghost" size="sm" className="text-gray-400 p-0 w-8 h-8">
+          <Button variant="ghost" size="sm" className="text-zinc-400 p-0 w-8 h-8">
             {isExpanded ? '▲' : '▼'}
           </Button>
         </div>
       </div>
 
       {isExpanded && (
-        <div className="bg-gray-900/30 divide-y divide-amber-800/10">
+        <div className="bg-zinc-900/30 divide-y divide-amber-800/10">
           {notification.items.map((item: any) => (
-            <div key={item.id} className="p-4 pl-12 relative hover:bg-gray-900/50 transition-all duration-200">
+            <div key={item.id} className="p-4 pl-12 relative hover:bg-zinc-900 transition-all duration-200">
               <div className="flex justify-between items-start">
                 <div>
                   <h5 className="font-medium text-white text-sm">{item.title}</h5>
-                  <p className="text-sm text-gray-300 mt-1">{item.message}</p>
-                  <span className="text-xs text-gray-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
+                  <p className="text-sm text-zinc-300 mt-1">{item.message}</p>
+                  <span className="text-xs text-zinc-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   {!item.read && (
@@ -765,7 +765,7 @@ function ItemGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
                         e.stopPropagation();
                         handleDelete(item.id);
                       }}
-                      className="text-gray-500 hover:text-red-400 text-sm"
+                      className="text-zinc-500 hover:text-red-400 text-sm"
                     >
                       🗑️
                     </button>
@@ -788,8 +788,8 @@ function AchievementGroup({ notification, handleDelete }: { notification: any, h
     <div className="border-b border-amber-800/10">
       <div
         className={cn(
-          "p-4 hover:bg-gray-900/50 transition-all duration-200 cursor-pointer flex items-center justify-between",
-          unreadCount > 0 && "bg-gray-800/30"
+          "p-4 hover:bg-zinc-900 transition-all duration-200 cursor-pointer flex items-center justify-between",
+          unreadCount > 0 && "bg-zinc-800/30"
         )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -797,25 +797,25 @@ function AchievementGroup({ notification, handleDelete }: { notification: any, h
           <div className="text-2xl mt-1 text-amber-400">🏆</div>
           <div>
             <h4 className="font-semibold text-sm text-white">Achievements</h4>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-zinc-400">
               {notification.items.length} new achievement{notification.items.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="text-gray-400">
+        <Button variant="ghost" size="sm" className="text-zinc-400">
           {isExpanded ? 'Collapse' : 'Expand'}
         </Button>
       </div>
 
       {isExpanded && (
-        <div className="bg-gray-900/30 divide-y divide-amber-800/10">
+        <div className="bg-zinc-900/30 divide-y divide-amber-800/10">
           {notification.items.map((item: any) => (
-            <div key={item.id} className="p-4 pl-12 relative hover:bg-gray-900/50 transition-all duration-200">
+            <div key={item.id} className="p-4 pl-12 relative hover:bg-zinc-900 transition-all duration-200">
               <div className="flex justify-between items-start">
                 <div>
                   <h5 className="font-medium text-amber-400 text-sm">{item.title}</h5>
-                  <p className="text-sm text-gray-300 mt-1">{item.message}</p>
-                  <span className="text-xs text-gray-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
+                  <p className="text-sm text-zinc-300 mt-1">{item.message}</p>
+                  <span className="text-xs text-zinc-500 mt-2 block">{new Date(item.timestamp).toLocaleString()}</span>
                 </div>
                 {!item.isServer && (
                   <button
@@ -823,7 +823,7 @@ function AchievementGroup({ notification, handleDelete }: { notification: any, h
                       e.stopPropagation();
                       handleDelete(item.id);
                     }}
-                    className="text-gray-500 hover:text-red-400"
+                    className="text-zinc-500 hover:text-red-400"
                   >
                     <span className="sr-only">Delete</span>
                     🗑️
@@ -873,16 +873,16 @@ function NotificationItem({
       case 'quest': return 'text-amber-400'
       case 'levelup': return 'text-amber-500'
       case 'success': return 'text-amber-400'
-      case 'event': return 'text-gray-400'
+      case 'event': return 'text-zinc-400'
       case 'discovery': return 'text-amber-500'
       case 'monster': return 'text-red-600'
-      case 'system': return 'text-gray-400'
+      case 'system': return 'text-zinc-400'
       default: return 'text-amber-400'
     }
   }
 
   return (
-    <div className={cn("p-4 relative hover:bg-gray-900/50 transition-all duration-200", !notification.read && "bg-gray-800/30")}>
+    <div className={cn("p-4 relative hover:bg-zinc-900 transition-all duration-200", !notification.read && "bg-zinc-800/30")}>
       <div className="flex items-start gap-4">
         <div className={cn("text-2xl mt-1 flex-shrink-0", getNotificationColor(notification.type))}>
           {getNotificationIcon(notification.type)}
@@ -892,11 +892,11 @@ function NotificationItem({
             <h4 className={cn("font-semibold text-sm flex items-center text-white leading-tight", getNotificationColor(notification.type))}>
               {notification.title}
             </h4>
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs text-zinc-500 font-medium">
               {new Date(notification.timestamp).toLocaleString()}
             </span>
           </div>
-          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+          <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
             {notification.message}
           </p>
 

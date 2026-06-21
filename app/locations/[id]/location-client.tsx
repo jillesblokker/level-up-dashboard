@@ -148,7 +148,7 @@ export function LocationClient({ location }: LocationClientProps) {
       </div>
 
       {/* Gold Balance */}
-      <div className="fixed bottom-4 right-4 bg-background/80 backdrop-blur-sm p-4 rounded-lg border">
+      <div className="fixed bottom-4 right-4 bg-background/80  p-4 rounded-lg border">
         <p className="text-amber-500">Gold Balance: {goldBalance}</p>
       </div>
     </div>

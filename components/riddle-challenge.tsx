@@ -338,7 +338,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/5 blur-[100px] pointer-events-none" />
 
-      <CardHeader className="bg-zinc-900/50 border-b border-white/5 relative z-10">
+      <CardHeader className="bg-zinc-900 border-b border-white/5 relative z-10">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
@@ -391,7 +391,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
         </div>
 
         <div className="flex-1 w-full flex flex-col">
-          <div className="bg-zinc-900/40 border border-white/5 rounded-2xl p-6 mb-8 relative">
+          <div className="bg-zinc-900 border border-white/5 rounded-2xl p-6 mb-8 relative">
             <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white uppercase tracking-widest">
               The Question
             </div>
@@ -414,7 +414,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
                   } else if (isSelected && !isCorrectAnswer) {
                     buttonStyle = "bg-red-500/20 border-red-500/50 text-red-400";
                   } else {
-                    buttonStyle = "bg-zinc-900/50 border-zinc-800/50 text-zinc-500 opacity-50";
+                    buttonStyle = "bg-zinc-900 border-zinc-800/50 text-zinc-500 opacity-50";
                   }
                 }
 

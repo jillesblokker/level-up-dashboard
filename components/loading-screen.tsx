@@ -64,7 +64,7 @@ export function LoadingScreen({ title, content, icon, className, variant = 'blue
                     </div>
                     
                     {/* Central Icon Orb */}
-                    <div className={cn("relative w-32 h-32 md:w-36 md:h-36 rounded-full border flex items-center justify-center bg-black/40 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.3)] group overflow-hidden", themeColors.orbBorder)}>
+                    <div className={cn("relative w-32 h-32 md:w-36 md:h-36 rounded-full border flex items-center justify-center bg-zinc-950  shadow-[0_0_50px_rgba(0,0,0,0.3)] group overflow-hidden", themeColors.orbBorder)}>
                         <div className={cn("absolute inset-0 bg-gradient-to-tr to-transparent opacity-50", themeColors.orbGradient)} />
                         <div className={cn("relative z-10 scale-125 md:scale-150 transition-all duration-700", themeColors.iconColor, themeColors.iconGlow)}>
                             {icon ? (

@@ -73,14 +73,14 @@ export function CategoryCard({
                 <div
                   key={task.id}
                   className={`text-xs px-1.5 py-0.5 rounded-sm ${
-                    task.completed ? "bg-amber-900 text-amber-400" : "bg-gray-800 text-muted-foreground"
+                    task.completed ? "bg-amber-900 text-amber-400" : "bg-zinc-800 text-muted-foreground"
                   }`}
                 >
                   {task.icon} {task.name}
                 </div>
               ))}
               {tasks.length > 3 && (
-                <div className="text-xs px-1.5 py-0.5 rounded-sm bg-gray-800 text-muted-foreground">
+                <div className="text-xs px-1.5 py-0.5 rounded-sm bg-zinc-800 text-muted-foreground">
                   +{tasks.length - 3} more
                 </div>
               )}

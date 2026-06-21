@@ -62,9 +62,9 @@ const categoryConfig = {
   knowledge: {
     name: 'Knowledge',
     icon: '📚',
-    color: 'text-gray-400',
-    bgColor: 'bg-gray-500/10',
-    borderColor: 'border-gray-800/30',
+    color: 'text-zinc-400',
+    bgColor: 'bg-zinc-500/10',
+    borderColor: 'border-zinc-800/30',
     description: 'Learning and wisdom'
   },
   honor: {
@@ -86,9 +86,9 @@ const categoryConfig = {
   craft: {
     name: 'Craft',
     icon: '⚒️',
-    color: 'text-gray-400',
-    bgColor: 'bg-gray-500/10',
-    borderColor: 'border-gray-800/30',
+    color: 'text-zinc-400',
+    bgColor: 'bg-zinc-500/10',
+    borderColor: 'border-zinc-800/30',
     description: 'Skill and craftsmanship'
   },
   vitality: {
@@ -110,9 +110,9 @@ const categoryConfig = {
   exploration: {
     name: 'Exploration',
     icon: '🗺️',
-    color: 'text-gray-400',
-    bgColor: 'bg-gray-500/10',
-    borderColor: 'border-gray-800/30',
+    color: 'text-zinc-400',
+    bgColor: 'bg-zinc-500/10',
+    borderColor: 'border-zinc-800/30',
     description: 'Discovery and adventure'
   },
   // Workout categories for challenges (New)
@@ -185,7 +185,7 @@ const categoryConfig = {
 
 const difficultyConfig = {
   easy: { name: 'Easy', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
-  medium: { name: 'Medium', color: 'text-gray-400', bgColor: 'bg-gray-500/10' },
+  medium: { name: 'Medium', color: 'text-zinc-400', bgColor: 'bg-zinc-500/10' },
   hard: { name: 'Hard', color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
   epic: { name: 'Epic', color: 'text-amber-600', bgColor: 'bg-amber-500/10' }
 }
@@ -351,7 +351,7 @@ export function QuestOrganization({
     <div className="space-y-6">
       {/* Quest Statistics */}
       {!hideOverview && (
-        <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+        <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -359,7 +359,7 @@ export function QuestOrganization({
                   <TrendingUp className="h-5 w-5" />
                   {currentLabels.title}
                 </CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-zinc-300">
                   {currentLabels.subtitle}
                 </CardDescription>
               </div>
@@ -376,21 +376,21 @@ export function QuestOrganization({
           {!isOverviewCollapsed && (
             <CardContent>
               <div className="grid gap-4 md:grid-cols-4">
-                <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                <div className="text-center p-4 bg-zinc-800/50 rounded-lg">
                   <div className="text-2xl font-bold text-white">{stats.total}</div>
-                  <div className="text-sm text-gray-400">Total Quests</div>
+                  <div className="text-sm text-zinc-400">Total Quests</div>
                 </div>
                 <div className="text-center p-4 bg-green-800/50 rounded-lg">
                   <div className="text-2xl font-bold text-green-400">{stats.completed}</div>
-                  <div className="text-sm text-gray-400">Completed</div>
+                  <div className="text-sm text-zinc-400">Completed</div>
                 </div>
                 <div className="text-center p-4 bg-amber-800/50 rounded-lg">
                   <div className="text-2xl font-bold text-amber-400">{stats.active}</div>
-                  <div className="text-sm text-gray-400">Active</div>
+                  <div className="text-sm text-zinc-400">Active</div>
                 </div>
                 <div className="text-center p-4 bg-purple-800/50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-400">{stats.totalReward}</div>
-                  <div className="text-sm text-gray-400">Total Reward</div>
+                  <div className="text-sm text-zinc-400">Total Reward</div>
                 </div>
               </div>
             </CardContent>
@@ -400,7 +400,7 @@ export function QuestOrganization({
 
       {/* Category Overview */}
       {!hideCategoryOverview && (
-        <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+        <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -408,7 +408,7 @@ export function QuestOrganization({
                   <Target className="h-5 w-5" />
                   {currentLabels.categories}
                 </CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-zinc-300">
                   {currentLabels.categoriesSubtitle}
                 </CardDescription>
               </div>
@@ -437,23 +437,23 @@ export function QuestOrganization({
                           <span className="text-2xl">{config.icon}</span>
                           <div>
                             <h3 className={`font-semibold ${config.color}`}>{config.name}</h3>
-                            <p className="text-xs text-gray-400">{config.description}</p>
+                            <p className="text-xs text-zinc-400">{config.description}</p>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-300">Progress</span>
+                            <span className="text-zinc-300">Progress</span>
                             <span className={`font-semibold ${config.color}`}>
                               {stats.completed}/{stats.total}
                             </span>
                           </div>
-                          <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div className="w-full bg-zinc-700 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full ${config.color.replace('text-', 'bg-')}`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-zinc-400">
                             {stats.totalReward} total reward
                           </div>
                         </div>
@@ -471,7 +471,7 @@ export function QuestOrganization({
       {!onlyShowOverviews && (
         <>
           {/* Filters and Search */}
-          <Card className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800">
+          <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-amber-400">
@@ -492,12 +492,12 @@ export function QuestOrganization({
               <CardContent className="space-y-4">
                 {/* Search */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
                   <Input
                     placeholder={currentLabels.searchPlaceholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-gray-800 border-gray-700 text-white"
+                    className="pl-10 bg-zinc-800 border-zinc-700 text-white"
                   />
                 </div>
 
@@ -505,12 +505,12 @@ export function QuestOrganization({
                 <div className={`grid gap-4 ${showCategoryFilter ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
                   {showCategoryFilter && (
                     <div>
-                      <label className="text-sm text-gray-300 mb-2 block">Category</label>
+                      <label className="text-sm text-zinc-300 mb-2 block">Category</label>
                       <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className="bg-gray-800 border-gray-700">
+                        <SelectTrigger className="bg-zinc-800 border-zinc-700">
                           <SelectValue placeholder="All categories" />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-900 border-gray-700">
+                        <SelectContent className="bg-zinc-900 border-zinc-700">
                           <SelectItem value="all">All Categories</SelectItem>
                           {getAvailableCategories().map(key => (
                             <SelectItem key={key} value={key}>
@@ -526,12 +526,12 @@ export function QuestOrganization({
                   )}
 
                   <div>
-                    <label className="text-sm text-gray-300 mb-2 block">Difficulty</label>
+                    <label className="text-sm text-zinc-300 mb-2 block">Difficulty</label>
                     <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
                         <SelectValue placeholder="All difficulties" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectContent className="bg-zinc-900 border-zinc-700">
                         <SelectItem value="all">All Difficulties</SelectItem>
                         {Object.entries(difficultyConfig).map(([key, config]) => (
                           <SelectItem key={key} value={key}>
@@ -543,12 +543,12 @@ export function QuestOrganization({
                   </div>
 
                   <div>
-                    <label className="text-sm text-gray-300 mb-2 block">Status</label>
+                    <label className="text-sm text-zinc-300 mb-2 block">Status</label>
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
                         <SelectValue placeholder="All statuses" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectContent className="bg-zinc-900 border-zinc-700">
                         <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
@@ -557,12 +557,12 @@ export function QuestOrganization({
                   </div>
 
                   <div>
-                    <label className="text-sm text-gray-300 mb-2 block">Sort By</label>
+                    <label className="text-sm text-zinc-300 mb-2 block">Sort By</label>
                     <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'name' | 'reward' | 'difficulty')}>
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectContent className="bg-zinc-900 border-zinc-700">
                         <SelectItem value="name">Name</SelectItem>
                         <SelectItem value="reward">Reward</SelectItem>
                         <SelectItem value="difficulty">Difficulty</SelectItem>
@@ -572,8 +572,8 @@ export function QuestOrganization({
                 </div>
 
                 {/* Results Summary */}
-                <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                  <span className="text-sm text-gray-300">
+                <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-sm text-zinc-300">
                     Showing {sortedQuests.length} of {quests.length} {currentLabels.showing}
                   </span>
                   <Button
@@ -609,7 +609,7 @@ export function QuestOrganization({
                     {currentLabels.addButton}
                   </Button>
                 }
-                className="border-amber-800/20 bg-gradient-to-br from-gray-900 to-gray-800"
+                className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800"
               />
             ) : (
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
@@ -618,7 +618,7 @@ export function QuestOrganization({
                     key={quest.id}
                     className={`border transition-all duration-300 hover:shadow-lg ${quest.completed
                       ? 'border-green-800/30 bg-green-900/10'
-                      : 'border-amber-800/20 bg-gray-900 hover:border-amber-500/40'
+                      : 'border-amber-800/20 bg-zinc-900 hover:border-amber-500/40'
                       }`}
                     aria-label={`Quest card: ${quest.name}`}
                   >
@@ -630,7 +630,7 @@ export function QuestOrganization({
                           </span>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-gray-400'
+                            className={`text-xs ${categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-zinc-400'
                               }`}
                           >
                             {categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}
@@ -654,7 +654,7 @@ export function QuestOrganization({
                               }}
                               title={bossQuestId === quest.id ? "Remove Boss Habit" : "Set as Boss Habit"}
                             >
-                              <Crown className={`h-4 w-4 ${bossQuestId === quest.id ? 'text-amber-500 fill-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-gray-500 hover:text-amber-400'}`} />
+                              <Crown className={`h-4 w-4 ${bossQuestId === quest.id ? 'text-amber-500 fill-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'text-zinc-500 hover:text-amber-400'}`} />
                             </Button>
                           )}
                           {quest.favorited && <Star className="h-4 w-4 text-amber-400 fill-current" />}
@@ -678,7 +678,7 @@ export function QuestOrganization({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 w-6 p-0 text-gray-400 hover:text-blue-400"
+                                className="h-6 w-6 p-0 text-zinc-400 hover:text-blue-400"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onQuestDuplicate(quest);
@@ -691,7 +691,7 @@ export function QuestOrganization({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-6 w-6 p-0 text-gray-400 hover:text-amber-400"
+                              className="h-6 w-6 p-0 text-zinc-400 hover:text-amber-400"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onQuestEdit(quest);
@@ -702,7 +702,7 @@ export function QuestOrganization({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-6 w-6 p-0 text-gray-400 hover:text-red-400"
+                              className="h-6 w-6 p-0 text-zinc-400 hover:text-red-400"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onQuestDelete(quest.id);
@@ -717,13 +717,13 @@ export function QuestOrganization({
                       <h3 className="font-semibold text-white mb-2 line-clamp-2">
                         {quest.name}
                       </h3>
-                      <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+                      <p className="text-sm text-zinc-400 mb-3 line-clamp-2">
                         {quest.description}
                       </p>
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-300">Rewards</span>
+                          <span className="text-zinc-300">Rewards</span>
                           <div className="flex items-center gap-2">
                             {quest.gold && quest.gold > 0 && (
                               <Badge variant="outline" className="text-amber-400 border-amber-400 text-xs">
@@ -741,7 +741,7 @@ export function QuestOrganization({
                         <div className="flex items-center justify-between">
                           <Badge
                             variant="outline"
-                            className={`text-xs ${difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.color || 'text-gray-400'
+                            className={`text-xs ${difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.color || 'text-zinc-400'
                               }`}
                           >
                             {difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.name || quest.difficulty}
@@ -772,7 +772,7 @@ export function QuestOrganization({
 
                 {/* Add Quest Card */}
                 <Card
-                  className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-gray-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group"
+                  className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-zinc-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group"
                   onClick={onAddQuest}
                   aria-label="Add new quest"
                 >
@@ -783,7 +783,7 @@ export function QuestOrganization({
                     <h3 className="font-semibold text-amber-400 mb-2 group-hover:text-amber-300">
                       {currentLabels.addButton}
                     </h3>
-                    <p className="text-sm text-gray-400 group-hover:text-gray-300">
+                    <p className="text-sm text-zinc-400 group-hover:text-zinc-300">
                       Create a new {context === 'quests' ? 'quest' : context === 'challenges' ? 'challenge' : 'milestone'} to track
                     </p>
                   </CardContent>

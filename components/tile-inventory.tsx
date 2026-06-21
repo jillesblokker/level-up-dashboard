@@ -357,7 +357,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'place' | 'buy' | 'guide')} className="w-full h-full flex flex-col">
         <div className="px-6 pt-4 pb-2 shrink-0">
           <TabsList
-            className="flex h-12 bg-black/40 backdrop-blur-md border border-amber-900/30 rounded-xl p-1.5 w-full overflow-x-auto overflow-y-hidden"
+            className="flex h-12 bg-zinc-950  border border-amber-900/30 rounded-xl p-1.5 w-full overflow-x-auto overflow-y-hidden"
             style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
           >
             <TabsTrigger
@@ -379,14 +379,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         <TabsContent value="place" className="flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden mt-0">
           <div className="px-6 space-y-4 shrink-0 mb-4">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-300">Tile Category</label>
-              <span className="text-xs text-gray-500">Level {userLevelValue}</span>
+              <label className="text-sm font-medium text-zinc-300">Tile Category</label>
+              <span className="text-xs text-zinc-500">Level {userLevelValue}</span>
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full bg-gray-900/50 border-gray-700">
+              <SelectTrigger className="w-full bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
+              <SelectContent className="bg-zinc-900 border-zinc-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevelValue >= category.minLevel;
                   return (
@@ -400,13 +400,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     >
                       <div className="flex items-center justify-between w-full">
                         <span className={cn(
-                          !isUnlocked && "text-gray-400"
+                          !isUnlocked && "text-zinc-400"
                         )}>
                           {category.name}
                         </span>
                         <span className={cn(
                           "text-xs ml-2",
-                          !isUnlocked ? "text-gray-500" : "text-gray-400"
+                          !isUnlocked ? "text-zinc-500" : "text-zinc-400"
                         )}>
                           Lvl {category.minLevel}-{category.maxLevel}
                         </span>
@@ -481,33 +481,33 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     {tile.quantity}
                                   </div>
                                   {userLevelValue < category.minLevel && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                      <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full">
+                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
+                                      <span className="text-white text-xs font-bold bg-zinc-600 px-3 py-1 rounded-full">
                                         🔒 Lvl {category.minLevel}
                                       </span>
                                     </div>
                                   )}
                                   {category.id === 'rare' && !tile.unlocked && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
                                       <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
                                         🔒
                                       </span>
                                     </div>
                                   )}
                                   {tile.quantity === 0 && userLevelValue >= category.minLevel && category.id !== 'rare' && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
                                       <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
                                         Buy More
                                       </span>
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-4 bg-background/95 backdrop-blur-sm flex-1 flex flex-col">
+                                <div className="p-4 bg-background/95  flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center">
                                     <span className="text-amber-500 font-medium">{tile.cost ?? 0} gold</span>
                                     {(tile.cost ?? 0) > 0 && (
-                                      <div className="text-xs text-gray-500 mt-1">
+                                      <div className="text-xs text-zinc-500 mt-1">
                                         {(tile.cost ?? 0) <= 50 ? 'Budget' : (tile.cost ?? 0) <= 150 ? 'Standard' : (tile.cost ?? 0) <= 300 ? 'Premium' : 'Luxury'}
                                       </div>
                                     )}
@@ -547,14 +547,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         <TabsContent value="buy" className="flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden mt-0">
           <div className="px-6 space-y-4 shrink-0 mb-4">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-300">Tile Category</label>
-              <span className="text-xs text-gray-500">Level {userLevelValue}</span>
+              <label className="text-sm font-medium text-zinc-300">Tile Category</label>
+              <span className="text-xs text-zinc-500">Level {userLevelValue}</span>
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full bg-gray-900/50 border-gray-700">
+              <SelectTrigger className="w-full bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700 min-w-[280px]">
+              <SelectContent className="bg-zinc-900 border-zinc-700 min-w-[280px]">
                 {tileCategories.map(category => {
                   const isUnlocked = userLevelValue >= category.minLevel;
                   return (
@@ -568,13 +568,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     >
                       <div className="flex items-center justify-between w-full">
                         <span className={cn(
-                          !isUnlocked && "text-gray-400"
+                          !isUnlocked && "text-zinc-400"
                         )}>
                           {category.name}
                         </span>
                         <span className={cn(
                           "text-xs ml-2",
-                          !isUnlocked ? "text-gray-500" : "text-gray-400"
+                          !isUnlocked ? "text-zinc-500" : "text-zinc-400"
                         )}>
                           Lvl {category.minLevel}-{category.maxLevel}
                         </span>
@@ -637,8 +637,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     {tile.quantity}
                                   </div>
                                   {userLevelValue < category.minLevel && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-10">
-                                      <span className="text-white text-xs font-bold bg-gray-600 px-3 py-1 rounded-full shadow-lg">
+                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center  z-10">
+                                      <span className="text-white text-xs font-bold bg-zinc-600 px-3 py-1 rounded-full shadow-lg">
                                         🔒 Lvl {category.minLevel}
                                       </span>
                                     </div>
@@ -649,14 +649,14 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     </span>
                                   )}
                                   {category.id === 'rare' && !tile.unlocked && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
                                       <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
                                         🔒
                                       </span>
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-4 bg-background/95 backdrop-blur-sm flex-1 flex flex-col">
+                                <div className="p-4 bg-background/95  flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center mb-3">
                                     <span className="text-amber-500 font-medium">{tile.cost ?? 0} gold</span>
@@ -667,7 +667,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                       min="1"
                                       value={buyQuantities[tile.type] || 1}
                                       onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                                      className="w-16 h-10 text-sm text-center px-2 py-1 border border-gray-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-800"
+                                      className="w-16 h-10 text-sm text-center px-2 py-1 border border-zinc-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-zinc-800"
                                       id={`buy-quantity-${tile.type}`}
                                       name={`buy-quantity-${tile.type}`}
                                       disabled={userLevelValue < category.minLevel}
@@ -679,7 +679,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                         "flex-1 min-h-[40px] h-10",
                                         userLevelValue >= category.minLevel
                                           ? "bg-amber-600 border-amber-500 hover:bg-amber-500 text-white font-semibold"
-                                          : "bg-gray-600/50 border-gray-600 text-gray-400 cursor-not-allowed"
+                                          : "bg-zinc-600/50 border-zinc-600 text-zinc-400 cursor-not-allowed"
                                       )}
                                       onClick={(e) => userLevelValue >= category.minLevel && handleBuyTile(tile, e)}
                                       disabled={userLevelValue < category.minLevel}
@@ -715,25 +715,25 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   <BookOpen className="w-5 h-5" />
                   Building Synergies
                 </h3>
-                <p className="text-sm text-gray-300">
+                <p className="text-sm text-zinc-300">
                   Place buildings near specific tiles to boost their production! A &quot;✨&quot; icon will appear when you find a perfect spot.
                 </p>
               </div>
 
               <div className="space-y-4">
                 {/* Farm Synergy */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-100 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/farm-tile.webp" alt="Farm" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Farm</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <ArrowUpRight className="w-4 h-4 text-green-500" />
                         <span>Needs: <span className="text-blue-400 font-semibold">Water</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         Boosts Gold production by <span className="text-green-400 font-bold">+20%</span> when placed next to a Water tile.
                       </p>
                     </div>
@@ -741,18 +741,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Lumber Mill Synergy */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-800 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/lumber_mill-tile.webp" alt="Lumber Mill" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Lumber Mill</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <ArrowUpRight className="w-4 h-4 text-green-500" />
                         <span>Needs: <span className="text-green-500 font-semibold">Forest</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         Boosts Gold production by <span className="text-green-400 font-bold">+20%</span> when placed next to a Forest tile.
                       </p>
                     </div>
@@ -760,18 +760,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Market Synergy */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-red-900 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/market-tile.webp" alt="Market" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Market</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <ArrowUpRight className="w-4 h-4 text-green-500" />
                         <span>Needs: <span className="text-yellow-200 font-semibold">Houses</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         <span className="text-green-400 font-bold">+10% Gold</span> for EACH neighboring House, Mansion, or Cottage.
                       </p>
                     </div>
@@ -779,18 +779,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Castle Synergy */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
-                    <div className="bg-gray-700 p-2 rounded-lg shrink-0">
+                    <div className="bg-zinc-700 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/castle-tile.webp" alt="Castle" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Castle</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <ArrowUpRight className="w-4 h-4 text-green-500" />
-                        <span>Needs: <span className="text-gray-300 font-semibold">Space</span></span>
+                        <span>Needs: <span className="text-zinc-300 font-semibold">Space</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         Looks majestic when surrounded by 4+ tiles (not on the edge).
                       </p>
                     </div>
@@ -798,21 +798,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Water Users (Well, Fountain, Fisherman) */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-900 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/fountain-tile.webp" alt="Fountain" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Water Buildings</h4>
-                      <div className="text-xs text-gray-400 mb-1">
-                        Includes: <span className="text-gray-300">Fountain, Well, Fisherman</span>
+                      <div className="text-xs text-zinc-400 mb-1">
+                        Includes: <span className="text-zinc-300">Fountain, Well, Fisherman</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <Droplets className="w-4 h-4 text-blue-400" />
                         <span>Needs: <span className="text-blue-400 font-semibold">Water</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         <span className="text-green-400 font-bold">+20% Gold</span> when placed next to any Water tile.
                       </p>
                     </div>
@@ -820,18 +820,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Blacksmith Synergy */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-900 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/blacksmith-tile.webp" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Blacksmith</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
-                        <Mountain className="w-4 h-4 text-gray-400" />
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
+                        <Mountain className="w-4 h-4 text-zinc-400" />
                         <span>Needs: <span className="text-red-500 font-semibold">Mountain / Lava</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         <span className="text-green-400 font-bold">+25% Gold</span> when placed near Mountains or Lava for forge heat.
                       </p>
                     </div>
@@ -839,21 +839,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Commercial Synergy (Inn, Bakery, Grocery, Foodcourt) */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-700 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/inn-tile.webp" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Shops & Inns</h4>
-                      <div className="text-xs text-gray-400 mb-1">
-                        Includes: <span className="text-gray-300">Inn, Bakery, Grocery, Foodcourt</span>
+                      <div className="text-xs text-zinc-400 mb-1">
+                        Includes: <span className="text-zinc-300">Inn, Bakery, Grocery, Foodcourt</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <Home className="w-4 h-4 text-yellow-500" />
                         <span>Needs: <span className="text-yellow-200 font-semibold">Residents</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         <span className="text-green-400 font-bold">+10% Gold</span> for EACH neighboring House, Mansion, or City.
                       </p>
                     </div>
@@ -861,21 +861,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Magic & Study (Library, Wizard) */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-purple-900 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/wizard-tile.webp" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Magic & Study</h4>
-                      <div className="text-xs text-gray-400 mb-1">
-                        Includes: <span className="text-gray-300">Library, Wizard Tower</span>
+                      <div className="text-xs text-zinc-400 mb-1">
+                        Includes: <span className="text-zinc-300">Library, Wizard Tower</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <MapPin className="w-4 h-4 text-blue-300" />
                         <span>Needs: <span className="text-blue-300 font-semibold">Quiet (Ice / Mountain)</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         <span className="text-green-400 font-bold">+30% Gold</span> when placed in secluded areas like Ice or Mountains.
                       </p>
                     </div>
@@ -883,21 +883,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </div>
 
                 {/* Farming (Vegetables, Pumpkin Patch) */}
-                <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-green-800 p-2 rounded-lg shrink-0">
                       <Image src="/images/tiles/vegetables-tile.webp" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Crops</h4>
-                      <div className="text-xs text-gray-400 mb-1">
-                        Includes: <span className="text-gray-300">Vegetables, Pumpkin Patch</span>
+                      <div className="text-xs text-zinc-400 mb-1">
+                        Includes: <span className="text-zinc-300">Vegetables, Pumpkin Patch</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-zinc-400 mt-1 mb-2">
                         <Trees className="w-4 h-4 text-green-500" />
                         <span>Needs: <span className="text-green-600 font-semibold">Grass / Water</span></span>
                       </div>
-                      <p className="text-xs text-gray-400 bg-black/40 p-2 rounded">
+                      <p className="text-xs text-zinc-400 bg-zinc-950 p-2 rounded">
                         <span className="text-green-400 font-bold">+15% Gold</span> on fertile Grass or near Water.
                       </p>
                     </div>
@@ -952,7 +952,7 @@ function renderTilePreview(type: string) {
 
     case 'mountain':
       return (
-        <div className="w-full h-full bg-gray-600">
+        <div className="w-full h-full bg-zinc-600">
           <svg viewBox="0 0 32 32" className="w-full h-full">
             <rect width="32" height="32" fill="#795548" />
             <path d="M8,26 L16,10 L24,26 Z" fill="#5D4037" />
@@ -1011,6 +1011,6 @@ function renderTilePreview(type: string) {
       );
 
     default:
-      return <div className="w-full h-full bg-gray-500"></div>;
+      return <div className="w-full h-full bg-zinc-500"></div>;
   }
 }

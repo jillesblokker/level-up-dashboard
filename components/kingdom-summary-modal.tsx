@@ -75,7 +75,7 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
                     <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 px-1">Detailed Breakdown</h3>
                     {rewards.map((reward, idx) => (
                         <div key={idx} className={cn(
-                            "group relative rounded-lg p-3 border transition-all hover:bg-zinc-900/50",
+                            "group relative rounded-lg p-3 border transition-all hover:bg-zinc-900",
                             reward.isLucky ? "bg-amber-900/10 border-amber-500/30" : "bg-zinc-900/30 border-zinc-800"
                         )}>
                             <div className="flex items-center justify-between">
@@ -120,7 +120,7 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
             </ScrollArea>
         </div>
 
-        <div className="p-6 bg-zinc-900/50 border-t border-white/5">
+        <div className="p-6 bg-zinc-900 border-t border-white/5">
             <Button 
                 onClick={onClose}
                 className="w-full py-6 font-serif text-lg bg-amber-600 hover:bg-amber-500 text-white shadow-xl shadow-amber-900/20"

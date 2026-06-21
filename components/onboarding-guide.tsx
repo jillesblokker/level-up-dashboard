@@ -61,7 +61,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
   if (isGatewayVisible) {
     return (
       <Dialog open={open} onOpenChange={() => handleSkipGateway()}>
-        <DialogContent className="sm:max-w-md bg-stone-950 text-white border-amber-800/40 p-0 overflow-hidden shadow-2xl">
+        <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 p-0 overflow-hidden shadow-2xl">
           <div className="relative p-6 pt-10">
             {/* Background Ornate Pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />
@@ -87,7 +87,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
             <div className="space-y-6 relative z-10">
               <Button
                 onClick={handleStartOnboarding}
-                className="w-full h-14 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 font-bold rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2 text-lg"
+                className="w-full h-14 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2 text-lg"
               >
                 Start Onboarding
                 <ArrowRight className="h-5 w-5" />
@@ -99,7 +99,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
                     id="gateway-dont-show"
                     checked={dontShowAgain}
                     onCheckedChange={(checked) => setDontShowAgain(checked === true)}
-                    className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-stone-950"
+                    className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-zinc-950"
                   />
                   <label
                     htmlFor="gateway-dont-show"
@@ -128,7 +128,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
 
   return (
     <Dialog open={open} onOpenChange={() => handleClose()}>
-      <DialogContent className="sm:max-w-md bg-stone-950 text-white border-amber-800/40 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-label="onboarding-guide-modal">
+      <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-label="onboarding-guide-modal">
         <DialogDescription className="sr-only" id="onboarding-guide-modal-desc">Onboarding guide and instructions</DialogDescription>
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl flex items-center text-amber-100 uppercase tracking-tighter">
@@ -181,7 +181,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
                 id="dont-show"
                 checked={dontShowAgain}
                 onCheckedChange={(checked: boolean) => setDontShowAgain(checked === true)}
-                className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-stone-950"
+                className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-zinc-950"
               />
               <label htmlFor="dont-show" className="text-sm text-amber-200/60 group-hover:text-amber-200 transition-colors cursor-pointer">
                 Don&apos;t show this guide again
@@ -194,7 +194,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
                   id="disable-all"
                   checked={disableAll}
                   onCheckedChange={(checked: boolean) => setDisableAll(checked === true)}
-                  className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-stone-950"
+                  className="border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:text-zinc-950"
                 />
                 <label htmlFor="disable-all" className="text-sm text-amber-200/60 group-hover:text-amber-200 transition-colors cursor-pointer">
                   Disable all onboarding guides
@@ -205,7 +205,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
 
           <Button
             type="button"
-            className="w-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-6 text-lg shadow-lg shadow-amber-500/10 transition-all hover:scale-[1.01]"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-6 text-lg shadow-lg shadow-amber-500/10 transition-all hover:scale-[1.01]"
             onClick={handleClose}
           >
             Enter Kingdom

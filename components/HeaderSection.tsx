@@ -148,8 +148,8 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
             </div>
           )}
           {showUploadModal && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300 z-[100]">
-              <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-lg border-2 border-amber-500/50 shadow-2xl max-w-md w-full mx-4 relative">
+            <div className="fixed inset-0 bg-zinc-950  flex items-center justify-center transition-opacity duration-300 z-[100]">
+              <div className="bg-gradient-to-br from-zinc-900 to-black p-8 rounded-lg border-2 border-amber-500/50 shadow-2xl max-w-md w-full mx-4 relative">
                 <Button
                   onClick={() => setShowUploadModal(false)}
                   className="absolute -top-3 -right-3 rounded-full h-10 w-10 p-0 bg-amber-600 hover:bg-amber-700 text-black shadow-lg z-10"
@@ -167,7 +167,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
                   <Upload size={20} />
                   {isUploading ? 'Uploading...' : 'Upload Image'}
                 </Button>
-                <p className="text-gray-400 text-sm text-center">
+                <p className="text-zinc-400 text-sm text-center">
                   Upload a JPG, PNG or GIF image for your banner
                 </p>
                 <input

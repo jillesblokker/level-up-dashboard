@@ -153,7 +153,7 @@ export function EconomyTransparency() {
 
             <div className="w-full md:w-[180px]">
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="border-amber-900/30 bg-black/40 text-amber-100">
+                <SelectTrigger className="border-amber-900/30 bg-zinc-950 text-amber-100">
                   <SelectValue placeholder="Filter View" />
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-950 border-amber-900/50 text-amber-100">
@@ -168,7 +168,7 @@ export function EconomyTransparency() {
         <CardContent className="space-y-8 pt-6">
           {/* Current Balance */}
           <div className="grid gap-4 md:grid-cols-3">
-            <Card className="border-amber-900/30 bg-black/40 relative overflow-hidden group">
+            <Card className="border-amber-900/30 bg-zinc-950 relative overflow-hidden group">
               <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors" />
               <CardContent className="p-5 relative">
                 <div className="flex items-center gap-3 mb-2">
@@ -183,7 +183,7 @@ export function EconomyTransparency() {
               </CardContent>
             </Card>
 
-            <Card className="border-green-900/30 bg-black/40 relative overflow-hidden group">
+            <Card className="border-green-900/30 bg-zinc-950 relative overflow-hidden group">
               <div className="absolute inset-0 bg-green-500/5 group-hover:bg-green-500/10 transition-colors" />
               <CardContent className="p-5 relative">
                 <div className="flex items-center gap-3 mb-2">
@@ -198,7 +198,7 @@ export function EconomyTransparency() {
               </CardContent>
             </Card>
 
-            <Card className="border-red-900/30 bg-black/40 relative overflow-hidden group">
+            <Card className="border-red-900/30 bg-zinc-950 relative overflow-hidden group">
               <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
               <CardContent className="p-5 relative">
                 <div className="flex items-center gap-3 mb-2">
@@ -215,7 +215,7 @@ export function EconomyTransparency() {
           </div>
 
           {/* Analysis Graph */}
-          <div className="bg-black/20 rounded-xl p-4 border border-zinc-800/50">
+          <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800/50">
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               {filterType === 'all' ? 'Transaction Volume' : filterType === 'earned' ? 'Income Velocity' : 'Expense Volume'}

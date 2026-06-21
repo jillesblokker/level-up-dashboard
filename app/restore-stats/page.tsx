@@ -194,7 +194,7 @@ export default function RestoreStatsPage() {
         <CardContent className="space-y-6">
           {/* Debug Information */}
           {debugInfo && (
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-zinc-50 rounded-lg">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                 <Info className="h-5 w-5" />
                 Debug Information
@@ -306,7 +306,7 @@ export default function RestoreStatsPage() {
                     {restoreResult.error && (
                       <details className="mt-2">
                         <summary className="cursor-pointer text-sm">Error Details</summary>
-                        <pre className="mt-1 text-xs bg-gray-100 p-2 rounded overflow-auto">
+                        <pre className="mt-1 text-xs bg-zinc-100 p-2 rounded overflow-auto">
                           {JSON.stringify(restoreResult.error, null, 2)}
                         </pre>
                       </details>
@@ -319,10 +319,10 @@ export default function RestoreStatsPage() {
             <div className="text-center py-8">
               <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Local Storage Data Found</h3>
-              <p className="text-gray-600">
+              <p className="text-zinc-600">
                 No character stats found in localStorage. This means either:
               </p>
-              <ul className="text-gray-600 mt-2 text-left max-w-md mx-auto">
+              <ul className="text-zinc-600 mt-2 text-left max-w-md mx-auto">
                 <li>• Your stats were already cleared</li>
                 <li>• You haven&apos;t played the game yet</li>
                 <li>• The data is stored differently</li>
@@ -330,9 +330,9 @@ export default function RestoreStatsPage() {
             </div>
           )}
 
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+          <div className="mt-8 p-4 bg-zinc-50 rounded-lg">
             <h4 className="font-semibold mb-2">What this does:</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
+            <ul className="text-sm text-zinc-600 space-y-1">
               <li>• Reads your character stats from localStorage</li>
               <li>• Saves them to the database permanently</li>
               <li>• Creates transaction records for audit trail</li>

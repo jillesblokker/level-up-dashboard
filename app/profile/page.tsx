@@ -289,7 +289,7 @@ export default function ProfilePage() {
       <div className="container max-w-4xl py-16 flex flex-col items-center justify-center">
         <div className="relative w-full max-w-2xl h-80 flex flex-col items-center justify-center text-center rounded-lg overflow-hidden mb-8">
           {/* Hero background with medieval theme */}
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-zinc-900 to-black/80" />
           <div className="absolute inset-0 bg-[url('/images/kingdom-header.webp')] bg-cover bg-center opacity-20" />
 
           {/* Decorative elements */}
@@ -303,7 +303,7 @@ export default function ProfilePage() {
               <User className="w-10 h-10 text-amber-400" />
             </div>
             <h2 className="text-3xl font-bold text-amber-400 mb-4 drop-shadow-lg">{TEXT_CONTENT.profile.signIn.title}</h2>
-            <p className="text-gray-300 mb-6 text-lg leading-relaxed">{TEXT_CONTENT.profile.signIn.description}</p>
+            <p className="text-zinc-300 mb-6 text-lg leading-relaxed">{TEXT_CONTENT.profile.signIn.description}</p>
             <Button
               className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 text-lg hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
               aria-label="Sign in to profile"
@@ -322,7 +322,7 @@ export default function ProfilePage() {
     <main className="container max-w-4xl py-8 pb-24 md:pb-8" aria-label="profile-settings-section">
       {/* Hero Section */}
       <div className="relative mb-8 rounded-lg overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-gray-900 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-zinc-900 to-black/80" />
         <div className="absolute inset-0 bg-[url('/images/kingdom-header.webp')] bg-cover bg-center opacity-30" />
 
         {/* Decorative border elements */}
@@ -334,11 +334,11 @@ export default function ProfilePage() {
         <div className="relative z-10 p-8 flex items-center space-x-6">
           {/* Large Avatar */}
           <div className="relative">
-            <div className="w-24 h-24 rounded-full border-4 border-amber-500/30 overflow-hidden bg-gray-900 shadow-lg">
+            <div className="w-24 h-24 rounded-full border-4 border-amber-500/30 overflow-hidden bg-zinc-900 shadow-lg">
               {avatarType === 'uploaded' && user?.imageUrl ? (
                 <Image src={user.imageUrl} alt="Profile" width={96} height={96} className="w-full h-full object-cover" />
               ) : avatarType === 'default' ? (
-                <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                <div className="w-full h-full flex items-center justify-center bg-zinc-800">
                   <Image src={placeholderSvg} alt="Default avatar" width={48} height={48} className="w-12 h-12 object-contain opacity-70" />
                 </div>
               ) : (
@@ -350,7 +350,7 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center border-2 border-gray-900">
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center border-2 border-zinc-900">
               <User className="w-4 h-4 text-white" />
             </div>
           </div>
@@ -382,7 +382,7 @@ export default function ProfilePage() {
         {/* Quick Access Cards - Mobile/Tablet Optimization */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <NotificationCenter>
-          <Card className="bg-gray-900/50 border-amber-800/30 hover:bg-gray-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
+          <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
             <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
               <div className="relative">
                 <Bell className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
@@ -394,14 +394,14 @@ export default function ProfilePage() {
               {unreadCount > 0 ? (
                 <Badge className="mt-2 bg-red-500 hover:bg-red-600 border-none">{unreadCount} New</Badge>
               ) : (
-                <span className="text-xs text-gray-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
+                <span className="text-xs text-zinc-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
               )}
             </CardContent>
           </Card>
         </NotificationCenter>
 
         <Link href="/character">
-          <Card className="bg-gray-900/50 border-amber-800/30 hover:bg-gray-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
+          <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
             <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
               <User className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
               <div className="text-sm font-bold text-white">{TEXT_CONTENT.profile.quickAccess.character.title}</div>
@@ -413,7 +413,7 @@ export default function ProfilePage() {
 
       <Tabs defaultValue="avatar" className="w-full space-y-6">
         <TabsList 
-          className="flex h-14 bg-black/40 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar backdrop-blur-md gap-2 md:gap-0"
+          className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar  gap-2 md:gap-0"
           style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
         >
           <TabsTrigger value="avatar" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
@@ -436,7 +436,7 @@ export default function ProfilePage() {
 
 
         <TabsContent value="avatar" className="space-y-6">
-          <Card className="bg-gray-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Camera className="w-5 h-5 mr-2" />
@@ -446,7 +446,7 @@ export default function ProfilePage() {
             <CardContent className="space-y-6">
               {/* Avatar Selection */}
               <div>
-                <Label className="text-sm font-medium text-gray-300 mb-3 block">Choose Avatar Type</Label>
+                <Label className="text-sm font-medium text-zinc-300 mb-3 block">Choose Avatar Type</Label>
                 <div className="flex gap-4">
                   {/* Initial Avatar */}
                   <button
@@ -481,7 +481,7 @@ export default function ProfilePage() {
                     onClick={() => setAvatarType('default')}
                     aria-label="Use default avatar"
                   >
-                    <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-gray-800">
+                    <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-zinc-800">
                       <Image src={placeholderSvg} alt="Default avatar" width={40} height={40} className="w-10 h-10 object-contain opacity-70" />
                     </div>
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
@@ -500,11 +500,11 @@ export default function ProfilePage() {
                     aria-label="Use uploaded avatar"
                     disabled={!user?.imageUrl}
                   >
-                    <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-gray-900 overflow-hidden">
+                    <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-zinc-900 overflow-hidden">
                       {user?.imageUrl ? (
                         <Image src={user.imageUrl} alt="Uploaded avatar" width={80} height={80} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-gray-500 text-sm">No image</span>
+                        <span className="text-zinc-500 text-sm">No image</span>
                       )}
                     </div>
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
@@ -517,7 +517,7 @@ export default function ProfilePage() {
               {/* Upload Section for Custom Avatar */}
               {avatarType === 'uploaded' && (
                 <div className="space-y-3">
-                  <Label htmlFor="avatar" className="text-sm font-medium text-gray-300">{TEXT_CONTENT.profile.avatar.upload.label}</Label>
+                  <Label htmlFor="avatar" className="text-sm font-medium text-zinc-300">{TEXT_CONTENT.profile.avatar.upload.label}</Label>
                   <div className="flex items-center space-x-3">
                     <Input
                       id="avatar"
@@ -539,7 +539,7 @@ export default function ProfilePage() {
                       {isUploading ? TEXT_CONTENT.profile.avatar.upload.uploading : TEXT_CONTENT.profile.avatar.upload.button}
                     </Button>
                   </div>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-zinc-400">
                     {TEXT_CONTENT.profile.avatar.upload.note}
                   </p>
                 </div>
@@ -549,7 +549,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="profile" className="space-y-6">
-          <Card className="bg-gray-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <User className="w-5 h-5 mr-2" />
@@ -558,7 +558,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
-                <Label htmlFor="name" className="text-sm font-medium text-gray-300">Display Name</Label>
+                <Label htmlFor="name" className="text-sm font-medium text-zinc-300">Display Name</Label>
                 <Input
                   id="name"
                   name="displayName"
@@ -572,18 +572,18 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-gray-300">Email Address</Label>
-                <div className="bg-gray-800/50 text-white rounded-md px-3 py-2 border border-amber-800/20 max-w-md">
+                <Label className="text-sm font-medium text-zinc-300">Email Address</Label>
+                <div className="bg-zinc-800/50 text-white rounded-md px-3 py-2 border border-amber-800/20 max-w-md">
                   {user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ''}
                 </div>
-                <p className="text-sm text-gray-400">Email address is managed by your authentication provider.</p>
+                <p className="text-sm text-zinc-400">Email address is managed by your authentication provider.</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">
-          <Card className="bg-gray-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Palette className="w-5 h-5 mr-2" />
@@ -594,7 +594,7 @@ export default function ProfilePage() {
               {avatarType === 'initial' ? (
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <Label htmlFor="avatarBgColor" className="text-sm font-medium text-gray-300">Background Color</Label>
+                    <Label htmlFor="avatarBgColor" className="text-sm font-medium text-zinc-300">Background Color</Label>
                     <div className="flex items-center gap-3 max-w-md">
                       <Input
                         id="avatarBgColor"
@@ -621,7 +621,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="avatarTextColor" className="text-sm font-medium text-gray-300">Text Color</Label>
+                    <Label htmlFor="avatarTextColor" className="text-sm font-medium text-zinc-300">Text Color</Label>
                     <div className="flex items-center gap-3 max-w-md">
                       <Input
                         id="avatarTextColor"
@@ -649,7 +649,7 @@ export default function ProfilePage() {
 
                   {/* Preview */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-300">Preview</Label>
+                    <Label className="text-sm font-medium text-zinc-300">Preview</Label>
                     <div className="flex items-center space-x-4">
                       <div
                         className="w-16 h-16 rounded-full flex items-center justify-center border-2 border-amber-500/30"
@@ -659,7 +659,7 @@ export default function ProfilePage() {
                           {displayName?.[0]?.toUpperCase() || '?'}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-zinc-400">
                         This is how your avatar will appear in the realm.
                       </div>
                     </div>
@@ -667,9 +667,9 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Palette className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                  <p className="text-gray-400">{TEXT_CONTENT.profile.appearance.unavailable.title}</p>
-                  <p className="text-sm text-gray-500 mt-2">{TEXT_CONTENT.profile.appearance.unavailable.subtitle}</p>
+                  <Palette className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
+                  <p className="text-zinc-400">{TEXT_CONTENT.profile.appearance.unavailable.title}</p>
+                  <p className="text-sm text-zinc-500 mt-2">{TEXT_CONTENT.profile.appearance.unavailable.subtitle}</p>
                 </div>
               )}
             </CardContent>
@@ -678,7 +678,7 @@ export default function ProfilePage() {
 
         <TabsContent value="settings" className="space-y-6">
           {/* Audio Settings */}
-          <Card className="bg-gray-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Volume2 className="w-5 h-5 mr-2" />
@@ -686,18 +686,18 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20">
                 <div className="flex items-center gap-3">
                   {settings.musicEnabled ? (
                     <Volume2 className="h-5 w-5 text-amber-400" />
                   ) : (
-                    <VolumeX className="h-5 w-5 text-gray-400" />
+                    <VolumeX className="h-5 w-5 text-zinc-400" />
                   )}
                   <div>
                     <p className="text-base font-medium text-white">
                       {settings.musicEnabled ? 'Audio Enabled' : 'Audio Disabled'}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-zinc-400">
                       {settings.musicEnabled ? 'Background music and sounds are playing' : 'All audio is muted'}
                     </p>
                   </div>
@@ -716,7 +716,7 @@ export default function ProfilePage() {
                   <VolumeX className="h-5 w-5 text-red-400" />
                   <div>
                     <p className="text-base font-medium text-white">Disable All Audio</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-zinc-400">
                       Turn off all music and sound effects completely
                     </p>
                   </div>
@@ -740,7 +740,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* App Settings */}
-          <Card className="bg-gray-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <Settings className="w-5 h-5 mr-2" />
@@ -749,31 +749,31 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <Link href="/daily-hub" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                   <Settings className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-base font-medium text-white">Daily Hub</p>
-                    <p className="text-xs text-gray-400">View streaks and progress</p>
+                    <p className="text-xs text-zinc-400">View streaks and progress</p>
                   </div>
                 </div>
               </Link>
 
               <Link href="/chronicle" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                   <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-base font-medium text-white">My Chronicle</p>
-                    <p className="text-xs text-gray-400">Write your daily journal</p>
+                    <p className="text-xs text-zinc-400">Write your daily journal</p>
                   </div>
                 </div>
               </Link>
 
               <Link href="/requirements" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                   <ClipboardCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-base font-medium text-white">Adventurer&apos;s Guide</p>
-                    <p className="text-xs text-gray-400">View system requirements</p>
+                    <p className="text-xs text-zinc-400">View system requirements</p>
                   </div>
                 </div>
               </Link>
@@ -781,21 +781,21 @@ export default function ProfilePage() {
               {isAdmin && (
                 <>
                   <Link href="/design-system" className="block">
-                    <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                       <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-base font-medium text-white">Design System</p>
-                        <p className="text-xs text-gray-400">View design components</p>
+                        <p className="text-xs text-zinc-400">View design components</p>
                       </div>
                     </div>
                   </Link>
 
                   <Link href="/admin/stored-data" className="block">
-                    <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
                       <Database className="h-5 w-5 text-amber-400 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-base font-medium text-white">Stored Data</p>
-                        <p className="text-xs text-gray-400">Manage local data</p>
+                        <p className="text-xs text-zinc-400">Manage local data</p>
                       </div>
                     </div>
                   </Link>
@@ -803,12 +803,12 @@ export default function ProfilePage() {
               )}
 
               {/* Day/Night Cycle Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
                 <div className="flex items-center gap-3">
                   <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div>
                     <p className="text-base font-medium text-white">Day/Night Cycle</p>
-                    <p className="text-xs text-gray-400">Atmosphere changes based on local time</p>
+                    <p className="text-xs text-zinc-400">Atmosphere changes based on local time</p>
                   </div>
                 </div>
                 <Switch
@@ -827,12 +827,12 @@ export default function ProfilePage() {
               </div>
 
               {/* Zen Mode Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
                 <div className="flex items-center gap-3">
                   <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div>
                     <p className="text-base font-medium text-white">Zen Mode</p>
-                    <p className="text-xs text-gray-400">Minimal interface for focused adventuring</p>
+                    <p className="text-xs text-zinc-400">Minimal interface for focused adventuring</p>
                   </div>
                 </div>
                 <Switch
@@ -856,15 +856,15 @@ export default function ProfilePage() {
               </div>
 
               {/* Animation Quality Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
                 <div className="flex items-center gap-3">
                   <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
                   <div>
                     <p className="text-base font-medium text-white">Visual FX</p>
-                    <p className="text-xs text-gray-400">Toggle between high and minimal animations</p>
+                    <p className="text-xs text-zinc-400">Toggle between high and minimal animations</p>
                   </div>
                 </div>
-                <div className="flex bg-gray-900 p-1 rounded-md border border-amber-800/20">
+                <div className="flex bg-zinc-900 p-1 rounded-md border border-amber-800/20">
                   <button
                     onClick={() => {
                       setAnimationQuality('high');
@@ -875,7 +875,7 @@ export default function ProfilePage() {
                     }}
                     className={cn(
                       "px-3 py-1 text-xs rounded transition-all",
-                      animationQuality === 'high' ? "bg-amber-600 text-white" : "text-gray-400 hover:text-gray-200"
+                      animationQuality === 'high' ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-zinc-200"
                     )}
                   >
                     High
@@ -890,7 +890,7 @@ export default function ProfilePage() {
                     }}
                     className={cn(
                       "px-3 py-1 text-xs rounded transition-all",
-                      animationQuality === 'low' ? "bg-amber-600 text-white" : "text-gray-400 hover:text-gray-200"
+                      animationQuality === 'low' ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-zinc-200"
                     )}
                   >
                     Low
@@ -901,7 +901,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Account Actions */}
-          <Card className="bg-gray-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
                 <User className="w-5 h-5 mr-2" />
@@ -910,10 +910,10 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {/* User ID Display */}
-              <div className="p-3 bg-gray-800/50 rounded-lg border border-amber-800/10 flex items-center justify-between group">
+              <div className="p-3 bg-zinc-800/50 rounded-lg border border-amber-800/10 flex items-center justify-between group">
                 <div className="overflow-hidden">
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">User ID</p>
-                  <p className="text-sm text-gray-300 font-mono truncate" title={user?.id}>{user?.id}</p>
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">User ID</p>
+                  <p className="text-sm text-zinc-300 font-mono truncate" title={user?.id}>{user?.id}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -1013,21 +1013,21 @@ export default function ProfilePage() {
 
       {/* Delete Account Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="sm:max-w-md bg-gray-900 border-red-800/30">
+        <DialogContent className="sm:max-w-md bg-zinc-900 border-red-800/30">
           <DialogHeader>
             <DialogTitle className="text-2xl text-red-500 flex items-center gap-2">
               <AlertTriangle className="w-6 h-6" />
               {TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.title}
             </DialogTitle>
-            <DialogDescription className="text-gray-300 pt-4">
+            <DialogDescription className="text-zinc-300 pt-4">
               {TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.desc}<span className="text-red-500 font-bold">{TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.descHighlight}</span>.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="bg-red-950/30 border border-red-800/30 rounded-lg p-4">
-              <p className="text-sm text-gray-300 mb-2">{TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.warningTitle}</p>
-              <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
+              <p className="text-sm text-zinc-300 mb-2">{TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.warningTitle}</p>
+              <ul className="text-sm text-zinc-400 space-y-1 list-disc list-inside">
                 {TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.warningItems.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
@@ -1035,7 +1035,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="delete-confirm" className="text-gray-300">
+              <Label htmlFor="delete-confirm" className="text-zinc-300">
                 Type <span className="text-red-500 font-mono font-bold">DELETE</span> to confirm:
               </Label>
               <Input
@@ -1043,7 +1043,7 @@ export default function ProfilePage() {
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="Type DELETE here"
-                className="bg-gray-800 border-red-800/30 text-white placeholder:text-gray-500"
+                className="bg-zinc-800 border-red-800/30 text-white placeholder:text-zinc-500"
                 disabled={isDeleting}
               />
             </div>
@@ -1056,7 +1056,7 @@ export default function ProfilePage() {
                 setDeleteConfirmText("");
               }}
               variant="outline"
-              className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
               disabled={isDeleting}
             >
               Cancel

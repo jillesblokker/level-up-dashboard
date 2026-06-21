@@ -40,15 +40,15 @@ export default function MergeUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-zinc-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white shadow-lg rounded-lg p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl font-bold text-zinc-900 mb-6">
             Merge User Data
           </h1>
           
           <div className="mb-6">
-            <p className="text-gray-600 mb-4">
+            <p className="text-zinc-600 mb-4">
               This will merge all challenge and milestone completion data from different user IDs 
               to your current user account. This is useful when you have data scattered across 
               multiple user IDs but you&apos;re the only user in the system.
@@ -70,7 +70,7 @@ export default function MergeUsersPage() {
             disabled={isLoading}
             className={`w-full py-3 px-4 rounded-md font-medium text-white transition-colors ${
               isLoading
-                ? 'bg-gray-400 cursor-not-allowed'
+                ? 'bg-zinc-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
             }`}
           >
@@ -109,7 +109,7 @@ export default function MergeUsersPage() {
             </div>
           )}
 
-          <div className="mt-6 text-sm text-gray-500">
+          <div className="mt-6 text-sm text-zinc-500">
             <p>
               <strong>Note:</strong> After merging, refresh your kingdom stats page to see the 
               combined data in the challenges and milestones tabs.

@@ -45,7 +45,7 @@ export function ProfileSettings() {
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white">
                     <User className="h-5 w-5" />
                     <span className="sr-only">Profile Settings</span>
                 </Button>
@@ -62,10 +62,10 @@ export function ProfileSettings() {
                             id="displayName"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="bg-gray-900/50 border-amber-900/30 text-amber-100 placeholder:text-gray-600"
+                            className="bg-zinc-900 border-amber-900/30 text-amber-100 placeholder:text-zinc-600"
                             placeholder="Enter your name..."
                         />
-                        <p className="text-xs text-gray-500">How you will be known in the leaderboards.</p>
+                        <p className="text-xs text-zinc-500">How you will be known in the leaderboards.</p>
                     </div>
 
                     <div className="space-y-2">
@@ -74,10 +74,10 @@ export function ProfileSettings() {
                             id="title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="bg-gray-900/50 border-amber-900/30 text-amber-100 placeholder:text-gray-600"
+                            className="bg-zinc-900 border-amber-900/30 text-amber-100 placeholder:text-zinc-600"
                             placeholder="e.g. The Bold"
                         />
-                        <p className="text-xs text-gray-500">An earned or chosen title.</p>
+                        <p className="text-xs text-zinc-500">An earned or chosen title.</p>
                     </div>
 
                     {/* Future: Avatar Selection */}

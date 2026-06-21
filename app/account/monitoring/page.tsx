@@ -213,7 +213,7 @@ export default function MonitoringPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Performance Monitoring</h1>
-          <p className="text-gray-400 mt-2">Real-time system performance metrics and alerts</p>
+          <p className="text-zinc-400 mt-2">Real-time system performance metrics and alerts</p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -250,7 +250,7 @@ export default function MonitoringPage() {
               className="mt-2"
               aria-label="memory-usage-progress"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               {(metrics.memory.used / 1024).toFixed(1)}GB / {(metrics.memory.total / 1024).toFixed(1)}GB
             </p>
           </CardContent>
@@ -275,7 +275,7 @@ export default function MonitoringPage() {
               className="mt-2"
               aria-label="cpu-usage-progress"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               {metrics.cpu.cores} cores
             </p>
           </CardContent>
@@ -295,7 +295,7 @@ export default function MonitoringPage() {
               </div>
               {getStatusIcon(100 - metrics.network.successRate, { warning: 5, error: 10 })}
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               {metrics.network.requests} requests, {metrics.network.errors} errors
             </p>
           </CardContent>
@@ -315,7 +315,7 @@ export default function MonitoringPage() {
               </div>
               {getStatusIcon(60 - metrics.performance.fps, { warning: 15, error: 30 })}
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               Load: {metrics.performance.loadTime.toFixed(0)}ms
             </p>
           </CardContent>
@@ -341,7 +341,7 @@ export default function MonitoringPage() {
                   className="h-2"
                   aria-label="storage-usage-progress"
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-zinc-400 mt-1">
                   {(metrics.storage.total / 1024 / 1024).toFixed(1)}GB total
                 </p>
               </div>
@@ -419,7 +419,7 @@ export default function MonitoringPage() {
       </Card>
 
       {/* Last Update */}
-      <div className="text-center text-sm text-gray-400">
+      <div className="text-center text-sm text-zinc-400">
         Last updated: {lastUpdate.toLocaleTimeString()}
         {isMonitoring && (
           <div className="flex items-center justify-center gap-2 mt-2">

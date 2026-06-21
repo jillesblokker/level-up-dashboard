@@ -91,7 +91,7 @@ export function LogViewer() {
       case 'warn': return 'bg-yellow-500'
       case 'error': return 'bg-red-500'
       case 'debug': return 'bg-purple-500'
-      default: return 'bg-gray-500'
+      default: return 'bg-zinc-500'
     }
   }
 
@@ -143,7 +143,7 @@ export function LogViewer() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Smart Logs</h2>
-          <p className="text-gray-400">Real-time logging and debugging information</p>
+          <p className="text-zinc-400">Real-time logging and debugging information</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -175,7 +175,7 @@ export function LogViewer() {
               <Activity className="h-5 w-5 text-blue-400" />
               <div>
                 <p className="text-2xl font-bold text-white">{logs.length}</p>
-                <p className="text-sm text-gray-400">Total Logs</p>
+                <p className="text-sm text-zinc-400">Total Logs</p>
               </div>
             </div>
           </CardContent>
@@ -186,7 +186,7 @@ export function LogViewer() {
               <Clock className="h-5 w-5 text-green-400" />
               <div>
                 <p className="text-2xl font-bold text-white">{guideFlowLogs.length}</p>
-                <p className="text-sm text-gray-400">Guide Steps</p>
+                <p className="text-sm text-zinc-400">Guide Steps</p>
               </div>
             </div>
           </CardContent>
@@ -199,7 +199,7 @@ export function LogViewer() {
                 <p className="text-2xl font-bold text-white">
                   {logs.filter(log => log.userId).length}
                 </p>
-                <p className="text-sm text-gray-400">User Actions</p>
+                <p className="text-sm text-zinc-400">User Actions</p>
               </div>
             </div>
           </CardContent>
@@ -210,7 +210,7 @@ export function LogViewer() {
               <Filter className="h-5 w-5 text-amber-400" />
               <div>
                 <p className="text-2xl font-bold text-white">{filteredLogs.length}</p>
-                <p className="text-sm text-gray-400">Filtered</p>
+                <p className="text-sm text-zinc-400">Filtered</p>
               </div>
             </div>
           </CardContent>
@@ -218,31 +218,31 @@ export function LogViewer() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 border-gray-700/50">
+      <Card className="bg-gradient-to-r from-zinc-800/50 to-zinc-700/50 border-zinc-700/50">
         <CardHeader>
           <CardTitle className="text-white">Filters</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Search</label>
+              <label className="text-sm font-medium text-zinc-300 mb-2 block">Search</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
                 <Input
                   placeholder="Search logs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-gray-700 text-white"
+                  className="pl-10 bg-zinc-800/50 border-zinc-700 text-white"
                 />
               </div>
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Level</label>
+              <label className="text-sm font-medium text-zinc-300 mb-2 block">Level</label>
               <Select value={levelFilter} onValueChange={setLevelFilter}>
-                <SelectTrigger className="bg-gray-800/50 border-gray-700 text-white">
+                <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white">
                   <SelectValue placeholder="All levels" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-zinc-800 border-zinc-700">
                   <SelectItem value="all">All levels</SelectItem>
                   {getUniqueLevels().map(level => (
                     <SelectItem key={level} value={level}>
@@ -253,12 +253,12 @@ export function LogViewer() {
               </Select>
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Component</label>
+              <label className="text-sm font-medium text-zinc-300 mb-2 block">Component</label>
               <Select value={componentFilter} onValueChange={setComponentFilter}>
-                <SelectTrigger className="bg-gray-800/50 border-gray-700 text-white">
+                <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white">
                   <SelectValue placeholder="All components" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-zinc-800 border-zinc-700">
                   <SelectItem value="all">All components</SelectItem>
                   {getUniqueComponents().map(component => (
                     <SelectItem key={component} value={component}>
@@ -275,9 +275,9 @@ export function LogViewer() {
               id="autoRefresh"
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
-              className="rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
+              className="rounded border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500"
             />
-            <label htmlFor="autoRefresh" className="text-sm text-gray-300">
+            <label htmlFor="autoRefresh" className="text-sm text-zinc-300">
               Auto-refresh logs
             </label>
           </div>
@@ -285,7 +285,7 @@ export function LogViewer() {
       </Card>
 
       {/* Logs */}
-      <Card className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 border-gray-700/50">
+      <Card className="bg-gradient-to-r from-zinc-800/50 to-zinc-700/50 border-zinc-700/50">
         <CardHeader>
           <CardTitle className="text-white">Log Entries</CardTitle>
         </CardHeader>
@@ -293,14 +293,14 @@ export function LogViewer() {
           <ScrollArea className="h-96" aria-label="logs-scroll-area">
             <div className="space-y-2">
               {filteredLogs.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-zinc-400">
                   No logs found matching your filters
                 </div>
               ) : (
                 filteredLogs.map((log, index) => (
                   <div
                     key={`${log.timestamp}-${index}`}
-                    className="p-4 rounded-lg bg-gray-800/30 border border-gray-700/50 hover:border-gray-600/50 transition-colors"
+                    className="p-4 rounded-lg bg-zinc-800/30 border border-zinc-700/50 hover:border-zinc-600/50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1">
@@ -310,29 +310,29 @@ export function LogViewer() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium text-white">{log.component}</span>
-                            <span className="text-gray-400">•</span>
+                            <span className="text-zinc-400">•</span>
                             <span className="text-amber-400">{log.action}</span>
                           </div>
-                          <p className="text-sm text-gray-300">
+                          <p className="text-sm text-zinc-300">
                             {formatTimestamp(log.timestamp)}
                           </p>
                           {log.userId && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-zinc-500 mt-1">
                               User: {log.userId}
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-zinc-500">
                         {log.sessionId.slice(-8)}
                       </div>
                     </div>
                     {log.details && Object.keys(log.details).length > 0 && (
                       <details className="mt-3">
-                        <summary className="cursor-pointer text-sm text-gray-400 hover:text-gray-300">
+                        <summary className="cursor-pointer text-sm text-zinc-400 hover:text-zinc-300">
                           View details
                         </summary>
-                        <pre className="mt-2 p-3 bg-gray-900/50 rounded text-xs text-gray-300 overflow-x-auto">
+                        <pre className="mt-2 p-3 bg-zinc-900 rounded text-xs text-zinc-300 overflow-x-auto">
                           {JSON.stringify(log.details, null, 2)}
                         </pre>
                       </details>
@@ -375,7 +375,7 @@ export function LogViewer() {
                           </Badge>
                         )}
                       </div>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-zinc-400">
                         {formatTimestamp(step.timestamp)}
                       </span>
                     </div>
@@ -384,10 +384,10 @@ export function LogViewer() {
                     )}
                     {step.data && Object.keys(step.data).length > 0 && (
                       <details className="mt-2">
-                        <summary className="cursor-pointer text-xs text-gray-400 hover:text-gray-300">
+                        <summary className="cursor-pointer text-xs text-zinc-400 hover:text-zinc-300">
                           View data
                         </summary>
-                        <pre className="mt-1 p-2 bg-gray-900/50 rounded text-xs text-gray-300 overflow-x-auto">
+                        <pre className="mt-1 p-2 bg-zinc-900 rounded text-xs text-zinc-300 overflow-x-auto">
                           {JSON.stringify(step.data, null, 2)}
                         </pre>
                       </details>

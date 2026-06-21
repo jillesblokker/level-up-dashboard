@@ -25,13 +25,13 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
 
   // Get background color based on item category
   const getCardBackground = () => {
-    if (isWeapon(item)) return "from-red-900/20 to-gray-900"
-    if (isArmor(item)) return "from-blue-900/20 to-gray-900"
-    if (isPotion(item)) return "from-green-900/20 to-gray-900"
-    if (isFood(item)) return "from-yellow-900/20 to-gray-900"
-    if (isMount(item)) return "from-cyan-900/20 to-gray-900"
-    if (isMagic(item)) return "from-purple-900/20 to-gray-900"
-    return "from-amber-900/20 to-gray-900"
+    if (isWeapon(item)) return "from-red-900/20 to-zinc-900"
+    if (isArmor(item)) return "from-blue-900/20 to-zinc-900"
+    if (isPotion(item)) return "from-green-900/20 to-zinc-900"
+    if (isFood(item)) return "from-yellow-900/20 to-zinc-900"
+    if (isMount(item)) return "from-cyan-900/20 to-zinc-900"
+    if (isMagic(item)) return "from-purple-900/20 to-zinc-900"
+    return "from-amber-900/20 to-zinc-900"
   }
 
   // Get item type display name
@@ -92,7 +92,7 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
         </div>
 
         {/* Stats/Effects */}
-        <div className="bg-black/20 p-2 rounded-md mb-2">
+        <div className="bg-zinc-950 p-2 rounded-md mb-2">
           {isWeapon(item) && (
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
@@ -172,7 +172,7 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
           )}
 
           {/* Price */}
-          <div className="flex items-center mt-2 pt-2 border-t border-gray-700/50">
+          <div className="flex items-center mt-2 pt-2 border-t border-zinc-700/50">
             <Coins className="h-4 w-4 text-amber-500 mr-1" />
             <span className="font-medium text-amber-500">{item.price} Gold</span>
           </div>

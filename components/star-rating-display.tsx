@@ -33,7 +33,7 @@ export const StarRatingBadge = memo(function StarRatingBadge({
     return (
         <div
             className={cn(
-                'absolute top-1 right-1 bg-black/80 rounded-full backdrop-blur-sm',
+                'absolute top-1 right-1 bg-zinc-950 rounded-full ',
                 'border border-amber-500/30',
                 sizeClasses[size],
                 className
@@ -85,16 +85,16 @@ export const InventoryItemCard = memo(function InventoryItemCard({
         <div
             onClick={onClick}
             className={cn(
-                'relative rounded-lg overflow-hidden bg-gray-900/80 border transition-all cursor-pointer',
+                'relative rounded-lg overflow-hidden bg-zinc-900 border transition-all cursor-pointer',
                 'hover:scale-105 hover:shadow-lg',
-                tierInfo.colors?.border || 'border-gray-700',
+                tierInfo.colors?.border || 'border-zinc-700',
                 glowClass,
                 legendaryAnimation,
                 className
             )}
         >
             {/* Item Image */}
-            <div className="relative aspect-square bg-gray-800/50 flex items-center justify-center p-2">
+            <div className="relative aspect-square bg-zinc-800/50 flex items-center justify-center p-2">
                 {item.image ? (
                     <img
                         src={item.image}
@@ -110,15 +110,15 @@ export const InventoryItemCard = memo(function InventoryItemCard({
 
                 {/* Quantity Badge */}
                 {item.quantity && item.quantity > 1 && (
-                    <div className="absolute bottom-1 left-1 bg-black/80 rounded-full px-2 py-0.5 text-xs text-white">
+                    <div className="absolute bottom-1 left-1 bg-zinc-950 rounded-full px-2 py-0.5 text-xs text-white">
                         x{item.quantity}
                     </div>
                 )}
             </div>
 
             {/* Item Info */}
-            <div className="p-2 bg-black/40">
-                <p className={cn('text-sm font-medium truncate', tierInfo.colors?.text || 'text-gray-400')}>
+            <div className="p-2 bg-zinc-950">
+                <p className={cn('text-sm font-medium truncate', tierInfo.colors?.text || 'text-zinc-400')}>
                     {item.name}
                 </p>
 
@@ -128,7 +128,7 @@ export const InventoryItemCard = memo(function InventoryItemCard({
                             {actualValue} 🪙
                         </span>
                         {starRating > 0 && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-zinc-500">
                                 {tierInfo.multiplier}x
                             </span>
                         )}
@@ -168,7 +168,7 @@ export const RarityIndicator = memo(function RarityIndicator({
         <div className={cn('flex items-center gap-1', className)}>
             {starRating > 0 && <span>{tierInfo.stars}</span>}
             {showLabel && (
-                <span className={cn('text-xs font-medium', tierInfo.colors?.text || 'text-gray-400')}>
+                <span className={cn('text-xs font-medium', tierInfo.colors?.text || 'text-zinc-400')}>
                     {tierInfo.name}
                 </span>
             )}

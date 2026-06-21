@@ -77,7 +77,7 @@ export function MigrationModal({ isOpen, onClose, onComplete }: MigrationModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-zinc-950 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

@@ -15,7 +15,7 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
     const lines = content.split('\n');
 
     return (
-        <div className={cn("text-sm text-gray-400 space-y-1", className)}>
+        <div className={cn("text-sm text-zinc-400 space-y-1", className)}>
             {lines.map((line, index) => {
                 // Handle lists
                 if (line.trim().startsWith('- ')) {
@@ -68,9 +68,9 @@ function parseInline(text: string): React.ReactNode[] {
                 </a>
             );
         } else if (match[4]) { // Bold: **text** -> match[4] is full, match[5] is text
-            parts.push(<strong key={match.index} className="text-gray-200 font-semibold">{match[5]}</strong>);
+            parts.push(<strong key={match.index} className="text-zinc-200 font-semibold">{match[5]}</strong>);
         } else if (match[6]) { // Italic: *text* -> match[6] is full, match[7] is text
-            parts.push(<em key={match.index} className="text-gray-300 italic">{match[7]}</em>);
+            parts.push(<em key={match.index} className="text-zinc-300 italic">{match[7]}</em>);
         }
 
         lastIndex = regex.lastIndex;

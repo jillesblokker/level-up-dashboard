@@ -27,7 +27,7 @@ export default function ArchiveOfTriumphsPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-amber-50">
       {/* Header */}
-      <div className="relative border-b border-amber-900/30 bg-black/60 shadow-xl z-10">
+      <div className="relative border-b border-amber-900/30 bg-zinc-950 shadow-xl z-10">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10 pointer-events-none" />
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
@@ -88,7 +88,7 @@ export default function ArchiveOfTriumphsPage() {
                       <h3 className="text-xl font-bold font-serif text-amber-100 mb-1">{citizen.name}</h3>
                       <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider mb-4">{citizen.type}</p>
                       
-                      <div className="bg-black/40 p-3 rounded-lg w-full border border-white/5">
+                      <div className="bg-zinc-950 p-3 rounded-lg w-full border border-white/5">
                         <p className="text-xs text-zinc-400 mb-1">Affection</p>
                         <div className="flex items-center justify-center gap-1">
                           {Array.from({ length: 5 }).map((_, i) => (

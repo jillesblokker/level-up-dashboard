@@ -18,17 +18,17 @@ interface EmptyStateProps {
 export function EmptyState({ 
   title, 
   description, 
-  icon = <Trophy className="w-16 h-16 text-gray-400" />,
+  icon = <Trophy className="w-16 h-16 text-zinc-400" />,
   action,
   className = ""
 }: EmptyStateProps) {
   return (
-    <Card className={`bg-gray-900/50 border-gray-800/30 ${className}`}>
+    <Card className={`bg-zinc-900 border-zinc-800/30 ${className}`}>
       <CardContent className="p-8 text-center">
         <div className="flex flex-col items-center gap-4">
           {icon}
-          <h3 className="text-lg font-semibold text-gray-300">{title}</h3>
-          <p className="text-gray-400 max-w-md">{description}</p>
+          <h3 className="text-lg font-semibold text-zinc-300">{title}</h3>
+          <p className="text-zinc-400 max-w-md">{description}</p>
           {action && (
             <Button onClick={action.onClick} className="bg-amber-500 hover:bg-amber-600">
               <Plus className="w-4 h-4 mr-2" />
@@ -116,7 +116,7 @@ export function EmptySearch({ searchTerm }: { searchTerm: string }) {
     <EmptyState
       title="No Results Found"
       description={`No items match "${searchTerm}". Try adjusting your search terms or browse all items.`}
-      icon={<Search className="w-16 h-16 text-gray-400" />}
+      icon={<Search className="w-16 h-16 text-zinc-400" />}
     />
   )
 }

@@ -32,7 +32,7 @@ export function PageGuide({ title, subtitle, sections }: PageGuideProps) {
             <Button
                 variant="ghost"
                 size="icon"
-                className="bg-black/50 hover:bg-black/70 text-amber-200 border border-amber-500/20 backdrop-blur-sm rounded-full w-10 h-10 transition-all hover:scale-110 shadow-lg"
+                className="bg-zinc-950 hover:bg-zinc-950 text-amber-200 border border-amber-500/20  rounded-full w-10 h-10 transition-all hover:scale-110 shadow-lg"
                 onClick={() => setIsOpen(true)}
             >
                 <HelpCircle className="h-6 w-6" />
@@ -40,7 +40,7 @@ export function PageGuide({ title, subtitle, sections }: PageGuideProps) {
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-black/95 border-amber-800/50 text-amber-50 backdrop-blur-xl">
+                <DialogContent className="sm:max-w-[500px] bg-black/95 border-amber-800/50 text-amber-50 ">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-amber-500 font-serif">{title} Guide</DialogTitle>
                         <DialogDescription className="text-amber-200/80 italic">
@@ -56,7 +56,7 @@ export function PageGuide({ title, subtitle, sections }: PageGuideProps) {
                                         <section.icon className="h-5 w-5" />
                                         <h3 className="text-base tracking-tight">{section.title}</h3>
                                     </div>
-                                    <div className="text-gray-300 leading-relaxed pl-8">
+                                    <div className="text-zinc-300 leading-relaxed pl-8">
                                         {section.content}
                                     </div>
                                 </section>

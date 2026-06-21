@@ -63,10 +63,10 @@ export function AchievementPopup({
     switch (achievement.rarity) {
       case 'common':
         return {
-          color: 'text-gray-300',
-          bgColor: 'from-gray-600 to-gray-700',
-          borderColor: 'border-gray-500/30',
-          glowColor: 'shadow-gray-500/20',
+          color: 'text-zinc-300',
+          bgColor: 'from-zinc-600 to-zinc-700',
+          borderColor: 'border-zinc-500/30',
+          glowColor: 'shadow-zinc-500/20',
           icon: '⚪',
         };
       case 'uncommon':
@@ -103,10 +103,10 @@ export function AchievementPopup({
         };
       default:
         return {
-          color: 'text-gray-300',
-          bgColor: 'from-gray-600 to-gray-700',
-          borderColor: 'border-gray-500/30',
-          glowColor: 'shadow-gray-500/20',
+          color: 'text-zinc-300',
+          bgColor: 'from-zinc-600 to-zinc-700',
+          borderColor: 'border-zinc-500/30',
+          glowColor: 'shadow-zinc-500/20',
           icon: '⚪',
         };
     }
@@ -134,7 +134,7 @@ export function AchievementPopup({
   return (
     <div className={cn('fixed inset-0 z-50 flex items-center justify-center p-4', className)}>
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-zinc-950 " />
       
       {/* Achievement card */}
       <Card className={cn(
@@ -300,7 +300,7 @@ export function AchievementNotification({
   const getRarityConfig = () => {
     switch (achievement.rarity) {
       case 'common':
-        return 'from-gray-600 to-gray-700 border-gray-500/30';
+        return 'from-zinc-600 to-zinc-700 border-zinc-500/30';
       case 'uncommon':
         return 'from-green-600 to-green-700 border-green-500/30';
       case 'rare':
@@ -310,7 +310,7 @@ export function AchievementNotification({
       case 'legendary':
         return 'from-yellow-500 to-yellow-600 border-yellow-400/50';
       default:
-        return 'from-gray-600 to-gray-700 border-gray-500/30';
+        return 'from-zinc-600 to-zinc-700 border-zinc-500/30';
     }
   };
 

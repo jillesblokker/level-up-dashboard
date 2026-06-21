@@ -194,7 +194,7 @@ export function MedievalProgressBar({
           <span>{progress}/{max}</span>
         </div>
       )}
-      <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-amber-800/30">
+      <div className="w-full bg-zinc-800 rounded-full h-3 overflow-hidden border border-amber-800/30">
         <div 
           className={cn(
             "h-full rounded-full transition-all duration-500 ease-out relative",

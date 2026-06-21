@@ -8,7 +8,7 @@ export function LogoutButton() {
     <form action={logout}>
       <button
         type="submit"
-        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors"
       >
         <LogOut className="h-4 w-4" />
         <span>Logout</span>

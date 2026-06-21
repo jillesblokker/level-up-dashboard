@@ -227,7 +227,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     >
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
-        <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 w-full h-full overflow-hidden bg-zinc-950">
           <Image
             src={imagePath}
             alt={`Mythic Card #${cardData.number}`}
@@ -245,7 +245,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
           </div>
         </div>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950 text-white">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-4 bg-zinc-950 text-white">
           <span className="text-xl sm:text-3xl md:text-4xl font-black opacity-80">{cardData.number}</span>
           <span className="text-[8px] sm:text-sm font-bold tracking-wider sm:tracking-widest mt-1 sm:mt-2 truncate w-full text-center">{cardData.variantLabel}</span>
           <span className="text-[7px] sm:text-xs font-bold mt-0.5 opacity-60 uppercase truncate">{cardData.rarity}</span>

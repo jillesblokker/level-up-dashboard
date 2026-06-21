@@ -137,7 +137,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     </span>
                                 )}
                             </div>
-                            <div className="grid grid-cols-5 gap-2 bg-zinc-900/40 p-2 rounded-2xl border border-white/5 backdrop-blur-sm">
+                            <div className="grid grid-cols-5 gap-2 bg-zinc-900 p-2 rounded-2xl border border-white/5 ">
                                 {moods.map((m) => {
                                     const Icon = m.icon
                                     const isSelected = mood === m.score
@@ -197,7 +197,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
                                     placeholder="Speak your truth into the annals of history..."
-                                    className="relative bg-zinc-900/60 border-white/5 focus:border-amber-500/50 min-h-[160px] max-h-[250px] rounded-2xl p-4 text-zinc-200 placeholder:text-zinc-600 focus:ring-0 transition-all font-serif italic text-lg leading-relaxed shadow-inner"
+                                    className="relative bg-zinc-900 border-white/5 focus:border-amber-500/50 min-h-[160px] max-h-[250px] rounded-2xl p-4 text-zinc-200 placeholder:text-zinc-600 focus:ring-0 transition-all font-serif italic text-lg leading-relaxed shadow-inner"
                                 />
                                 {/* Bottom scroll decorative flair */}
                                 <div className="absolute bottom-2 right-2 opacity-20 group-hover/textarea:opacity-40 transition-opacity">

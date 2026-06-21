@@ -109,7 +109,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
             <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Milestone Title</Label>
                 <Input
-                    className="bg-zinc-900/60 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all font-serif italic text-lg shadow-inner"
+                    className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all font-serif italic text-lg shadow-inner"
                     value={newMilestone.name}
                     onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
                     placeholder="e.g., Master of the Forge..."
@@ -121,7 +121,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
             <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Edict (Description)</Label>
                 <Textarea
-                    className="bg-zinc-900/60 border-white/5 focus:border-amber-500/30 min-h-[100px] rounded-xl p-4 text-zinc-300 placeholder:text-zinc-700 resize-none font-serif italic"
+                    className="bg-zinc-900 border-white/5 focus:border-amber-500/30 min-h-[100px] rounded-xl p-4 text-zinc-300 placeholder:text-zinc-700 resize-none font-serif italic"
                     value={newMilestone.description}
                     onChange={e => setNewMilestone({ ...newMilestone, description: e.target.value })}
                     placeholder="Describe the historical significance of this milestone..."
@@ -135,7 +135,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                         value={newMilestone.category}
                         onValueChange={(val) => setNewMilestone({ ...newMilestone, category: val })}
                     >
-                        <SelectTrigger className="h-12 bg-zinc-900/60 border-white/5 rounded-xl transition-all hover:border-amber-500/30 w-full text-zinc-200">
+                        <SelectTrigger className="h-12 bg-zinc-900 border-white/5 rounded-xl transition-all hover:border-amber-500/30 w-full text-zinc-200">
                             <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-zinc-950 border-zinc-800 text-zinc-200">
@@ -158,7 +158,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                         <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Target Value</Label>
                         <Input
                             type="number"
-                            className="bg-zinc-900/60 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200"
+                            className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200"
                             value={newMilestone.target}
                             onChange={e => setNewMilestone({ ...newMilestone, target: Number(e.target.value) })}
                         />
@@ -166,7 +166,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                     <div className="space-y-2">
                         <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Unit</Label>
                         <Input
-                            className="bg-zinc-900/60 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200"
+                            className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200"
                             value={newMilestone.unit}
                             onChange={e => setNewMilestone({ ...newMilestone, unit: e.target.value })}
                             placeholder="e.g., times, km"
@@ -176,7 +176,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
             </div>
 
             <div className="p-4 bg-amber-900/10 border border-amber-500/20 rounded-2xl flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-zinc-950/80 border border-amber-500/30">
+                <div className="p-3 rounded-xl bg-zinc-950 border border-amber-500/30">
                     <Target className="w-5 h-5 text-amber-500 animate-pulse" />
                 </div>
                 <div>

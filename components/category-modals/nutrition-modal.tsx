@@ -27,7 +27,7 @@ export function NutritionModal({ open, onOpenChange, onSubmit }: NutritionModalP
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-in fade-in"
+        className="fixed inset-0 bg-zinc-950  transition-opacity animate-in fade-in"
         onClick={() => onOpenChange(false)}
       />
 

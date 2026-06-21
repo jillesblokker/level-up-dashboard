@@ -840,7 +840,7 @@ export default function AdminPage() {
       case 'connected': return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'error': return <XCircle className="w-4 h-4 text-red-500" />;
       case 'disconnected': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      default: return <Clock className="w-4 h-4 text-gray-500" />;
+      default: return <Clock className="w-4 h-4 text-zinc-500" />;
     }
   };
 
@@ -849,7 +849,7 @@ export default function AdminPage() {
       case 'connected': return 'text-green-600';
       case 'error': return 'text-red-600';
       case 'disconnected': return 'text-yellow-600';
-      default: return 'text-gray-600';
+      default: return 'text-zinc-600';
     }
   };
 
@@ -859,7 +859,7 @@ export default function AdminPage() {
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-zinc-100 text-zinc-800 border-zinc-200';
     }
   };
 
@@ -1818,7 +1818,7 @@ TECHNICAL DETAILS:
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                     <div>
                       <div className="font-medium">{TEXT_CONTENT.admin.storedData.sections.events.winter.name}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-zinc-600 dark:text-zinc-400">
                         {TEXT_CONTENT.admin.storedData.sections.events.winter.desc}
                       </div>
                     </div>
@@ -1843,7 +1843,7 @@ TECHNICAL DETAILS:
                     <div className="w-3 h-3 rounded-full bg-orange-500"></div>
                     <div>
                       <div className="font-medium">{TEXT_CONTENT.admin.storedData.sections.events.harvest.name}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-zinc-600 dark:text-zinc-400">
                         {TEXT_CONTENT.admin.storedData.sections.events.harvest.desc}
                       </div>
                     </div>
@@ -1863,10 +1863,10 @@ TECHNICAL DETAILS:
                   </div>
                 </div>
 
-                <div className="mt-4 p-3 bg-gray-800 border border-gray-600 rounded-lg">
+                <div className="mt-4 p-3 bg-zinc-800 border border-zinc-600 rounded-lg">
                   <div className="text-sm text-white">
                     <strong className="text-amber-400">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.label}</strong>
-                    <ul className="mt-2 ml-4 space-y-1 text-gray-200">
+                    <ul className="mt-2 ml-4 space-y-1 text-zinc-200">
                       <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.whenActive}</strong></li>
                       <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.whenInactive}</strong></li>
                       <li>• <strong className="text-amber-300">{TEXT_CONTENT.admin.storedData.sections.events.howItWorks.winterTiles}</strong></li>
@@ -1909,9 +1909,9 @@ TECHNICAL DETAILS:
                       </Button>
 
                       {showTestingDropdown && (
-                        <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 min-w-[250px]">
+                        <div className="absolute top-full left-0 mt-1 bg-zinc-800 border border-zinc-600 rounded-lg shadow-lg z-50 min-w-[250px]">
                           <div className="p-2">
-                            <div className="text-sm text-gray-300 mb-2 font-semibold">{TEXT_CONTENT.admin.storedData.sections.testing.menuTitle}</div>
+                            <div className="text-sm text-zinc-300 mb-2 font-semibold">{TEXT_CONTENT.admin.storedData.sections.testing.menuTitle}</div>
 
                             <Button
                               onClick={compareDataSources}
@@ -2016,9 +2016,9 @@ TECHNICAL DETAILS:
                 {dataComparison.length > 0 && (
                   <div className="space-y-3">
                     {dataComparison.map((comparison, index) => (
-                      <div key={index} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                      <div key={index} className="p-4 border rounded-lg bg-zinc-50 dark:bg-zinc-800">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100">{comparison.table}</h4>
+                          <h4 className="font-medium text-zinc-900 dark:text-zinc-100">{comparison.table}</h4>
                           <Badge
                             variant={
                               comparison.status === 'synced' ? 'default' :
@@ -2030,7 +2030,7 @@ TECHNICAL DETAILS:
                               comparison.status === 'synced' ? 'bg-green-100 text-green-800 border-green-200' :
                                 comparison.status === 'local-ahead' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
                                   comparison.status === 'supabase-ahead' ? 'bg-red-100 text-red-800 border-red-200' :
-                                    'bg-gray-100 text-gray-800 border-gray-200'
+                                    'bg-zinc-100 text-zinc-800 border-zinc-200'
                             }
                           >
                             {comparison.status === 'synced' ? '✅ Synced' :
@@ -2042,15 +2042,15 @@ TECHNICAL DETAILS:
 
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div>
-                            <div className="text-gray-600 dark:text-gray-400">localStorage</div>
-                            <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.localStorageCount}</div>
+                            <div className="text-zinc-600 dark:text-zinc-400">localStorage</div>
+                            <div className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{comparison.localStorageCount}</div>
                           </div>
                           <div>
-                            <div className="text-gray-600 dark:text-gray-400">Supabase</div>
-                            <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{comparison.supabaseCount}</div>
+                            <div className="text-zinc-600 dark:text-zinc-400">Supabase</div>
+                            <div className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{comparison.supabaseCount}</div>
                           </div>
                           <div>
-                            <div className="text-gray-600 dark:text-gray-400">Difference</div>
+                            <div className="text-zinc-600 dark:text-zinc-400">Difference</div>
                             <div className={`font-semibold text-lg ${comparison.difference === 0 ? 'text-green-600' :
                               comparison.difference > 0 ? 'text-red-600' :
                                 'text-yellow-600'
@@ -2060,7 +2060,7 @@ TECHNICAL DETAILS:
                           </div>
                         </div>
 
-                        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
                           Last checked: {new Date(comparison.lastChecked).toLocaleString()}
                         </div>
                       </div>
@@ -2069,7 +2069,7 @@ TECHNICAL DETAILS:
                 )}
 
                 {dataComparison.length === 0 && !isComparingData && (
-                  <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                  <div className="text-center py-8 text-zinc-600 dark:text-zinc-400">
                     <Database className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>Click Compare Data Sources to analyze data synchronization</p>
                   </div>
@@ -2078,7 +2078,7 @@ TECHNICAL DETAILS:
                 {isComparingData && (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                    <p className="text-gray-600 dark:text-gray-400">Comparing data sources...</p>
+                    <p className="text-zinc-600 dark:text-zinc-400">Comparing data sources...</p>
                   </div>
                 )}
               </div>
@@ -2097,7 +2097,7 @@ TECHNICAL DETAILS:
               <CardContent>
                 <div className="text-2xl font-bold">{buildStatus.coreSystems}</div>
                 <Progress value={(buildStatus.coreSystems / 3) * 100} className="mt-2" />
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total systems</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">3 total systems</p>
               </CardContent>
             </Card>
 
@@ -2111,7 +2111,7 @@ TECHNICAL DETAILS:
               <CardContent>
                 <div className="text-2xl font-bold">{buildStatus.gameplayFeatures}</div>
                 <Progress value={(buildStatus.gameplayFeatures / 8) * 100} className="mt-2" />
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">8 total features</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">8 total features</p>
               </CardContent>
             </Card>
 
@@ -2125,7 +2125,7 @@ TECHNICAL DETAILS:
               <CardContent>
                 <div className="text-2xl font-bold">{buildStatus.socialFeatures}</div>
                 <Progress value={(buildStatus.socialFeatures / 3) * 100} className="mt-2" />
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 total features</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">3 total features</p>
               </CardContent>
             </Card>
 
@@ -2139,7 +2139,7 @@ TECHNICAL DETAILS:
               <CardContent>
                 <div className="text-2xl font-bold">{buildStatus.adminFeatures}</div>
                 <Progress value={(buildStatus.adminFeatures / 15) * 100} className="mt-2" />
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">15 total features</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">15 total features</p>
               </CardContent>
             </Card>
           </div>
@@ -2169,7 +2169,7 @@ TECHNICAL DETAILS:
                   </div>
                 </div>
                 <Progress value={buildStatus.progress} className="h-3" />
-                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
                   <span>0%</span>
                   <span>100%</span>
                 </div>
@@ -2189,21 +2189,21 @@ TECHNICAL DETAILS:
           )}
 
           {/* Summary Action Card */}
-          <Card className="border-gray-600 bg-gray-800">
+          <Card className="border-zinc-600 bg-zinc-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-amber-400">
                 📋 {TEXT_CONTENT.admin.storedData.sections.summary.title}
               </CardTitle>
-              <CardDescription className="text-gray-300">
+              <CardDescription className="text-zinc-300">
                 {TEXT_CONTENT.admin.storedData.sections.summary.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-sm text-gray-300">
+                <p className="text-sm text-zinc-300">
                   Click the button below to generate a detailed summary that includes:
                 </p>
-                <ul className="text-sm text-gray-300 space-y-1 ml-4">
+                <ul className="text-sm text-zinc-300 space-y-1 ml-4">
                   <li>• Critical, high, medium, and low priority issues</li>
                   <li>• Working systems and progress percentages</li>
                   <li>• Specific error messages and endpoints</li>
@@ -2243,7 +2243,7 @@ TECHNICAL DETAILS:
                           {getStatusIcon(connection.status)}
                           <div>
                             <div className="font-medium">{connection.name}</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                            <div className="text-sm text-zinc-600 dark:text-zinc-400">{connection.description}</div>
                           </div>
                         </div>
                         <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2275,7 +2275,7 @@ TECHNICAL DETAILS:
                           {getStatusIcon(connection.status)}
                           <div>
                             <div className="font-medium">{connection.name}</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                            <div className="text-sm text-zinc-600 dark:text-zinc-400">{connection.description}</div>
                           </div>
                         </div>
                         <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2307,7 +2307,7 @@ TECHNICAL DETAILS:
                           {getStatusIcon(connection.status)}
                           <div>
                             <div className="font-medium">{connection.name}</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                            <div className="text-sm text-zinc-600 dark:text-zinc-400">{connection.description}</div>
                           </div>
                         </div>
                         <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2340,7 +2340,7 @@ TECHNICAL DETAILS:
                             {getStatusIcon(connection.status)}
                             <div>
                               <div className="font-medium">{connection.name}</div>
-                              <div className="text-sm text-gray-600 dark:text-gray-400">{connection.description}</div>
+                              <div className="text-sm text-zinc-600 dark:text-zinc-400">{connection.description}</div>
                             </div>
                           </div>
                           <Badge variant="outline" className={getPriorityColor(connection.priority)}>
@@ -2466,7 +2466,7 @@ TECHNICAL DETAILS:
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-zinc-500 mt-1">
                     Test buttons for rare tile unlock functionality
                   </p>
                 </div>
@@ -2516,7 +2516,7 @@ TECHNICAL DETAILS:
             </CardHeader>
             <CardContent>
               {errorLogs.length === 0 ? (
-                <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                <div className="text-center py-8 text-zinc-600 dark:text-zinc-400">
                   <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>No errors logged. Your application is running smoothly!</p>
                 </div>
@@ -2535,15 +2535,15 @@ TECHNICAL DETAILS:
                                 )}
                                 <Badge variant="secondary">{error.context}</Badge>
                               </div>
-                              <span className="text-sm text-gray-400">
+                              <span className="text-sm text-zinc-400">
                                 {error.timestamp.toLocaleString()}
                               </span>
                             </div>
                             <div className="font-medium text-red-600">{error.message}</div>
                             {error.stack && (
                               <details className="text-xs">
-                                <summary className="cursor-pointer text-gray-500">Show Stack Trace</summary>
-                                <pre className="mt-2 bg-gray-900 p-2 rounded overflow-x-auto">
+                                <summary className="cursor-pointer text-zinc-500">Show Stack Trace</summary>
+                                <pre className="mt-2 bg-zinc-900 p-2 rounded overflow-x-auto">
                                   {error.stack}
                                 </pre>
                               </details>
@@ -2615,7 +2615,7 @@ TECHNICAL DETAILS:
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                <div className="text-center py-8 text-zinc-600 dark:text-zinc-400">
                   <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>No performance data available yet. Start using the application to collect metrics.</p>
                 </div>
@@ -2707,22 +2707,22 @@ TECHNICAL DETAILS:
                 {/* Audio Settings Display */}
                 <div>
                   <h3 className="text-lg font-semibold mb-4 text-amber-400">⚙️ Current Audio Settings</h3>
-                  <div className="bg-gray-800 p-4 rounded-lg">
+                  <div className="bg-zinc-800 p-4 rounded-lg">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-400">Master Volume:</span>
+                        <span className="text-zinc-400">Master Volume:</span>
                         <span className="ml-2 text-white">{Math.round(settings.masterVolume * 100)}%</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Music Volume:</span>
+                        <span className="text-zinc-400">Music Volume:</span>
                         <span className="ml-2 text-white">{Math.round(settings.musicVolume * 100)}%</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">SFX Volume:</span>
+                        <span className="text-zinc-400">SFX Volume:</span>
                         <span className="ml-2 text-white">{Math.round(settings.sfxVolume * 100)}%</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Music Enabled:</span>
+                        <span className="text-zinc-400">Music Enabled:</span>
                         <span className={`ml-2 ${settings.musicEnabled ? 'text-green-400' : 'text-red-400'}`}>
                           {settings.musicEnabled ? 'Yes' : 'No'}
                         </span>
@@ -2735,7 +2735,7 @@ TECHNICAL DETAILS:
                 <div>
                   <h3 className="text-lg font-semibold mb-4 text-amber-400">📋 Instructions</h3>
                   <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-800/30">
-                    <ul className="text-sm text-gray-300 space-y-2">
+                    <ul className="text-sm text-zinc-300 space-y-2">
                       <li>• <strong className="text-blue-400">Music tracks</strong> will loop continuously when played</li>
                       <li>• <strong className="text-blue-400">Sound effects</strong> play once and stop</li>
                       <li>• <strong className="text-blue-400">Disabled audio</strong> buttons will be grayed out</li>

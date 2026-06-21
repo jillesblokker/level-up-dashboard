@@ -137,7 +137,7 @@ export function NewPlayerProgress() {
             exit={{ opacity: 0, scale: 0.95 }}
             className="w-full"
         >
-            <Card className="bg-black/60 border-amber-500/30 backdrop-blur-md shadow-2xl overflow-hidden relative group">
+            <Card className="bg-zinc-950 border-amber-500/30  shadow-2xl overflow-hidden relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
 
                 <CardHeader className="pb-2">
@@ -169,7 +169,7 @@ export function NewPlayerProgress() {
                                 ) : (
                                     <Circle className="w-5 h-5 text-amber-500/30" />
                                 )}
-                                <span className={`text-sm ${item.completed ? 'text-gray-500 line-through' : 'text-amber-100'}`}>
+                                <span className={`text-sm ${item.completed ? 'text-zinc-500 line-through' : 'text-amber-100'}`}>
                                     {item.label}
                                 </span>
                             </div>

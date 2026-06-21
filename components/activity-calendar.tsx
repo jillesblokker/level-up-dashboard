@@ -234,7 +234,7 @@ export function ActivityCalendar() {
 
           {/* Empty cells for days before the first day of month */}
           {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-            <div key={`empty-${i}`} className="h-8 rounded-sm bg-gray-800/20"></div>
+            <div key={`empty-${i}`} className="h-8 rounded-sm bg-zinc-800/20"></div>
           ))}
 
           {/* Calendar days */}
@@ -247,7 +247,7 @@ export function ActivityCalendar() {
               <div
                 key={`day-${day}`}
                 className={`h-8 rounded-sm flex items-center justify-center text-xs ${
-                  hasActivity ? activityColor + " text-white" : "bg-gray-800/50 text-muted-foreground"
+                  hasActivity ? activityColor + " text-white" : "bg-zinc-800/50 text-muted-foreground"
                 }`}
                 aria-label={`Day ${day}${hasActivity ? ' with activity' : ''}`}
               >

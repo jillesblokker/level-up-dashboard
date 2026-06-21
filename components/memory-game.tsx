@@ -174,7 +174,7 @@ export function MemoryGame() {
       </div>
 
       {gameOver && (
-        <div className="mb-6 p-4 bg-gray-800 rounded-lg text-center">
+        <div className="mb-6 p-4 bg-zinc-800 rounded-lg text-center">
           <h3 className="text-xl font-bold mb-2">{gameResult}</h3>
           <Button onClick={initializeGame} className="bg-amber-600 hover:bg-amber-700">
             Play Again
@@ -196,7 +196,7 @@ export function MemoryGame() {
             <Card
               className={`
               w-full h-full flex items-center justify-center
-              ${card.flipped || card.matched ? "bg-amber-800 text-white" : "bg-gray-700 hover:bg-gray-600"}
+              ${card.flipped || card.matched ? "bg-amber-800 text-white" : "bg-zinc-700 hover:bg-zinc-600"}
               transition-colors duration-300
             `}
             >
@@ -209,7 +209,7 @@ export function MemoryGame() {
                   )}
                 </div>
               ) : (
-                <div className="text-3xl text-gray-400">?</div>
+                <div className="text-3xl text-zinc-400">?</div>
               )}
             </Card>
           </div>

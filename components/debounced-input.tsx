@@ -46,8 +46,8 @@ export function DebouncedInput({
   };
 
   const inputClasses = medieval
-    ? 'bg-amber-50/10 border-amber-600/30 text-amber-100 placeholder-amber-300/50 focus:border-amber-500 focus:ring-amber-500/20 backdrop-blur-sm'
-    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20';
+    ? 'bg-amber-50/10 border-amber-600/30 text-amber-100 placeholder-amber-300/50 focus:border-amber-500 focus:ring-amber-500/20 '
+    : 'bg-white border-zinc-300 text-zinc-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20';
 
   return (
     <Input
@@ -143,8 +143,8 @@ export function DebouncedTextarea({
   };
 
   const textareaClasses = medieval
-    ? 'bg-amber-50/10 border-amber-600/30 text-amber-100 placeholder-amber-300/50 focus:border-amber-500 focus:ring-amber-500/20 backdrop-blur-sm'
-    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20';
+    ? 'bg-amber-50/10 border-amber-600/30 text-amber-100 placeholder-amber-300/50 focus:border-amber-500 focus:ring-amber-500/20 '
+    : 'bg-white border-zinc-300 text-zinc-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20';
 
   return (
     <textarea

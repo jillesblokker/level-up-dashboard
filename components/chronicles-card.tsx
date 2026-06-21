@@ -88,7 +88,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
                 <div className="flex items-center gap-2">
                     <Select value={viewedChapterId} onValueChange={setViewedChapterId}>
-                        <SelectTrigger className="w-full bg-black/20 border-amber-800/30 text-amber-100 font-serif text-lg h-auto py-2 focus:ring-amber-500/20">
+                        <SelectTrigger className="w-full bg-zinc-950 border-amber-800/30 text-amber-100 font-serif text-lg h-auto py-2 focus:ring-amber-500/20">
                             <SelectValue placeholder="Select Chapter" />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1a1614] border-amber-800 text-amber-100 max-h-[300px]">
@@ -159,7 +159,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             <span>Next: {nextChapter.title}</span>
                             <span>{levelsRemaining} levels to go</span>
                         </div>
-                        <div className="relative h-1.5 bg-black/50 rounded-full overflow-hidden border border-amber-900/30">
+                        <div className="relative h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-amber-900/30">
                             <div
                                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-all duration-1000 ease-out"
                                 style={{ width: `${progress}%` }}

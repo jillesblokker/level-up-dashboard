@@ -105,7 +105,7 @@ export function QuestCelebration({
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-zinc-950 " />
       
       {/* Celebration content */}
       <div className="absolute inset-0 flex items-center justify-center">
@@ -177,7 +177,7 @@ export function LevelUpCelebration({
   return (
     <div className={cn('fixed inset-0 pointer-events-none z-50', className)}>
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-amber-900/30 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-amber-900/30 " />
       
       {/* Level up content */}
       <div className="absolute inset-0 flex items-center justify-center">
@@ -250,7 +250,7 @@ export function StreakCelebration({
   return (
     <div className={cn('fixed inset-0 pointer-events-none z-50', className)}>
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-900/30 to-red-900/30 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-900/30 to-red-900/30 " />
       
       {/* Streak content */}
       <div className="absolute inset-0 flex items-center justify-center">
@@ -324,7 +324,7 @@ export function AchievementCelebration({
   return (
     <div className={cn('fixed inset-0 pointer-events-none z-50', className)}>
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 to-emerald-900/30 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 to-emerald-900/30 " />
       
       {/* Achievement content */}
       <div className="absolute inset-0 flex items-center justify-center">

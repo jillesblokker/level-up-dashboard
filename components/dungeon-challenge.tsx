@@ -217,7 +217,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
       case "shield":
         return <Shield className="h-10 w-10 text-blue-400" />
       default:
-        return <Skull className="h-10 w-10 text-gray-400" />
+        return <Skull className="h-10 w-10 text-zinc-400" />
     }
   }
 
@@ -231,7 +231,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
           <div className="flex-1">
             <Progress
               value={(dungeonLevel / maxDungeonLevel) * 100}
-              className="h-2 [&>div]:bg-amber-500 bg-gray-700"
+              className="h-2 [&>div]:bg-amber-500 bg-zinc-700"
               aria-label="Dungeon level progress"
             />
           </div>
@@ -242,7 +242,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
           <div className="w-full max-w-[200px]">
             <Progress
               value={(timeLeft / (difficulty === "easy" ? 60 : difficulty === "medium" ? 50 : 40)) * 100}
-              className={`h-2 ${timeLeft < 10 ? "[&>div]:bg-red-500" : "[&>div]:bg-green-500"} bg-gray-700`}
+              className={`h-2 ${timeLeft < 10 ? "[&>div]:bg-red-500" : "[&>div]:bg-green-500"} bg-zinc-700`}
               aria-label="Time remaining progress"
             />
           </div>
@@ -251,7 +251,7 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
 
       {gameOver ? (
         <div 
-          className="mb-6 p-4 bg-gray-800 rounded-lg text-center"
+          className="mb-6 p-4 bg-zinc-800 rounded-lg text-center"
           role="alert"
           aria-live="polite"
         >
@@ -315,21 +315,21 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
             <Card
               className={`
               w-full h-full flex items-center justify-center
-              ${card.flipped || card.matched ? "bg-amber-800 text-white" : "bg-gray-700 hover:bg-gray-600"}
+              ${card.flipped || card.matched ? "bg-amber-800 text-white" : "bg-zinc-700 hover:bg-zinc-600"}
               transition-colors duration-300
             `}
             >
               {card.flipped || card.matched ? (
                 <div className="flex items-center justify-center h-full w-full">{renderCardIcon(card.type)}</div>
               ) : (
-                <div className="text-3xl text-gray-400">?</div>
+                <div className="text-3xl text-zinc-400">?</div>
               )}
             </Card>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 text-sm text-gray-400">
+      <div className="mt-6 text-sm text-zinc-400">
         <p>Find all matching pairs to progress through the dungeon.</p>
         <p>Complete all {maxDungeonLevel} levels to clear the dungeon and claim your reward!</p>
       </div>

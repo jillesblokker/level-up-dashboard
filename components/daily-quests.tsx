@@ -197,7 +197,7 @@ export function DailyQuests() {
   return (
     <div className="space-y-6">
       {/* Stats Header */}
-      <Card className="bg-black/80 border-amber-800/50 backdrop-blur-sm">
+      <Card className="bg-zinc-950 border-amber-800/50 ">
         <CardHeader>
           <CardTitle className="text-amber-500 flex items-center justify-between">
             <span>Daily Quests</span>

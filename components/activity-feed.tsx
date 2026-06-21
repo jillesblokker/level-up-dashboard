@@ -61,7 +61,7 @@ export function ActivityFeed() {
 
     if (loading && activities.length === 0) {
         return (
-            <Card className="h-full border-[#d4af37]/30 bg-black/40 backdrop-blur-sm">
+            <Card className="h-full border-[#d4af37]/30 bg-zinc-950 ">
                 <CardHeader>
                     <CardTitle className="text-[#d4af37] flex items-center gap-2">
                         <Scroll className="w-5 h-5" />
@@ -78,7 +78,7 @@ export function ActivityFeed() {
     }
 
     return (
-        <Card className="h-full border-[#d4af37]/30 bg-black/40 backdrop-blur-sm">
+        <Card className="h-full border-[#d4af37]/30 bg-zinc-950 ">
             <CardHeader className="pb-3 border-b border-[#d4af37]/10">
                 <CardTitle className="text-[#d4af37] flex items-center gap-2 text-lg">
                     <Scroll className="w-5 h-5" />
@@ -97,7 +97,7 @@ export function ActivityFeed() {
                                 <Zap className="w-4 h-4 text-[#d4af37]" />
                             </div>
                             <div className="flex-1 space-y-1">
-                                <p className="text-sm text-gray-200 leading-snug">
+                                <p className="text-sm text-zinc-200 leading-snug">
                                     <span className="font-bold text-[#f7e7ce]">{activity.user}</span> completed <span className="text-[#d4af37] font-medium">{activity.details}</span>
                                 </p>
                                 <p className="text-xs text-muted-foreground">

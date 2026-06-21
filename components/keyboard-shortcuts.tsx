@@ -132,7 +132,7 @@ export function KeyboardShortcutsHelp({ isOpen: propOpen, onOpenChange, trigger 
             <HelpCircle className="w-5 h-5" />
             Keyboard Shortcuts
           </DialogTitle>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Quick keyboard commands to navigate and perform actions faster
           </p>
         </DialogHeader>
@@ -143,9 +143,9 @@ export function KeyboardShortcutsHelp({ isOpen: propOpen, onOpenChange, trigger 
               <h3 className="text-lg font-semibold text-amber-400 mb-3">{category}</h3>
               <div className="grid gap-2">
                 {shortcuts.map((shortcut) => (
-                  <div key={shortcut.key} className="flex justify-between items-center p-2 bg-gray-800/50 rounded">
-                    <span className="text-gray-300">{shortcut.description}</span>
-                    <kbd className="px-2 py-1 bg-gray-700 text-gray-200 rounded text-sm font-mono">
+                  <div key={shortcut.key} className="flex justify-between items-center p-2 bg-zinc-800/50 rounded">
+                    <span className="text-zinc-300">{shortcut.description}</span>
+                    <kbd className="px-2 py-1 bg-zinc-700 text-zinc-200 rounded text-sm font-mono">
                       {shortcut.key}
                     </kbd>
                   </div>

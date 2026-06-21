@@ -124,7 +124,7 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
                     {gameState === 'playing' && questions[currentIndex] ? (
                         <div className="relative z-10 space-y-6 py-4">
                             {/* Current Fact Card */}
-                            <div className="bg-zinc-900/80 border border-purple-700/30 rounded-lg p-6 text-center shadow-inner">
+                            <div className="bg-zinc-900 border border-purple-700/30 rounded-lg p-6 text-center shadow-inner">
                                 <p className="text-lg font-medium text-zinc-100 leading-relaxed">
                                     {questions[currentIndex].fact}
                                 </p>

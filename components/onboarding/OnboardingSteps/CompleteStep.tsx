@@ -16,8 +16,8 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       icon: Star,
       title: 'Complete Quests',
       description: 'Earn gold and experience through daily tasks',
-      color: 'text-gray-400',
-      bgColor: 'bg-gray-500/20'
+      color: 'text-zinc-400',
+      bgColor: 'bg-zinc-500/20'
     },
     {
       icon: Coins,
@@ -59,7 +59,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
         <h3 className="text-2xl font-bold text-white">
           You&apos;re Ready!
         </h3>
-        <p className="text-gray-300 text-lg">
+        <p className="text-zinc-300 text-lg">
           You now understand the core gameplay loop. Your kingdom awaits!
         </p>
       </div>
@@ -71,7 +71,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
           {summaryItems.map((item, index) => {
             const Icon = item.icon
             return (
-              <Card key={index} className="bg-gray-800/50 border border-amber-800/20">
+              <Card key={index} className="bg-zinc-800/50 border border-amber-800/20">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
                     <div className={`w-10 h-10 ${item.bgColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
@@ -79,7 +79,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
                     </div>
                     <div>
                       <h5 className="font-semibold text-white mb-1">{item.title}</h5>
-                      <p className="text-sm text-gray-400">{item.description}</p>
+                      <p className="text-sm text-zinc-400">{item.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -100,7 +100,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
                   <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-xs font-bold text-black">{index + 1}</span>
                   </div>
-                  <span className="text-gray-300">{step}</span>
+                  <span className="text-zinc-300">{step}</span>
                 </div>
               ))}
             </div>
@@ -112,15 +112,15 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
       <div className="space-y-3">
         <h4 className="text-md font-semibold text-white">Pro Tips</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-500/10 border border-gray-500/20 rounded-lg p-3">
-            <h5 className="font-medium text-gray-400 mb-1">Daily Quests</h5>
-            <p className="text-sm text-gray-300">
+          <div className="bg-zinc-500/10 border border-zinc-500/20 rounded-lg p-3">
+            <h5 className="font-medium text-zinc-400 mb-1">Daily Quests</h5>
+            <p className="text-sm text-zinc-300">
               Complete quests daily to maintain a steady flow of gold and experience.
             </p>
           </div>
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Strategic Building</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Plan your kingdom layout carefully to maximize efficiency and aesthetics.
             </p>
           </div>
@@ -132,7 +132,7 @@ export function CompleteStep({ onNext }: CompleteStepProps) {
         <p className="text-amber-400 text-sm md:text-base">
           Use the &ldquo;Start Playing&rdquo; button below to begin your adventure
         </p>
-        <p className="text-sm text-gray-400 mt-2">
+        <p className="text-sm text-zinc-400 mt-2">
           You can always access this tutorial again from the settings menu
         </p>
       </div>

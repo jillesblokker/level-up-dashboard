@@ -41,14 +41,14 @@ interface QuestCardProps {
 
 const difficultyConfig = {
   easy: { color: 'bg-amber-500', icon: Target, label: 'Easy' },
-  medium: { color: 'bg-gray-500', icon: Shield, label: 'Medium' },
+  medium: { color: 'bg-zinc-500', icon: Shield, label: 'Medium' },
   hard: { color: 'bg-amber-600', icon: Sword, label: 'Hard' },
   epic: { color: 'bg-amber-700', icon: Trophy, label: 'Epic' }
 }
 
 const categoryConfig = {
   'physical': { icon: Heart, color: 'text-amber-400' },
-  'mental': { icon: BookOpen, color: 'text-gray-400' },
+  'mental': { icon: BookOpen, color: 'text-zinc-400' },
   'social': { icon: Star, color: 'text-amber-500' },
   'creative': { icon: Zap, color: 'text-amber-400' },
   'productivity': { icon: Target, color: 'text-amber-400' }
@@ -97,7 +97,7 @@ export default function QuestCard({
   }
 
   const difficultyInfo = difficultyConfig[difficulty]
-  const categoryInfo = categoryConfig[category as keyof typeof categoryConfig] || { icon: Target, color: 'text-gray-400' }
+  const categoryInfo = categoryConfig[category as keyof typeof categoryConfig] || { icon: Target, color: 'text-zinc-400' }
   const CategoryIcon = categoryInfo.icon
   const DifficultyIcon = difficultyInfo.icon
 
@@ -147,12 +147,12 @@ export default function QuestCard({
             "hover:scale-110 hover:shadow-lg",
             status === 'completed'
               ? "bg-green-500 border-green-500 text-white"
-              : "bg-transparent border-gray-400 text-transparent hover:border-amber-400"
+              : "bg-transparent border-zinc-400 text-transparent hover:border-amber-400"
           )}>
             {status === 'completed' ? (
               <CheckCircle className="h-4 w-4" />
             ) : (
-              <div className="w-3 h-3 rounded border border-gray-400" />
+              <div className="w-3 h-3 rounded border border-zinc-400" />
             )}
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function QuestCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-blue-400 hover:text-blue-300 bg-black/50 hover:bg-black/70 rounded-full"
+              className="h-6 w-6 text-blue-400 hover:text-blue-300 bg-zinc-950 hover:bg-zinc-950 rounded-full"
               aria-label={`Duplicate quest: ${title}`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -177,7 +177,7 @@ export default function QuestCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-gray-500 hover:text-amber-500 bg-black/50 hover:bg-black/70 rounded-full"
+              className="h-6 w-6 text-zinc-500 hover:text-amber-500 bg-zinc-950 hover:bg-zinc-950 rounded-full"
               aria-label={`Edit quest: ${title}`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -190,7 +190,7 @@ export default function QuestCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-red-500 hover:text-red-400 bg-black/50 hover:bg-black/70 rounded-full"
+              className="h-6 w-6 text-red-500 hover:text-red-400 bg-zinc-950 hover:bg-zinc-950 rounded-full"
               aria-label={`Delete quest: ${title}`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -237,7 +237,7 @@ export default function QuestCard({
                   Sent by {senderName}
                 </p>
               )}
-              <div className="text-gray-400 mt-1 text-sm leading-relaxed h-[3em] overflow-hidden relative">
+              <div className="text-zinc-400 mt-1 text-sm leading-relaxed h-[3em] overflow-hidden relative">
                 <MarkdownRenderer content={description} />
                 <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black to-transparent" />
               </div>
@@ -272,21 +272,21 @@ export default function QuestCard({
           {/* Progress Section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Progress</span>
+              <span className="text-zinc-400">Progress</span>
               <span className="text-amber-400 font-semibold">
                 {progress} / {maxProgress}
               </span>
             </div>
             <Progress
               value={progressPercentage}
-              className="h-2 bg-gray-700"
+              className="h-2 bg-zinc-700"
             />
           </div>
 
           {/* Time Remaining */}
           {timeRemaining && (
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs text-gray-400">
+              <div className="flex items-center gap-1 text-xs text-zinc-400">
                 <Clock className="h-3 w-3" />
                 <span>{timeRemaining}</span>
               </div>
@@ -295,7 +295,7 @@ export default function QuestCard({
 
           {/* Rewards */}
           <div className="space-y-2">
-            <div className="text-sm text-gray-400">Rewards</div>
+            <div className="text-sm text-zinc-400">Rewards</div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 text-amber-400">
                 <Star className="h-4 w-4" />
@@ -345,7 +345,7 @@ export default function QuestCard({
                   ? "bg-green-600 hover:bg-green-700 text-white"
                   : status === 'in-progress'
                     ? "bg-amber-600 hover:bg-amber-700 text-white"
-                    : "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-zinc-700 hover:bg-zinc-600 text-white"
               )}
               onClick={(e) => {
                 e.stopPropagation()

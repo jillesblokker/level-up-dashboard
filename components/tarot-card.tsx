@@ -44,13 +44,13 @@ export function TarotCardDisplay() {
     const hasDrawn = hasDrawnCardToday();
 
     const rarityColors = {
-        common: 'from-gray-700 to-gray-900 border-gray-600',
+        common: 'from-zinc-700 to-zinc-900 border-zinc-600',
         rare: 'from-blue-700 to-blue-900 border-blue-500',
         epic: 'from-purple-700 to-purple-900 border-purple-500'
     };
 
     return (
-        <Card className="bg-gradient-to-br from-slate-900 to-slate-950 border-amber-800/40 shadow-xl overflow-hidden">
+        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-amber-800/40 shadow-xl overflow-hidden">
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-amber-500">
@@ -115,7 +115,7 @@ export function TarotCardDisplay() {
                             <div className="absolute top-2 right-2">
                                 <span className={cn(
                                     "text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider",
-                                    activeCard.rarity === 'common' && "bg-gray-600 text-gray-100",
+                                    activeCard.rarity === 'common' && "bg-zinc-600 text-zinc-100",
                                     activeCard.rarity === 'rare' && "bg-blue-600 text-blue-100",
                                     activeCard.rarity === 'epic' && "bg-purple-600 text-purple-100"
                                 )}>
@@ -130,7 +130,7 @@ export function TarotCardDisplay() {
                                 <p className="text-sm text-white/70 italic">&ldquo;{activeCard.description}&rdquo;</p>
 
                                 {/* Effect Display */}
-                                <div className="mt-4 p-3 bg-black/30 rounded-lg border border-white/10">
+                                <div className="mt-4 p-3 bg-zinc-950 rounded-lg border border-white/10">
                                     <p className="text-amber-300 font-bold text-sm">
                                         ✨ {activeCard.effect.message}
                                     </p>

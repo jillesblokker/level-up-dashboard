@@ -69,7 +69,7 @@ export function Leaderboard() {
   };
 
   return (
-    <Card className="w-full bg-black/40 border-amber-900/50 text-amber-100 flex flex-col h-full min-h-[500px]">
+    <Card className="w-full bg-zinc-950 border-amber-900/50 text-amber-100 flex flex-col h-full min-h-[500px]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -86,7 +86,7 @@ export function Leaderboard() {
       </CardHeader>
       <CardContent className="flex-grow flex flex-col">
         <Tabs defaultValue="experience" className="w-full flex-grow flex flex-col" onValueChange={setCategory}>
-          <TabsList className="grid w-full grid-cols-6 bg-black/60 border border-amber-900/30">
+          <TabsList className="grid w-full grid-cols-6 bg-zinc-950 border border-amber-900/30">
             <TabsTrigger value="experience" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.xp}</TabsTrigger>
             <TabsTrigger value="gold" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.gold}</TabsTrigger>
             <TabsTrigger value="tiles" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.tiles}</TabsTrigger>
@@ -119,16 +119,16 @@ export function Leaderboard() {
                         "flex items-center justify-between p-3 rounded-lg border transition-all duration-200",
                         entry.userId === user?.id
                           ? "bg-amber-900/30 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-                          : "bg-black/20 border-white/5 hover:bg-white/5 hover:border-amber-900/30"
+                          : "bg-zinc-950 border-white/5 hover:bg-white/5 hover:border-amber-900/30"
                       )}
                     >
                       <div className="flex items-center gap-4">
                         <div className={cn(
                           "flex items-center justify-center w-8 h-8 rounded-full font-bold font-mono shadow-inner",
                           entry.rank === 1 ? "bg-gradient-to-br from-yellow-300 to-yellow-600 text-black border border-yellow-200" :
-                            entry.rank === 2 ? "bg-gradient-to-br from-gray-300 to-gray-500 text-black border border-gray-200" :
+                            entry.rank === 2 ? "bg-gradient-to-br from-zinc-300 to-zinc-500 text-black border border-zinc-200" :
                               entry.rank === 3 ? "bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 border border-amber-500" :
-                                "bg-white/5 text-gray-500 border border-white/5"
+                                "bg-white/5 text-zinc-500 border border-white/5"
                         )}>
                           {entry.rank}
                         </div>
@@ -146,7 +146,7 @@ export function Leaderboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="font-mono font-bold text-amber-200/90 bg-black/40 px-3 py-1 rounded border border-white/5 min-w-[80px] text-right">
+                      <div className="font-mono font-bold text-amber-200/90 bg-zinc-950 px-3 py-1 rounded border border-white/5 min-w-[80px] text-right">
                         {entry.formattedValue}
                       </div>
                     </div>

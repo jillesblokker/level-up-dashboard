@@ -91,8 +91,8 @@ export function OptimizedImage({
     <div className={cn('relative', className)}>
       {/* Loading state */}
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-zinc-300 border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
 
@@ -177,7 +177,7 @@ export function KingdomTileImage({
   const getRarityBorder = () => {
     switch (rarity) {
       case 'common':
-        return 'border-gray-500/30';
+        return 'border-zinc-500/30';
       case 'uncommon':
         return 'border-green-500/30';
       case 'rare':
@@ -187,7 +187,7 @@ export function KingdomTileImage({
       case 'legendary':
         return 'border-yellow-500/30';
       default:
-        return 'border-gray-500/30';
+        return 'border-zinc-500/30';
     }
   };
 

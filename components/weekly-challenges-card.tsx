@@ -25,7 +25,7 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
   if (!user?.id || challenges.length === 0) return null
 
   return (
-    <Card className="bg-black/60 border-orange-900/40 backdrop-blur-sm overflow-hidden mb-8">
+    <Card className="bg-zinc-950 border-orange-900/40  overflow-hidden mb-8">
       <CardHeader className="pb-3 border-b border-orange-900/20 bg-orange-950/10">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-bold text-orange-500 font-medieval flex items-center gap-2">
@@ -42,7 +42,7 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
           const isDone = progress >= challenge.targetCount
 
           return (
-            <div key={challenge.id} className="bg-black/40 border border-orange-900/20 rounded-xl p-4 flex flex-col relative overflow-hidden group hover:border-orange-500/30 transition-colors">
+            <div key={challenge.id} className="bg-zinc-950 border border-orange-900/20 rounded-xl p-4 flex flex-col relative overflow-hidden group hover:border-orange-500/30 transition-colors">
               {isDone && (
                 <div className="absolute inset-0 bg-green-950/20 z-0" />
               )}
@@ -58,7 +58,7 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 mb-4">{challenge.description}</p>
+                <p className="text-xs text-zinc-400 mb-4">{challenge.description}</p>
               </div>
 
               <div className="relative z-10 mt-auto">
@@ -71,7 +71,7 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
                 )}
                 
                 <div className="flex items-center gap-2 text-[10px] font-bold">
-                  <span className="text-gray-500 uppercase">Reward:</span>
+                  <span className="text-zinc-500 uppercase">Reward:</span>
                   <span className="text-blue-400">+{challenge.rewardXP} XP</span>
                   <span className="text-yellow-500">+{challenge.rewardGold} Gold</span>
                 </div>

@@ -57,7 +57,7 @@ export function TileStep({ onNext }: TileStepProps) {
           <span className="text-xl md:text-2xl font-bold text-amber-400">{goldBalance}</span>
           <span className="text-amber-400">gold</span>
         </div>
-        <p className="text-sm text-gray-400">Use your gold to buy tiles</p>
+        <p className="text-sm text-zinc-400">Use your gold to buy tiles</p>
       </div>
 
       {/* Tile Inventory */}
@@ -70,7 +70,7 @@ export function TileStep({ onNext }: TileStepProps) {
               role="button"
               tabIndex={0}
               aria-label={`${tile.name} tile, costs ${tile.cost} gold, quantity ${tile.quantity}`}
-              className={`bg-gray-800/50 border transition-all duration-300 cursor-pointer ${selectedTile === tile.id
+              className={`bg-zinc-800/50 border transition-all duration-300 cursor-pointer ${selectedTile === tile.id
                 ? 'border-amber-500 bg-amber-500/10'
                 : 'border-amber-800/20 hover:border-amber-500/40'
                 }`}
@@ -84,7 +84,7 @@ export function TileStep({ onNext }: TileStepProps) {
             >
               <CardContent className="p-3 md:p-4">
                 <div className="text-center space-y-2 md:space-y-3">
-                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-lg flex items-center justify-center overflow-hidden">
                     <img
                       src={`/images/tiles/${tile.id}-tile.webp`}
                       alt={tile.name}
@@ -140,11 +140,11 @@ export function TileStep({ onNext }: TileStepProps) {
 
       {/* Tile Placement Demo */}
       {selectedTile && (
-        <Card className="bg-gray-800/50 border border-amber-500/40">
+        <Card className="bg-zinc-800/50 border border-amber-500/40">
           <CardContent className="p-4">
             <div className="text-center space-y-3">
               <h4 className="font-semibold text-white">Place Your Tile</h4>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-zinc-300">
                 Click the button below to place your selected tile in your kingdom
               </p>
               <Button
@@ -164,13 +164,13 @@ export function TileStep({ onNext }: TileStepProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-white">
             <h5 className="font-medium text-amber-400 mb-1">Buying Tiles</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Use gold to purchase tiles from the inventory. Different tiles have different costs.
             </p>
           </div>
           <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
             <h5 className="font-medium text-amber-400 mb-1">Placing Tiles</h5>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-zinc-300">
               Place tiles in your kingdom to build and expand your realm. Each tile adds to your kingdom.
             </p>
           </div>
@@ -179,7 +179,7 @@ export function TileStep({ onNext }: TileStepProps) {
 
       {/* Interactive Instructions */}
       <div className="text-center space-y-2">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-zinc-400">
           Try buying a tile and then placing it in your kingdom!
         </p>
         {tileInventory.some(t => t.quantity > 0) && (

@@ -43,13 +43,13 @@ export default function WorldMapPage() {
 
         <section className="section mountain">
           <div className="content-container transform hover:scale-105 transition-transform duration-300">
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-stone-600 rounded-full p-4 shadow-lg">
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-zinc-600 rounded-full p-4 shadow-lg">
               <Mountain className="h-8 w-8 text-white" />
             </div>
             <h2 className="mt-4">{TEXT_CONTENT.worldMap.mountain.title}</h2>
             <p className="mb-6">{TEXT_CONTENT.worldMap.mountain.desc}</p>
             <Link href="/mountain">
-              <Button className="bg-stone-600 hover:bg-stone-700 text-white">
+              <Button className="bg-zinc-600 hover:bg-zinc-700 text-white">
                 {TEXT_CONTENT.worldMap.mountain.button}
               </Button>
             </Link>

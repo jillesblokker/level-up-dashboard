@@ -134,7 +134,7 @@ export function MedievalHelpModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-zinc-950  z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl bg-gradient-to-br from-amber-900 to-amber-800 border border-amber-600/30 shadow-2xl">
         <CardHeader className="border-b border-amber-700/30">
           <div className="flex items-center justify-between">

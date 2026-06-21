@@ -1223,7 +1223,7 @@ function RealmPageContent() {
             "relative min-h-screen"
         )}>
             {isVisiting && (
-                <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-slate-900/90 text-white px-6 py-3 rounded-2xl border-2 border-amber-500/30 backdrop-blur-xl shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-zinc-900 text-white px-6 py-3 rounded-2xl border-2 border-amber-500/30  shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
                     <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
                         <Users className="w-6 h-6 text-amber-500" />
                     </div>
@@ -1278,7 +1278,7 @@ function RealmPageContent() {
             >
                 {/* Top Toolbar */}
                 {!isVisiting && (
-                    <div className="flex items-center justify-between bg-gray-800 z-30 overflow-visible">
+                    <div className="flex items-center justify-between bg-zinc-800 z-30 overflow-visible">
                         {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                         <div className="flex flex-1 flex-col gap-2 overflow-visible">
                             {/* Main Action Buttons - Always visible */}
@@ -1291,7 +1291,7 @@ function RealmPageContent() {
                                         "flex items-center gap-2 min-w-[44px] min-h-[44px]",
                                         gameMode === 'move'
                                             ? "bg-blue-500 text-white hover:bg-blue-600"
-                                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                            : "bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
                                     )}
                                     aria-label="movement-mode-button"
                                 >
@@ -1306,7 +1306,7 @@ function RealmPageContent() {
                                         "flex items-center gap-2 min-w-[44px] min-h-[44px]",
                                         gameMode === 'build'
                                             ? "bg-amber-500 text-white hover:bg-amber-600"
-                                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                            : "bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
                                     )}
                                     aria-label="build-mode-button"
                                 >
@@ -1321,7 +1321,7 @@ function RealmPageContent() {
                                         "flex items-center gap-2 min-w-[44px] min-h-[44px] md:hidden",
                                         gameMode === 'destroy'
                                             ? "bg-red-500 text-white hover:bg-red-600"
-                                            : "bg-gray-800 text-white hover:bg-gray-700 border-gray-600"
+                                            : "bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
                                     )}
                                     aria-label="destroy-mode-button"
                                 >
@@ -1349,7 +1349,7 @@ function RealmPageContent() {
                                     </TooltipTrigger>
                                     <TooltipContent
                                         side="top"
-                                        className="bg-gray-900 text-white border-amber-800/30"
+                                        className="bg-zinc-900 text-white border-amber-800/30"
                                     >
                                         {canExpand
                                             ? TEXT_CONTENT.realm.modes.expandTooltip
@@ -1358,13 +1358,13 @@ function RealmPageContent() {
                                 </Tooltip>
 
                                 {selectedTile && (
-                                    <div className="hidden sm:flex items-center gap-3 bg-gray-900 border border-amber-500/30 rounded-lg px-3 py-1 mr-1 shadow-inner shadow-black/50 animate-in fade-in zoom-in-95 duration-200">
+                                    <div className="hidden sm:flex items-center gap-3 bg-zinc-900 border border-amber-500/30 rounded-lg px-3 py-1 mr-1 shadow-inner shadow-black/50 animate-in fade-in zoom-in-95 duration-200">
                                         <div className="flex flex-col items-start min-w-[60px]">
-                                            <span className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">{TEXT_CONTENT.realm.modes.selected}</span>
+                                            <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-semibold">{TEXT_CONTENT.realm.modes.selected}</span>
                                             <span className="text-xs font-bold text-amber-400 truncate max-w-[100px]">{selectedTile.name}</span>
                                         </div>
-                                        <div className="h-6 w-px bg-gray-700 mx-1"></div>
-                                        <div className="text-xs font-mono text-gray-300">
+                                        <div className="h-6 w-px bg-zinc-700 mx-1"></div>
+                                        <div className="text-xs font-mono text-zinc-300">
                                             x{selectedTile.quantity ?? 0}
                                         </div>
                                     </div>
@@ -1438,7 +1438,7 @@ function RealmPageContent() {
                     />
                 )}
                 {/* Map Area - Restored to fixed to ensure original rendering logic works */}
-                <div className="fixed inset-0 top-[60px] z-0 bg-gray-900">
+                <div className="fixed inset-0 top-[60px] z-0 bg-zinc-900">
                     <MapGrid
                         grid={grid}
                         playerPosition={characterPosition}
@@ -1463,13 +1463,13 @@ function RealmPageContent() {
                 </div>
                 {/* Overlay Inventory Panel */}
                 <Sheet open={showInventory} onOpenChange={setShowInventory} modal={false}>
-                    <SheetContent side="right" className="w-full sm:w-[500px] bg-gray-900/95 border-gray-700 p-0 overflow-hidden flex flex-col z-[50]">
-                        <SheetHeader className="px-6 py-4 border-b border-gray-800 bg-gray-900 text-left shrink-0">
+                    <SheetContent side="right" className="w-full sm:w-[500px] bg-zinc-900/95 border-zinc-700 p-0 overflow-hidden flex flex-col z-[50]">
+                        <SheetHeader className="px-6 py-4 border-b border-zinc-800 bg-zinc-900 text-left shrink-0">
                             <SheetTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
                                 <span className="text-3xl">🏰</span>
                                 {TEXT_CONTENT.realm.inventory.title}
                             </SheetTitle>
-                            <SheetDescription className="text-gray-400">
+                            <SheetDescription className="text-zinc-400">
                                 {TEXT_CONTENT.realm.inventory.desc}
                             </SheetDescription>
                         </SheetHeader>
@@ -1508,7 +1508,7 @@ function RealmPageContent() {
                             {!castleEvent.result ? (
                                 <div className="flex flex-col items-center space-y-4">
                                     <div className="h-16 flex items-center justify-center">
-                                        <div className="w-16 h-16 flex items-center justify-center rounded-lg border-4 border-amber-700 bg-gray-900 text-4xl font-bold text-amber-400 select-none" style={{ transition: 'background 0.2s' }}>
+                                        <div className="w-16 h-16 flex items-center justify-center rounded-lg border-4 border-amber-700 bg-zinc-900 text-4xl font-bold text-amber-400 select-none" style={{ transition: 'background 0.2s' }}>
                                             {castleDiceRolling
                                                 ? Math.ceil(Math.random() * 6)
                                                 : castleDiceValue || 1}
@@ -1699,7 +1699,7 @@ function RealmPageContent() {
                 {/* Passive Rewards Treasury UI */}
                 {passiveRewards && (passiveRewards.gold > 0 || passiveRewards.xp > 0) && (
                     <div className="fixed top-24 right-4 z-40 animate-in slide-in-from-right-5 fade-in duration-500">
-                        <Card className="bg-gradient-to-br from-gray-900 to-amber-950/80 border-amber-500/50 shadow-xl shadow-amber-900/20 backdrop-blur-md w-64 overflow-hidden group hover:scale-105 transition-transform duration-300">
+                        <Card className="bg-gradient-to-br from-zinc-900 to-amber-950/80 border-amber-500/50 shadow-xl shadow-amber-900/20  w-64 overflow-hidden group hover:scale-105 transition-transform duration-300">
                             <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-50 animate-pulse" />
                             <CardContent className="p-4 relative">
                                 <div className="flex items-center justify-between mb-2">
@@ -1714,11 +1714,11 @@ function RealmPageContent() {
                                     </div>
 
                                     <div className="flex gap-3">
-                                        <div className="flex-1 bg-black/40 rounded p-2 border border-amber-500/20 flex flex-col items-center">
+                                        <div className="flex-1 bg-zinc-950 rounded p-2 border border-amber-500/20 flex flex-col items-center">
                                             <span className="text-xl font-bold text-amber-400">{passiveRewards.gold}</span>
                                             <span className="text-[10px] text-amber-500/70 uppercase">{TEXT_CONTENT.realm.treasury.gold}</span>
                                         </div>
-                                        <div className="flex-1 bg-black/40 rounded p-2 border border-blue-500/20 flex flex-col items-center">
+                                        <div className="flex-1 bg-zinc-950 rounded p-2 border border-blue-500/20 flex flex-col items-center">
                                             <span className="text-xl font-bold text-blue-400">{passiveRewards.xp}</span>
                                             <span className="text-[10px] text-blue-500/70 uppercase">{TEXT_CONTENT.realm.treasury.xp}</span>
                                         </div>

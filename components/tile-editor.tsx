@@ -179,7 +179,7 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
                       fill
                       className="object-cover"
                     />
-                    <Badge className="absolute top-2 right-2 bg-black/70" aria-label={`${tile.type} tile type`}>{tile.type}</Badge>
+                    <Badge className="absolute top-2 right-2 bg-zinc-950" aria-label={`${tile.type} tile type`}>{tile.type}</Badge>
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold">{tile.name}</h3>

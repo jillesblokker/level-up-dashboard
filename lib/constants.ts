@@ -155,9 +155,9 @@ export type RarityLevel = typeof RARITY_LEVELS[keyof typeof RARITY_LEVELS];
 
 export const RARITY_COLORS: Record<RarityLevel, { bg: string; text: string; border: string }> = {
     [RARITY_LEVELS.COMMON]: {
-        bg: 'bg-gray-700',
-        text: 'text-gray-300',
-        border: 'border-gray-600'
+        bg: 'bg-zinc-700',
+        text: 'text-zinc-300',
+        border: 'border-zinc-600'
     },
     [RARITY_LEVELS.UNCOMMON]: {
         bg: 'bg-green-900/50',
