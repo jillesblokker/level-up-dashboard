@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, animate } from "framer-motion";
 
 interface AnimatedNumberProps {
   value: number;
@@ -12,24 +12,20 @@ interface AnimatedNumberProps {
 
 export function AnimatedNumber({ value, formatFn, className, title }: AnimatedNumberProps) {
   const [displayValue, setDisplayValue] = useState(value);
-  
-  // A snappy but lightweight spring config
-  const springValue = useSpring(value, { 
-    stiffness: 150, 
-    damping: 20, 
-    mass: 1 
-  });
+  const prevValueRef = useRef(value);
 
   useEffect(() => {
-    springValue.set(value);
-  }, [value, springValue]);
-
-  useEffect(() => {
-    return springValue.on("change", (latest) => {
-      // Round to nearest integer to prevent floating point decimals showing up
-      setDisplayValue(Math.round(latest));
+    const controls = animate(prevValueRef.current, value, {
+      duration: 0.5,
+      ease: "easeOut",
+      onUpdate(v) {
+        setDisplayValue(Math.round(v));
+      }
     });
-  }, [springValue]);
+    
+    prevValueRef.current = value;
+    return () => controls.stop();
+  }, [value]);
 
   const formatted = formatFn ? formatFn(displayValue) : displayValue;
 

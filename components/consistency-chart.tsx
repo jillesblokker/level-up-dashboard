@@ -42,8 +42,8 @@ export function ConsistencyChart() {
         <CardTitle className="text-lg font-bold text-amber-500 font-medieval tracking-wide">7-Day Consistency</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[200px] w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[200px] w-full mt-4" style={{ minHeight: '200px' }}>
+          <ResponsiveContainer width="99%" height="100%">
             <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
               <XAxis 
