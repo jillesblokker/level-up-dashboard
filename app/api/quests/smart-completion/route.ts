@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { grantReward } from '@/app/api/kingdom/grantReward';
 
 // This endpoint is used by the "Bulk Complete All" feature in the frontend.
 // It handles marking a quest as complete intelligently (checking for existing completions, etc.)
@@ -97,6 +98,13 @@ export async function POST(req: NextRequest) {
                     throw insertError;
                 }
 
+                try {
+                    await grantReward({ userId, type: 'challenge', relatedId: questId, amount: rewards.xp, context: { gold: rewards.gold } });
+                    await grantReward({ userId, type: 'gold', relatedId: questId, amount: rewards.gold, context: { xp: rewards.xp } });
+                } catch (rewardError) {
+                    logger.error('[Smart Completion] Error granting rewards for challenge:', rewardError);
+                }
+
                 return { success: true, completed: true, rewards };
             }
 
@@ -152,11 +160,12 @@ export async function POST(req: NextRequest) {
             }
 
             // 4. Update Character Stats
-            await supabase.rpc('grant_rewards', {
-                p_user_id: userId,
-                p_gold: finalRewards.gold,
-                p_xp: finalRewards.xp
-            });
+            try {
+                await grantReward({ userId, type: 'quest', relatedId: questId, amount: finalRewards.xp, context: { gold: finalRewards.gold } });
+                await grantReward({ userId, type: 'gold', relatedId: questId, amount: finalRewards.gold, context: { xp: finalRewards.xp } });
+            } catch (rewardError) {
+                logger.error('[Smart Completion] Error granting rewards for quest:', rewardError);
+            }
 
             // 5. Material Scavenging (30% chance)
             let scavengedMaterial = null;
