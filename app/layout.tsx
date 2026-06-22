@@ -137,6 +137,22 @@ export default function RootLayout({
                     navigator.serviceWorker.register('/sw.js')
                       .then(function(registration) {
                         console.log('SW registered: ', registration);
+                        
+                        // Force update check
+                        registration.update();
+                        
+                        registration.addEventListener('updatefound', () => {
+                          const newWorker = registration.installing;
+                          if (newWorker) {
+                            newWorker.addEventListener('statechange', () => {
+                              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New update available, clear caches and reload
+                                console.log('New update available, reloading...');
+                                window.location.reload();
+                              }
+                            });
+                          }
+                        });
                       })
                       .catch(function(registrationError) {
                         console.log('SW registration failed: ', registrationError);
