@@ -34,7 +34,6 @@ export async function GET(request: Request) {
         const completion = completionMap.get(String(m.id));
         return {
           ...m,
-          experience: m.xp,
           completed: completion?.completed ?? false,
           completionId: completion?.id,
           date: completion?.date,
@@ -81,7 +80,7 @@ export async function POST(request: Request) {
             description: description || name,
             category,
             difficulty: difficulty || 'medium',
-            xp: rewards.xp,
+            experience: rewards.xp,
             gold: rewards.gold,
             target: target || 1,
             icon: icon || '🎯',
@@ -229,7 +228,7 @@ export async function PATCH(request: Request) {
           description: description || undefined,
           category: category || undefined,
           difficulty: difficulty || undefined,
-          xp: difficulty ? calculateRewards(difficulty).xp : undefined,
+          experience: difficulty ? calculateRewards(difficulty).xp : undefined,
           gold: difficulty ? calculateRewards(difficulty).gold : undefined,
           target: target || undefined,
           unit: unit || undefined,

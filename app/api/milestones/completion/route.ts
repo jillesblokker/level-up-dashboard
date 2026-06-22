@@ -63,7 +63,7 @@ export async function PUT(request: Request) {
     if (completed) {
       const { data: milestone, error: milestoneError } = await supabaseServer
         .from('milestones')
-        .select('id, name, xp, gold, category')
+        .select('id, name, experience, gold, category')
         .eq('id', milestoneId)
         .single();
       if (milestoneError || !milestone) {
@@ -72,12 +72,12 @@ export async function PUT(request: Request) {
       }
       
       // Grant rewards for milestone completion
-      if (milestone.xp && milestone.xp > 0) {
+      if (milestone.experience && milestone.experience > 0) {
         await grantReward({
           userId,
           type: 'exp',
           relatedId: milestoneId,
-          amount: milestone.xp,
+          amount: milestone.experience,
           context: { gold: milestone.gold || 0, source: 'milestone_completion' }
         });
         
@@ -119,7 +119,7 @@ export async function PUT(request: Request) {
           type: 'gold',
           relatedId: milestoneId,
           amount: milestone.gold,
-          context: { xp: milestone.xp || 0, source: 'milestone_completion' }
+          context: { xp: milestone.experience || 0, source: 'milestone_completion' }
         });
       }
     }

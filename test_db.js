@@ -1,12 +1,19 @@
 const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const fs = require('fs');
+const env = fs.readFileSync('.env', 'utf8').split('\n').reduce((acc, line) => {
+  const match = line.match(/^([^=]+)=(.*)$/);
+  if (match) acc[match[1]] = match[2].trim().replace(/^"|"$/g, '');
+  return acc;
+}, {});
+
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function test() {
-  const { data, error } = await supabase.from('kingdom_grid').select('grid_data').eq('user_id', 'user_2z5XXhrBfLdbU0P6AUCBco0CJWC').single();
-  if (data && data.grid_data) {
-    console.log(JSON.stringify(data.grid_data[0], null, 2));
-    console.log("...");
-    console.log(JSON.stringify(data.grid_data.find(t => t.id === 'castle-1-0-1-0'), null, 2));
-  }
+  const { data, error } = await supabase
+    .from('milestones')
+    .select('*')
+    .limit(1);
+  console.log('Milestone columns:', Object.keys(data[0] || {}));
 }
+
 test();
