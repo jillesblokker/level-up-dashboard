@@ -1962,6 +1962,30 @@ export default function QuestsPage() {
       addToCharacterStat('gold', goldReward, `milestone-completion:${milestoneId}`);
       addToCharacterStat('experience', xpReward, `milestone-completion:${milestoneId}`);
 
+      // Apply essence reward based on category
+      const category = (milestoneObj.category || '').toLowerCase();
+      let essenceType: 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
+      switch (category) {
+        case 'might':
+        case 'vitality':
+          essenceType = 'ember_essence';
+          break;
+        case 'knowledge':
+        case 'exploration':
+          essenceType = 'frost_essence';
+          break;
+        case 'wellness':
+        case 'honor':
+          essenceType = 'tide_essence';
+          break;
+        case 'craft':
+        case 'castle':
+        default:
+          essenceType = 'verdant_essence';
+          break;
+      }
+      addToCharacterStat(essenceType, 1, `milestone-completion:${milestoneId}`);
+
       // Show success toast with rewards
       toast({
         title: TEXT_CONTENT.questBoard.toasts.completion.milestone.title,
@@ -1982,7 +2006,15 @@ export default function QuestsPage() {
 
     // Persist milestone completion to backend
     try {
-      const response = await fetch('/api/milestones', {
+      // First ensure the completion row exists
+      await fetch('/api/milestones/completion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ milestoneId }),
+      });
+      
+      // Then update the completion status (this grants rewards on the server)
+      const response = await fetch('/api/milestones/completion', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1995,7 +2027,7 @@ export default function QuestsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update milestone');
+        throw new Error('Failed to update milestone completion');
       }
 
       logger.debug('[MILESTONE-TOGGLE] Milestone persisted to backend successfully');
