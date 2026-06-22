@@ -25,7 +25,7 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
   if (!user?.id || challenges.length === 0) return null
 
   return (
-    <Card className="bg-zinc-950 border-orange-900/40  overflow-hidden mb-8">
+    <Card className="bg-zinc-950 border-orange-900/40 overflow-hidden h-full flex flex-col">
       <CardHeader className="pb-3 border-b border-orange-900/20 bg-orange-950/10">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-bold text-orange-500 font-medieval flex items-center gap-2">

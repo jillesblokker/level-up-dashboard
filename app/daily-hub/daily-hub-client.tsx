@@ -462,7 +462,7 @@ export function DailyHubClient() {
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                 >
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 h-full">
                         <WeeklyChallengesCard quests={favoritedQuests} weeklyGoldEarned={weeklyGoldEarned} />
                     </div>
                     
