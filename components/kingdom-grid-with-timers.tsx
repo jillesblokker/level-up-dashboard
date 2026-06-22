@@ -1922,7 +1922,7 @@ export function KingdomGridWithTimers({
         />
         <div 
           className={cn(
-            "absolute inset-0 pointer-events-none z-10 bg-zinc-900 mix-blend-multiply transition-opacity duration-1000 ease-in-out shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]",
+            "absolute inset-0 pointer-events-none z-10 bg-slate-900/50 transition-opacity duration-1000 ease-in-out shadow-[inset_0_0_100px_rgba(0,0,0,0.7)]",
             momentumState === 'low' ? "opacity-100" : "opacity-0"
           )}
         />
