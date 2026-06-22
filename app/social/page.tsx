@@ -173,7 +173,7 @@ export default function AlliesPage() {
     if (!isLoaded || isLoading) return <SocialLoading />;
 
 
-    const fetchMyStats = async () => {
+    async function fetchMyStats() {
         if (!user?.id) return;
         try {
             const res = await fetch(`/api/friends/stats?friendId=${user.id}`);
@@ -195,7 +195,7 @@ export default function AlliesPage() {
                 milestones: { total: 0, breakdown: {} }
             });
         }
-    };
+    }
 
     const handleImageUpload = async (file: File) => {
         const reader = new FileReader();
@@ -209,7 +209,7 @@ export default function AlliesPage() {
         reader.readAsDataURL(file);
     };
 
-    const fetchFriends = async () => {
+    async function fetchFriends() {
         try {
             const res = await fetch('/api/friends');
             const data = await res.json();
@@ -222,7 +222,7 @@ export default function AlliesPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     const handleSearch = async () => {
         if (searchQuery.length < 3) return;
