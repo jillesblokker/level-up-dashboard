@@ -236,9 +236,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       <div className="absolute inset-0 bg-black" />
 
       {/* Main content */}
-      <div className="relative z-10 text-center w-full max-w-sm mx-auto">
+      <div className="relative z-10 text-center w-full px-4 mx-auto">
         {/* Original image */}
-        <div className="relative mb-8 h-[200px] w-full">
+        <div className="relative mb-8 w-full aspect-[4/5] max-h-[45vh]">
           <Image
             src="/images/Notifications/no-mail.webp"
             alt="No mail"
