@@ -111,3 +111,5 @@ export function ActivityFeed() {
         </Card>
     );
 }
+
+export default ActivityFeed;

@@ -43,15 +43,15 @@ function TavernBannerIcon(props: any) {
 }
 
 // Import Social Components dynamically to avoid initialization order issues
-const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard").then(mod => mod.AllianceDashboard), { 
+const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"), { 
   ssr: false,
   loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Alliance Data...</div>
 })
-const Leaderboard = dynamic(() => import("@/components/leaderboard").then(mod => mod.Leaderboard), { 
+const Leaderboard = dynamic(() => import("@/components/leaderboard"), { 
   ssr: false,
   loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Leaderboards...</div>
 })
-const AlliesDashboard = dynamic(() => import("@/components/allies-dashboard").then(mod => mod.AlliesDashboard), { 
+const AlliesDashboard = dynamic(() => import("@/components/allies-dashboard"), { 
   ssr: false,
   loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Allies...</div>
 })

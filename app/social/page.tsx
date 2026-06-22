@@ -35,15 +35,15 @@ import { calculateLevelFromExperience } from "@/types/character"
 import dynamic from 'next/dynamic'
 
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
-const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard").then(mod => mod.AllianceDashboard), { 
+const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"), { 
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Alliances...</div>
 })
-const Leaderboard = dynamic(() => import("@/components/leaderboard").then(mod => mod.Leaderboard), { 
+const Leaderboard = dynamic(() => import("@/components/leaderboard"), { 
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Leaderboards...</div>
 })
-const ActivityFeed = dynamic(() => import("@/components/activity-feed").then(mod => mod.ActivityFeed), { 
+const ActivityFeed = dynamic(() => import("@/components/activity-feed"), { 
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Activity Record...</div>
 })

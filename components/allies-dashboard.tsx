@@ -730,3 +730,5 @@ export function AlliesDashboard() {
     </div>
   )
 }
+
+export default AlliesDashboard;

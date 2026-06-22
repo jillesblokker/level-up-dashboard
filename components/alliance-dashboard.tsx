@@ -533,3 +533,5 @@ export function AllianceDashboard() {
         </div >
     )
 }
+
+export default AllianceDashboard;
