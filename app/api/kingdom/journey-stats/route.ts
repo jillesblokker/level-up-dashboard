@@ -17,45 +17,57 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // 1. Dungeon Runs (Recent) & Total Wins
-        const { data: runs, error: runsError } = await supabase
-            .from('dungeon_runs')
-            .select('*')
-            .eq('user_id', userId)
-            .in('status', ['completed', 'victory'])
-            .order('completed_at', { ascending: false })
-            .limit(5); // Last 5 runs
+        // Run queries concurrently to prevent timeouts on Vercel Edge
+        const [
+            runsResult,
+            winsResult,
+            journalResult,
+            medResult,
+            streaksResult
+        ] = await Promise.all([
+            // 1. Dungeon Runs (Recent)
+            supabase.from('dungeon_runs')
+                .select('*')
+                .eq('user_id', userId)
+                .in('status', ['completed', 'victory'])
+                .order('completed_at', { ascending: false })
+                .limit(5),
+                
+            // 2. Total Wins
+            supabase.from('dungeon_runs')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId)
+                .in('status', ['completed', 'victory']),
+                
+            // 3. Journal Entries Count
+            supabase.from('chronicle_entries')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId),
+                
+            // 4. Meditation Count
+            supabase.from('meditations')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId),
+                
+            // 5. Category Streaks
+            supabase.from('streaks')
+                .select('current_streak')
+                .eq('user_id', userId)
+        ]);
 
-        const { count: totalWins, error: winCountError } = await supabase
-            .from('dungeon_runs')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId)
-            .in('status', ['completed', 'victory']);
+        const runs = runsResult.data;
+        const runsError = runsResult.error;
+        const totalWins = winsResult.count;
+        const winCountError = winsResult.error;
+        const journalCount = journalResult.count;
+        const journalError = journalResult.error;
+        const finalMeditationCount = medResult.count;
+        const medError = medResult.error;
+        const streaks = streaksResult.data;
 
         if (runsError) logger.error('Error fetching runs:', runsError);
-
-        // 2. Journal Entries Count
-        const { count: journalCount, error: journalError } = await supabase
-            .from('chronicle_entries')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId);
-
         if (journalError) logger.error('Error counting journals:', journalError);
-
-        // 3. Meditation Count
-        // Count from the dedicated meditations table (recorded via ZenMeditateModal)
-        const { count: finalMeditationCount, error: medError } = await supabase
-            .from('meditations')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId);
-
         if (medError) logger.error('Error counting meditations:', medError);
-
-        // 4. Category Streaks (User's "gains a streak by doing all challenges" requirement)
-        const { data: streaks } = await supabase
-            .from('streaks')
-            .select('current_streak')
-            .eq('user_id', userId);
 
         const totalCategoryStreaks = streaks?.reduce((acc, s) => acc + (s.current_streak || 0), 0) || 0;
 

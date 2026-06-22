@@ -31,7 +31,17 @@ export default clerkMiddleware(async (auth, request) => {
     }
   }
 
+  
+  // Bypass broken Next.js image optimizer on the live server
+  if (pathname.startsWith('/_next/image')) {
+    const imageUrl = searchParams.get('url');
+    if (imageUrl) {
+      return NextResponse.redirect(new URL(imageUrl, request.url));
+    }
+  }
+
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
+
 
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
     return NextResponse.redirect(new URL('/kingdom', request.url));
@@ -85,6 +95,8 @@ export default clerkMiddleware(async (auth, request) => {
 
 export const config = {
   matcher: [
+    '/_next/image',
+
     '/_next/image',
 
     // Skip Next.js internals and all static files, unless found in search params
