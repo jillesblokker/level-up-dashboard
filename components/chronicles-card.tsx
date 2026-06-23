@@ -113,8 +113,8 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                 </div>
             </CardHeader>
 
-            <CardContent className="relative z-10 flex-1 flex flex-col pt-2 pb-4 min-h-0">
-                <div className="flex flex-col flex-1 min-h-0 gap-8 overflow-y-auto pb-4">
+            <CardContent className="relative z-10 flex flex-col pt-2 pb-4">
+                <div className="flex flex-col gap-8 pb-4">
                     {/* Top Section: Image */}
                     <div className="w-full max-w-4xl mx-auto aspect-[4/3] flex-shrink-0 flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group shadow-lg">
                         <img 
@@ -166,8 +166,8 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                         </div>
 
                         {/* Lore Text Area */}
-                        <div className="flex-1 relative pl-4 border-l-2 border-amber-800/50 min-h-0 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
-                            <div className="flex-1 md:columns-2 md:gap-8 pr-2">
+                        <div className="relative pl-4 border-l-2 border-amber-800/50 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
+                            <div className="md:columns-2 md:gap-8 pr-2">
                                 <p className="text-amber-200/90 font-serif leading-relaxed text-lg animate-in fade-in slide-in-from-bottom-4 duration-500" key={paragraphIndex}>
                                     {paragraphs[paragraphIndex]}
                                 </p>

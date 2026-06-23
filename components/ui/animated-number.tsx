@@ -16,8 +16,8 @@ export function AnimatedNumber({ value, formatFn, className, title }: AnimatedNu
 
   useEffect(() => {
     const controls = animate(prevValueRef.current, value, {
-      duration: 2.0,
-      ease: "easeOut",
+      duration: 4.0,
+      ease: [0.22, 1, 0.36, 1],
       onUpdate(v) {
         setDisplayValue(Math.round(v));
       }
