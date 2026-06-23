@@ -16,6 +16,7 @@ import { ConsistencyChart } from "@/components/consistency-chart"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatGold } from "@/lib/utils"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { motion } from "framer-motion"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
@@ -416,8 +417,8 @@ export function DailyHubClient() {
                             <div className="flex items-center justify-between mb-2">
                                 <div>
                                     <p className="text-sm text-blue-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.level.label.replace('{level}', String(stats.level))}</p>
-                                    <div className="flex items-baseline gap-2 mt-1">
-                                        <span className="text-2xl font-bold text-white">{stats.experience}</span>
+                                    <div className="flex items-baseline gap-2">
+                                        <AnimatedNumber value={stats.experience} className="text-2xl font-bold text-white" />
                                         <span className="text-sm text-blue-400">{TEXT_CONTENT.dailyHub.stats.level.xp.replace('{max}', String(stats.experienceToNextLevel))}</span>
                                     </div>
                                 </div>
@@ -441,13 +442,13 @@ export function DailyHubClient() {
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex-1">
                                     <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.treasury.title}</p>
-                                    <div className="flex items-baseline gap-2 mt-1">
-                                        <span className="text-3xl font-bold text-white" title={`${stats.gold} Gold`}>{formatGold(stats.gold)}</span>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-yellow-950 border border-yellow-700/50 flex items-center justify-center text-xl shadow-inner shadow-yellow-900/50">
+                                            🪙
+                                        </div>
+                                        <AnimatedNumber value={stats.gold} formatFn={formatGold} className="text-3xl font-bold text-white" title={`${stats.gold} Gold`} />
                                         <span className="text-sm text-yellow-500">{TEXT_CONTENT.dailyHub.stats.treasury.unit}</span>
                                     </div>
-                                </div>
-                                <div className="h-12 w-12 flex items-center justify-center bg-yellow-950/30 rounded-full border border-yellow-900/50 text-2xl">
-                                    🪙
                                 </div>
                             </div>
                             <div className="mt-3 pt-3 border-t border-yellow-900/30 flex items-center gap-2">

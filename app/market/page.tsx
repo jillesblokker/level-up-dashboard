@@ -6,6 +6,8 @@ import Link from "next/link"
 import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
 import { useRealmInventory } from '@/hooks/use-realm-inventory'
+import { Skeleton } from "@/components/ui/skeleton"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -370,16 +372,18 @@ export default function MarketPage() {
               <Gem className="h-5 w-5 text-pink-400 animate-pulse" />
               <div className="text-right mr-2 border-r border-zinc-800 pr-4">
                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gems</p>
-                <p className="text-base font-serif font-bold text-pink-200" title={`${gemBalance.toLocaleString()} Gems`}>
-                  {gemBalance.toLocaleString()}
-                </p>
+                <AnimatedNumber 
+                  value={gemBalance} 
+                  className="text-base font-serif font-bold text-pink-200" 
+                  title={`${gemBalance.toLocaleString()} Gems`}
+                />
               </div>
               <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
               <div className="text-right">
                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
-                <p className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
-                  {formatGold(goldBalance)} <span className="text-xs text-amber-600">Gold</span>
-                </p>
+                <div className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
+                  <AnimatedNumber value={goldBalance} formatFn={formatGold} /> <span className="text-xs text-amber-600">Gold</span>
+                </div>
               </div>
             </div>
 

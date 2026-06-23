@@ -14,6 +14,7 @@ import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { ParticleProvider } from '@/components/ui/particles'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { UserStorageInitializer } from '@/components/user-storage-initializer'
+import { CelebrationSystem } from '@/components/celebration-system'
 
 /**
  * Consolidates all "Manager" and "System" level providers/components
@@ -53,6 +54,7 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
             <InstallPrompt />
             <PerformanceMonitor />
             <KeyboardShortcutsProvider />
+            <CelebrationSystem />
         </ParticleProvider>
     )
 }

@@ -20,7 +20,8 @@ import { useUser, useAuth } from '@clerk/nextjs'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { useCharacterStats } from '@/hooks/use-character-stats'
-import { toast } from '@/components/ui/use-toast'
+import { toast, useToast } from '@/components/ui/use-toast'
+import { ToastAction } from "@/components/ui/toast";
 import QuestCard from '@/components/quest-card'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
@@ -227,6 +228,9 @@ export default function QuestsPage() {
   const [milestoneToDelete, setMilestoneToDelete] = useState<any | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<Quest | null>(null);
+
+  // References for undo deletion functionality
+  const deleteTimeouts = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const [addChallengeModalOpen, setAddChallengeModalOpen] = useState(false);
   const [showAddChallengeTypeModal, setShowAddChallengeTypeModal] = useState(false);
   const [newChallengeTypeName, setNewChallengeTypeName] = useState('');
@@ -1269,30 +1273,69 @@ export default function QuestsPage() {
   const handleDeleteQuest = async (questId: string) => {
     if (!token || !userId) return;
 
+    const questToRestore = quests.find(q => q.id === questId);
+    if (!questToRestore) return;
+
     try {
-      // Remove from local state
+      // Optimistically remove from local state
       setQuests(prevQuests => prevQuests.filter(q => q.id !== questId));
 
-      // Delete from Supabase
-      const response = await fetch(`/api/quests/${questId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      // Delay deletion from Supabase to allow undo
+      const timeoutId = setTimeout(async () => {
+        try {
+          const response = await fetch(`/api/quests/${questId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete quest');
-      }
+          if (!response.ok) {
+            throw new Error('Failed to delete quest');
+          }
+          delete deleteTimeouts.current[questId];
+        } catch (error) {
+          logger.error('Error permanently deleting quest:', error);
+          // Only show error if the user is still on the page
+          if (document.visibilityState === 'visible') {
+            toast({
+              title: TEXT_CONTENT.questBoard.toasts.deletion.questError.title,
+              description: "Failed to sync deletion with server. Please refresh.",
+              duration: 3000,
+            });
+          }
+        }
+      }, 5000);
+
+      deleteTimeouts.current[questId] = timeoutId;
 
       toast({
-        title: TEXT_CONTENT.questBoard.toasts.deletion.quest.title,
-        description: TEXT_CONTENT.questBoard.toasts.deletion.quest.desc,
-        duration: 2000,
+        title: "Quest Deleted",
+        description: `"${questToRestore.title}" has been removed.`,
+        duration: 5000,
+        action: (
+          <ToastAction 
+            altText="Undo" 
+            onClick={() => {
+              if (deleteTimeouts.current[questId]) {
+                clearTimeout(deleteTimeouts.current[questId]);
+                delete deleteTimeouts.current[questId];
+              }
+              // Restore to state
+              setQuests(prev => {
+                // Ensure we don't add duplicate
+                if (prev.some(q => q.id === questId)) return prev;
+                return [...prev, questToRestore];
+              });
+            }}
+          >
+            Undo
+          </ToastAction>
+        )
       });
     } catch (error) {
-      logger.error('Error deleting quest:', error);
+      logger.error('Error in optimistic delete:', error);
       toast({
         title: TEXT_CONTENT.questBoard.toasts.deletion.questError.title,
         description: TEXT_CONTENT.questBoard.toasts.deletion.questError.desc,
