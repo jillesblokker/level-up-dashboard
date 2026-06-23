@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
-import { Castle, Coins, Star, Volume2, VolumeX } from "lucide-react"
+import { Castle, Coins, Star } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
@@ -37,7 +37,6 @@ export function NavBar({ session }: NavBarProps) {
   const { isSignedIn, isLoaded } = useUser()
   const { openQuickAdd } = useQuickAdd()
   const [isClient, setIsClient] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
   const [characterStats, setCharacterStats] = useState({
     level: 1,
     experience: 0,
@@ -156,21 +155,14 @@ export function NavBar({ session }: NavBarProps) {
     }
   }, [characterStats.level]);
 
-  // Load initial notifications and mute state
+  // Load initial notifications
   useEffect(() => {
-    setIsMuted(audioManager.getMuted());
   }, [])
 
   if (!isClient) {
     return null; // Return null on server-side to prevent hydration mismatch
   }
 
-  const toggleMute = () => {
-    const newState = !isMuted;
-    audioManager.setMuted(newState);
-    setIsMuted(newState);
-    if (!newState) audioManager.playClick();
-  };
 
   const levelProgress = calculateLevelProgress(characterStats.experience)
 
@@ -226,15 +218,7 @@ export function NavBar({ session }: NavBarProps) {
             >
               <Plus className="h-5 w-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-zinc-500 hover:text-zinc-400 hover:bg-zinc-800/50 rounded-full ml-1"
-              onClick={toggleMute}
-              title={isMuted ? "Unmute Sounds" : "Mute Sounds"}
-            >
-              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-            </Button>
+
           </div>
           <div className="relative">
             <NotificationCenter />

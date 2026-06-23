@@ -26,23 +26,30 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     // State for the currently viewed chapter (default to the latest unlocked)
     const [viewedChapterId, setViewedChapterId] = useState<string>(latestUnlockedChapter.id.toString())
 
-    // State for text pagination
-    const [paragraphIndex, setParagraphIndex] = useState(0)
+    // Get the current chapter index in CHRONICLES_DATA
+    const currentChapterIndex = CHRONICLES_DATA.findIndex(c => c.id.toString() === viewedChapterId)
 
-    // Get the chapter data for the viewed chapter
-    const viewedChapter = CHRONICLES_DATA.find(c => c.id.toString() === viewedChapterId) || latestUnlockedChapter
+    // Handlers for pagination
+    const canGoPrev = currentChapterIndex > 0
+    const handlePrev = () => {
+        if (canGoPrev) {
+            setViewedChapterId(CHRONICLES_DATA[currentChapterIndex - 1]!.id.toString())
+        }
+    }
 
-    // Split description into paragraphs
+    const nextChapterData = currentChapterIndex < CHRONICLES_DATA.length - 1 ? CHRONICLES_DATA[currentChapterIndex + 1] : null
+    const canGoNext = nextChapterData ? currentLevel >= nextChapterData.levelRequirement : false
+    const handleNext = () => {
+        if (canGoNext && nextChapterData) {
+            setViewedChapterId(nextChapterData.id.toString())
+        }
+    }
+
+    const viewedChapter = CHRONICLES_DATA[currentChapterIndex] || latestUnlockedChapter
     const paragraphs = useMemo(() => {
         return viewedChapter.description.split('\n\n').filter(p => p.trim().length > 0)
     }, [viewedChapter])
 
-    // Reset pagination when chapter changes
-    useEffect(() => {
-        setParagraphIndex(0)
-    }, [viewedChapterId])
-
-    // Calculate progress to next chapter (for the progress bar)
     const nextChapter = getNextChapter(currentLevel)
     let progress = 100
     let levelsRemaining = 0
@@ -53,19 +60,6 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
         const levelsCompletedInChapter = currentLevel - currentChapterData.levelRequirement
         progress = (levelsCompletedInChapter / totalLevelsInChapter) * 100
         levelsRemaining = nextChapter.levelRequirement - currentLevel
-    }
-
-    // Handlers for pagination
-    const handleNext = () => {
-        if (paragraphIndex < paragraphs.length - 1) {
-            setParagraphIndex(prev => prev + 1)
-        }
-    }
-
-    const handlePrev = () => {
-        if (paragraphIndex > 0) {
-            setParagraphIndex(prev => prev - 1)
-        }
     }
 
     return (
@@ -142,7 +136,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                 variant="ghost"
                                 size="sm"
                                 onClick={handlePrev}
-                                disabled={paragraphIndex === 0}
+                                disabled={!canGoPrev}
                                 className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
                             >
                                 <ChevronLeft className="w-4 h-4 mr-1" />
@@ -150,14 +144,14 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             </Button>
 
                             <span className="text-xs text-amber-500/50 font-mono">
-                                {paragraphIndex + 1} / {paragraphs.length}
+                                Chapter {viewedChapter.id}
                             </span>
 
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleNext}
-                                disabled={paragraphIndex === paragraphs.length - 1}
+                                disabled={!canGoNext}
                                 className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
                             >
                                 Next
@@ -168,9 +162,11 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                         {/* Lore Text Area */}
                         <div className="relative pl-4 border-l-2 border-amber-800/50 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
                             <div className="md:columns-2 md:gap-8 pr-2">
-                                <p className="text-amber-200/90 font-serif leading-relaxed text-lg animate-in fade-in slide-in-from-bottom-4 duration-500" key={paragraphIndex}>
-                                    {paragraphs[paragraphIndex]}
-                                </p>
+                                {paragraphs.map((p, i) => (
+                                    <p className="text-amber-200/90 font-serif leading-relaxed text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500" key={i}>
+                                        {p}
+                                    </p>
+                                ))}
                             </div>
                         </div>
                     </div>
