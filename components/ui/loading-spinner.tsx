@@ -4,6 +4,16 @@ import { cn } from "@/lib/utils"
 import { Loader2, Sword, Shield, Crown, Star } from "lucide-react"
 import { useState, useEffect } from "react"
 
+const MEDIEVAL_LOADING_MESSAGES = [
+  "Sharpening swords...",
+  "Consulting the oracle...",
+  "Brewing potions...",
+  "Saddling the horses...",
+  "Gathering the party...",
+  "Polishing armor...",
+  "Mapping the dungeon..."
+];
+
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl'
   variant?: 'default' | 'sword' | 'shield' | 'crown' | 'star'
@@ -30,11 +40,15 @@ const iconMap = {
 export function LoadingSpinner({ 
   size = 'md', 
   variant = 'default', 
-  text = 'Loading...',
+  text,
   className,
   showText = true
 }: LoadingSpinnerProps) {
   const [dots, setDots] = useState('')
+  const [displayMessage] = useState(() => {
+    if (text && text !== 'Loading...') return text;
+    return MEDIEVAL_LOADING_MESSAGES[Math.floor(Math.random() * MEDIEVAL_LOADING_MESSAGES.length)];
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -74,9 +88,9 @@ export function LoadingSpinner({
       
       {showText && (
         <div className="text-center">
-          <p className="text-sm text-amber-400 font-medium">
-            {text}{dots}
-          </p>
+          <span className="text-zinc-400 font-medium whitespace-nowrap">
+            {displayMessage.replace('...', '')}{dots}
+          </span>
           <div className="mt-1 h-1 w-16 bg-zinc-700 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full animate-pulse" />
           </div>

@@ -291,12 +291,20 @@ export function DailyHubClient() {
             </div>
         )
     }
+    const getTimeBasedGreeting = () => {
+        const hour = new Date().getHours()
+        const name = user?.firstName || TEXT_CONTENT.dailyHub.header.defaultName
+        if (hour < 5) return `The night is dark, ${name}`
+        if (hour < 12) return `A bright morning for a quest, ${name}`
+        if (hour < 18) return `Good afternoon, ${name}`
+        return `Good evening, ${name}`
+    }
 
     return (
         <div className="min-h-screen bg-black pb-20">
             {/* Header Section with CTA */}
             <HeaderSection
-                title={TEXT_CONTENT.dailyHub.header.title.replace('{name}', user?.firstName || TEXT_CONTENT.dailyHub.header.defaultName)}
+                title={getTimeBasedGreeting()}
                 subtitle={TEXT_CONTENT.dailyHub.header.subtitle}
                 imageSrc="/images/daily-hub-hero.webp"
                 defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"

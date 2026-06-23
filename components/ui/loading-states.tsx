@@ -3,6 +3,17 @@
 import { Loader2, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { useState } from 'react'
+
+const MEDIEVAL_LOADING_MESSAGES = [
+  "Sharpening swords...",
+  "Consulting the oracle...",
+  "Brewing potions...",
+  "Saddling the horses...",
+  "Gathering the party...",
+  "Polishing armor...",
+  "Mapping the dungeon..."
+];
 
 interface LoadingStateProps {
   message?: string
@@ -10,7 +21,11 @@ interface LoadingStateProps {
   className?: string
 }
 
-export function LoadingState({ message = "Loading...", size = 'md', className = "" }: LoadingStateProps) {
+export function LoadingState({ message, size = 'md', className = "" }: LoadingStateProps) {
+  const [displayMessage] = useState(() => {
+    if (message && message !== 'Loading...') return message;
+    return MEDIEVAL_LOADING_MESSAGES[Math.floor(Math.random() * MEDIEVAL_LOADING_MESSAGES.length)];
+  });
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
@@ -21,7 +36,7 @@ export function LoadingState({ message = "Loading...", size = 'md', className = 
     <div className={`flex items-center justify-center p-8 ${className}`}>
       <div className="flex flex-col items-center gap-3">
         <Loader2 className={`animate-spin text-amber-500 ${sizeClasses[size]}`} />
-        <span className="text-amber-500/80 text-sm font-medium tracking-wide">{message}</span>
+        <span className="text-amber-500/80 text-sm font-medium tracking-wide">{displayMessage}</span>
       </div>
     </div>
   )

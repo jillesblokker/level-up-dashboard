@@ -31,3 +31,9 @@ All modifications made from the Micro-UX Audit will be tracked here to ensure we
 - **Global Search & Replace**: Removed 159 instances of legacy `mr-2` margins from icons inside buttons to rely purely on flexbox gaps.
 - **app/quests/page.tsx**: Updated `ResponsiveModal` usages to ensure asymmetrical button layouts (ghosted "Cancel" buttons, prominent primary actions like "Save" or "Delete").
 - **app/globals.css**: Verified the existence of custom "Medieval Scrollbars" (`::-webkit-scrollbar`) which matches the dark aesthetic perfectly.
+
+## [2026-06-23] Phase 5: Micro-Delight & Motivation
+
+### Changed
+- **components/ui/loading-spinner.tsx & loading-states.tsx**: Swapped standard static "Loading..." text for an array of randomized, medieval-themed loading messages (e.g., "Sharpening swords...", "Brewing potions...").
+- **app/daily-hub/daily-hub-client.tsx**: Updated the core dashboard header to display a dynamic, time-based greeting (e.g., "The night is dark, Hero" vs. "A bright morning for a quest, Hero").
