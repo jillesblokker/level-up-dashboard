@@ -4,7 +4,7 @@
 /* Global UI Fixes */
 html,
 body {
-  /* Removed overscroll-behavior-y: none to fix scrolling issues */
+  font-variant-numeric: tabular-nums;
 }
 
 /* Line clamp utilities for text truncation */
