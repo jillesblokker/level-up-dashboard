@@ -45,9 +45,9 @@ export function LoadingSpinner({
   showText = true
 }: LoadingSpinnerProps) {
   const [dots, setDots] = useState('')
-  const [displayMessage] = useState(() => {
+  const [displayMessage] = useState<string>(() => {
     if (text && text !== 'Loading...') return text;
-    return MEDIEVAL_LOADING_MESSAGES[Math.floor(Math.random() * MEDIEVAL_LOADING_MESSAGES.length)];
+    return MEDIEVAL_LOADING_MESSAGES[Math.floor(Math.random() * MEDIEVAL_LOADING_MESSAGES.length)] || "Loading...";
   });
 
   useEffect(() => {

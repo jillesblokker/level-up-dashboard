@@ -22,9 +22,9 @@ interface LoadingStateProps {
 }
 
 export function LoadingState({ message, size = 'md', className = "" }: LoadingStateProps) {
-  const [displayMessage] = useState(() => {
+  const [displayMessage] = useState<string>(() => {
     if (message && message !== 'Loading...') return message;
-    return MEDIEVAL_LOADING_MESSAGES[Math.floor(Math.random() * MEDIEVAL_LOADING_MESSAGES.length)];
+    return MEDIEVAL_LOADING_MESSAGES[Math.floor(Math.random() * MEDIEVAL_LOADING_MESSAGES.length)] || "Loading...";
   });
   const sizeClasses = {
     sm: 'h-4 w-4',
