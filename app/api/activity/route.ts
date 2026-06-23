@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
                 message: `${userName} completed ${questName}`,
                 timestamp: c.completed_at,
                 user: userName,
+                userId: c.user_id,
                 details: questName
             };
         }) || [];

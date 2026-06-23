@@ -452,9 +452,6 @@ export function DailyHubClient() {
                     </Card>
                 </motion.div>
 
-                {/* New Player Progress */}
-                <NewPlayerProgress />
-
                 {/* Challenges & Active Perks Section (Grid Layout) */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -519,6 +516,9 @@ export function DailyHubClient() {
                         </Card>
                     </div>
                 </motion.div>
+
+                {/* New Player Progress */}
+                <NewPlayerProgress />
 
                 {/* Gameplay Loop Section */}
                 <motion.div

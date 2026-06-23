@@ -6,7 +6,9 @@ import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Scroll, Zap } from "lucide-react";
+import { Scroll, Zap, PartyPopper } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Activity {
     id: string;
@@ -15,11 +17,58 @@ interface Activity {
     timestamp: string;
     user: string;
     details: string;
+    userId?: string;
 }
 
 export function ActivityFeed() {
     const [activities, setActivities] = useState<Activity[]>([]);
     const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
+    const [cheeringIds, setCheeringIds] = useState<Set<string>>(new Set());
+
+    const handleCheer = async (activity: Activity) => {
+        if (!activity.userId || cheeringIds.has(activity.id)) return;
+        
+        setCheeringIds(prev => new Set(prev).add(activity.id));
+        
+        try {
+            const res = await fetch('/api/social/cheer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ targetUserId: activity.userId })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                toast({
+                    title: "Cheer Sent! 🎉",
+                    description: `You cheered ${activity.user}. They received ${data.rewards?.gold} Gold and ${data.rewards?.xp} XP!`,
+                });
+            } else {
+                toast({
+                    title: "Could not send cheer",
+                    description: data.error || "Something went wrong.",
+                    variant: "destructive"
+                });
+                setCheeringIds(prev => {
+                    const next = new Set(prev);
+                    next.delete(activity.id);
+                    return next;
+                });
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to send cheer.",
+                variant: "destructive"
+            });
+            setCheeringIds(prev => {
+                const next = new Set(prev);
+                next.delete(activity.id);
+                return next;
+            });
+        }
+    };
 
     useEffect(() => {
         async function fetchActivity() {
@@ -100,9 +149,23 @@ export function ActivityFeed() {
                                 <p className="text-sm text-zinc-200 leading-snug">
                                     <span className="font-bold text-[#f7e7ce]">{activity.user}</span> completed <span className="text-[#d4af37] font-medium">{activity.details}</span>
                                 </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-xs text-muted-foreground">
+                                        {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    {activity.userId && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className={`h-6 text-xs px-2 rounded-full border border-amber-900/30 hover:bg-amber-900/20 hover:text-amber-400 transition-all ${cheeringIds.has(activity.id) ? 'bg-amber-900/20 text-amber-500 opacity-50 cursor-not-allowed' : 'text-zinc-400'}`}
+                                            onClick={() => handleCheer(activity)}
+                                            disabled={cheeringIds.has(activity.id)}
+                                        >
+                                            <PartyPopper className="w-3 h-3 mr-1" />
+                                            {cheeringIds.has(activity.id) ? 'Cheered!' : 'Cheer'}
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))

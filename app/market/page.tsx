@@ -36,6 +36,7 @@ export default function MarketPage() {
   const { user } = useUser()
   const [goldBalance, setGoldBalance] = useState(0)
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
+  const [mainTab, setMainTab] = useState("trading-post")
   const [activeTab, setActiveTab] = useState("buy")
   const [openingPack, setOpeningPack] = useState<any>(null)
 
@@ -322,21 +323,18 @@ export default function MarketPage() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
-          <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-3 bg-zinc-900 border border-zinc-800 p-2 rounded-xl">
-            <TabsTrigger value="buy" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
-              <ShoppingBag className="w-5 h-5 mr-2" /> Buy Materials
+        <Tabs value={mainTab} onValueChange={(val) => { setMainTab(val); setSearchQuery(""); }} className="space-y-6">
+          <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-2 bg-zinc-900 border border-zinc-800 p-2 rounded-xl mb-8">
+            <TabsTrigger value="trading-post" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
+              <ShoppingBag className="w-5 h-5 mr-2" /> Trading Post
             </TabsTrigger>
-            <TabsTrigger value="sell" className="text-lg data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-lg transition-all">
-              <TrendingUp className="w-5 h-5 mr-2" /> Sell Resources
-            </TabsTrigger>
-            <TabsTrigger value="packs" className="text-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg transition-all">
-              <Package className="w-5 h-5 mr-2" /> Card Packs
+            <TabsTrigger value="mystic-shop" className="text-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg transition-all">
+              <Package className="w-5 h-5 mr-2" /> Mystic Shop
             </TabsTrigger>
           </TabsList>
 
-          {/* PACKS TAB */}
-          <TabsContent value="packs" className="space-y-12">
+          {/* MYSTIC SHOP TAB */}
+          <TabsContent value="mystic-shop" className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Free Packs Section */}
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -415,8 +413,20 @@ export default function MarketPage() {
             </div>
           </TabsContent>
 
-          {/* BUY TAB */}
-          <TabsContent value="buy" className="space-y-6">
+          {/* TRADING POST TAB */}
+          <TabsContent value="trading-post" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
+              <TabsList className="grid w-full h-auto max-w-md mx-auto grid-cols-2 bg-zinc-900 border border-zinc-800 p-2 rounded-xl mb-6">
+                <TabsTrigger value="buy" className="text-base data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
+                  Buy Materials
+                </TabsTrigger>
+                <TabsTrigger value="sell" className="text-base data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-lg transition-all">
+                  Sell Resources
+                </TabsTrigger>
+              </TabsList>
+
+              {/* BUY TAB */}
+              <TabsContent value="buy" className="space-y-6">
             {/* Search, Filter & Sort Controls */}
             <div className="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800/60">
               <div className="flex-1 relative">
@@ -618,6 +628,8 @@ export default function MarketPage() {
                 ))}
               </div>
             )}
+          </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </main>
