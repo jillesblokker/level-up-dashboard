@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
         let totalGold = loot.reduce((acc: number, item: LootItem) =>
             acc + (item.type === 'gold' ? (item.amount || 0) : 0), 0);
         let totalXp = Math.floor(totalGold * 0.5);
+        let totalGems = (status === 'completed' || status === 'victory') ? 5 : 0;
 
         // Record Dungeon Run
         if (status === 'completed' || status === 'victory') {
@@ -59,6 +60,16 @@ export async function POST(req: NextRequest) {
         // Grant gold
         if (totalGold > 0) {
             await supabaseServer.rpc('add_gold', { p_user_id: userId, p_amount: totalGold });
+        }
+
+        // Grant gems
+        if (totalGems > 0) {
+            try {
+                const { grantReward } = await import('@/app/api/kingdom/grantReward');
+                await grantReward({ userId, type: 'gems', amount: totalGems, relatedId: dungeonId });
+            } catch (gemError) {
+                apiLogger.error("Failed to grant gems", gemError);
+            }
         }
 
         // Grant XP
@@ -165,7 +176,12 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            rewards: { gold: totalGold, xp: totalXp, items: itemDrops.length },
+            rewards: {
+                gold: totalGold,
+                xp: totalXp,
+                gems: totalGems,
+                items: itemDrops.length
+            },
             milestoneMessage
         });
 

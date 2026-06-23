@@ -2,7 +2,7 @@ import { logger } from "@/lib/logger";
 import { logKingdomEvent } from './logKingdomEvent';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
-export type RewardType = 'exp' | 'gold' | 'item' | 'achievement' | 'custom' | 'challenge' | 'quest' | 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
+export type RewardType = 'exp' | 'gold' | 'gems' | 'item' | 'achievement' | 'custom' | 'challenge' | 'quest' | 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
 
 function mapRewardTypeToEventType(type: RewardType): 'quest' | 'challenge' | 'gold' | 'exp' | 'reward' {
   switch (type) {
@@ -81,6 +81,19 @@ export async function grantReward({
             onConflict: 'user_id'
           });
         logger.debug('[grantReward] XP updated:', { old: currentXP, new: newXP, added: amount, level: newLevel });
+      } else if (type === 'gems') {
+        const currentGems = currentStats?.gems || 0;
+        const newGems = currentGems + amount;
+        await supabaseServer
+          .from('character_stats')
+          .upsert({
+            user_id: userId,
+            gems: newGems,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+        logger.debug(`[grantReward] gems updated:`, { old: currentGems, new: newGems, added: amount });
       } else if (['ember_essence', 'frost_essence', 'tide_essence', 'verdant_essence'].includes(type)) {
         const currentEssence = currentStats?.[type] || 0;
         const newEssence = currentEssence + amount;

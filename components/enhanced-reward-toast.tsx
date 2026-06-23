@@ -1,19 +1,19 @@
 "use client"
 
-import { Coins, Star, Zap, Trophy } from 'lucide-react'
+import { Coins, Star, Zap, Trophy, Gem } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
 import { announceToScreenReader } from '@/lib/screen-reader'
 
 interface RewardData {
   gold?: number
   xp?: number
+  gems?: number
   source: string
   item?: string | undefined
   achievement?: string | undefined
 }
 
-export function showEnhancedRewardToast(reward: RewardData) {
-  const { gold = 0, xp = 0, source, item, achievement } = reward
+  const { gold = 0, xp = 0, gems = 0, source, item, achievement } = reward
   
   // Create visual toast
   toast({
@@ -31,6 +31,12 @@ export function showEnhancedRewardToast(reward: RewardData) {
             <div className="flex items-center gap-1 text-blue-400">
               <Zap className="w-4 h-4" />
               <span>+{xp} XP</span>
+            </div>
+          )}
+          {gems > 0 && (
+            <div className="flex items-center gap-1 text-pink-400 font-bold">
+              <Gem className="w-4 h-4" />
+              <span>+{gems} Gems</span>
             </div>
           )}
           {item && (
@@ -56,6 +62,7 @@ export function showEnhancedRewardToast(reward: RewardData) {
   const announcement = [
     gold > 0 && `Earned ${gold} gold`,
     xp > 0 && `Earned ${xp} experience`,
+    gems > 0 && `Earned ${gems} gems`,
     item && `Found ${item}`,
     achievement && `Achievement unlocked: ${achievement}`,
     `from ${source}`
@@ -64,10 +71,11 @@ export function showEnhancedRewardToast(reward: RewardData) {
   announceToScreenReader(announcement)
 }
 
-export function showQuestCompletionToast(questName: string, gold: number, xp: number, item?: string) {
+export function showQuestCompletionToast(questName: string, gold: number, xp: number, item?: string, gems?: number) {
   showEnhancedRewardToast({
     gold,
     xp,
+    gems,
     source: `completing ${questName}`,
     item,
   })

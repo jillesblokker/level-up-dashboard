@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { Sword, Brain, Shield, Castle, Brush, Leaf } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { showQuestCompletionToast } from '@/components/enhanced-reward-toast'
 import { toast } from "@/components/ui/use-toast"
 import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 import { questCache } from '@/lib/cache-manager'
@@ -136,10 +137,15 @@ export function DailyQuests() {
             variant: "destructive"
           })
         } else if (newCompletedState) {
-          toast({
-            title: "Quest Completed! 🎉",
-            description: `Earned ${toggledQuest.rewards.experience} XP and ${toggledQuest.rewards.gold} Gold!`,
-          })
+          const responseData = await response.json()
+          
+          showQuestCompletionToast(
+            toggledQuest.name,
+            responseData.rewards?.gold || toggledQuest.rewards.gold,
+            responseData.rewards?.xp || toggledQuest.rewards.experience,
+            responseData.scavengedMaterial ? `${responseData.scavengedMaterial.emoji} ${responseData.scavengedMaterial.name}` : undefined,
+            responseData.droppedGems
+          )
         }
       } catch {
         toast({

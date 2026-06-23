@@ -167,9 +167,20 @@ export async function POST(req: NextRequest) {
                 logger.error('[Smart Completion] Error granting rewards for quest:', rewardError);
             }
 
-            // 5. Material Scavenging (30% chance)
+            // 5. Material Scavenging & Gem Drops (30% chance total: 10% Gems, 20% Materials)
             let scavengedMaterial = null;
-            if (Math.random() < 0.3) {
+            let droppedGems = 0;
+            const dropRoll = Math.random();
+            
+            if (dropRoll < 0.10) {
+                // 10% chance for Gems!
+                droppedGems = Math.floor(Math.random() * 3) + 1; // 1-3 Gems
+                try {
+                    await grantReward({ userId, type: 'gems', amount: droppedGems, relatedId: questId });
+                } catch (gemError) {
+                    logger.error('[Smart Completion] Error granting gems:', gemError);
+                }
+            } else if (dropRoll < 0.30) {
                 const category = (quest.category || 'might').toLowerCase();
                 let materialId = 'material-logs';
                 if (['might', 'craft'].includes(category)) materialId = 'material-steel';
@@ -219,7 +230,8 @@ export async function POST(req: NextRequest) {
                 completed: true, 
                 rewards: finalRewards, 
                 bonusType: isDay ? 'Day (Gold)' : 'Night (XP)',
-                scavengedMaterial
+                scavengedMaterial,
+                droppedGems
             };
         });
 

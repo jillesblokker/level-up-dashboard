@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search } from "lucide-react"
+import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search, Gem } from "lucide-react"
 import Link from "next/link"
 import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
@@ -35,6 +35,7 @@ const MATERIALS = [
 export default function MarketPage() {
   const { user } = useUser()
   const [goldBalance, setGoldBalance] = useState(0)
+  const [gemBalance, setGemBalance] = useState(0)
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
   const [mainTab, setMainTab] = useState("trading-post")
   const [activeTab, setActiveTab] = useState("buy")
@@ -125,14 +126,19 @@ export default function MarketPage() {
     // Initial stats fetch
     const stats = getCharacterStats()
     setGoldBalance(stats.gold)
+    setGemBalance(stats.gems || 0)
 
     fetchFreshCharacterStats().then(fresh => {
-      if (fresh) setGoldBalance(fresh.gold)
+      if (fresh) {
+        setGoldBalance(fresh.gold)
+        setGemBalance(fresh.gems || 0)
+      }
     })
 
     const handleStatsUpdate = () => {
       const updated = getCharacterStats()
       setGoldBalance(updated.gold)
+      setGemBalance(updated.gems || 0)
     }
     window.addEventListener('character-stats-update', handleStatsUpdate)
     return () => window.removeEventListener('character-stats-update', handleStatsUpdate)
@@ -225,19 +231,28 @@ export default function MarketPage() {
       return
     }
 
-    if (goldBalance < packType.price) {
+    const isGemPurchase = packType.currency === 'gems'
+    const balance = isGemPurchase ? gemBalance : goldBalance
+    const currencyName = isGemPurchase ? 'gems' : 'gold'
+    const currencyLabel = isGemPurchase ? 'Gems' : 'Gold'
+
+    if (balance < packType.price) {
       toast({
-        title: "Insufficient Gold",
-        description: `You need ${packType.price} gold to buy this pack.`,
+        title: `Insufficient ${currencyLabel}`,
+        description: `You need ${packType.price} ${currencyLabel} to buy this pack.`,
         variant: "destructive"
       })
       return
     }
 
-    // Deduct gold
+    // Deduct currency
     if (packType.price > 0) {
-      addToCharacterStat('gold', -packType.price, `market-buy-${packType.id}`)
-      setGoldBalance(prev => prev - packType.price)
+      addToCharacterStat(currencyName, -packType.price, `market-buy-${packType.id}`)
+      if (isGemPurchase) {
+        setGemBalance(prev => prev - packType.price)
+      } else {
+        setGoldBalance(prev => prev - packType.price)
+      }
     }
 
     // Update cooldown
@@ -303,8 +318,15 @@ export default function MarketPage() {
             <p className="text-zinc-400 mt-1">Trade standard construction materials and resources.</p>
           </div>
           <div className="flex items-center gap-4">
-            {/* Current Gold HUD */}
+            {/* Current Currency HUD */}
             <div className="flex items-center gap-3 bg-zinc-950 border border-zinc-800 p-2.5 px-4 rounded-xl shadow-lg ">
+              <Gem className="h-5 w-5 text-pink-400 animate-pulse" />
+              <div className="text-right mr-2 border-r border-zinc-800 pr-4">
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gems</p>
+                <p className="text-base font-serif font-bold text-pink-200" title={`${gemBalance.toLocaleString()} Gems`}>
+                  {gemBalance.toLocaleString()}
+                </p>
+              </div>
               <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
               <div className="text-right">
                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
@@ -402,9 +424,10 @@ export default function MarketPage() {
                       <Button 
                         className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50 rounded-xl"
                         onClick={() => handleBuyPack(pack)}
-                        disabled={goldBalance < pack.price}
+                        disabled={pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price}
                       >
-                        Buy for {formatGold(pack.price)} <Coins className="w-5 h-5 ml-2 text-yellow-400" />
+                        Buy for {pack.currency === 'gems' ? pack.price : formatGold(pack.price)} 
+                        {pack.currency === 'gems' ? <Gem className="w-5 h-5 ml-2 text-pink-400" /> : <Coins className="w-5 h-5 ml-2 text-yellow-400" />}
                       </Button>
                     </CardFooter>
                   </Card>

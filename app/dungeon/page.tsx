@@ -697,7 +697,7 @@ export default function DungeonPage() {
           {gameResult.success && gameResult.rewards && (
             <div className="bg-zinc-950  rounded-2xl p-6 border border-white/10 space-y-6 shadow-xl">
               <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest">REWARDS COLLECTED</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20">
                   <div className="text-2xl font-black text-yellow-400">{gameResult.rewards.gold}</div>
                   <div className="text-xs text-yellow-600 font-bold uppercase">Gold</div>
@@ -705,6 +705,10 @@ export default function DungeonPage() {
                 <div className="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
                   <div className="text-2xl font-black text-blue-400">{gameResult.rewards.xp}</div>
                   <div className="text-xs text-blue-600 font-bold uppercase">XP</div>
+                </div>
+                <div className="bg-pink-500/10 p-4 rounded-xl border border-pink-500/20">
+                  <div className="text-2xl font-black text-pink-400">{gameResult.rewards.gems || 0}</div>
+                  <div className="text-xs text-pink-600 font-bold uppercase">Gems</div>
                 </div>
                 <div className="bg-purple-500/10 p-4 rounded-xl border border-purple-500/20">
                   <div className="text-2xl font-black text-purple-400">{gameResult.rewards.items}</div>

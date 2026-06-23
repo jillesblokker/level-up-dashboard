@@ -1164,7 +1164,8 @@ export default function QuestsPage() {
           questObj.name, 
           responseData.rewards?.gold || goldReward, 
           responseData.rewards?.xp || xpReward,
-          responseData.scavengedMaterial ? `${responseData.scavengedMaterial.emoji} ${responseData.scavengedMaterial.name}` : undefined
+          responseData.scavengedMaterial ? `${responseData.scavengedMaterial.emoji} ${responseData.scavengedMaterial.name}` : undefined,
+          responseData.droppedGems
         );
       } else {
         toast({
