@@ -40,6 +40,7 @@ interface CitizensStore {
   citizens: Citizen[];
   loading: boolean;
   error: string | null;
+  isSleepy: boolean;
   loadCitizens: (userId: string) => Promise<void>;
   toggleActive: (userId: string, citizenId: string) => Promise<void>;
   toggleFavorite: (userId: string, citizenId: string) => Promise<void>;
@@ -67,6 +68,65 @@ const getMythicType = (cardId: number): 'fire' | 'water' | 'earth' | 'nature' | 
   }
 };
 
+function generateGatherDrop(citizen: Citizen): { id: string; name: string; description: string; type: 'food'|'material'; emoji: string; image: string; quantity: number } | null {
+  if (Math.random() >= 0.20) return null;
+  let gatheredItem = 'food-red';
+  let gatheredName = 'Red Fish';
+  let gatheredDesc = 'A red fish';
+  let gatheredType: 'food' | 'material' = 'food';
+  let gatheredEmoji = '🐟';
+  let gatheredImage = '/images/items/food/fish-red.webp';
+
+  // 50% chance it's a biome-specific material, 50% chance it's generic food
+  if (Math.random() < 0.50) {
+    gatheredType = 'material';
+    switch (citizen.type) {
+      case 'nature':
+        gatheredItem = 'material-logs';
+        gatheredName = 'Wooden Logs';
+        gatheredDesc = 'Basic building material gathered from the forest.';
+        gatheredEmoji = '🪵';
+        gatheredImage = '/images/items/materials/material-logs.webp';
+        break;
+      case 'earth':
+        gatheredItem = 'material-stone';
+        gatheredName = 'Stone';
+        gatheredDesc = 'Sturdy stone gathered from the mountains.';
+        gatheredEmoji = '🪨';
+        gatheredImage = '/images/items/materials/material-stone.webp';
+        break;
+      case 'fire':
+        gatheredItem = 'material-steel';
+        gatheredName = 'Steel';
+        gatheredDesc = 'Forged steel gathered near the volcanic vents.';
+        gatheredEmoji = '⛓️';
+        gatheredImage = '/images/items/materials/material-steel.webp';
+        break;
+      case 'water':
+        gatheredItem = 'material-water';
+        gatheredName = 'Water';
+        gatheredDesc = 'Fresh water gathered from the lakes.';
+        gatheredEmoji = '💧';
+        gatheredImage = '/images/items/materials/material-water.webp';
+        break;
+      case 'ice':
+        gatheredItem = 'material-crystal';
+        gatheredName = 'Crystal';
+        gatheredDesc = 'A shimmering crystal gathered from the frozen peaks.';
+        gatheredEmoji = '💎';
+        gatheredImage = '/images/items/materials/material-crystal.webp';
+        break;
+      default:
+        gatheredItem = 'material-logs';
+        gatheredName = 'Wooden Logs';
+        gatheredDesc = 'Basic building material.';
+        gatheredEmoji = '🪵';
+        gatheredImage = '/images/items/materials/material-logs.webp';
+    }
+  }
+  return { id: gatheredItem, name: gatheredName, description: gatheredDesc, type: gatheredType, emoji: gatheredEmoji, image: gatheredImage, quantity: 1 };
+}
+
 // Map food items to active days
 export const FOOD_DAYS_MAP: Record<string, number> = {
   // Fish (primary food)
@@ -92,18 +152,33 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
   citizens: [],
   loading: false,
   error: null,
+  isSleepy: false,
+  offlineCatchup: null,
+  clearOfflineCatchup: () => set({ offlineCatchup: null }),
 
   loadCitizens: async (userId: string) => {
     if (!userId) return;
     set({ loading: true, error: null });
 
     try {
-      // Parallel fetches for achievements, mythic cards, and citizen preferences
-      const [achievementsRes, mythicsRes, prefState] = await Promise.all([
+      // Parallel fetches for achievements, mythic cards, citizen preferences, and character stats (for sleepy check)
+      const [achievementsRes, mythicsRes, prefState, charStatsRes] = await Promise.all([
         fetch('/api/achievements').catch(() => null),
         fetch('/api/packs/mythics').catch(() => null),
-        getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>
+        getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>,
+        fetch('/api/character-stats').catch(() => null)
       ]);
+
+      let isSleepy = false;
+      if (charStatsRes && charStatsRes.ok) {
+        const statsData = await charStatsRes.json();
+        if (statsData.lastCompletedAt) {
+          const hoursSinceLastComplete = (Date.now() - new Date(statsData.lastCompletedAt).getTime()) / (1000 * 60 * 60);
+          if (hoursSinceLastComplete > 24) {
+            isSleepy = true;
+          }
+        }
+      }
 
       const savedPrefs = prefState || {};
 
@@ -196,10 +271,65 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         });
       });
 
-      set({ citizens: updatedCitizens, loading: false });
-    } catch (err: any) {
-      console.error('Failed to load citizens:', err);
-      set({ error: err.message || 'Failed to load citizens', loading: false });
+      let totalOfflineGold = 0;
+      const offlineItems: Record<string, { quantity: number; name: string; emoji: string }> = {};
+      let hadOfflineGathering = false;
+      const nowMs = Date.now();
+
+      if (!isSleepy) {
+         updatedCitizens.forEach(citizen => {
+            if (citizen.active && isHarvestReady(citizen) && citizen.lastHarvestedAt) {
+               const baseGold = citizen.isMythic
+                 ? Math.floor(Math.random() * 36) + 40
+                 : Math.floor(Math.random() * 11) + 15;
+               
+               totalOfflineGold += baseGold;
+               
+               const drop = generateGatherDrop(citizen);
+               if (drop) {
+                 if (offlineItems[drop.id]) {
+                   offlineItems[drop.id].quantity += drop.quantity;
+                 } else {
+                   offlineItems[drop.id] = drop;
+                 }
+               }
+               
+               citizen.lastHarvestedAt = new Date().toISOString();
+               hadOfflineGathering = true;
+            }
+         });
+      }
+
+      let offlineCatchup = null;
+      if (hadOfflineGathering) {
+         const citizenPrefs: Record<string, CitizenState> = {};
+         updatedCitizens.forEach((c) => {
+           citizenPrefs[c.id] = {
+             active: c.active,
+             favorite: c.favorite,
+             lastFedAt: c.lastFedAt,
+             activeDays: c.activeDays,
+             lastHarvestedAt: c.lastHarvestedAt,
+             affection: c.affection || 0,
+           };
+         });
+         setUserPreference('citizens_state', citizenPrefs).catch(console.error);
+
+         if (totalOfflineGold > 0) gainGold(totalOfflineGold, 'offline-catchup').catch(console.error);
+         Object.values(offlineItems).forEach(item => {
+           addToInventory(userId, item as any).catch(console.error);
+         });
+
+         offlineCatchup = {
+           gold: totalOfflineGold,
+           items: offlineItems
+         };
+      }
+
+      set({ citizens: updatedCitizens, isSleepy, offlineCatchup, loading: false });
+    } catch (error: any) {
+      console.error('Failed to load citizens:', error);
+      set({ error: error.message || 'Failed to load citizens', loading: false });
     }
   },
 
@@ -334,7 +464,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
   },
 
   harvestCitizen: async (userId: string, citizenId: string, multiplier?: number) => {
-    const { citizens } = get();
+    const { citizens, isSleepy } = get();
+    if (isSleepy) return false; // Prevent harvesting if citizens are sleepy
+
     const citizen = citizens.find((c) => c.id === citizenId);
     if (!citizen) return false;
 
@@ -349,76 +481,14 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     // Award gold
     await gainGold(goldAmount, `citizen-collect:${citizen.name}`);
 
-
-    // Biome-Specific Passive Gathering (20% chance)
-    if (Math.random() < 0.20) {
-      let gatheredItem = 'food-red';
-      let gatheredName = 'Red Fish';
-      let gatheredDesc = 'A red fish';
-      let gatheredType: 'food' | 'material' = 'food';
-      let gatheredEmoji = '🐟';
-      let gatheredImage = '/images/items/food/fish-red.webp';
-
-      // 50% chance it's a biome-specific material, 50% chance it's generic food
-      if (Math.random() < 0.50) {
-        gatheredType = 'material';
-        switch (citizen.type) {
-          case 'nature':
-            gatheredItem = 'material-logs';
-            gatheredName = 'Wooden Logs';
-            gatheredDesc = 'Basic building material gathered from the forest.';
-            gatheredEmoji = '🪵';
-            gatheredImage = '/images/items/materials/material-logs.webp';
-            break;
-          case 'earth':
-            gatheredItem = 'material-stone';
-            gatheredName = 'Stone';
-            gatheredDesc = 'Sturdy stone gathered from the mountains.';
-            gatheredEmoji = '🪨';
-            gatheredImage = '/images/items/materials/material-stone.webp';
-            break;
-          case 'fire':
-            gatheredItem = 'material-steel';
-            gatheredName = 'Steel';
-            gatheredDesc = 'Forged steel gathered near the volcanic vents.';
-            gatheredEmoji = '⛓️';
-            gatheredImage = '/images/items/materials/material-steel.webp';
-            break;
-          case 'water':
-            gatheredItem = 'material-water';
-            gatheredName = 'Water';
-            gatheredDesc = 'Fresh water gathered from the lakes.';
-            gatheredEmoji = '💧';
-            gatheredImage = '/images/items/materials/material-water.webp';
-            break;
-          case 'ice':
-            gatheredItem = 'material-crystal';
-            gatheredName = 'Crystal';
-            gatheredDesc = 'A shimmering crystal gathered from the frozen peaks.';
-            gatheredEmoji = '💎';
-            gatheredImage = '/images/items/materials/material-crystal.webp';
-            break;
-          default:
-            gatheredItem = 'material-logs';
-            gatheredName = 'Wooden Logs';
-            gatheredDesc = 'Basic building material.';
-            gatheredEmoji = '🪵';
-            gatheredImage = '/images/items/materials/material-logs.webp';
-        }
-      }
-
-      await addToInventory(userId, {
-        id: gatheredItem,
-        name: gatheredName,
-        description: gatheredDesc,
-        type: gatheredType,
-        quantity: 1,
-        image: gatheredImage,
-        emoji: gatheredEmoji,
-        rarity: 'common',
-        isEquippable: false,
-        isConsumable: true,
-      });
+    // Biome-Specific Passive Gathering
+    const drop = generateGatherDrop(citizen);
+    if (drop) {
+      await addToInventory(userId, drop as any);
+      
+      // We don't have a reliable way to show an individual toast here if the UI doesn't know what was gathered,
+      // but the old code also just dispatched an event.
+      window.dispatchEvent(new CustomEvent('inventory-updated', { detail: { itemId: drop.id } }));
     }
 
     // Update harvest date

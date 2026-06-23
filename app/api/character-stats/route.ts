@@ -28,15 +28,19 @@ export async function GET() {
 
     // Fetch streak data (optional - don't fail if table doesn't exist)
     let streakData = null;
+    let lastCompletedAt = null;
     try {
       const { data: fetchedStreakData, error: streakError } = await supabaseServer
         .from('streaks')
-        .select('current_streak')
+        .select('current_streak, last_completed_at')
         .eq('user_id', userId)
+        .order('last_completed_at', { ascending: false, nullsFirst: false })
+        .limit(1)
         .single();
 
-      if (!streakError) {
+      if (!streakError && fetchedStreakData) {
         streakData = fetchedStreakData;
+        lastCompletedAt = fetchedStreakData.last_completed_at;
       }
     } catch (streakErr) {
       // Streaks table might not exist - ignore the error
@@ -63,6 +67,7 @@ export async function GET() {
       buildTokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
       kingdomExpansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
       streakDays: streakData?.current_streak ?? 0,
+      lastCompletedAt: lastCompletedAt,
       updatedAt: data.updated_at ?? statsJson.updated_at,
       stats: {
         ...statsJson, // Include all fields saved in stats_data

@@ -40,6 +40,9 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const citizens = useCitizensStore(state => state.citizens);
     const feedCitizen = useCitizensStore(state => state.feedCitizen);
     const harvestCitizen = useCitizensStore(state => state.harvestCitizen);
+    const isSleepy = useCitizensStore(state => state.isSleepy);
+    const offlineCatchup = useCitizensStore(state => state.offlineCatchup);
+    const clearOfflineCatchup = useCitizensStore(state => state.clearOfflineCatchup);
 
     const [selectedCitizenId, setSelectedCitizenId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -247,8 +250,16 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     };
 
     const handleCreatureClick = async (creature: ActiveCreature) => {
-        // Trigger generic callback if provided
-        onCreatureClick?.(creature);
+        if (!user) return;
+        
+        if (isSleepy) {
+            toast({
+                title: "Citizens are Sleepy! Zzz...",
+                description: "Complete a daily habit to wake them up!",
+                variant: "destructive"
+            });
+            return;
+        }
 
         const citizen = citizens.find(c => c.id === creature.definitionId);
         if (!citizen) return;
@@ -362,6 +373,60 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             ref={containerRef}
             className="absolute inset-0 pointer-events-none z-10"
         >
+            {/* Offline Catch-up Modal */}
+            <Dialog open={!!offlineCatchup} onOpenChange={(open) => {
+                if (!open && offlineCatchup) clearOfflineCatchup();
+            }}>
+                <DialogContent className="sm:max-w-md bg-gradient-to-b from-blue-900 to-indigo-950 border-amber-500/30 text-slate-200">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-medieval text-amber-400 flex items-center gap-2">
+                            <Sparkles className="w-6 h-6 text-amber-300" />
+                            While You Were Away...
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-300">
+                            Your active citizens gathered resources while you were gone!
+                        </DialogDescription>
+                    </DialogHeader>
+                    {offlineCatchup && (
+                        <div className="flex flex-col gap-4 py-4">
+                            {offlineCatchup.gold > 0 && (
+                                <div className="flex items-center gap-3 bg-black/30 p-3 rounded-lg border border-amber-500/20">
+                                    <span className="text-2xl">🪙</span>
+                                    <div>
+                                        <div className="font-bold text-amber-300">{offlineCatchup.gold} Gold</div>
+                                        <div className="text-xs text-slate-400">Found by your citizens</div>
+                                    </div>
+                                </div>
+                            )}
+                            {Object.values(offlineCatchup.items).length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="font-semibold text-sm text-amber-200">Items Gathered:</h4>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {Object.values(offlineCatchup.items).map((item, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 bg-black/30 p-2 rounded-lg border border-white/10">
+                                                <span className="text-xl drop-shadow-md">{item.emoji}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium text-slate-200 truncate pr-2">{item.name}</span>
+                                                    <span className="text-xs text-slate-400">x{item.quantity}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <div className="flex justify-end mt-2">
+                        <Button 
+                            onClick={clearOfflineCatchup}
+                            className="bg-amber-600 hover:bg-amber-500 text-white font-medieval w-full border border-amber-400/50"
+                        >
+                            Claim Rewards
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             {activeCreatures.map(creature => {
                 const citizen = citizens.find(c => c.id === creature.definitionId);
                 const def = citizen || CREATURE_DEFINITIONS[creature.definitionId];
@@ -392,6 +457,15 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 handleCreatureClick(creature);
                             }}
                         />
+
+                        {/* Sleepy Zzz Overlay */}
+                        {isSleepy && (
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-50 text-blue-200/90 font-black text-[10px] animate-pulse-slow tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex flex-col items-center">
+                                <span>Z</span>
+                                <span className="ml-2 text-[8px]">z</span>
+                                <span className="ml-4 text-[6px]">z</span>
+                            </div>
+                        )}
 
                         {/* Visual Sprite */}
                         <div className="absolute inset-x-0 bottom-0 top-0">
