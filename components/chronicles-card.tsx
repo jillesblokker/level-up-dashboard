@@ -114,9 +114,9 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
             </CardHeader>
 
             <CardContent className="relative z-10 flex-1 flex flex-col pt-2 pb-4 min-h-0">
-                <div className="flex flex-col md:flex-row flex-1 min-h-0 gap-6 overflow-hidden">
+                <div className="flex flex-col-reverse md:flex-row flex-1 min-h-0 gap-6 overflow-y-auto md:overflow-hidden pb-4 md:pb-0">
                     {/* Left Column: Text */}
-                    <div className="w-full md:w-1/4 flex flex-col min-w-0 flex-shrink-0">
+                    <div className="w-full md:w-1/4 flex flex-col min-w-0 flex-shrink-0 min-h-[16rem] md:min-h-0">
                         {/* Pagination Controls */}
                         <div className="flex items-center justify-between mb-4 pb-2 border-b border-amber-800/20 flex-shrink-0">
                             <Button
