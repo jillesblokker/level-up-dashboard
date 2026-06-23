@@ -346,11 +346,11 @@ export default function MarketPage() {
         </div>
 
         <Tabs value={mainTab} onValueChange={(val) => { setMainTab(val); setSearchQuery(""); }} className="space-y-6">
-          <TabsList className="grid w-full h-auto max-w-2xl mx-auto grid-cols-2 bg-zinc-900 border border-zinc-800 p-2 rounded-xl mb-8">
-            <TabsTrigger value="trading-post" className="text-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
+          <TabsList className="mb-8">
+            <TabsTrigger value="trading-post">
               <ShoppingBag className="w-5 h-5 mr-2" /> Trading Post
             </TabsTrigger>
-            <TabsTrigger value="mystic-shop" className="text-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg transition-all">
+            <TabsTrigger value="mystic-shop">
               <Package className="w-5 h-5 mr-2" /> Mystic Shop
             </TabsTrigger>
           </TabsList>
@@ -439,11 +439,11 @@ export default function MarketPage() {
           {/* TRADING POST TAB */}
           <TabsContent value="trading-post" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
-              <TabsList className="grid w-full h-auto max-w-md mx-auto grid-cols-2 bg-zinc-900 border border-zinc-800 p-2 rounded-xl mb-6">
-                <TabsTrigger value="buy" className="text-base data-[state=active]:bg-amber-600 data-[state=active]:text-white rounded-lg transition-all">
+              <TabsList className="mb-6">
+                <TabsTrigger value="buy">
                   Buy Materials
                 </TabsTrigger>
-                <TabsTrigger value="sell" className="text-base data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-lg transition-all">
+                <TabsTrigger value="sell">
                   Sell Resources
                 </TabsTrigger>
               </TabsList>

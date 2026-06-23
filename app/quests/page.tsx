@@ -2494,30 +2494,12 @@ export default function QuestsPage() {
                   {/* Simple Toggle for Daily Quests / Challenges */}
                   <div className="space-y-6">
                     {/* Toggle Buttons */}
-                    <div className="flex gap-2 p-1 bg-zinc-900 rounded-lg border border-zinc-800 w-fit">
-                      <button
-                        onClick={() => setForgeTab('quests')}
-                        className={cn(
-                          "px-6 py-2 rounded-md text-sm font-bold transition-all",
-                          forgeTab === 'quests'
-                            ? "bg-orange-500 text-white shadow-lg"
-                            : "text-zinc-400 hover:text-zinc-200"
-                        )}
-                      >
-                        Daily Quests
-                      </button>
-                      <button
-                        onClick={() => setForgeTab('challenges')}
-                        className={cn(
-                          "px-6 py-2 rounded-md text-sm font-bold transition-all",
-                          forgeTab === 'challenges'
-                            ? "bg-blue-500 text-white shadow-lg"
-                            : "text-zinc-400 hover:text-zinc-200"
-                        )}
-                      >
-                        Challenges
-                      </button>
-                    </div>
+                    <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full">
+                      <TabsList>
+                        <TabsTrigger value="quests">Daily Quests</TabsTrigger>
+                        <TabsTrigger value="challenges">Challenges</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
 
                     {/* Conditional Content */}
                     {forgeTab === 'quests' ? (
