@@ -39,6 +39,7 @@ export default function MarketPage() {
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
   const [mainTab, setMainTab] = useState("trading-post")
   const [activeTab, setActiveTab] = useState("buy")
+  const [isProcessing, setIsProcessing] = useState(false)
   const [openingPack, setOpeningPack] = useState<any>(null)
 
   // Search, Filter & Sort State
@@ -163,10 +164,14 @@ export default function MarketPage() {
   }
 
   const handleBuy = async (material: typeof MATERIALS[0]) => {
+    if (isProcessing) return
     const qty = quantities[material.id] || 1
     const totalCost = qty * material.buyPrice
 
     if (qty <= 0) return
+
+    setIsProcessing(true)
+    setTimeout(() => setIsProcessing(false), 600)
 
     if (goldBalance < totalCost) {
       toast({
@@ -192,11 +197,15 @@ export default function MarketPage() {
   }
 
   const handleSell = async (material: typeof MATERIALS[0]) => {
+    if (isProcessing) return
     const qty = quantities[material.id] || 1
     const totalValue = qty * material.sellPrice
     const currentOwned = getInventoryQuantity(material.id)
 
     if (qty <= 0) return
+
+    setIsProcessing(true)
+    setTimeout(() => setIsProcessing(false), 600)
 
     if (currentOwned < qty) {
       toast({
@@ -222,6 +231,7 @@ export default function MarketPage() {
   }
 
   const handleBuyPack = (packType: any) => {
+    if (isProcessing) return
     if (packType.cooldownType && isPackOnCooldown(packType)) {
       toast({
         title: "Pack on Cooldown",
@@ -230,6 +240,9 @@ export default function MarketPage() {
       })
       return
     }
+
+    setIsProcessing(true)
+    setTimeout(() => setIsProcessing(false), 600)
 
     const isGemPurchase = packType.currency === 'gems'
     const balance = isGemPurchase ? gemBalance : goldBalance
@@ -389,9 +402,9 @@ export default function MarketPage() {
                         <Button 
                           className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${onCooldown ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
                           onClick={() => handleBuyPack(pack)}
-                          disabled={onCooldown}
+                          disabled={onCooldown || isProcessing}
                         >
-                          {onCooldown ? "Claimed" : `Claim Free ${pack.shortLabel}`}
+                          {onCooldown ? "Claimed" : (isProcessing ? "Processing..." : `Claim Free ${pack.shortLabel}`)}
                         </Button>
                       </CardFooter>
                     </Card>
@@ -411,7 +424,7 @@ export default function MarketPage() {
                   <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={cn(
                     "bg-zinc-900 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4",
                     pack.id === 'crown' 
-                      ? "border-2 border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)] animate-pulse hover:animate-none" 
+                      ? "border-2 border-purple-500/40 hover:border-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]" 
                       : "border border-purple-900/50 hover:border-purple-500/50"
                   )}>
                     <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
@@ -427,11 +440,11 @@ export default function MarketPage() {
                     </CardContent>
                     <CardFooter className="relative z-10 pt-4">
                       <Button 
-                        className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50 rounded-xl"
+                        className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => handleBuyPack(pack)}
-                        disabled={pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price}
+                        disabled={(pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price) || isProcessing}
                       >
-                        Buy for {pack.currency === 'gems' ? pack.price : formatGold(pack.price)} 
+                        {isProcessing ? "Processing..." : `Buy for ${pack.currency === 'gems' ? pack.price : formatGold(pack.price)}`} 
                         {pack.currency === 'gems' ? <Gem className="w-5 h-5 ml-2 text-pink-400" /> : <Coins className="w-5 h-5 ml-2 text-yellow-400" />}
                       </Button>
                     </CardFooter>
@@ -542,11 +555,11 @@ export default function MarketPage() {
                     </CardContent>
                     <CardFooter className="pt-2">
                       <Button
-                        className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold h-12 shadow-lg shadow-amber-900/20"
+                        className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold h-12 shadow-lg shadow-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => handleBuy(material)}
-                        disabled={(quantities[material.id] || 0) <= 0 || goldBalance < ((quantities[material.id] || 0) * material.buyPrice)}
+                        disabled={goldBalance < (quantities[material.id] || 1) * material.buyPrice || (quantities[material.id] || 1) <= 0 || isProcessing}
                       >
-                        Buy for {material.buyPrice} G / unit
+                        {isProcessing ? "Processing..." : `Buy for ${material.buyPrice} G / unit`}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -645,11 +658,11 @@ export default function MarketPage() {
                     </CardContent>
                     <CardFooter className="pt-2">
                       <Button
-                        className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 text-white font-bold h-12 shadow-lg shadow-green-900/20"
+                        className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 text-white font-bold h-12 shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => handleSell(material)}
-                        disabled={(quantities[material.id] || 0) <= 0 || getInventoryQuantity(material.id) < (quantities[material.id] || 0)}
+                        disabled={getInventoryQuantity(material.id) < (quantities[material.id] || 1) || (quantities[material.id] || 1) <= 0 || isProcessing}
                       >
-                        Sell for {material.sellPrice} G / unit
+                        {isProcessing ? "Processing..." : `Sell for ${material.sellPrice} G / unit`}
                       </Button>
                     </CardFooter>
                   </Card>

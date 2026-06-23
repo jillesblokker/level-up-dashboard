@@ -14,5 +14,12 @@ All modifications made from the Micro-UX Audit will be tracked here to ensure we
 
 ### Changed
 - **components/ui/progress.tsx**: Added an `animate-pulse` glow effect to the progress bar indicator when value is >= 90% to trigger completion bias.
-- **app/market/page.tsx**: Added staggered `animate-in fade-in slide-in-from-bottom-4` animations to the free chests, premium packs, and materials lists so they cascade in fluidly. Added a glowing purple border highlight to the highest rarity 'crown' pack.
+- **app/market/page.tsx**: Added staggered `animate-in fade-in slide-in-from-bottom-4` animations to the free chests, premium packs, and materials lists so they cascade in fluidly. Added a subtle purple border highlight to the highest rarity 'crown' pack.
 - **app/quests/page.tsx**: Verified that Quests already successfully use `framer-motion` for staggered fade-ins.
+
+## [2026-06-23] Phase 3: Logic & Interaction Fixes
+
+### Changed
+- **app/market/page.tsx**: Added a 600ms global debouncing mechanism (`isProcessing` state) to all market purchase and sale buttons (materials and packs) to prevent accidental double clicks and layout jumps.
+- **app/market/page.tsx**: Toned down the 'crown' pack animation to a subtle border glow based on feedback.
+- **components/add-quest-form.tsx**: Verified that the quick add quest input natively uses the `autoFocus` property to allow immediate typing.
