@@ -7,12 +7,13 @@ import { announceToScreenReader } from '@/lib/screen-reader'
 interface RewardData {
   gold?: number
   xp?: number
-  gems?: number
+  gems?: number | undefined
   source: string
   item?: string | undefined
   achievement?: string | undefined
 }
 
+export function showEnhancedRewardToast(reward: RewardData) {
   const { gold = 0, xp = 0, gems = 0, source, item, achievement } = reward
   
   // Create visual toast

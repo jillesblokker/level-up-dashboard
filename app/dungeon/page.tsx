@@ -63,6 +63,7 @@ interface GameResult {
     gold: number;
     xp: number;
     items: number;
+    gems?: number;
   };
   loot?: Loot[];
 }

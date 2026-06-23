@@ -32,6 +32,7 @@ export interface CharacterStats {
     ascension_level?: number;
     sanctuary_mode?: boolean;
     active_partner_id?: string | undefined;
+    gems?: number;
     ember_essence?: number;
     frost_essence?: number;
     tide_essence?: number;
