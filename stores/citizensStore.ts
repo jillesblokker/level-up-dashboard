@@ -41,6 +41,11 @@ interface CitizensStore {
   loading: boolean;
   error: string | null;
   isSleepy: boolean;
+  offlineCatchup: {
+    gold: number;
+    items: Record<string, { quantity: number; name: string; emoji: string }>;
+  } | null;
+  clearOfflineCatchup: () => void;
   loadCitizens: (userId: string) => Promise<void>;
   toggleActive: (userId: string, citizenId: string) => Promise<void>;
   toggleFavorite: (userId: string, citizenId: string) => Promise<void>;
