@@ -41,7 +41,8 @@ export const TEXT_CONTENT = {
                 sections: {
                     alliances: "Form or join alliances to compete on the leaderboards and complete group quests.",
                     sendingQuests: "Help your friends level up! Send them custom quests and challenges to earn rewards together.",
-                    leaderboards: "Check the global rankings to see who is the mightiest hero or most dominant alliance."
+                    leaderboards: "Check the global rankings to see who is the mightiest hero or most dominant alliance.",
+                    chronicles: "Read the unfolding story of your kingdom's rise, influenced by your daily progress and your bond with your chosen Partner."
                 }
             }
         },
@@ -1124,7 +1125,8 @@ export const TEXT_CONTENT = {
                 sections: {
                     daily: { title: "Daily Tasks", content: "Short, repeatable tasks that maintain your discipline. Complete these to earn consistent gold and keep your 'Thrivehaven' buildings active." },
                     epic: { title: "Epic Challenges", content: "Difficult feats with major rewards. These require focus and often grant rare items or large chunks of experience for your character." },
-                    milestones: { title: "Life Milestones", content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile." }
+                    milestones: { title: "Life Milestones", content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile." },
+                    habits: { title: "Habit Tracking", content: "Build streaks for daily habits to shield your kingdom from dark forces like Necrion. Good habits shape the weather and power up your Partner!" }
                 }
             }
         },
@@ -1363,7 +1365,8 @@ export const TEXT_CONTENT = {
                     titles: { title: "Titles", content: "Earn and equip prestigious titles that reflect your level and accomplishments in the realm." },
                     perks: { title: "Perks", content: "Activate mystical blessings and permanent perks to boost your experience and gold gains." },
                     strengths: { title: "Strengths", content: "Track your progress across various disciplines like Might, Knowledge, and Honor." },
-                    citizens: { title: "Citizens", content: "Manage your unlocked kingdom creatures, feed them to keep them wandering, and collect daily resources!" }
+                    citizens: { title: "Citizens", content: "Manage your unlocked kingdom creatures, feed them to keep them wandering, and collect daily resources!" },
+                    inventory: { title: "Inventory & Equipment", content: "Equip weapons, armor, and powerful artifacts to boost your stats. Read scrolls to discover hidden lore and recipes." }
                 }
             }
         },
@@ -1741,6 +1744,10 @@ export const TEXT_CONTENT = {
             combat: {
                 title: "Survival & Combat",
                 content: "The realm is dangerous! Monsters may spawn as you explore. Equip strong gear from your inventory to triumph in battles."
+            },
+            towns: {
+                title: "Towns & Cities",
+                content: "Discover thriving towns with specialized locations like the Market, Blacksmith, and Library. You can even stash items or manage your Citizens!"
             }
         },
         modes: {

@@ -2474,6 +2474,11 @@ export default function QuestsPage() {
                     title: TEXT_CONTENT.questBoard.header.guide.sections.milestones.title,
                     icon: Trophy,
                     content: TEXT_CONTENT.questBoard.header.guide.sections.milestones.content
+                  },
+                  {
+                    title: TEXT_CONTENT.questBoard.header.guide.sections.habits.title,
+                    icon: CheckCircle2,
+                    content: TEXT_CONTENT.questBoard.header.guide.sections.habits.content
                   }
                 ]}
               />

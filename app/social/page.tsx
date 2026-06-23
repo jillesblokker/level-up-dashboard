@@ -410,6 +410,11 @@ export default function AlliesPage() {
                                 title: "Leaderboards",
                                 icon: Trophy,
                                 content: TEXT_CONTENT.social.header.guide.sections.leaderboards
+                            },
+                            {
+                                title: "Chronicles",
+                                icon: Book,
+                                content: TEXT_CONTENT.social.header.guide.sections.chronicles
                             }
                         ]}
                     />

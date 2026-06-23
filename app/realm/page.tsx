@@ -1267,6 +1267,11 @@ function RealmPageContent() {
                                 title: TEXT_CONTENT.realm.guide.combat.title,
                                 icon: ShieldCheck,
                                 content: TEXT_CONTENT.realm.guide.combat.content
+                            },
+                            {
+                                title: TEXT_CONTENT.realm.guide.towns.title,
+                                icon: Compass,
+                                content: TEXT_CONTENT.realm.guide.towns.content
                             }
                         ]}
                     />

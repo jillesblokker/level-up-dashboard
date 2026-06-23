@@ -59,7 +59,7 @@ export function MysteryEventModal({
                     border: 'border-teal-500/30',
                     button: 'bg-teal-600 hover:bg-teal-500',
                     icon: Sparkles,
-                    image: '/images/tiles/temple-tile.webp'
+                    image: '/images/tiles/mystery-tile.webp'
                 }
             case 'curse':
                 return {

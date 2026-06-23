@@ -765,6 +765,11 @@ export default function CharacterPage() {
                 title: TEXT_CONTENT.character.header.guide.sections.strengths.title,
                 icon: Sword,
                 content: TEXT_CONTENT.character.header.guide.sections.strengths.content
+              },
+              {
+                title: TEXT_CONTENT.character.header.guide.sections.inventory.title,
+                icon: Crown,
+                content: TEXT_CONTENT.character.header.guide.sections.inventory.content
               }
             ]}
           />
