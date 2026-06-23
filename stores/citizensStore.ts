@@ -292,8 +292,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
                
                const drop = generateGatherDrop(citizen);
                if (drop) {
-                 if (offlineItems[drop.id]) {
-                   offlineItems[drop.id].quantity += drop.quantity;
+                 const existingItem = offlineItems[drop.id];
+                 if (existingItem) {
+                   existingItem.quantity += drop.quantity;
                  } else {
                    offlineItems[drop.id] = drop;
                  }
