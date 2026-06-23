@@ -19,7 +19,7 @@ const PackOpeningModal = dynamic(
   () => import('@/components/pack-opening-modal').then((mod) => mod.PackOpeningModal),
   { ssr: false }
 )
-import { formatGold } from "@/lib/utils"
+import { formatGold, cn } from "@/lib/utils"
 
 // Define available materials for trade
 const MATERIALS = [
