@@ -114,41 +114,65 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
             </CardHeader>
 
             <CardContent className="relative z-10 flex-1 flex flex-col pt-2 pb-4 min-h-0">
-                {/* Pagination Controls - Moved to top for better mobile accessibility */}
-                <div className="flex items-center justify-between mb-4 pb-2 border-b border-amber-800/20">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handlePrev}
-                        disabled={paragraphIndex === 0}
-                        className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
-                    >
-                        <ChevronLeft className="w-4 h-4 mr-1" />
-                        Prev
-                    </Button>
+                <div className="flex flex-col md:flex-row flex-1 min-h-0 gap-6 overflow-hidden">
+                    {/* Left Column: Text */}
+                    <div className="flex-1 flex flex-col min-w-0">
+                        {/* Pagination Controls */}
+                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-amber-800/20 flex-shrink-0">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handlePrev}
+                                disabled={paragraphIndex === 0}
+                                className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Prev
+                            </Button>
 
-                    <span className="text-xs text-amber-500/50 font-mono">
-                        {paragraphIndex + 1} / {paragraphs.length}
-                    </span>
+                            <span className="text-xs text-amber-500/50 font-mono">
+                                {paragraphIndex + 1} / {paragraphs.length}
+                            </span>
 
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleNext}
-                        disabled={paragraphIndex === paragraphs.length - 1}
-                        className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
-                    >
-                        Next
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleNext}
+                                disabled={paragraphIndex === paragraphs.length - 1}
+                                className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 disabled:opacity-30 h-8"
+                            >
+                                Next
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
+                        </div>
 
-                {/* Lore Text Area */}
-                <div className="flex-1 relative pl-4 border-l-2 border-amber-800/50 min-h-0 flex flex-col overflow-hidden">
-                    <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-amber-900/50 scrollbar-track-transparent">
-                        <p className="text-amber-200/90 font-serif leading-relaxed text-lg animate-in fade-in slide-in-from-right-4 duration-300 key={paragraphIndex}">
-                            {paragraphs[paragraphIndex]}
-                        </p>
+                        {/* Lore Text Area */}
+                        <div className="flex-1 relative pl-4 border-l-2 border-amber-800/50 min-h-0 flex flex-col overflow-hidden">
+                            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-amber-900/50 scrollbar-track-transparent">
+                                <p className="text-amber-200/90 font-serif leading-relaxed text-lg animate-in fade-in slide-in-from-right-4 duration-300 key={paragraphIndex}">
+                                    {paragraphs[paragraphIndex]}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Image */}
+                    <div className="w-full md:w-1/2 h-48 md:h-auto flex-shrink-0 md:flex-shrink flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group">
+                        <img 
+                            src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
+                            alt={viewedChapter.title}
+                            className="object-cover w-full h-full absolute inset-0 z-10 transition-opacity duration-300"
+                            onError={(e) => {
+                                // Fallback to placeholder if image fails to load
+                                e.currentTarget.style.opacity = '0';
+                            }}
+                        />
+                        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-4 text-center">
+                            <BookOpen className="w-8 h-8 text-amber-800/20 mb-2" />
+                            <div className="text-amber-500/40 text-xs font-mono uppercase tracking-widest">
+                                chronicle_image_{viewedChapter.id}.png
+                            </div>
+                        </div>
                     </div>
                 </div>
 
