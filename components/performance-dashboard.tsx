@@ -186,17 +186,17 @@ const PerformanceDashboard: React.FC = () => {
           </Button>
           
           <Button variant="outline" size="sm" onClick={handleRefresh}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4" />
             Refresh
           </Button>
           
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4" />
             Export
           </Button>
           
           <Button variant="outline" size="sm" onClick={handleClearEvents}>
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4" />
             Clear
           </Button>
         </div>

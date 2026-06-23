@@ -124,12 +124,12 @@ export function SoundSettings({
             >
               {isPlaying ? (
                 <>
-                  <Pause className="h-4 w-4 mr-2" />
+                  <Pause className="h-4 w-4" />
                   Playing...
                 </>
               ) : (
                 <>
-                  <Play className="h-4 w-4 mr-2" />
+                  <Play className="h-4 w-4" />
                   Play Test Sound
                 </>
               )}

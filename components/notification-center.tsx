@@ -314,7 +314,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                 onClick={handleMarkAllRead}
                 className="w-full border-amber-800/20 text-amber-500 hover:text-amber-400 hover:bg-amber-900/20 hover:border-amber-500/50"
               >
-                <CheckCheck className="h-4 w-4 mr-2" />
+                <CheckCheck className="h-4 w-4" />
                 Mark All as Read
               </Button>
             )}

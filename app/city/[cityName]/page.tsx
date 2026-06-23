@@ -53,7 +53,7 @@ export default function CityPage() {
                 className="border-amber-800/20 text-amber-500"
                 aria-label={TEXT_CONTENT.city.back}
               >
-                <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 {TEXT_CONTENT.city.back}
               </Button>
             </Link>

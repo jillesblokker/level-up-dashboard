@@ -197,7 +197,7 @@ export function InstallPrompt() {
                                         "transition-all duration-200 hover:scale-105"
                                     )}
                                 >
-                                    <Download className="w-4 h-4 mr-2" />
+                                    <Download className="w-4 h-4" />
                                     Install Now
                                 </Button>
                                 <Button

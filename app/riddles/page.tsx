@@ -7,7 +7,7 @@ export default function RiddlesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-medieval mb-6 flex items-center">
-        <Scroll className="mr-2 h-6 w-6" /> {TEXT_CONTENT.riddles.title}
+        <Scroll className="h-6 w-6" /> {TEXT_CONTENT.riddles.title}
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -19,7 +19,7 @@ export default function RiddlesPage() {
           <Card className="medieval-card">
             <CardHeader className="bg-amber-800/10 border-b border-amber-800/20">
               <CardTitle className="text-xl font-medieval flex items-center">
-                <Brain className="mr-2 h-5 w-5" /> {TEXT_CONTENT.riddles.rules.title}
+                <Brain className="h-5 w-5" /> {TEXT_CONTENT.riddles.rules.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
@@ -55,7 +55,7 @@ export default function RiddlesPage() {
           <Card className="medieval-card">
             <CardHeader className="bg-amber-800/10 border-b border-amber-800/20">
               <CardTitle className="text-xl font-medieval flex items-center">
-                <Award className="mr-2 h-5 w-5" /> {TEXT_CONTENT.riddles.titles.title}
+                <Award className="h-5 w-5" /> {TEXT_CONTENT.riddles.titles.title}
               </CardTitle>
               <CardDescription>{TEXT_CONTENT.riddles.titles.desc}</CardDescription>
             </CardHeader>

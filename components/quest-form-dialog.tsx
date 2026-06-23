@@ -138,7 +138,7 @@ export function QuestFormDialog({
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
                 <Button variant="outline" className="border-dashed border-zinc-700 justify-start h-auto py-2 px-3">
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4" />
                     <span>Add {category.charAt(0).toUpperCase() + category.slice(1)} Quest</span>
                 </Button>
             </DialogTrigger>

@@ -2454,7 +2454,7 @@ export default function QuestsPage() {
                       className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                       aria-label={forgeTab === 'quests' ? "Complete all favorited quests in this category" : "Complete all favorited tasks in this category"}
                     >
-                      <Star className="w-4 h-4 mr-2" />
+                      <Star className="w-4 h-4" />
                       {(forgeTab === 'quests' 
                         ? TEXT_CONTENT.questBoard.buttons.completeFavorites 
                         : "Complete {count} Starred Tasks"
@@ -2466,7 +2466,7 @@ export default function QuestsPage() {
                       className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
                       aria-label={forgeTab === 'quests' ? "Complete all favorited quests across all categories" : "Complete all favorited tasks across all categories"}
                     >
-                      <Star className="w-4 h-4 mr-2" />
+                      <Star className="w-4 h-4" />
                       {(forgeTab === 'quests'
                         ? TEXT_CONTENT.questBoard.buttons.completeAllFavorites
                         : "Complete All {count} Starred Tasks"
@@ -2480,7 +2480,7 @@ export default function QuestsPage() {
                     >
                       {manualResetLoading ? (
                         <>
-                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                           {TEXT_CONTENT.questBoard.buttons.resetting}
                         </>
                       ) : (
@@ -3143,7 +3143,7 @@ export default function QuestsPage() {
             <>
               <Button
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 onClick={() => { setDeleteMilestoneConfirmOpen(false); setMilestoneToDelete(null); }}
               >
                 {TEXT_CONTENT.questBoard.buttons.cancel}
@@ -3151,6 +3151,7 @@ export default function QuestsPage() {
               <Button
                 type="button"
                 variant="destructive"
+                className="px-8 py-2 text-md"
                 onClick={confirmDeleteMilestone}
               >
                 {TEXT_CONTENT.questBoard.buttons.delete}
@@ -3201,7 +3202,7 @@ export default function QuestsPage() {
             <>
               <Button
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 onClick={() => { setEditCustomChallengeIdx(null); setEditCustomChallengeData(null); }}
               >
                 Cancel
@@ -3209,13 +3210,14 @@ export default function QuestsPage() {
               <Button
                 type="button"
                 variant="default"
+                className="px-8 py-2 text-md font-bold bg-amber-600 hover:bg-amber-500 text-white"
                 onClick={() => {
                   // TODO: Implement save logic
                   setEditCustomChallengeIdx(null);
                   setEditCustomChallengeData(null);
                 }}
               >
-                Save
+                Save Changes
               </Button>
             </>
           }

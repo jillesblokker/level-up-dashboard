@@ -44,7 +44,7 @@ export default function CategoryPage() {
         <div className="mb-6">
           <Link href="/categories">
             <Button variant="outline" size="sm" aria-label="Back to Categories">
-              <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               Back to Categories
             </Button>
           </Link>
@@ -69,7 +69,7 @@ export default function CategoryPage() {
       <div className="mb-6">
         <Link href="/categories">
           <Button variant="outline" size="sm" aria-label="Back to Categories">
-            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             Back to Categories
           </Button>
         </Link>

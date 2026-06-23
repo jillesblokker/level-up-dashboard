@@ -42,7 +42,7 @@ export function Search() {
         )}
         onClick={() => setOpen(true)}
       >
-        <SearchIcon className="h-4 w-4 xl:mr-2" />
+        <SearchIcon className="h-4 w-4 xl:" />
         <span className="hidden xl:inline-flex">Search...</span>
         <span className="sr-only">Search</span>
         <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 xl:flex">
@@ -57,32 +57,32 @@ export function Search() {
             <CommandItem
               onSelect={() => runCommand(() => router.push("/kingdom"))}
             >
-              <SearchIcon className="mr-2 h-4 w-4" />
+              <SearchIcon className="h-4 w-4" />
               Kingdom
             </CommandItem>
             <CommandItem
               onSelect={() => runCommand(() => router.push("/realm"))}
             >
-              <SearchIcon className="mr-2 h-4 w-4" />
+              <SearchIcon className="h-4 w-4" />
               Realm
             </CommandItem>
             <CommandItem
               onSelect={() => runCommand(() => router.push("/character"))}
             >
-              <SearchIcon className="mr-2 h-4 w-4" />
+              <SearchIcon className="h-4 w-4" />
               Character
             </CommandItem>
             <CommandSeparator />
             <CommandItem
               onSelect={() => runCommand(() => router.push("/quests"))}
             >
-              <SearchIcon className="mr-2 h-4 w-4" />
+              <SearchIcon className="h-4 w-4" />
               Quests
             </CommandItem>
             <CommandItem
               onSelect={() => runCommand(() => router.push("/achievements"))}
             >
-              <SearchIcon className="mr-2 h-4 w-4" />
+              <SearchIcon className="h-4 w-4" />
               Achievements
             </CommandItem>
           </CommandGroup>

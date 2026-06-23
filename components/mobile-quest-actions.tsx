@@ -37,7 +37,7 @@ export function MobileQuestActions({
             className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
             aria-label="Complete all favorited quests in this category"
           >
-            <Star className="w-4 h-4 mr-2" />
+            <Star className="w-4 h-4" />
             <span className="text-sm sm:text-base">
               Complete {favoritesCount} Favorites
             </span>
@@ -52,7 +52,7 @@ export function MobileQuestActions({
             className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
             aria-label="Complete all favorited quests across all categories"
           >
-            <Star className="w-4 h-4 mr-2" />
+            <Star className="w-4 h-4" />
             <span className="text-sm sm:text-base">
               Complete {allFavoritesCount} Total
             </span>
@@ -69,12 +69,12 @@ export function MobileQuestActions({
           >
             {manualResetLoading ? (
               <>
-                <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span className="text-sm sm:text-base">Resetting...</span>
               </>
             ) : (
               <>
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="w-4 h-4" />
                 <span className="text-sm sm:text-base">Reset Today</span>
               </>
             )}

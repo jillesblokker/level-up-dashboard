@@ -333,7 +333,7 @@ export default function NotificationsPage() {
             <div className="flex gap-3">
               <Link href="/">
                 <Button variant="outline" className="border-amber-800/30 hover:bg-amber-900/20 text-amber-400">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="h-4 w-4" />
                   {TEXT_CONTENT.notifications.header.back}
                 </Button>
               </Link>
@@ -347,7 +347,7 @@ export default function NotificationsPage() {
             <Card className="bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 shadow-lg">
               <CardHeader>
                 <CardTitle className="font-serif text-amber-400 flex items-center">
-                  <Search className="w-5 h-5 mr-2" />
+                  <Search className="w-5 h-5" />
                   {TEXT_CONTENT.notifications.filters.label}
                 </CardTitle>
               </CardHeader>
@@ -430,7 +430,7 @@ export default function NotificationsPage() {
             <Card className="bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 shadow-lg">
               <CardHeader>
                 <CardTitle className="font-serif text-amber-400 flex items-center">
-                  <Scroll className="w-5 h-5 mr-2" />
+                  <Scroll className="w-5 h-5" />
                   {TEXT_CONTENT.notifications.actions.label}
                 </CardTitle>
               </CardHeader>
@@ -441,7 +441,7 @@ export default function NotificationsPage() {
                   onClick={markAllAsRead}
                   disabled={notifications.every((n) => n.read)}
                 >
-                  <CheckCircle className="mr-2 h-4 w-4" />
+                  <CheckCircle className="h-4 w-4" />
                   {TEXT_CONTENT.notifications.actions.markAllRead}
                 </Button>
 
@@ -451,7 +451,7 @@ export default function NotificationsPage() {
                   onClick={clearAllNotifications}
                   disabled={notifications.length === 0}
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <Trash2 className="h-4 w-4" />
                   {TEXT_CONTENT.notifications.actions.clearAll}
                 </Button>
               </CardContent>

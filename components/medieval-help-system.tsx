@@ -366,7 +366,7 @@ export function HelpSystemProvider({ children }: HelpSystemProviderProps) {
           className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-amber-50 border border-amber-500/30 shadow-lg hover:shadow-xl transition-all duration-200"
           size="lg"
         >
-          <HelpCircle className="h-5 w-5 mr-2" />
+          <HelpCircle className="h-5 w-5" />
           Help
         </Button>
       </div>

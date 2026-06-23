@@ -259,7 +259,7 @@ export function AchievementPopup({
                 'border border-white/30 shadow-lg'
               )}
             >
-              <Trophy className="h-4 w-4 mr-2" />
+              <Trophy className="h-4 w-4" />
               Claim Reward
             </Button>
           )}

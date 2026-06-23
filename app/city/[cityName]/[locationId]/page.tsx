@@ -303,7 +303,7 @@ export default function CityLocationPage() {
         <div className="flex items-center justify-between mb-8 relative z-10">
           <Link href={`/city/${cityName}`}>
             <Button variant="ghost" className="text-amber-500 hover:text-amber-400 font-medieval group">
-              <ChevronLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               Return to {cityData.name}
             </Button>
           </Link>

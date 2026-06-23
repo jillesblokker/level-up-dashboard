@@ -23,27 +23,27 @@ export function MonsterBattleExample() {
       
       <div className="flex gap-2 flex-wrap">
         <Button onClick={() => { setMonsterType('dragon'); setBattleOpen(true) }}>
-          <Sword className="w-4 h-4 mr-2" />
+          <Sword className="w-4 h-4" />
           Fight Dragon
         </Button>
         <Button onClick={() => { setMonsterType('goblin'); setBattleOpen(true) }}>
-          <Sword className="w-4 h-4 mr-2" />
+          <Sword className="w-4 h-4" />
           Fight Goblin
         </Button>
         <Button onClick={() => { setMonsterType('troll'); setBattleOpen(true) }}>
-          <Sword className="w-4 h-4 mr-2" />
+          <Sword className="w-4 h-4" />
           Fight Troll
         </Button>
         <Button onClick={() => { setMonsterType('wizard'); setBattleOpen(true) }}>
-          <Sword className="w-4 h-4 mr-2" />
+          <Sword className="w-4 h-4" />
           Fight Wizard
         </Button>
         <Button onClick={() => { setMonsterType('pegasus'); setBattleOpen(true) }}>
-          <Sword className="w-4 h-4 mr-2" />
+          <Sword className="w-4 h-4" />
           Fight Pegasus
         </Button>
         <Button onClick={() => { setMonsterType('fairy'); setBattleOpen(true) }}>
-          <Sword className="w-4 h-4 mr-2" />
+          <Sword className="w-4 h-4" />
           Fight Fairy
         </Button>
       </div>

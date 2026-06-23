@@ -86,7 +86,7 @@ export function OnboardingSkip({ onSkip, isSkipping, onSkipConfirm, onSkipCancel
         onMouseEnter={() => logger.debug('OnboardingSkip: Skip button mouse enter')}
         onMouseLeave={() => logger.debug('OnboardingSkip: Skip button mouse leave')}
       >
-        <X className="h-4 w-4 mr-2" />
+        <X className="h-4 w-4" />
         Skip {!canClick && '(disabled)'}
       </Button>
 

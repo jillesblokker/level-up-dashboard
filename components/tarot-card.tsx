@@ -89,12 +89,12 @@ export function TarotCardDisplay() {
                             >
                                 {isDrawing ? (
                                     <>
-                                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                        <RefreshCw className="w-4 h-4 animate-spin" />
                                         Drawing...
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="w-4 h-4 mr-2" />
+                                        <Sparkles className="w-4 h-4" />
                                         Draw Your Daily Card
                                     </>
                                 )}

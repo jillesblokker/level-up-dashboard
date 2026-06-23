@@ -158,7 +158,7 @@ export default function RestoreStatsPage() {
       <div className="container mx-auto p-6">
         <Card>
           <CardContent className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
+            <Loader2 className="h-6 w-6 animate-spin" />
             Loading...
           </CardContent>
         </Card>
@@ -286,7 +286,7 @@ export default function RestoreStatsPage() {
               >
                 {isRestoring ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Restoring...
                   </>
                 ) : (

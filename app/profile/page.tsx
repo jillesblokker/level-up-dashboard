@@ -309,7 +309,7 @@ export default function ProfilePage() {
               aria-label="Sign in to profile"
               onClick={() => window.location.href = '/auth/signin'}
             >
-              <Crown className="w-5 h-5 mr-2" />
+              <Crown className="w-5 h-5" />
               {TEXT_CONTENT.profile.signIn.button}
             </Button>
           </div>
@@ -361,7 +361,7 @@ export default function ProfilePage() {
               {displayName || user?.username || 'Adventurer'}
             </h1>
             <p className="text-amber-400 mb-3 flex items-center">
-              <Shield className="w-4 h-4 mr-2" />
+              <Shield className="w-4 h-4" />
               {TEXT_CONTENT.profile.hero.role}
             </p>
             <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
@@ -417,19 +417,19 @@ export default function ProfilePage() {
           style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
         >
           <TabsTrigger value="avatar" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <Camera className="w-4 h-4 md:mr-2" />
+            <Camera className="w-4 h-4 md:" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.avatar}</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <User className="w-4 h-4 md:mr-2" />
+            <User className="w-4 h-4 md:" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.profile}</span>
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <Palette className="w-4 h-4 md:mr-2" />
+            <Palette className="w-4 h-4 md:" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.colors}</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <Settings className="w-4 h-4 md:mr-2" />
+            <Settings className="w-4 h-4 md:" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
         </TabsList>
@@ -439,7 +439,7 @@ export default function ProfilePage() {
           <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Camera className="w-5 h-5 mr-2" />
+                <Camera className="w-5 h-5" />
                 {TEXT_CONTENT.profile.avatar.title}
               </CardTitle>
             </CardHeader>
@@ -552,7 +552,7 @@ export default function ProfilePage() {
           <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
-                <User className="w-5 h-5 mr-2" />
+                <User className="w-5 h-5" />
                 {TEXT_CONTENT.profile.info.title}
               </CardTitle>
             </CardHeader>
@@ -586,7 +586,7 @@ export default function ProfilePage() {
           <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Palette className="w-5 h-5 mr-2" />
+                <Palette className="w-5 h-5" />
                 {TEXT_CONTENT.profile.appearance.title}
               </CardTitle>
             </CardHeader>
@@ -681,7 +681,7 @@ export default function ProfilePage() {
           <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Volume2 className="w-5 h-5 mr-2" />
+                <Volume2 className="w-5 h-5" />
                 Audio Settings
               </CardTitle>
             </CardHeader>
@@ -743,7 +743,7 @@ export default function ProfilePage() {
           <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Settings className="w-5 h-5 mr-2" />
+                <Settings className="w-5 h-5" />
                 App Settings
               </CardTitle>
             </CardHeader>
@@ -904,7 +904,7 @@ export default function ProfilePage() {
           <Card className="bg-zinc-900 border-amber-800/20">
             <CardHeader>
               <CardTitle className="text-xl text-amber-400 flex items-center">
-                <User className="w-5 h-5 mr-2" />
+                <User className="w-5 h-5" />
                 Account Actions
               </CardTitle>
             </CardHeader>
@@ -936,7 +936,7 @@ export default function ProfilePage() {
                   variant="outline"
                   className="w-full border-red-800/30 text-red-400 hover:bg-red-900/20"
                 >
-                  <Settings className="h-5 w-5 mr-2" />
+                  <Settings className="h-5 w-5" />
                   Log out
                 </Button>
               </form>
@@ -946,7 +946,7 @@ export default function ProfilePage() {
                 variant="outline"
                 className="w-full border-red-800/50 text-red-500 hover:bg-red-900/30 hover:border-red-700"
               >
-                <Trash2 className="h-5 w-5 mr-2" />
+                <Trash2 className="h-5 w-5" />
                 Delete Account
               </Button>
             </CardContent>
@@ -962,7 +962,7 @@ export default function ProfilePage() {
           className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
           aria-label="Save profile changes"
         >
-          <Save className="w-5 h-5 mr-2" />
+          <Save className="w-5 h-5" />
           {isSaving ? "Saving Changes..." : "Save Changes"}
         </Button>
       </div>
@@ -1066,7 +1066,7 @@ export default function ProfilePage() {
               disabled={isDeleting || deleteConfirmText !== "DELETE"}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-4 h-4" />
               {isDeleting ? TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.deleting : TEXT_CONTENT.profile.settings.danger.deleteAccount.dialog.confirm}
             </Button>
           </div>

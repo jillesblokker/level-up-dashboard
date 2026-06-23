@@ -86,7 +86,7 @@ export function ProfileSettings() {
                         onClick={handleSave}
                         className="w-full bg-amber-700 hover:bg-amber-600 text-black font-semibold mt-4"
                     >
-                        <Save className="mr-2 h-4 w-4" />
+                        <Save className="h-4 w-4" />
                         Save Profile
                     </Button>
                 </div>

@@ -23,3 +23,11 @@ All modifications made from the Micro-UX Audit will be tracked here to ensure we
 - **app/market/page.tsx**: Added a 600ms global debouncing mechanism (`isProcessing` state) to all market purchase and sale buttons (materials and packs) to prevent accidental double clicks and layout jumps.
 - **app/market/page.tsx**: Toned down the 'crown' pack animation to a subtle border glow based on feedback.
 - **components/add-quest-form.tsx**: Verified that the quick add quest input natively uses the `autoFocus` property to allow immediate typing.
+
+## [2026-06-23] Phase 4: Layout & Typography Polish
+
+### Changed
+- **components/ui/button.tsx**: Added `gap-2` to the base `inline-flex` styling of all buttons globally to ensure consistent spacing between icons and text.
+- **Global Search & Replace**: Removed 159 instances of legacy `mr-2` margins from icons inside buttons to rely purely on flexbox gaps.
+- **app/quests/page.tsx**: Updated `ResponsiveModal` usages to ensure asymmetrical button layouts (ghosted "Cancel" buttons, prominent primary actions like "Save" or "Delete").
+- **app/globals.css**: Verified the existence of custom "Medieval Scrollbars" (`::-webkit-scrollbar`) which matches the dark aesthetic perfectly.

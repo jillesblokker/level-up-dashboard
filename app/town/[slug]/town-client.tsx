@@ -117,7 +117,7 @@ export default function TownClient({ slug }: Props) {
           className="border-amber-800/20 text-amber-500"
           aria-label="Back to Realm"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {TEXT_CONTENT.town.backToRealm}
         </Button>
       </div>

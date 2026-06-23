@@ -365,7 +365,7 @@ export function AllianceDashboard() {
                             size="lg"
                             className="bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-700 hover:to-amber-800 text-amber-100 border border-amber-700/50 shadow-lg shadow-amber-900/20 transition-all transform hover:scale-105"
                         >
-                            <Plus className="w-5 h-5 mr-2" />
+                            <Plus className="w-5 h-5" />
                             Form New Alliance
                         </Button>
 
@@ -379,7 +379,7 @@ export function AllianceDashboard() {
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-lg font-medieval text-amber-500">Your Allegiances</h3>
                         <Button size="sm" variant="outline" onClick={() => setCreateModalOpen(true)}>
-                            <Plus className="w-4 h-4 mr-2" /> New Alliance
+                            <Plus className="w-4 h-4" /> New Alliance
                         </Button>
                     </div>
                     {alliances.map(alliance => (
@@ -424,7 +424,7 @@ export function AllianceDashboard() {
                                             disabled
                                             className="bg-green-900/40 text-green-400 border border-green-900/50 cursor-not-allowed opacity-90"
                                         >
-                                            <CheckCircle className="w-3 h-3 mr-2" />
+                                            <CheckCircle className="w-3 h-3" />
                                             Oath Sworn ✓
                                         </Button>
                                     ) : (
@@ -433,7 +433,7 @@ export function AllianceDashboard() {
                                             onClick={() => handleCheckIn(alliance.id, alliance.name)}
                                             className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-amber-100 border border-amber-600 shadow-md shadow-amber-900/30 font-semibold px-4"
                                         >
-                                            <Flame className="w-3.5 h-3.5 mr-2 text-orange-400" />
+                                            <Flame className="w-3.5 h-3.5 text-orange-400" />
                                             Swear Today&apos;s Oath
                                         </Button>
                                     )}

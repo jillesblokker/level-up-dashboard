@@ -31,7 +31,7 @@ export function EmptyState({
           <p className="text-zinc-400 max-w-md">{description}</p>
           {action && (
             <Button onClick={action.onClick} className="bg-amber-500 hover:bg-amber-600">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               {action.label}
             </Button>
           )}

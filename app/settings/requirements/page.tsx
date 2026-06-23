@@ -149,7 +149,7 @@ export default function RequirementsPage() {
         <div className="mb-6">
           <Link href="/kingdom">
             <Button variant="outline" size="sm" className="text-white border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
               Back to Kingdom
             </Button>
           </Link>

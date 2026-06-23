@@ -69,7 +69,7 @@ export default function SetupPage() {
                         disabled={status === 'running' || status === 'success'}
                         className="w-full"
                     >
-                        {status === 'running' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {status === 'running' && <Loader2 className="h-4 w-4 animate-spin" />}
                         {status === 'success' ? TEXT_CONTENT.setup.status.completeButton : TEXT_CONTENT.setup.status.runButton}
                     </Button>
 

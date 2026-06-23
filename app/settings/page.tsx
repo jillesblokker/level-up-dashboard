@@ -183,7 +183,7 @@ export default function SettingsPage() {
           </div>
           <Link href="/kingdom">
             <Button variant="outline" className="text-white border-amber-800/20 hover:bg-amber-900/20">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
               {TEXT_CONTENT.settings.header.back}
             </Button>
           </Link>
@@ -208,19 +208,19 @@ export default function SettingsPage() {
           </div>
           <TabsList className="bg-zinc-900 border-amber-800/20 hidden md:flex">
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-amber-900/20">
-              <User className="mr-2 h-4 w-4" />
+              <User className="h-4 w-4" />
               {TEXT_CONTENT.settings.tabs.profile}
             </TabsTrigger>
             <TabsTrigger value="gameplay" className="text-white data-[state=active]:bg-amber-900/20">
-              <Gamepad2 className="mr-2 h-4 w-4" />
+              <Gamepad2 className="h-4 w-4" />
               Gameplay
             </TabsTrigger>
             <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-amber-900/20">
-              <Palette className="mr-2 h-4 w-4" />
+              <Palette className="h-4 w-4" />
               {TEXT_CONTENT.settings.tabs.appearance}
             </TabsTrigger>
             <TabsTrigger value="account" className="text-white data-[state=active]:bg-amber-900/20">
-              <Shield className="mr-2 h-4 w-4" />
+              <Shield className="h-4 w-4" />
               {TEXT_CONTENT.settings.tabs.account}
             </TabsTrigger>
           </TabsList>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
                   className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
                   onClick={handleSaveProfile}
                 >
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="h-4 w-4" />
                   {TEXT_CONTENT.settings.profile.save}
                 </Button>
               </CardFooter>
@@ -273,7 +273,7 @@ export default function SettingsPage() {
             <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
               <CardHeader>
                 <CardTitle className="font-serif text-white flex items-center">
-                  <Gamepad2 className="w-5 h-5 mr-2 text-amber-500" />
+                  <Gamepad2 className="w-5 h-5 text-amber-500" />
                   Gameplay Features
                 </CardTitle>
                 <CardDescription className="text-zinc-400">Manage mechanics that affect your daily play.</CardDescription>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
-                      <HeartPulse className="w-4 h-4 mr-2 text-pink-500" />
+                      <HeartPulse className="w-4 h-4 text-pink-500" />
                       Sanctuary Mode
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
@@ -317,7 +317,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
-                      <Palette className="w-4 h-4 mr-2 text-amber-500" />
+                      <Palette className="w-4 h-4 text-amber-500" />
                       {TEXT_CONTENT.settings.appearance.dayNight.label}
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
@@ -345,7 +345,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
-                      <Bell className="w-4 h-4 mr-2 text-amber-500" />
+                      <Bell className="w-4 h-4 text-amber-500" />
                       Mute Gold Collection Alerts
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
@@ -372,7 +372,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
-                      <Bell className="w-4 h-4 mr-2 text-amber-500" />
+                      <Bell className="w-4 h-4 text-amber-500" />
                       Mute XP Collection Alerts
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
@@ -399,7 +399,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">
-                      <Bell className="w-4 h-4 mr-2 text-amber-500" />
+                      <Bell className="w-4 h-4 text-amber-500" />
                       Mute Quest/Task Actions Alerts
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">

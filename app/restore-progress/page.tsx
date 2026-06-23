@@ -58,7 +58,7 @@ export default function RestoreProgressPage() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link href="/quests" className="inline-flex items-center text-amber-400 hover:text-amber-300 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
             {TEXT_CONTENT.restoreProgress.backLink}
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">{TEXT_CONTENT.restoreProgress.title}</h1>
@@ -70,7 +70,7 @@ export default function RestoreProgressPage() {
         <Card className="bg-zinc-800/50 border-zinc-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
-              <RotateCcw className="w-5 h-5 mr-2" />
+              <RotateCcw className="w-5 h-5" />
               {TEXT_CONTENT.restoreProgress.cardTitle}
             </CardTitle>
           </CardHeader>
@@ -91,12 +91,12 @@ export default function RestoreProgressPage() {
             >
               {isRestoring ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                   {TEXT_CONTENT.restoreProgress.button.loading}
                 </>
               ) : (
                 <>
-                  <RotateCcw className="w-4 h-4 mr-2" />
+                  <RotateCcw className="w-4 h-4" />
                   {TEXT_CONTENT.restoreProgress.button.idle}
                 </>
               )}
@@ -105,7 +105,7 @@ export default function RestoreProgressPage() {
             {restoreResult && (
               <div className="mt-4 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
                 <div className="flex items-center text-green-400 mb-2">
-                  <CheckCircle className="w-5 h-5 mr-2" />
+                  <CheckCircle className="w-5 h-5" />
                   <span className="font-semibold">{TEXT_CONTENT.restoreProgress.result.success}</span>
                 </div>
                 <div className="text-sm text-zinc-300 space-y-1">

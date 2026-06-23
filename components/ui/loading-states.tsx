@@ -80,7 +80,7 @@ export function DataLoadingState({
             <div className="text-zinc-300 text-sm">{error}</div>
             {onRetry && (
               <Button onClick={onRetry} variant="outline" size="sm">
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-4 h-4" />
                 Try Again
               </Button>
             )}

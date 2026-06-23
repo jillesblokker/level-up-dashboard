@@ -240,7 +240,7 @@ export function AlliesDashboard() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-2xl mb-8">
           <TabsTrigger value="allies" className="py-3 font-semibold transition-all">
-            <Users className="w-4 h-4 mr-2" />
+            <Users className="w-4 h-4" />
             My Allies
             {friends.length > 0 && (
               <span className="ml-2 px-2 py-0.5 bg-amber-900/40 text-amber-500 text-[10px] rounded-full border border-amber-900/30 font-bold">
@@ -249,11 +249,11 @@ export function AlliesDashboard() {
             )}
           </TabsTrigger>
           <TabsTrigger value="add" className="py-3 font-semibold transition-all">
-            <UserPlus className="w-4 h-4 mr-2" />
+            <UserPlus className="w-4 h-4" />
             Recruit
           </TabsTrigger>
           <TabsTrigger value="requests" className="py-3 font-semibold transition-all relative">
-            <Mail className="w-4 h-4 mr-2" />
+            <Mail className="w-4 h-4" />
             Registry
             {requests.length > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4 w-4">
@@ -377,7 +377,7 @@ export function AlliesDashboard() {
                           className="w-full bg-amber-950/10 border-amber-900/40 text-amber-500 hover:bg-amber-900/30 hover:text-amber-400 font-medieval font-bold"
                           onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
                         >
-                          <Crown className="w-3.5 h-3.5 mr-2" /> Visit Realm
+                          <Crown className="w-3.5 h-3.5" /> Visit Realm
                         </Button>
                         <Button
                           variant="outline"
@@ -385,7 +385,7 @@ export function AlliesDashboard() {
                           className="w-full bg-amber-950/10 border-amber-900/40 text-amber-500 hover:bg-amber-900/30 hover:text-amber-400 font-medieval font-bold"
                           onClick={() => openQuestModal(friend)}
                         >
-                          <Scroll className="w-3.5 h-3.5 mr-2" /> Issue Quest
+                          <Scroll className="w-3.5 h-3.5" /> Issue Quest
                         </Button>
 
                         {/* Secondary Row */}
@@ -396,7 +396,7 @@ export function AlliesDashboard() {
                             className="flex-1 text-[10px] h-7 text-amber-950 hover:text-amber-500 hover:bg-transparent tracking-widest uppercase font-black"
                             onClick={() => openCompareModal(friend)}
                           >
-                            <Target className="w-3 h-3 mr-2 rotate-45" /> Compare
+                            <Target className="w-3 h-3 rotate-45" /> Compare
                           </Button>
                           <div className="w-px h-3 bg-amber-900/20" />
                           <Button
@@ -408,7 +408,7 @@ export function AlliesDashboard() {
                                 setGiftModalOpen(true);
                             }}
                           >
-                            <Gift className="w-3 h-3 mr-2" /> Gift
+                            <Gift className="w-3 h-3" /> Gift
                           </Button>
                           <div className="w-px h-3 bg-amber-900/20" />
                           <DropdownMenu>
@@ -419,11 +419,11 @@ export function AlliesDashboard() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-[#0a0a0a] border-amber-900/50 shadow-2xl">
                               <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)} className="text-amber-200 focus:bg-amber-900/20 focus:text-amber-100 font-serif">
-                                <Shield className="w-4 h-4 mr-2" /> Explore Realm Map
+                                <Shield className="w-4 h-4" /> Explore Realm Map
                               </DropdownMenuItem>
                               <div className="h-px bg-amber-900/20 my-1" />
                               <DropdownMenuItem className="text-red-900 focus:text-red-500 focus:bg-red-950/10 font-serif" onClick={() => removeFriend(friend.id)}>
-                                <UserCheck className="w-4 h-4 mr-2" /> Break Alliance
+                                <UserCheck className="w-4 h-4" /> Break Alliance
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -485,7 +485,7 @@ export function AlliesDashboard() {
                       onClick={() => sendFriendRequest(u.id)} 
                       className="bg-amber-900/30 text-amber-500 hover:bg-amber-900/60 border border-amber-500/20 rounded-lg px-4"
                     >
-                      <UserPlus className="w-4 h-4 mr-2" /> Invite
+                      <UserPlus className="w-4 h-4" /> Invite
                     </Button>
                   </div>
                 ))}

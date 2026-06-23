@@ -351,7 +351,7 @@ export default function MarketPage() {
 
             <Link href="/">
               <Button variant="outline" className="border-zinc-700 hover:bg-zinc-800 text-zinc-300">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Return to Kingdom
               </Button>
             </Link>
@@ -361,10 +361,10 @@ export default function MarketPage() {
         <Tabs value={mainTab} onValueChange={(val) => { setMainTab(val); setSearchQuery(""); }} className="space-y-6">
           <TabsList className="mb-8">
             <TabsTrigger value="trading-post">
-              <ShoppingBag className="w-5 h-5 mr-2" /> Trading Post
+              <ShoppingBag className="w-5 h-5" /> Trading Post
             </TabsTrigger>
             <TabsTrigger value="mystic-shop">
-              <Package className="w-5 h-5 mr-2" /> Mystic Shop
+              <Package className="w-5 h-5" /> Mystic Shop
             </TabsTrigger>
           </TabsList>
 

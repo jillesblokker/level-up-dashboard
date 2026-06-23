@@ -979,7 +979,7 @@ function MilestoneCard({ milestone, onDelete, onUpdateProgress, onEdit }: { mile
             disabled={completed}
             aria-label={completed ? 'Milestone completed' : 'Toggle milestone completion'}
           >
-            {completed && <CheckCircle className="h-4 w-4 mr-2" />}
+            {completed && <CheckCircle className="h-4 w-4" />}
             {completed ? 'Completed' : 'Toggle Completion'}
           </Button>
         </div>

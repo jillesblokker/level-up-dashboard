@@ -594,7 +594,7 @@ export default function AdminPage() {
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="outline" className="border-red-900/50 bg-red-950/20 text-red-400 hover:bg-red-950 hover:text-red-300" onClick={() => setActionType('reset')}>
-                                <RefreshCw className="mr-2 w-4 h-4" /> Reset Stats
+                                <RefreshCw className="w-4 h-4" /> Reset Stats
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
@@ -614,7 +614,7 @@ export default function AdminPage() {
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="outline" className="border-red-900/50 bg-red-950/20 text-red-400 hover:bg-red-950 hover:text-red-300" onClick={() => setActionType('reset_map')}>
-                                <Map className="mr-2 w-4 h-4" /> Reset Map
+                                <Map className="w-4 h-4" /> Reset Map
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
@@ -634,7 +634,7 @@ export default function AdminPage() {
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="outline" className="border-red-900/50 bg-red-950/20 text-red-400 hover:bg-red-950 hover:text-red-300" onClick={() => setActionType('reset_kingdom')}>
-                                <Crown className="mr-2 w-4 h-4" /> Reset Kingdom
+                                <Crown className="w-4 h-4" /> Reset Kingdom
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
@@ -654,7 +654,7 @@ export default function AdminPage() {
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" className="bg-red-900 hover:bg-red-800 text-white border border-red-700" onClick={() => setActionType('delete')}>
-                                <Trash2 className="mr-2 w-4 h-4" /> Delete User Data
+                                <Trash2 className="w-4 h-4" /> Delete User Data
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
@@ -675,7 +675,7 @@ export default function AdminPage() {
 
                       <div className="flex justify-end pt-4 border-t border-zinc-800">
                         <Button onClick={saveStats} disabled={isSaving} size="lg" className="bg-green-600 hover:bg-green-500 text-white font-bold px-8 shadow-lg shadow-green-900/20">
-                          {isSaving ? <Loader2 className="animate-spin mr-2 w-5 h-5" /> : <Save className="mr-2 w-5 h-5" />}
+                          {isSaving ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5" />}
                           Save Changes
                         </Button>
                       </div>
@@ -826,7 +826,7 @@ export default function AdminPage() {
               </CardContent>
               <CardFooter className="bg-zinc-950 p-6 flex justify-end border-t border-zinc-800">
                 <Button onClick={createQuest} disabled={isCreatingQuest} size="lg" className="bg-amber-600 hover:bg-amber-500 text-white font-bold w-full md:w-auto px-10">
-                  {isCreatingQuest ? <Loader2 className="animate-spin mr-2" /> : <PlusCircle className="mr-2 w-5 h-5" />}
+                  {isCreatingQuest ? <Loader2 className="animate-spin mr-2" /> : <PlusCircle className="w-5 h-5" />}
                   Create Quest
                 </Button>
               </CardFooter>

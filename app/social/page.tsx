@@ -583,7 +583,7 @@ export default function AlliesPage() {
                                                         className="w-full font-semibold shadow-sm"
                                                         onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
                                                     >
-                                                        <Crown className="w-4 h-4 mr-2" />
+                                                        <Crown className="w-4 h-4" />
                                                         Visit
                                                     </Button>
                                                     <Button
@@ -592,7 +592,7 @@ export default function AlliesPage() {
                                                         className="w-full bg-background border border-input shadow-sm hover:bg-accent hover:text-accent-foreground"
                                                         onClick={() => openQuestModal(friend)}
                                                     >
-                                                        <Scroll className="w-4 h-4 mr-2" />
+                                                        <Scroll className="w-4 h-4" />
                                                         Quest
                                                     </Button>
 
@@ -604,7 +604,7 @@ export default function AlliesPage() {
                                                             className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => openCompareModal(friend)}
                                                         >
-                                                            <Target className="w-3 h-3 mr-2" />
+                                                            <Target className="w-3 h-3" />
                                                             Compare
                                                         </Button>
                                                         <div className="w-px h-4 bg-border my-auto" />
@@ -617,7 +617,7 @@ export default function AlliesPage() {
                                                                 setGiftModalOpen(true);
                                                             }}
                                                         >
-                                                            <Gift className="w-3 h-3 mr-2" />
+                                                            <Gift className="w-3 h-3" />
                                                             Gift
                                                         </Button>
                                                         <div className="w-px h-4 bg-border my-auto" />
@@ -627,7 +627,7 @@ export default function AlliesPage() {
                                                             className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => handleHire(friend)}
                                                         >
-                                                            <UserPlus className="w-3 h-3 mr-2" />
+                                                            <UserPlus className="w-3 h-3" />
                                                             Hire
                                                         </Button>
                                                         <div className="w-px h-4 bg-border my-auto" />
@@ -639,11 +639,11 @@ export default function AlliesPage() {
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="w-48">
                                                                 <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
-                                                                    <Shield className="w-4 h-4 mr-2" />
+                                                                    <Shield className="w-4 h-4" />
                                                                     Visit Realm
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => removeFriend(friend.id)}>
-                                                                    <UserCheck className="w-4 h-4 mr-2" />
+                                                                    <UserCheck className="w-4 h-4" />
                                                                     Unfriend
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
@@ -689,7 +689,7 @@ export default function AlliesPage() {
                                                 <span className="font-medium">{user.username}</span>
                                             </div>
                                             <Button size="sm" onClick={() => sendFriendRequest(user.id)}>
-                                                <UserPlus className="w-4 h-4 mr-2" /> {TEXT_CONTENT.social.friendCard.actions.addFriend}
+                                                <UserPlus className="w-4 h-4" /> {TEXT_CONTENT.social.friendCard.actions.addFriend}
                                             </Button>
                                         </div>
                                     ))}

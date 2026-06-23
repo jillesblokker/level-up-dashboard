@@ -354,9 +354,9 @@ export default function QuestCard({
               disabled={status === 'completed'}
               aria-label={status === 'completed' ? 'Quest completed' : status === 'in-progress' ? 'Continue quest' : 'Start quest'}
             >
-              {status === 'completed' && <CheckCircle className="h-4 w-4 mr-2" />}
-              {status === 'in-progress' && <Target className="h-4 w-4 mr-2" />}
-              {status === 'not-started' && <Play className="h-4 w-4 mr-2" />}
+              {status === 'completed' && <CheckCircle className="h-4 w-4" />}
+              {status === 'in-progress' && <Target className="h-4 w-4" />}
+              {status === 'not-started' && <Play className="h-4 w-4" />}
               {status === 'completed' ? 'Completed' : status === 'in-progress' ? 'Continue' : 'Start Quest'}
             </Button>
           </div>

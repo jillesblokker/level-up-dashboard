@@ -105,7 +105,7 @@ export function LocationClient({ location }: LocationClientProps) {
                       size="sm"
                       className="min-h-[44px] min-w-[44px] flex-1"
                     >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      <ShoppingCart className="h-4 w-4" />
                       {purchasedItems.includes(item.id) ? "Purchased" : "Buy"}
                     </Button>
                   </div>
@@ -134,7 +134,7 @@ export function LocationClient({ location }: LocationClientProps) {
                           disabled={purchasedItems.includes(item.id) || goldBalance < item.price}
                           size="sm"
                         >
-                          <ShoppingCart className="mr-2 h-4 w-4" />
+                          <ShoppingCart className="h-4 w-4" />
                           {purchasedItems.includes(item.id) ? "Purchased" : "Buy"}
                         </Button>
                       </div>

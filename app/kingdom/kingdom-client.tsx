@@ -1662,22 +1662,22 @@ export function KingdomClient() {
           <div className="flex w-full mb-6 justify-between items-center gap-2">
             <TabsList className="w-full md:w-auto">
               <TabsTrigger value="thrivehaven">
-                <LayoutGrid className="w-4 h-4 mr-2" />
+                <LayoutGrid className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
               </TabsTrigger>
               <TabsTrigger value="journey">
-                <Compass className="w-4 h-4 mr-2" />
+                <Compass className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
               </TabsTrigger>
               <TabsTrigger value="citizens">
-                <Users className="w-4 h-4 mr-2" />
+                <Users className="w-4 h-4" />
                 <span>Citizens</span>
               </TabsTrigger>
             </TabsList>
             
             <Link href="/kingdom/archive">
               <Button variant="outline" className="border-amber-900/30 text-amber-500 hover:bg-amber-950/30 hover:text-amber-400">
-                <Trophy className="w-4 h-4 mr-2" />
+                <Trophy className="w-4 h-4" />
                 <span className="hidden sm:inline">Archive of Triumphs</span>
               </Button>
             </Link>

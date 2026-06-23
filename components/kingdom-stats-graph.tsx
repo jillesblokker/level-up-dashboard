@@ -760,7 +760,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
                     🏠 Current Period
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={fetchData}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
+                    <RefreshCw className="h-4 w-4" />
                     Refresh
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}>
@@ -1143,7 +1143,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
                     🏠 Current Period
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={fetchData}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
+                    <RefreshCw className="h-4 w-4" />
                     Refresh
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}>

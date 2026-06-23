@@ -337,15 +337,15 @@ export default function StoredDataPage() {
             onClick={() => setShowValues(!showValues)}
             aria-label="toggle-values-button"
           >
-            {showValues ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+            {showValues ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             {showValues ? 'Hide Values' : 'Show Values'}
           </Button>
           <Button variant="outline" onClick={exportAll} aria-label="export-all-button">
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4" />
             Export All
           </Button>
           <Button variant="destructive" onClick={clearAll} aria-label="clear-all-button">
-            <Trash2 className="w-4 h-4 mr-2" />
+            <Trash2 className="w-4 h-4" />
             Clear All
           </Button>
         </div>
@@ -440,7 +440,7 @@ export default function StoredDataPage() {
                 disabled={selectedItems.size === 0}
                 aria-label="export-selected-button"
               >
-                <Download className="w-4 h-4 mr-2" />
+                <Download className="w-4 h-4" />
                 Export Selected ({selectedItems.size})
               </Button>
               <Button 
@@ -449,7 +449,7 @@ export default function StoredDataPage() {
                 disabled={selectedItems.size === 0}
                 aria-label="clear-selected-button"
               >
-                <Trash2 className="w-4 h-4 mr-2" />
+                <Trash2 className="w-4 h-4" />
                 Clear Selected ({selectedItems.size})
               </Button>
             </div>
@@ -478,7 +478,7 @@ export default function StoredDataPage() {
                 disabled={!settings.musicEnabled}
                 aria-label="test-music-button"
               >
-                {isPlayingMusic ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                {isPlayingMusic ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 {isPlayingMusic ? 'Pause Music' : 'Test Music'}
               </Button>
               <Button 
@@ -487,7 +487,7 @@ export default function StoredDataPage() {
                 disabled={!settings.sfxEnabled}
                 aria-label="test-sfx-button"
               >
-                {isPlayingSFX ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                {isPlayingSFX ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 {isPlayingSFX ? 'Pause SFX' : 'Test SFX'}
               </Button>
             </div>

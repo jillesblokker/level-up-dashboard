@@ -1758,7 +1758,7 @@ TECHNICAL DETAILS:
             {buildStatus.overall.toUpperCase()}
           </Badge>
           <Button onClick={refreshAllData} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4" />
             {TEXT_CONTENT.admin.storedData.sections.status.refresh}
           </Button>
           <Button onClick={checkAllConnections} variant="outline" size="sm">
@@ -2500,7 +2500,7 @@ TECHNICAL DETAILS:
                     onClick={exportErrorLogs}
                     disabled={errorLogs.length === 0}
                   >
-                    <Download className="w-4 h-4 mr-2" />
+                    <Download className="w-4 h-4" />
                     Export Logs
                   </Button>
                   <Button
@@ -2508,7 +2508,7 @@ TECHNICAL DETAILS:
                     onClick={clearErrorLogs}
                     disabled={errorLogs.length === 0}
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    <Trash2 className="w-4 h-4" />
                     Clear Logs
                   </Button>
                 </div>
@@ -2664,7 +2664,7 @@ TECHNICAL DETAILS:
                         variant="outline"
                         disabled={!settings.musicEnabled}
                       >
-                        <Play className="w-4 h-4 mr-2" />
+                        <Play className="w-4 h-4" />
                         {track.replace('medieval-', '').replace('-', ' ')}
                       </Button>
                     ))}
@@ -2697,7 +2697,7 @@ TECHNICAL DETAILS:
                         variant="outline"
                         disabled={!settings.sfxEnabled}
                       >
-                        <Volume2 className="w-4 h-4 mr-2" />
+                        <Volume2 className="w-4 h-4" />
                         {sfx.replace('-', ' ')}
                       </Button>
                     ))}

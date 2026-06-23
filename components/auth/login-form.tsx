@@ -11,7 +11,7 @@ export function LoginForm() {
         onClick={() => signIn('github', { callbackUrl: '/' })}
       >
         <svg
-          className="mr-2 h-4 w-4"
+          className="h-4 w-4"
           aria-hidden="true"
           fill="currentColor"
           viewBox="0 0 24 24"

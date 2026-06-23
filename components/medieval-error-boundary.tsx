@@ -133,7 +133,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                     disabled={this.state.retryCount >= this.maxRetries}
                     className="w-full bg-amber-600 hover:bg-amber-700 text-amber-50 border border-amber-500/30"
                   >
-                    <Sword className="h-4 w-4 mr-2" />
+                    <Sword className="h-4 w-4" />
                     {this.state.retryCount >= this.maxRetries
                       ? '⚔️ All attempts exhausted'
                       : `⚔️ Rally the troops (${this.maxRetries - this.state.retryCount} left)`
@@ -145,7 +145,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                     variant="outline"
                     className="w-full border-amber-600/50 text-amber-200 hover:bg-amber-800/30"
                   >
-                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <RefreshCw className="h-4 w-4" />
                     🔄 Summon reinforcements
                   </Button>
 
@@ -154,7 +154,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                     variant="outline"
                     className="w-full border-amber-600/50 text-amber-200 hover:bg-amber-800/30"
                   >
-                    <Home className="h-4 w-4 mr-2" />
+                    <Home className="h-4 w-4" />
                     🏰 Return to castle
                   </Button>
                 </div>
@@ -220,7 +220,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                   disabled={this.state.retryCount >= this.maxRetries}
                   className="w-full bg-amber-500 hover:bg-amber-600 text-black"
                 >
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <RefreshCw className="h-4 w-4" />
                   {this.state.retryCount >= this.maxRetries
                     ? 'Max retries reached'
                     : `Try Again (${this.maxRetries - this.state.retryCount} left)`
@@ -232,7 +232,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                   variant="outline"
                   className="w-full border-zinc-600 text-zinc-300 hover:bg-zinc-800"
                 >
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <RefreshCw className="h-4 w-4" />
                   Reload Page
                 </Button>
 
@@ -241,7 +241,7 @@ export class MedievalErrorBoundary extends Component<Props, State> {
                   variant="outline"
                   className="w-full border-zinc-600 text-zinc-300 hover:bg-zinc-800"
                 >
-                  <Home className="h-4 w-4 mr-2" />
+                  <Home className="h-4 w-4" />
                   Go Home
                 </Button>
               </div>

@@ -247,7 +247,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
             onClick={() => setShowAddTask(true)}
             className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg border-t border-white/10 px-6 h-11"
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="h-4 w-4" />
             New Quest
           </Button>
         </div>

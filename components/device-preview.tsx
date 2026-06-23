@@ -66,7 +66,7 @@ export default function DevicePreview() {
             onClick={() => handleDeviceChange("web")}
             className="w-full min-h-[44px]"
           >
-            <Monitor className="mr-2 h-4 w-4" />
+            <Monitor className="h-4 w-4" />
             Web
           </Button>
           <Button
@@ -74,7 +74,7 @@ export default function DevicePreview() {
             onClick={() => handleDeviceChange("ipad")}
             className="w-full min-h-[44px]"
           >
-            <Tablet className="mr-2 h-4 w-4" />
+            <Tablet className="h-4 w-4" />
             iPad
           </Button>
           <Button
@@ -82,7 +82,7 @@ export default function DevicePreview() {
             onClick={() => handleDeviceChange("iphone")}
             className="w-full min-h-[44px]"
           >
-            <Smartphone className="mr-2 h-4 w-4" />
+            <Smartphone className="h-4 w-4" />
             iPhone
           </Button>
         </div>
