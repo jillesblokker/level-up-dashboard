@@ -92,6 +92,7 @@ const EconomyTransparency = dynamic(
 import { Users, Crown, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from "@/lib/text-content";
+import { CitizensTab } from "@/components/kingdom/citizens-tab";
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number | undefined> | undefined,
@@ -1668,6 +1669,10 @@ export function KingdomClient() {
                 <Compass className="w-4 h-4 mr-2" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
               </TabsTrigger>
+              <TabsTrigger value="citizens">
+                <Users className="w-4 h-4 mr-2" />
+                <span>Citizens</span>
+              </TabsTrigger>
             </TabsList>
             
             <Link href="/kingdom/archive">
@@ -1881,6 +1886,9 @@ export function KingdomClient() {
                 </div>
               )}
             </div>
+          </TabsContent>
+          <TabsContent value="citizens">
+            <CitizensTab />
           </TabsContent>
         </Tabs>
       </div>
