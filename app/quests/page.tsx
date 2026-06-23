@@ -1160,6 +1160,14 @@ export default function QuestsPage() {
 
       // 🎯 Display enhanced feedback if quest was completed
       if (newCompleted) {
+        if (responseData.isFirstAction) {
+          setPartnerSpeech("First action of the day! 1.5x Bonus!");
+          setIsPartnerAnimating(true);
+          setTimeout(() => {
+            setPartnerSpeech(null);
+            setIsPartnerAnimating(false);
+          }, 5000);
+        }
         showQuestCompletionToast(
           questObj.name, 
           responseData.rewards?.gold || goldReward, 
@@ -1478,6 +1486,15 @@ export default function QuestsPage() {
               logger.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
               failedIds.push(quest.id);
             } else {
+              const responseData = await response.json();
+              if (responseData.isFirstAction) {
+                setPartnerSpeech("First action of the day! 1.5x Bonus!");
+                setIsPartnerAnimating(true);
+                setTimeout(() => {
+                  setPartnerSpeech(null);
+                  setIsPartnerAnimating(false);
+                }, 5000);
+              }
               logger.debug(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
             }
           } catch (apiError) {
@@ -1638,6 +1655,14 @@ export default function QuestsPage() {
               failedIds.push(quest.id);
             } else {
               const responseData = await response.json();
+              if (responseData.isFirstAction) {
+                setPartnerSpeech("First action of the day! 1.5x Bonus!");
+                setIsPartnerAnimating(true);
+                setTimeout(() => {
+                  setPartnerSpeech(null);
+                  setIsPartnerAnimating(false);
+                }, 5000);
+              }
               logger.debug(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
             }
           } catch (apiError) {

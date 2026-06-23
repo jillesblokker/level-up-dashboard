@@ -135,10 +135,20 @@ export async function POST(req: NextRequest) {
             };
             const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
             
-            // Apply Time-of-Day and Streak Bonuses
+            // Check for First Action Bonus
+            const { count: questsCompletedToday } = await supabase
+                .from('quest_completion')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId)
+                .gte('completed_at', today);
+
+            const isFirstAction = questsCompletedToday === 0;
+            const firstActionMultiplier = isFirstAction ? 1.5 : 1.0;
+
+            // Apply Time-of-Day, Streak, and First Action Bonuses
             const finalRewards = {
-                gold: Math.floor((isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold) * streakMultiplier),
-                xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier)
+                gold: Math.floor((isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold) * streakMultiplier * firstActionMultiplier),
+                xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier * firstActionMultiplier)
             };
 
             const { error: insertError } = await supabase
@@ -241,7 +251,8 @@ export async function POST(req: NextRequest) {
                 rewards: finalRewards, 
                 bonusType: isDay ? 'Day (Gold)' : 'Night (XP)',
                 scavengedMaterial,
-                droppedGems
+                droppedGems,
+                isFirstAction
             };
         });
 

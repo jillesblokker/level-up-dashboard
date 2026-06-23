@@ -147,6 +147,17 @@ export const FREE_PACK_TYPES = [
     cooldownType: "daily",
   },
   {
+    id: "free_mystery",
+    title: "Mystery Chest",
+    subtitle: "Takes 3 hours to unlock",
+    shortLabel: "Mystery",
+    price: 0,
+    rarityShift: 0.3,
+    accent: "vault",
+    description: "Tap to begin unlocking your mystery treasure!",
+    cooldownType: "mystery",
+  },
+  {
     id: "free_weekly",
     title: "Free Weekly Pack",
     subtitle: "Claim once every week",

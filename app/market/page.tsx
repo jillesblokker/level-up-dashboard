@@ -52,6 +52,7 @@ export default function MarketPage() {
 
   // Free pack claiming and cooldowns state
   const [claimedTimestamps, setClaimedTimestamps] = useState<Record<string, number>>({})
+  const [unlockStartTimestamps, setUnlockStartTimestamps] = useState<Record<string, number>>({})
   const [currentTime, setCurrentTime] = useState(Date.now())
 
   useEffect(() => {
@@ -60,6 +61,12 @@ export default function MarketPage() {
       if (stored) {
         try {
           setClaimedTimestamps(JSON.parse(stored))
+        } catch (e) {}
+      }
+      const storedUnlocks = localStorage.getItem("unlock_packs_timestamps")
+      if (storedUnlocks) {
+        try {
+          setUnlockStartTimestamps(JSON.parse(storedUnlocks))
         } catch (e) {}
       }
     }
@@ -78,7 +85,7 @@ export default function MarketPage() {
 
     const diff = currentTime - lastClaimed
 
-    if (pack.cooldownType === 'daily') {
+    if (pack.cooldownType === 'daily' || pack.cooldownType === 'mystery') {
       return diff < 24 * 60 * 60 * 1000
     }
     if (pack.cooldownType === 'weekly') {
@@ -98,7 +105,7 @@ export default function MarketPage() {
     const diff = currentTime - lastClaimed
     let remaining = 0
 
-    if (pack.cooldownType === 'daily') {
+    if (pack.cooldownType === 'daily' || pack.cooldownType === 'mystery') {
       remaining = 24 * 60 * 60 * 1000 - diff
     } else if (pack.cooldownType === 'weekly') {
       remaining = 7 * 24 * 60 * 60 * 1000 - diff
@@ -235,10 +242,37 @@ export default function MarketPage() {
     if (packType.cooldownType && isPackOnCooldown(packType)) {
       toast({
         title: "Pack on Cooldown",
-        description: `This pack can only be claimed once per ${packType.cooldownType}.`,
+        description: `This pack can only be claimed once per ${packType.cooldownType === 'mystery' ? 'day' : packType.cooldownType}.`,
         variant: "destructive"
       })
       return
+    }
+
+    if (packType.cooldownType === 'mystery') {
+      const unlockStarted = unlockStartTimestamps[packType.id]
+      if (!unlockStarted) {
+        // Start unlocking
+        const updated = { ...unlockStartTimestamps, [packType.id]: Date.now() }
+        setUnlockStartTimestamps(updated)
+        if (typeof window !== "undefined") {
+          localStorage.setItem("unlock_packs_timestamps", JSON.stringify(updated))
+        }
+        toast({ title: "Unlocking Started", description: "Come back in 3 hours to claim your mystery chest!" })
+        return
+      }
+      const diff = currentTime - unlockStarted
+      if (diff < 3 * 60 * 60 * 1000) {
+        toast({ title: "Still Unlocking", description: "The mystery chest is not ready yet.", variant: "destructive" })
+        return
+      }
+      
+      // Clear unlock timestamp
+      const updatedUnlocks = { ...unlockStartTimestamps }
+      delete updatedUnlocks[packType.id]
+      setUnlockStartTimestamps(updatedUnlocks)
+      if (typeof window !== "undefined") {
+        localStorage.setItem("unlock_packs_timestamps", JSON.stringify(updatedUnlocks))
+      }
     }
 
     setIsProcessing(true)
@@ -380,6 +414,44 @@ export default function MarketPage() {
                 {FREE_PACK_TYPES.map((pack, index) => {
                   const onCooldown = isPackOnCooldown(pack);
                   const remaining = getCooldownRemaining(pack);
+
+                  let isUnlocking = false;
+                  let unlockRemaining = "";
+                  let canClaimMystery = false;
+                  let mysteryStarted = false;
+                  
+                  if (pack.cooldownType === 'mystery' && !onCooldown) {
+                    const unlockStarted = unlockStartTimestamps[pack.id];
+                    if (unlockStarted) {
+                      mysteryStarted = true;
+                      const diff = currentTime - unlockStarted;
+                      const remainingMs = 3 * 60 * 60 * 1000 - diff;
+                      if (remainingMs > 0) {
+                        isUnlocking = true;
+                        const totalSeconds = Math.floor(remainingMs / 1000);
+                        const hours = Math.floor(totalSeconds / 3600);
+                        const minutes = Math.floor((totalSeconds % 3600) / 60);
+                        const seconds = totalSeconds % 60;
+                        unlockRemaining = hours > 0 ? `${hours}h ${minutes}m ${seconds}s` : `${minutes}m ${seconds}s`;
+                      } else {
+                        canClaimMystery = true;
+                      }
+                    }
+                  }
+                  
+                  const isButtonDisabled = onCooldown || isProcessing || isUnlocking;
+                  let buttonLabel = onCooldown ? "Claimed" : (isProcessing ? "Processing..." : `Claim Free ${pack.shortLabel}`);
+                  
+                  if (pack.cooldownType === 'mystery' && !onCooldown && !isProcessing) {
+                    if (!mysteryStarted) {
+                      buttonLabel = "Start Unlock (3h)";
+                    } else if (isUnlocking) {
+                      buttonLabel = `Unlocking... (${unlockRemaining})`;
+                    } else if (canClaimMystery) {
+                      buttonLabel = "Claim Mystery Chest!";
+                    }
+                  }
+
                   return (
                     <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
@@ -392,19 +464,23 @@ export default function MarketPage() {
                           <span className="text-5xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
                         </div>
                         <p className="text-sm text-zinc-300 px-4">{pack.description}</p>
-                        {onCooldown && remaining && (
+                        {(onCooldown && remaining) ? (
                           <div className="text-xs font-semibold text-amber-400 bg-amber-950/40 py-1 px-3 rounded-full inline-block border border-amber-900/30">
                             ⏱️ {remaining}
                           </div>
-                        )}
+                        ) : (isUnlocking && unlockRemaining) ? (
+                          <div className="text-xs font-semibold text-amber-400 bg-amber-950/40 py-1 px-3 rounded-full inline-block border border-amber-900/30">
+                            ⏳ {unlockRemaining}
+                          </div>
+                        ) : null}
                       </CardContent>
                       <CardFooter className="relative z-10 pt-4">
                         <Button 
-                          className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${onCooldown ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
+                          className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${isButtonDisabled ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
                           onClick={() => handleBuyPack(pack)}
-                          disabled={onCooldown || isProcessing}
+                          disabled={isButtonDisabled}
                         >
-                          {onCooldown ? "Claimed" : (isProcessing ? "Processing..." : `Claim Free ${pack.shortLabel}`)}
+                          {buttonLabel}
                         </Button>
                       </CardFooter>
                     </Card>
