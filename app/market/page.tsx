@@ -364,11 +364,11 @@ export default function MarketPage() {
                 <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Free Chrono Chests</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {FREE_PACK_TYPES.map(pack => {
+                {FREE_PACK_TYPES.map((pack, index) => {
                   const onCooldown = isPackOnCooldown(pack);
                   const remaining = getCooldownRemaining(pack);
                   return (
-                    <Card key={pack.id} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
+                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
                       <CardHeader className="text-center relative z-10 pb-4">
                         <CardTitle className="text-2xl font-black text-amber-300 tracking-wide">{pack.title}</CardTitle>
@@ -407,8 +407,13 @@ export default function MarketPage() {
                 <h2 className="text-2xl font-bold tracking-tight text-purple-400 font-serif">Royal Exchange Card Packs</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {PACK_TYPES.map(pack => (
-                  <Card key={pack.id} className="bg-zinc-900 border-purple-900/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden">
+                {PACK_TYPES.map((pack, index) => (
+                  <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={cn(
+                    "bg-zinc-900 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4",
+                    pack.id === 'crown' 
+                      ? "border-2 border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)] animate-pulse hover:animate-none" 
+                      : "border border-purple-900/50 hover:border-purple-500/50"
+                  )}>
                     <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
                     <CardHeader className="text-center relative z-10 pb-4">
                       <CardTitle className="text-2xl font-black text-purple-300 tracking-wide">{pack.title}</CardTitle>
@@ -493,8 +498,8 @@ export default function MarketPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAndSortedMaterials.map((material) => (
-                  <Card key={material.id} className="bg-zinc-900 border-zinc-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
+                {filteredAndSortedMaterials.map((material, index) => (
+                  <Card key={material.id} style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }} className="bg-zinc-900 border-zinc-800 hover:border-amber-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col animate-in fade-in slide-in-from-bottom-4">
                     <CardHeader className="pb-3 border-b border-zinc-800 bg-zinc-900 relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Package className="w-16 h-16 text-amber-500" />
@@ -595,8 +600,8 @@ export default function MarketPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAndSortedMaterials.map((material) => (
-                  <Card key={material.id} className="bg-zinc-900 border-zinc-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col">
+                {filteredAndSortedMaterials.map((material, index) => (
+                  <Card key={material.id} style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }} className="bg-zinc-900 border-zinc-800 hover:border-green-500/50 transition-all duration-300 shadow-lg group h-full flex flex-col animate-in fade-in slide-in-from-bottom-4">
                     <CardHeader className="pb-3 border-b border-zinc-800 bg-zinc-900 relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                         <TrendingUp className="w-16 h-16 text-green-500" />
