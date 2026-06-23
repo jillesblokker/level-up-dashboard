@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, Shield, Flame, CheckCircle, Plus, UserPlus, PlusCircle, Star, Crown } from "lucide-react"
+import { Users, Shield, Flame, CheckCircle, Plus, UserPlus, PlusCircle, Star, Crown, Gift } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { getUserAlliances, checkInToAlliance, createAlliance, inviteToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
@@ -196,115 +196,141 @@ export function AllianceDashboard() {
         </div>
     );
 
-    // --- Alliance Chest Panel: tiered rewards based on Alliance Might ---
-    const CHEST_TIERS = [
-        {
-            threshold: 0.25,
-            label: "Iron Chest",
-            emoji: "🗝️",
-            color: "border-zinc-600/50 bg-zinc-900/30",
-            headerColor: "text-zinc-400",
-            rewards: [
-                { icon: "⚔️", name: "Shared XP Boost", desc: "+10% XP from all quests for 48 h" },
-                { icon: "🪙", name: "Gold Cache", desc: "200 gold split equally between members" },
-            ]
-        },
-        {
-            threshold: 0.50,
-            label: "Bronze Chest",
-            emoji: "📦",
-            color: "border-amber-800/50 bg-amber-950/20",
-            headerColor: "text-amber-600",
-            rewards: [
-                { icon: "🛡️", name: "Alliance Banner", desc: "Cosmetic banner displayed on your kingdom" },
-                { icon: "⚡", name: "Streak Shield", desc: "One free Streak Scroll for every member" },
-            ]
-        },
-        {
-            threshold: 0.75,
-            label: "Silver Chest",
-            emoji: "🪙",
-            color: "border-zinc-500/50 bg-zinc-900/20",
-            headerColor: "text-zinc-300",
-            rewards: [
-                { icon: "🌟", name: "Rare Kingdom Tile", desc: "One random rare tile added to each member's stash" },
-                { icon: "💰", name: "Treasury Surge", desc: "+25% gold from kingdom visits for 72 h" },
-            ]
-        },
-        {
-            threshold: 1.0,
-            label: "Gold Chest",
-            emoji: "👑",
-            color: "border-yellow-600/60 bg-yellow-950/20",
-            headerColor: "text-yellow-400",
-            rewards: [
-                { icon: "🏆", name: "Dominant Alliance Title", desc: "Claim the monthly leaderboard crown" },
-                { icon: "💎", name: "Crystal Cavern Tile", desc: "Legendary tile granted to every member" },
-                { icon: "✨", name: "Double XP Weekend", desc: "Alliance-wide 2× XP for the next weekend" },
-            ]
-        },
-    ];
+    // --- Daily Alliance Chest (Functional) ---
+    const MATERIALS = ['material-water', 'material-logs', 'material-stone', 'material-steel'];
+    const ESSENCES = ['ember_essence', 'frost_essence', 'tide_essence', 'verdant_essence'];
 
-    const AllianceChestPanel = ({ totalLevel, memberCount }: { totalLevel: number; memberCount: number }) => {
-        const target = Math.max(50, memberCount * 20);
-        const progress = Math.min(1, totalLevel / target);
-        const pct = Math.round(progress * 100);
+    const getChestTier = (totalLevel: number) => {
+        if (totalLevel >= 500) return { label: "Legendary Chest", level: 5, color: "text-purple-400 border-purple-500/50 bg-purple-950/30", glow: "shadow-[0_0_20px_rgba(168,85,247,0.4)]" };
+        if (totalLevel >= 250) return { label: "Gold Chest", level: 4, color: "text-yellow-400 border-yellow-500/50 bg-yellow-950/30", glow: "shadow-[0_0_20px_rgba(234,179,8,0.4)]" };
+        if (totalLevel >= 100) return { label: "Silver Chest", level: 3, color: "text-zinc-300 border-zinc-400/50 bg-zinc-900/30", glow: "shadow-[0_0_20px_rgba(161,161,170,0.4)]" };
+        if (totalLevel >= 50) return { label: "Bronze Chest", level: 2, color: "text-amber-600 border-amber-700/50 bg-amber-950/30", glow: "shadow-[0_0_20px_rgba(217,119,6,0.3)]" };
+        return { label: "Iron Chest", level: 1, color: "text-zinc-500 border-zinc-600/50 bg-zinc-900/30", glow: "" };
+    };
+
+    const DailyAllianceChest = ({ allianceId, totalLevel, checkedInToday }: { allianceId: string, totalLevel: number, checkedInToday: boolean }) => {
+        const today = new Date().toISOString().split('T')[0];
+        const cacheKey = `alliance-chest-claimed-${today}-${allianceId}`;
+        const [isClaimed, setIsClaimed] = useState(false);
+        const [isOpening, setIsOpening] = useState(false);
+
+        useEffect(() => {
+            if (typeof window !== 'undefined') {
+                setIsClaimed(localStorage.getItem(cacheKey) === 'true');
+            }
+        }, [cacheKey]);
+
+        const tier = getChestTier(totalLevel);
+
+        const handleOpenChest = async () => {
+            if (isClaimed || !checkedInToday || isOpening) return;
+            setIsOpening(true);
+
+            // Calculate drops based on tier level (1-5)
+            const rand = Math.random() * 100;
+            let rewardType = 'material';
+            let amount = 1;
+            let itemId: string = MATERIALS[Math.floor(Math.random() * MATERIALS.length)] || 'material-water';
+
+            // Drop probabilities
+            const essenceChance = tier.level > 3 ? tier.level * 1.5 : 0; // 0, 0, 0, 6, 7.5
+            const gemChance = tier.level > 2 ? tier.level * 2 : 0; // 0, 0, 6, 8, 10
+            const packChance = tier.level > 1 ? tier.level * 5 : 0; // 0, 10, 15, 20, 25
+            const goldChance = Math.max(10, 15 + (tier.level * 5)); // 20, 25, 30, 35, 40
+
+            if (rand < essenceChance) {
+                rewardType = 'essence';
+                itemId = ESSENCES[Math.floor(Math.random() * ESSENCES.length)] || 'ember_essence';
+                amount = 1;
+            } else if (rand < essenceChance + gemChance) {
+                rewardType = 'gems';
+                amount = Math.floor(Math.random() * 3) + 1; // 1-3 gems
+            } else if (rand < essenceChance + gemChance + packChance) {
+                rewardType = 'pack';
+                if (tier.level >= 5 && Math.random() > 0.5) itemId = 'pack-legend';
+                else if (tier.level >= 3 && Math.random() > 0.5) itemId = 'pack-hero';
+                else itemId = 'pack-basic';
+            } else if (rand < essenceChance + gemChance + packChance + goldChance) {
+                rewardType = 'gold';
+                amount = 50 * tier.level + Math.floor(Math.random() * 50);
+            } else {
+                rewardType = 'material';
+                amount = Math.floor(Math.random() * tier.level) + 1;
+            }
+
+            // Simulate animation wait
+            playSound(SOUNDS.ALLIANCE_OATH);
+            await new Promise(r => setTimeout(r, 800));
+
+            // Grant reward
+            if (rewardType === 'material' || rewardType === 'pack') {
+                const { addToInventory } = await import('@/lib/inventory-manager');
+                if (user?.id) {
+                    await addToInventory(user.id, { id: itemId, quantity: amount, name: (itemId.split('-')[1] || itemId).toUpperCase() });
+                }
+            } else if (rewardType === 'gold' || rewardType === 'gems' || rewardType === 'essence') {
+                const { addToCharacterStat } = await import('@/lib/character-stats-service');
+                addToCharacterStat(rewardType === 'essence' ? itemId as any : rewardType, amount, 'alliance-chest');
+            }
+
+            localStorage.setItem(cacheKey, 'true');
+            setIsClaimed(true);
+            setIsOpening(false);
+            
+            // Show toast
+            const itemName = rewardType === 'pack' ? itemId.replace('pack-', '') + ' pack' : 
+                             rewardType === 'material' ? itemId.replace('material-', '') : 
+                             rewardType === 'essence' ? itemId.replace('_', ' ') : rewardType;
+            toast({
+                title: "Chest Opened!",
+                description: `You received ${amount} ${itemName}!`,
+                className: "bg-amber-950 border-amber-500 text-amber-100"
+            });
+        };
 
         return (
-            <div className="mt-4 pt-4 border-t border-amber-900/30 space-y-3">
-                {/* Might bar */}
-                <div>
-                    <div className="flex justify-between items-center text-xs text-amber-500 mb-1.5">
-                        <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Alliance Might</span>
-                        <span className="font-bold">{totalLevel} / {target} <span className="text-amber-500/50 font-normal">({pct}%)</span></span>
+            <div className="mt-4 pt-4 border-t border-amber-900/30">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                        <Gift className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-bold text-amber-200">Daily Alliance Chest</span>
                     </div>
-                    <Progress value={pct} className="h-2.5 bg-amber-950/50" indicatorClassName="bg-gradient-to-r from-amber-600 to-yellow-500" />
-                    <div className="flex justify-between mt-1">
-                        {[25, 50, 75, 100].map(t => (
-                            <span key={t} className={`text-[9px] font-bold ${pct >= t ? "text-yellow-500" : "text-zinc-700"}`}>{t}%</span>
-                        ))}
-                    </div>
+                    <span className="text-xs text-amber-500/60 uppercase tracking-widest font-bold">Alliance Might: {totalLevel}</span>
                 </div>
 
-                {/* Chest tiers */}
-                <div className="space-y-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500/50 text-center">Alliance Chest Contents</p>
-                    {CHEST_TIERS.map((tier) => {
-                        const unlocked = progress >= tier.threshold;
-                        return (
-                            <div
-                                key={tier.label}
-                                className={`rounded-lg border p-3 transition-all ${unlocked
-                                    ? tier.color
-                                    : "border-zinc-800/30 bg-zinc-950 opacity-50 grayscale"
+                <div className={`rounded-xl border p-4 transition-all duration-500 flex flex-col items-center justify-center text-center relative overflow-hidden ${tier.color} ${isClaimed ? 'opacity-70 grayscale' : tier.glow}`}>
+                    {isOpening ? (
+                        <div className="py-4 animate-pulse">
+                            <span className="text-4xl animate-bounce block">🎁</span>
+                            <span className="text-xs mt-2 text-amber-400 block">Opening...</span>
+                        </div>
+                    ) : isClaimed ? (
+                        <div className="py-2">
+                            <span className="text-3xl block mb-2 opacity-50">📦</span>
+                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Claimed Today</span>
+                            <span className="text-[10px] text-zinc-500 block mt-1">Return at dawn for the next chest.</span>
+                        </div>
+                    ) : (
+                        <div className="py-2 flex flex-col items-center">
+                            <span className="text-4xl block mb-2 filter drop-shadow-lg">🎁</span>
+                            <span className={`text-sm font-bold uppercase tracking-widest ${tier.color.split(' ')[0]}`}>{tier.label}</span>
+                            <span className="text-[10px] text-amber-100/50 mt-1 mb-4 max-w-[200px] leading-tight">
+                                Contains random materials, packs, gold, gems or essence.
+                            </span>
+                            
+                            <Button 
+                                onClick={handleOpenChest}
+                                disabled={!checkedInToday}
+                                className={`w-full max-w-[200px] transition-all font-bold uppercase tracking-wider text-xs ${
+                                    checkedInToday 
+                                    ? "bg-amber-600 hover:bg-amber-500 text-amber-950 shadow-[0_0_15px_rgba(217,119,6,0.5)]" 
+                                    : "bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed"
                                 }`}
                             >
-                                <div className="flex items-center gap-2 mb-1.5">
-                                    <span className="text-base">{tier.emoji}</span>
-                                    <span className={`text-xs font-bold uppercase tracking-wide ${unlocked ? tier.headerColor : "text-zinc-600"}`}>
-                                        {tier.label}
-                                    </span>
-                                    <span className="ml-auto text-[10px] font-semibold">
-                                        {unlocked
-                                            ? <span className="text-green-500">✓ Unlocked</span>
-                                            : <span className="text-zinc-600">at {Math.round(tier.threshold * 100)}% Might</span>
-                                        }
-                                    </span>
-                                </div>
-                                <div className="space-y-1">
-                                    {tier.rewards.map(r => (
-                                        <div key={r.name} className="flex items-start gap-1.5 text-[11px]">
-                                            <span>{r.icon}</span>
-                                            <div>
-                                                <span className={`font-semibold ${unlocked ? "text-amber-200/80" : "text-zinc-600"}`}>{r.name}</span>
-                                                <span className={`ml-1 ${unlocked ? "text-zinc-400" : "text-zinc-700"}`}>— {r.desc}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    })}
+                                {checkedInToday ? "Open Chest" : "Swear Oath to Unlock"}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -347,9 +373,9 @@ export function AllianceDashboard() {
                                 </div>
                                 <div className="flex items-start gap-2.5">
                                     <div className="w-7 h-7 rounded-lg bg-amber-950/50 border border-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
-                                        <Shield className="w-4 h-4 text-amber-500" />
+                                        <Gift className="w-4 h-4 text-amber-500" />
                                     </div>
-                                    <span><span className="text-amber-300 font-semibold">Alliance Might:</span> Your combined levels fill the <strong className="text-amber-400">Alliance Chest</strong>, unlocking bonus rewards for all members.</span>
+                                    <span><span className="text-amber-300 font-semibold">Daily Chest:</span> Swear your oath to unlock a daily reward. The higher your <strong className="text-amber-400">Total Alliance Level</strong>, the better the loot (materials, packs, gems, essence).</span>
                                 </div>
                                 <div className="flex items-start gap-2.5">
                                     <div className="w-7 h-7 rounded-lg bg-amber-950/50 border border-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
@@ -440,9 +466,10 @@ export function AllianceDashboard() {
                                 </div>
 
                                 {alliance.stats && (
-                                    <AllianceChestPanel
+                                    <DailyAllianceChest
+                                        allianceId={alliance.id}
                                         totalLevel={alliance.stats.totalLevel}
-                                        memberCount={alliance.stats.memberCount}
+                                        checkedInToday={alliance.myStreak?.checkedInToday || false}
                                     />
                                 )}
                             </CardContent>
