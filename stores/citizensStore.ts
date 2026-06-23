@@ -350,18 +350,71 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     await gainGold(goldAmount, `citizen-collect:${citizen.name}`);
 
 
-    // Random extra material/food (20% chance)
+    // Biome-Specific Passive Gathering (20% chance)
     if (Math.random() < 0.20) {
-      const extraItems = ['material-logs', 'food-red'];
-      const randomItem = extraItems[Math.floor(Math.random() * extraItems.length)]!;
+      let gatheredItem = 'food-red';
+      let gatheredName = 'Red Fish';
+      let gatheredDesc = 'A red fish';
+      let gatheredType: 'food' | 'material' = 'food';
+      let gatheredEmoji = '🐟';
+      let gatheredImage = '/images/items/food/fish-red.webp';
+
+      // 50% chance it's a biome-specific material, 50% chance it's generic food
+      if (Math.random() < 0.50) {
+        gatheredType = 'material';
+        switch (citizen.type) {
+          case 'nature':
+            gatheredItem = 'material-logs';
+            gatheredName = 'Wooden Logs';
+            gatheredDesc = 'Basic building material gathered from the forest.';
+            gatheredEmoji = '🪵';
+            gatheredImage = '/images/items/materials/material-logs.webp';
+            break;
+          case 'earth':
+            gatheredItem = 'material-stone';
+            gatheredName = 'Stone';
+            gatheredDesc = 'Sturdy stone gathered from the mountains.';
+            gatheredEmoji = '🪨';
+            gatheredImage = '/images/items/materials/material-stone.webp';
+            break;
+          case 'fire':
+            gatheredItem = 'material-steel';
+            gatheredName = 'Steel';
+            gatheredDesc = 'Forged steel gathered near the volcanic vents.';
+            gatheredEmoji = '⛓️';
+            gatheredImage = '/images/items/materials/material-steel.webp';
+            break;
+          case 'water':
+            gatheredItem = 'material-water';
+            gatheredName = 'Water';
+            gatheredDesc = 'Fresh water gathered from the lakes.';
+            gatheredEmoji = '💧';
+            gatheredImage = '/images/items/materials/material-water.webp';
+            break;
+          case 'ice':
+            gatheredItem = 'material-crystal';
+            gatheredName = 'Crystal';
+            gatheredDesc = 'A shimmering crystal gathered from the frozen peaks.';
+            gatheredEmoji = '💎';
+            gatheredImage = '/images/items/materials/material-crystal.webp';
+            break;
+          default:
+            gatheredItem = 'material-logs';
+            gatheredName = 'Wooden Logs';
+            gatheredDesc = 'Basic building material.';
+            gatheredEmoji = '🪵';
+            gatheredImage = '/images/items/materials/material-logs.webp';
+        }
+      }
+
       await addToInventory(userId, {
-        id: randomItem,
-        name: randomItem === 'material-logs' ? 'Wooden Logs' : 'Red Fish',
-        description: randomItem === 'material-logs' ? 'Basic building material' : 'A red fish',
-        type: randomItem === 'material-logs' ? 'material' : 'food',
+        id: gatheredItem,
+        name: gatheredName,
+        description: gatheredDesc,
+        type: gatheredType,
         quantity: 1,
-        image: randomItem === 'material-logs' ? '/images/items/materials/material-logs.webp' : '/images/items/food/fish-red.webp',
-        emoji: randomItem === 'material-logs' ? '🪵' : '🐟',
+        image: gatheredImage,
+        emoji: gatheredEmoji,
         rarity: 'common',
         isEquippable: false,
         isConsumable: true,

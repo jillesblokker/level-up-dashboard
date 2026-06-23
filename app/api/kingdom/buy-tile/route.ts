@@ -125,6 +125,27 @@ export async function POST(request: Request) {
             if (deductError) throw deductError;
         }
 
+        // If the tile has a gemCost, deduct it
+        if (tile.gemCost && tile.gemCost > 0) {
+            const { data: gemStats, error: gemError } = await supabase
+                .from('character_stats')
+                .select('gems')
+                .eq('user_id', userId)
+                .single();
+
+            if (gemError || !gemStats) throw new Error('Failed to fetch gem stats');
+            if ((gemStats.gems || 0) < tile.gemCost) {
+                return NextResponse.json({ error: 'Insufficient gems' }, { status: 402 });
+            }
+
+            const { error: deductGemError } = await supabase
+                .from('character_stats')
+                .update({ gems: (gemStats.gems || 0) - tile.gemCost })
+                .eq('user_id', userId);
+
+            if (deductGemError) throw deductGemError;
+        }
+
         // Grant Tile
         // Upsert into kingdom_tile_inventory
         // Check if row exists

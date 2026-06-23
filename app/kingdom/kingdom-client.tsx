@@ -1561,12 +1561,23 @@ export function KingdomClient() {
       // Deduct materials
       // We'll call an API or helper
       try {
-        // Mock deduction for now
-        for (const req of tile.materialCost || []) {
-          // await removeItem(user.id, req.itemId, req.quantity);
+        // Call the API so server can deduct gems and grant the tile
+        const response = await fetch('/api/kingdom/buy-tile', {
+          method: 'POST',
+          body: JSON.stringify({ tileId: tile.id, cost: 0, currency: 'materials' })
+        });
+        
+        if (response.ok) {
+          // Mock deduction for now
+          for (const req of tile.materialCost || []) {
+            // await removeItem(user.id, req.itemId, req.quantity);
+          }
+          toast({ title: "Construction Started", description: `You constructed ${tile.name}!` });
+          // Add tile to grid or inventory logic...
+        } else {
+          const data = await response.json();
+          toast({ title: "Construction Failed", description: data.error || "Unknown error", variant: "destructive" });
         }
-        toast({ title: "Construction Started", description: `You constructed ${tile.name}!` });
-        // Add tile to grid or inventory logic...
       } catch (e) {
         toast({ title: "Construction Failed", variant: "destructive" });
       }

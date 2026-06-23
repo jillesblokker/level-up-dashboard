@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Crown, Hammer, Coins, LayoutGrid, Check } from "lucide-react";
+import { Crown, Hammer, Coins, LayoutGrid, Check, Gem } from "lucide-react";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -21,6 +21,7 @@ interface PropertyTile {
   description?: string | undefined;
   cost?: number | undefined;
   tokenCost?: number | undefined;
+  gemCost?: number | undefined;
   materialCost?: { itemId: string; quantity: number }[] | undefined;
   quantity?: number | undefined;
   levelRequired?: number | undefined;
@@ -692,9 +693,14 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
           <div className="space-y-2 mt-auto">
             <div className={cn("bg-zinc-950 rounded-lg p-2 border border-white/5", isLocked && "opacity-50")}>
               <div className="flex flex-col gap-1.5">
-                {(goldCost > 0 || (!hasMaterialCost && !hasTokenCost)) && (
+                {(goldCost > 0 || (!hasMaterialCost && !hasTokenCost && !tile.gemCost)) && (
                   <div className="flex items-center justify-between text-xs text-amber-500 font-bold">
                     <span className="flex items-center gap-1"><Coins className="w-3 h-3" /> {goldCost}g</span>
+                  </div>
+                )}
+                {tile.gemCost && tile.gemCost > 0 && (
+                  <div className="flex items-center justify-between text-xs text-pink-500 font-bold">
+                    <span className="flex items-center gap-1"><Gem className="w-3 h-3 text-pink-400 fill-pink-400" /> {tile.gemCost} Gems</span>
                   </div>
                 )}
                 {hasMaterialCost && tile.materialCost?.map((mat, idx) => {

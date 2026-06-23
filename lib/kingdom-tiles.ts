@@ -12,6 +12,7 @@ export interface KingdomTile {
   image: string
   materialCost?: { itemId: string; quantity: number }[]
   tokenCost?: number
+  gemCost?: number
   cost?: number
   levelRequired?: number
 }
@@ -306,6 +307,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/Castle.webp',
     materialCost: [{ itemId: 'material-stone-block', quantity: 20 }, { itemId: 'material-steel', quantity: 10 }],
     tokenCost: 3,
+    gemCost: 50,
     cost: 5000
   },
   {
@@ -366,6 +368,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/Mayor.webp',
     materialCost: [{ itemId: 'material-planks', quantity: 12 }, { itemId: 'material-stone-block', quantity: 5 }],
     tokenCost: 3,
+    gemCost: 25,
     cost: 800
   },
   {
