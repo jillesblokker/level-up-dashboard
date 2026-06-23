@@ -157,7 +157,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                     </div>
 
                     {/* Right Column: Image */}
-                    <div className="w-full md:w-1/2 h-48 md:h-auto flex-shrink-0 md:flex-shrink flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group">
+                    <div className="w-full md:w-1/2 aspect-square flex-shrink-0 flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group">
                         <img 
                             src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
                             alt={viewedChapter.title}
