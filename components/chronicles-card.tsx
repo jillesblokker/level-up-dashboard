@@ -116,7 +116,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
             <CardContent className="relative z-10 flex-1 flex flex-col pt-2 pb-4 min-h-0">
                 <div className="flex flex-col md:flex-row flex-1 min-h-0 gap-6 overflow-hidden">
                     {/* Left Column: Text */}
-                    <div className="flex-1 flex flex-col min-w-0">
+                    <div className="w-full md:w-1/4 flex flex-col min-w-0 flex-shrink-0">
                         {/* Pagination Controls */}
                         <div className="flex items-center justify-between mb-4 pb-2 border-b border-amber-800/20 flex-shrink-0">
                             <Button
@@ -157,7 +157,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                     </div>
 
                     {/* Right Column: Image */}
-                    <div className="w-full md:w-1/2 aspect-square flex-shrink-0 flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group">
+                    <div className="w-full md:w-3/4 aspect-[4/3] flex-shrink-0 flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group">
                         <img 
                             src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
                             alt={viewedChapter.title}
