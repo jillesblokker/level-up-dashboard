@@ -171,16 +171,26 @@ export async function POST(req: NextRequest) {
             let scavengedMaterial = null;
             let droppedGems = 0;
             const dropRoll = Math.random();
+
+            // Check if this is the very first quest completion ever to guarantee a drop
+            const { count: completionCount } = await supabase
+                .from('quest_completion')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
+
+            const isFirstEver = completionCount === 1;
             
-            if (dropRoll < 0.10) {
-                // 10% chance for Gems!
-                droppedGems = Math.floor(Math.random() * 3) + 1; // 1-3 Gems
+            if (dropRoll < 0.10 || isFirstEver) {
+                // 10% chance for Gems! (or guaranteed 5 Gems if first ever)
+                droppedGems = isFirstEver ? 5 : (Math.floor(Math.random() * 3) + 1); // 1-3 Gems normally
                 try {
                     await grantReward({ userId, type: 'gems', amount: droppedGems, relatedId: questId });
                 } catch (gemError) {
                     logger.error('[Smart Completion] Error granting gems:', gemError);
                 }
-            } else if (dropRoll < 0.30) {
+            } 
+            
+            if ((dropRoll >= 0.10 && dropRoll < 0.30) || isFirstEver) {
                 const category = (quest.category || 'might').toLowerCase();
                 let materialId = 'material-logs';
                 if (['might', 'craft'].includes(category)) materialId = 'material-steel';

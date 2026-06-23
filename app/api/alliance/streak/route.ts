@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { grantReward } from '@/app/api/kingdom/grantReward';
 
 export async function POST(req: NextRequest) {
     try {
@@ -84,7 +85,23 @@ export async function POST(req: NextRequest) {
                 }
             }
 
-            return { ...data, reward: { xp: REWARD_XP, gold: REWARD_GOLD } };
+            // Milestone Gem Rewards
+            let REWARD_GEMS = 0;
+            if (newStreak % 30 === 0) {
+                REWARD_GEMS = 10;
+            } else if (newStreak % 7 === 0) {
+                REWARD_GEMS = 3;
+            }
+
+            if (REWARD_GEMS > 0) {
+                try {
+                    await grantReward({ userId, type: 'gems', amount: REWARD_GEMS, relatedId: `alliance-streak-${newStreak}` });
+                } catch (e) {
+                    console.error('Error granting alliance streak gems', e);
+                }
+            }
+
+            return { ...data, reward: { xp: REWARD_XP, gold: REWARD_GOLD, gems: REWARD_GEMS } };
         });
 
         if (!result.success) {
