@@ -2135,11 +2135,11 @@ export function KingdomGridWithTimers({
                 aria-label="Open properties panel"
                 onClick={() => setPropertiesOpen(true)}
               >
-                <span className="filter drop-shadow-md group-hover:block transition-all">🎒</span>
+                <span className="filter drop-shadow-md group-hover:block transition-all">🏢</span>
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              <p>Open Bag & Properties</p>
+              <p>Manage Properties</p>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -2172,7 +2172,6 @@ export function KingdomGridWithTimers({
         inventory={inventory}
         grid={grid}
         inventoryItems={inventoryItems}
-        onForgeSuccess={onForgeSuccess}
         tiles={getAvailableProperties().map(p => ({ ...p, image: p.image?.startsWith('/') ? p.image : `/images/kingdom-tiles/${p.image}` }))}
         selectedTile={selectedInventoryTile}
         setSelectedTile={(tile) => {
@@ -2182,7 +2181,7 @@ export function KingdomGridWithTimers({
           }
         }}
         onBuy={(tile, method) => {
-          handleBuyProperty(tile as any, method);
+          handleBuyProperty(tile as any, method as any);
         }}
         onBuyToken={async () => {
           try {

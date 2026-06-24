@@ -20,6 +20,7 @@ import { Plus } from "lucide-react"
 import { useQuickAdd } from "@/components/quick-add-provider"
 import { formatGold } from "@/lib/utils"
 import { audioManager } from "@/lib/audio-manager"
+import { InventoryBagOverlay } from "@/components/inventory-bag-overlay"
 
 interface CustomSession {
   user?: {
@@ -37,6 +38,7 @@ export function NavBar({ session }: NavBarProps) {
   const { isSignedIn, isLoaded } = useUser()
   const { openQuickAdd } = useQuickAdd()
   const [isClient, setIsClient] = useState(false)
+  const [isBagOpen, setIsBagOpen] = useState(false);
   const [characterStats, setCharacterStats] = useState({
     level: 1,
     experience: 0,
@@ -167,8 +169,9 @@ export function NavBar({ session }: NavBarProps) {
   const levelProgress = calculateLevelProgress(characterStats.experience)
 
   return (
-    <div className="hidden lg:landscape:block md:border-b bg-black md:border-zinc-800 z-10 relative">
-      <div className="flex h-16 items-center pt-0 md:pt-0 safe-area-inset-top">
+    <>
+      <div className="hidden lg:landscape:block md:border-b bg-black md:border-zinc-800 z-10 relative">
+        <div className="flex h-16 items-center pt-0 md:pt-0 safe-area-inset-top">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
@@ -218,6 +221,18 @@ export function NavBar({ session }: NavBarProps) {
             >
               <Plus className="h-5 w-5" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full text-xl"
+              onClick={() => {
+                audioManager.playClick();
+                setIsBagOpen(true);
+              }}
+              title="Open Bag"
+            >
+              🎒
+            </Button>
 
           </div>
           <div className="relative">
@@ -227,6 +242,8 @@ export function NavBar({ session }: NavBarProps) {
         </div>
       </div>
     </div>
+      <InventoryBagOverlay open={isBagOpen} onClose={() => setIsBagOpen(false)} />
+    </>
   )
 }
 

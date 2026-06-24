@@ -1944,29 +1944,7 @@ export function KingdomClient() {
         </DialogContent>
       </Dialog>
 
-      {/* Kingdom Properties Inventory Overlay */}
-      <KingdomPropertiesInventory
-        open={propertiesOpen}
-        onClose={() => setPropertiesOpen(false)}
-        tiles={kingdomTileInventory}
-        selectedTile={selectedKingdomTile}
-        setSelectedTile={(tile) => setSelectedKingdomTile(tile as any)}
-        onBuy={(tile, method) => handleBuyTile(tile as any, method)}
-        onBuyToken={handleBuyToken}
-        inventory={mergedItems}
-        tokens={userTokens}
-        playerLevel={playerLevel}
-        grid={kingdomGrid}
-        inventoryItems={[
-          ...equippedItems.map(i => ({ ...i, equipped: true, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) })),
-          ...storedItems.map(i => ({ ...i, equipped: false, canEquip: isEquippable(i), canUse: isConsumable(i), sellPrice: getItemSellPrice(i) }))
-        ]}
-        userId={user?.id ?? null}
-        onForgeSuccess={loadInventory}
-        onEquip={handleEquip}
-        onUnequip={handleUnequip}
-        onSell={handleSellItem}
-      />
+      {/* Kingdom Properties Inventory Overlay was moved to kingdom-grid-with-timers */}
     </div>
   );
 }
