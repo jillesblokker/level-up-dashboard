@@ -200,7 +200,7 @@ export function KingdomPropertiesInventory({
 
             {/* ── PLACE tab ────────────────────────────────────────────── */}
             <TabsContent value="place" className="mt-4">
-              {inventory.filter(i => i.quantity > 0).length === 0 ? (
+              {inventory.filter(i => i.quantity > 0 && tiles.some(t => t.id === i.id)).length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-950">
                   <span className="text-5xl mb-4">🏗️</span>
                   <h3 className="text-lg font-medium text-amber-500/80 mb-1">No Properties Found</h3>
@@ -211,7 +211,7 @@ export function KingdomPropertiesInventory({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
-                  {inventory.filter(i => i.quantity > 0).map((tile) => (
+                  {inventory.filter(i => i.quantity > 0 && tiles.some(t => t.id === i.id)).map((tile) => (
                     <TileCard
                       key={`inv-${tile.id}`}
                       tile={tile}
