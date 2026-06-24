@@ -155,11 +155,37 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         }
       }
 
-      const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => ({
-        ...item,
-        stats: item.stats || {},
-        description: item.description || '',
-      }) as KingdomInventoryItem);
+      const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => {
+        const comp = comprehensiveItems.find(i => i.id === item.id);
+        let finalType = comp?.type || item.type;
+        let finalCategory = comp?.category || item.category;
+
+        // Auto-fix legacy items with generic or missing types based on their names
+        if (!finalType || finalType === 'equipment' || finalType === finalCategory) {
+          const lowerName = (item.name || '').toLowerCase();
+          if (lowerName.includes('armor') || lowerName.includes('helmet') || lowerName.includes('boots')) {
+            finalType = 'armor';
+          } else if (lowerName.includes('sword') || lowerName.includes('bow') || lowerName.includes('axe') || lowerName.includes('dagger') || lowerName.includes('staff')) {
+            finalType = 'weapon';
+          } else if (lowerName.includes('shield')) {
+            finalType = 'shield';
+          } else if (lowerName.includes('ring') || lowerName.includes('amulet') || lowerName.includes('crown')) {
+            finalType = 'artifact';
+          } else if (lowerName.includes('horse') || lowerName.includes('mount')) {
+            finalType = 'mount';
+          } else if (finalType === 'equipment') {
+            finalType = 'item'; // Default generic fallback
+          }
+        }
+
+        return {
+          ...item,
+          type: finalType as any,
+          category: finalCategory,
+          stats: item.stats || comp?.stats || {},
+          description: item.description || comp?.description || '',
+        } as KingdomInventoryItem;
+      });
 
       const equipped = allItems.filter((i: any) => i.equipped);
       const stored = allItems.filter((i: any) => !i.equipped);
@@ -342,7 +368,18 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
   const filteredStored = storedInventoryView.filter(item => {
     if (storedFilter === 'all') return true;
-    return item.type === storedFilter || item.category === storedFilter;
+    
+    if (item.type === storedFilter) return true;
+    
+    // Prevent items from showing in overlapping categories (e.g. artifacts in equipment)
+    const hasDedicatedTab = ITEM_CATEGORIES.some(c => c.value !== 'all' && c.value === item.type);
+    if (!hasDedicatedTab && item.category === storedFilter) return true;
+    
+    // Fix for legacy items with missing or generic types
+    if (!item.type && item.category === storedFilter) return true;
+    if (storedFilter === 'equipment' && ['weapon', 'armor', 'shield', 'artifact'].includes(item.type)) return false;
+    
+    return false;
   });
 
   const getOwnedQty = (itemId: string) => {
@@ -395,7 +432,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     if (displayName === 'Normalo Armor' || cleanName === 'armor-normalo') displayName = 'Normalo';
     if (cleanName === 'material-stone-block') displayName = 'Stone';
 
-    const displayType = compItem?.type || item.type;
+    const displayType = item.type;
 
     return (
     <div
