@@ -72,6 +72,7 @@ const tileTypeToNumeric: Record<TileType, number> = {
   wizard: 63,
   temple: 64,
   'market-stalls': 65,
+  fortune_teller: 66,
 };
 
 // Convert numeric value back to tile type
