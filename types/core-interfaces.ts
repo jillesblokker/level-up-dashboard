@@ -2,6 +2,7 @@
 // LEAF FILE: Do not import from any other project files here!
 
 export type TileType =
+  | 'fortune_teller'
   | 'empty'
   | 'mountain'
   | 'grass'

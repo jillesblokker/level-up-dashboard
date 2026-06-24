@@ -186,7 +186,7 @@ export interface UserAchievement {
 // Kingdom & Tiles
 // =============================================================================
 
-export type TileType = 'grass' | 'forest' | 'mountain' | 'water' | 'castle' | 'village' | 'farm' | 'mine'
+export type TileType = 'grass' | 'forest' | 'mountain' | 'water' | 'castle' | 'village' | 'farm' | 'mine' | 'fortune_teller'
 
 export interface KingdomTile {
     id: string
