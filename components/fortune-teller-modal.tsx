@@ -108,7 +108,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
   const selectedData = CARDS.find(c => c.id === selectedCard)
 
   return (
-    <Dialog open={open} onOpenChange={isProcessing ? undefined : onOpenChange}>
+    <Dialog open={open} onOpenChange={(val) => { if (!isProcessing) onOpenChange(val); }}>
       <DialogContent className="sm:max-w-[600px] border-emerald-900/50 bg-slate-950/95 backdrop-blur-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medieval text-emerald-400 text-center">
