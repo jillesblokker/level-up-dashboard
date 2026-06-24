@@ -15,6 +15,12 @@ import { useUser } from "@clerk/nextjs"
 import { getUserAlliances, checkInToAlliance, createAlliance, inviteToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
 import { useSound, SOUNDS } from "@/lib/sound-manager"
+import dynamic from 'next/dynamic'
+
+const PackOpeningModal = dynamic(
+  () => import('@/components/pack-opening-modal').then((mod) => mod.PackOpeningModal),
+  { ssr: false }
+)
 
 interface Friend {
     id: string; // Friendship ID
@@ -41,6 +47,7 @@ export function AllianceDashboard() {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [selectedFriendId, setSelectedFriendId] = useState<string>("");
     const [loadingFriends, setLoadingFriends] = useState(false);
+    const [openingPack, setOpeningPack] = useState<any>(null);
 
     useEffect(() => {
         if (user) {
@@ -263,7 +270,12 @@ export function AllianceDashboard() {
             await new Promise(r => setTimeout(r, 800));
 
             // Grant reward
-            if (rewardType === 'material' || rewardType === 'pack') {
+            if (rewardType === 'pack') {
+                const { generatePack } = await import('@/lib/pack-generator');
+                setOpeningPack(generatePack(itemId));
+                // Do not toast here, PackOpeningModal will handle the reward experience
+                return;
+            } else if (rewardType === 'material') {
                 const { addToInventory } = await import('@/lib/inventory-manager');
                 if (user?.id) {
                     await addToInventory(user.id, { id: itemId, quantity: amount, name: (itemId.split('-')[1] || itemId).toUpperCase() });
@@ -557,6 +569,19 @@ export function AllianceDashboard() {
                     </SheetFooter>
                 </SheetContent>
             </Sheet>
+
+            {openingPack && (
+                <PackOpeningModal 
+                    packData={openingPack} 
+                    onClose={() => setOpeningPack(null)} 
+                    onClaimed={() => {
+                        toast({
+                            title: "Card Claimed!",
+                            description: "The reward has been added to your collection."
+                        });
+                    }} 
+                />
+            )}
         </div >
     )
 }

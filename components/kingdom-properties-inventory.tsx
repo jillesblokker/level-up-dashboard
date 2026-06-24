@@ -36,14 +36,48 @@ interface Recipe {
 }
 
 const FORGE_RECIPES: Recipe[] = [
-  { id: 'craft-sword-irony',      targetItemId: 'sword-irony',      goldCost: 50,  materials: [{ itemId: 'material-steel', quantity: 5 }, { itemId: 'material-planks', quantity: 2 }] },
-  { id: 'craft-sword-morningstar', targetItemId: 'sword-morningstar', goldCost: 120, materials: [{ itemId: 'material-steel', quantity: 8 }, { itemId: 'material-planks', quantity: 3 }, { itemId: 'material-crystal', quantity: 1 }] },
-  { id: 'craft-sword-sunblade',   targetItemId: 'sword-sunblade',   goldCost: 250, materials: [{ itemId: 'material-silver', quantity: 10 }, { itemId: 'material-crystal', quantity: 5 }] },
-  { id: 'craft-sword-solaraxe',   targetItemId: 'sword-solaraxe',   goldCost: 500, materials: [{ itemId: 'material-gold', quantity: 15 }, { itemId: 'material-crystal', quantity: 10 }] },
-  { id: 'craft-shield-defecto',   targetItemId: 'shield-defecto',   goldCost: 40,  materials: [{ itemId: 'material-logs', quantity: 5 }, { itemId: 'material-steel', quantity: 3 }] },
-  { id: 'craft-shield-blockado',  targetItemId: 'shield-blockado',  goldCost: 100, materials: [{ itemId: 'material-steel', quantity: 8 }, { itemId: 'material-planks', quantity: 2 }, { itemId: 'material-crystal', quantity: 1 }] },
-  { id: 'craft-armor-darko',      targetItemId: 'armor-darko',      goldCost: 60,  materials: [{ itemId: 'material-logs', quantity: 4 }, { itemId: 'material-steel', quantity: 2 }] },
-  { id: 'craft-armor-silvo',      targetItemId: 'armor-silvo',      goldCost: 300, materials: [{ itemId: 'material-silver', quantity: 8 }, { itemId: 'material-crystal', quantity: 4 }] },
+  { id: 'craft-sword-irony',      targetItemId: 'sword-irony',      goldCost: 50,    materials: [
+      { itemId: 'sword-twig', quantity: 1 },
+      { itemId: 'material-steel', quantity: 5 },
+      { itemId: 'material-planks', quantity: 2 }
+    ] },
+  { id: 'craft-sword-morningstar', targetItemId: 'sword-morningstar', goldCost: 120,    materials: [
+      { itemId: 'sword-irony', quantity: 1 },
+      { itemId: 'material-steel', quantity: 8 },
+      { itemId: 'material-planks', quantity: 3 },
+      { itemId: 'material-crystal', quantity: 1 }
+    ] },
+  { id: 'craft-sword-sunblade',   targetItemId: 'sword-sunblade',   goldCost: 250,    materials: [
+      { itemId: 'sword-morningstar', quantity: 1 },
+      { itemId: 'material-silver', quantity: 10 },
+      { itemId: 'material-crystal', quantity: 5 }
+    ] },
+  { id: 'craft-sword-solaraxe',   targetItemId: 'sword-solaraxe',   goldCost: 500,    materials: [
+      { itemId: 'sword-sunblade', quantity: 1 },
+      { itemId: 'material-gold', quantity: 15 },
+      { itemId: 'material-crystal', quantity: 10 }
+    ] },
+  { id: 'craft-shield-defecto',   targetItemId: 'shield-defecto',   goldCost: 40,    materials: [
+      { itemId: 'shield-reflecto', quantity: 1 },
+      { itemId: 'material-logs', quantity: 5 },
+      { itemId: 'material-steel', quantity: 3 }
+    ] },
+  { id: 'craft-shield-blockado',  targetItemId: 'shield-blockado',  goldCost: 100,    materials: [
+      { itemId: 'shield-defecto', quantity: 1 },
+      { itemId: 'material-steel', quantity: 8 },
+      { itemId: 'material-planks', quantity: 2 },
+      { itemId: 'material-crystal', quantity: 1 }
+    ] },
+  { id: 'craft-armor-darko',      targetItemId: 'armor-darko',      goldCost: 60,    materials: [
+      { itemId: 'armor-normalo', quantity: 1 },
+      { itemId: 'material-logs', quantity: 4 },
+      { itemId: 'material-steel', quantity: 2 }
+    ] },
+  { id: 'craft-armor-silvo',      targetItemId: 'armor-silvo',      goldCost: 300,    materials: [
+      { itemId: 'armor-darko', quantity: 1 },
+      { itemId: 'material-silver', quantity: 8 },
+      { itemId: 'material-crystal', quantity: 4 }
+    ] },
   { id: 'craft-potion-exp',       targetItemId: 'potion-exp',       goldCost: 50,  materials: [{ itemId: 'material-crystal', quantity: 3 }, { itemId: 'food-red', quantity: 1 }] },
 ];
 

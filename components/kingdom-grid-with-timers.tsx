@@ -353,6 +353,12 @@ export function KingdomGridWithTimers({
     return { score, reason };
   };
 
+  // Helper to extract the base type of a tile robustly
+  const getBaseType = (n: any) => {
+    if (!n) return '';
+    return (n.type || n.id?.split('-')[0] || '').toLowerCase();
+  };
+
   // Helper to calculate exact adjacency bonus multiplier
   const calculateAdjacencyBonus = (x: number, y: number, tileType: string): number => {
     const neighbors = [
@@ -363,30 +369,31 @@ export function KingdomGridWithTimers({
     ].filter(Boolean);
 
     let bonus = 0;
+    const baseTileType = tileType.split('-')[0].toLowerCase();
 
-    if (tileType === 'farm' && neighbors.some(n => n?.type === 'water')) {
+    if (baseTileType === 'farm' && neighbors.some(n => getBaseType(n) === 'water')) {
       bonus = 0.2;
-    } else if (tileType === 'lumber_mill' && neighbors.some(n => n?.type === 'forest')) {
+    } else if (baseTileType === 'lumber_mill' && neighbors.some(n => getBaseType(n) === 'forest')) {
       bonus = 0.2;
-    } else if (tileType === 'market') {
+    } else if (baseTileType === 'market') {
       const houseCount = neighbors.filter(n =>
-        n?.type === 'house' || n?.type === 'mansion' || n?.type === 'cottage'
+        ['house', 'mansion', 'cottage'].includes(getBaseType(n))
       ).length;
       bonus = 0.1 * houseCount;
-    } else if (['well', 'fountain', 'fisherman'].includes(tileType) && neighbors.some(n => n?.type === 'water')) {
+    } else if (['well', 'fountain', 'fisherman'].includes(baseTileType) && neighbors.some(n => getBaseType(n) === 'water')) {
       bonus = 0.2; // +20% next to water
-    } else if (tileType === 'blacksmith' && neighbors.some(n => n?.type === 'mountain' || n?.type === 'lava')) {
+    } else if (baseTileType === 'blacksmith' && neighbors.some(n => ['mountain', 'lava'].includes(getBaseType(n)))) {
       bonus = 0.25;
-    } else if (tileType === 'sawmill' && neighbors.some(n => n?.type === 'forest')) {
+    } else if (baseTileType === 'sawmill' && neighbors.some(n => getBaseType(n) === 'forest')) {
       bonus = 0.2;
-    } else if (['library', 'wizard'].includes(tileType) && neighbors.some(n => n?.type === 'ice' || n?.type === 'mountain')) {
+    } else if (['library', 'wizard'].includes(baseTileType) && neighbors.some(n => ['ice', 'mountain'].includes(getBaseType(n)))) {
       bonus = 0.3;
-    } else if (['inn', 'bakery', 'grocery', 'foodcourt'].includes(tileType)) {
+    } else if (['inn', 'bakery', 'grocery', 'foodcourt'].includes(baseTileType)) {
       const residentCount = neighbors.filter(n =>
-        n?.type === 'house' || n?.type === 'mansion' || n?.type === 'cottage' || n?.type === 'town' || n?.type === 'city'
+        ['house', 'mansion', 'cottage', 'town', 'city'].includes(getBaseType(n))
       ).length;
       bonus = 0.1 * residentCount;
-    } else if (['vegetables', 'pumpkin_patch'].includes(tileType) && neighbors.some(n => n?.type === 'water' || n?.type === 'grass')) {
+    } else if (['vegetables', 'pumpkin_patch'].includes(baseTileType) && neighbors.some(n => ['water', 'grass'].includes(getBaseType(n)))) {
       bonus = 0.15;
     }
 

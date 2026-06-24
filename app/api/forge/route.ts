@@ -28,6 +28,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'sword-irony',
     goldCost: 50,
     materials: [
+      { itemId: 'sword-twig', quantity: 1 },
       { itemId: 'material-steel', quantity: 5 },
       { itemId: 'material-planks', quantity: 2 }
     ]
@@ -37,6 +38,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'sword-morningstar',
     goldCost: 120,
     materials: [
+      { itemId: 'sword-irony', quantity: 1 },
       { itemId: 'material-steel', quantity: 8 },
       { itemId: 'material-planks', quantity: 3 },
       { itemId: 'material-crystal', quantity: 1 }
@@ -47,6 +49,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'sword-sunblade',
     goldCost: 250,
     materials: [
+      { itemId: 'sword-morningstar', quantity: 1 },
       { itemId: 'material-silver', quantity: 10 },
       { itemId: 'material-crystal', quantity: 5 }
     ]
@@ -56,6 +59,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'sword-solaraxe',
     goldCost: 500,
     materials: [
+      { itemId: 'sword-sunblade', quantity: 1 },
       { itemId: 'material-gold', quantity: 15 },
       { itemId: 'material-crystal', quantity: 10 }
     ]
@@ -65,6 +69,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'shield-defecto',
     goldCost: 40,
     materials: [
+      { itemId: 'shield-reflecto', quantity: 1 },
       { itemId: 'material-logs', quantity: 5 },
       { itemId: 'material-steel', quantity: 3 }
     ]
@@ -74,6 +79,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'shield-blockado',
     goldCost: 100,
     materials: [
+      { itemId: 'shield-defecto', quantity: 1 },
       { itemId: 'material-steel', quantity: 8 },
       { itemId: 'material-planks', quantity: 2 },
       { itemId: 'material-crystal', quantity: 1 }
@@ -84,6 +90,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'armor-darko',
     goldCost: 60,
     materials: [
+      { itemId: 'armor-normalo', quantity: 1 },
       { itemId: 'material-logs', quantity: 4 },
       { itemId: 'material-steel', quantity: 2 }
     ]
@@ -93,6 +100,7 @@ const FORGE_RECIPES: Recipe[] = [
     targetItemId: 'armor-silvo',
     goldCost: 300,
     materials: [
+      { itemId: 'armor-darko', quantity: 1 },
       { itemId: 'material-silver', quantity: 8 },
       { itemId: 'material-crystal', quantity: 4 }
     ]
