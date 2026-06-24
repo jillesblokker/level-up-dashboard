@@ -88,17 +88,15 @@ const FORGE_RECIPES: Recipe[] = [
 ];
 
 const ITEM_CATEGORIES = [
-  { value: 'all',       label: 'All',       emoji: '🎒' },
-  { value: 'weapon',    label: 'Weapons',   emoji: '🗡️' },
-  { value: 'shield',    label: 'Shields',   emoji: '🛡️' },
-  { value: 'armor',     label: 'Armor',     emoji: '🦺' },
-  { value: 'equipment', label: 'Equipment', emoji: '⚔️' },
-  { value: 'resource',  label: 'Resources', emoji: '🌿' },
-  { value: 'scroll',    label: 'Scrolls',   emoji: '📜' },
-  { value: 'item',      label: 'Items',     emoji: '📦' },
-  { value: 'artifact',  label: 'Artifacts', emoji: '🏺' },
-  { value: 'book',      label: 'Books',     emoji: '📚' },
-  { value: 'mount',     label: 'Mounts',    emoji: '🐎' },
+  { value: 'all',        label: 'All',         emoji: '🎒' },
+  { value: 'weapon',     label: 'Weapons',     emoji: '🗡️' },
+  { value: 'shield',     label: 'Shields',     emoji: '🛡️' },
+  { value: 'armor',      label: 'Armor',       emoji: '🦺' },
+  { value: 'artifact',   label: 'Artifacts',   emoji: '🏺' },
+  { value: 'mount',      label: 'Mounts',      emoji: '🐎' },
+  { value: 'consumable', label: 'Consumables', emoji: '🧪' },
+  { value: 'material',   label: 'Materials',   emoji: '🌿' },
+  { value: 'scroll',     label: 'Scrolls',     emoji: '📜' },
 ];
 
 interface InventoryBagOverlayProps {
@@ -161,7 +159,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         let finalCategory = comp?.category || item.category;
 
         // Auto-fix legacy items with generic or missing types based on their names
-        if (!finalType || finalType === 'equipment' || finalType === finalCategory) {
+        if (!finalType || finalType === 'equipment' || finalType === 'item' || finalType === finalCategory) {
           const lowerName = (item.name || '').toLowerCase();
           if (lowerName.includes('armor') || lowerName.includes('helmet') || lowerName.includes('boots')) {
             finalType = 'armor';
@@ -173,10 +171,19 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             finalType = 'artifact';
           } else if (lowerName.includes('horse') || lowerName.includes('mount')) {
             finalType = 'mount';
+          } else if (lowerName.includes('potion') || lowerName.includes('elixir') || lowerName.includes('flask')) {
+            finalType = 'potion';
+          } else if (lowerName.includes('log') || lowerName.includes('ore') || lowerName.includes('stone') || lowerName.includes('wood')) {
+            finalType = 'material';
           } else if (finalType === 'equipment') {
-            finalType = 'item'; // Default generic fallback
+            finalType = 'material'; // Default generic fallback
           }
         }
+        
+        // Ensure categories match the new strict schema
+        if (finalType === 'potion' || finalType === 'food') finalCategory = 'consumable';
+        else if (finalType === 'material') finalCategory = 'material';
+        else if (finalType === 'artifact') finalCategory = 'artifact';
 
         return {
           ...item,
@@ -371,13 +378,12 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     
     if (item.type === storedFilter) return true;
     
-    // Prevent items from showing in overlapping categories (e.g. artifacts in equipment)
+    // Prevent items from showing in overlapping categories
     const hasDedicatedTab = ITEM_CATEGORIES.some(c => c.value !== 'all' && c.value === item.type);
     if (!hasDedicatedTab && item.category === storedFilter) return true;
     
     // Fix for legacy items with missing or generic types
     if (!item.type && item.category === storedFilter) return true;
-    if (storedFilter === 'equipment' && ['weapon', 'armor', 'shield', 'artifact'].includes(item.type)) return false;
     
     return false;
   });
