@@ -119,6 +119,7 @@ export const initialInventory: Record<TileType, Tile> = {
     wizard: { ...defaultTile('wizard'), cost: 400, owned: 0 },
     temple: { ...defaultTile('temple'), cost: 400, owned: 0 },
     'market-stalls': { ...defaultTile('market-stalls'), cost: 400, owned: 0 },
+    fortune_teller: { ...defaultTile('fortune_teller'), cost: 200, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -141,6 +142,7 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'library') return '/images/kingdom-tiles/Library.webp';
     if (type === 'wizard') return '/images/kingdom-tiles/Wizard.webp';
     if (type === 'temple') return '/images/kingdom-tiles/Temple.webp';
+    if (type === 'fortune_teller') return '/images/kingdom-tiles/fortune_teller.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 
