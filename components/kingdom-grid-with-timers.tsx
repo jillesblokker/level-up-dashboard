@@ -369,7 +369,7 @@ export function KingdomGridWithTimers({
     ].filter(Boolean);
 
     let bonus = 0;
-    const baseTileType = tileType.split('-')[0].toLowerCase();
+    const baseTileType = (tileType.split('-')[0] || '').toLowerCase();
 
     if (baseTileType === 'farm' && neighbors.some(n => getBaseType(n) === 'water')) {
       bonus = 0.2;
