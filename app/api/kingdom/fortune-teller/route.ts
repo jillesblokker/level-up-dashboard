@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Handle rewards
     if (cardChoice === 'king') {
-      const randomMaterial = MATERIALS[Math.floor(Math.random() * MATERIALS.length)];
+      const randomMaterial = MATERIALS[Math.floor(Math.random() * MATERIALS.length)] || 'material-logs';
       
       // Update inventory directly
       const { data: currentItem } = await supabaseServer
