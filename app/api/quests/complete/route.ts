@@ -2,6 +2,8 @@ import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
+import { grantReward } from '@/app/api/kingdom/grantReward';
+import { AllianceStreakManager } from '@/lib/alliance-streak-manager';
 
 const supabase = createClient(
     process.env['NEXT_PUBLIC_SUPABASE_URL']!,
@@ -213,7 +215,7 @@ export async function POST(request: NextRequest) {
                 }
 
                 // Update alliance streak for completing friend quest
-                const { AllianceStreakManager } = await import('@/lib/alliance-streak-manager');
+                
                 const streakManager = new AllianceStreakManager(supabase);
                 await streakManager.updateStreak(userId);
             } catch (notifyError) {

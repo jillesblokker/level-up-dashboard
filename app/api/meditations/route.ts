@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { getMilestoneMessage } from '@/lib/milestone-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
                     .eq('user_id', userId);
 
                 if (count === 10 || count === 25 || count === 50) {
-                    const { getMilestoneMessage } = await import('@/lib/milestone-manager');
+                    
                     milestoneMessage = await getMilestoneMessage(`meditation_${count}`);
                 }
             } catch (mErr) {

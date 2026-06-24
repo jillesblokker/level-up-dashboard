@@ -11,7 +11,13 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  const { userId } = await auth();
+  let userId: string | null = null;
+  try {
+    const authResult = await auth();
+    userId = authResult.userId;
+  } catch (error) {
+    console.error('[Middleware] Clerk auth() threw an error:', error);
+  }
   const { pathname, searchParams } = request.nextUrl;
 
   const secFetchMode = request.headers.get('sec-fetch-mode');
@@ -47,8 +53,14 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(new URL('/kingdom', request.url));
   }
 
-  // Redirect unauthorized non-public routes to local sign-in, except for prefetches which get a 401
+  // Redirect unauthorized non-public routes to local sign-in, except for prefetches and API routes
   if (!isPublicRoute(request) && !userId) {
+    if (pathname.startsWith('/api/')) {
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     if (isPrefetch) {
       return new NextResponse(null, {
         status: 401,

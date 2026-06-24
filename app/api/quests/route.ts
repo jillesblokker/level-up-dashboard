@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
 import { getAuth, clerkClient } from '@clerk/nextjs/server';
+import { defaultQuests } from '@/lib/quest-sample-data';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
 import { supabaseServer } from '../../../lib/supabase/server-client';
@@ -157,7 +158,7 @@ export async function GET(request: Request) {
     if (quests && quests.length === 0) {
       logger.debug(`[Quests API] No quests found for user ${userId}. Seeding defaults...`);
       try {
-        const { defaultQuests } = await import('@/lib/quest-sample-data');
+        
         const seededQuests = defaultQuests.map(q => ({
           user_id: userId,
           name: (q as any).title || (q as any).name,

@@ -2,6 +2,7 @@ import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { grantReward } from '@/app/api/kingdom/grantReward';
+import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 
 // This endpoint is used by the "Bulk Complete All" feature in the frontend.
 // It handles marking a quest as complete intelligently (checking for existing completions, etc.)
@@ -207,7 +208,6 @@ export async function POST(req: NextRequest) {
                 else if (['knowledge', 'honor', 'castle'].includes(category)) materialId = 'material-crystal';
                 else if (['exploration'].includes(category)) materialId = 'material-planks';
 
-                const { comprehensiveItems } = await import('@/app/lib/comprehensive-items');
                 const materialRef = comprehensiveItems.find(i => i.id === materialId);
 
                 if (materialRef) {

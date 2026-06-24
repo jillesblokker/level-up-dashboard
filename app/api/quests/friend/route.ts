@@ -2,6 +2,8 @@ import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import { AchievementManager } from '@/lib/achievement-manager';
+import { AllianceStreakManager } from '@/lib/alliance-streak-manager';
 
 export async function POST(request: Request) {
     const { userId } = await auth();
@@ -79,7 +81,7 @@ export async function POST(request: Request) {
 
         // Check Achievements for sender
         try {
-            const { AchievementManager } = await import('@/lib/achievement-manager');
+            
             const achievementManager = new AchievementManager(supabaseServer);
 
             // Count quests sent by user
@@ -100,7 +102,7 @@ export async function POST(request: Request) {
 
         // Update alliance streak for sending quest
         try {
-            const { AllianceStreakManager } = await import('@/lib/alliance-streak-manager');
+            
             const streakManager = new AllianceStreakManager(supabaseServer);
             await streakManager.updateStreak(userId);
         } catch (streakError) {

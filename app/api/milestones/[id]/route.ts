@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { apiLogger } from '@/lib/logger';
 
@@ -55,7 +56,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Missing Supabase environment variables' }, { status: 500 });
     }
 
-    const { createClient } = await import('@supabase/supabase-js');
+    
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     // First, delete related milestone_completion records

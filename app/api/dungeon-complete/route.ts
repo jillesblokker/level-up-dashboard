@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getMilestoneMessage } from '@/lib/milestone-manager';
+import { grantReward } from '@/app/api/kingdom/grantReward';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 import { apiLogger } from '@/lib/logger';
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
         // Grant gems
         if (totalGems > 0) {
             try {
-                const { grantReward } = await import('@/app/api/kingdom/grantReward');
+                
                 await grantReward({ userId, type: 'gems', amount: totalGems, relatedId: dungeonId });
             } catch (gemError) {
                 apiLogger.error("Failed to grant gems", gemError);
@@ -147,7 +149,7 @@ export async function POST(req: NextRequest) {
         // --- Milestone Check ---
         let milestoneMessage = null;
         try {
-            const { getMilestoneMessage } = await import('@/lib/milestone-manager');
+            
 
             if (status === 'completed' || status === 'victory') {
                 // Check total victories

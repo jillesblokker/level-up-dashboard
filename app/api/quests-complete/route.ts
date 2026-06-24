@@ -3,7 +3,8 @@ import { getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '../../../lib/supabase/server-client';
 import { apiLogger } from '@/lib/logger';
 import type { DbQuestRow, DbQuestCompletionRow } from '@/types/api';
-
+import { getMilestoneMessage } from '@/lib/milestone-manager';
+import { clerkClient } from '@clerk/nextjs/server';
 const supabase = supabaseServer;
 
 // Helper to extract and verify Clerk JWT, returns userId or null
@@ -158,7 +159,7 @@ export async function PUT(request: Request) {
           .eq('user_id', userId)
           .single();
 
-        const { getMilestoneMessage } = await import('@/lib/milestone-manager');
+        
 
         // Priority to streak milestones if they align, otherwise quest counts
         if (charStats?.streak_days === 7) {
@@ -183,7 +184,7 @@ export async function PUT(request: Request) {
     if (completed && quest.sender_id && quest.sender_id !== userId) {
       apiLogger.debug('Quest was sent by friend, triggering notification');
       try {
-        const { clerkClient } = await import('@clerk/nextjs/server');
+        
         const client = await clerkClient();
         const completer = await client.users.getUser(userId);
         const completerName = completer.username || completer.firstName || 'A friend';

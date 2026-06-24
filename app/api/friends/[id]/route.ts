@@ -2,6 +2,7 @@ import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import { AchievementManager } from '@/lib/achievement-manager';
 
 // PUT /api/friends/[id] - Respond to friend request (Accept/Reject)
 export async function PUT(
@@ -76,7 +77,7 @@ export async function PUT(
 
         // Check Achievements for both users
         try {
-            const { AchievementManager } = await import('@/lib/achievement-manager');
+            
             const achievementManager = new AchievementManager(supabaseServer);
 
             // Count friends for recipient (current user)
