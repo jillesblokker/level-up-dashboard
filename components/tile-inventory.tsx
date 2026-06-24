@@ -47,6 +47,7 @@ const allPossibleTiles: Tile[] = [
   { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.webp' },
   { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
   { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
+  { id: 'fortune_teller', name: 'Fortune Teller', type: 'fortune_teller', quantity: 0, cost: 200, connections: [], description: 'A mysterious entity offering fortunes', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fortune Teller tile', image: '/images/kingdom-tiles/fortune_teller.webp' },
 
   // Advanced Tiles (Level 60-80)
   { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.webp' },
@@ -92,7 +93,7 @@ const tileCategories = [
     minLevel: 40,
     maxLevel: 60,
     description: 'Advanced infrastructure and specialized buildings',
-    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit']
+    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit', 'fortune_teller']
   },
   {
     id: 'advanced',
