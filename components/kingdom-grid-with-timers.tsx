@@ -25,6 +25,7 @@ import { AnimatePresence } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
 import { TileActionSheet } from '@/components/tile-action-sheet'
 import { KingdomSummaryModal } from './kingdom-summary-modal'
+import { FortuneTellerModal } from './fortune-teller-modal'
 import { useGameStore } from '@/stores/game-store'
 
 
@@ -419,6 +420,9 @@ export function KingdomGridWithTimers({
   // State for mobile action sheet
   const [actionSheetOpen, setActionSheetOpen] = useState(false)
   const [actionSheetTile, setActionSheetTile] = useState<{ tile: Tile; x: number; y: number; timer?: TileTimer } | null>(null)
+
+  const [fortuneModalOpen, setFortuneModalOpen] = useState(false);
+  const [fortuneTileData, setFortuneTileData] = useState<{x: number, y: number, tileId: string} | null>(null);
 
   // Batch collection state
   const [showSummaryModal, setShowSummaryModal] = useState(false)
@@ -1299,6 +1303,16 @@ export function KingdomGridWithTimers({
     if (tile.type === 'dungeon') {
       toast({ title: "Entering Dungeon...", description: "Teleporting to Dungeon." });
       router.push('/dungeon');
+      return;
+    }
+    if (tile.type === 'fortune_teller') {
+      const activeTimer = tileTimers.find(t => t.x === x && t.y === y && t.tileId === tile.type);
+      if (activeTimer && !activeTimer.isReady) {
+        toast({ title: "Resting", description: "The Fortune Teller is resting. Come back later." });
+      } else {
+        setFortuneTileData({ x, y, tileId: tile.type });
+        setFortuneModalOpen(true);
+      }
       return;
     }
     if (tile.type === 'monument') {
@@ -2287,6 +2301,27 @@ export function KingdomGridWithTimers({
           setZenModalOpen(true);
         } : undefined}
       />
+      {fortuneModalOpen && fortuneTileData && (
+        <FortuneTellerModal
+          open={fortuneModalOpen}
+          onOpenChange={setFortuneModalOpen}
+          x={fortuneTileData.x}
+          y={fortuneTileData.y}
+          tileId={fortuneTileData.tileId}
+          onComplete={() => {
+            setTileTimers(prev => [
+              ...prev.filter(t => t.x !== fortuneTileData.x || t.y !== fortuneTileData.y),
+              {
+                x: fortuneTileData.x,
+                y: fortuneTileData.y,
+                tileId: 'fortune_teller',
+                endTime: Date.now() + 48 * 60 * 60 * 1000,
+                isReady: false
+              }
+            ])
+          }}
+        />
+      )}
     </div >
   )
 }

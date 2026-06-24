@@ -823,6 +823,21 @@ export const KINGDOM_TILES: KingdomTile[] = [
     rarity: 'epic',
     image: '/images/kingdom-tiles/Dungeon.webp',
     cost: 1000
+  },
+  {
+    id: 'fortune_teller',
+    name: 'Fortune Teller',
+    timerMinutes: 2880, // 48 hours
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Draw a card to reveal your fortune.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/fortune_teller.webp',
+    cost: 200,
+    gemCost: 10
   }
 ]
 
