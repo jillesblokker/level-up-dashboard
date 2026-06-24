@@ -2,6 +2,7 @@ import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,11 +37,21 @@ export async function GET(request: Request) {
     }
 
     // Format items for the frontend
-    const formattedData = (data || []).map((row: any) => ({
-      ...row,
-      id: row.item_id, // Frontend expects 'id'
-      stats: row.stats || {},
-    }));
+    const formattedData = (data || []).map((row: any) => {
+      const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === row.item_id);
+      return {
+        ...row,
+        id: row.item_id, // Frontend expects 'id'
+        name: sourceOfTruth ? sourceOfTruth.name : row.name,
+        description: sourceOfTruth ? sourceOfTruth.description : row.description,
+        type: sourceOfTruth ? sourceOfTruth.type : row.type,
+        category: sourceOfTruth ? sourceOfTruth.category : row.category,
+        image: sourceOfTruth ? sourceOfTruth.image : row.image,
+        emoji: sourceOfTruth ? sourceOfTruth.emoji : row.emoji,
+        rarity: sourceOfTruth ? sourceOfTruth.rarity : row.rarity,
+        stats: sourceOfTruth ? (sourceOfTruth.stats || {}) : (row.stats || {}),
+      };
+    });
 
     if (itemId && formattedData.length > 0) {
       return NextResponse.json({ success: true, data: formattedData[0] });
@@ -166,20 +177,27 @@ export async function PATCH(request: Request) {
       if (fetchError) throw fetchError;
       if (!item) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
 
+      const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === itemId);
+      const trueCategory = sourceOfTruth ? sourceOfTruth.category : item.category;
+
       // Unequip existing item of same category
-      if (item.category) {
+      if (trueCategory) {
         await supabaseServer
           .from('inventory_items')
           .update({ equipped: false })
           .eq('user_id', userId)
-          .eq('category', item.category)
+          .eq('category', trueCategory)
           .eq('equipped', true);
       }
 
       // Equip the new item
       const { data, error } = await supabaseServer
         .from('inventory_items')
-        .update({ equipped: true, updated_at: new Date().toISOString() })
+        .update({ 
+          equipped: true, 
+          category: trueCategory,
+          updated_at: new Date().toISOString() 
+        })
         .eq('user_id', userId)
         .eq('item_id', itemId)
         .select()

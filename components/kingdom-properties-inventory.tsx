@@ -89,7 +89,6 @@ const ITEM_CATEGORIES = [
   { value: 'equipment', label: 'Equipment', emoji: '⚔️' },
   { value: 'resource',  label: 'Resources', emoji: '🌿' },
   { value: 'scroll',    label: 'Scrolls',   emoji: '📜' },
-  { value: 'creature',  label: 'Creatures', emoji: '🐉' },
   { value: 'item',      label: 'Items',     emoji: '📦' },
   { value: 'artifact',  label: 'Artifacts', emoji: '🏺' },
   { value: 'book',      label: 'Books',     emoji: '📚' },
