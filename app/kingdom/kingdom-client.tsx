@@ -755,6 +755,20 @@ export function KingdomClient() {
     if (isConsumable(item)) {
       setModalText(await getConsumableEffect(item));
       setModalOpen(true);
+      
+      // Remove consumable from inventory after use
+      if (user?.id) {
+        try {
+          await fetch('/api/inventory', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ itemId: item.id, quantity: 1 })
+          });
+          window.dispatchEvent(new Event('character-inventory-update'));
+        } catch (e) {
+          logger.error('[Kingdom] Failed to remove consumable after use', e);
+        }
+      }
       return;
     }
     if (user?.id) equipItem(user.id, item.id);
@@ -835,23 +849,26 @@ export function KingdomClient() {
     }
 
     const sellPrice = getItemSellPrice(item);
-    // Removed debugging log
 
     try {
       // Remove item from Supabase inventory
-      const response = await fetch('/api/inventory/remove-item', {
+      const response = await fetch('/api/inventory', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemId: item.id })
+        body: JSON.stringify({ itemId: item.id, quantity: 1 })
       });
-
-      // Removed debugging log
 
       if (!response.ok) {
         const errorText = await response.text();
-        logger.error('[Sell] Response error:', errorText);
-        throw new Error(`Failed to remove item from inventory: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to remove item: ${errorText}`);
       }
+
+      // Add gold to character stats
+      await fetch('/api/character-stats/add-gold', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: sellPrice })
+      });
 
       // Give gold for the sale
       gainGold(sellPrice, `sell-${item.name.toLowerCase()}`);
@@ -1277,9 +1294,9 @@ export function KingdomClient() {
 
       // 1. Fetch Parallel Data
       const [inventoryRes, stats, challengesResponse] = await Promise.all([
-        fetchWithAuth('/api/inventory').catch(() => null),
+        fetchWithAuth(`/api/inventory?_t=${Date.now()}`).catch(() => null),
         getTotalStats(user.id),
-        fetch('/api/challenges-ultra-simple').catch(() => null)
+        fetch(`/api/challenges-ultra-simple?_t=${Date.now()}`).catch(() => null)
       ]);
 
       let allItems = [];
