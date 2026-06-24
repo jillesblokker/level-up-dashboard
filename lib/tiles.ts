@@ -69,6 +69,7 @@ export function getTileName(type: TileType): string {
     wizard: 'Wizard',
     temple: 'Temple',
     'market-stalls': 'Market Stalls',
+    fortune_teller: 'Fortune Teller',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -142,6 +143,7 @@ export function getDefaultConnections(type: TileType): string[] {
     wizard: ['grass', 'forest', 'mountain'],
     temple: ['grass', 'forest', 'mountain'],
     'market-stalls': ['grass', 'city', 'town'],
+    fortune_teller: ['grass'],
   };
   return defaultConnections[type] || [];
 } 

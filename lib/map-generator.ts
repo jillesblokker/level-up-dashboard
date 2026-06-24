@@ -216,7 +216,8 @@ export class MapGenerator {
       library: 'Grand Library',
       wizard: 'Wizard Tower',
       temple: 'Ancient Temple',
-      'market-stalls': 'Market Stalls'
+      'market-stalls': 'Market Stalls',
+      fortune_teller: 'Fortune Teller'
     };
 
     const tileDescriptions = {
@@ -287,7 +288,8 @@ export class MapGenerator {
       library: 'A vast collection of knowledge and ancient texts',
       wizard: 'A mysterious tower where wizards practice arcane arts',
       temple: 'A sacred place for meditation and worship',
-      'market-stalls': 'A busy marketplace with many trading stalls'
+      'market-stalls': 'A busy marketplace with many trading stalls',
+      fortune_teller: 'A mysterious entity offering fortunes and tasks'
     };
 
     const tileImages = {
@@ -358,7 +360,8 @@ export class MapGenerator {
       library: '/images/kingdom-tiles/Library.webp',
       wizard: '/images/kingdom-tiles/Wizard.webp',
       temple: '/images/kingdom-tiles/Temple.webp',
-      'market-stalls': '/images/kingdom-tiles/MarketStalls.webp'
+      'market-stalls': '/images/kingdom-tiles/MarketStalls.webp',
+      fortune_teller: '/images/kingdom-tiles/fortune_teller.webp'
     };
 
     return {
