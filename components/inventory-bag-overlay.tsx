@@ -154,64 +154,62 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         }
       }
 
-      const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => {
-        // Map legacy DB names to their comprehensive IDs
-        let lookupId = item.id;
-        if (lookupId.toLowerCase() === 'blanko') lookupId = 'armor-blanko';
-        else if (lookupId.toLowerCase() === 'sunblade') lookupId = 'sword-sunblade';
-        else if (lookupId.toLowerCase() === 'logs') lookupId = 'material-logs';
-        else if (lookupId.toLowerCase() === 'scroll of perkament') lookupId = 'scroll-perkamento';
-        else if (lookupId.toLowerCase() === 'scroll of scrolly') lookupId = 'scroll-scrolly';
-        
-        const comp = comprehensiveItems.find(i => i.id === lookupId || i.id.toLowerCase() === lookupId.toLowerCase() || i.name.toLowerCase() === item.name?.toLowerCase());
-        let finalType = (comp?.type || item.type || 'item').toLowerCase();
-        let finalCategory = (comp?.category || item.category || 'item').toLowerCase();
+      const normalize = (items: any[]) => {
+        const mapped = (Array.isArray(items) ? items : []).map(item => {
+          // Map legacy DB names to their comprehensive IDs
+          let lookupId = item.id;
+          if (lookupId.toLowerCase() === 'blanko') lookupId = 'armor-blanko';
+          else if (lookupId.toLowerCase() === 'sunblade') lookupId = 'sword-sunblade';
+          else if (lookupId.toLowerCase() === 'logs') lookupId = 'material-logs';
+          else if (lookupId.toLowerCase() === 'scroll of perkament') lookupId = 'scroll-perkamento';
+          else if (lookupId.toLowerCase() === 'scroll of scrolly') lookupId = 'scroll-scrolly';
+          
+          const comp = comprehensiveItems.find(i => i.id === lookupId || i.id.toLowerCase() === lookupId.toLowerCase() || i.name.toLowerCase() === item.name?.toLowerCase());
+          
+          // Completely ignore and hide items that don't match the compendium
+          if (!comp) return null;
 
-        // Auto-fix legacy items with generic or missing types based on their names
-        if (!finalType || finalType === 'equipment' || finalType === 'item' || finalType === finalCategory) {
-          const lowerName = (item.name || '').toLowerCase();
-          if (lowerName.includes('armor') || lowerName.includes('helmet') || lowerName.includes('boots')) {
-            finalType = 'armor';
-          } else if (lowerName.includes('sword') || lowerName.includes('bow') || lowerName.includes('axe') || lowerName.includes('dagger') || lowerName.includes('staff')) {
-            finalType = 'weapon';
-          } else if (lowerName.includes('shield')) {
-            finalType = 'shield';
-          } else if (lowerName.includes('ring') || lowerName.includes('amulet') || lowerName.includes('crown')) {
-            finalType = 'artifact';
-          } else if (lowerName.includes('horse') || lowerName.includes('mount')) {
-            finalType = 'mount';
-          } else if (lowerName.includes('potion') || lowerName.includes('elixir') || lowerName.includes('flask')) {
-            finalType = 'potion';
-          } else if (lowerName.includes('log') || lowerName.includes('ore') || lowerName.includes('stone') || lowerName.includes('wood')) {
-            finalType = 'material';
-          } else if (finalType === 'equipment') {
-            finalType = 'material'; // Default generic fallback
+          let finalType = (comp.type || 'item').toLowerCase();
+          let finalCategory = (comp.category || 'item').toLowerCase();
+
+          // Ensure strict categories
+          if (finalType === 'potion' || finalType === 'food') finalCategory = 'consumable';
+          else if (finalType === 'material') finalCategory = 'material';
+          else if (finalType === 'artifact') finalCategory = 'artifact';
+
+          return {
+            ...item,
+            id: comp.id,
+            name: comp.name,
+            type: finalType as any,
+            category: finalCategory,
+            stats: comp.stats || {},
+            description: comp.description || '',
+            image: comp.image,
+            emoji: comp.emoji,
+          } as KingdomInventoryItem;
+        }).filter(item => {
+          if (!item) return false;
+          // Strict Tile Filter: if it's in KINGDOM_TILES, it doesn't belong in the item bag!
+          if (KINGDOM_TILES.some(t => t.id === item.id)) return false;
+          // Also explicitly catch 'cornerroad' or other generic tile names
+          if (['cornerroad', 'straightroad', 'crossroad', 'tsplitroad'].includes(item.id)) return false;
+          return true;
+        }) as KingdomInventoryItem[];
+
+        // Combine duplicates
+        const combined = new Map<string, KingdomInventoryItem>();
+        mapped.forEach(item => {
+          if (combined.has(item.id)) {
+            const existing = combined.get(item.id)!;
+            existing.quantity = (existing.quantity || 1) + (item.quantity || 1);
+          } else {
+            combined.set(item.id, { ...item });
           }
-        }
+        });
         
-        // Ensure categories match the new strict schema
-        if (finalType === 'potion' || finalType === 'food') finalCategory = 'consumable';
-        else if (finalType === 'material') finalCategory = 'material';
-        else if (finalType === 'artifact') finalCategory = 'artifact';
-
-        return {
-          ...item,
-          id: lookupId, // Ensure it uses the normalized ID
-          name: comp?.name || item.name || lookupId,
-          type: finalType as any,
-          category: finalCategory,
-          stats: item.stats || comp?.stats || {},
-          description: item.description || comp?.description || '',
-          image: comp?.image || item.image,
-          emoji: comp?.emoji || item.emoji,
-        } as KingdomInventoryItem;
-      }).filter(item => {
-        // Strict Tile Filter: if it's in KINGDOM_TILES, it doesn't belong in the item bag!
-        if (KINGDOM_TILES.some(t => t.id === item.id)) return false;
-        // Also explicitly catch 'cornerroad' or other generic tile names
-        if (['cornerroad', 'straightroad', 'crossroad', 'tsplitroad'].includes(item.id)) return false;
-        return true;
-      });
+        return Array.from(combined.values());
+      };
 
       const equipped = allItems.filter((i: any) => i.equipped);
       const stored = allItems.filter((i: any) => !i.equipped);
@@ -394,17 +392,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
   const filteredStored = storedInventoryView.filter(item => {
     if (storedFilter === 'all') return true;
-    
-    if (item.type === storedFilter) return true;
-    
-    // Prevent items from showing in overlapping categories
-    const hasDedicatedTab = ITEM_CATEGORIES.some(c => c.value !== 'all' && c.value === item.type);
-    if (!hasDedicatedTab && item.category === storedFilter) return true;
-    
-    // Fix for legacy items with missing or generic types
-    if (!item.type && item.category === storedFilter) return true;
-    
-    return false;
+    return item.type === storedFilter || item.category === storedFilter;
   });
 
   const getOwnedQty = (itemId: string) => {
