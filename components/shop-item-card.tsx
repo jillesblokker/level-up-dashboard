@@ -63,11 +63,11 @@ export function ShopItemCard({
   actionLabel = 'Purchase',
 }: ShopItemCardProps) {
   const accent = ACCENT_STYLES[accentColor]
-  const rarity = item.rarity as Rarity
-  const rarityColor = RARITY_COLORS[rarity]
+  const rarity = (item.rarity || 'common') as Rarity
+  const rarityColor = RARITY_COLORS[rarity] || '#9CA3AF'
 
-  // Build stat entries from the item
-  const statEntries = Object.entries(item.stats).filter(([, v]) => v !== undefined && v > 0)
+  // Build stat entries from the item (defensive against missing stats)
+  const statEntries = Object.entries(item.stats || {}).filter(([, v]) => v !== undefined && v > 0)
 
   return (
     <Card
@@ -119,7 +119,7 @@ export function ShopItemCard({
         <Badge
           className={`
             absolute top-2.5 right-2.5 text-[9px] font-bold tracking-widest
-            uppercase px-2 py-0.5 border ${RARITY_BADGE_CLASSES[rarity]}
+            uppercase px-2 py-0.5 border ${RARITY_BADGE_CLASSES[rarity] || 'bg-gray-900 border-gray-700 text-gray-400'}
           `}
         >
           {rarity}
@@ -158,7 +158,7 @@ export function ShopItemCard({
         <div className="flex items-center gap-1.5">
           <Coins className="w-4 h-4 text-amber-500" />
           <span className="font-bold font-serif text-amber-200 text-sm">
-            {item.cost.toLocaleString()}
+            {(item.cost || 0).toLocaleString()}
           </span>
           <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
             Gold

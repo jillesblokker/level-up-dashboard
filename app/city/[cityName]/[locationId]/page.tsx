@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { getCityData } from "@/lib/city-data"
 import { HeaderSection } from "@/components/HeaderSection"
 import Link from "next/link"
@@ -73,7 +73,7 @@ const MATERIALS = [
   { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
 ]
 
-export default function CityLocationPage() {
+function CityLocationPageInner() {
   const params = useParams()
   const searchParams = useSearchParams()
   const { user } = useUser()
@@ -676,5 +676,17 @@ export default function CityLocationPage() {
       <div className="fixed inset-y-0 left-0 w-32 bg-gradient-to-r from-black/80 to-transparent pointer-events-none" />
       <div className="fixed inset-y-0 right-0 w-32 bg-gradient-to-l from-black/80 to-transparent pointer-events-none" />
     </div>
+  )
+}
+
+export default function CityLocationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen bg-black items-center justify-center">
+        <div className="text-amber-500 animate-pulse font-medieval tracking-widest uppercase">Approaching the City Gates...</div>
+      </div>
+    }>
+      <CityLocationPageInner />
+    </Suspense>
   )
 }
