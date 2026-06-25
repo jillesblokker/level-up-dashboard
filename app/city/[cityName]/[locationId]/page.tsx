@@ -22,6 +22,12 @@ import { TileType } from "@/types/tiles"
 import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
 import { formatGold } from "@/lib/utils"
+import { ShopItemCard } from "@/components/shop-item-card"
+import {
+  BLACKSMITH_WEAPONS, BLACKSMITH_SHIELDS, BLACKSMITH_ARMOR,
+  STABLE_ITEMS, POTION_ITEMS, SCROLL_ITEMS, ARTIFACT_ITEMS, FOOD_ITEMS,
+  type ShopItem,
+} from "@/lib/shop-items"
 
 function TavernBannerIcon(props: any) {
   return (
@@ -136,28 +142,8 @@ export default function CityLocationPage() {
 
   const isTavern = locationId === 'tavern' || locationId === 'dragons-rest'
 
-  // Items for Kingdom Marketplace
-  const marketplaceWares = [
-    { id: "tome-knowledge", name: "Tome of Knowledge", description: "Contains ancient wisdom to gain experience.", price: 150, emoji: "📖", category: "book" },
-    { id: "magic-scroll", name: "Magic Scroll", description: "A parchment containing raw magical energy.", price: 80, emoji: "📜", category: "scroll" },
-    { id: "ancient-artifact", name: "Ancient Artifact", description: "A mysterious relic from a bygone era.", price: 250, emoji: "👑", category: "artifact" },
-    { id: "merchants-charm", name: "Merchant's Charm", description: "Boosts your luck in gaining extra gold.", price: 120, emoji: "🧿", category: "charm" }
-  ]
-
-  // Items for Blacksmith (Ember's Anvil)
-  const blacksmithWares = [
-    { id: "iron-sword", name: "Iron Sword", description: "A sturdy blade forged in dragonfire.", price: 90, emoji: "⚔️", stats: { attack: 5 } },
-    { id: "steel-shield", name: "Steel Shield", description: "Provides excellent protection against enemy attacks.", price: 110, emoji: "🛡️", stats: { defense: 6 } },
-    { id: "leather-armor", name: "Leather Armor", description: "Lightweight and flexible protection.", price: 100, emoji: "🥋", stats: { defense: 4 } },
-    { id: "dragonscale-mail", name: "Dragonscale Mail", description: "Extremely rare armor forged from real dragon scales.", price: 450, emoji: "🎴", stats: { defense: 15, fireResistance: 50 } }
-  ]
-
-  // Items for Royal Stables
-  const stablesWares = [
-    { id: "draft-horse", name: "Draft Horse", description: "A strong and reliable horse for travel.", price: 150, emoji: "🐎", stats: { movement: 3 } },
-    { id: "war-steed", name: "War Steed", description: "A trained combat steed that increases speed.", price: 300, emoji: "🏇", stats: { movement: 5, attack: 2 } },
-    { id: "swift-pegasus", name: "Swift Pegasus", description: "A mythical winged horse that can fly across realms.", price: 600, emoji: "🦄", stats: { movement: 8 } }
-  ]
+  // Shop items are now sourced from the centralized shop-items module
+  // which pulls from comprehensive-items.ts (the single source of truth)
 
   // Helpers for resource quantity tracking
   const getInventoryQuantity = (materialId: string) => {
@@ -176,35 +162,36 @@ export default function CityLocationPage() {
     }))
   }
 
-  // Handle generic shop item purchase
-  const handleItemPurchase = async (item: any) => {
-    if (goldBalance < item.price) {
+  // Handle shop item purchase (works with ShopItem from comprehensive-items)
+  const handleItemPurchase = async (item: ShopItem) => {
+    if (goldBalance < item.cost) {
       toast({
         title: "Insufficient Gold",
-        description: `You need ${item.price} gold to purchase this item.`,
+        description: `You need ${item.cost} gold to purchase this item.`,
         variant: "destructive"
       })
       return
     }
 
-    const success = await spendGold(item.price, `purchase-${item.id}`);
+    const success = await spendGold(item.cost, `purchase-${item.id}`);
     if (success) {
       if (user?.id) {
         addToKingdomInventory(user.id, {
           id: item.id,
           name: item.name,
           description: item.description,
-          type: item.stats ? 'equipment' : 'item',
+          type: item.isEquippable ? 'equipment' : 'item',
           category: item.category || 'item',
           quantity: 1,
+          image: item.image,
           emoji: item.emoji,
           stats: item.stats || {}
         })
       }
-      setGoldBalance(prev => prev - item.price)
+      setGoldBalance(prev => prev - item.cost)
       toast({
         title: "Purchase Successful",
-        description: `Bought 1x ${item.name} for ${item.price} gold. Item added to your inventory!`,
+        description: `Bought 1x ${item.name} for ${item.cost} gold. Item added to your inventory!`,
       })
       window.dispatchEvent(new Event('character-inventory-update'))
       window.dispatchEvent(new Event('character-stats-update'))
@@ -373,32 +360,70 @@ export default function CityLocationPage() {
 
               {/* TAB 1: Relics & Wares */}
               <TabsContent value="wares" className="mt-0 outline-none">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                  {marketplaceWares.map((item) => (
-                    <Card key={item.id} className="border-amber-900/20 bg-zinc-950 hover:bg-zinc-950 transition-all hover:border-amber-500/30 flex flex-col group relative overflow-hidden shadow-lg">
-                      <div className="h-44 flex items-center justify-center bg-zinc-950 text-6xl relative border-b border-amber-900/10 group-hover:scale-105 transition-transform duration-300">
-                        {item.emoji}
-                      </div>
-                      <CardHeader className="p-4 flex-1">
-                        <CardTitle className="text-amber-200 text-lg group-hover:text-amber-400 transition-colors">{item.name}</CardTitle>
-                        <CardDescription className="text-zinc-400 text-xs mt-1 leading-relaxed">{item.description}</CardDescription>
-                      </CardHeader>
-                      <CardFooter className="p-4 border-t border-amber-900/10 bg-zinc-950 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-1">
-                          <Coins className="w-4 h-4 text-amber-500" />
-                          <span className="font-bold font-serif text-amber-200 text-sm">{item.price}</span>
-                        </div>
-                        <Button 
-                          onClick={() => handleItemPurchase(item)}
-                          disabled={goldBalance < item.price}
-                          className="bg-amber-950 border border-amber-800/40 text-amber-400 hover:bg-amber-900 hover:text-white rounded-lg px-4 text-xs font-bold uppercase tracking-wider transition-colors"
-                        >
-                          Buy
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
+                <Tabs defaultValue="potions" className="w-full">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="potions">Potions</TabsTrigger>
+                    <TabsTrigger value="scrolls">Scrolls</TabsTrigger>
+                    <TabsTrigger value="artifacts">Artifacts</TabsTrigger>
+                    <TabsTrigger value="food">Food</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="potions" className="mt-0 outline-none">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                      {POTION_ITEMS.map((item) => (
+                        <ShopItemCard
+                          key={item.id}
+                          item={item}
+                          onPurchase={handleItemPurchase}
+                          disabled={goldBalance < item.cost}
+                          accentColor="amber"
+                          actionLabel="Buy"
+                        />
+                      ))}
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="scrolls" className="mt-0 outline-none">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                      {SCROLL_ITEMS.map((item) => (
+                        <ShopItemCard
+                          key={item.id}
+                          item={item}
+                          onPurchase={handleItemPurchase}
+                          disabled={goldBalance < item.cost}
+                          accentColor="purple"
+                          actionLabel="Buy"
+                        />
+                      ))}
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="artifacts" className="mt-0 outline-none">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                      {ARTIFACT_ITEMS.map((item) => (
+                        <ShopItemCard
+                          key={item.id}
+                          item={item}
+                          onPurchase={handleItemPurchase}
+                          disabled={goldBalance < item.cost}
+                          accentColor="purple"
+                          actionLabel="Buy"
+                        />
+                      ))}
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="food" className="mt-0 outline-none">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                      {FOOD_ITEMS.map((item) => (
+                        <ShopItemCard
+                          key={item.id}
+                          item={item}
+                          onPurchase={handleItemPurchase}
+                          disabled={goldBalance < item.cost}
+                          accentColor="emerald"
+                          actionLabel="Buy"
+                        />
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               {/* TAB 2: Resource Trading */}
@@ -528,50 +553,66 @@ export default function CityLocationPage() {
               <p className="text-zinc-400 max-w-2xl font-serif">Equip your character with powerful swords, armor, and shields forged from dragonfire. Prepare for battles and expeditions in the dungeons.</p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {blacksmithWares.map((item) => (
-                <Card key={item.id} className="border-red-900/20 bg-zinc-950 hover:bg-zinc-950 transition-all hover:border-red-500/30 flex flex-col group relative overflow-hidden shadow-lg">
-                  <div className="h-44 flex items-center justify-center bg-zinc-950 text-6xl relative border-b border-red-900/10 group-hover:scale-105 transition-transform duration-300">
-                    {item.emoji}
-                  </div>
-                  <CardHeader className="p-4 flex-1">
-                    <CardTitle className="text-red-200 text-lg group-hover:text-red-400 transition-colors">{item.name}</CardTitle>
-                    <CardDescription className="text-zinc-400 text-xs mt-1 leading-relaxed">{item.description}</CardDescription>
-                    
-                    <div className="flex items-center gap-1.5 mt-3">
-                      {item.stats.attack && (
-                        <Badge className="bg-red-950 border-red-900 text-red-400 text-[9px] font-bold tracking-widest px-2 py-0.5">
-                          ATK +{item.stats.attack}
-                        </Badge>
-                      )}
-                      {item.stats.defense && (
-                        <Badge className="bg-blue-950 border-blue-900 text-blue-400 text-[9px] font-bold tracking-widest px-2 py-0.5">
-                          DEF +{item.stats.defense}
-                        </Badge>
-                      )}
-                      {item.stats.fireResistance && (
-                        <Badge className="bg-orange-950 border-orange-900 text-orange-400 text-[9px] font-bold tracking-widest px-2 py-0.5">
-                          FIRE RESIST +{item.stats.fireResistance}%
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardFooter className="p-4 border-t border-red-900/10 bg-zinc-950 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-1">
-                      <Coins className="w-4 h-4 text-amber-500" />
-                      <span className="font-bold font-serif text-amber-200 text-sm">{item.price}</span>
-                    </div>
-                    <Button 
-                      onClick={() => handleItemPurchase(item)}
-                      disabled={goldBalance < item.price}
-                      className="bg-red-950 border border-red-800/40 text-red-400 hover:bg-red-900 hover:text-white rounded-lg px-4 text-xs font-bold uppercase tracking-wider transition-colors"
-                    >
-                      Forge
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            <Tabs defaultValue="weapons" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="weapons" className="flex items-center gap-1.5">
+                  <Sword className="w-3.5 h-3.5" />
+                  Weapons
+                </TabsTrigger>
+                <TabsTrigger value="shields" className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5" />
+                  Shields
+                </TabsTrigger>
+                <TabsTrigger value="armor">
+                  Armor
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="weapons" className="mt-0 outline-none">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  {BLACKSMITH_WEAPONS.map((item) => (
+                    <ShopItemCard
+                      key={item.id}
+                      item={item}
+                      onPurchase={handleItemPurchase}
+                      disabled={goldBalance < item.cost}
+                      accentColor="red"
+                      actionLabel="Forge"
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="shields" className="mt-0 outline-none">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  {BLACKSMITH_SHIELDS.map((item) => (
+                    <ShopItemCard
+                      key={item.id}
+                      item={item}
+                      onPurchase={handleItemPurchase}
+                      disabled={goldBalance < item.cost}
+                      accentColor="blue"
+                      actionLabel="Forge"
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="armor" className="mt-0 outline-none">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  {BLACKSMITH_ARMOR.map((item) => (
+                    <ShopItemCard
+                      key={item.id}
+                      item={item}
+                      onPurchase={handleItemPurchase}
+                      disabled={goldBalance < item.cost}
+                      accentColor="red"
+                      actionLabel="Forge"
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         ) : locationId === 'royal-stables' ? (
           <div className="space-y-8 animate-in fade-in duration-500">
@@ -580,44 +621,16 @@ export default function CityLocationPage() {
               <p className="text-zinc-400 max-w-2xl font-serif">Purchase majestic steeds and mounts to explore the realm. Stables offer mounts that increase your overland movement speed and stats.</p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-3">
-              {stablesWares.map((item) => (
-                <Card key={item.id} className="border-amber-900/20 bg-zinc-950 hover:bg-zinc-950 transition-all hover:border-amber-500/30 flex flex-col group relative overflow-hidden shadow-lg">
-                  <div className="h-48 flex items-center justify-center bg-zinc-950 text-7xl relative border-b border-amber-900/10 group-hover:scale-105 transition-transform duration-300">
-                    {item.emoji}
-                  </div>
-                  <CardHeader className="p-5 flex-1">
-                    <CardTitle className="text-amber-200 text-xl group-hover:text-amber-400 transition-colors">{item.name}</CardTitle>
-                    <CardDescription className="text-zinc-400 text-xs mt-1.5 leading-relaxed">{item.description}</CardDescription>
-                    
-                    <div className="flex items-center gap-1.5 mt-3">
-                      {item.stats.movement && (
-                        <Badge className="bg-amber-950 border-amber-900 text-amber-400 text-[10px] font-bold tracking-widest px-2.5 py-1">
-                          MOVEMENT +{item.stats.movement}
-                        </Badge>
-                      )}
-                      {item.stats.attack && (
-                        <Badge className="bg-red-950 border-red-900 text-red-400 text-[10px] font-bold tracking-widest px-2.5 py-1">
-                          ATK +{item.stats.attack}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardFooter className="p-5 border-t border-amber-900/10 bg-zinc-950 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-1.5">
-                      <Coins className="w-4 h-4 text-amber-500" />
-                      <span className="font-bold font-serif text-amber-200 text-base">{item.price}</span>
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gold</span>
-                    </div>
-                    <Button 
-                      onClick={() => handleItemPurchase(item)}
-                      disabled={goldBalance < item.price}
-                      className="bg-amber-950 border border-amber-800/40 text-amber-400 hover:bg-amber-900 hover:text-white rounded-lg px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors"
-                    >
-                      Acquire
-                    </Button>
-                  </CardFooter>
-                </Card>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {STABLE_ITEMS.map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Acquire"
+                />
               ))}
             </div>
           </div>
