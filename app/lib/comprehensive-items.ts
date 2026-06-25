@@ -675,7 +675,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   // FOOD
   // ==========================================
   {
-    id: 'food-red',
+    id: 'fish-red',
     name: 'Red Fish',
     description: 'A vibrant red fish that provides basic nourishment',
     type: 'food',
@@ -690,7 +690,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isConsumable: true,
   },
   {
-    id: 'food-blue',
+    id: 'fish-blue',
     name: 'Blue Fish',
     description: 'A cool blue fish that refreshes and energizes',
     type: 'food',
@@ -705,7 +705,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isConsumable: true,
   },
   {
-    id: 'food-silver',
+    id: 'fish-silver',
     name: 'Silver Fish',
     description: 'A shimmering silver fish that enhances vitality',
     type: 'food',
@@ -720,7 +720,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isConsumable: true,
   },
   {
-    id: 'food-golden',
+    id: 'fish-golden',
     name: 'Golden Fish',
     description: 'A rare golden fish that provides nourishment and luck',
     type: 'food',
@@ -735,7 +735,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isConsumable: true,
   },
   {
-    id: 'food-rainbow',
+    id: 'fish-rainbow',
     name: 'Rainbow Fish',
     description: 'A magical rainbow fish that grants multiple benefits',
     type: 'food',
@@ -749,6 +749,21 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isEquippable: false,
     isConsumable: true,
   },
+  {
+    id: 'material-water',
+    name: 'Water',
+    description: 'Fresh water drawn from a well. Essential for life.',
+    type: 'food',
+    category: 'consumable',
+    rarity: 'common',
+    stats: { stamina: 10, health: 5 },
+    emoji: '💧',
+    image: '/images/items/materials/water.webp',
+    cost: 5,
+    isDefault: false,
+    isEquippable: false,
+    isConsumable: true,
+  }
 ];
 
 // Helper functions

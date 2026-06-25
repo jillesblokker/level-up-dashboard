@@ -13,6 +13,7 @@ import { useUser } from "@clerk/nextjs";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { logger } from "@/lib/logger";
 import { equipItem, unequipItem } from "@/lib/inventory-manager";
+import { KINGDOM_TILES } from "@/lib/kingdom-tiles";
 import { useToast } from "@/components/ui/use-toast";
 import { TEXT_CONTENT } from "@/lib/text-content";
 
@@ -154,7 +155,15 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
       }
 
       const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => {
-        const comp = comprehensiveItems.find(i => i.id === item.id);
+        // Map legacy DB names to their comprehensive IDs
+        let lookupId = item.id;
+        if (lookupId === 'Blanko') lookupId = 'armor-blanko';
+        else if (lookupId === 'Sunblade') lookupId = 'sword-sunblade';
+        else if (lookupId === 'Logs') lookupId = 'material-logs';
+        else if (lookupId === 'Scroll of Perkament') lookupId = 'scroll-perkamento';
+        else if (lookupId === 'Scroll of Scrolly') lookupId = 'scroll-scrolly';
+        
+        const comp = comprehensiveItems.find(i => i.id === lookupId);
         let finalType = comp?.type || item.type;
         let finalCategory = comp?.category || item.category;
 
@@ -187,11 +196,21 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
         return {
           ...item,
+          id: lookupId, // Ensure it uses the normalized ID
+          name: comp?.name || item.name || lookupId,
           type: finalType as any,
           category: finalCategory,
           stats: item.stats || comp?.stats || {},
           description: item.description || comp?.description || '',
+          image: comp?.image || item.image,
+          emoji: comp?.emoji || item.emoji,
         } as KingdomInventoryItem;
+      }).filter(item => {
+        // Strict Tile Filter: if it's in KINGDOM_TILES, it doesn't belong in the item bag!
+        if (KINGDOM_TILES.some(t => t.id === item.id)) return false;
+        // Also explicitly catch 'cornerroad' or other generic tile names
+        if (['cornerroad', 'straightroad', 'crossroad', 'tsplitroad'].includes(item.id)) return false;
+        return true;
       });
 
       const equipped = allItems.filter((i: any) => i.equipped);

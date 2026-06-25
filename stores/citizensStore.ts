@@ -135,12 +135,12 @@ function generateGatherDrop(citizen: Citizen): { id: string; name: string; descr
 // Map food items to active days
 export const FOOD_DAYS_MAP: Record<string, number> = {
   // Fish (primary food)
-  'food-red': 1,
+  'fish-red': 1,
   'food-red-starter': 1,
-  'food-blue': 3,
-  'food-silver': 3,
-  'food-golden': 7,
-  'food-rainbow': 7,
+  'fish-blue': 3,
+  'fish-silver': 3,
+  'fish-golden': 7,
+  'fish-rainbow': 7,
   // Potions (can also nourish citizens)
   'potion-health': 1,
   'potion-health-starter': 1,
