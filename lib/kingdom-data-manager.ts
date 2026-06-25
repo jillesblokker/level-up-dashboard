@@ -87,8 +87,16 @@ export async function getKingdomData(key: string): Promise<any | null> {
         // Use user-preferences for other data
         break;
     }
+    let authHeader: Record<string, string> = { 'Content-Type': 'application/json' };
+    try {
+      const clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
+      const token = await clerk?.session?.getToken();
+      if (token) {
+        authHeader = { ...authHeader, Authorization: `Bearer ${token}` };
+      }
+    } catch (_) { /* ignore token fetch failure */ }
 
-    const response = await fetch(endpoint);
+    const response = await fetch(endpoint, { headers: authHeader });
     
     if (response.ok) {
       const data = await response.json();

@@ -4,7 +4,7 @@ export interface InventoryItem {
   id: string;
   name: string;
   description: string;
-  type: 'mount' | 'weapon' | 'shield' | 'armor' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food';
+  type: 'mount' | 'weapon' | 'shield' | 'armor' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'consumable';
   stats: {
     movement?: number;
     attack?: number;
@@ -96,7 +96,7 @@ export const defaultInventoryItems: InventoryItem[] = [
     id: 'food-red-starter',
     name: 'Red Fish',
     description: 'A vibrant red fish that provides basic nourishment',
-    type: 'food',
+    type: 'consumable',
     stats: { health: 15, stamina: 10 },
     emoji: '🐟',
     quantity: 2,

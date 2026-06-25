@@ -73,12 +73,12 @@ const getMythicType = (cardId: number): 'fire' | 'water' | 'earth' | 'nature' | 
   }
 };
 
-function generateGatherDrop(citizen: Citizen): { id: string; name: string; description: string; type: 'food'|'material'; emoji: string; image: string; quantity: number } | null {
+function generateGatherDrop(citizen: Citizen): { id: string; name: string; description: string; type: 'consumable'|'material'; emoji: string; image: string; quantity: number } | null {
   if (Math.random() >= 0.20) return null;
   let gatheredItem = 'food-red';
   let gatheredName = 'Red Fish';
   let gatheredDesc = 'A red fish';
-  let gatheredType: 'food' | 'material' = 'food';
+  let gatheredType: 'consumable' | 'material' = 'consumable';
   let gatheredEmoji = '🐟';
   let gatheredImage = '/images/items/food/fish-red.webp';
 

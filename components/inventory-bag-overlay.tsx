@@ -173,7 +173,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
           let finalCategory = (comp.category || 'item').toLowerCase();
 
           // Ensure strict categories
-          if (finalType === 'potion' || finalType === 'food') finalCategory = 'consumable';
+          if (finalType === 'potion' || finalType === 'food' || finalType === 'consumable') finalCategory = 'consumable';
           else if (finalType === 'material') finalCategory = 'material';
           else if (finalType === 'artifact') finalCategory = 'artifact';
 

@@ -2,7 +2,7 @@ export interface ComprehensiveItem {
   id: string;
   name: string;
   description: string;
-  type: 'weapon' | 'shield' | 'armor' | 'mount' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food';
+  type: 'weapon' | 'shield' | 'armor' | 'mount' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'consumable';
   category: 'weapon' | 'shield' | 'armor' | 'mount' | 'consumable' | 'scroll' | 'artifact' | 'material';
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   stats: {
@@ -678,7 +678,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'fish-red',
     name: 'Red Fish',
     description: 'A vibrant red fish that provides basic nourishment',
-    type: 'food',
+    type: 'consumable',
     category: 'consumable',
     rarity: 'common',
     stats: { health: 15, stamina: 10 },
@@ -693,7 +693,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'fish-blue',
     name: 'Blue Fish',
     description: 'A cool blue fish that refreshes and energizes',
-    type: 'food',
+    type: 'consumable',
     category: 'consumable',
     rarity: 'uncommon',
     stats: { health: 20, stamina: 15, mana: 5 },
@@ -708,7 +708,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'fish-silver',
     name: 'Silver Fish',
     description: 'A shimmering silver fish that enhances vitality',
-    type: 'food',
+    type: 'consumable',
     category: 'consumable',
     rarity: 'rare',
     stats: { health: 25, stamina: 20, defense: 2 },
@@ -723,7 +723,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'fish-golden',
     name: 'Golden Fish',
     description: 'A rare golden fish that provides nourishment and luck',
-    type: 'food',
+    type: 'consumable',
     category: 'consumable',
     rarity: 'epic',
     stats: { health: 35, stamina: 25, mana: 10 },
@@ -738,7 +738,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'fish-rainbow',
     name: 'Rainbow Fish',
     description: 'A magical rainbow fish that grants multiple benefits',
-    type: 'food',
+    type: 'consumable',
     category: 'consumable',
     rarity: 'legendary',
     stats: { health: 50, stamina: 35, mana: 20, attack: 5 },
@@ -753,12 +753,12 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'material-water',
     name: 'Water',
     description: 'Fresh water drawn from a well. Essential for life.',
-    type: 'food',
+    type: 'consumable',
     category: 'consumable',
     rarity: 'common',
     stats: { stamina: 10, health: 5 },
     emoji: '💧',
-    image: '/images/items/materials/water.webp',
+    image: '/images/items/materials/material-water.webp',
     cost: 5,
     isDefault: false,
     isEquippable: false,

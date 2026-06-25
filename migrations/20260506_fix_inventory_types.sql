@@ -18,7 +18,7 @@ ALTER TABLE public.inventory_items ADD CONSTRAINT inventory_items_type_check
 CHECK (type IN (
     'resource', 'item', 'creature', 'scroll', 'equipment', 
     'artifact', 'book', 'mount', 'weapon', 'shield', 'armor', 
-    'consumable', 'material', 'potion', 'tool', 'quest'
+    'consumable', 'material', 'potion', 'tool', 'quest', 'food'
 ));
 
 -- 3. Ensure user_id is TEXT (Clerk compatibility)
