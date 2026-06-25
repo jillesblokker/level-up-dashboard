@@ -157,15 +157,15 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
       const normalize = (items: any[]) => (Array.isArray(items) ? items : []).map(item => {
         // Map legacy DB names to their comprehensive IDs
         let lookupId = item.id;
-        if (lookupId === 'Blanko') lookupId = 'armor-blanko';
-        else if (lookupId === 'Sunblade') lookupId = 'sword-sunblade';
-        else if (lookupId === 'Logs') lookupId = 'material-logs';
-        else if (lookupId === 'Scroll of Perkament') lookupId = 'scroll-perkamento';
-        else if (lookupId === 'Scroll of Scrolly') lookupId = 'scroll-scrolly';
+        if (lookupId.toLowerCase() === 'blanko') lookupId = 'armor-blanko';
+        else if (lookupId.toLowerCase() === 'sunblade') lookupId = 'sword-sunblade';
+        else if (lookupId.toLowerCase() === 'logs') lookupId = 'material-logs';
+        else if (lookupId.toLowerCase() === 'scroll of perkament') lookupId = 'scroll-perkamento';
+        else if (lookupId.toLowerCase() === 'scroll of scrolly') lookupId = 'scroll-scrolly';
         
-        const comp = comprehensiveItems.find(i => i.id === lookupId);
-        let finalType = comp?.type || item.type;
-        let finalCategory = comp?.category || item.category;
+        const comp = comprehensiveItems.find(i => i.id === lookupId || i.id.toLowerCase() === lookupId.toLowerCase() || i.name.toLowerCase() === item.name?.toLowerCase());
+        let finalType = (comp?.type || item.type || 'item').toLowerCase();
+        let finalCategory = (comp?.category || item.category || 'item').toLowerCase();
 
         // Auto-fix legacy items with generic or missing types based on their names
         if (!finalType || finalType === 'equipment' || finalType === 'item' || finalType === finalCategory) {
@@ -460,56 +460,77 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     const displayType = item.type;
 
     return (
-    <div
-      key={item.id}
-      className={cn(
-        'flex items-center gap-3 p-3 rounded-xl border transition-all',
-        item.equipped
-          ? 'bg-amber-950/20 border-amber-500/30'
-          : 'bg-[#0f1115] border-white/5 hover:border-white/10'
-      )}
-    >
-      <div className="w-12 h-12 shrink-0 relative bg-zinc-950 rounded-lg flex items-center justify-center border border-white/5">
-        {emoji ? (
-          <span className="text-2xl">{emoji}</span>
-        ) : image ? (
-          <Image src={image} alt={displayName} fill sizes="48px" className="object-contain rounded-lg" />
-        ) : (
-          <span className="text-xl">📦</span>
+      <div
+        key={item.id}
+        className={cn(
+          "group relative overflow-hidden rounded-xl border transition-all duration-300 flex flex-col",
+          item.equipped 
+            ? "bg-amber-950/20 border-amber-500/30 hover:border-amber-400" 
+            : "bg-[#0f1115] border-white/5 hover:border-white/20"
         )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className={cn('font-semibold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          {displayType !== 'item' && <Badge variant="secondary" className="text-[9px] py-0 h-4 capitalize">{displayType}</Badge>}
-          {item.equipped && <Badge className="text-[9px] py-0 h-4 bg-amber-600">Equipped</Badge>}
+      >
+        <div className="p-3 flex-1 flex flex-col">
+          <div className="flex gap-3">
+            <div className="relative w-16 h-16 shrink-0 rounded-lg bg-black/40 border border-white/10 overflow-hidden group-hover:border-amber-500/50 transition-colors flex items-center justify-center p-1">
+              {image ? (
+                <Image src={image} alt={displayName} fill sizes="64px" className="object-contain drop-shadow-lg" />
+              ) : emoji ? (
+                <span className="text-3xl filter drop-shadow-md">{emoji}</span>
+              ) : (
+                <span className="text-2xl filter drop-shadow-md">📦</span>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h4 className={cn('font-bold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</h4>
+              <p className="text-[10px] text-zinc-400 line-clamp-1 mt-0.5" title={item.description || ''}>{item.description || ''}</p>
+              
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="outline" className="text-[9px] py-0 h-4 border-amber-500/30 text-amber-400">
+                  Owned: {item.quantity}
+                </Badge>
+                {displayType !== 'item' && (
+                  <Badge variant="secondary" className="text-[9px] py-0 h-4 bg-emerald-950/50 text-emerald-400 border border-emerald-500/20 capitalize">
+                    {displayType}
+                  </Badge>
+                )}
+                {item.equipped && (
+                  <Badge className="text-[9px] py-0 h-4 bg-amber-600 text-white">
+                    Equipped
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 space-y-1.5 border-t border-white/5 pt-3 flex-1 flex flex-col justify-end">
+            {(item.equipped || item.canEquip || item.canUse) && (
+              <Button
+                size="sm"
+                onClick={() => item.equipped ? handleUnequip(item) : handleEquip(item)}
+                className={cn(
+                  "w-full h-8 text-xs font-bold text-white shadow-md",
+                  item.equipped ? 'bg-red-600 hover:bg-red-700' : 
+                  item.canUse ? 'bg-amber-600 hover:bg-amber-700' : 
+                  'bg-emerald-600 hover:bg-emerald-700'
+                )}
+              >
+                {item.equipped ? 'Unequip Item' : item.canUse ? 'Use Item' : 'Equip Item'}
+              </Button>
+            )}
+            {!item.equipped && item.sellPrice !== undefined && item.sellPrice > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleSellItem(item)}
+                className="w-full h-8 text-xs bg-orange-950/40 hover:bg-orange-900 border-orange-500/50 text-orange-400 font-bold"
+              >
+                Sell ({item.sellPrice}g)
+              </Button>
+            )}
+          </div>
         </div>
       </div>
-      <div className="text-right shrink-0 flex flex-col items-end justify-center gap-2">
-        <span className="text-xs font-mono text-amber-400 font-bold">×{item.quantity}</span>
-        <div className="flex gap-1.5">
-          {(item.equipped || item.canEquip || item.canUse) && (
-            <Button
-              size="sm"
-              onClick={() => item.equipped ? handleUnequip(item) : handleEquip(item)}
-              className={cn("h-6 px-2 text-[10px] font-bold text-white shadow-md", item.equipped ? 'bg-red-600 hover:bg-red-700' : item.canUse ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700')}
-            >
-              {item.equipped ? 'Unequip' : item.canUse ? 'Use' : 'Equip'}
-            </Button>
-          )}
-          {!item.equipped && item.sellPrice !== undefined && item.sellPrice > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleSellItem(item)}
-              className="h-6 px-2 text-[10px] bg-orange-950/40 hover:bg-orange-900 border-orange-500/50 text-orange-400"
-            >
-              Sell ({item.sellPrice}g)
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
     );
   };
 
@@ -559,7 +580,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                   <p className="text-sm max-w-xs mb-4">Go to your Stored items to equip gear.</p>
                 </div>
               ) : (
-                <div className="space-y-2 pb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
                   {equippedInventoryView.map(renderItemCard)}
                 </div>
               )}
@@ -593,7 +614,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                   <p className="text-sm max-w-xs mb-4">Complete quests, collect from tiles and dungeons to fill your bag.</p>
                 </div>
               ) : (
-                <div className="space-y-2 pb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
                   {filteredStored.map(renderItemCard)}
                 </div>
               )}
