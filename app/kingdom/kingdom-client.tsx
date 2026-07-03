@@ -1666,7 +1666,7 @@ export function KingdomClient() {
 
 
       <HeaderSection
-        title={isVisiting ? `${allyProfile?.display_name || 'Ally'}'s Kingdom` : `${user?.firstName || 'My'}'s Kingdom`}
+        title={isVisiting ? `${allyProfile?.display_name || 'Ally'}'s Kingdom` : "Kingdom"}
         subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}

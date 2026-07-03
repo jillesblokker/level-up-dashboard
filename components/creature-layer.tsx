@@ -29,6 +29,148 @@ interface ActiveCreature {
     state: 'idle' | 'walking';
 }
 
+export function getUnifiedChatterPool(def: any, questStats: { total: number; completed: number } | null): string[] {
+    const base = def.greetings || [];
+    if (!questStats) return base;
+
+    const allCompleted = questStats.total > 0 && questStats.completed === questStats.total;
+    const progressRatio = questStats.total > 0 ? questStats.completed / questStats.total : 0;
+
+    let progressQuotes: string[] = [];
+
+    switch (def.type) {
+        case 'fire':
+            if (allCompleted) {
+                progressQuotes = [
+                    "The forge fires are roaring hot today! Pure power!",
+                    "Yes! Let's burn through all these tasks!",
+                    "A blazing victory! The realm is burning bright!"
+                ];
+            } else if (progressRatio > 0.5) {
+                progressQuotes = [
+                    "Heating up! We are halfway there!",
+                    "Keep feeding the flames, boss!",
+                    "Sparks are flying! Keep it going!"
+                ];
+            } else {
+                progressQuotes = [
+                    "The fire is dying down... we need more spark!",
+                    "These cold, uncompleted tasks are killing my vibe!",
+                    "Blow some bellows on those habits!"
+                ];
+            }
+            break;
+        case 'water':
+            if (allCompleted) {
+                progressQuotes = [
+                    "A flood of completions! Wonderful!",
+                    "Everything is flowing perfectly today!",
+                    "Clean sweep! We are swimming in success!"
+                ];
+            } else if (progressRatio > 0.5) {
+                progressQuotes = [
+                    "Making waves today! Keep paddling!",
+                    "The tide is rising in our favor!",
+                    "Smooth sailing ahead!"
+                ];
+            } else {
+                progressQuotes = [
+                    "Stagnant water... we need movement!",
+                    "The water level is dropping... focus, please!",
+                    "Don't let the realm dry out!"
+                ];
+            }
+            break;
+        case 'earth':
+            if (allCompleted) {
+                progressQuotes = [
+                    "A rock-solid day of completions!",
+                    "We moved mountains today!",
+                    "Solid ground beneath us. A triumphant day!"
+                ];
+            } else if (progressRatio > 0.5) {
+                progressQuotes = [
+                    "Good foundations! Almost there!",
+                    "Steady as she goes, Sire!",
+                    "Building strength block by block!"
+                ];
+            } else {
+                progressQuotes = [
+                    "Stuck in a mudslide... we need effort!",
+                    "The ground is crumbling without focus!",
+                    "Heave ho! We need more heavy lifting on those habits!"
+                ];
+            }
+            break;
+        case 'nature':
+            if (allCompleted) {
+                progressQuotes = [
+                    "A bountiful harvest of completed quests!",
+                    "The realm is blooming beautifully today!",
+                    "Nature flourishes when you are focused!"
+                ];
+            } else if (progressRatio > 0.5) {
+                progressQuotes = [
+                    "Green shoots! We are growing fast today!",
+                    "Nurture your habits and watch us grow!",
+                    "Reaching for the sun! Almost there!"
+                ];
+            } else {
+                progressQuotes = [
+                    "The leaves are wilting... water us with focus!",
+                    "Stagnation has set in... cultivate discipline!",
+                    "Don't let the weeds overtake the garden!"
+                ];
+            }
+            break;
+        case 'ice':
+            if (allCompleted) {
+                progressQuotes = [
+                    "Frozen perfection! Every task iced!",
+                    "Cool, calm, and 100% completed!",
+                    "Absolute zero stagnation today!"
+                ];
+            } else if (progressRatio > 0.5) {
+                progressQuotes = [
+                    "Ice is forming! Solid progress!",
+                    "Chillingly good work today!",
+                    "Keeping our cool and getting it done!"
+                ];
+            } else {
+                progressQuotes = [
+                    "A meltdown is coming! We need discipline!",
+                    "Cold winds blow when habits are forgotten...",
+                    "Brrr... the energy is freezing up."
+                ];
+            }
+            break;
+        default: // special, monster, animals
+            if (allCompleted) {
+                progressQuotes = [
+                    "The fire of your resolve burns as bright as Drakon's breath!",
+                    "We have conquered all stagnation today!",
+                    "Baa! The grass has never tasted sweeter!",
+                    "Neigh! Ready for a victory lap!"
+                ];
+            } else if (progressRatio > 0.5) {
+                progressQuotes = [
+                    "The horde is retreating! Keep the pressure on!",
+                    "Your strength grows by the hour!",
+                    "Munch munch... getting closer to full!"
+                ];
+            } else {
+                progressQuotes = [
+                    "Necrion's shadows are creeping closer... stay vigilant!",
+                    "The darkness thrives on broken streaks...",
+                    "Baa... it's a bit drafty out here."
+                ];
+            }
+            break;
+    }
+
+    return [...base, ...progressQuotes];
+}
+
 interface CitizenWithChatterProps {
     creature: ActiveCreature;
     def: any;
@@ -52,41 +194,7 @@ function CitizenWithChatter({
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        // Determine chatter pool based on quest stats
-        let pool = [
-            "The realm is peaceful today.",
-            "Conquest waits for no one!",
-            "I wonder what lies beyond the borders...",
-            "Always keep moving forward!"
-        ];
-
-        if (questStats) {
-            const allCompleted = questStats.total > 0 && questStats.completed === questStats.total;
-            const progressRatio = questStats.total > 0 ? questStats.completed / questStats.total : 0;
-
-            if (allCompleted) {
-                pool = [
-                    "All tasks completed today! Sire is unstoppable!",
-                    "The forge fires are roaring with our success!",
-                    "A day of absolute triumph! Glory to the realm!",
-                    "Every single quest was vanquished. Extraordinary!"
-                ];
-            } else if (progressRatio > 0.5) {
-                pool = [
-                    "We are halfway to glory! Keep it up!",
-                    "The energy of our realm is growing stronger!",
-                    "We are pushing the shadows back, one quest at a time.",
-                    "Great progress today, Sire!"
-                ];
-            } else {
-                pool = [
-                    "The shadows are creeping closer... we need focus.",
-                    "Our daily devotions are lagging. Stagnation looms!",
-                    "A silent quest board brings no glory.",
-                    "Let's banish the clouds with some completed habits!"
-                ];
-            }
-        }
+        const pool = getUnifiedChatterPool(def, questStats);
 
         // Set chatter periodically
         const triggerChatter = () => {
@@ -113,7 +221,7 @@ function CitizenWithChatter({
             clearInterval(interval);
             clearTimeout(initialTimeout);
         };
-    }, [questStats]);
+    }, [questStats, def]);
 
     return (
         <div className="relative w-full h-full">
@@ -738,7 +846,12 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
                         {/* Speech Bubble / Greeting */}
                         <div className="mt-4 bg-zinc-900 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative transition-opacity duration-300">
-                            &ldquo;{selectedCitizen?.greetings[quoteIndex % (selectedCitizen?.greetings.length || 1)]}&rdquo;
+                            {(() => {
+                                if (!selectedCitizen) return null;
+                                const pool = getUnifiedChatterPool(selectedCitizen, questStats);
+                                const quote = pool[quoteIndex % (pool.length || 1)] || "";
+                                return <span>&ldquo;{quote}&rdquo;</span>;
+                            })()}
                             <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-zinc-900 rotate-45 border-t border-l border-zinc-800/60" />
                         </div>
                     </div>
