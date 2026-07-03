@@ -29,6 +29,128 @@ interface ActiveCreature {
     state: 'idle' | 'walking';
 }
 
+interface CitizenWithChatterProps {
+    creature: ActiveCreature;
+    def: any;
+    isPlayerOnTile: boolean;
+    isSleepy: boolean;
+    questStats: { total: number; completed: number } | null;
+    citizen: any;
+    isHarvestReady: boolean;
+}
+
+function CitizenWithChatter({
+    creature,
+    def,
+    isPlayerOnTile,
+    isSleepy,
+    questStats,
+    citizen,
+    isHarvestReady
+}: CitizenWithChatterProps) {
+    const [chatter, setChatter] = useState<string | null>(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        // Determine chatter pool based on quest stats
+        let pool = [
+            "The realm is peaceful today.",
+            "Conquest waits for no one!",
+            "I wonder what lies beyond the borders...",
+            "Always keep moving forward!"
+        ];
+
+        if (questStats) {
+            const allCompleted = questStats.total > 0 && questStats.completed === questStats.total;
+            const progressRatio = questStats.total > 0 ? questStats.completed / questStats.total : 0;
+
+            if (allCompleted) {
+                pool = [
+                    "All tasks completed today! Sire is unstoppable!",
+                    "The forge fires are roaring with our success!",
+                    "A day of absolute triumph! Glory to the realm!",
+                    "Every single quest was vanquished. Extraordinary!"
+                ];
+            } else if (progressRatio > 0.5) {
+                pool = [
+                    "We are halfway to glory! Keep it up!",
+                    "The energy of our realm is growing stronger!",
+                    "We are pushing the shadows back, one quest at a time.",
+                    "Great progress today, Sire!"
+                ];
+            } else {
+                pool = [
+                    "The shadows are creeping closer... we need focus.",
+                    "Our daily devotions are lagging. Stagnation looms!",
+                    "A silent quest board brings no glory.",
+                    "Let's banish the clouds with some completed habits!"
+                ];
+            }
+        }
+
+        // Set chatter periodically
+        const triggerChatter = () => {
+            // 30% chance to speak every 20 seconds
+            if (Math.random() < 0.3) {
+                const randomPhrase = pool[Math.floor(Math.random() * pool.length)];
+                setChatter(randomPhrase);
+                setVisible(true);
+                
+                // Hide after 6 seconds
+                setTimeout(() => {
+                    setVisible(false);
+                }, 6000);
+            }
+        };
+
+        const interval = setInterval(triggerChatter, 20000);
+        // Trigger once shortly after mount
+        const initialTimeout = setTimeout(triggerChatter, Math.random() * 8000 + 2000);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(initialTimeout);
+        };
+    }, [questStats]);
+
+    return (
+        <div className="relative w-full h-full">
+            {/* Speech Bubble */}
+            {chatter && (
+                <div
+                    className={`absolute -top-14 left-1/2 -translate-x-1/2 z-[30] bg-zinc-950/95 text-[9px] text-amber-200 px-2.5 py-1.5 rounded-xl border border-amber-500/30 shadow-2xl transition-all duration-500 min-w-[120px] max-w-[140px] text-center font-serif pointer-events-none leading-relaxed select-none ${
+                        visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-2"
+                    }`}
+                >
+                    {chatter}
+                    {/* Bubble tail */}
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-950 border-r border-b border-amber-500/30 rotate-45" />
+                </div>
+            )}
+
+            {/* Sleepy Zzz Overlay */}
+            {isSleepy && (
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-50 text-blue-200/90 font-black text-[10px] animate-pulse-slow tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex flex-col items-center">
+                    <span>Z</span>
+                    <span className="ml-2 text-[8px]">z</span>
+                    <span className="ml-4 text-[6px]">z</span>
+                </div>
+            )}
+
+            {/* Visual Sprite */}
+            <div className="absolute inset-x-0 bottom-0 top-0">
+                <CreatureSprite
+                    creature={def}
+                    isPlayerOnTile={isPlayerOnTile}
+                    tileSize={100}
+                    isFavorite={citizen?.favorite || false}
+                    isHarvestReady={isHarvestReady}
+                />
+            </div>
+        </div>
+    );
+}
+
 export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }: Omit<CreatureLayerProps, 'tileSize'>) {
     const [activeCreatures, setActiveCreatures] = useState<ActiveCreature[]>([]);
     const [playerTile, setPlayerTile] = useState<{ row: number; col: number } | null>(null);
@@ -49,6 +171,28 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const [inventoryFoods, setInventoryFoods] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
     const [isInteracting, setIsInteracting] = useState(false);
     const [quoteIndex, setQuoteIndex] = useState(0);
+
+    const [questStats, setQuestStats] = useState<{ total: number; completed: number } | null>(null);
+
+    useEffect(() => {
+        if (!user) return;
+        const fetchQuests = async () => {
+            try {
+                const res = await fetch(`/api/quests?t=${Date.now()}`);
+                if (res.ok) {
+                    const questsList = await res.json();
+                    if (Array.isArray(questsList)) {
+                        const total = questsList.length;
+                        const completed = questsList.filter((q: any) => q.completed).length;
+                        setQuestStats({ total, completed });
+                    }
+                }
+            } catch (err) {
+                logger.warn('[CreatureLayer] Failed to fetch quest stats:', err);
+            }
+        };
+        fetchQuests();
+    }, [user]);
 
     // Get the selected citizen object from the store dynamically
     const selectedCitizen = citizens.find(c => c.id === selectedCitizenId) || null;
@@ -504,25 +648,15 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             }}
                         />
 
-                        {/* Sleepy Zzz Overlay */}
-                        {isSleepy && (
-                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-50 text-blue-200/90 font-black text-[10px] animate-pulse-slow tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex flex-col items-center">
-                                <span>Z</span>
-                                <span className="ml-2 text-[8px]">z</span>
-                                <span className="ml-4 text-[6px]">z</span>
-                            </div>
-                        )}
-
-                        {/* Visual Sprite */}
-                        <div className="absolute inset-x-0 bottom-0 top-0">
-                            <CreatureSprite
-                                creature={def}
-                                isPlayerOnTile={isPlayerOnTile}
-                                tileSize={100}
-                                isFavorite={citizen?.favorite || false}
-                                isHarvestReady={citizen ? isHarvestReady(citizen) : false}
-                            />
-                        </div>
+                        <CitizenWithChatter
+                            creature={creature}
+                            def={def}
+                            isPlayerOnTile={isPlayerOnTile}
+                            isSleepy={isSleepy}
+                            questStats={questStats}
+                            citizen={citizen}
+                            isHarvestReady={citizen ? isHarvestReady(citizen) : false}
+                        />
                     </div>
                 );
             })}

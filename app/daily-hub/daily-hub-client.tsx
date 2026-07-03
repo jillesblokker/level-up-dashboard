@@ -301,6 +301,24 @@ export function DailyHubClient() {
         return `Good evening, ${name}`
     }
 
+    const getLoreSummary = () => {
+        if (!yesterdayReport) return "";
+        const quests = yesterdayReport.completedQuestsCount || 0;
+        const gold = yesterdayReport.goldEarned || 0;
+        const title = user?.firstName || "Squire";
+        
+        if (quests === 0) {
+            return `During a day of peaceful respite, ${title} gathered strength to prepare for the epic battles ahead.`;
+        }
+        
+        let text = `Yesterday, ${title} conquered ${quests} ${quests === 1 ? 'quest' : 'quests'}`;
+        if (gold > 0) {
+            text += ` and brought back ${gold} gold to the treasury`;
+        }
+        text += `, keeping the dark magic of Necrion at bay.`;
+        return text;
+    };
+
     return (
         <div className="min-h-screen bg-black pb-20">
             {/* Header Section with CTA */}
@@ -814,6 +832,16 @@ export function DailyHubClient() {
                         <div className="mt-6 pt-5 border-t border-amber-900/30">
                             <h3 className="text-[11px] uppercase tracking-widest text-amber-500/70 text-center mb-3 font-semibold">Overnight Chronicle</h3>
                             <div className="bg-zinc-950 rounded-lg p-4 border border-zinc-800/50 flex flex-col gap-3">
+                                {yesterdayReport && (
+                                    <div className="flex items-start gap-3 pb-3 border-b border-zinc-800/80">
+                                        <div className="w-8 h-8 rounded-full bg-amber-900/30 flex items-center justify-center shrink-0 border border-amber-700/50">
+                                            <span className="text-lg">📜</span>
+                                        </div>
+                                        <p className="text-xs text-amber-200/90 italic font-serif leading-relaxed">
+                                            &quot;{getLoreSummary()}&quot;
+                                        </p>
+                                    </div>
+                                )}
                                 {(() => {
                                     const activePartner = citizens.find(c => c.id === activePartnerId);
                                     if (activePartner) {

@@ -59,6 +59,7 @@ import {
   loadKingdomItems,
   loadKingdomTileStates
 } from '@/lib/supabase-persistence-client'
+import { getCurrentTitle } from '@/lib/title-manager';
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { supabase, withToken } from '@/lib/supabase/client'
 
@@ -410,6 +411,7 @@ export function KingdomClient() {
   const visitUserId = searchParams?.get('visit');
   const isVisiting = !!visitUserId && visitUserId !== user?.id;
 
+  const [allyProfile, setAllyProfile] = useState<{ display_name: string; level: number; title: string } | null>(null);
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
@@ -546,6 +548,27 @@ export function KingdomClient() {
 
         // Load data for the target user (self or ally)
         const targetId = isVisiting ? visitUserId : null;
+
+        // Fetch ally profile if visiting
+        if (isVisiting && visitUserId) {
+          try {
+            const res = await fetch(`/api/user/profile?userId=${visitUserId}`, {
+              headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            });
+            if (res.ok) {
+              const profileData = await res.json();
+              if (profileData && profileData.stats) {
+                setAllyProfile({
+                  display_name: profileData.stats.display_name || 'Adventurer',
+                  level: profileData.stats.level || 1,
+                  title: profileData.stats.title || 'Squire',
+                });
+              }
+            }
+          } catch (err) {
+            logger.warn('[Kingdom] Failed to fetch ally profile:', err);
+          }
+        }
 
         // Load kingdom grid from Supabase with localStorage fallback
         const savedGrid = await loadKingdomGrid(token, targetId);
@@ -1643,8 +1666,8 @@ export function KingdomClient() {
 
 
       <HeaderSection
-        title={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdom : TEXT_CONTENT.kingdom.ui.header.myKingdom}
-        subtitle={isVisiting ? TEXT_CONTENT.kingdom.ui.header.allyKingdomSubtitle : TEXT_CONTENT.kingdom.ui.header.myKingdomSubtitle}
+        title={isVisiting ? `${allyProfile?.display_name || 'Ally'}'s Kingdom` : `${user?.firstName || 'My'}'s Kingdom`}
+        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
         onImageUpload={async (file) => {
