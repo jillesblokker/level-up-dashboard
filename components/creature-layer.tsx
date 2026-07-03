@@ -377,37 +377,81 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             <Dialog open={!!offlineCatchup} onOpenChange={(open) => {
                 if (!open && offlineCatchup) clearOfflineCatchup();
             }}>
-                <DialogContent className="sm:max-w-md bg-gradient-to-b from-blue-900 to-indigo-950 border-amber-500/30 text-slate-200">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-medieval text-amber-400 flex items-center gap-2">
-                            <Sparkles className="w-6 h-6 text-amber-300" />
-                            While You Were Away...
-                        </DialogTitle>
-                        <DialogDescription className="text-slate-300">
-                            Your active citizens gathered resources while you were gone!
-                        </DialogDescription>
+                <DialogContent
+                    className="w-[min(90vw,400px)] max-h-[90vh] overflow-y-auto p-0 shadow-2xl rounded-2xl bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border border-amber-700/30 shadow-amber-500/10 text-white animate-in zoom-in-95 duration-200"
+                    role="dialog"
+                    aria-label="offline-catchup-modal"
+                >
+                    {/* Hidden a11y header */}
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>While You Were Away...</DialogTitle>
+                        <DialogDescription>Your active citizens gathered resources while you were gone!</DialogDescription>
                     </DialogHeader>
+
+                    {/* Background glow */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl opacity-20 bg-amber-900/30" />
+                    </div>
+
+                    {/* Portrait & Title Section */}
+                    <div className="relative z-10 flex flex-col items-center pt-10 pb-4 px-6">
+                        <div className="relative group">
+                            {/* Pulsing glow */}
+                            <div className="absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 bg-amber-900/30" />
+                            {/* Rotating ring */}
+                            <div
+                                className="absolute -inset-4 border border-dashed rounded-full opacity-30 text-amber-400 border-amber-500"
+                                style={{ animation: 'spin 15s linear infinite' }}
+                            />
+                            {/* Portrait circle */}
+                            <div className="relative w-36 h-36 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-700/30 group-hover:scale-105 transition-transform duration-500">
+                                <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-zinc-950">
+                                    <Image
+                                        src="/images/placeholders/report_scroll.png"
+                                        alt="Offline Catch-up"
+                                        fill
+                                        className="object-cover p-1 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 pointer-events-none" />
+                                </div>
+                            </div>
+                            {/* Sparkle decorations */}
+                            <Sparkles className="absolute -top-3 -right-3 w-5 h-5 animate-pulse opacity-60 text-amber-400" />
+                            <Star className="absolute -bottom-2 -left-3 w-5 h-5 animate-pulse opacity-40 text-amber-400" style={{ animationDelay: '0.5s' }} />
+                        </div>
+
+                        {/* Name & description */}
+                        <h2 className="mt-6 text-2xl font-serif font-semibold text-center text-amber-400">
+                            While You Were Away...
+                        </h2>
+                        <p className="mt-2 text-zinc-300/80 text-sm leading-relaxed text-center">
+                            Your active citizens gathered resources while you were gone!
+                        </p>
+                    </div>
+
+                    {/* Resources & Items Data */}
                     {offlineCatchup && (
-                        <div className="flex flex-col gap-4 py-4">
+                        <div className="relative z-10 px-6 pb-6 space-y-4">
                             {offlineCatchup.gold > 0 && (
-                                <div className="flex items-center gap-3 bg-black/30 p-3 rounded-lg border border-amber-500/20">
-                                    <span className="text-2xl">🪙</span>
-                                    <div>
-                                        <div className="font-bold text-amber-300">{offlineCatchup.gold} Gold</div>
-                                        <div className="text-xs text-slate-400">Found by your citizens</div>
+                                <div className="bg-zinc-900 p-4 rounded-xl border border-amber-900/20 text-center flex items-center justify-center gap-3">
+                                    <span className="text-3xl">🪙</span>
+                                    <div className="text-left">
+                                        <div className="text-xl font-bold text-yellow-500">{offlineCatchup.gold} Gold</div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Found by your citizens</div>
                                     </div>
                                 </div>
                             )}
+
                             {Object.values(offlineCatchup.items).length > 0 && (
-                                <div className="space-y-2">
-                                    <h4 className="font-semibold text-sm text-amber-200">Items Gathered:</h4>
-                                    <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-3">
+                                    <h3 className="text-xs uppercase tracking-widest text-amber-500/70 text-center font-semibold">Items Gathered</h3>
+                                    <div className="grid grid-cols-2 gap-3">
                                         {Object.values(offlineCatchup.items).map((item, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 bg-black/30 p-2 rounded-lg border border-white/10">
-                                                <span className="text-xl drop-shadow-md">{item.emoji}</span>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-slate-200 truncate pr-2">{item.name}</span>
-                                                    <span className="text-xs text-slate-400">x{item.quantity}</span>
+                                            <div key={idx} className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 flex items-center gap-3">
+                                                <span className="text-2xl drop-shadow-md">{item.emoji}</span>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-sm font-bold text-amber-100 truncate pr-2">{item.name}</span>
+                                                    <span className="text-xs text-zinc-400">x{item.quantity}</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -416,10 +460,12 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             )}
                         </div>
                     )}
-                    <div className="flex justify-end mt-2">
-                        <Button 
+
+                    {/* Action button */}
+                    <div className="relative z-10 px-6 pb-6">
+                        <Button
+                            className="w-full h-11 text-white rounded-xl bg-amber-600 hover:bg-amber-500 shadow-lg font-bold transition-all"
                             onClick={clearOfflineCatchup}
-                            className="bg-amber-600 hover:bg-amber-500 text-white font-medieval w-full border border-amber-400/50"
                         >
                             Claim Rewards
                         </Button>
