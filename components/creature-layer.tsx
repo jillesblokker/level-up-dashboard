@@ -93,13 +93,15 @@ function CitizenWithChatter({
             // 30% chance to speak every 20 seconds
             if (Math.random() < 0.3) {
                 const randomPhrase = pool[Math.floor(Math.random() * pool.length)];
-                setChatter(randomPhrase);
-                setVisible(true);
-                
-                // Hide after 6 seconds
-                setTimeout(() => {
-                    setVisible(false);
-                }, 6000);
+                if (randomPhrase) {
+                    setChatter(randomPhrase);
+                    setVisible(true);
+                    
+                    // Hide after 6 seconds
+                    setTimeout(() => {
+                        setVisible(false);
+                    }, 6000);
+                }
             }
         };
 
