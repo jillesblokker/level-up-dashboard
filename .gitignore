@@ -39,3 +39,7 @@ next-env.d.ts
 
 # audio files (generated dynamically)
 /public/audio/*.wav
+
+# node distribution
+/.node-dist/
+

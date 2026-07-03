@@ -745,11 +745,14 @@ export function DailyHubClient() {
                                 style={{ animation: 'spin 15s linear infinite' }}
                             />
                             {/* Portrait circle */}
-                            <div className="relative w-32 h-32 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-700/30">
+                            <div className="relative w-36 h-36 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-700/30 group-hover:scale-105 transition-transform duration-500">
                                 <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-zinc-950">
-                                    <span className="text-5xl select-none" role="img" aria-label="Scroll">
-                                        📜
-                                    </span>
+                                    <NextImage
+                                        src="/images/placeholders/report_scroll.png"
+                                        alt="Yesterday's Report Card"
+                                        fill
+                                        className="object-cover p-1 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"
+                                    />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 pointer-events-none" />
                                 </div>
                             </div>
@@ -794,11 +797,14 @@ export function DailyHubClient() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-4 py-2 text-center">
-                                <p className="text-sm text-zinc-300 italic">
+                            <div className="space-y-4 py-5 text-center bg-zinc-900/40 border border-amber-900/10 rounded-2xl p-5 backdrop-blur-sm relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-transparent pointer-events-none" />
+                                <div className="text-4xl mb-1 animate-pulse">💤</div>
+                                <p className="text-sm font-serif text-zinc-300 italic max-w-xs mx-auto leading-relaxed">
                                     &quot;Yesterday was a peaceful rest day, with no active quests completed.&quot;
                                 </p>
-                                <p className="text-xs text-amber-400 font-bold tracking-wider uppercase">
+                                <div className="w-20 h-px bg-gradient-to-r from-transparent via-amber-700/30 to-transparent mx-auto my-1" />
+                                <p className="text-[10px] text-amber-400 font-bold tracking-widest uppercase animate-pulse">
                                     Today is a new day! Conquest awaits!
                                 </p>
                             </div>
