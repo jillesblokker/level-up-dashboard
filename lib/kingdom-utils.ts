@@ -24,6 +24,7 @@ const TILE_BONUSES: Record<string, Partial<KingdomBonuses>> = {
     'windmill': { xpBonusPercent: 2 },
     'sawmill': { strength: 1 },
     'fountain': { vitality: 1 },
+    'daily-hub': { xpBonusPercent: 4 },
 };
 
 export function calculateKingdomBonuses(grid: Tile[][] | any[][]): KingdomBonuses {

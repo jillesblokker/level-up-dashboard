@@ -833,6 +833,10 @@ export const TEXT_CONTENT = {
             name: "Sawmill",
             clickMessage: "The sawmill's blades whir as you collect freshly cut timber. The wood is perfect for crafting and building."
         },
+        'daily-hub': {
+            name: "Daily Hub",
+            clickMessage: "Opening your Daily Hub dashboard..."
+        },
         fisherman: {
             name: "Fisherman",
             clickMessage: "You cast your line into the water and feel a tug. Reeling it in, you catch a fish with gold coins in its mouth!"

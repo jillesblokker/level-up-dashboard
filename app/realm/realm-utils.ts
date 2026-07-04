@@ -111,6 +111,7 @@ export const initialInventory: Record<TileType, Tile> = {
     floating_island: { ...defaultTile('floating_island'), cost: 500, owned: 1 },
     'zen-garden': { ...defaultTile('zen-garden'), cost: 350, owned: 1 },
     'quest-board': { ...defaultTile('quest-board'), cost: 50, owned: 1 },
+    'daily-hub': { ...defaultTile('daily-hub'), cost: 350, owned: 0 },
     monument: { ...defaultTile('monument'), cost: 500, owned: 1 },
     'training-grounds': { ...defaultTile('training-grounds'), cost: 200, owned: 1 },
     tavern: { ...defaultTile('tavern'), cost: 200, owned: 1 },

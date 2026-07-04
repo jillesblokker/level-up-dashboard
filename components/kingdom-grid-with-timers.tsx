@@ -189,6 +189,7 @@ export function KingdomGridWithTimers({
       crystal_cavern: { category: 'mystic', levelRequired: 8 },
       floating_island: { category: 'mystic', levelRequired: 10 },
       'zen-garden': { category: 'mystic', levelRequired: 1 },
+      'daily-hub': { category: 'advanced', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {
@@ -1290,6 +1291,11 @@ export function KingdomGridWithTimers({
     }
 
     // Handle Functional Buildings (Hub Navigation)
+    if (tile.type === 'daily-hub') {
+      toast({ title: "Entering Daily Hub...", description: "Opening your habits dashboard." });
+      router.push('/daily-hub');
+      return;
+    }
     if (tile.type === 'quest-board') {
       toast({ title: "Checking Quest Board...", description: "Going to Quests." });
       router.push('/quests');

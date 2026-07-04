@@ -42,7 +42,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
       if (placed.length === 0) {
         // Show default kingdom tiles that should always be available
         const defaultTiles = KINGDOM_TILES.filter(tile =>
-          ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower'].includes(tile.id)
+          ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower', 'daily-hub'].includes(tile.id)
         );
         setPlacedTiles(defaultTiles);
       } else {
@@ -51,7 +51,7 @@ export function KingdomTileGrid({ onGoldEarned, onItemFound, kingdomGrid = [] }:
     } else {
       // If no kingdom grid is provided, show default tiles
       const defaultTiles = KINGDOM_TILES.filter(tile =>
-        ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower'].includes(tile.id)
+        ['well', 'blacksmith', 'fisherman', 'sawmill', 'windmill', 'grocery', 'castle', 'temple', 'fountain', 'pond', 'foodcourt', 'vegetables', 'wizard', 'mayor', 'inn', 'house', 'mansion', 'jousting', 'archery', 'watchtower', 'daily-hub'].includes(tile.id)
       );
       setPlacedTiles(defaultTiles);
     }

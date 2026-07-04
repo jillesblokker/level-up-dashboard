@@ -769,6 +769,20 @@ export const KINGDOM_TILES: KingdomTile[] = [
     cost: 50
   },
   {
+    id: 'daily-hub',
+    name: TEXT_CONTENT.kingdomTiles['daily-hub'].name,
+    timerMinutes: 60,
+    normalGoldRange: [12, 22],
+    luckyGoldAmount: 90,
+    luckyChance: 0.15,
+    clickMessage: TEXT_CONTENT.kingdomTiles['daily-hub'].clickMessage,
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/daily-hub.png',
+    cost: 350
+  },
+  {
     id: 'monument',
     name: 'Hall of Fame',
     timerMinutes: 60,
