@@ -73,11 +73,10 @@ export function CitizensTab() {
   useEffect(() => {
     if (user?.id) {
       loadCitizens(user.id);
-      getCharacterStats().then(stats => {
-        if (stats && stats.level) {
-          setPlayerLevel(stats.level);
-        }
-      });
+      const stats = getCharacterStats();
+      if (stats && stats.level) {
+        setPlayerLevel(stats.level);
+      }
     }
   }, [user?.id, loadCitizens]);
 
