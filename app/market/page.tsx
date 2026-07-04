@@ -366,29 +366,33 @@ export default function MarketPage() {
             <h1 className="text-3xl font-bold tracking-tight text-amber-500 font-serif">Royal Exchange</h1>
             <p className="text-zinc-400 mt-1">Trade standard construction materials and resources.</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             {/* Current Currency HUD */}
-            <div className="flex items-center gap-3 bg-zinc-950 border border-zinc-800 p-2.5 px-4 rounded-xl shadow-lg ">
-              <Gem className="h-5 w-5 text-pink-400 animate-pulse" />
-              <div className="text-right mr-2 border-r border-zinc-800 pr-4">
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gems</p>
-                <AnimatedNumber 
-                  value={gemBalance} 
-                  className="text-base font-serif font-bold text-pink-200" 
-                  title={`${gemBalance.toLocaleString()} Gems`}
-                />
+            <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950 border border-zinc-800 p-2.5 px-4 rounded-xl shadow-lg w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <Gem className="h-5 w-5 text-pink-400 animate-pulse shrink-0" />
+                <div className="text-left mr-2 border-r border-zinc-800 pr-4">
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gems</p>
+                  <AnimatedNumber 
+                    value={gemBalance} 
+                    className="text-base font-serif font-bold text-pink-200" 
+                    title={`${gemBalance.toLocaleString()} Gems`}
+                  />
+                </div>
               </div>
-              <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
-              <div className="text-right">
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
-                <div className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
-                  <AnimatedNumber value={goldBalance} formatFn={formatGold} /> <span className="text-xs text-amber-600">Gold</span>
+              <div className="flex items-center gap-2">
+                <Coins className="h-5 w-5 text-amber-400 animate-pulse shrink-0" />
+                <div className="text-right">
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
+                  <div className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
+                    <AnimatedNumber value={goldBalance} formatFn={formatGold} /> <span className="text-xs text-amber-600">Gold</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <Link href="/">
-              <Button variant="outline" className="border-zinc-700 hover:bg-zinc-800 text-zinc-300">
+            <Link href="/" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full border-zinc-700 hover:bg-zinc-800 text-zinc-300 justify-center">
                 <ArrowLeft className="h-4 w-4" />
                 Return to Kingdom
               </Button>

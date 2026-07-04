@@ -240,7 +240,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     <article 
       ref={containerRef}
       className={cn(
-        "relative w-[92px] h-[130px] min-[360px]:w-[102px] min-[360px]:h-[142px] sm:w-[160px] sm:h-[220px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none transition-all duration-500",
+        "relative w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] rounded-xl overflow-hidden shadow-xl select-none touch-none transition-all duration-500",
         getRarityGlowClass()
       )}
     >

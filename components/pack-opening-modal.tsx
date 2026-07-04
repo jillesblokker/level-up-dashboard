@@ -60,17 +60,17 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
           <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
-        <div className="text-center mb-4 sm:mb-8 px-4">
-          <h2 className="text-xl sm:text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-500 mb-1 sm:mb-2 drop-shadow-lg">
-            {isWon ? "YOU WON!" : "SCRATCH 3 TO WIN"}
+        <div className="text-center mb-6 sm:mb-8 px-4">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-500 mb-1 sm:mb-2 drop-shadow-sm">
+            {isWon ? "You Won!" : "Scratch 3 to Win"}
           </h2>
-          <p className="text-[10px] sm:text-sm text-amber-200/70 font-bold uppercase tracking-wider sm:tracking-widest">
+          <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
             {isWon ? "Card added to your Mythics collection!" : "Find 3 matching cards to claim the prize"}
           </p>
         </div>
 
         {/* 3x3 Grid */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 mx-auto justify-items-center">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 mx-auto justify-items-center w-full max-w-[390px] sm:max-w-none px-4">
           {packData.cards.map((card: any) => (
             <ScratchCard 
               key={card.id} 
