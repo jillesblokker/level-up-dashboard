@@ -129,30 +129,6 @@ function CityLocationPageInner() {
     }
   }, [searchParams, activeTab])
 
-  if (!mounted || !params) {
-    return (
-      <div className="flex min-h-screen bg-black items-center justify-center">
-        <div className="text-amber-500 animate-pulse font-medieval tracking-widest uppercase">Approaching the City Gates...</div>
-      </div>
-    )
-  }
-
-  const cityData = getCityData(cityName)
-  const location = cityData?.locations.find(l => l.id === locationId)
-
-  if (!cityData || !location) {
-    return (
-      <div className="p-20 text-center text-white bg-black min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-medieval mb-6 text-amber-950/80 italic">The mists obscure this path... {locationId}</h1>
-        <Link href="/realm">
-          <Button variant="outline" className="border-amber-800/40 text-amber-500 hover:bg-amber-950/20">
-            Return to Map
-          </Button>
-        </Link>
-      </div>
-    )
-  }
-
   // Fetch active bounties (Point 4)
   useEffect(() => {
     if (!isTavern || !user) return
@@ -301,6 +277,30 @@ function CityLocationPageInner() {
 
     checkPartnerScouting()
   }, [isTavern, user, activePartner])
+
+  if (!mounted || !params) {
+    return (
+      <div className="flex min-h-screen bg-black items-center justify-center">
+        <div className="text-amber-500 animate-pulse font-medieval tracking-widest uppercase">Approaching the City Gates...</div>
+      </div>
+    )
+  }
+
+  const cityData = getCityData(cityName)
+  const location = cityData?.locations.find(l => l.id === locationId)
+
+  if (!cityData || !location) {
+    return (
+      <div className="p-20 text-center text-white bg-black min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-3xl font-medieval mb-6 text-amber-950/80 italic">The mists obscure this path... {locationId}</h1>
+        <Link href="/realm">
+          <Button variant="outline" className="border-amber-800/40 text-amber-500 hover:bg-amber-950/20">
+            Return to Map
+          </Button>
+        </Link>
+      </div>
+    )
+  }
 
   // Shop items are now sourced from the centralized shop-items module
   // which pulls from comprehensive-items.ts (the single source of truth)
