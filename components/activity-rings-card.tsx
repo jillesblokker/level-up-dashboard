@@ -196,10 +196,9 @@ export function ActivityRingsCard({
         <div className="flex flex-col sm:flex-row items-center gap-6">
 
           {/* ── SVG rings ── */}
-          <div className="relative flex-shrink-0">
+          <div className="relative flex-shrink-0 w-full max-w-[240px] sm:max-w-none sm:w-[136px] aspect-square mx-auto mb-4 sm:mb-0">
             <svg
-              width={CX * 2}
-              height={CY * 2}
+              className="w-full h-full"
               viewBox={`0 0 ${CX * 2} ${CY * 2}`}
               aria-label="Activity rings"
             >
@@ -219,7 +218,7 @@ export function ActivityRingsCard({
               ))}
 
               {/* Centre: overall tier */}
-              <text x={CX} y={CY - 5} textAnchor="middle" className="fill-white" fontSize={11} fontWeight={700}>
+              <text x={CX} y={CY - 5} textAnchor="middle" className="fill-white font-serif" fontSize={12} fontWeight={800}>
                 {completedCount > 0 ? tierLabel(questPct).text : '—'}
               </text>
               <text x={CX} y={CY + 10} textAnchor="middle" fill="#78716c" fontSize={9}>
@@ -228,7 +227,7 @@ export function ActivityRingsCard({
             </svg>
 
             {/* Legend dots bottom-left */}
-            <div className="absolute bottom-0 left-0 flex flex-col gap-0.5 text-[10px]">
+            <div className="absolute bottom-0 left-0 hidden sm:flex flex-col gap-0.5 text-[10px]">
               <span className="flex items-center gap-1 text-orange-300"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block" />Quests</span>
               <span className="flex items-center gap-1 text-indigo-300"><span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />XP</span>
               <span className="flex items-center gap-1 text-emerald-300"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Categories</span>

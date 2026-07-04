@@ -136,8 +136,14 @@ export function ActivityFeed() {
             </CardHeader>
             <CardContent className="pt-4 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
                 {activities.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8 italic">
-                        The realm is quiet...
+                    <div className="text-center py-10 px-4 flex flex-col items-center select-none">
+                        <div className="w-12 h-12 rounded-full bg-[#d4af37]/5 border border-[#d4af37]/15 flex items-center justify-center mb-4 text-[#d4af37]/45 text-xl">
+                            📜
+                        </div>
+                        <h4 className="text-sm font-serif font-bold text-[#d4af37] mb-1.5">The Chronicle Scribes Slumber</h4>
+                        <p className="text-[11px] text-zinc-400 max-w-[280px] leading-relaxed">
+                            No heroic deeds or daily achievements have been recorded in the kingdom yet. Complete a quest, build a new tile, or rally your allies to see active milestones posted here!
+                        </p>
                     </div>
                 ) : (
                     activities.map((activity) => (

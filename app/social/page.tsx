@@ -466,7 +466,7 @@ export default function AlliesPage() {
                         {friends.length === 0 ? (
                             <Card className="text-center p-8">
                                 <CardContent className="pt-6 flex flex-col items-center">
-                                    <div className="relative w-48 h-48 mb-6">
+                                    <div className="relative w-full max-w-[280px] sm:max-w-none sm:w-48 aspect-square mb-6">
                                         <Image
                                             src="/images/empty-states/allies.webp"
                                             alt="No allies yet"
@@ -699,8 +699,8 @@ export default function AlliesPage() {
                                         </div>
                                     ))}
                                     {searchResults.length === 0 && !searchQuery && !isSearching && (
-                                        <div className="text-center py-8 flex flex-col items-center">
-                                            <div className="relative w-40 h-40 mb-4 opacity-80">
+                                        <div className="text-center py-8 flex flex-col items-center w-full">
+                                            <div className="relative w-full max-w-[280px] sm:max-w-none sm:w-40 aspect-square mb-4 opacity-80">
                                                 <Image
                                                     src="/images/empty-states/search.webp"
                                                     alt="Search for friends"
@@ -722,8 +722,8 @@ export default function AlliesPage() {
                     {/* REQUESTS TAB */}
                     <TabsContent value="requests" className="space-y-4">
                         {requests.length === 0 ? (
-                            <div className="text-center py-12 text-muted-foreground flex flex-col items-center">
-                                <div className="relative w-40 h-40 mb-4 opacity-80">
+                            <div className="text-center py-12 text-muted-foreground flex flex-col items-center w-full">
+                                <div className="relative w-full max-w-[280px] sm:max-w-none sm:w-40 aspect-square mb-4 opacity-80">
                                     <Image
                                         src="/images/empty-states/requests.webp"
                                         alt="No requests"
