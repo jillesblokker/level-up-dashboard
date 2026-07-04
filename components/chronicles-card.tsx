@@ -170,7 +170,11 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                         const firstChar = p.charAt(0);
                                         const restOfText = p.slice(1);
                                         return (
-                                            <p className="font-serif leading-relaxed text-base md:text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 text-justify" key={i}>
+                                            <p 
+                                                className="font-serif leading-relaxed text-base md:text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 text-justify" 
+                                                style={{ color: '#1c120c', textShadow: 'none' }}
+                                                key={i}
+                                            >
                                                 <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-[#7c2d12] mr-2.5 mt-0.5 select-none border-2 border-[#7c2d12]/30 rounded-lg px-2 py-0.5 bg-[#fffdfb] shadow-[2px_3px_5px_rgba(0,0,0,0.15)] leading-none uppercase">
                                                     {firstChar}
                                                 </span>
@@ -179,7 +183,11 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                         );
                                     }
                                     return (
-                                        <p className="font-serif leading-relaxed text-base md:text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 text-[#2c1d11] text-justify" key={i}>
+                                        <p 
+                                            className="font-serif leading-relaxed text-base md:text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 text-justify" 
+                                            style={{ color: '#1c120c', textShadow: 'none' }}
+                                            key={i}
+                                        >
                                             {p}
                                         </p>
                                     );
