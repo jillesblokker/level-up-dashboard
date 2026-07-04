@@ -42,23 +42,15 @@ export function LoadingState({ message, size = 'md', className = "" }: LoadingSt
   )
 }
 
+import { LoadingScreen } from "../loading-screen"
+
 export function FullPageLoading({ message = "Summoning the Realm..." }: { message?: string }) {
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-zinc-950 " 
-        aria-hidden="true"
-      />
-      
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-6">
-        <div className="relative">
-          <Loader2 className="animate-spin text-amber-500 h-12 w-12" />
-        </div>
-        <span className="text-amber-400 text-xl font-medieval tracking-widest">{message}</span>
-      </div>
-    </div>
+    <LoadingScreen
+      title={message}
+      content=""
+      variant="amber"
+    />
   )
 }
 

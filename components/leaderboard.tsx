@@ -100,13 +100,13 @@ export function Leaderboard() {
       </CardHeader>
       <CardContent className="flex-grow flex flex-col">
         <Tabs defaultValue="experience" className="w-full flex-grow flex flex-col" onValueChange={setCategory}>
-          <TabsList className="grid w-full grid-cols-6 bg-zinc-950 border border-amber-900/30">
-            <TabsTrigger value="experience" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.xp}</TabsTrigger>
-            <TabsTrigger value="gold" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.gold}</TabsTrigger>
-            <TabsTrigger value="tiles" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.tiles}</TabsTrigger>
-            <TabsTrigger value="streak" className="text-[10px] sm:text-xs px-1">{TEXT_CONTENT.leaderboard.tabs.streak}</TabsTrigger>
-            <TabsTrigger value="quests_monthly_individual" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.quests}</TabsTrigger>
-            <TabsTrigger value="quests_monthly_alliance" className="text-[10px] sm:text-xs px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.allies}</TabsTrigger>
+          <TabsList className="flex w-full overflow-x-auto justify-start bg-zinc-950 border border-amber-900/30 p-1 md:grid md:grid-cols-6 scrollbar-thin scrollbar-thumb-amber-950">
+            <TabsTrigger value="experience" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1">{TEXT_CONTENT.leaderboard.tabs.xp}</TabsTrigger>
+            <TabsTrigger value="gold" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1">{TEXT_CONTENT.leaderboard.tabs.gold}</TabsTrigger>
+            <TabsTrigger value="tiles" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.tiles}</TabsTrigger>
+            <TabsTrigger value="streak" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1">{TEXT_CONTENT.leaderboard.tabs.streak}</TabsTrigger>
+            <TabsTrigger value="quests_monthly_individual" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.quests}</TabsTrigger>
+            <TabsTrigger value="quests_monthly_alliance" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.allies}</TabsTrigger>
           </TabsList>
 
           <div className="mt-4 flex-grow relative min-h-[300px]">
