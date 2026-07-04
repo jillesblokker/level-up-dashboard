@@ -54,6 +54,7 @@ interface CitizensStore {
   harvestCitizen: (userId: string, citizenId: string, multiplier?: number) => Promise<boolean>;
   increaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
   decreaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
+  triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
 }
 
 // Map card types/rarity to habitat types
@@ -524,6 +525,78 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     set({ citizens: updated });
     await setUserPreference('citizens_state', citizenPrefs);
     return true;
+  },
+
+  triggerAutopilotHarvest: async (userId: string, activePartnerId: string | undefined) => {
+    const { citizens, isSleepy } = get();
+    if (isSleepy || !activePartnerId) return null;
+
+    const partner = citizens.find((c) => c.id === activePartnerId);
+    if (!partner || isCitizenHungry(partner)) return null;
+
+    const harvestable = citizens.filter((c) => c.active && isHarvestReady(c));
+    if (harvestable.length === 0) return null;
+
+    let totalGoldCollected = 0;
+    const itemsCollected: Record<string, { quantity: number; name: string; emoji: string }> = {};
+
+    for (const citizen of harvestable) {
+      const isMythic = citizen.isMythic;
+      const baseGold = isMythic
+        ? Math.floor(Math.random() * 36) + 40
+        : Math.floor(Math.random() * 11) + 15;
+      
+      const goldAmount = baseGold;
+      totalGoldCollected += goldAmount;
+
+      await gainGold(goldAmount, `autopilot-collect:${citizen.name}`);
+
+      const drop = generateGatherDrop(citizen);
+      if (drop) {
+        await addToInventory(userId, drop as any);
+        if (itemsCollected[drop.id]) {
+          itemsCollected[drop.id].quantity += drop.quantity;
+        } else {
+          itemsCollected[drop.id] = { quantity: drop.quantity, name: drop.name, emoji: drop.emoji };
+        }
+      }
+    }
+
+    const now = new Date().toISOString();
+    const updated = citizens.map((c) => {
+      if (c.active && isHarvestReady(c)) {
+        return {
+          ...c,
+          lastHarvestedAt: now,
+        };
+      }
+      return c;
+    });
+
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updated.forEach((c) => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
+      };
+    });
+
+    set({ citizens: updated });
+    await setUserPreference('citizens_state', citizenPrefs);
+
+    window.dispatchEvent(new Event('character-inventory-update'));
+    window.dispatchEvent(new Event('character-stats-update'));
+
+    return {
+      gold: totalGoldCollected,
+      items: itemsCollected,
+      partnerName: partner.name,
+      count: harvestable.length
+    };
   },
 
   increaseAffection: async (userId: string, citizenId: string, amount: number) => {

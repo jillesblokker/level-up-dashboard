@@ -112,6 +112,22 @@ const getPurseName = (level: number) => {
   return "Squire's Purse";
 };
 
+const getDailyPriceAdjustment = (itemId: string): number => {
+  const dateStr = new Date().toISOString().split('T')[0];
+  const str = dateStr + itemId;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const percent = ((Math.abs(hash) % 31) - 15) / 100;
+  return percent;
+};
+
+const getDailyPrice = (basePrice: number, itemId: string): number => {
+  const adjustment = getDailyPriceAdjustment(itemId);
+  return Math.max(10, Math.floor(basePrice * (1 + adjustment)));
+};
+
 function CityLocationPageInner() {
   const params = useParams()
   const searchParams = useSearchParams()
@@ -261,26 +277,81 @@ function CityLocationPageInner() {
       // 50% chance to find something
       if (Math.random() < 0.5) {
         const pName = activePartner.name || 'Your Partner'
-        const rewardType = Math.floor(Math.random() * 3)
+        const bondLevel = Math.floor((activePartner.affection || 0) / 100) + 1
+        
+        let locationName = "Whispering Woods"
         let logText = ""
         let rewardDetail = ""
 
-        if (rewardType === 0) {
-          const amount = Math.floor(Math.random() * 50) + 20
-          addToCharacterStat('gold', amount, 'partner-passive-gold')
-          logText = `${pName} scouted the Whispering Woods and found a hidden pouch containing ${amount} Gold!`
-          rewardDetail = `+${amount} Gold`
-          window.dispatchEvent(new Event('character-stats-update'))
-        } else if (rewardType === 1) {
-          const amount = Math.floor(Math.random() * 3) + 1
-          addToCharacterStat('gems', amount, 'partner-passive-gems')
-          logText = `${pName} explored the deep tunnels of the Crystal Caverns and mined ${amount} rare Gems!`
-          rewardDetail = `+${amount} Gems`
-          window.dispatchEvent(new Event('character-stats-update'))
-        } else {
-          if (MARKETPLACE_CONSUMABLES && MARKETPLACE_CONSUMABLES.length > 0) {
-            const randomItem = MARKETPLACE_CONSUMABLES[Math.floor(Math.random() * MARKETPLACE_CONSUMABLES.length)]
-            if (randomItem) {
+        if (bondLevel >= 5) {
+          locationName = "Ancient Archive"
+          // Level 5+ has 35% chance of finding a Lore Fragment
+          if (Math.random() < 0.35) {
+            const loreFragments = [
+              "records speak of a sunken temple in the Azure Depths, where the Water Crystal still shines.",
+              "the ancient order of Flame Wardens once held the volcanic peak, keeping Necrion at bay.",
+              "before the corruption, the Earth Giants carved the Great Roads, paving the path to trade.",
+              "a prophecy foretells of a Chosen Squire who will reunite the six elemental kingdoms.",
+              "the legendary Frost Gryphons are said to wake only when the Archduke's crown is restored."
+            ]
+            const randomFragment = loreFragments[Math.floor(Math.random() * loreFragments.length)]
+            logText = `${pName} discovered a Lost Archive scroll fragment in the ${locationName}! It reads: "...${randomFragment}..."`
+            rewardDetail = "📜 Lore Fragment"
+          } else {
+            // High gems, gold, or epic item
+            const roll = Math.random()
+            if (roll < 0.33) {
+              const amount = Math.floor(Math.random() * 101) + 100 // 100-200 Gold
+              addToCharacterStat('gold', amount, 'partner-passive-gold')
+              logText = `${pName} navigated the traps of the ${locationName} and retrieved ${amount} Gold!`
+              rewardDetail = `+${amount} Gold`
+              window.dispatchEvent(new Event('character-stats-update'))
+            } else if (roll < 0.66) {
+              const amount = Math.floor(Math.random() * 3) + 3 // 3-5 Gems
+              addToCharacterStat('gems', amount, 'partner-passive-gems')
+              logText = `${pName} searched the high shelves of the ${locationName} and found ${amount} ancient Gems!`
+              rewardDetail = `+${amount} Gems`
+              window.dispatchEvent(new Event('character-stats-update'))
+            } else {
+              // Epic item from Marketplace consumables
+              if (MARKETPLACE_CONSUMABLES && MARKETPLACE_CONSUMABLES.length > 0) {
+                const randomItem = MARKETPLACE_CONSUMABLES[Math.floor(Math.random() * MARKETPLACE_CONSUMABLES.length)]
+                addToKingdomInventory(user.id, {
+                  id: randomItem.id,
+                  name: randomItem.name,
+                  description: randomItem.description,
+                  type: randomItem.isEquippable ? 'equipment' : 'item',
+                  category: randomItem.category || 'item',
+                  quantity: 1,
+                  image: randomItem.image,
+                  emoji: randomItem.emoji,
+                  stats: randomItem.stats || {}
+                })
+                logText = `${pName} found a rare tome: ${randomItem.name} hidden in the vaults!`
+                rewardDetail = `+1 ${randomItem.name}`
+                window.dispatchEvent(new Event('character-inventory-update'))
+              }
+            }
+          }
+        } else if (bondLevel === 4) {
+          locationName = "Celestial Peaks"
+          const roll = Math.random()
+          if (roll < 0.4) {
+            const amount = Math.floor(Math.random() * 71) + 80 // 80-150 Gold
+            addToCharacterStat('gold', amount, 'partner-passive-gold')
+            logText = `${pName} scaled the heights of the ${locationName} and collected ${amount} Gold from a nesting site!`
+            rewardDetail = `+${amount} Gold`
+            window.dispatchEvent(new Event('character-stats-update'))
+          } else if (roll < 0.8) {
+            const amount = Math.floor(Math.random() * 3) + 2 // 2-4 Gems
+            addToCharacterStat('gems', amount, 'partner-passive-gems')
+            logText = `${pName} chipped away at a mineral vein on the ${locationName} and gathered ${amount} Gems!`
+            rewardDetail = `+${amount} Gems`
+            window.dispatchEvent(new Event('character-stats-update'))
+          } else {
+            // Consumable
+            if (MARKETPLACE_CONSUMABLES && MARKETPLACE_CONSUMABLES.length > 0) {
+              const randomItem = MARKETPLACE_CONSUMABLES[Math.floor(Math.random() * MARKETPLACE_CONSUMABLES.length)]
               addToKingdomInventory(user.id, {
                 id: randomItem.id,
                 name: randomItem.name,
@@ -292,10 +363,76 @@ function CityLocationPageInner() {
                 emoji: randomItem.emoji,
                 stats: randomItem.stats || {}
               })
-              logText = `${pName} encountered a friendly merchant and traded for a ${randomItem.name}!`
+              logText = `${pName} found a discarded satchel containing 1x ${randomItem.name}!`
               rewardDetail = `+1 ${randomItem.name}`
               window.dispatchEvent(new Event('character-inventory-update'))
             }
+          }
+        } else if (bondLevel === 3) {
+          locationName = "Crystal Ruins"
+          const roll = Math.random()
+          if (roll < 0.4) {
+            const amount = Math.floor(Math.random() * 51) + 50 // 50-100 Gold
+            addToCharacterStat('gold', amount, 'partner-passive-gold')
+            logText = `${pName} scouted the crumbling pillars of the ${locationName} and found ${amount} Gold!`
+            rewardDetail = `+${amount} Gold`
+            window.dispatchEvent(new Event('character-stats-update'))
+          } else if (roll < 0.8) {
+            const amount = Math.floor(Math.random() * 3) + 1 // 1-3 Gems
+            addToCharacterStat('gems', amount, 'partner-passive-gems')
+            logText = `${pName} found a crystal cluster in the ${locationName} containing ${amount} Gems!`
+            rewardDetail = `+${amount} Gems`
+            window.dispatchEvent(new Event('character-stats-update'))
+          } else {
+            // Material
+            const materials = ['material-crystal', 'material-steel']
+            const matId = materials[Math.floor(Math.random() * materials.length)]
+            updateTileQuantity(matId as any, 1)
+            logText = `${pName} scavenged the ruins and recovered 1x ${matId === 'material-crystal' ? 'Crystal' : 'Steel'}!`
+            rewardDetail = "+1 Material"
+          }
+        } else if (bondLevel === 2) {
+          locationName = "Obsidian Caverns"
+          const roll = Math.random()
+          if (roll < 0.5) {
+            const amount = Math.floor(Math.random() * 41) + 30 // 30-70 Gold
+            addToCharacterStat('gold', amount, 'partner-passive-gold')
+            logText = `${pName} traversed the lava channels in the ${locationName} and found ${amount} Gold!`
+            rewardDetail = `+${amount} Gold`
+            window.dispatchEvent(new Event('character-stats-update'))
+          } else {
+            const materials = ['material-stone-block', 'material-planks', 'material-stone']
+            const matId = materials[Math.floor(Math.random() * materials.length)]
+            updateTileQuantity(matId as any, 1)
+            const matName = matId === 'material-stone-block' ? 'Stone Block' : matId === 'material-planks' ? 'Plank' : 'Stone'
+            logText = `${pName} mined the dark deposits of the ${locationName} and found 1x ${matName}!`
+            rewardDetail = "+1 Material"
+          }
+        } else {
+          locationName = "Whispering Woods"
+          const roll = Math.random()
+          if (roll < 0.6) {
+            const amount = Math.floor(Math.random() * 31) + 10 // 10-40 Gold
+            addToCharacterStat('gold', amount, 'partner-passive-gold')
+            logText = `${pName} gathered mushrooms in the ${locationName} and found ${amount} lost Gold!`
+            rewardDetail = `+${amount} Gold`
+            window.dispatchEvent(new Event('character-stats-update'))
+          } else {
+            // Food
+            addToKingdomInventory(user.id, {
+              id: 'fish-red',
+              name: 'Red Fish',
+              description: 'A standard red fish.',
+              type: 'item',
+              category: 'food',
+              quantity: 1,
+              image: '/images/items/food/fish-red.webp',
+              emoji: '🐟',
+              stats: {}
+            })
+            logText = `${pName} fished in the creeks of the ${locationName} and caught a Red Fish!`
+            rewardDetail = "+1 Red Fish"
+            window.dispatchEvent(new Event('character-inventory-update'))
           }
         }
 
@@ -405,7 +542,8 @@ function CityLocationPageInner() {
   // Materials trading flows
   const handleBuyMaterial = async (material: typeof MATERIALS[0]) => {
     const qty = tradeQuantities[material.id] || 1
-    const totalCost = qty * material.buyPrice
+    const buyPrice = getDailyPrice(material.buyPrice, material.id)
+    const totalCost = qty * buyPrice
 
     if (qty <= 0) return
 
@@ -433,7 +571,8 @@ function CityLocationPageInner() {
 
   const handleSellMaterial = async (material: typeof MATERIALS[0]) => {
     const qty = tradeQuantities[material.id] || 1
-    const totalValue = qty * material.sellPrice
+    const sellPrice = getDailyPrice(material.sellPrice, material.id)
+    const totalValue = qty * sellPrice
     const currentOwned = getInventoryQuantity(material.id)
 
     if (qty <= 0) return
@@ -749,7 +888,14 @@ function CityLocationPageInner() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-2xl">{material.icon}</span>
-                              <CardTitle className="text-amber-200 text-base">{material.name}</CardTitle>
+                              <div className="flex flex-col">
+                                <CardTitle className="text-amber-200 text-base">{material.name}</CardTitle>
+                                <span className={`text-[9px] font-semibold flex items-center gap-0.5 ${
+                                  Math.round(getDailyPriceAdjustment(material.id) * 100) > 0 ? 'text-red-400' : Math.round(getDailyPriceAdjustment(material.id) * 100) < 0 ? 'text-emerald-400' : 'text-zinc-500'
+                                }`}>
+                                  {Math.round(getDailyPriceAdjustment(material.id) * 100) > 0 ? '📈' : Math.round(getDailyPriceAdjustment(material.id) * 100) < 0 ? '📉' : '↔️'} {Math.round(getDailyPriceAdjustment(material.id) * 100) > 0 ? '+' : ''}{Math.round(getDailyPriceAdjustment(material.id) * 100)}% Today
+                                </span>
+                              </div>
                             </div>
                             <Badge className="bg-amber-950/80 border-amber-900/50 text-amber-400 text-[10px] font-bold uppercase tracking-widest px-2.5">
                               Owned: {owned}
@@ -791,17 +937,17 @@ function CityLocationPageInner() {
                           <div className="grid grid-cols-2 gap-3">
                             <Button
                               onClick={() => handleBuyMaterial(material)}
-                              disabled={!isQtyValid || goldBalance < (qty * material.buyPrice)}
+                              disabled={!isQtyValid || goldBalance < (qty * getDailyPrice(material.buyPrice, material.id))}
                               className="bg-amber-950 hover:bg-amber-900 text-amber-200 border border-amber-800/40 rounded-xl py-5 font-bold uppercase text-[11px] tracking-wider transition-all"
                             >
-                              Buy ({qty * material.buyPrice}g)
+                              Buy ({qty * getDailyPrice(material.buyPrice, material.id)}g)
                             </Button>
                             <Button
                               onClick={() => handleSellMaterial(material)}
                               disabled={!isQtyValid || owned < qty}
                               className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl py-5 font-bold uppercase text-[11px] tracking-wider transition-all"
                             >
-                              Sell ({qty * material.sellPrice}g)
+                              Sell ({qty * getDailyPrice(material.sellPrice, material.id)}g)
                             </Button>
                           </div>
                         </CardContent>

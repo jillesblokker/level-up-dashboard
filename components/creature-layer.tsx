@@ -6,6 +6,7 @@ import { Tile } from '@/types/tiles';
 import { useUser } from '@clerk/nextjs';
 import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
 import { getInventory } from '@/lib/inventory-manager';
+import { useGameStore } from '@/stores/game-store';
 import { loadTileInventory } from '@/lib/data-loaders';
 import { useToast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -275,6 +276,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const isSleepy = useCitizensStore(state => state.isSleepy);
     const offlineCatchup = useCitizensStore(state => state.offlineCatchup);
     const clearOfflineCatchup = useCitizensStore(state => state.clearOfflineCatchup);
+    const activePartnerId = useGameStore(state => state.activePartnerId);
 
     const [selectedCitizenId, setSelectedCitizenId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -331,9 +333,22 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     // Load citizens when user is available
     useEffect(() => {
         if (isLoaded && user?.id) {
-            loadCitizens(user.id);
+            loadCitizens(user.id).then(() => {
+                if (activePartnerId) {
+                    useCitizensStore.getState().triggerAutopilotHarvest(user.id, activePartnerId)
+                        .then((res) => {
+                            if (res && res.count > 0) {
+                                toast({
+                                    title: "🐾 Autopilot Collection! 🪙",
+                                    description: `${res.partnerName} harvested gold from ${res.count} wandering citizens! Received +${res.gold} Gold.`,
+                                    duration: 5000
+                                });
+                            }
+                        });
+                }
+            });
         }
-    }, [isLoaded, user?.id, loadCitizens]);
+    }, [isLoaded, user?.id, loadCitizens, activePartnerId]);
 
     // Sync active, fed citizens to maps (capped at 12, prioritizing favorites)
     useEffect(() => {

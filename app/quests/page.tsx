@@ -118,6 +118,24 @@ function getEssenceTypeForCategory(category: string): 'ember_essence' | 'frost_e
   }
 }
 
+const isCategoryMatchedWithElement = (category: string, elementType: string): boolean => {
+  const cat = category.toLowerCase();
+  const el = elementType.toLowerCase();
+  if (cat.includes('might') || cat.includes('vitality') || cat.includes('strength')) {
+    return el === 'fire' || el === 'monster';
+  }
+  if (cat.includes('wellness') || cat.includes('health') || cat.includes('spirit') || cat.includes('body')) {
+    return el === 'water' || el === 'nature' || el === 'ice';
+  }
+  if (cat.includes('knowledge') || cat.includes('mind') || cat.includes('intellect') || cat.includes('study')) {
+    return el === 'ice' || el === 'special' || el === 'water';
+  }
+  if (cat.includes('castle') || cat.includes('craft') || cat.includes('build') || cat.includes('chore')) {
+    return el === 'earth' || el === 'special';
+  }
+  return false;
+};
+
 const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
 
 const categoryColorMap: Record<string, string> = {
@@ -1084,6 +1102,17 @@ export default function QuestsPage() {
           setPartnerSpeech(null);
         }, 2000);
 
+        // Category Affinity matching bonus (Point 3)
+        const isMatched = isCategoryMatchedWithElement(questObj.category, activePartner.type);
+        if (isMatched) {
+          useCitizensStore.getState().increaseAffection(userId, activePartner.id, 5);
+          toast({
+            title: "Elemental Affinity! 🌟",
+            description: `${activePartner.name} matches this quest's essence! Affection +5`,
+            duration: 3000,
+          });
+        }
+
         // Companion Bonus Loot
         if (Math.random() < 0.25) { // 25% chance for companion loot
           if (Math.random() > 0.5) {
@@ -1375,6 +1404,19 @@ export default function QuestsPage() {
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `challenge-completion:${challengeId}`);
       addToCharacterStat('experience', xpReward, `challenge-completion:${challengeId}`);
+
+      // Category Affinity matching bonus (Point 3)
+      if (activePartner) {
+        const isMatched = isCategoryMatchedWithElement(challengeObj.category, activePartner.type);
+        if (isMatched) {
+          useCitizensStore.getState().increaseAffection(userId, activePartner.id, 5);
+          toast({
+            title: "Elemental Affinity! 🌟",
+            description: `${activePartner.name} matches this challenge's essence! Affection +5`,
+            duration: 3000,
+          });
+        }
+      }
 
       // Show success toast with rewards
       toast({
@@ -2030,6 +2072,19 @@ export default function QuestsPage() {
       // Apply rewards using unified service
       addToCharacterStat('gold', goldReward, `milestone-completion:${milestoneId}`);
       addToCharacterStat('experience', xpReward, `milestone-completion:${milestoneId}`);
+
+      // Category Affinity matching bonus (Point 3)
+      if (activePartner) {
+        const isMatched = isCategoryMatchedWithElement(milestoneObj.category || 'might', activePartner.type);
+        if (isMatched) {
+          useCitizensStore.getState().increaseAffection(userId, activePartner.id, 5);
+          toast({
+            title: "Elemental Affinity! 🌟",
+            description: `${activePartner.name} matches this milestone's essence! Affection +5`,
+            duration: 3000,
+          });
+        }
+      }
 
       // Apply essence reward based on category
       const category = (milestoneObj.category || '').toLowerCase();
