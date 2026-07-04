@@ -56,12 +56,15 @@ export const KingdomTileItem = React.memo(({
   const prevTypeRef = useRef(tile.type)
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout | undefined
     if (tile.type !== 'vacant' && prevTypeRef.current === 'vacant') {
       setIsNewlyPlaced(true)
-      const timer = setTimeout(() => setIsNewlyPlaced(false), 500)
-      return () => clearTimeout(timer)
+      timeoutId = setTimeout(() => setIsNewlyPlaced(false), 500)
     }
     prevTypeRef.current = tile.type
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
   }, [tile.type])
   
   // Use KINGDOM_TILES as the source of truth for the image to bypass stale paths in DB
