@@ -217,7 +217,8 @@ export class MapGenerator {
       wizard: 'Wizard Tower',
       temple: 'Ancient Temple',
       'market-stalls': 'Market Stalls',
-      fortune_teller: 'Fortune Teller'
+      fortune_teller: 'Fortune Teller',
+      'daily-hub': 'Daily Hub'
     };
 
     const tileDescriptions = {
@@ -289,7 +290,8 @@ export class MapGenerator {
       wizard: 'A mysterious tower where wizards practice arcane arts',
       temple: 'A sacred place for meditation and worship',
       'market-stalls': 'A busy marketplace with many trading stalls',
-      fortune_teller: 'A mysterious entity offering fortunes and tasks'
+      fortune_teller: 'A mysterious entity offering fortunes and tasks',
+      'daily-hub': 'A central hub to manage your habits and streak progress'
     };
 
     const tileImages = {
