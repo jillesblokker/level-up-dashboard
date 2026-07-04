@@ -316,20 +316,22 @@ function CityLocationPageInner() {
               // Epic item from Marketplace consumables
               if (MARKETPLACE_CONSUMABLES && MARKETPLACE_CONSUMABLES.length > 0) {
                 const randomItem = MARKETPLACE_CONSUMABLES[Math.floor(Math.random() * MARKETPLACE_CONSUMABLES.length)]
-                addToKingdomInventory(user.id, {
-                  id: randomItem.id,
-                  name: randomItem.name,
-                  description: randomItem.description,
-                  type: randomItem.isEquippable ? 'equipment' : 'item',
-                  category: randomItem.category || 'item',
-                  quantity: 1,
-                  image: randomItem.image,
-                  emoji: randomItem.emoji,
-                  stats: randomItem.stats || {}
-                })
-                logText = `${pName} found a rare tome: ${randomItem.name} hidden in the vaults!`
-                rewardDetail = `+1 ${randomItem.name}`
-                window.dispatchEvent(new Event('character-inventory-update'))
+                if (randomItem) {
+                  addToKingdomInventory(user.id, {
+                    id: randomItem.id,
+                    name: randomItem.name,
+                    description: randomItem.description,
+                    type: randomItem.isEquippable ? 'equipment' : 'item',
+                    category: randomItem.category || 'item',
+                    quantity: 1,
+                    image: randomItem.image,
+                    emoji: randomItem.emoji,
+                    stats: randomItem.stats || {}
+                  })
+                  logText = `${pName} found a rare tome: ${randomItem.name} hidden in the vaults!`
+                  rewardDetail = `+1 ${randomItem.name}`
+                  window.dispatchEvent(new Event('character-inventory-update'))
+                }
               }
             }
           }
@@ -352,20 +354,22 @@ function CityLocationPageInner() {
             // Consumable
             if (MARKETPLACE_CONSUMABLES && MARKETPLACE_CONSUMABLES.length > 0) {
               const randomItem = MARKETPLACE_CONSUMABLES[Math.floor(Math.random() * MARKETPLACE_CONSUMABLES.length)]
-              addToKingdomInventory(user.id, {
-                id: randomItem.id,
-                name: randomItem.name,
-                description: randomItem.description,
-                type: randomItem.isEquippable ? 'equipment' : 'item',
-                category: randomItem.category || 'item',
-                quantity: 1,
-                image: randomItem.image,
-                emoji: randomItem.emoji,
-                stats: randomItem.stats || {}
-              })
-              logText = `${pName} found a discarded satchel containing 1x ${randomItem.name}!`
-              rewardDetail = `+1 ${randomItem.name}`
-              window.dispatchEvent(new Event('character-inventory-update'))
+              if (randomItem) {
+                addToKingdomInventory(user.id, {
+                  id: randomItem.id,
+                  name: randomItem.name,
+                  description: randomItem.description,
+                  type: randomItem.isEquippable ? 'equipment' : 'item',
+                  category: randomItem.category || 'item',
+                  quantity: 1,
+                  image: randomItem.image,
+                  emoji: randomItem.emoji,
+                  stats: randomItem.stats || {}
+                })
+                logText = `${pName} found a discarded satchel containing 1x ${randomItem.name}!`
+                rewardDetail = `+1 ${randomItem.name}`
+                window.dispatchEvent(new Event('character-inventory-update'))
+              }
             }
           }
         } else if (bondLevel === 3) {
