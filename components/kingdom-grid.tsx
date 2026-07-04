@@ -52,7 +52,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png',
       'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png',
       'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png',
-      'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png', 'DailyHub.png'
+      'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png', 'Dailyhub.png', 'fortune_teller.png'
     ];
 
     const tileNames: Record<string, string> = {
@@ -60,7 +60,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
       Foodcourt: 'Foodcourt', Fountain: 'Fountain', Grocery: 'Grocery', House: 'House',
       Inn: 'Inn', Jousting: 'Jousting', Mansion: 'Mansion', Mayor: 'Mayor',
       Pond: 'Pond', Sawmill: 'Sawmill', Temple: 'Temple', Vegetables: 'Vegetables',
-      Watchtower: 'Watchtower', Well: 'Well', Windmill: 'Windmill', Wizard: 'Wizard', DailyHub: 'Daily Hub'
+      Watchtower: 'Watchtower', Well: 'Well', Windmill: 'Windmill', Wizard: 'Wizard', Dailyhub: 'Daily Hub', fortune_teller: 'Fortune Teller'
     };
 
     return tileImageFiles.map((file: string) => {

@@ -355,7 +355,7 @@ export class MapGenerator {
       floating_island: '/images/tiles/floating_island-tile.webp',
        'zen-garden': '/images/kingdom-tiles/ZenGarden.webp',
       'quest-board': '/images/kingdom-tiles/QuestBoard.webp',
-      'daily-hub': '/images/kingdom-tiles/daily-hub.png',
+      'daily-hub': '/images/kingdom-tiles/Dailyhub.png',
       monument: '/images/kingdom-tiles/Monument.webp',
       'training-grounds': '/images/kingdom-tiles/TrainingGrounds.webp',
       tavern: '/images/kingdom-tiles/Inn.webp',
@@ -364,7 +364,7 @@ export class MapGenerator {
       wizard: '/images/kingdom-tiles/Wizard.webp',
       temple: '/images/kingdom-tiles/Temple.webp',
       'market-stalls': '/images/kingdom-tiles/MarketStalls.webp',
-      fortune_teller: '/images/kingdom-tiles/fortune_teller.webp'
+      fortune_teller: '/images/kingdom-tiles/fortune_teller.png'
     };
 
     return {

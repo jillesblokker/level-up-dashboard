@@ -127,7 +127,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                 onClick={() => handleCardClick(card)}
                 className="relative aspect-[2/3] rounded-xl cursor-pointer hover:scale-105 transition-transform duration-300 border-2 border-emerald-900/50 bg-slate-900 hover:border-emerald-500 overflow-hidden group shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]"
               >
-                <div className="absolute inset-0 bg-[url('/images/kingdom-tiles/fortune_teller.webp')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity" />
+                <div className="absolute inset-0 bg-[url('/images/kingdom-tiles/fortune_teller.png')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity" />
                 <div className="absolute inset-0 bg-emerald-950/60 mix-blend-overlay" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-emerald-500/50 text-4xl font-medieval">?</div>

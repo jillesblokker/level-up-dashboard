@@ -779,7 +779,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/daily-hub.png',
+    image: '/images/kingdom-tiles/Dailyhub.png',
     cost: 350
   },
   {
@@ -849,7 +849,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/fortune_teller.webp',
+    image: '/images/kingdom-tiles/fortune_teller.png',
     cost: 200,
     gemCost: 10
   }
