@@ -414,7 +414,20 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
             activeCreatures.forEach((creature, index) => {
                 const scheduleNextMove = () => {
-                    const delay = Math.random() * 8000 + 2000; // 2-10 seconds
+                    // Game Design juice: Link citizen walk speed to streak & Chaos Rifts
+                    const stats = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('character-stats') || '{}') : {};
+                    const streak = stats.streak || 0;
+                    const hasChaosRift = (stats.missedHabits || stats.uncompletedQuestsCount || 0) > 10;
+                    
+                    let speedMultiplier = Math.min(Math.max(1 + (streak * 0.15), 0.5), 2.5);
+                    if (hasChaosRift) {
+                        speedMultiplier = 0.35; // Slow down significantly during Chaos Rifts
+                    }
+                    
+                    const minDelay = 2000 / speedMultiplier;
+                    const maxDelay = 10000 / speedMultiplier;
+                    const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+
                     const timer = setTimeout(() => {
                         setActiveCreatures(prev => {
                             const newCreatures = [...prev];

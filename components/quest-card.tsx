@@ -80,6 +80,7 @@ export default function QuestCard({
   const [isPressed, setIsPressed] = useState(false)
   const [showRewardAnim, setShowRewardAnim] = useState(false)
   const [clickPos, setClickPos] = useState({ x: 0, y: 0 })
+  const [isBursting, setIsBursting] = useState(false)
   const { onQuestComplete } = useQuestAudio()
 
   const handleComplete = (e: React.MouseEvent) => {
@@ -89,6 +90,8 @@ export default function QuestCard({
     if (status !== 'completed') {
       setClickPos({ x: e.clientX, y: e.clientY })
       setShowRewardAnim(true)
+      setIsBursting(true)
+      setTimeout(() => setIsBursting(false), 500)
       triggerConfetti(e.clientX, e.clientY)
       onQuestComplete()
     }
@@ -143,7 +146,7 @@ export default function QuestCard({
           aria-label={`Toggle quest completion: ${title}`}
         >
           <div className={cn(
-            "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200",
+            "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 relative",
             "hover:scale-110 hover:shadow-lg",
             status === 'completed'
               ? "bg-green-500 border-green-500 text-white"
@@ -154,6 +157,29 @@ export default function QuestCard({
             ) : (
               <div className="w-3 h-3 rounded border border-zinc-400" />
             )}
+            
+            {/* Particle Burst Spans */}
+            {isBursting && Array.from({ length: 8 }).map((_, i) => {
+              const angle = (i * 360) / 8;
+              const rad = (angle * Math.PI) / 180;
+              const tx = `${Math.round(Math.cos(rad) * 20)}px`;
+              const ty = `${Math.round(Math.sin(rad) * 20)}px`;
+              return (
+                <span
+                  key={i}
+                  className="absolute w-1.5 h-1.5 rounded-full bg-amber-400 pointer-events-none z-50"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    marginLeft: '-3px',
+                    marginTop: '-3px',
+                    animation: 'particle-burst-fly 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards',
+                    '--x': tx,
+                    '--y': ty,
+                  } as React.CSSProperties}
+                />
+              );
+            })}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from "next/image"
 import { cn } from '@/lib/utils'
 import { Tile } from '@/types/tiles'
@@ -51,6 +51,18 @@ export const KingdomTileItem = React.memo(({
   const isReady = timer?.isReady || false
   const isKingdomTile = tile.type !== 'vacant'
   const type = tile.type?.toLowerCase()
+
+  const [isNewlyPlaced, setIsNewlyPlaced] = useState(false)
+  const prevTypeRef = useRef(tile.type)
+
+  useEffect(() => {
+    if (tile.type !== 'vacant' && prevTypeRef.current === 'vacant') {
+      setIsNewlyPlaced(true)
+      const timer = setTimeout(() => setIsNewlyPlaced(false), 500)
+      return () => clearTimeout(timer)
+    }
+    prevTypeRef.current = tile.type
+  }, [tile.type])
   
   // Use KINGDOM_TILES as the source of truth for the image to bypass stale paths in DB
   const libraryTile = KINGDOM_TILES.find(t => t.id === type)
@@ -80,6 +92,8 @@ export const KingdomTileItem = React.memo(({
         tile.type === 'vacant' 
           ? "bg-zinc-900 border-white/5 hover:bg-zinc-800/60" 
           : "bg-zinc-800 border-white/10 hover:border-amber-500/50",
+        isNewlyPlaced && "animate-building-drop",
+        isReady && "animate-harvest-glow-subtle",
         placementMode && tile.type === 'vacant' && "ring-2 ring-amber-500 animate-pulse bg-amber-500/10",
         isFocused && "ring-2 ring-amber-400 z-10 shadow-[0_0_15px_rgba(245,158,11,0.4)]",
         focusCategory && !isFocused && "opacity-40 grayscale-[0.5]"

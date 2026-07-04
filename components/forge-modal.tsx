@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { comprehensiveItems, ComprehensiveItem } from "@/app/lib/comprehensive-items";
 import { getInventory, InventoryItem } from "@/lib/inventory-manager";
+import { cn } from "@/lib/utils";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 interface ForgeModalProps {
   isOpen: boolean;
@@ -123,6 +125,8 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCrafting, setIsCrafting] = useState<string | null>(null);
+  const [showSuccessFlash, setShowSuccessFlash] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   const { toast } = useToast();
 
   const loadPlayerData = async () => {
@@ -206,6 +210,13 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
         description: `Successfully crafted a ${comprehensiveItems.find(i => i.id === recipe.targetItemId)?.name}!`,
       });
 
+      setIsShaking(true);
+      setShowSuccessFlash(true);
+      setTimeout(() => {
+        setIsShaking(false);
+        setShowSuccessFlash(false);
+      }, 500);
+
       // Dispatch event to sync overall stats (like gold counters) on page
       window.dispatchEvent(new Event('character-inventory-update'));
       window.dispatchEvent(new Event('character-stats-update'));
@@ -227,7 +238,10 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-zinc-900 text-white border border-zinc-800 rounded-2xl p-6">
+      <DialogContent className={cn("max-w-2xl bg-zinc-900 text-white border border-zinc-800 rounded-2xl p-6 relative overflow-hidden transition-all duration-300", isShaking && "animate-forge-shake")}>
+        {showSuccessFlash && (
+          <div className="absolute inset-0 bg-white pointer-events-none z-50 animate-forge-flash" />
+        )}
         <DialogHeader>
           <DialogTitle className="text-amber-500 font-serif text-3xl font-bold flex items-center gap-2">
             🔨 The Royal Forge
@@ -241,7 +255,7 @@ export function ForgeModal({ isOpen, onClose, onForgeSuccess }: ForgeModalProps)
         <div className="bg-zinc-950 border border-zinc-850/40 rounded-xl p-3 flex justify-between items-center my-2">
           <span className="text-zinc-400 text-sm font-medium">Your Wealth:</span>
           <span className="text-amber-400 font-bold text-lg flex items-center gap-1">
-            🪙 {playerGold} Gold
+            🪙 <AnimatedNumber value={playerGold} /> Gold
           </span>
         </div>
 

@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Coins, LayoutGrid, Gem } from "lucide-react";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -175,10 +176,10 @@ export function KingdomPropertiesInventory({
              <div className="w-px h-8 bg-white/10" />
              <div className="flex flex-col">
                <span className="text-[10px] uppercase font-bold text-amber-500/70 tracking-wider">Kingdom Gold</span>
-               <div className="flex items-center gap-2">
-                 <Coins className="w-5 h-5 text-amber-400" />
-                 <span className="text-xl font-mono font-bold text-amber-400">{playerGold}</span>
-               </div>
+                <div className="flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-amber-400" />
+                  <AnimatedNumber value={playerGold} className="text-xl font-mono font-bold text-amber-400" />
+                </div>
              </div>
            </div>
         </div>
