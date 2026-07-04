@@ -65,9 +65,10 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
 
     return tileImageFiles.map((file: string) => {
       const name = file.replace('.png', '');
+      const typeId = name.toLowerCase() === 'dailyhub' ? 'daily-hub' : name.toLowerCase();
       return {
-        id: name.toLowerCase(),
-        type: name.toLowerCase() as TileType,
+        id: typeId,
+        type: typeId as TileType,
         name: tileNames[name] || name,
         description: '',
         connections: [],
