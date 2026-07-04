@@ -554,8 +554,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       const drop = generateGatherDrop(citizen);
       if (drop) {
         await addToInventory(userId, drop as any);
-        if (itemsCollected[drop.id]) {
-          itemsCollected[drop.id].quantity += drop.quantity;
+        const existing = itemsCollected[drop.id];
+        if (existing) {
+          existing.quantity += drop.quantity;
         } else {
           itemsCollected[drop.id] = { quantity: drop.quantity, name: drop.name, emoji: drop.emoji };
         }
