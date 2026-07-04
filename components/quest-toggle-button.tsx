@@ -1,8 +1,8 @@
 import { logger } from "@/lib/logger";
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useQuestCompletion } from '@/hooks/useQuestCompletion';
 import { useParticles } from '@/components/ui/particles';
 import { useQuestAudio } from '@/components/audio-provider';
@@ -121,15 +121,29 @@ export function QuestToggleButton({
   if (variant === 'checkbox') {
     return (
       <div className="flex items-center space-x-2">
-        <div onClick={handleClick}>
-          <Checkbox
-            id={`quest-${questId}`}
-            checked={completed}
-            onCheckedChange={handleToggle}
-            disabled={isDisabled}
-            className="h-4 w-4"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            if (isDisabled) return;
+            handleClick(e);
+            handleToggle();
+          }}
+          disabled={isDisabled}
+          className={cn(
+            "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-amber-500/50",
+            isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110 hover:shadow-md",
+            completed
+              ? "bg-green-500 border-green-500 text-white"
+              : "bg-transparent border-zinc-500 text-transparent hover:border-amber-400"
+          )}
+          aria-label={`Toggle quest completion: ${questName}`}
+        >
+          {completed ? (
+            <CheckCircle className="h-3.5 w-3.5 stroke-[3]" />
+          ) : (
+            <div className="w-2.5 h-2.5 rounded-sm border border-zinc-600 transition-colors" />
+          )}
+        </button>
         {isPending && (
           <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
         )}
