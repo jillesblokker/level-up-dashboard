@@ -833,7 +833,7 @@ export function QuestOrganization({
                     className="flex items-center justify-between w-full p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/40 hover:bg-zinc-900/50 hover:border-amber-900/40 transition-all duration-200 group text-left shadow-md"
                   >
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-green-500" />
                       <span className="font-serif font-bold text-sm text-zinc-100 group-hover:text-amber-400 transition-colors">
                         Conquered Today ({conqueredQuests.length})
                       </span>
