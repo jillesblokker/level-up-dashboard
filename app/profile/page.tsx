@@ -20,7 +20,7 @@ import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle } from "lucide-react";
+import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle, Coins, Compass } from "lucide-react";
 import { useAudioContext } from "@/components/audio-provider";
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager";
 import Link from "next/link";
@@ -432,6 +432,18 @@ export default function ProfilePage() {
             <Settings className="w-4 h-4 md:" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
+          <Link href="/quests" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+            <BookOpen className="w-4 h-4" />
+            <span>Chronicles</span>
+          </Link>
+          <Link href="/market" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+            <Coins className="w-4 h-4" />
+            <span>Market</span>
+          </Link>
+          <Link href="/daily-hub" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+            <Compass className="w-4 h-4" />
+            <span>Daily Hub</span>
+          </Link>
         </TabsList>
 
 
