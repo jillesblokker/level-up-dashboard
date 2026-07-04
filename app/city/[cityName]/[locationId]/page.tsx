@@ -81,6 +81,10 @@ function CityLocationPageInner() {
   const searchParams = useSearchParams()
   const { user } = useUser()
   const initialTab = searchParams?.get('tab') || 'alliances'
+
+  const cityName = params?.['cityName'] as string || ''
+  const locationId = params?.['locationId'] as string || ''
+  const isTavern = locationId === 'tavern' || locationId === 'dragons-rest'
   
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState(initialTab)
@@ -133,8 +137,6 @@ function CityLocationPageInner() {
     )
   }
 
-  const cityName = params['cityName'] as string
-  const locationId = params['locationId'] as string
   const cityData = getCityData(cityName)
   const location = cityData?.locations.find(l => l.id === locationId)
 
@@ -150,8 +152,6 @@ function CityLocationPageInner() {
       </div>
     )
   }
-
-  const isTavern = locationId === 'tavern' || locationId === 'dragons-rest'
 
   // Fetch active bounties (Point 4)
   useEffect(() => {
@@ -489,7 +489,7 @@ function CityLocationPageInner() {
                   </div>
                 ) : bounties.length === 0 ? (
                   <div className="text-center py-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/40">
-                    <p className="text-xs text-zinc-400 italic">"The noticeboard is empty. All active threats have been neutralized!"</p>
+                    <p className="text-xs text-zinc-400 italic">&ldquo;The noticeboard is empty. All active threats have been neutralized!&rdquo;</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -536,7 +536,7 @@ function CityLocationPageInner() {
 
                     {partnerLogs.length === 0 ? (
                       <div className="text-center py-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/40">
-                        <p className="text-xs text-zinc-400 italic">"{activePartner.name} has recently departed. Check back later for reports!"</p>
+                        <p className="text-xs text-zinc-400 italic">&ldquo;{activePartner.name} has recently departed. Check back later for reports!&rdquo;</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
