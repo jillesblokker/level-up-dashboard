@@ -617,6 +617,7 @@ export function QuestOrganization({
                 className="border-amber-800/20 bg-gradient-to-br from-zinc-900 to-zinc-800"
               />
             ) : (
+              <>
               <motion.div 
                 className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3"
                 variants={{
@@ -916,6 +917,7 @@ export function QuestOrganization({
                   </AnimatePresence>
                 </div>
               )}
+              </>
             )}
           </div>
         </>
