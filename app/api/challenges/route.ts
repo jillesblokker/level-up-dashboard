@@ -35,6 +35,9 @@ function formatNetherlandsDate(input?: string | Date | null) {
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const allTime = searchParams.get('all_time') === '1';
+    
     // Add timeout handling
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout')), 15000); // 15 second timeout
@@ -83,6 +86,7 @@ export async function GET(request: Request) {
 
     // Filter to only today's completions, normalizing dates for comparison
     const todaysCompletions = (allCompletions || []).filter((completion: Record<string, unknown>) => {
+      if (allTime) return completion['completed'] === true || !!completion['date'];
       if (!completion['date']) return false;
 
       // Normalize both dates to YYYY-MM-DD for comparison

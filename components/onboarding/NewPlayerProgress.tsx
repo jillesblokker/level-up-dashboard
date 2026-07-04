@@ -43,7 +43,7 @@ export function NewPlayerProgress() {
             const townPref = await getUserPreference('onboarding_town_visited')
 
             // 2. Check Quests
-            const questsRes = await fetch('/api/quests')
+            const questsRes = await fetch('/api/quests?all_time=1')
             let questCreated = false
             let questCompleted = false
             if (questsRes.ok) {
@@ -74,7 +74,7 @@ export function NewPlayerProgress() {
             }
 
             // 5. Challenges
-            const challengesRes = await fetch('/api/challenges')
+            const challengesRes = await fetch('/api/challenges?all_time=1')
             let challengeCreated = false
             let challengeFinished = false
             if (challengesRes.ok) {

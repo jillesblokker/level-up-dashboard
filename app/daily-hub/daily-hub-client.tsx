@@ -209,7 +209,7 @@ export function DailyHubClient() {
             const questsResponse = await fetch(`/api/quests?t=${Date.now()}`)
             if (questsResponse.ok) {
                 const questsData = await questsResponse.json()
-                const allQuests = questsData.quests || []
+                const allQuests = Array.isArray(questsData) ? questsData : (questsData.quests || [])
 
                 const favoriteQuests = allQuests
                     .filter((q: any) => {

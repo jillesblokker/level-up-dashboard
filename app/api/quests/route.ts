@@ -55,6 +55,7 @@ export async function GET(request: Request) {
   logger.debug('[Quests API] Request URL:', request.url);
   try {
     const { searchParams } = new URL(request.url);
+    const allTime = searchParams.get('all_time') === '1';
     if (searchParams.get('health') === '1') {
       return NextResponse.json({
         status: 'healthy',
@@ -285,6 +286,9 @@ export async function GET(request: Request) {
       questCompletionGroups.forEach((completions, questId) => {
         // Find completion record for today
         const todayCompletion = completions.find((c: any) => {
+          if (allTime) {
+            return c.completed === true;
+          }
           // Convert UTC completed_at to Netherlands timezone date
           const utcDate = new Date(c.completed_at);
           const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
