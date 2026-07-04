@@ -679,29 +679,33 @@ function CityLocationPageInner() {
                     <p className="text-xs text-zinc-400 italic">&ldquo;The noticeboard is empty. All active threats have been neutralized!&rdquo;</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {bounties.map((bounty) => (
-                      <div key={bounty.id} className="bg-zinc-900/60 rounded-2xl p-3 border border-amber-900/20 flex flex-col justify-between">
-                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                          <span className={`text-[8px] font-bold tracking-widest px-2 py-0.5 rounded-full border ${
-                            bounty.type === 'Challenge' 
-                              ? 'bg-purple-950/40 text-purple-400 border-purple-900/30' 
-                              : 'bg-amber-950/40 text-amber-400 border-amber-900/30'
-                          }`}>
-                            {bounty.type.toUpperCase()}
+                      <div 
+                        key={bounty.id} 
+                        className="relative bg-gradient-to-br from-amber-50 via-amber-100/95 to-orange-100 text-zinc-900 rounded-xl p-4 border border-amber-900/30 shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between mt-3"
+                      >
+                        {/* Pinned visual element (Point 13) */}
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 z-10 w-2.5 h-2.5 rounded-full bg-red-700 border border-red-950 shadow-[0_2px_4px_rgba(0,0,0,0.4)] flex items-center justify-center">
+                          <div className="w-0.5 h-0.5 bg-white/70 rounded-full" />
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-wrap mb-1.5 mt-0.5">
+                          <span className="text-[8px] font-extrabold tracking-widest px-1.5 py-0.5 rounded bg-zinc-950/10 text-zinc-800 border border-zinc-950/15 uppercase">
+                            {bounty.type}
                           </span>
-                          <span className={`text-[8px] font-bold tracking-widest px-2 py-0.5 rounded-full border ${getCategoryColor(bounty.category)}`}>
-                            {bounty.category.toUpperCase()}
+                          <span className="text-[8px] font-extrabold tracking-widest px-1.5 py-0.5 rounded bg-amber-950/15 text-amber-950 border border-amber-950/20 uppercase">
+                            {bounty.category}
                           </span>
                         </div>
-                        <h4 className="text-xs font-serif font-bold text-amber-100 line-clamp-1 leading-snug">
+                        <h4 className="text-xs font-serif font-bold text-zinc-950 line-clamp-1 leading-snug">
                           {bounty.title}
                         </h4>
-                        <div className="mt-2 pt-1.5 border-t border-zinc-850 flex items-center justify-between text-[10px]">
-                          <span className="text-zinc-500 uppercase font-semibold tracking-wider">Reward Value</span>
-                          <div className="flex items-center gap-2 font-mono">
-                            {bounty.xp > 0 && <span className="text-blue-400">⭐ {bounty.xp}</span>}
-                            {bounty.gold > 0 && <span className="text-yellow-500">🪙 {bounty.gold}</span>}
+                        <div className="mt-2.5 pt-1.5 border-t border-amber-900/15 flex items-center justify-between text-[10px]">
+                          <span className="text-zinc-600 uppercase font-bold tracking-wider text-[8px]">Reward Payout</span>
+                          <div className="flex items-center gap-2 font-mono font-bold">
+                            {bounty.xp > 0 && <span className="text-blue-700">⭐ {bounty.xp}</span>}
+                            {bounty.gold > 0 && <span className="text-amber-800">🪙 {bounty.gold}</span>}
                           </div>
                         </div>
                       </div>
@@ -733,7 +737,20 @@ function CityLocationPageInner() {
                         {partnerLogs.slice(0, 3).map((log) => (
                           <div key={log.id} className="bg-zinc-900/40 p-3 rounded-2xl border border-zinc-800/60 flex items-center justify-between gap-3">
                             <div className="flex items-start gap-2.5 min-w-0">
-                              <span className="text-base select-none mt-0.5 shrink-0">🐾</span>
+                              <span className="text-base select-none mt-0.5 shrink-0">
+                                {(() => {
+                                  switch (activePartner.type?.toLowerCase()) {
+                                    case 'fire': return '🔥';
+                                    case 'water': return '💧';
+                                    case 'earth': return '🪨';
+                                    case 'nature': return '🌱';
+                                    case 'ice': return '❄️';
+                                    case 'monster': return '😈';
+                                    case 'special': return '🌟';
+                                    default: return '🐾';
+                                  }
+                                })()}
+                              </span>
                               <p className="text-[10px] text-zinc-300 font-serif leading-normal truncate">
                                 {log.text}
                               </p>
@@ -909,32 +926,28 @@ function CityLocationPageInner() {
                         </CardHeader>
                         
                         <CardContent className="p-4 pt-2 flex-1 flex flex-col justify-end space-y-4">
-                          <div className="flex items-center justify-between bg-zinc-950 border border-amber-900/10 p-2 rounded-xl">
-                            <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider pl-2">Quantity</span>
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleQuantityChange(material.id, qty - 1)}
-                                className="h-8 w-8 text-zinc-400 hover:text-white"
-                              >
-                                <Minus className="w-3.5 h-3.5" />
-                              </Button>
-                              <Input
-                                type="number"
+                          <div className="space-y-2 bg-zinc-950 border border-amber-900/10 p-3 rounded-xl">
+                            <div className="flex justify-between items-center text-xs text-zinc-500 font-bold uppercase tracking-wider">
+                              <span>Quantity</span>
+                              <span className="text-amber-400 font-mono text-sm font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/30">{qty}</span>
+                            </div>
+                            <div className="flex items-center gap-4 py-1">
+                              <input
+                                type="range"
                                 min="0"
-                                value={qty || ""}
+                                max={Math.max(25, owned)}
+                                step="1"
+                                value={qty}
                                 onChange={(e) => handleQuantityChange(material.id, parseInt(e.target.value) || 0)}
-                                className="h-8 w-12 text-center bg-black border-amber-900/30 text-white p-0 text-sm font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="w-full h-1 bg-amber-950 rounded-lg appearance-none cursor-pointer accent-amber-500"
                               />
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleQuantityChange(material.id, qty + 1)}
-                                className="h-8 w-8 text-zinc-400 hover:text-white"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </Button>
+                            </div>
+                            <div className="flex justify-between text-[8px] font-mono text-zinc-600">
+                              <span className="cursor-pointer hover:text-amber-400" onClick={() => handleQuantityChange(material.id, 0)}>0</span>
+                              <span className="cursor-pointer hover:text-amber-400" onClick={() => handleQuantityChange(material.id, 5)}>5</span>
+                              <span className="cursor-pointer hover:text-amber-400" onClick={() => handleQuantityChange(material.id, 10)}>10</span>
+                              <span className="cursor-pointer hover:text-amber-400" onClick={() => handleQuantityChange(material.id, 25)}>25</span>
+                              <span className="cursor-pointer hover:text-amber-400" onClick={() => handleQuantityChange(material.id, Math.max(25, owned))}>Max ({Math.max(25, owned)})</span>
                             </div>
                           </div>
 

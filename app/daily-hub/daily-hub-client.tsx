@@ -433,12 +433,29 @@ export function DailyHubClient() {
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
                                     <p className="text-sm text-purple-200/70 font-medium uppercase tracking-wider">Total Quests</p>
-                                    {stats.streakDays > 0 && (
-                                        <div className="flex items-center gap-1 bg-orange-950/40 border border-orange-500/30 px-2 py-0.5 rounded-full" title="Current Streak">
-                                            <Flame className="w-3 h-3 text-orange-500 animate-pulse" />
-                                            <span className="text-xs font-bold text-orange-400">{stats.streakDays}</span>
+                                    {stats.streakDays > 0 && (() => {
+                                      const days = stats.streakDays;
+                                      let badgeClass = "bg-orange-950/40 border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.25)]";
+                                      let flameClass = "text-orange-500";
+                                      let streakTitle = "Streak";
+                                      
+                                      if (days >= 10) {
+                                        badgeClass = "bg-cyan-950/60 border-cyan-400/40 text-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.5)] animate-pulse";
+                                        flameClass = "text-cyan-400 drop-shadow-[0_0_4px_rgba(34,211,238,0.6)]";
+                                        streakTitle = "Celestial Streak";
+                                      } else if (days >= 4) {
+                                        badgeClass = "bg-amber-950/50 border-amber-400/40 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.4)]";
+                                        flameClass = "text-amber-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.5)]";
+                                        streakTitle = "Golden Streak";
+                                      }
+                                      
+                                      return (
+                                        <div className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border transition-all duration-300", badgeClass)} title={`${streakTitle}: ${days} Days`}>
+                                            <Flame className={cn("w-3 h-3 animate-bounce", flameClass)} style={{ animationDuration: '2s' }} />
+                                            <span className="text-[10px] font-black uppercase tracking-wider">{days} Day{days > 1 ? 's' : ''}</span>
                                         </div>
-                                    )}
+                                      );
+                                    })()}
                                 </div>
                                 <div className="flex items-baseline gap-2 mt-1">
                                     <span className="text-4xl font-bold text-white">{favoritedQuests.filter(q => q.completed).length + 24}</span>
@@ -450,7 +467,7 @@ export function DailyHubClient() {
                             </div>
                         </CardContent>
                     </Card>
-
+ 
                     {/* Level Card */}
                     <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -463,8 +480,45 @@ export function DailyHubClient() {
                                         <span className="text-sm text-blue-400">{TEXT_CONTENT.dailyHub.stats.level.xp.replace('{max}', String(stats.experienceToNextLevel))}</span>
                                     </div>
                                 </div>
-                                <div className="h-12 w-12 flex items-center justify-center bg-blue-950/30 rounded-full border border-blue-900/50 text-2xl">
-                                    ⭐
+                                <div className="relative h-14 w-14 flex items-center justify-center shrink-0">
+                                  {/* SVG Circular Progress Ring */}
+                                  <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                                    <circle
+                                      cx="28"
+                                      cy="28"
+                                      r="24"
+                                      className="stroke-zinc-900"
+                                      strokeWidth="2.5"
+                                      fill="transparent"
+                                    />
+                                    <circle
+                                      cx="28"
+                                      cy="28"
+                                      r="24"
+                                      className="stroke-blue-500 drop-shadow-[0_0_4px_rgba(59,130,246,0.5)]"
+                                      strokeWidth="2.5"
+                                      fill="transparent"
+                                      strokeDasharray={2 * Math.PI * 24}
+                                      strokeDashoffset={2 * Math.PI * 24 * (1 - Math.min(1, stats.experience / stats.experienceToNextLevel))}
+                                      strokeLinecap="round"
+                                    />
+                                  </svg>
+                                  {/* Avatar Image */}
+                                  <div className="h-9 w-9 rounded-full overflow-hidden border border-blue-900/40 bg-zinc-900 z-10 relative flex items-center justify-center">
+                                    {user?.imageUrl ? (
+                                      <Image 
+                                        src={user.imageUrl} 
+                                        alt="Avatar" 
+                                        fill 
+                                        sizes="36px"
+                                        className="object-cover" 
+                                      />
+                                    ) : (
+                                      <span className="text-[10px] font-bold text-blue-400 select-none">
+                                        Lvl
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                             </div>
                             <div className="mt-2 h-2 bg-zinc-950 rounded-full overflow-hidden">

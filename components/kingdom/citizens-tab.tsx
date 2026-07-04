@@ -6,6 +6,7 @@ import { X, Sparkles, Star, Clock, Check, ChevronDown, Utensils, Heart } from "l
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -378,6 +379,24 @@ export function CitizensTab() {
                         )}
                       </div>
                       
+                      <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
+                        <span className="text-zinc-400 font-serif">Affection:</span>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => {
+                            const isFilled = i < Math.floor((citizen.affection || 0) / 20);
+                            return (
+                              <Heart 
+                                key={i} 
+                                className={cn(
+                                  "w-3 h-3 transition-colors duration-200",
+                                  isFilled ? "fill-pink-500 text-pink-500 drop-shadow-[0_0_2px_rgba(244,63,94,0.5)]" : "text-zinc-700"
+                                )} 
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+
                       <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
                         <span className="text-zinc-400">Daily Gold:</span>
                         {isHungry ? (

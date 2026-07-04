@@ -217,12 +217,31 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
   const hasImage = cardData.number >= 1 && cardData.number <= 10;
   const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorName}.png?v=2` : null;
 
+  const getRarityGlowClass = () => {
+    if (!revealed) return "ring-1 ring-white/10";
+    if (isWinner) {
+      return "ring-2 sm:ring-4 ring-yellow-400 ring-offset-1 sm:ring-offset-2 ring-offset-black shadow-[0_0_22px_rgba(251,191,36,0.95)] animate-pulse";
+    }
+    
+    const rarity = cardData.rarity.toLowerCase();
+    if (rarity.includes('mythic')) {
+      return "ring-2 ring-amber-500 border border-yellow-300 shadow-[0_0_20px_rgba(245,158,11,0.85)] animate-pulse";
+    }
+    if (rarity.includes('epic')) {
+      return "ring-2 ring-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.65)]";
+    }
+    if (rarity.includes('rare')) {
+      return "ring-2 ring-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.55)]";
+    }
+    return "ring-1 ring-zinc-700/60 shadow-[0_0_8px_rgba(113,113,122,0.35)]";
+  };
+
   return (
     <article 
       ref={containerRef}
       className={cn(
-        "relative w-[92px] h-[130px] min-[360px]:w-[102px] min-[360px]:h-[142px] sm:w-[160px] sm:h-[220px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none",
-        isWinner && revealed ? "ring-2 sm:ring-4 ring-yellow-400 ring-offset-1 sm:ring-offset-2 ring-offset-black animate-pulse" : "ring-1 ring-white/10"
+        "relative w-[92px] h-[130px] min-[360px]:w-[102px] min-[360px]:h-[142px] sm:w-[160px] sm:h-[220px] md:w-[200px] md:h-[280px] rounded-xl overflow-hidden shadow-xl select-none touch-none transition-all duration-500",
+        getRarityGlowClass()
       )}
     >
       {/* Background Reward Face */}

@@ -11,9 +11,10 @@ interface CreatureSpriteProps {
     className?: string;
     isFavorite?: boolean;
     isHarvestReady?: boolean;
+    isSleepy?: boolean;
 }
 
-export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, isFavorite = false, isHarvestReady = false }: CreatureSpriteProps) {
+export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, isFavorite = false, isHarvestReady = false, isSleepy = false }: CreatureSpriteProps) {
     const [showGreeting, setShowGreeting] = useState(false);
     const [greetingText, setGreetingText] = useState('');
     const [isJumping, setIsJumping] = useState(false);
@@ -80,10 +81,31 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
                 </div>
             )}
 
+            {/* Drop Shadow (Point 3) */}
+            <div 
+                className="absolute bg-black/25 rounded-full blur-[1px] pointer-events-none z-10"
+                style={{
+                    width: `${creature.scale * 45}%`,
+                    height: `${creature.scale * 8}%`,
+                    bottom: '12%',
+                    left: '50%',
+                    transform: 'translateX(-50%)'
+                }}
+            />
+
+            {/* Drifting Zzzs (Point 16) */}
+            {isSleepy && (
+                <div className="absolute top-2 right-[18%] z-40 pointer-events-none flex gap-0.5 select-none">
+                    <span className="text-[9px] text-zinc-400/80 font-bold animate-zzz-1 opacity-0">z</span>
+                    <span className="text-[11px] text-zinc-400/80 font-bold animate-zzz-2 opacity-0">Z</span>
+                    <span className="text-[13px] text-zinc-500/80 font-bold animate-zzz-3 opacity-0">Z</span>
+                </div>
+            )}
+
             {/* Creature Image */}
             <div 
                 className={cn(
-                    "relative transition-all duration-300",
+                    "relative transition-all duration-300 z-20",
                     isJumping ? "animate-bounce scale-110" : ""
                 )}
                 style={{
@@ -97,7 +119,7 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
                     alt={creature.name}
                     fill
                     sizes="100px"
-                    className="object-contain drop-shadow-lg"
+                    className="object-contain"
                     onError={() => {
                         logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename, 'path tried:', imagePath);
                     }}
@@ -114,6 +136,34 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
                     75% {
                         transform: translateX(2px) rotate(2deg);
                     }
+                }
+                @keyframes zzz-float {
+                    0% {
+                        transform: translateY(8px) translateX(0) scale(0.7);
+                        opacity: 0;
+                    }
+                    15% {
+                        opacity: 0.8;
+                    }
+                    80% {
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: translateY(-22px) translateX(6px) scale(1.1);
+                        opacity: 0;
+                    }
+                }
+                .animate-zzz-1 {
+                    animation: zzz-float 3.2s ease-in-out infinite;
+                    animation-delay: 0s;
+                }
+                .animate-zzz-2 {
+                    animation: zzz-float 3.2s ease-in-out infinite;
+                    animation-delay: 0.9s;
+                }
+                .animate-zzz-3 {
+                    animation: zzz-float 3.2s ease-in-out infinite;
+                    animation-delay: 1.8s;
                 }
             `}</style>
         </div>

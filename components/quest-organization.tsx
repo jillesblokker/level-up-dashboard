@@ -651,15 +651,12 @@ export function QuestOrganization({
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-lg">
-                            {categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}
-                          </span>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-zinc-400'
-                              }`}
+                            className={`text-xs flex items-center gap-1.5 px-2 py-0.5 border ${categoryConfig[quest.category as keyof typeof categoryConfig]?.borderColor || 'border-zinc-800'} ${categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-zinc-400'}`}
                           >
-                            {categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}
+                            <span className="text-sm select-none">{categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}</span>
+                            <span>{categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}</span>
                           </Badge>
                           {quest.isFriendQuest && (
                             <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 flex items-center gap-1 text-xs">
@@ -868,14 +865,12 @@ export function QuestOrganization({
                                 <CardContent className="p-4">
                                   <div className="flex items-start justify-between mb-3">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="text-lg">
-                                        {categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}
-                                      </span>
                                       <Badge
                                         variant="outline"
-                                        className="text-xs text-zinc-400"
+                                        className="text-xs text-zinc-400 flex items-center gap-1.5 px-2 py-0.5"
                                       >
-                                        {categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}
+                                        <span className="text-sm select-none">{categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}</span>
+                                        <span>{categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}</span>
                                       </Badge>
                                     </div>
                                     <div className="flex items-center gap-1">

@@ -488,6 +488,29 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                   </Badge>
                 )}
               </div>
+
+              {/* Material Stock Cap Progress Bar (Point 4) */}
+              {(cleanName.startsWith('material-') || item.category === 'material' || item.type === 'material') && (() => {
+                const isRareMat = item.id === 'material-crystal' || item.id === 'material-steel' || item.id === 'material-silver' || item.id === 'material-gold';
+                const materialCap = isRareMat ? 10 : 50;
+                return (
+                  <div className="mt-2.5 space-y-1">
+                    <div className="flex justify-between text-[8px] font-mono text-zinc-500">
+                      <span>Pouch Limit</span>
+                      <span>{item.quantity}/{materialCap}</span>
+                    </div>
+                    <div className="w-full bg-zinc-950 border border-white/5 rounded-full h-1 overflow-hidden">
+                      <div 
+                        className={cn(
+                          "h-full rounded-full transition-all duration-300",
+                          (item.quantity / materialCap) >= 1 ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "bg-amber-600/70"
+                        )} 
+                        style={{ width: `${Math.min(100, (item.quantity / materialCap) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
@@ -582,10 +605,10 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                     key={cat.value}
                     onClick={() => setStoredFilter(cat.value)}
                     className={cn(
-                      'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border transition-all',
+                      'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border transition-all duration-200',
                       storedFilter === cat.value
-                        ? 'bg-amber-600 border-amber-500 text-white'
-                        : 'bg-[#1a1d24] border-white/10 text-zinc-400 hover:border-white/20'
+                        ? 'bg-amber-950/80 border-amber-500 text-amber-200 shadow-[0_0_10px_rgba(245,158,11,0.45)]'
+                        : 'bg-[#1a1d24] border-white/5 text-zinc-400 hover:border-white/15 hover:text-zinc-200'
                     )}
                   >
                     {cat.emoji} {cat.label}

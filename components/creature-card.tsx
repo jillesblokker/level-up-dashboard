@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Creature } from '@/stores/creatureStore';
 import { useCitizensStore } from '@/stores/citizensStore';
-import { Star } from 'lucide-react';
+import { Star, Heart } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CreatureCardProps {
   creature: Creature;
@@ -95,9 +96,18 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
               <div>
                 <p className="text-amber-500/80 text-[10px] uppercase font-bold tracking-wider">Bond</p>
                 <div className="flex gap-0.5 mt-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`w-3 h-3 ${i < Math.floor((citizen.affection || 0) / 20) ? 'fill-amber-400 text-amber-400' : 'text-zinc-700'}`} />
-                  ))}
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const isFilled = i < Math.floor((citizen.affection || 0) / 20);
+                    return (
+                      <Heart 
+                        key={i} 
+                        className={cn(
+                          "w-3 h-3 transition-colors duration-200",
+                          isFilled ? "fill-pink-500 text-pink-500 drop-shadow-[0_0_2px_rgba(244,63,94,0.5)]" : "text-zinc-700"
+                        )} 
+                      />
+                    );
+                  })}
                 </div>
               </div>
               <div className="text-right">

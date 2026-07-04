@@ -239,15 +239,6 @@ function CitizenWithChatter({
                 </div>
             )}
 
-            {/* Sleepy Zzz Overlay */}
-            {isSleepy && (
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-50 text-blue-200/90 font-black text-[10px] animate-pulse-slow tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex flex-col items-center">
-                    <span>Z</span>
-                    <span className="ml-2 text-[8px]">z</span>
-                    <span className="ml-4 text-[6px]">z</span>
-                </div>
-            )}
-
             {/* Visual Sprite */}
             <div className="absolute inset-x-0 bottom-0 top-0">
                 <CreatureSprite
@@ -256,6 +247,7 @@ function CitizenWithChatter({
                     tileSize={100}
                     isFavorite={citizen?.favorite || false}
                     isHarvestReady={isHarvestReady}
+                    isSleepy={isSleepy}
                 />
             </div>
         </div>

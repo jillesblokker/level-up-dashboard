@@ -159,14 +159,31 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             </Button>
                         </div>
 
-                        {/* Lore Text Area */}
-                        <div className="relative pl-4 border-l-2 border-amber-800/50 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
-                            <div className="md:columns-2 md:gap-8 pr-2">
-                                {paragraphs.map((p, i) => (
-                                    <p className="text-amber-200/90 font-serif leading-relaxed text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500" key={i}>
-                                        {p}
-                                    </p>
-                                ))}
+                        {/* Lore Text Area - Weathered Parchment Layout (Point 6) */}
+                        <div className="relative bg-gradient-to-br from-[#fdfbf7] via-[#f7f0e3] to-[#ebdcb9] text-[#2c1d11] rounded-2xl p-5 md:p-8 shadow-[inset_0_0_20px_rgba(92,59,20,0.2),0_4px_12px_rgba(0,0,0,0.25)] border-2 border-[#b58b4c]/30 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
+                            {/* Burned edge shadow layer */}
+                            <div className="absolute inset-0 pointer-events-none border border-amber-950/10 rounded-2xl" />
+                            
+                            <div className="md:columns-2 md:gap-8 pr-1">
+                                {paragraphs.map((p, i) => {
+                                    if (i === 0 && p.length > 0) {
+                                        const firstChar = p.charAt(0);
+                                        const restOfText = p.slice(1);
+                                        return (
+                                            <p className="font-serif leading-relaxed text-base md:text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 text-justify" key={i}>
+                                                <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-[#7c2d12] mr-2.5 mt-0.5 select-none border-2 border-[#7c2d12]/30 rounded-lg px-2 py-0.5 bg-[#fffdfb] shadow-[2px_3px_5px_rgba(0,0,0,0.15)] leading-none uppercase">
+                                                    {firstChar}
+                                                </span>
+                                                {restOfText}
+                                            </p>
+                                        );
+                                    }
+                                    return (
+                                        <p className="font-serif leading-relaxed text-base md:text-lg mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 text-[#2c1d11] text-justify" key={i}>
+                                            {p}
+                                        </p>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
