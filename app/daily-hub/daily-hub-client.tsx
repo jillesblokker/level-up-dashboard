@@ -506,7 +506,7 @@ export function DailyHubClient() {
                                   {/* Avatar Image */}
                                   <div className="h-9 w-9 rounded-full overflow-hidden border border-blue-900/40 bg-zinc-900 z-10 relative flex items-center justify-center">
                                     {user?.imageUrl ? (
-                                      <Image 
+                                      <NextImage 
                                         src={user.imageUrl} 
                                         alt="Avatar" 
                                         fill 
