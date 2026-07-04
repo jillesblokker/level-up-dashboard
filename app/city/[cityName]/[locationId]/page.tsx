@@ -16,6 +16,9 @@ import dynamic from 'next/dynamic'
 import { useUser } from "@clerk/nextjs"
 import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { addToKingdomInventory } from "@/lib/inventory-manager"
+import { useGameStore } from "@/stores/game-store"
+import { useCitizensStore } from "@/stores/citizensStore"
+import { MARKETPLACE_CONSUMABLES } from "@/lib/shop-items"
 import { spendGold } from "@/lib/gold-manager"
 import { useRealmInventory } from "@/hooks/use-realm-inventory"
 import { TileType } from "@/types/tiles"
@@ -84,6 +87,14 @@ function CityLocationPageInner() {
   const [goldBalance, setGoldBalance] = useState(0)
   const [tradeQuantities, setTradeQuantities] = useState<Record<string, number>>({})
   const [openingPack, setOpeningPack] = useState<any>(null)
+  
+  const [bounties, setBounties] = useState<any[]>([])
+  const [bountiesLoading, setBountiesLoading] = useState(false)
+  const [partnerLogs, setPartnerLogs] = useState<any[]>([])
+
+  const activePartnerId = useGameStore(state => state.activePartnerId)
+  const citizens = useCitizensStore(state => state.citizens)
+  const activePartner = citizens.find(c => c.id === activePartnerId)
 
   // Fetch materials inventory
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
@@ -141,6 +152,155 @@ function CityLocationPageInner() {
   }
 
   const isTavern = locationId === 'tavern' || locationId === 'dragons-rest'
+
+  // Fetch active bounties (Point 4)
+  useEffect(() => {
+    if (!isTavern || !user) return
+
+    const fetchBounties = async () => {
+      setBountiesLoading(true)
+      try {
+        const qRes = await fetch('/api/quests')
+        let activeQuests: any[] = []
+        if (qRes.ok) {
+          const list = await qRes.json()
+          if (Array.isArray(list)) {
+            activeQuests = list
+              .filter((q: any) => !q.completed)
+              .map((q: any) => ({
+                id: q.id,
+                title: q.title || q.name,
+                reward: (q.xp || 0) + (q.gold || 0),
+                gold: q.gold || 0,
+                xp: q.xp || 0,
+                type: 'Quest'
+              }))
+          }
+        }
+
+        const cRes = await fetch('/api/challenges')
+        let activeChallenges: any[] = []
+        if (cRes.ok) {
+          const list = await cRes.json()
+          if (Array.isArray(list)) {
+            activeChallenges = list
+              .filter((c: any) => !c.completed)
+              .map((c: any) => ({
+                id: c.id,
+                title: c.title || c.name,
+                reward: (c.xp_reward || 0) + (c.gold_reward || 0),
+                gold: c.gold_reward || 0,
+                xp: c.xp_reward || 0,
+                type: 'Challenge'
+              }))
+          }
+        }
+
+        const combined = [...activeQuests, ...activeChallenges]
+          .sort((a, b) => b.reward - a.reward)
+          .slice(0, 3)
+
+        setBounties(combined)
+      } catch (err) {
+        console.error('Failed to fetch bounties:', err)
+      } finally {
+        setBountiesLoading(false)
+      }
+    }
+
+    fetchBounties()
+  }, [isTavern, user])
+
+  // Partner scouting rewards (Point 9)
+  useEffect(() => {
+    if (!isTavern || !user || !activePartner) return
+
+    const savedLogs = localStorage.getItem('partner_activity_logs')
+    let logsList: any[] = []
+    if (savedLogs) {
+      try {
+        logsList = JSON.parse(savedLogs)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    const checkPartnerScouting = async () => {
+      const now = Date.now()
+      const lastCheck = localStorage.getItem('last_partner_scout_check')
+      const cooldownMs = 15 * 60 * 1000 // 15 minutes cooldown
+
+      if (lastCheck && now - parseInt(lastCheck) < cooldownMs) {
+        setPartnerLogs(logsList)
+        return
+      }
+
+      // Record check attempt
+      localStorage.setItem('last_partner_scout_check', now.toString())
+
+      // 50% chance to find something
+      if (Math.random() < 0.5) {
+        const pName = activePartner.name || 'Your Partner'
+        const rewardType = Math.floor(Math.random() * 3)
+        let logText = ""
+        let rewardDetail = ""
+
+        if (rewardType === 0) {
+          const amount = Math.floor(Math.random() * 50) + 20
+          addToCharacterStat('gold', amount, 'partner-passive-gold')
+          logText = `${pName} scouted the Whispering Woods and found a hidden pouch containing ${amount} Gold!`
+          rewardDetail = `+${amount} Gold`
+          window.dispatchEvent(new Event('character-stats-update'))
+        } else if (rewardType === 1) {
+          const amount = Math.floor(Math.random() * 3) + 1
+          addToCharacterStat('gems', amount, 'partner-passive-gems')
+          logText = `${pName} explored the deep tunnels of the Crystal Caverns and mined ${amount} rare Gems!`
+          rewardDetail = `+${amount} Gems`
+          window.dispatchEvent(new Event('character-stats-update'))
+        } else {
+          if (MARKETPLACE_CONSUMABLES && MARKETPLACE_CONSUMABLES.length > 0) {
+            const randomItem = MARKETPLACE_CONSUMABLES[Math.floor(Math.random() * MARKETPLACE_CONSUMABLES.length)]
+            if (randomItem) {
+              addToKingdomInventory(user.id, {
+                id: randomItem.id,
+                name: randomItem.name,
+                description: randomItem.description,
+                type: randomItem.isEquippable ? 'equipment' : 'item',
+                category: randomItem.category || 'item',
+                quantity: 1,
+                image: randomItem.image,
+                emoji: randomItem.emoji,
+                stats: randomItem.stats || {}
+              })
+              logText = `${pName} encountered a friendly merchant and traded for a ${randomItem.name}!`
+              rewardDetail = `+1 ${randomItem.name}`
+              window.dispatchEvent(new Event('character-inventory-update'))
+            }
+          }
+        }
+
+        if (logText) {
+          const newLog = {
+            id: `partner-log-${Date.now()}`,
+            text: logText,
+            reward: rewardDetail,
+            timestamp: now
+          }
+          logsList = [newLog, ...logsList].slice(0, 5)
+          localStorage.setItem('partner_activity_logs', JSON.stringify(logsList))
+          
+          toast({
+            title: `🐾 ${pName} Scouted a Reward!`,
+            description: logText,
+          })
+        }
+      }
+
+      setPartnerLogs(logsList)
+    }
+
+    checkPartnerScouting()
+  }, [isTavern, user, activePartner])
 
   // Shop items are now sourced from the centralized shop-items module
   // which pulls from comprehensive-items.ts (the single source of truth)
@@ -309,6 +469,108 @@ function CityLocationPageInner() {
 
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* NOTICEBOARD & PARTNER REPORT GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Bulletin Board Card */}
+              <div className="border border-amber-900/30 bg-gradient-to-br from-amber-950/20 via-zinc-950 to-zinc-900/80 rounded-3xl p-6 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-6 text-amber-500/5 pointer-events-none">
+                  <Sword className="w-32 h-32" />
+                </div>
+                <h3 className="text-xl font-serif text-amber-400 mb-1 flex items-center gap-2">
+                  📌 Tavern Bulletin Board
+                </h3>
+                <p className="text-xs text-zinc-400 mb-4 font-serif">
+                  The highest-reward active bounties currently posted in the realm:
+                </p>
+                
+                {bountiesLoading ? (
+                  <div className="h-24 flex items-center justify-center text-xs text-amber-500/50 animate-pulse">
+                    Reading bulletin board parchment...
+                  </div>
+                ) : bounties.length === 0 ? (
+                  <div className="text-center py-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/40">
+                    <p className="text-xs text-zinc-400 italic">"The noticeboard is empty. All active threats have been neutralized!"</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {bounties.map((bounty) => (
+                      <div key={bounty.id} className="bg-zinc-900/60 rounded-2xl p-3 border border-amber-900/20 flex flex-col justify-between">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className={`text-[8px] font-bold tracking-widest px-2 py-0.5 rounded-full border ${
+                            bounty.type === 'Challenge' 
+                              ? 'bg-purple-950/40 text-purple-400 border-purple-900/30' 
+                              : 'bg-amber-950/40 text-amber-400 border-amber-900/30'
+                          }`}>
+                            {bounty.type.toUpperCase()}
+                          </span>
+                        </div>
+                        <h4 className="text-xs font-serif font-bold text-amber-100 line-clamp-1 leading-snug">
+                          {bounty.title}
+                        </h4>
+                        <div className="mt-2 pt-1.5 border-t border-zinc-850 flex items-center justify-between text-[10px]">
+                          <span className="text-zinc-500 uppercase font-semibold tracking-wider">Reward Value</span>
+                          <div className="flex items-center gap-2 font-mono">
+                            {bounty.xp > 0 && <span className="text-blue-400">⭐ {bounty.xp}</span>}
+                            {bounty.gold > 0 && <span className="text-yellow-500">🪙 {bounty.gold}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Partner Scouting Reports Card */}
+              <div className="border border-amber-900/30 bg-gradient-to-br from-zinc-950 to-zinc-900/80 rounded-3xl p-6 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-6 text-amber-500/5 pointer-events-none font-serif text-8xl">
+                  🐾
+                </div>
+                <h3 className="text-xl font-serif text-amber-400 mb-1 flex items-center gap-2">
+                  🐾 Partner Scouting Report
+                </h3>
+                {activePartner ? (
+                  <>
+                    <p className="text-xs text-zinc-400 mb-4 font-serif">
+                      Your active partner <strong>{activePartner.name}</strong> has been scouting the outer realms:
+                    </p>
+
+                    {partnerLogs.length === 0 ? (
+                      <div className="text-center py-6 bg-zinc-900/40 rounded-2xl border border-zinc-800/40">
+                        <p className="text-xs text-zinc-400 italic">"{activePartner.name} has recently departed. Check back later for reports!"</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {partnerLogs.slice(0, 3).map((log) => (
+                          <div key={log.id} className="bg-zinc-900/40 p-3 rounded-2xl border border-zinc-800/60 flex items-center justify-between gap-3">
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <span className="text-base select-none mt-0.5 shrink-0">🐾</span>
+                              <p className="text-[10px] text-zinc-300 font-serif leading-normal truncate">
+                                {log.text}
+                              </p>
+                            </div>
+                            <Badge className="bg-amber-950/80 border-amber-900/50 text-amber-400 font-mono text-[9px] font-bold shrink-0">
+                              {log.reward}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center py-8 space-y-3 h-full">
+                    <p className="text-xs text-zinc-400 italic font-serif">
+                      No active partner is set to scout.
+                    </p>
+                    <Link href="/kingdom">
+                      <Button size="sm" variant="outline" className="border-amber-900/40 text-amber-400 hover:bg-amber-950/20 text-[11px] font-bold">
+                        Set Partner in Kingdom
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="w-full md:w-auto mb-12">
                 <TabsTrigger value="alliances">

@@ -32,6 +32,7 @@ const ChroniclesCard = dynamic(
 )
 import NextImage from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 
 interface Quest {
     id: string
@@ -450,6 +451,31 @@ export function DailyHubClient() {
                                     style={{ width: `${(stats.experience / stats.experienceToNextLevel) * 100}%` }}
                                 />
                             </div>
+
+                            {/* Chronicles Chapter Progress */}
+                            {(() => {
+                                const nextChapter = getNextChapter(stats.level);
+                                if (!nextChapter) return null;
+                                const currentChapterData = getCurrentChapter(stats.level);
+                                const totalLevelsInChapter = nextChapter.levelRequirement - currentChapterData.levelRequirement;
+                                const levelsCompletedInChapter = stats.level - currentChapterData.levelRequirement;
+                                const chapterProgress = (levelsCompletedInChapter / totalLevelsInChapter) * 100;
+                                const levelsRemaining = nextChapter.levelRequirement - stats.level;
+                                return (
+                                    <div className="mt-4 pt-3 border-t border-zinc-900/60 space-y-1.5">
+                                        <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                                            <span className="font-serif">Next Chapter: <strong className="text-amber-400/90">{nextChapter.title}</strong></span>
+                                            <span className="font-mono text-[9px]">{levelsRemaining} lvl to go</span>
+                                        </div>
+                                        <div className="relative h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-amber-900/20">
+                                            <div
+                                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-all duration-1000 ease-out"
+                                                style={{ width: `${chapterProgress}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </CardContent>
                     </Card>
 
