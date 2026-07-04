@@ -307,16 +307,17 @@ export function DailyHubClient() {
         const quests = yesterdayReport.completedQuestsCount || 0;
         const gold = yesterdayReport.goldEarned || 0;
         const title = user?.firstName || "Squire";
+        const currentChapter = getCurrentChapter(stats.level);
         
         if (quests === 0) {
-            return `During a day of peaceful respite, ${title} gathered strength to prepare for the epic battles ahead.`;
+            return `During a day of peaceful respite, ${title} gathered strength to prepare for the epic battles ahead, chronicling events under Chapter ${currentChapter.id}: ${currentChapter.title}.`;
         }
         
         let text = `Yesterday, ${title} conquered ${quests} ${quests === 1 ? 'quest' : 'quests'}`;
         if (gold > 0) {
             text += ` and brought back ${gold} gold to the treasury`;
         }
-        text += `, keeping the dark magic of Necrion at bay.`;
+        text += `, keeping the dark magic of Necrion at bay and advancing the records of Chapter ${currentChapter.id}: ${currentChapter.title}.`;
         return text;
     };
 
@@ -354,15 +355,36 @@ export function DailyHubClient() {
                     if (!activePartner) return null;
                     const bondLevel = Math.floor(activePartner.affection / 100) + 1;
                     const bondProgress = activePartner.affection % 100;
+
+                    const elementGlowClasses: Record<string, string> = {
+                      fire: 'border-red-900/60 shadow-[0_0_30px_rgba(239,68,68,0.15)] hover:border-red-500/80 hover:shadow-[0_0_40px_rgba(239,68,68,0.25)]',
+                      water: 'border-blue-900/60 shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:border-blue-500/80 hover:shadow-[0_0_40px_rgba(59,130,246,0.25)]',
+                      earth: 'border-amber-900/60 shadow-[0_0_30px_rgba(217,119,6,0.15)] hover:border-amber-500/80 hover:shadow-[0_0_40px_rgba(217,119,6,0.25)]',
+                      nature: 'border-emerald-900/60 shadow-[0_0_30px_rgba(16,185,129,0.15)] hover:border-emerald-500/80 hover:shadow-[0_0_40px_rgba(16,185,129,0.25)]',
+                      ice: 'border-cyan-900/60 shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:border-cyan-400/80 hover:shadow-[0_0_40px_rgba(34,211,238,0.25)]',
+                      monster: 'border-purple-900/60 shadow-[0_0_30px_rgba(147,51,234,0.15)] hover:border-purple-500/80 hover:shadow-[0_0_40px_rgba(147,51,234,0.25)]'
+                    };
+                    const glowClass = elementGlowClasses[activePartner.type] || 'border-amber-700/50 shadow-[0_0_40px_rgba(0,0,0,0.8)] hover:border-amber-500/80';
+
+                    const elementInnerBorderClasses: Record<string, string> = {
+                      fire: 'border-red-500/50 group-hover:border-red-400',
+                      water: 'border-blue-500/50 group-hover:border-blue-400',
+                      earth: 'border-amber-500/50 group-hover:border-amber-400',
+                      nature: 'border-emerald-500/50 group-hover:border-emerald-400',
+                      ice: 'border-cyan-400/50 group-hover:border-cyan-300',
+                      monster: 'border-purple-500/50 group-hover:border-purple-400'
+                    };
+                    const innerBorderClass = elementInnerBorderClasses[activePartner.type] || 'border-amber-500/50 group-hover:border-amber-400';
+
                     return (
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[9999] w-[calc(100vw-32px)] md:w-[320px] bg-zinc-950/95 border border-amber-700/50 rounded-2xl p-3 flex flex-col gap-3  shadow-[0_0_40px_rgba(0,0,0,0.8)] hover:shadow-[0_0_50px_rgba(245,158,11,0.15)] hover:border-amber-500/80 transition-all group pointer-events-auto"
+                            className={`fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[9999] w-[calc(100vw-32px)] md:w-[320px] bg-zinc-950/95 border rounded-2xl p-3 flex flex-col gap-3 transition-all duration-300 group pointer-events-auto ${glowClass}`}
                         >
                             <div className="flex items-center gap-3 w-full">
-                                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-amber-500/50 bg-black flex-shrink-0 group-hover:border-amber-400 transition-colors shadow-inner">
+                                <div className={`relative w-14 h-14 rounded-full overflow-hidden border-2 bg-black flex-shrink-0 transition-colors shadow-inner ${innerBorderClass}`}>
                                     <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/40 to-transparent opacity-50 pointer-events-none" />
                                     <NextImage src={`/images/creatures/${activePartner.filename}`} alt={activePartner.name} fill className="object-contain p-1 relative z-10" />
                                     <div className="absolute inset-0 bg-amber-500/20 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none" />
@@ -548,21 +570,37 @@ export function DailyHubClient() {
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
-                                        {Array.isArray(activePerks) && activePerks.map((perk, index) => (
-                                            <div key={perk.id || index} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/80 flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">🧪</span>
-                                                    <div>
-                                                        <h5 className="font-bold text-xs text-amber-100">{perk.perk_name}</h5>
-                                                        <p className="text-[10px] text-zinc-400 mt-0.5">{perk.effect}</p>
+                                        {Array.isArray(activePerks) && activePerks.map((perk, index) => {
+                                            const totalDuration = perk.created_at ? (new Date(perk.expires_at).getTime() - new Date(perk.created_at).getTime()) : (24 * 60 * 60 * 1000);
+                                            const remaining = new Date(perk.expires_at).getTime() - Date.now();
+                                            const progress = Math.max(0, Math.min(100, (remaining / totalDuration) * 100));
+
+                                            return (
+                                                <div key={perk.id || index} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/80 flex flex-col gap-2.5">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-2xl">🧪</span>
+                                                            <div>
+                                                                <h5 className="font-bold text-xs text-amber-100">{perk.perk_name}</h5>
+                                                                <p className="text-[10px] text-zinc-400 mt-0.5">{perk.effect}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-1 rounded-full shrink-0">
+                                                            <Clock className="w-3 h-3 animate-spin duration-3000" />
+                                                            <span>{getPerkTimeRemaining(perk.expires_at)}</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Progress bar */}
+                                                    <div className="h-1 w-full bg-zinc-950 rounded-full overflow-hidden border border-white/5">
+                                                        <div 
+                                                            className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-1000"
+                                                            style={{ width: `${progress}%` }}
+                                                        />
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-1 rounded-full">
-                                                    <Clock className="w-3 h-3 animate-spin duration-3000" />
-                                                    <span>{getPerkTimeRemaining(perk.expires_at)}</span>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </CardContent>

@@ -32,6 +32,7 @@ export function CitizensTab() {
   const [inventoryFood, setInventoryFood] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
   const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [playerLevel, setPlayerLevel] = useState(1);
 
   const loadInventoryFood = useCallback(async () => {
     if (!user?.id) return;
@@ -72,6 +73,11 @@ export function CitizensTab() {
   useEffect(() => {
     if (user?.id) {
       loadCitizens(user.id);
+      getCharacterStats().then(stats => {
+        if (stats && stats.level) {
+          setPlayerLevel(stats.level);
+        }
+      });
     }
   }, [user?.id, loadCitizens]);
 
@@ -297,8 +303,30 @@ export function CitizensTab() {
 
                   <CardHeader className="pb-2 pt-4">
                     <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="font-serif text-base text-white line-clamp-1">{citizen.name}</CardTitle>
+                      <div className="min-w-0 flex-grow">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <CardTitle className="font-serif text-base text-white line-clamp-1">{citizen.name}</CardTitle>
+                          {activePartnerId === citizen.id && (
+                            (() => {
+                              const isEvolved = playerLevel >= 50;
+                              const elementIcons: Record<string, string> = {
+                                fire: '🔥',
+                                water: '💧',
+                                earth: '🪨',
+                                nature: '🍃',
+                                ice: '❄️',
+                                monster: '😈',
+                                special: '🌟'
+                              };
+                              const elementIcon = elementIcons[citizen.type] || '🐾';
+                              return (
+                                <Badge className={isEvolved ? "bg-amber-950/80 border-amber-500/30 text-amber-400 text-[9px] font-bold py-0" : "bg-zinc-900 border-zinc-700 text-zinc-400 text-[9px] font-medium py-0"}>
+                                  {elementIcon} {isEvolved ? "Evolved Form" : "Evolves at Lvl 50"}
+                                </Badge>
+                              );
+                            })()
+                          )}
+                        </div>
                       </div>
                     </div>
                   </CardHeader>

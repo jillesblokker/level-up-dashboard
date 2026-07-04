@@ -76,6 +76,42 @@ const MATERIALS = [
   { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
 ]
 
+const getCategoryColor = (category: string) => {
+  const cat = category?.toLowerCase() || '';
+  if (cat.includes('might') || cat.includes('strength')) return 'bg-red-950/40 text-red-400 border-red-900/30';
+  if (cat.includes('knowledge') || cat.includes('intellect') || cat.includes('mind') || cat.includes('study')) return 'bg-blue-950/40 text-blue-400 border-blue-900/30';
+  if (cat.includes('wellness') || cat.includes('spirit') || cat.includes('mental')) return 'bg-purple-950/40 text-purple-400 border-purple-900/30';
+  if (cat.includes('vitality') || cat.includes('health') || cat.includes('body')) return 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30';
+  return 'bg-amber-950/40 text-amber-400 border-amber-900/30';
+};
+
+const getLogRewardStyle = (reward: string) => {
+  const rev = reward.toLowerCase();
+  if (rev.includes('gold')) {
+    return 'bg-yellow-950/40 text-yellow-400 border-yellow-900/30';
+  }
+  if (rev.includes('gem')) {
+    return 'bg-cyan-950/40 text-cyan-400 border-cyan-900/30';
+  }
+  if (rev.includes('potion') || rev.includes('health') || rev.includes('mana')) {
+    return 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30';
+  }
+  if (rev.includes('scroll') || rev.includes('book') || rev.includes('relic')) {
+    return 'bg-purple-950/40 text-purple-400 border-purple-900/30';
+  }
+  return 'bg-amber-950/40 text-amber-400 border-amber-900/30';
+};
+
+const getPurseName = (level: number) => {
+  if (level >= 60) return "Emperor's Vault";
+  if (level >= 50) return "King's Treasury";
+  if (level >= 40) return "Duke's Treasury";
+  if (level >= 30) return "Count's Vault";
+  if (level >= 20) return "Baron's Chest";
+  if (level >= 10) return "Knight's Coffer";
+  return "Squire's Purse";
+};
+
 function CityLocationPageInner() {
   const params = useParams()
   const searchParams = useSearchParams()
@@ -89,6 +125,7 @@ function CityLocationPageInner() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState(initialTab)
   const [goldBalance, setGoldBalance] = useState(0)
+  const [playerLevel, setPlayerLevel] = useState(1)
   const [tradeQuantities, setTradeQuantities] = useState<Record<string, number>>({})
   const [openingPack, setOpeningPack] = useState<any>(null)
   
@@ -109,14 +146,19 @@ function CityLocationPageInner() {
     // Initial stats fetch
     const stats = getCharacterStats()
     setGoldBalance(stats.gold)
+    if (stats.level) setPlayerLevel(stats.level)
 
     fetchFreshCharacterStats().then(fresh => {
-      if (fresh) setGoldBalance(fresh.gold)
+      if (fresh) {
+        setGoldBalance(fresh.gold)
+        if (fresh.level) setPlayerLevel(fresh.level)
+      }
     })
 
     const handleStatsUpdate = () => {
       const updated = getCharacterStats()
       setGoldBalance(updated.gold)
+      if (updated.level) setPlayerLevel(updated.level)
     }
     window.addEventListener('character-stats-update', handleStatsUpdate)
     return () => window.removeEventListener('character-stats-update', handleStatsUpdate)
@@ -149,7 +191,8 @@ function CityLocationPageInner() {
                 reward: (q.xp || 0) + (q.gold || 0),
                 gold: q.gold || 0,
                 xp: q.xp || 0,
-                type: 'Quest'
+                type: 'Quest',
+                category: q.category || 'Might'
               }))
           }
         }
@@ -167,7 +210,8 @@ function CityLocationPageInner() {
                 reward: (c.xp_reward || 0) + (c.gold_reward || 0),
                 gold: c.gold_reward || 0,
                 xp: c.xp_reward || 0,
-                type: 'Challenge'
+                type: 'Challenge',
+                category: c.category || 'Expedition'
               }))
           }
         }
@@ -459,7 +503,7 @@ function CityLocationPageInner() {
           <div className="flex items-center gap-3 bg-zinc-950 border border-amber-900/50 p-2.5 px-4 rounded-xl shadow-lg ">
             <Coins className="h-5 w-5 text-amber-400 animate-pulse" />
             <div className="text-right">
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{getPurseName(playerLevel)}</p>
               <p className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
                 {formatGold(goldBalance)} <span className="text-xs text-amber-600">Gold</span>
               </p>
@@ -495,13 +539,16 @@ function CityLocationPageInner() {
                   <div className="space-y-3">
                     {bounties.map((bounty) => (
                       <div key={bounty.id} className="bg-zinc-900/60 rounded-2xl p-3 border border-amber-900/20 flex flex-col justify-between">
-                        <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
                           <span className={`text-[8px] font-bold tracking-widest px-2 py-0.5 rounded-full border ${
                             bounty.type === 'Challenge' 
                               ? 'bg-purple-950/40 text-purple-400 border-purple-900/30' 
                               : 'bg-amber-950/40 text-amber-400 border-amber-900/30'
                           }`}>
                             {bounty.type.toUpperCase()}
+                          </span>
+                          <span className={`text-[8px] font-bold tracking-widest px-2 py-0.5 rounded-full border ${getCategoryColor(bounty.category)}`}>
+                            {bounty.category.toUpperCase()}
                           </span>
                         </div>
                         <h4 className="text-xs font-serif font-bold text-amber-100 line-clamp-1 leading-snug">
@@ -548,7 +595,7 @@ function CityLocationPageInner() {
                                 {log.text}
                               </p>
                             </div>
-                            <Badge className="bg-amber-950/80 border-amber-900/50 text-amber-400 font-mono text-[9px] font-bold shrink-0">
+                            <Badge className={`font-mono text-[9px] font-bold shrink-0 border ${getLogRewardStyle(log.reward)}`}>
                               {log.reward}
                             </Badge>
                           </div>

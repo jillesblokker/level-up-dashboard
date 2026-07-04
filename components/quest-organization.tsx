@@ -218,6 +218,7 @@ export function QuestOrganization({
   const [isOverviewCollapsed, setIsOverviewCollapsed] = useState(false)
   const [isCategoriesCollapsed, setIsCategoriesCollapsed] = useState(false)
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
+  const [isConqueredExpanded, setIsConqueredExpanded] = useState(false)
 
 
 
@@ -347,6 +348,9 @@ export function QuestOrganization({
       totalReward: categoryQuests.reduce((sum, q) => sum + (q.gold || 0) + (q.xp || 0), 0)
     }
   }
+
+  const activeQuests = sortedQuests.filter(q => !q.completed);
+  const conqueredQuests = sortedQuests.filter(q => q.completed);
 
   return (
     <div className="space-y-6">
@@ -597,7 +601,7 @@ export function QuestOrganization({
                   <QuestCardSkeleton key={i} />
                 ))}
               </div>
-            ) : sortedQuests.length === 0 ? (
+            ) : activeQuests.length === 0 && conqueredQuests.length === 0 ? (
               <EmptyState
                 title={currentLabels.noItems}
                 description={currentLabels.noItemsSubtitle}
@@ -626,7 +630,7 @@ export function QuestOrganization({
                 animate="show"
               >
                 <AnimatePresence mode="popLayout">
-                  {sortedQuests.map((quest) => (
+                  {activeQuests.map((quest) => (
                     <motion.div 
                       key={quest.id} 
                       layout
@@ -820,6 +824,98 @@ export function QuestOrganization({
                 </motion.div>
                 </AnimatePresence>
               </motion.div>
+              
+              {conqueredQuests.length > 0 && (
+                <div className="mt-8 border-t border-zinc-800/40 pt-6 w-full">
+                  <button
+                    onClick={() => setIsConqueredExpanded(!isConqueredExpanded)}
+                    className="flex items-center justify-between w-full p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/40 hover:bg-zinc-900/50 hover:border-amber-900/40 transition-all duration-200 group text-left shadow-md"
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <span className="font-serif font-bold text-sm text-zinc-100 group-hover:text-amber-400 transition-colors">
+                        Conquered Today ({conqueredQuests.length})
+                      </span>
+                    </div>
+                    <span className="text-zinc-500 group-hover:text-amber-500 transition-colors text-xs font-semibold">
+                      {isConqueredExpanded ? 'Collapse ▴' : 'Expand ▾'}
+                    </span>
+                  </button>
+                  
+                  <AnimatePresence>
+                    {isConqueredExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden mt-4"
+                      >
+                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 pt-1">
+                          {conqueredQuests.map((quest) => (
+                            <motion.div 
+                              key={quest.id} 
+                              layout
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                            >
+                              <Card
+                                className="border border-green-800/30 bg-green-900/5 transition-all duration-300 opacity-60 hover:opacity-100 hover:shadow-lg"
+                                aria-label={`Quest card: ${quest.name}`}
+                              >
+                                <CardContent className="p-4">
+                                  <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="text-lg">
+                                        {categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}
+                                      </span>
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs text-zinc-400"
+                                      >
+                                        {categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}
+                                      </Badge>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <QuestToggleButton
+                                        questId={quest.id}
+                                        questName={quest.name}
+                                        completed={quest.completed}
+                                        xp={quest.xp || 50}
+                                        gold={quest.gold || 25}
+                                        useCustomToggle={context === 'challenges' || context === 'milestones'}
+                                        category={quest.category}
+                                        onToggle={(questId, completed) => {
+                                          onQuestToggle(questId, completed);
+                                        }}
+                                        variant="checkbox"
+                                      />
+                                    </div>
+                                  </div>
+                                  <h3 className="font-semibold text-zinc-300 mb-1 line-clamp-1 line-through">
+                                    {quest.name}
+                                  </h3>
+                                  <p className="text-xs text-zinc-500 mb-2 line-clamp-1">
+                                    {quest.description}
+                                  </p>
+                                  <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-800/30">
+                                    <span className="text-zinc-500">Reward Claimed</span>
+                                    <div className="flex items-center gap-1 font-mono text-[10px] text-green-500/80 font-bold">
+                                      {quest.gold && quest.gold > 0 && <span>🪙 {quest.gold}</span>}
+                                      {quest.xp && quest.xp > 0 && <span>⭐ {quest.xp}</span>}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
             )}
           </div>
         </>

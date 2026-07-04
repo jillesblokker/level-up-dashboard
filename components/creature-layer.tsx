@@ -862,25 +862,42 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         {(() => {
                             const synergy = selectedCitizen ? getCitizenSynergy(selectedCitizen.id) : { multiplier: 1, elementMatch: false, roadMatch: false, tileName: 'Vacant' };
                             return (
-                                <div className="bg-zinc-900 border border-zinc-800/40 rounded-xl p-2.5 flex flex-col gap-1 text-[11px] mb-1">
-                                    <div className="flex justify-between items-center text-zinc-400">
-                                        <span>Current Tile:</span>
+                                <div className="bg-zinc-900 border border-zinc-800/40 rounded-xl p-3 flex flex-col gap-2 text-[11px] mb-1">
+                                    <div className="flex justify-between items-center text-zinc-400 pb-1.5 border-b border-zinc-800/50">
+                                        <span>Habitat Location:</span>
                                         <span className="font-semibold text-zinc-200 capitalize">{synergy.tileName}</span>
                                     </div>
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                        {synergy.elementMatch && (
-                                            <span className="bg-green-950/40 text-green-400 border border-green-900/50 px-1.5 py-0.5 rounded text-[10px] font-medium">
-                                                🌟 Element Synergy (+25%)
-                                            </span>
+                                    <div className="flex flex-col gap-1.5 mt-0.5">
+                                        {synergy.elementMatch ? (
+                                            <div className="flex items-center justify-between text-emerald-400 bg-emerald-950/20 border border-emerald-900/30 px-2.5 py-1 rounded">
+                                                <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-black">✓</span> Element Match</span>
+                                                <span className="text-[10px] font-mono font-semibold">+25%</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-between text-zinc-500 bg-zinc-900/30 border border-zinc-900/20 px-2.5 py-1 rounded">
+                                                <span className="flex items-center gap-1.5"><span className="text-zinc-600 font-bold">✗</span> Element Match</span>
+                                                <span className="text-[10px] font-mono">--</span>
+                                            </div>
                                         )}
-                                        {synergy.roadMatch && (
-                                            <span className="bg-amber-950/40 text-amber-400 border border-amber-900/50 px-1.5 py-0.5 rounded text-[10px] font-medium">
-                                                🛣️ Trade Synergy (+10%)
-                                            </span>
+                                        
+                                        {synergy.roadMatch ? (
+                                            <div className="flex items-center justify-between text-emerald-400 bg-emerald-950/20 border border-emerald-900/30 px-2.5 py-1 rounded">
+                                                <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-black">✓</span> Trade Route Match</span>
+                                                <span className="text-[10px] font-mono font-semibold">+10%</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-between text-zinc-500 bg-zinc-900/30 border border-zinc-900/20 px-2.5 py-1 rounded">
+                                                <span className="flex items-center gap-1.5"><span className="text-zinc-600 font-bold">✗</span> Trade Route Match</span>
+                                                <span className="text-[10px] font-mono">--</span>
+                                            </div>
                                         )}
-                                        {!synergy.elementMatch && !synergy.roadMatch && (
-                                            <span className="text-zinc-500 italic">No active synergies</span>
-                                        )}
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center text-zinc-400 border-t border-zinc-800/50 pt-2 mt-0.5">
+                                        <span>Production Rate:</span>
+                                        <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200 font-mono text-xs">
+                                            {synergy.multiplier.toFixed(2)}x Yield
+                                        </span>
                                     </div>
                                 </div>
                             );

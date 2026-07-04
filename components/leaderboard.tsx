@@ -11,6 +11,20 @@ import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 import { TEXT_CONTENT } from "@/lib/text-content"
 
+const getMilestoneTitleName = (level: number) => {
+  if (level >= 100) return "Emperor";
+  if (level >= 90) return "Prince";
+  if (level >= 80) return "Archduke";
+  if (level >= 70) return "Grand Duke";
+  if (level >= 60) return "Duke";
+  if (level >= 50) return "Marquess";
+  if (level >= 40) return "Count";
+  if (level >= 30) return "Viscount";
+  if (level >= 20) return "Baron";
+  if (level >= 10) return "Knight";
+  return "Squire";
+};
+
 interface LeaderboardEntry {
   rank: number;
   userId: string;
@@ -142,7 +156,7 @@ export function Leaderboard() {
                           <div className="text-xs text-amber-400/50 flex items-center gap-1.5">
                             <span>{TEXT_CONTENT.leaderboard.card.level.replace('{level}', entry.level.toString())}</span>
                             <span className="w-1 h-1 rounded-full bg-amber-900"></span>
-                            <span>{entry.title}</span>
+                            <span>{getMilestoneTitleName(entry.level)}</span>
                           </div>
                         </div>
                       </div>
