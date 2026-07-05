@@ -1945,7 +1945,7 @@ function RealmPageContent() {
                                         <Button
                                             className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
                                             onClick={async () => {
-                                                const rewards = [
+                                                const rewards: any[] = [
                                                     { id: 'material-wood', name: 'Elder Wood', quantity: 4, emoji: '🪵', type: 'material', category: 'material', rarity: 'common' },
                                                     { id: 'material-stone', name: 'Ironstone Blocks', quantity: 3, emoji: '🪨', type: 'material', category: 'material', rarity: 'common' },
                                                     { id: 'material-iron', name: 'Raw Iron Ore', quantity: 2, emoji: '⛏️', type: 'material', category: 'material', rarity: 'uncommon' },
