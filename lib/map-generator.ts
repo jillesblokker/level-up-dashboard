@@ -218,7 +218,10 @@ export class MapGenerator {
       temple: 'Ancient Temple',
       'market-stalls': 'Market Stalls',
       fortune_teller: 'Fortune Teller',
-      'daily-hub': 'Daily Hub'
+      'daily-hub': 'Daily Hub',
+      pyramid: 'Monolith of Devotion',
+      'whispering-well': 'Whispering Well',
+      'sphinx-gates': "Sphinx's Gates"
     };
 
     const tileDescriptions = {
@@ -291,7 +294,10 @@ export class MapGenerator {
       temple: 'A sacred place for meditation and worship',
       'market-stalls': 'A busy marketplace with many trading stalls',
       fortune_teller: 'A mysterious entity offering fortunes and tasks',
-      'daily-hub': 'A central hub to manage your habits and streak progress'
+      'daily-hub': 'A central hub to manage your habits and streak progress',
+      pyramid: 'An ancient landmark checking daily habits completion',
+      'whispering-well': 'A magical well for sealing daily focus pacts',
+      'sphinx-gates': "An ancient gateway guarding passage based on daily discipline"
     };
 
     const tileImages = {
@@ -364,7 +370,10 @@ export class MapGenerator {
       wizard: '/images/kingdom-tiles/Wizard.webp',
       temple: '/images/kingdom-tiles/Temple.webp',
       'market-stalls': '/images/kingdom-tiles/MarketStalls.webp',
-      fortune_teller: '/images/kingdom-tiles/fortune_teller.png'
+      fortune_teller: '/images/kingdom-tiles/fortune_teller.png',
+      pyramid: '/images/tiles/pyramid-tile.png',
+      'whispering-well': '/images/tiles/whispering-well-tile.png',
+      'sphinx-gates': '/images/tiles/sphinx-gates-tile.png'
     };
 
     return {
