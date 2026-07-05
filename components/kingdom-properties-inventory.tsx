@@ -314,6 +314,18 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
       "bg-[#0f1115] border-white/5 hover:border-white/20"
     )}>
       <div className="p-3">
+        {/* Tags row at the top, spanning full width above the image and info */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-3 border-b border-white/5 pb-2">
+          <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-amber-500/30 text-amber-400 whitespace-nowrap">
+            Owned: {owned}
+          </Badge>
+          {placedCount > 0 && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-emerald-950/50 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+              Placed: {placedCount}
+            </Badge>
+          )}
+        </div>
+
         <div className="flex gap-3">
           <div className="relative w-16 h-16 shrink-0 rounded-lg bg-black/40 border border-white/10 overflow-hidden group-hover:border-amber-500/50 transition-colors flex items-center justify-center p-1">
             <Image
@@ -328,17 +340,6 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
           <div className="flex-1 min-w-0">
             <h4 className="font-bold text-white text-sm truncate">{tile.name}</h4>
             <p className="text-[10px] text-zinc-400 line-clamp-3 min-h-[36px] mt-0.5" title={tile.description}>{tile.description}</p>
-            
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="outline" className="text-[9px] py-0 h-4 border-amber-500/30 text-amber-400">
-                Owned: {owned}
-              </Badge>
-              {placedCount > 0 && (
-                <Badge variant="secondary" className="text-[9px] py-0 h-4 bg-emerald-950/50 text-emerald-400 border border-emerald-500/20">
-                  Placed: {placedCount}
-                </Badge>
-              )}
-            </div>
           </div>
         </div>
 

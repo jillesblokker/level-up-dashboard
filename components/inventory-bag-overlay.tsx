@@ -458,6 +458,23 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         )}
       >
         <div className="p-3 flex-1 flex flex-col">
+          {/* Tags row at the top, spanning full width above the image and info */}
+          <div className="flex flex-wrap items-center gap-1.5 mb-3 border-b border-white/5 pb-2">
+            <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-amber-500/30 text-amber-400 whitespace-nowrap">
+              Owned: {item.quantity}
+            </Badge>
+            {displayType !== 'item' && (
+              <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-emerald-950/50 text-emerald-400 border border-emerald-500/20 capitalize whitespace-nowrap">
+                {displayType}
+              </Badge>
+            )}
+            {item.equipped && (
+              <Badge className="text-[9px] py-0.5 px-2 bg-amber-600 text-white whitespace-nowrap">
+                Equipped
+              </Badge>
+            )}
+          </div>
+
           <div className="flex gap-3">
             <div className="relative w-16 h-16 shrink-0 rounded-lg bg-black/40 border border-white/10 overflow-hidden group-hover:border-amber-500/50 transition-colors flex items-center justify-center p-1">
               {image ? (
@@ -472,22 +489,6 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             <div className="flex-1 min-w-0">
               <h4 className={cn('font-bold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</h4>
               <p className="text-[10px] text-zinc-400 line-clamp-3 min-h-[36px] mt-0.5" title={item.description || ''}>{item.description || ''}</p>
-              
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className="text-[9px] py-0 h-4 border-amber-500/30 text-amber-400">
-                  Owned: {item.quantity}
-                </Badge>
-                {displayType !== 'item' && (
-                  <Badge variant="secondary" className="text-[9px] py-0 h-4 bg-emerald-950/50 text-emerald-400 border border-emerald-500/20 capitalize">
-                    {displayType}
-                  </Badge>
-                )}
-                {item.equipped && (
-                  <Badge className="text-[9px] py-0 h-4 bg-amber-600 text-white">
-                    Equipped
-                  </Badge>
-                )}
-              </div>
 
               {/* Material Stock Cap Progress Bar (Point 4) */}
               {(cleanName.startsWith('material-') || item.category === 'material' || item.type === 'material') && (() => {
