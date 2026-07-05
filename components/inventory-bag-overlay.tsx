@@ -354,7 +354,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     if (!user?.id || isCrafting) return;
     try {
       setIsCrafting(recipe.id);
-      const response = await fetch('/api/inventory/forge', {
+      const response = await fetch('/api/forge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipeId: recipe.id })
