@@ -58,6 +58,11 @@ const allPossibleTiles: Tile[] = [
   // Consumables
   { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.webp', unlocked: true },
 
+  // Landmark Tiles
+  { id: 'whispering-canopy', name: 'Whispering Canopy', type: 'whispering-canopy', quantity: 0, cost: 1200, connections: [], description: 'An ancient forest canopy where you can seal a focus pact of silence', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Whispering Canopy tile', image: '/images/tiles/whispering-canopy-tile.png' },
+  { id: 'frostfire-obelisk', name: 'Frostfire Obelisk', type: 'frostfire-obelisk', quantity: 0, cost: 1500, connections: [], description: 'A frozen monument that can seal a daily streak freeze pact or award glacial shards', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Frostfire Obelisk tile', image: '/images/tiles/frostfire-obelisk-tile.png' },
+  { id: 'fairy-ring', name: 'Fairy Ring', type: 'fairy-ring', quantity: 0, cost: 1200, connections: [], description: 'A mystical circle of toadstools where pixies trade resources and play luck games', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fairy Ring tile', image: '/images/tiles/fairy-ring-tile.png' },
+
   // New Realm Tiles (Adventure & Mystic)
   { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.webp' },
   { id: 'jungle', name: 'Jungle', type: 'jungle', quantity: 0, cost: 100, connections: [], description: 'Dense tropical jungle', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jungle tile', image: '/images/tiles/jungle-tile.webp' },
@@ -93,7 +98,7 @@ const tileCategories = [
     minLevel: 40,
     maxLevel: 60,
     description: 'Advanced infrastructure and specialized buildings',
-    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit', 'fortune_teller']
+    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit', 'fortune_teller', 'whispering-canopy', 'frostfire-obelisk', 'fairy-ring']
   },
   {
     id: 'advanced',
