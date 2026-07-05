@@ -1823,7 +1823,7 @@ function RealmPageContent() {
                 {/* Monolith of Devotion (Pyramid) Modal */}
                 {pyramidEvent?.open && (
                     <Dialog open={pyramidEvent.open} onOpenChange={() => setPyramidEvent(null)}>
-                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 relative">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
                             <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">
@@ -1903,7 +1903,7 @@ function RealmPageContent() {
                 {/* Whispering Well of Focus Modal */}
                 {wellEvent?.open && (
                     <Dialog open={wellEvent.open} onOpenChange={() => setWellEvent(null)}>
-                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 relative">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
                             <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
@@ -2036,7 +2036,7 @@ function RealmPageContent() {
                 {/* Sphinx's Gates Modal */}
                 {sphinxEvent?.open && (
                     <Dialog open={sphinxEvent.open} onOpenChange={() => setSphinxEvent(null)}>
-                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-900 text-zinc-100 overflow-hidden p-6 relative">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-900 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
                             <div className="absolute inset-0 bg-red-950/10 opacity-30 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-red-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-red-400">
