@@ -327,7 +327,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
 
           <div className="flex-1 min-w-0">
             <h4 className="font-bold text-white text-sm truncate">{tile.name}</h4>
-            <p className="text-[10px] text-zinc-400 line-clamp-1 mt-0.5" title={tile.description}>{tile.description}</p>
+            <p className="text-[10px] text-zinc-400 line-clamp-3 min-h-[36px] mt-0.5" title={tile.description}>{tile.description}</p>
             
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline" className="text-[9px] py-0 h-4 border-amber-500/30 text-amber-400">

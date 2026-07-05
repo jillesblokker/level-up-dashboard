@@ -471,7 +471,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
             <div className="flex-1 min-w-0">
               <h4 className={cn('font-bold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</h4>
-              <p className="text-[10px] text-zinc-400 line-clamp-1 mt-0.5" title={item.description || ''}>{item.description || ''}</p>
+              <p className="text-[10px] text-zinc-400 line-clamp-3 min-h-[36px] mt-0.5" title={item.description || ''}>{item.description || ''}</p>
               
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="outline" className="text-[9px] py-0 h-4 border-amber-500/30 text-amber-400">
