@@ -127,6 +127,7 @@ export const initialInventory: Record<TileType, Tile> = {
     wizard: { ...defaultTile('wizard'), cost: 400, owned: 0 },
     temple: { ...defaultTile('temple'), cost: 400, owned: 0 },
     fortune_teller: { ...defaultTile('fortune_teller'), cost: 200, owned: 0 },
+    'market-stalls': { ...defaultTile('market-stalls'), cost: 400, owned: 0 },
     pyramid: { ...defaultTile('pyramid'), cost: 1000, owned: 0 },
     'whispering-well': { ...defaultTile('whispering-well'), cost: 1000, owned: 0 },
     'sphinx-gates': { ...defaultTile('sphinx-gates'), cost: 1000, owned: 0 },
