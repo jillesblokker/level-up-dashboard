@@ -136,7 +136,36 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
 
   // Get tile image based on type
   const getTileImage = (type: TileType) => {
-    return `/images/tiles/${type}-tile.webp`
+    switch (type) {
+      case 'city':
+        return '/images/tiles/city-tile.webp'
+      case 'town':
+        return '/images/tiles/town-tile.webp'
+      case 'crossroad':
+        return '/images/kingdom-tiles/Crossroad.webp'
+      case 'straightroad':
+        return '/images/kingdom-tiles/Straightroad.webp'
+      case 'cornerroad':
+        return '/images/kingdom-tiles/Cornerroad.webp'
+      case 'tsplitroad':
+        return '/images/kingdom-tiles/Tsplitroad.webp'
+      case 'fortune_teller':
+        return '/images/kingdom-tiles/fortune_teller.webp'
+      case 'pyramid':
+        return '/images/tiles/pyramid-tile.png'
+      case 'whispering-well':
+        return '/images/tiles/whispering-well-tile.png'
+      case 'sphinx-gates':
+        return '/images/tiles/sphinx-gates-tile.png'
+      case 'whispering-canopy':
+        return '/images/tiles/whispering-canopy-tile.png'
+      case 'frostfire-obelisk':
+        return '/images/tiles/frostfire-obelisk-tile.png'
+      case 'fairy-ring':
+        return '/images/tiles/fairy-ring-tile.png'
+      default:
+        return `/images/tiles/${type}-tile.webp`
+    }
   }
 
   return (
