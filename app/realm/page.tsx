@@ -2528,6 +2528,7 @@ function RealmPageContent() {
                                                 className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs py-1.5 rounded-lg mt-2"
                                                 disabled={isFairyClaiming}
                                                 onClick={async () => {
+                                                    if (!userId) return;
                                                     const today = new Date().toDateString();
                                                     const lastPlayed = localStorage.getItem('fairy-last-played');
                                                     if (lastPlayed === today) {
@@ -2584,6 +2585,7 @@ function RealmPageContent() {
                                                 className="w-full bg-zinc-950 text-zinc-300 border border-zinc-850 text-xs py-1.5 rounded-lg mt-2 hover:bg-zinc-900"
                                                 disabled={isFairyClaiming}
                                                 onClick={async () => {
+                                                    if (!userId) return;
                                                     if (characterStats.gold < 10) {
                                                         toast({
                                                             title: "Not Enough Gold",
