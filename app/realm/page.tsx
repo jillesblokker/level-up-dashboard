@@ -1931,7 +1931,7 @@ function RealmPageContent() {
                                 <div className="space-y-4 my-4">
                                     <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 text-center">
                                         <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Active Pact</p>
-                                        <p className="text-lg font-bold text-amber-400 font-serif">"{wellEvent.pact.habitName}"</p>
+                                        <p className="text-lg font-bold text-amber-400 font-serif">&quot;{wellEvent.pact.habitName}&quot;</p>
                                         <p className="text-xs text-zinc-400 mt-2">
                                             {wellEvent.pact.completed ? (
                                                 <span className="text-green-400 font-bold">✨ TASK COMPLETED! ✨</span>
@@ -1977,7 +1977,7 @@ function RealmPageContent() {
                                     ) : (
                                         <>
                                             <p className="text-xs text-zinc-400 text-center">
-                                                Complete this task in your daily Quest board to unlock the well's floating chest!
+                                                Complete this task in your daily Quest board to unlock the well&apos;s floating chest!
                                             </p>
                                             <Button
                                                 className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
@@ -2046,7 +2046,7 @@ function RealmPageContent() {
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-red-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-red-400">
                                     <ShieldCheck className="w-3 h-3" />
-                                    Sphinx's Gates
+                                    Sphinx&apos;s Gates
                                 </div>
                                 <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
                                     Halt, Adventurer!
@@ -2060,7 +2060,7 @@ function RealmPageContent() {
                                 <div className="text-center space-y-2">
                                     <p className="text-red-400 font-bold text-lg font-serif">Passage Blocked!</p>
                                     <p className="text-sm text-zinc-400 max-w-[280px] mx-auto leading-relaxed">
-                                        "Only those who have completed at least <span className="text-amber-400 font-bold">3 daily habits</span> today may pass through our gates. You have only completed <span className="text-red-400 font-bold">{sphinxEvent.completedCount}</span>."
+                                        &quot;Only those who have completed at least <span className="text-amber-400 font-bold">3 daily habits</span> today may pass through our gates. You have only completed <span className="text-red-400 font-bold">{sphinxEvent.completedCount}</span>.&quot;
                                     </p>
                                 </div>
                             </div>
