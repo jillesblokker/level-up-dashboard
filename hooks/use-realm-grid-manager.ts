@@ -85,6 +85,12 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             reconstructedTile.image = '/images/kingdom-tiles/Straightroad.png';
                         } else if (reconstructedTile.type === 'cornerroad') {
                             reconstructedTile.image = '/images/kingdom-tiles/Cornerroad.png';
+                        } else if (reconstructedTile.type === 'pyramid') {
+                            reconstructedTile.image = '/images/tiles/pyramid-tile.png';
+                        } else if (reconstructedTile.type === 'whispering-well') {
+                            reconstructedTile.image = '/images/tiles/whispering-well-tile.png';
+                        } else if (reconstructedTile.type === 'sphinx-gates') {
+                            reconstructedTile.image = '/images/tiles/sphinx-gates-tile.png';
                         }
 
                         newGrid[t.y]![t.x] = reconstructedTile;

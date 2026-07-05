@@ -50,6 +50,9 @@ const getTileImage = (tileType: string) => {
     case 'straightroad': return '/images/kingdom-tiles/Straightroad.webp';
     case 'cornerroad': return '/images/kingdom-tiles/Cornerroad.webp';
     case 'tsplitroad': return '/images/kingdom-tiles/Tsplitroad.webp';
+    case 'pyramid': return '/images/tiles/pyramid-tile.png';
+    case 'whispering-well': return '/images/tiles/whispering-well-tile.png';
+    case 'sphinx-gates': return '/images/tiles/sphinx-gates-tile.png';
     default: return '/images/tiles/empty-tile.webp';
   }
 };
