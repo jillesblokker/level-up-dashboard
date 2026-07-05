@@ -16,7 +16,7 @@ import React from "react"
 import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/lib/grid-loader"
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown } from 'lucide-react'
+import { X, Hammer, Move, Package, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown, Loader2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -35,6 +35,7 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
 import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
+import { addToInventory } from '@/lib/inventory-manager';
 import { MonsterSpawn, MonsterType } from '@/types/monsters';
 import { checkMonsterSpawn, spawnMonsterOnTile, getMonsterAchievementId } from '@/lib/monster-spawn-manager';
 import { RealmAnimationWrapper } from '@/components/realm-animation-wrapper';
@@ -323,6 +324,8 @@ function RealmPageContent() {
     const [castleDiceValue, setCastleDiceValue] = useState<number | null>(null);
     const [lastMysteryTile, setLastMysteryTile] = useState<{ x: number; y: number } | null>(null);
     const [mysteryEventCompleted, setMysteryEventCompleted] = useState(false);
+    const [isChestClaiming, setIsChestClaiming] = useState(false);
+    const [isPyramidClaiming, setIsPyramidClaiming] = useState(false);
     const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
     const [monsters, setMonsters] = useState<MonsterSpawn[]>([]);
     const [monsterEvent, setMonsterEvent] = useState<{ open: boolean; monster: MonsterSpawn | null }>({ open: false, monster: null });
@@ -1648,7 +1651,7 @@ function RealmPageContent() {
                                                 : castleDiceValue || 1}
                                         </div>
                                     </div>
-                                    <Button aria-label="Roll Dice" onClick={async () => {
+                                    <Button aria-label="Roll Dice" disabled={castleDiceRolling} onClick={async () => {
                                         setCastleDiceRolling(true);
                                         setCastleDiceValue(null);
                                         let roll = 1;
@@ -1678,7 +1681,12 @@ function RealmPageContent() {
                                             // Add attribute to inventory or show toast (implement as needed)
                                         }
                                         setTimeout(() => setCastleEvent({ open: true, result, reward }), 500);
-                                    }}>Roll Dice</Button>
+                                    }}>{castleDiceRolling ? (
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Rolling...
+                                        </span>
+                                    ) : "Roll Dice"}</Button>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
@@ -1869,7 +1877,8 @@ function RealmPageContent() {
                                         </p>
                                         <Button
                                             className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold font-serif py-3 rounded-xl shadow-lg shadow-amber-950/40"
-                                            onClick={() => {
+                                            disabled={isPyramidClaiming}
+                                            onClick={async () => {
                                                 const today = new Date().toDateString();
                                                 const lastClaimed = localStorage.getItem('pyramid-last-claimed');
                                                 if (lastClaimed === today) {
@@ -1877,19 +1886,36 @@ function RealmPageContent() {
                                                         title: "Already Claimed",
                                                         description: "You have already received the Monolith's blessing today. Return tomorrow!",
                                                     });
+                                                    setPyramidEvent(null);
                                                 } else {
-                                                    gainGold(50, 'pyramid-event');
-                                                    gainExperience(100, 'pyramid-event');
-                                                    localStorage.setItem('pyramid-last-claimed', today);
-                                                    toast({
-                                                        title: "Devotion Awakened! ☀️",
-                                                        description: "You received +50 Gold and +100 XP!",
-                                                    });
+                                                    setIsPyramidClaiming(true);
+                                                    try {
+                                                        await Promise.all([
+                                                            gainGold(50, 'pyramid-event'),
+                                                            gainExperience(100, 'pyramid-event')
+                                                        ]);
+                                                        localStorage.setItem('pyramid-last-claimed', today);
+                                                        toast({
+                                                            title: "Devotion Awakened! ☀️",
+                                                            description: "You received +50 Gold and +100 XP!",
+                                                        });
+                                                    } catch (err) {
+                                                        console.error("Failed to claim solar blessing:", err);
+                                                    } finally {
+                                                        setIsPyramidClaiming(false);
+                                                        setPyramidEvent(null);
+                                                    }
                                                 }
-                                                setPyramidEvent(null);
                                             }}
                                         >
-                                            Claim Solar Blessing ☀️
+                                            {isPyramidClaiming ? (
+                                                <span className="flex items-center gap-2">
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Claiming Blessing...
+                                                </span>
+                                            ) : (
+                                                "Claim Solar Blessing ☀️"
+                                            )}
                                         </Button>
                                     </>
                                 ) : (
@@ -1949,6 +1975,7 @@ function RealmPageContent() {
                                     {wellEvent.pact.completed ? (
                                         <Button
                                             className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                            disabled={isChestClaiming}
                                             onClick={async () => {
                                                 const rewards: any[] = [
                                                     { id: 'material-wood', name: 'Elder Wood', quantity: 4, emoji: '🪵', type: 'material', category: 'material', rarity: 'common' },
@@ -1961,23 +1988,37 @@ function RealmPageContent() {
                                                 const rand1 = rewards[Math.floor(Math.random() * rewards.length)];
                                                 const rand2 = rewards[(Math.floor(Math.random() * rewards.length) + 1) % rewards.length];
                                                 
-                                                if (userId && rand1 && rand2) {
-                                                    await import('@/lib/inventory-manager').then(async (mod) => {
-                                                        await mod.addToInventory(userId, rand1);
-                                                        await mod.addToInventory(userId, rand2);
-                                                    });
+                                                setIsChestClaiming(true);
+                                                try {
+                                                    if (userId && rand1 && rand2) {
+                                                        await Promise.all([
+                                                            addToInventory(userId, rand1),
+                                                            addToInventory(userId, rand2)
+                                                        ]);
+                                                    }
+                                                    await gainGold(30, 'well-event');
+                                                    
+                                                    localStorage.removeItem('well-focus-pact');
+                                                    toast({
+                                                        title: "Focus Pact Fulfilled! 📦",
+                                                        description: `You obtained 30 Gold, ${rand1?.quantity}x ${rand1?.name}, and ${rand2?.quantity}x ${rand2?.name}!`,
+                                                     });
+                                                } catch (err) {
+                                                    console.error("Failed to claim focus chest:", err);
+                                                } finally {
+                                                    setIsChestClaiming(false);
+                                                    setWellEvent(null);
                                                 }
-                                                gainGold(30, 'well-event');
-                                                
-                                                localStorage.removeItem('well-focus-pact');
-                                                toast({
-                                                    title: "Focus Pact Fulfilled! 📦",
-                                                    description: `You obtained 30 Gold, ${rand1?.quantity}x ${rand1?.name}, and ${rand2?.quantity}x ${rand2?.name}!`,
-                                                });
-                                                setWellEvent(null);
                                             }}
                                         >
-                                            Open Focus Chest 🎁
+                                            {isChestClaiming ? (
+                                                <span className="flex items-center justify-center gap-2">
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Opening Chest...
+                                                </span>
+                                            ) : (
+                                                "Open Focus Chest 🎁"
+                                            )}
                                         </Button>
                                     ) : (
                                         <>
