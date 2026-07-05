@@ -1069,19 +1069,17 @@ function RealmPageContent() {
                     }
                     break;
                 case 'pyramid': {
+                    logger.debug("[Realm Landing] Stepped on pyramid tile at:", characterPosition);
                     const checkPyramid = async () => {
                         try {
-                            const token = await getToken({ template: 'supabase' });
-                            const res = await fetch(`/api/quests?t=${Date.now()}`, {
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
+                            const res = await fetch(`/api/quests?t=${Date.now()}`);
                             const data = await res.json();
                             if (data && Array.isArray(data)) {
                                 const allCompleted = data.length > 0 && data.every((q: any) => q.completed);
+                                logger.debug("[Realm Landing] Pyramid check complete. Success:", allCompleted);
                                 setPyramidEvent({ open: true, success: allCompleted });
                             } else {
+                                logger.warn("[Realm Landing] Pyramid check did not receive a valid array");
                                 setPyramidEvent({ open: true, success: false });
                             }
                         } catch (error) {
@@ -1093,15 +1091,11 @@ function RealmPageContent() {
                     break;
                 }
                 case 'whispering-well': {
+                    logger.debug("[Realm Landing] Stepped on whispering-well tile at:", characterPosition);
                     const checkWell = async () => {
                         setWellEvent({ open: true, pact: null, availableHabits: [], loading: true });
                         try {
-                            const token = await getToken({ template: 'supabase' });
-                            const res = await fetch(`/api/quests?t=${Date.now()}`, {
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
+                            const res = await fetch(`/api/quests?t=${Date.now()}`);
                             const data = await res.json();
                             
                             const stored = localStorage.getItem('well-focus-pact');
@@ -1120,6 +1114,7 @@ function RealmPageContent() {
                                     }
                                 }
                                 const uncompleted = data.filter((q: any) => !q.completed);
+                                logger.debug("[Realm Landing] Well check complete. Active Pact:", currentPact, "Uncompleted quests count:", uncompleted.length);
                                 setWellEvent({
                                     open: true,
                                     pact: currentPact,
@@ -1127,6 +1122,7 @@ function RealmPageContent() {
                                     loading: false
                                 });
                             } else {
+                                logger.warn("[Realm Landing] Well check did not receive a valid array");
                                 setWellEvent({
                                     open: true,
                                     pact: currentPact,
@@ -1143,17 +1139,14 @@ function RealmPageContent() {
                     break;
                 }
                 case 'sphinx-gates': {
+                    logger.debug("[Realm Landing] Stepped on sphinx-gates tile at:", characterPosition);
                     const checkSphinxGates = async () => {
                         try {
-                            const token = await getToken({ template: 'supabase' });
-                            const res = await fetch(`/api/quests?t=${Date.now()}`, {
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
+                            const res = await fetch(`/api/quests?t=${Date.now()}`);
                             const data = await res.json();
                             if (data && Array.isArray(data)) {
                                 const completedCount = data.filter((q: any) => q.completed).length;
+                                logger.debug("[Realm Landing] Sphinx check complete. Completed count:", completedCount);
                                 if (completedCount >= 3) {
                                     toast({
                                         title: "Sphinx's Gates Pass",
@@ -1163,6 +1156,8 @@ function RealmPageContent() {
                                     setSphinxEvent({ open: true, blocked: true, completedCount });
                                     setCharacterPosition(prevPositionRef.current.x, prevPositionRef.current.y);
                                 }
+                            } else {
+                                logger.warn("[Realm Landing] Sphinx check did not receive a valid array");
                             }
                         } catch (error) {
                             logger.error("Failed to check sphinx gates", error);
@@ -1173,7 +1168,7 @@ function RealmPageContent() {
                 }
             }
         }
-    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile, getToken, setCharacterPosition]);
+    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile, getToken, setCharacterPosition, setPyramidEvent, setWellEvent, setSphinxEvent]);
 
     const handleResetPosition = () => {
         setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
