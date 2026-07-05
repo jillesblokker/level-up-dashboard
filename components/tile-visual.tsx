@@ -74,6 +74,10 @@ export function TileVisual({
         return '/images/tiles/frostfire-obelisk-tile.png'
       case 'fairy-ring':
         return '/images/tiles/fairy-ring-tile.png'
+      case 'settlement':
+        return '/images/tiles/settlement-tile.webp'
+      case 'megapolis':
+        return '/images/tiles/megapolis-tile.webp'
       default:
         return '/images/tiles/empty-tile.webp'
     }

@@ -33,6 +33,8 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'whispering-canopy') image = '/images/tiles/whispering-canopy-tile.png';
     if (type === 'frostfire-obelisk') image = '/images/tiles/frostfire-obelisk-tile.png';
     if (type === 'fairy-ring') image = '/images/tiles/fairy-ring-tile.png';
+    if (type === 'settlement') image = '/images/tiles/settlement-tile.webp';
+    if (type === 'megapolis') image = '/images/tiles/megapolis-tile.webp';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -46,6 +48,8 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'whispering-canopy') name = 'Whispering Canopy';
     if (type === 'frostfire-obelisk') name = 'Frostfire Obelisk';
     if (type === 'fairy-ring') name = 'Fairy Ring';
+    if (type === 'settlement') name = 'Settlement';
+    if (type === 'megapolis') name = 'Megapolis';
 
     return {
         id: type,
@@ -140,6 +144,8 @@ export const initialInventory: Record<TileType, Tile> = {
     'whispering-canopy': { ...defaultTile('whispering-canopy'), cost: 1200, owned: 0 },
     'frostfire-obelisk': { ...defaultTile('frostfire-obelisk'), cost: 1500, owned: 0 },
     'fairy-ring': { ...defaultTile('fairy-ring'), cost: 1200, owned: 0 },
+    settlement: { ...defaultTile('settlement'), cost: 300, owned: 0 },
+    megapolis: { ...defaultTile('megapolis'), cost: 3000, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -169,6 +175,8 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'whispering-canopy') return '/images/tiles/whispering-canopy-tile.png';
     if (type === 'frostfire-obelisk') return '/images/tiles/frostfire-obelisk-tile.png';
     if (type === 'fairy-ring') return '/images/tiles/fairy-ring-tile.png';
+    if (type === 'settlement') return '/images/tiles/settlement-tile.webp';
+    if (type === 'megapolis') return '/images/tiles/megapolis-tile.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 

@@ -80,6 +80,8 @@ const tileTypeToNumeric: Record<TileType, number> = {
   'whispering-canopy': 71,
   'frostfire-obelisk': 72,
   'fairy-ring': 73,
+  settlement: 74,
+  megapolis: 75,
 };
 
 // Convert numeric value back to tile type

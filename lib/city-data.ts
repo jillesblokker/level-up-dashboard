@@ -50,6 +50,56 @@ const defaultCityData: CityData = {
 }
 
 export function getCityData(cityName: string): CityData | null {
-  // We return the same Grand Citadel data for now, but handle potential variations
-  return defaultCityData
+  if (cityName && cityName.toLowerCase().includes('megapolis')) {
+    return {
+      name: cityName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      description: "A colossal megapolis protected by triple-layered walls and a mountain fortress. Six unique districts offer extensive trading opportunities.",
+      coverImage: "/images/locations/city.webp",
+      locations: [
+        {
+          id: "marketplace-weapons",
+          name: "Weapons Market",
+          subtitle: "Blade and bows",
+          description: "Purchase weapons of all tiers and shapes from legendary smiths.",
+          image: "/images/locations/embers-anvil.webp"
+        },
+        {
+          id: "marketplace-armor",
+          name: "Armor Market",
+          subtitle: "Shield and plate",
+          description: "Protect yourself with the strongest shields and armor available in the realm.",
+          image: "/images/locations/royal-stables.webp"
+        },
+        {
+          id: "marketplace-potions",
+          name: "Apothecary Shop",
+          subtitle: "Potions and elixirs",
+          description: "Stock up on health potions, mana, and buffing brews.",
+          image: "/images/locations/kingdom-marketplace.webp"
+        },
+        {
+          id: "marketplace-scrolls",
+          name: "Arcane Scrolls Shop",
+          subtitle: "Magical parchments",
+          description: "Obtain scrolls for spells, streak recovery, and magical boosts.",
+          image: "/images/allies-header.webp"
+        },
+        {
+          id: "marketplace-artifacts",
+          name: "Relics & Artifacts",
+          subtitle: "Ancient wonders",
+          description: "Obtain rare items and magical artifacts of lost eras.",
+          image: "/images/locations/kingdom-marketplace.webp"
+        },
+        {
+          id: "marketplace-food",
+          name: "Tavern Provisions",
+          subtitle: "Food and ingredients",
+          description: "Stock up on food supplies, rations, and rare chef ingredients.",
+          image: "/images/allies-header.webp"
+        }
+      ]
+    };
+  }
+  return defaultCityData;
 }

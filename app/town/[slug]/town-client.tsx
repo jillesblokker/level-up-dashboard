@@ -63,7 +63,24 @@ export default function TownClient({ slug }: Props) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    setTownData(defaultTownData);
+    if (slug && slug.toLowerCase().includes('settlement')) {
+      setTownData({
+        name: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        type: 'town',
+        description: 'A small settlement with just a single shop to trade.',
+        locations: [
+          {
+            id: 'kingdom-marketplace',
+            name: TEXT_CONTENT.town.locations.marketplace.name,
+            description: TEXT_CONTENT.town.locations.marketplace.description,
+            icon: 'ShoppingBag',
+            image: '/images/locations/kingdom-marketplace.webp'
+          }
+        ]
+      });
+    } else {
+      setTownData(defaultTownData);
+    }
     setIsLoading(false);
 
     // Track that the user has visited a town for the "New Hero Journey"

@@ -1070,6 +1070,12 @@ function RealmPageContent() {
                 case 'town':
                     setModalState({ isOpen: true, locationType: 'town', locationName: currentTile?.name ?? 'Riverwood' });
                     break;
+                case 'settlement':
+                    setModalState({ isOpen: true, locationType: 'town', locationName: currentTile?.name ?? 'settlement' });
+                    break;
+                case 'megapolis':
+                    setModalState({ isOpen: true, locationType: 'city', locationName: currentTile?.name ?? 'megapolis' });
+                    break;
                 case 'mystery':
                     setLastMysteryTile({ x: characterPosition.x, y: characterPosition.y });
                     // Generate and show mystery event modal
@@ -1708,6 +1714,7 @@ function RealmPageContent() {
                                     activeTab={inventoryTab}
                                     setActiveTab={setInventoryTab}
                                     onOutOfTiles={(tile) => setInventoryTab('buy')}
+                                    userLevel={characterStats.level}
                                 />
                             </MedievalErrorBoundary>
                         </div>

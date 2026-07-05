@@ -224,7 +224,9 @@ export class MapGenerator {
       'sphinx-gates': "Sphinx's Gates",
       'whispering-canopy': 'Whispering Canopy',
       'frostfire-obelisk': 'Frostfire Obelisk',
-      'fairy-ring': 'Fairy Ring'
+      'fairy-ring': 'Fairy Ring',
+      'settlement': 'Settlement',
+      'megapolis': 'Megapolis'
     };
 
     const tileDescriptions = {
@@ -303,7 +305,9 @@ export class MapGenerator {
       'sphinx-gates': "An ancient gateway guarding passage based on daily discipline",
       'whispering-canopy': 'An ancient forest canopy where you can seal a focus pact of silence',
       'frostfire-obelisk': 'A frozen monument that can seal a daily streak freeze pact or award glacial shards',
-      'fairy-ring': 'A mystical circle of toadstools where pixies trade resources and play luck games'
+      'fairy-ring': 'A mystical circle of toadstools where pixies trade resources and play luck games',
+      'settlement': 'A small rustic settlement with a local marketplace shop',
+      'megapolis': 'A grand megapolis protected by concentric walls containing six unique trade districts'
     };
 
     const tileImages = {
@@ -382,7 +386,9 @@ export class MapGenerator {
       'sphinx-gates': '/images/tiles/sphinx-gates-tile.png',
       'whispering-canopy': '/images/tiles/whispering-canopy-tile.png',
       'frostfire-obelisk': '/images/tiles/frostfire-obelisk-tile.png',
-      'fairy-ring': '/images/tiles/fairy-ring-tile.png'
+      'fairy-ring': '/images/tiles/fairy-ring-tile.png',
+      'settlement': '/images/tiles/settlement-tile.webp',
+      'megapolis': '/images/tiles/megapolis-tile.webp'
     };
 
     return {

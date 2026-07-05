@@ -41,6 +41,8 @@ const allPossibleTiles: Tile[] = [
   // Settlement Tiles (Level 20-40)
   { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.webp' },
   { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.webp' },
+  { id: 'settlement', name: 'Settlement', type: 'settlement', quantity: 0, cost: 300, connections: [], description: 'A small village with a local marketplace', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Settlement tile', image: '/images/tiles/settlement-tile.webp' },
+  { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city with six unique trade districts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
 
   // Development Tiles (Level 40-60)
   { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.webp' },
@@ -90,7 +92,7 @@ const tileCategories = [
     minLevel: 20,
     maxLevel: 40,
     description: 'Human settlements and communities',
-    tiles: ['town', 'city']
+    tiles: ['town', 'city', 'settlement', 'megapolis']
   },
   {
     id: 'development',
@@ -134,9 +136,10 @@ interface TileInventoryProps {
   activeTab: 'place' | 'buy' | 'guide'
   setActiveTab: (tab: 'place' | 'buy' | 'guide') => void
   onOutOfTiles?: (tile: Tile) => void
+  userLevel?: number
 }
 
-export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles }: TileInventoryProps) {
+export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles, activeTab, setActiveTab, onOutOfTiles, userLevel: userLevelProp }: TileInventoryProps) {
   const { user } = useUser();
   const { supabase, isLoading } = useSupabase();
   const [buyQuantities, setBuyQuantities] = useState<{ [key: string]: number }>({})
@@ -145,7 +148,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   const [rareTilesData, setRareTilesData] = useState<RareTile[]>([]);
 
   // Determine user level safely
-  const userLevelValue = userLevel || 1;
+  const userLevelValue = userLevelProp || userLevel || 1;
 
   useEffect(() => {
     const loadUserLevel = () => {
@@ -313,12 +316,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           connections: tile.connections || [],
         });
 
-        const newTiles = tiles.map(item =>
-          item.type === tile.type
-            ? { ...item, quantity: (item.quantity || 0) + quantity }
-            : item
-        )
-        onUpdateTiles(newTiles)
+        let found = false;
+        let newTiles = tiles.map(item => {
+          if (item.type === tile.type) {
+            found = true;
+            return { ...item, quantity: (item.quantity || 0) + quantity };
+          }
+          return item;
+        });
+        if (!found) {
+          newTiles.push({ ...tile, quantity: quantity });
+        }
+        onUpdateTiles(newTiles);
 
         setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
         toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`)
@@ -367,6 +376,10 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         return '/images/tiles/frostfire-obelisk-tile.png'
       case 'fairy-ring':
         return '/images/tiles/fairy-ring-tile.png'
+      case 'settlement':
+        return '/images/tiles/settlement-tile.webp'
+      case 'megapolis':
+        return '/images/tiles/megapolis-tile.webp'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

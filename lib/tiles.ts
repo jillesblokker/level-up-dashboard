@@ -77,6 +77,8 @@ export function getTileName(type: TileType): string {
     'whispering-canopy': 'Whispering Canopy',
     'frostfire-obelisk': 'Frostfire Obelisk',
     'fairy-ring': 'Fairy Ring',
+    'settlement': 'Settlement',
+    'megapolis': 'Megapolis',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -158,6 +160,8 @@ export function getDefaultConnections(type: TileType): string[] {
     'whispering-canopy': ['grass', 'forest'],
     'frostfire-obelisk': ['snow', 'ice', 'mountain', 'grass'],
     'fairy-ring': ['grass', 'forest'],
+    'settlement': ['grass', 'forest', 'water'],
+    'megapolis': ['grass', 'mountain', 'water'],
   };
   return defaultConnections[type] || [];
 } 

@@ -807,6 +807,120 @@ function CityLocationPageInner() {
               </TabsContent>
             </Tabs>
           </div>
+        ) : locationId === 'marketplace-weapons' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">
+              <h2 className="text-3xl font-serif text-amber-400 mb-2">Weapons Market</h2>
+              <p className="text-zinc-400 max-w-2xl font-serif">Purchase weapons of all tiers and shapes from legendary smiths.</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {BLACKSMITH_WEAPONS.map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Buy"
+                />
+              ))}
+            </div>
+          </div>
+        ) : locationId === 'marketplace-armor' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">
+              <h2 className="text-3xl font-serif text-amber-400 mb-2">Armor Market</h2>
+              <p className="text-zinc-400 max-w-2xl font-serif">Protect yourself with the strongest shields and armor available in the realm.</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {[...BLACKSMITH_SHIELDS, ...BLACKSMITH_ARMOR].map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Buy"
+                />
+              ))}
+            </div>
+          </div>
+        ) : locationId === 'marketplace-potions' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">
+              <h2 className="text-3xl font-serif text-amber-400 mb-2">Apothecary Shop</h2>
+              <p className="text-zinc-400 max-w-2xl font-serif">Stock up on health potions, mana, and buffing brews.</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {POTION_ITEMS.map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Buy"
+                />
+              ))}
+            </div>
+          </div>
+        ) : locationId === 'marketplace-scrolls' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">
+              <h2 className="text-3xl font-serif text-amber-400 mb-2">Arcane Scrolls Shop</h2>
+              <p className="text-zinc-400 max-w-2xl font-serif">Obtain scrolls for spells, streak recovery, and magical boosts.</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {SCROLL_ITEMS.map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Buy"
+                />
+              ))}
+            </div>
+          </div>
+        ) : locationId === 'marketplace-artifacts' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">
+              <h2 className="text-3xl font-serif text-amber-400 mb-2">Relics & Artifacts</h2>
+              <p className="text-zinc-400 max-w-2xl font-serif">Obtain rare items and magical artifacts of lost eras.</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {ARTIFACT_ITEMS.map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Buy"
+                />
+              ))}
+            </div>
+          </div>
+        ) : locationId === 'marketplace-food' ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">
+              <h2 className="text-3xl font-serif text-amber-400 mb-2">Tavern Provisions</h2>
+              <p className="text-zinc-400 max-w-2xl font-serif">Stock up on food supplies, rations, and chef ingredients.</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {FOOD_ITEMS.map((item) => (
+                <ShopItemCard
+                  key={item.id}
+                  item={item}
+                  onPurchase={handleItemPurchase}
+                  disabled={goldBalance < item.cost}
+                  accentColor="amber"
+                  actionLabel="Buy"
+                />
+              ))}
+            </div>
+          </div>
         ) : locationId === 'marketplace' ? (
           <div className="space-y-8 animate-in fade-in duration-500">
             <div className="border border-amber-900/10 bg-gradient-to-br from-zinc-950 to-zinc-900/50 rounded-3xl p-6 md:p-8 relative overflow-hidden mb-8 shadow-2xl">

@@ -75,7 +75,9 @@ export type TileType =
   | 'sphinx-gates'
   | 'whispering-canopy'
   | 'frostfire-obelisk'
-  | 'fairy-ring';
+  | 'fairy-ring'
+  | 'settlement'
+  | 'megapolis';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 
