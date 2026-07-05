@@ -983,7 +983,7 @@ function RealmPageContent() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [toast, setCharacterPosition, setShowInventory]); // Minimal dependencies
+    }, [toast, setCharacterPosition, setShowInventory, characterStats.level]); // Minimal dependencies
 
     // Effect to handle landing on special tiles
     useEffect(() => {
@@ -1198,7 +1198,7 @@ function RealmPageContent() {
                 setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
             }
         }
-    }, [isLoading, grid, characterPosition, setCharacterPosition]);
+    }, [isLoading, grid, characterPosition, setCharacterPosition, characterStats.level]);
 
     // Focus trap for inventory panel
     useEffect(() => {
