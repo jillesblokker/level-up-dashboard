@@ -1142,22 +1142,32 @@ function RealmPageContent() {
                     logger.debug("[Realm Landing] Stepped on sphinx-gates tile at:", characterPosition);
                     const checkSphinxGates = async () => {
                         try {
-                            const res = await fetch(`/api/quests?t=${Date.now()}`);
-                            const data = await res.json();
-                            if (data && Array.isArray(data)) {
-                                const completedCount = data.filter((q: any) => q.completed).length;
-                                logger.debug("[Realm Landing] Sphinx check complete. Completed count:", completedCount);
-                                if (completedCount >= 3) {
-                                    toast({
-                                        title: "Sphinx's Gates Pass",
-                                        description: "The Sphinxes bow their heads. Your daily discipline allows you passage!",
-                                    });
-                                } else {
-                                    setSphinxEvent({ open: true, blocked: true, completedCount });
-                                    setCharacterPosition(prevPositionRef.current.x, prevPositionRef.current.y);
-                                }
+                            const [questsRes, challengesRes] = await Promise.all([
+                                fetch(`/api/quests?t=${Date.now()}`),
+                                fetch(`/api/challenges?t=${Date.now()}`)
+                            ]);
+                            const [questsData, challengesData] = await Promise.all([
+                                questsRes.json(),
+                                challengesRes.json()
+                            ]);
+
+                            let completedCount = 0;
+                            if (questsData && Array.isArray(questsData)) {
+                                completedCount += questsData.filter((q: any) => q.completed).length;
+                            }
+                            if (challengesData && Array.isArray(challengesData)) {
+                                completedCount += challengesData.filter((c: any) => c.completed).length;
+                            }
+
+                            logger.debug("[Realm Landing] Sphinx check complete. Completed count:", completedCount);
+                            if (completedCount >= 3) {
+                                toast({
+                                    title: "Sphinx's Gates Pass",
+                                    description: "The Sphinxes bow their heads. Your daily discipline allows you passage!",
+                                });
                             } else {
-                                logger.warn("[Realm Landing] Sphinx check did not receive a valid array");
+                                setSphinxEvent({ open: true, blocked: true, completedCount });
+                                setCharacterPosition(prevPositionRef.current.x, prevPositionRef.current.y);
                             }
                         } catch (error) {
                             logger.error("Failed to check sphinx gates", error);
