@@ -77,6 +77,9 @@ const tileTypeToNumeric: Record<TileType, number> = {
   pyramid: 68,
   'whispering-well': 69,
   'sphinx-gates': 70,
+  'whispering-canopy': 71,
+  'frostfire-obelisk': 72,
+  'fairy-ring': 73,
 };
 
 // Convert numeric value back to tile type

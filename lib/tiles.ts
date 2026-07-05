@@ -74,6 +74,9 @@ export function getTileName(type: TileType): string {
     pyramid: 'Monolith of Devotion',
     'whispering-well': 'Whispering Well',
     'sphinx-gates': "Sphinx's Gates",
+    'whispering-canopy': 'Whispering Canopy',
+    'frostfire-obelisk': 'Frostfire Obelisk',
+    'fairy-ring': 'Fairy Ring',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -152,6 +155,9 @@ export function getDefaultConnections(type: TileType): string[] {
     pyramid: ['desert', 'grass'],
     'whispering-well': ['graveyard', 'grass', 'forest'],
     'sphinx-gates': ['desert', 'grass'],
+    'whispering-canopy': ['grass', 'forest'],
+    'frostfire-obelisk': ['snow', 'ice', 'mountain', 'grass'],
+    'fairy-ring': ['grass', 'forest'],
   };
   return defaultConnections[type] || [];
 } 

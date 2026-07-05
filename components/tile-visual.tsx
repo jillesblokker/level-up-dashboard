@@ -68,6 +68,12 @@ export function TileVisual({
         return '/images/tiles/whispering-well-tile.png'
       case 'sphinx-gates':
         return '/images/tiles/sphinx-gates-tile.png'
+      case 'whispering-canopy':
+        return '/images/tiles/whispering-canopy-tile.png'
+      case 'frostfire-obelisk':
+        return '/images/tiles/frostfire-obelisk-tile.png'
+      case 'fairy-ring':
+        return '/images/tiles/fairy-ring-tile.png'
       default:
         return '/images/tiles/empty-tile.webp'
     }

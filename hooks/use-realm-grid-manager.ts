@@ -91,6 +91,12 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             reconstructedTile.image = '/images/tiles/whispering-well-tile.png';
                         } else if (reconstructedTile.type === 'sphinx-gates') {
                             reconstructedTile.image = '/images/tiles/sphinx-gates-tile.png';
+                        } else if (reconstructedTile.type === 'whispering-canopy') {
+                            reconstructedTile.image = '/images/tiles/whispering-canopy-tile.png';
+                        } else if (reconstructedTile.type === 'frostfire-obelisk') {
+                            reconstructedTile.image = '/images/tiles/frostfire-obelisk-tile.png';
+                        } else if (reconstructedTile.type === 'fairy-ring') {
+                            reconstructedTile.image = '/images/tiles/fairy-ring-tile.png';
                         }
 
                         newGrid[t.y]![t.x] = reconstructedTile;
@@ -228,12 +234,18 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                     // New Tile
                     let randomType: TileType = 'empty';
                     const roll = Math.random();
-                    if (roll < 0.015) {
+                    if (roll < 0.01) {
                         randomType = 'pyramid';
-                    } else if (roll < 0.03) {
+                    } else if (roll < 0.02) {
                         randomType = 'whispering-well';
-                    } else if (roll < 0.045) {
+                    } else if (roll < 0.03) {
                         randomType = 'sphinx-gates';
+                    } else if (roll < 0.04) {
+                        randomType = 'whispering-canopy';
+                    } else if (roll < 0.05) {
+                        randomType = 'frostfire-obelisk';
+                    } else if (roll < 0.06) {
+                        randomType = 'fairy-ring';
                     }
 
                     const newTile = {

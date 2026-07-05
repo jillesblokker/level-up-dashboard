@@ -30,6 +30,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'pyramid') image = '/images/tiles/pyramid-tile.png';
     if (type === 'whispering-well') image = '/images/tiles/whispering-well-tile.png';
     if (type === 'sphinx-gates') image = '/images/tiles/sphinx-gates-tile.png';
+    if (type === 'whispering-canopy') image = '/images/tiles/whispering-canopy-tile.png';
+    if (type === 'frostfire-obelisk') image = '/images/tiles/frostfire-obelisk-tile.png';
+    if (type === 'fairy-ring') image = '/images/tiles/fairy-ring-tile.png';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -40,6 +43,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'pyramid') name = 'Monolith of Devotion';
     if (type === 'whispering-well') name = 'Whispering Well';
     if (type === 'sphinx-gates') name = "Sphinx's Gates";
+    if (type === 'whispering-canopy') name = 'Whispering Canopy';
+    if (type === 'frostfire-obelisk') name = 'Frostfire Obelisk';
+    if (type === 'fairy-ring') name = 'Fairy Ring';
 
     return {
         id: type,
@@ -131,6 +137,9 @@ export const initialInventory: Record<TileType, Tile> = {
     pyramid: { ...defaultTile('pyramid'), cost: 1000, owned: 0 },
     'whispering-well': { ...defaultTile('whispering-well'), cost: 1000, owned: 0 },
     'sphinx-gates': { ...defaultTile('sphinx-gates'), cost: 1000, owned: 0 },
+    'whispering-canopy': { ...defaultTile('whispering-canopy'), cost: 1200, owned: 0 },
+    'frostfire-obelisk': { ...defaultTile('frostfire-obelisk'), cost: 1500, owned: 0 },
+    'fairy-ring': { ...defaultTile('fairy-ring'), cost: 1200, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -157,6 +166,9 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'pyramid') return '/images/tiles/pyramid-tile.png';
     if (type === 'whispering-well') return '/images/tiles/whispering-well-tile.png';
     if (type === 'sphinx-gates') return '/images/tiles/sphinx-gates-tile.png';
+    if (type === 'whispering-canopy') return '/images/tiles/whispering-canopy-tile.png';
+    if (type === 'frostfire-obelisk') return '/images/tiles/frostfire-obelisk-tile.png';
+    if (type === 'fairy-ring') return '/images/tiles/fairy-ring-tile.png';
     return `/images/tiles/${type}-tile.webp`;
 };
 

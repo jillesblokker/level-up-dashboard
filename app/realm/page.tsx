@@ -1179,9 +1179,90 @@ function RealmPageContent() {
                     checkSphinxGates();
                     break;
                 }
+                case 'whispering-canopy': {
+                    logger.debug("[Realm Landing] Stepped on whispering-canopy tile at:", characterPosition);
+                    const checkCanopy = async () => {
+                        setCanopyEvent({ open: true, pact: null, availableHabits: [], loading: true });
+                        try {
+                            const res = await fetch(`/api/quests?t=${Date.now()}`);
+                            const data = await res.json();
+                            
+                            const stored = localStorage.getItem('canopy-focus-pact');
+                            let currentPact = null;
+                            if (stored) {
+                                try {
+                                    currentPact = JSON.parse(stored);
+                                } catch (e) {}
+                            }
+
+                            if (data && Array.isArray(data)) {
+                                if (currentPact) {
+                                    const match = data.find((q: any) => q.id === currentPact.habitId);
+                                    if (match && match.completed) {
+                                        currentPact.completed = true;
+                                    }
+                                }
+                                const uncompleted = data.filter((q: any) => !q.completed);
+                                logger.debug("[Realm Landing] Canopy check complete. Active Pact:", currentPact, "Uncompleted quests count:", uncompleted.length);
+                                setCanopyEvent({
+                                    open: true,
+                                    pact: currentPact,
+                                    availableHabits: uncompleted,
+                                    loading: false
+                                });
+                            } else {
+                                setCanopyEvent({
+                                    open: true,
+                                    pact: currentPact,
+                                    availableHabits: [],
+                                    loading: false
+                                });
+                            }
+                        } catch (error) {
+                            logger.error("Failed to load canopy pact options", error);
+                            setCanopyEvent({ open: true, pact: null, availableHabits: [], loading: false });
+                        }
+                    };
+                    checkCanopy();
+                    break;
+                }
+                case 'frostfire-obelisk': {
+                    logger.debug("[Realm Landing] Stepped on frostfire-obelisk tile at:", characterPosition);
+                    const checkObelisk = async () => {
+                        setObeliskEvent({ open: true, alreadyCompleted: false, loading: true });
+                        try {
+                            const res = await fetch(`/api/quests?t=${Date.now()}`);
+                            const data = await res.json();
+                            if (data && Array.isArray(data)) {
+                                const allCompleted = data.length > 0 && data.every((q: any) => q.completed);
+                                setObeliskEvent({
+                                    open: true,
+                                    alreadyCompleted: allCompleted,
+                                    loading: false
+                                });
+                            } else {
+                                setObeliskEvent({
+                                    open: true,
+                                    alreadyCompleted: false,
+                                    loading: false
+                                });
+                            }
+                        } catch (error) {
+                            logger.error("Failed to check frostfire obelisk status", error);
+                            setObeliskEvent({ open: true, alreadyCompleted: false, loading: false });
+                        }
+                    };
+                    checkObelisk();
+                    break;
+                }
+                case 'fairy-ring': {
+                    logger.debug("[Realm Landing] Stepped on fairy-ring tile at:", characterPosition);
+                    setFairyRingEvent({ open: true, rolled: false });
+                    break;
+                }
             }
         }
-    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile, getToken, setCharacterPosition, setPyramidEvent, setWellEvent, setSphinxEvent]);
+    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile, getToken, setCharacterPosition, setPyramidEvent, setWellEvent, setSphinxEvent, setCanopyEvent, setObeliskEvent, setFairyRingEvent]);
 
     const handleResetPosition = () => {
         setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
@@ -1246,7 +1327,7 @@ function RealmPageContent() {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
 
-        if (targetTile.type === 'pyramid' || targetTile.type === 'sphinx-gates') {
+        if (targetTile.type === 'pyramid' || targetTile.type === 'sphinx-gates' || targetTile.type === 'whispering-canopy' || targetTile.type === 'frostfire-obelisk' || targetTile.type === 'fairy-ring') {
             toast({
                 title: "Ancient Landmark",
                 description: "This ancient landmark is permanently rooted in the realm and cannot be destroyed!",
@@ -2117,6 +2198,429 @@ function RealmPageContent() {
                             >
                                 Revert and Complete Quests
                             </Button>
+                        </DialogContent>
+                    </Dialog>
+                )}
+
+                {/* Whispering Canopy Modal */}
+                {canopyEvent?.open && (
+                    <Dialog open={canopyEvent.open} onOpenChange={() => setCanopyEvent(null)}>
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                            <div className="absolute inset-0 bg-emerald-950/10 opacity-30 pointer-events-none blur-[100px]" />
+                            <DialogHeader className="text-center items-center">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-emerald-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-emerald-400">
+                                    <Tent className="w-3 h-3" />
+                                    Whispering Canopy
+                                </div>
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                    Druid&apos;s Sanctuary
+                                </DialogTitle>
+                            </DialogHeader>
+
+                            {canopyEvent.loading ? (
+                                <div className="flex flex-col items-center justify-center py-8">
+                                    <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mb-2" />
+                                    <p className="text-sm text-zinc-400">Consulting the ancient trees...</p>
+                                </div>
+                            ) : canopyEvent.pact ? (
+                                <div className="space-y-4 mt-4">
+                                    <div className="bg-zinc-900/60 p-4 border border-zinc-800 rounded-xl space-y-2">
+                                        <p className="text-xs uppercase text-emerald-400 font-bold tracking-wider">Active Focus Pledge</p>
+                                        <p className="text-sm font-medium text-white">{canopyEvent.pact.title}</p>
+                                        <p className="text-xs text-zinc-400 mt-2">
+                                            {canopyEvent.pact.completed ? (
+                                                <span className="text-green-400 font-bold">✨ TASK COMPLETED! ✨</span>
+                                            ) : (
+                                                <span>Status: Incomplete in Quest Log</span>
+                                            )}
+                                        </p>
+                                    </div>
+
+                                    {canopyEvent.pact.completed ? (
+                                        <Button
+                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                            disabled={isCanopyClaiming}
+                                            onClick={async () => {
+                                                setIsCanopyClaiming(true);
+                                                try {
+                                                    if (userId) {
+                                                        await Promise.all([
+                                                            addToInventory(userId, { id: 'material-herb', name: 'Fey Herbs', quantity: 2, emoji: '🌿', type: 'material', category: 'material', rarity: 'rare' }),
+                                                            gainExperience(40, 'canopy-event')
+                                                        ]);
+                                                    }
+                                                    localStorage.removeItem('canopy-focus-pact');
+                                                    toast({
+                                                        title: "Focus Pact Fulfilled! 🌿",
+                                                        description: "You obtained +2x Fey Herbs and +40 XP!",
+                                                    });
+                                                } catch (err) {
+                                                    console.error("Failed to claim canopy blessing:", err);
+                                                } finally {
+                                                    setIsCanopyClaiming(false);
+                                                    setCanopyEvent(null);
+                                                }
+                                            }}
+                                        >
+                                            {isCanopyClaiming ? (
+                                                <span className="flex items-center justify-center gap-2">
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Gathering Herbs...
+                                                </span>
+                                            ) : (
+                                                "Gather Fey Herbs 🌿"
+                                            )}
+                                        </Button>
+                                    ) : (
+                                        <>
+                                            <p className="text-xs text-zinc-400 text-center">
+                                                Complete this task in your daily Quest board to claim fey ingredients!
+                                            </p>
+                                            <Button
+                                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
+                                                onClick={() => setCanopyEvent(null)}
+                                            >
+                                                Return to Journey
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            ) : canopyEvent.availableHabits.length === 0 ? (
+                                <div className="space-y-4 mt-4 text-center">
+                                    <p className="text-sm text-zinc-400 leading-relaxed">
+                                        You have no uncompleted habits right now. All your quests are done, or no active tasks were found. Return tomorrow!
+                                    </p>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
+                                        onClick={() => setCanopyEvent(null)}
+                                    >
+                                        Return to Journey
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 mt-4">
+                                    <p className="text-sm text-zinc-400 leading-relaxed text-center">
+                                        Select an active habit. Complete it to unlock rare fey herbs at the canopy!
+                                    </p>
+                                    <div className="max-h-[160px] overflow-y-auto space-y-1.5 custom-scrollbar pr-1">
+                                        {canopyEvent.availableHabits.map((q: any) => (
+                                            <button
+                                                key={q.id}
+                                                className="w-full text-left p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 hover:bg-emerald-950/10 text-xs transition-all text-zinc-300 flex items-center justify-between"
+                                                disabled={isCanopyClaiming}
+                                                onClick={async () => {
+                                                    setIsCanopyClaiming(true);
+                                                    try {
+                                                        const pact = {
+                                                            habitId: q.id,
+                                                            title: q.title,
+                                                            completed: false,
+                                                            timestamp: Date.now()
+                                                        };
+                                                        localStorage.setItem('canopy-focus-pact', JSON.stringify(pact));
+                                                        toast({
+                                                            title: "Pledge Sealed! 🌿",
+                                                            description: `You have pledged to complete: "${q.title}"`,
+                                                        });
+                                                    } finally {
+                                                        setIsCanopyClaiming(false);
+                                                        setCanopyEvent(null);
+                                                    }
+                                                }}
+                                            >
+                                                <span className="truncate mr-2 font-medium">{q.title}</span>
+                                                <span className="shrink-0 text-[10px] text-emerald-400 font-bold uppercase tracking-wider">PLEDGE</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-2.5 rounded-xl text-xs"
+                                        onClick={() => setCanopyEvent(null)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+
+                {/* Frostfire Obelisk Modal */}
+                {obeliskEvent?.open && (
+                    <Dialog open={obeliskEvent.open} onOpenChange={() => setObeliskEvent(null)}>
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                            <div className="absolute inset-0 bg-blue-950/10 opacity-30 pointer-events-none blur-[100px]" />
+                            <DialogHeader className="text-center items-center">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
+                                    <Compass className="w-3 h-3" />
+                                    Frostfire Obelisk
+                                </div>
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                    The Glacial Core
+                                </DialogTitle>
+                            </DialogHeader>
+
+                            {obeliskEvent.loading ? (
+                                <div className="flex flex-col items-center justify-center py-8">
+                                    <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
+                                    <p className="text-sm text-zinc-400">Absorbing frost energy...</p>
+                                </div>
+                            ) : obeliskEvent.alreadyCompleted ? (
+                                <div className="space-y-4 mt-4 text-center">
+                                    <p className="text-sm text-zinc-300 leading-relaxed">
+                                        Your daily habits are fully completed today! The Glacial Obelisk glows with power.
+                                    </p>
+                                    <Button
+                                        className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                        disabled={isObeliskClaiming}
+                                        onClick={async () => {
+                                            const today = new Date().toDateString();
+                                            const lastClaimed = localStorage.getItem('obelisk-last-claimed');
+                                            if (lastClaimed === today) {
+                                                toast({
+                                                    title: "Already Claimed",
+                                                    description: "You have already received the Obelisk's glacial blessing today.",
+                                                });
+                                                setObeliskEvent(null);
+                                            } else {
+                                                setIsObeliskClaiming(true);
+                                                try {
+                                                    if (userId) {
+                                                        await Promise.all([
+                                                            addToInventory(userId, { id: 'material-crystal', name: 'Glacial Shard', quantity: 1, emoji: '❄️', type: 'material', category: 'material', rarity: 'rare' }),
+                                                            gainGold(25, 'obelisk-event')
+                                                        ]);
+                                                    }
+                                                    localStorage.setItem('obelisk-last-claimed', today);
+                                                    toast({
+                                                        title: "Glacial blessing obtained! ❄️",
+                                                        description: "You received +1 Glacial Shard and +25 Gold!",
+                                                    });
+                                                } catch (err) {
+                                                    console.error("Failed to claim obelisk:", err);
+                                                } finally {
+                                                    setIsObeliskClaiming(false);
+                                                    setObeliskEvent(null);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        {isObeliskClaiming ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Absorbing Shard...
+                                            </span>
+                                        ) : (
+                                            "Claim Glacial Touch ❄️"
+                                        )}
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 mt-4">
+                                    <p className="text-sm text-zinc-400 leading-relaxed text-center">
+                                        Your daily habits are not yet completed. You can seal a frozen pact for 50 Gold to obtain a **Streak Freeze Scroll** to protect your streak.
+                                    </p>
+                                    <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 flex justify-between items-center text-xs">
+                                        <span className="text-zinc-400">Pact Cost</span>
+                                        <span className="font-bold text-amber-400">50 Gold</span>
+                                    </div>
+                                    <Button
+                                        className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold font-serif py-3 rounded-xl shadow-lg"
+                                        disabled={isObeliskClaiming}
+                                        onClick={async () => {
+                                            if (characterStats.gold < 50) {
+                                                toast({
+                                                    title: "Not Enough Gold",
+                                                    description: `You need 50 Gold to purchase the Streak Freeze Pact. You have ${characterStats.gold} Gold.`,
+                                                    variant: "destructive"
+                                                });
+                                                setObeliskEvent(null);
+                                                return;
+                                            }
+                                            setIsObeliskClaiming(true);
+                                            try {
+                                                if (userId) {
+                                                    await Promise.all([
+                                                        gainGold(-50, 'obelisk-streak-freeze'),
+                                                        addTileToInventory(userId, { id: 'streak-scroll', type: 'streak-scroll', name: 'Streak Scroll', quantity: 1, cost: 500, connections: [] })
+                                                    ]);
+                                                }
+                                                toast({
+                                                    title: "Streak Freeze Activated! ❄️",
+                                                    description: "Deducted 50 Gold. A Streak Scroll has been added to your bag!",
+                                                });
+                                            } catch (err) {
+                                                console.error("Failed to buy streak freeze:", err);
+                                            } finally {
+                                                setIsObeliskClaiming(false);
+                                                setObeliskEvent(null);
+                                            }
+                                        }}
+                                    >
+                                        {isObeliskClaiming ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Sealing Pact...
+                                            </span>
+                                        ) : (
+                                            "Activate Streak Freeze (50g) ❄️"
+                                        )}
+                                    </Button>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-2.5 rounded-xl text-xs mt-2"
+                                        onClick={() => setObeliskEvent(null)}
+                                    >
+                                        Return to Journey
+                                    </Button>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+
+                {/* Fairy Ring Modal */}
+                {fairyRingEvent?.open && (
+                    <Dialog open={fairyRingEvent.open} onOpenChange={() => setFairyRingEvent(null)}>
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                            <div className="absolute inset-0 bg-amber-950/10 opacity-30 pointer-events-none blur-[100px]" />
+                            <DialogHeader className="text-center items-center">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">
+                                    <Crown className="w-3 h-3" />
+                                    Fairy Ring
+                                </div>
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                    The Pixie Ring
+                                </DialogTitle>
+                            </DialogHeader>
+
+                            {fairyRingEvent.rolled ? (
+                                <div className="space-y-4 mt-4 text-center">
+                                    <div className="text-5xl animate-bounce">🧚‍♂️🎲</div>
+                                    <p className="text-lg font-serif font-bold text-amber-400">Roll Result: {fairyRingEvent.rollResult}</p>
+                                    <p className="text-sm text-zinc-300 leading-relaxed pr-2 pl-2">
+                                        {fairyRingEvent.rewardMessage}
+                                    </p>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
+                                        onClick={() => setFairyRingEvent(null)}
+                                    >
+                                        Return to Journey
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 mt-4">
+                                    <p className="text-sm text-zinc-400 leading-relaxed text-center">
+                                        Step inside the mushroom ring to deal with the pixies! You can play the Pixie Dance dice game once per day, or leave an offering.
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-3 mt-4">
+                                        <div className="flex flex-col items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800 space-y-2">
+                                            <span className="text-3xl">🎲</span>
+                                            <span className="text-xs font-bold text-zinc-200">Pixie Dance</span>
+                                            <p className="text-[10px] text-zinc-500 text-center">Roll the die: win Pixie Dust or risk gold loss.</p>
+                                            <Button
+                                                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs py-1.5 rounded-lg mt-2"
+                                                disabled={isFairyClaiming}
+                                                onClick={async () => {
+                                                    const today = new Date().toDateString();
+                                                    const lastPlayed = localStorage.getItem('fairy-last-played');
+                                                    if (lastPlayed === today) {
+                                                        toast({
+                                                            title: "Already Danced",
+                                                            description: "You have already danced with the pixies today. Return tomorrow!",
+                                                        });
+                                                        return;
+                                                    }
+                                                    setIsFairyClaiming(true);
+                                                    try {
+                                                        const roll = Math.ceil(Math.random() * 6);
+                                                        let msg = "";
+                                                        if (roll <= 2) {
+                                                            await gainGold(-15, 'fairy-ring-event');
+                                                            msg = "The pixies tickled you and stole 15 Gold! 🧚‍♂️";
+                                                        } else if (roll <= 4) {
+                                                            await Promise.all([
+                                                                gainGold(-10, 'fairy-ring-event'),
+                                                                addToInventory(userId, { id: 'material-wood', name: 'Elder Wood', quantity: 3, emoji: '🪵', type: 'material', category: 'material', rarity: 'common' })
+                                                            ]);
+                                                            msg = "The pixies traded your 10 Gold for 3x Elder Wood! 🪵";
+                                                        } else {
+                                                            await Promise.all([
+                                                                addToInventory(userId, { id: 'material-crystal', name: 'Pixie Dust', quantity: 1, emoji: '✨', type: 'material', category: 'material', rarity: 'rare' }),
+                                                                gainGold(50, 'fairy-ring-event'),
+                                                                gainExperience(50, 'fairy-ring-event')
+                                                            ]);
+                                                            msg = "The pixies blessed you! You received Pixie Dust, 50 Gold, and 50 XP! ✨";
+                                                        }
+                                                        localStorage.setItem('fairy-last-played', today);
+                                                        setFairyRingEvent({
+                                                            open: true,
+                                                            rolled: true,
+                                                            rollResult: roll,
+                                                            rewardMessage: msg
+                                                        });
+                                                    } catch (err) {
+                                                        console.error("Fairy ring roll failed:", err);
+                                                    } finally {
+                                                        setIsFairyClaiming(false);
+                                                    }
+                                                }}
+                                            >
+                                                Dance
+                                            </Button>
+                                        </div>
+
+                                        <div className="flex flex-col items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800 space-y-2">
+                                            <span className="text-3xl">🪙</span>
+                                            <span className="text-xs font-bold text-zinc-200">Gold Offering</span>
+                                            <p className="text-[10px] text-zinc-500 text-center">Drop 10 Gold for a guaranteed random material.</p>
+                                            <Button
+                                                className="w-full bg-zinc-950 text-zinc-300 border border-zinc-850 text-xs py-1.5 rounded-lg mt-2 hover:bg-zinc-900"
+                                                disabled={isFairyClaiming}
+                                                onClick={async () => {
+                                                    if (characterStats.gold < 10) {
+                                                        toast({
+                                                            title: "Not Enough Gold",
+                                                            description: "You need 10 Gold to leave an offering.",
+                                                            variant: "destructive"
+                                                        });
+                                                        return;
+                                                    }
+                                                    setIsFairyClaiming(true);
+                                                    try {
+                                                        const materials = [
+                                                            { id: 'material-wood', name: 'Elder Wood', quantity: 2, emoji: '🪵', type: 'material', category: 'material', rarity: 'common' },
+                                                            { id: 'material-stone', name: 'Ironstone Blocks', quantity: 2, emoji: '🪨', type: 'material', category: 'material', rarity: 'common' },
+                                                            { id: 'material-iron', name: 'Raw Iron Ore', quantity: 1, emoji: '⛏️', type: 'material', category: 'material', rarity: 'uncommon' }
+                                                        ];
+                                                        const selectedMat = materials[Math.floor(Math.random() * materials.length)] || materials[0]!;
+                                                        await Promise.all([
+                                                            gainGold(-10, 'fairy-ring-offering'),
+                                                            addToInventory(userId, selectedMat)
+                                                        ]);
+                                                        toast({
+                                                            title: "Offering Left 🪙",
+                                                            description: `You left 10 Gold. The ring glowed and rewarded you with ${selectedMat.quantity}x ${selectedMat.name}!`,
+                                                        });
+                                                    } catch (err) {
+                                                        console.error("Offering failed:", err);
+                                                    } finally {
+                                                        setIsFairyClaiming(false);
+                                                        setFairyRingEvent(null);
+                                                    }
+                                                }}
+                                            >
+                                                Offer 10g
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-2.5 rounded-xl text-xs mt-2"
+                                        onClick={() => setFairyRingEvent(null)}
+                                    >
+                                        Return to Journey
+                                    </Button>
+                                </div>
+                            )}
                         </DialogContent>
                     </Dialog>
                 )}

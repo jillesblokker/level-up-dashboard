@@ -221,7 +221,10 @@ export class MapGenerator {
       'daily-hub': 'Daily Hub',
       pyramid: 'Monolith of Devotion',
       'whispering-well': 'Whispering Well',
-      'sphinx-gates': "Sphinx's Gates"
+      'sphinx-gates': "Sphinx's Gates",
+      'whispering-canopy': 'Whispering Canopy',
+      'frostfire-obelisk': 'Frostfire Obelisk',
+      'fairy-ring': 'Fairy Ring'
     };
 
     const tileDescriptions = {
@@ -297,7 +300,10 @@ export class MapGenerator {
       'daily-hub': 'A central hub to manage your habits and streak progress',
       pyramid: 'An ancient landmark checking daily habits completion',
       'whispering-well': 'A magical well for sealing daily focus pacts',
-      'sphinx-gates': "An ancient gateway guarding passage based on daily discipline"
+      'sphinx-gates': "An ancient gateway guarding passage based on daily discipline",
+      'whispering-canopy': 'An ancient forest canopy where you can seal a focus pact of silence',
+      'frostfire-obelisk': 'A frozen monument that can seal a daily streak freeze pact or award glacial shards',
+      'fairy-ring': 'A mystical circle of toadstools where pixies trade resources and play luck games'
     };
 
     const tileImages = {
@@ -373,7 +379,10 @@ export class MapGenerator {
       fortune_teller: '/images/kingdom-tiles/fortune_teller.png',
       pyramid: '/images/tiles/pyramid-tile.png',
       'whispering-well': '/images/tiles/whispering-well-tile.png',
-      'sphinx-gates': '/images/tiles/sphinx-gates-tile.png'
+      'sphinx-gates': '/images/tiles/sphinx-gates-tile.png',
+      'whispering-canopy': '/images/tiles/whispering-canopy-tile.png',
+      'frostfire-obelisk': '/images/tiles/frostfire-obelisk-tile.png',
+      'fairy-ring': '/images/tiles/fairy-ring-tile.png'
     };
 
     return {
