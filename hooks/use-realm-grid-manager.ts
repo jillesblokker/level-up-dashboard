@@ -220,12 +220,22 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                     if (existingTile) return existingTile;
 
                     // New Tile
+                    let randomType: TileType = 'empty';
+                    const roll = Math.random();
+                    if (roll < 0.015) {
+                        randomType = 'pyramid';
+                    } else if (roll < 0.03) {
+                        randomType = 'whispering-well';
+                    } else if (roll < 0.045) {
+                        randomType = 'sphinx-gates';
+                    }
+
                     const newTile = {
-                        ...defaultTile('empty'),
+                        ...defaultTile(randomType),
                         x,
                         y,
                         id: `${x}-${y}`,
-                        image: getTileImage('empty')
+                        image: getTileImage(randomType)
                     };
                     diffTiles.push(newTile);
                     return newTile;

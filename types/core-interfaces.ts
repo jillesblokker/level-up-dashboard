@@ -69,7 +69,10 @@ export type TileType =
   | 'library'
   | 'wizard'
   | 'temple'
-  | 'daily-hub';
+  | 'daily-hub'
+  | 'pyramid'
+  | 'whispering-well'
+  | 'sphinx-gates';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

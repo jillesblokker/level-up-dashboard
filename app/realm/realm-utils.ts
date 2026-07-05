@@ -27,12 +27,19 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'wizard') image = '/images/kingdom-tiles/Wizard.webp';
     if (type === 'temple') image = '/images/kingdom-tiles/Temple.webp';
 
+    if (type === 'pyramid') image = '/images/tiles/pyramid-tile.png';
+    if (type === 'whispering-well') image = '/images/tiles/whispering-well-tile.png';
+    if (type === 'sphinx-gates') image = '/images/tiles/sphinx-gates-tile.png';
+
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
     if (type === 'floating_island') name = 'Island';
     if (type === 'ruins') name = 'Ancient Ruins';
     if (type === 'crystal_cavern') name = 'Crystal Cavern';
     if (type === 'zen-garden') name = 'Zen Garden';
+    if (type === 'pyramid') name = 'Monolith of Devotion';
+    if (type === 'whispering-well') name = 'Whispering Well';
+    if (type === 'sphinx-gates') name = "Sphinx's Gates";
 
     return {
         id: type,
@@ -144,6 +151,9 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'wizard') return '/images/kingdom-tiles/Wizard.webp';
     if (type === 'temple') return '/images/kingdom-tiles/Temple.webp';
     if (type === 'fortune_teller') return '/images/kingdom-tiles/fortune_teller.webp';
+    if (type === 'pyramid') return '/images/tiles/pyramid-tile.png';
+    if (type === 'whispering-well') return '/images/tiles/whispering-well-tile.png';
+    if (type === 'sphinx-gates') return '/images/tiles/sphinx-gates-tile.png';
     return `/images/tiles/${type}-tile.webp`;
 };
 

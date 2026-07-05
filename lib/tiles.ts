@@ -71,6 +71,9 @@ export function getTileName(type: TileType): string {
     'market-stalls': 'Market Stalls',
     fortune_teller: 'Fortune Teller',
     'daily-hub': 'Daily Hub',
+    pyramid: 'Monolith of Devotion',
+    'whispering-well': 'Whispering Well',
+    'sphinx-gates': "Sphinx's Gates",
   };
   return tileNames[type] || 'Unknown';
 }
@@ -146,6 +149,9 @@ export function getDefaultConnections(type: TileType): string[] {
     'market-stalls': ['grass', 'city', 'town'],
     fortune_teller: ['grass'],
     'daily-hub': ['grass'],
+    pyramid: ['desert', 'grass'],
+    'whispering-well': ['graveyard', 'grass', 'forest'],
+    'sphinx-gates': ['desert', 'grass'],
   };
   return defaultConnections[type] || [];
 } 

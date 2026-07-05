@@ -62,6 +62,12 @@ export function TileVisual({
         return '/images/tiles/lava-tile.webp'
       case 'volcano':
         return '/images/tiles/volcano-tile.webp'
+      case 'pyramid':
+        return '/images/tiles/pyramid-tile.png'
+      case 'whispering-well':
+        return '/images/tiles/whispering-well-tile.png'
+      case 'sphinx-gates':
+        return '/images/tiles/sphinx-gates-tile.png'
       default:
         return '/images/tiles/empty-tile.webp'
     }

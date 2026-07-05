@@ -303,6 +303,18 @@ function RealmPageContent() {
     const [tileSize, setTileSize] = useState(80);
 
     const [activeEvent, setActiveEvent] = useState<string | null>(null);
+    const [pyramidEvent, setPyramidEvent] = useState<{ open: boolean; success: boolean } | null>(null);
+    const [wellEvent, setWellEvent] = useState<{ open: boolean; pact: any; availableHabits: any[]; loading: boolean } | null>(null);
+    const [sphinxEvent, setSphinxEvent] = useState<{ open: boolean; blocked: boolean; completedCount: number } | null>(null);
+    const prevPositionRef = useRef({ x: INITIAL_POS.x, y: INITIAL_POS.y });
+
+    useEffect(() => {
+        if (!grid.length) return;
+        const currentTile = grid[characterPosition.y]?.[characterPosition.x];
+        if (currentTile && currentTile.type !== 'sphinx-gates') {
+            prevPositionRef.current = { x: characterPosition.x, y: characterPosition.y };
+        }
+    }, [characterPosition, grid]);
     const [castleEvent, setCastleEvent] = useState<{ open: boolean, result?: string, reward?: string } | null>(null);
     const [dungeonEvent, setDungeonEvent] = useState<{ open: boolean, questionIndex: number, score: number, prevNumber: number, questions: { fact: string, number: number }[], result?: string } | null>(null);
     const [caveEvent, setCaveEvent] = useState<{ open: boolean, result?: string } | null>(null);
@@ -1056,9 +1068,112 @@ function RealmPageContent() {
                         setMysteryEvent({ open: true, event: mysteryEvent });
                     }
                     break;
+                case 'pyramid': {
+                    const checkPyramid = async () => {
+                        try {
+                            const token = await getToken({ template: 'supabase' });
+                            const res = await fetch(`/api/quests?t=${Date.now()}`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                            const data = await res.json();
+                            if (data && Array.isArray(data)) {
+                                const allCompleted = data.length > 0 && data.every((q: any) => q.completed);
+                                setPyramidEvent({ open: true, success: allCompleted });
+                            } else {
+                                setPyramidEvent({ open: true, success: false });
+                            }
+                        } catch (error) {
+                            logger.error("Failed to check pyramid", error);
+                            setPyramidEvent({ open: true, success: false });
+                        }
+                    };
+                    checkPyramid();
+                    break;
+                }
+                case 'whispering-well': {
+                    const checkWell = async () => {
+                        setWellEvent({ open: true, pact: null, availableHabits: [], loading: true });
+                        try {
+                            const token = await getToken({ template: 'supabase' });
+                            const res = await fetch(`/api/quests?t=${Date.now()}`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                            const data = await res.json();
+                            
+                            const stored = localStorage.getItem('well-focus-pact');
+                            let currentPact = null;
+                            if (stored) {
+                                try {
+                                    currentPact = JSON.parse(stored);
+                                } catch (e) {}
+                            }
+
+                            if (data && Array.isArray(data)) {
+                                if (currentPact) {
+                                    const match = data.find((q: any) => q.id === currentPact.habitId);
+                                    if (match && match.completed) {
+                                        currentPact.completed = true;
+                                    }
+                                }
+                                const uncompleted = data.filter((q: any) => !q.completed);
+                                setWellEvent({
+                                    open: true,
+                                    pact: currentPact,
+                                    availableHabits: uncompleted,
+                                    loading: false
+                                });
+                            } else {
+                                setWellEvent({
+                                    open: true,
+                                    pact: currentPact,
+                                    availableHabits: [],
+                                    loading: false
+                                });
+                            }
+                        } catch (error) {
+                            logger.error("Failed to load well pact options", error);
+                            setWellEvent({ open: true, pact: null, availableHabits: [], loading: false });
+                        }
+                    };
+                    checkWell();
+                    break;
+                }
+                case 'sphinx-gates': {
+                    const checkSphinxGates = async () => {
+                        try {
+                            const token = await getToken({ template: 'supabase' });
+                            const res = await fetch(`/api/quests?t=${Date.now()}`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                            const data = await res.json();
+                            if (data && Array.isArray(data)) {
+                                const completedCount = data.filter((q: any) => q.completed).length;
+                                if (completedCount >= 3) {
+                                    toast({
+                                        title: "Sphinx's Gates Pass",
+                                        description: "The Sphinxes bow their heads. Your daily discipline allows you passage!",
+                                    });
+                                } else {
+                                    setSphinxEvent({ open: true, blocked: true, completedCount });
+                                    setCharacterPosition(prevPositionRef.current.x, prevPositionRef.current.y);
+                                }
+                            }
+                        } catch (error) {
+                            logger.error("Failed to check sphinx gates", error);
+                        }
+                    };
+                    checkSphinxGates();
+                    break;
+                }
             }
         }
-    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile]);
+    }, [characterPosition, grid, toast, setModalState, setCastleEvent, setDungeonEvent, setCaveEvent, setMysteryEvent, setLastMysteryTile, getToken, setCharacterPosition]);
 
     const handleResetPosition = () => {
         setCharacterPosition(INITIAL_POS.x, INITIAL_POS.y);
@@ -1122,6 +1237,15 @@ function RealmPageContent() {
     const handleDeleteTile = async (x: number, y: number) => {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
+
+        if (targetTile.type === 'pyramid' || targetTile.type === 'sphinx-gates') {
+            toast({
+                title: "Ancient Landmark",
+                description: "This ancient landmark is permanently rooted in the realm and cannot be destroyed!",
+                variant: "destructive"
+            });
+            return;
+        }
 
         if (!window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`)) return;
 
@@ -1700,6 +1824,256 @@ function RealmPageContent() {
                         }
                     }}
                 />
+
+                {/* Monolith of Devotion (Pyramid) Modal */}
+                {pyramidEvent?.open && (
+                    <Dialog open={pyramidEvent.open} onOpenChange={() => setPyramidEvent(null)}>
+                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 relative">
+                            <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
+                            <DialogHeader className="text-center items-center">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">
+                                    <Crown className="w-3 h-3" />
+                                    Monolith of Devotion
+                                </div>
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                    The Sun Pyramid
+                                </DialogTitle>
+                                <DialogDescription className="text-zinc-400 text-center leading-relaxed">
+                                    An ancient structure built to celebrate unbroken discipline. Its gates only open for the fully committed.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="flex flex-col items-center justify-center my-6 space-y-4">
+                                <div className="text-6xl filter drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+                                    {pyramidEvent.success ? "🔱" : "🔒"}
+                                </div>
+                                <div className="text-center">
+                                    {pyramidEvent.success ? (
+                                        <p className="text-green-400 font-bold text-lg">Daily Habits Complete!</p>
+                                    ) : (
+                                        <p className="text-amber-500/80 font-medium text-sm">Habits Incomplete</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {pyramidEvent.success ? (
+                                    <>
+                                        <p className="text-sm text-zinc-300 text-center leading-relaxed">
+                                            The glyphs on the pyramid walls glow with warm solar energy. Your devotion has awakened the monolith!
+                                        </p>
+                                        <Button
+                                            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold font-serif py-3 rounded-xl shadow-lg shadow-amber-950/40"
+                                            onClick={() => {
+                                                const today = new Date().toDateString();
+                                                const lastClaimed = localStorage.getItem('pyramid-last-claimed');
+                                                if (lastClaimed === today) {
+                                                    toast({
+                                                        title: "Already Claimed",
+                                                        description: "You have already received the Monolith's blessing today. Return tomorrow!",
+                                                    });
+                                                } else {
+                                                    gainGold(50, 'pyramid-event');
+                                                    gainExperience(100, 'pyramid-event');
+                                                    localStorage.setItem('pyramid-last-claimed', today);
+                                                    toast({
+                                                        title: "Devotion Awakened! ☀️",
+                                                        description: "You received +50 Gold and +100 XP!",
+                                                    });
+                                                }
+                                                setPyramidEvent(null);
+                                            }}
+                                        >
+                                            Claim Solar Blessing ☀️
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="text-sm text-zinc-400 text-center leading-relaxed">
+                                            The Monolith stands silent and cold. Finish all your daily habits in the quest log to unlock its ancient power.
+                                        </p>
+                                        <Button
+                                            className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:bg-zinc-850 py-3 rounded-xl font-bold"
+                                            onClick={() => setPyramidEvent(null)}
+                                        >
+                                            Return to Journey
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                )}
+
+                {/* Whispering Well of Focus Modal */}
+                {wellEvent?.open && (
+                    <Dialog open={wellEvent.open} onOpenChange={() => setWellEvent(null)}>
+                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 relative">
+                            <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
+                            <DialogHeader className="text-center items-center">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
+                                    <Compass className="w-3 h-3" />
+                                    Whispering Well
+                                </div>
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                    Well of Focus
+                                </DialogTitle>
+                                <DialogDescription className="text-zinc-400 text-center leading-relaxed">
+                                    Peer into the ancient waters. Seal a focus pact on a single daily task to summon a treasure chest.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            {wellEvent.loading ? (
+                                <div className="h-40 flex items-center justify-center text-amber-500/50 animate-pulse">
+                                    Consulting the water spirits...
+                                </div>
+                            ) : wellEvent.pact ? (
+                                <div className="space-y-4 my-4">
+                                    <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 text-center">
+                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Active Pact</p>
+                                        <p className="text-lg font-bold text-amber-400 font-serif">"{wellEvent.pact.habitName}"</p>
+                                        <p className="text-xs text-zinc-400 mt-2">
+                                            {wellEvent.pact.completed ? (
+                                                <span className="text-green-400 font-bold">✨ TASK COMPLETED! ✨</span>
+                                            ) : (
+                                                <span>Status: Incomplete in Quest Log</span>
+                                            )}
+                                        </p>
+                                    </div>
+
+                                    {wellEvent.pact.completed ? (
+                                        <Button
+                                            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                            onClick={async () => {
+                                                const rewards = [
+                                                    { id: 'material-wood', name: 'Elder Wood', quantity: 4, emoji: '🪵', type: 'material', category: 'material', rarity: 'common' },
+                                                    { id: 'material-stone', name: 'Ironstone Blocks', quantity: 3, emoji: '🪨', type: 'material', category: 'material', rarity: 'common' },
+                                                    { id: 'material-iron', name: 'Raw Iron Ore', quantity: 2, emoji: '⛏️', type: 'material', category: 'material', rarity: 'uncommon' },
+                                                    { id: 'material-crystal', name: 'Ember Crystals', quantity: 2, emoji: '💎', type: 'material', category: 'material', rarity: 'rare' },
+                                                    { id: 'food-red', name: 'Crimson Fish Food', quantity: 3, emoji: '🐠', type: 'food', category: 'food', rarity: 'common' }
+                                                ];
+                                                
+                                                const rand1 = rewards[Math.floor(Math.random() * rewards.length)];
+                                                const rand2 = rewards[(Math.floor(Math.random() * rewards.length) + 1) % rewards.length];
+                                                
+                                                if (userId && rand1 && rand2) {
+                                                    await import('@/lib/inventory-manager').then(async (mod) => {
+                                                        await mod.addToInventory(userId, rand1);
+                                                        await mod.addToInventory(userId, rand2);
+                                                    });
+                                                }
+                                                gainGold(30, 'well-event');
+                                                
+                                                localStorage.removeItem('well-focus-pact');
+                                                toast({
+                                                    title: "Focus Pact Fulfilled! 📦",
+                                                    description: `You obtained 30 Gold, ${rand1?.quantity}x ${rand1?.name}, and ${rand2?.quantity}x ${rand2?.name}!`,
+                                                });
+                                                setWellEvent(null);
+                                            }}
+                                        >
+                                            Open Focus Chest 🎁
+                                        </Button>
+                                    ) : (
+                                        <>
+                                            <p className="text-xs text-zinc-400 text-center">
+                                                Complete this task in your daily Quest board to unlock the well's floating chest!
+                                            </p>
+                                            <Button
+                                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
+                                                onClick={() => setWellEvent(null)}
+                                            >
+                                                Return to Map
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-4 my-4">
+                                    <p className="text-xs text-zinc-400 text-center leading-relaxed">
+                                        Choose one uncompleted task from your Quest board. Pledging to focus on it will seal a pact. Complete it to claim your reward chest!
+                                    </p>
+                                    {wellEvent.availableHabits.length === 0 ? (
+                                        <p className="text-sm text-center text-green-400 font-bold py-4">
+                                            All habits are complete today! Return tomorrow to seal a new pact.
+                                        </p>
+                                    ) : (
+                                        <ScrollArea className="max-h-[160px] border border-zinc-850 rounded-lg p-2 bg-zinc-900/40">
+                                            <div className="space-y-2">
+                                                {wellEvent.availableHabits.map((habit: any) => (
+                                                    <div 
+                                                        key={habit.id}
+                                                        onClick={() => {
+                                                            const today = new Date().toDateString();
+                                                            localStorage.setItem('well-focus-pact', JSON.stringify({
+                                                                habitId: habit.id,
+                                                                habitName: habit.name || habit.title,
+                                                                targetDate: today,
+                                                                completed: false
+                                                            }));
+                                                            toast({
+                                                                title: "Pact Sealed 📜",
+                                                                description: `You have sworn a pact of focus on "${habit.name || habit.title}"!`,
+                                                            });
+                                                            setWellEvent(null);
+                                                        }}
+                                                        className="p-2 border border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/5 rounded-lg text-xs cursor-pointer transition-all flex items-center justify-between"
+                                                    >
+                                                        <span className="font-medium text-zinc-200">{habit.name || habit.title}</span>
+                                                        <span className="text-[10px] text-blue-400 uppercase font-bold tracking-wider">{habit.category}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </ScrollArea>
+                                    )}
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 py-2.5 rounded-xl text-xs"
+                                        onClick={() => setWellEvent(null)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+
+                {/* Sphinx's Gates Modal */}
+                {sphinxEvent?.open && (
+                    <Dialog open={sphinxEvent.open} onOpenChange={() => setSphinxEvent(null)}>
+                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-900 text-zinc-100 overflow-hidden p-6 relative">
+                            <div className="absolute inset-0 bg-red-950/10 opacity-30 pointer-events-none blur-[100px]" />
+                            <DialogHeader className="text-center items-center">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-red-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-red-400">
+                                    <ShieldCheck className="w-3 h-3" />
+                                    Sphinx's Gates
+                                </div>
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                    Halt, Adventurer!
+                                </DialogTitle>
+                            </DialogHeader>
+
+                            <div className="flex flex-col items-center justify-center my-6 space-y-4">
+                                <div className="text-6xl filter drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                                    🦁🚪🦁
+                                </div>
+                                <div className="text-center space-y-2">
+                                    <p className="text-red-400 font-bold text-lg font-serif">Passage Blocked!</p>
+                                    <p className="text-sm text-zinc-400 max-w-[280px] mx-auto leading-relaxed">
+                                        "Only those who have completed at least <span className="text-amber-400 font-bold">3 daily habits</span> today may pass through our gates. You have only completed <span className="text-red-400 font-bold">{sphinxEvent.completedCount}</span>."
+                                    </p>
+                                </div>
+                            </div>
+
+                            <Button
+                                className="w-full bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 text-white font-bold font-serif py-3 rounded-xl"
+                                onClick={() => setSphinxEvent(null)}
+                            >
+                                Revert and Complete Quests
+                            </Button>
+                        </DialogContent>
+                    </Dialog>
+                )}
 
                 {/* Passive Rewards Treasury UI */}
                 {passiveRewards && (passiveRewards.gold > 0 || passiveRewards.xp > 0) && (
