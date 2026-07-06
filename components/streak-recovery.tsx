@@ -200,6 +200,60 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
     }
   };
 
+  const handleReconstructStreakWithResilience = async () => {
+    if (!token) {
+      return;
+    }
+
+    if (resiliencePoints < 20) {
+      toast({
+        title: 'Insufficient Resilience Points',
+        description: 'You need 20 resilience points to reconstruct your streak',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoadingAction('reconstruct_resilience');
+    try {
+      const res = await fetch('/api/streaks-direct', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category,
+          action: 'reconstruct_streak_with_resilience'
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast({
+          title: 'Streak Reconstructed! ⚡',
+          description: data.message,
+        });
+        onStreakUpdate();
+      } else {
+        toast({
+          title: 'Cannot Reconstruct Streak',
+          description: data.error,
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to reconstruct streak',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
   const handleComebackChallenge = async (challengeName: string) => {
     if (!token) {
       // Removed debugging log
@@ -474,6 +528,33 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
               >
                 {loadingAction === 'reconstruct' ? 'Reconstructing...' :
                   buildTokens < 5 ? 'Need 5 Build Tokens' : 'Reconstruct Streak'}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Streak Reconstruction with Resilience */}
+          <Card className="border-blue-800/30 bg-blue-900/10" aria-label="streak-reconstruction-resilience-card">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-blue-400">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                Resilience Restoration
+              </CardTitle>
+              <CardDescription>
+                Restore your broken streak to {maxStreakAchieved} days using Resilience Points
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-zinc-400">Cost: 20 Resilience Points</span>
+                <span className="text-sm text-zinc-300">You have: {resiliencePoints}</span>
+              </div>
+              <Button
+                onClick={handleReconstructStreakWithResilience}
+                disabled={loadingAction === 'reconstruct_resilience' || resiliencePoints < 20}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loadingAction === 'reconstruct_resilience' ? 'Reconstructing...' :
+                  resiliencePoints < 20 ? 'Need 20 Resilience Points' : 'Restore Streak'}
               </Button>
             </CardContent>
           </Card>

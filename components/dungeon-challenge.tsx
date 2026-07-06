@@ -41,10 +41,36 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
   const [timeLeft, setTimeLeft] = useState<number>(60)
   const [timerActive, setTimerActive] = useState<boolean>(false)
 
+  const [stats, setStats] = useState({ attack: 0, defense: 0 })
+
+  useEffect(() => {
+    const fetchEquippedStats = async () => {
+      try {
+        const res = await fetch('/api/inventory?equipped=true');
+        if (res.ok) {
+          const items = await res.json();
+          let attack = 0;
+          let defense = 0;
+          if (Array.isArray(items)) {
+            items.forEach((item: any) => {
+              const itemStats = item.stats || {};
+              if (itemStats.attack) attack += itemStats.attack;
+              if (itemStats.defense) defense += itemStats.defense;
+            });
+          }
+          setStats({ attack, defense });
+        }
+      } catch (err) {
+        console.error('Failed to load equipped stats:', err);
+      }
+    };
+    fetchEquippedStats();
+  }, []);
+
   // Initialize game
   useEffect(() => {
     initializeGame()
-  }, [difficulty, dungeonLevel])
+  }, [difficulty, dungeonLevel, stats.defense])
 
   // Timer effect
   useEffect(() => {
@@ -73,7 +99,8 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
 
     // Set time based on difficulty
     const levelTime = difficulty === "easy" ? 60 : difficulty === "medium" ? 50 : 40
-    setTimeLeft(levelTime)
+    const defenseBonus = stats.defense * 2; // +2s per defense point
+    setTimeLeft(levelTime + defenseBonus)
 
     // Create cards based on difficulty and level
     let numPairs = 4 // Base number of pairs
@@ -248,6 +275,18 @@ export function DungeonChallenge({ difficulty, onComplete }: DungeonChallengePro
           </div>
         </div>
       </div>
+
+      {/* Gear Defense bonus info */}
+      {stats.defense > 0 && !gameOver && (
+        <div className="mb-4 bg-blue-950/20 border border-blue-500/20 rounded-lg p-2.5 flex items-center justify-between text-xs text-blue-200">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-blue-500 animate-pulse" />
+            <span>
+              Shield Defense bonus +{stats.defense}: Shield protection added +{stats.defense * 2}s to the timer!
+            </span>
+          </div>
+        </div>
+      )}
 
       {gameOver ? (
         <div 

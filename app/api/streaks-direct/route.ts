@@ -5,10 +5,15 @@ import { supabaseServer } from '../../../lib/supabase/server-client'
 
 // Check if recovery columns exist in the database
 async function checkRecoveryColumnsExist(): Promise<boolean> {
-  // TEMPORARY: Disable recovery features to fix 500 errors
-  // TODO: Re-enable after basic functionality is working
-  // Recovery features temporarily disabled for stability
-  return false;
+  try {
+    const { error } = await supabaseServer
+      .from('streaks')
+      .select('resilience_points')
+      .limit(1);
+    return !error;
+  } catch {
+    return false;
+  }
 }
 
 // Get column list based on what's available
@@ -349,10 +354,14 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    // Get current streak data (only select columns that exist)
+    const selectColumns = hasRecoveryColumns
+      ? 'streak_days, week_streaks, resilience_points, safety_net_used, missed_days_this_week, streak_broken_date, max_streak_achieved'
+      : 'streak_days, week_streaks';
+
+    // Get current streak data
     const { data: currentStreak, error: fetchError } = await supabaseServer
       .from('streaks')
-      .select('streak_days, week_streaks')
+      .select(selectColumns)
       .eq('user_id', userId)
       .eq('category', category)
       .single();
@@ -366,16 +375,95 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    // Since recovery features are currently disabled, return error for all actions
+    let updateData: any = {};
+    let response: any = { success: true };
+
+    switch (action) {
+      case 'use_safety_net':
+        if (!currentStreak?.safety_net_used && currentStreak?.missed_days_this_week < 1) {
+          updateData = {
+            safety_net_used: true,
+            missed_days_this_week: (currentStreak?.missed_days_this_week || 0) + 1,
+            last_activity_date: new Date().toISOString().slice(0, 10)
+          };
+          response.message = 'Safety net activated! Your streak is protected for this missed day.';
+        } else {
+          return NextResponse.json({
+            error: 'Safety net already used this week or too many missed days'
+          }, { status: 400 });
+        }
+        break;
+
+      case 'reconstruct_streak':
+        const { cost = 5 } = body;
+        if (currentStreak?.streak_broken_date) {
+          updateData = {
+            streak_days: currentStreak.max_streak_achieved || 0,
+            streak_broken_date: null,
+            last_activity_date: new Date().toISOString().slice(0, 10)
+          };
+          response.message = `Streak reconstructed! Restored to ${currentStreak.max_streak_achieved} days.`;
+          response.buildTokensCost = cost;
+        } else {
+          return NextResponse.json({
+            error: 'No broken streak to reconstruct'
+          }, { status: 400 });
+        }
+        break;
+
+      case 'reconstruct_streak_with_resilience':
+        if (currentStreak?.streak_broken_date) {
+          const resPoints = currentStreak.resilience_points || 0;
+          if (resPoints < 20) {
+            return NextResponse.json({
+              error: 'Insufficient resilience points. You need 20 resilience points to reconstruct.'
+            }, { status: 400 });
+          }
+          updateData = {
+            streak_days: currentStreak.max_streak_achieved || 0,
+            streak_broken_date: null,
+            resilience_points: resPoints - 20,
+            last_activity_date: new Date().toISOString().slice(0, 10),
+          };
+          response.message = `Streak reconstructed! Restored to ${currentStreak.max_streak_achieved} days at the cost of 20 resilience points.`;
+        } else {
+          return NextResponse.json({
+            error: 'No broken streak to reconstruct'
+          }, { status: 400 });
+        }
+        break;
+
+      case 'reset_weekly_safety_net':
+        updateData = {
+          safety_net_used: false,
+          missed_days_this_week: 0
+        };
+        response.message = 'Weekly safety net reset successfully.';
+        break;
+
+      default:
+        return NextResponse.json({
+          error: 'Invalid action'
+        }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseServer
+      .from('streaks')
+      .upsert({
+        user_id: userId,
+        category: category,
+        ...updateData
+      }, { onConflict: 'user_id,category' })
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({
-      error: 'Recovery features are temporarily disabled. Basic streak functionality is available, but recovery actions require database migration.',
-      availableAfterMigration: ['use_safety_net', 'reconstruct_streak', 'reset_weekly_safety_net'],
-      action: action
-    }, {
-      status: 400,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      ...response,
+      data: addDefaultRecoveryValues(data)
     });
 
   } catch (err: any) {

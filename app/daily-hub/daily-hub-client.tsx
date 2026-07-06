@@ -89,6 +89,7 @@ export function DailyHubClient() {
     // Active Perks State & Timer
     const [activePerks, setActivePerks] = useState<any[]>([])
     const [timeState, setTimeState] = useState(Date.now())
+    const [rival, setRival] = useState<{ displayName: string; xpDifference: number } | null>(null)
 
     // Citizens State
     const citizens = useCitizensStore(state => state.citizens);
@@ -104,6 +105,46 @@ export function DailyHubClient() {
             loadCitizens(user.id)
         }
     }, [user])
+
+    useEffect(() => {
+        const loadRivalStats = async () => {
+            if (!user?.id || !stats.experience) return;
+            try {
+                const res = await fetch('/api/leaderboard?sortBy=experience&limit=100');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) {
+                        const myIndex = json.data.findIndex((item: any) => item.userId === user.id);
+                        if (myIndex > 0) {
+                            const rivalItem = json.data[myIndex - 1];
+                            const diff = (rivalItem.value || 0) - stats.experience;
+                            if (diff > 0) {
+                                setRival({
+                                    displayName: rivalItem.displayName,
+                                    xpDifference: diff
+                                });
+                            } else {
+                                setRival(null);
+                            }
+                        } else {
+                            setRival(null);
+                        }
+                    }
+                }
+            } catch (error) {
+                logger.error('Failed to load rival stats:', error);
+            }
+        };
+        loadRivalStats();
+    }, [user?.id, stats.experience]);
+
+    const isAtRisk = useMemo(() => {
+        if (stats.streakDays <= 0) return false;
+        const hasCompletedToday = favoritedQuests.some(q => q.completed);
+        if (hasCompletedToday) return false;
+        const currentHour = new Date(timeState).getHours();
+        return currentHour >= 18; // After 6 PM local time
+    }, [stats.streakDays, favoritedQuests, timeState]);
 
     // Cooldown/Timer Tic
     useEffect(() => {
@@ -418,6 +459,40 @@ export function DailyHubClient() {
                         </motion.div>
                     );
                 })()}
+
+                {isAtRisk && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mb-6 border border-red-500/30 bg-gradient-to-br from-red-950/40 via-zinc-950 to-zinc-950 rounded-2xl p-5 relative overflow-hidden shadow-xl"
+                    >
+                        <div className="absolute top-0 right-0 p-6 text-red-500/10 pointer-events-none">
+                            <Flame className="w-24 h-24 animate-pulse" />
+                        </div>
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+                            <div className="flex items-center gap-3">
+                                <span className="text-3xl animate-bounce">⚠️</span>
+                                <div>
+                                    <h4 className="font-bold text-red-400 font-medieval tracking-wide text-lg">Streak Shield Cracking!</h4>
+                                    <p className="text-xs text-zinc-300 max-w-xl font-serif mt-0.5 leading-relaxed">
+                                        Your Day {stats.streakDays} expedition streak is at risk. Complete at least one quest before midnight to keep the fire burning, or it will cost 5 Build Tokens or 20 Resilience Points to restore!
+                                    </p>
+                                </div>
+                            </div>
+                            <Button
+                                onClick={() => {
+                                    const element = document.getElementById('favorites-section');
+                                    if (element) {
+                                        element.scrollIntoView({ behavior: 'smooth' });
+                                    }
+                                }}
+                                className="bg-red-700 hover:bg-red-600 text-white font-bold text-xs uppercase tracking-wider shrink-0"
+                            >
+                                Do a Quest Now
+                            </Button>
+                        </div>
+                    </motion.div>
+                )}
 
                 {/* Stats Overview */}
                 <motion.div
@@ -791,6 +866,7 @@ export function DailyHubClient() {
 
                 {/* Favorited Quests */}
                 <motion.div
+                    id="favorites-section"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
@@ -803,6 +879,20 @@ export function DailyHubClient() {
                             </Button>
                         </Link>
                     </div>
+
+                    {rival && (
+                        <div className="mb-4 bg-zinc-900/40 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between text-xs backdrop-blur-sm">
+                            <div className="flex items-center gap-2">
+                                <span className="text-base">👑</span>
+                                <span className="text-zinc-300">
+                                    Your rival <strong className="text-purple-400">{rival.displayName}</strong> is only <strong className="text-yellow-400">{rival.xpDifference} XP</strong> ahead of you.
+                                </span>
+                            </div>
+                            <span className="text-[10px] text-purple-300/80 font-bold uppercase tracking-wider bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 shrink-0">
+                                Close the gap!
+                            </span>
+                        </div>
+                    )}
 
                     {favoritedQuests.length === 0 ? (
                         <Card className="bg-zinc-950 border-amber-900/30 border-dashed">
@@ -913,6 +1003,20 @@ export function DailyHubClient() {
                                 <p className="text-center text-xs text-amber-200/80 font-mono tracking-wide uppercase">
                                     ⚔️ excellent progress on your path to glory ⚔️
                                 </p>
+                                <div className="bg-amber-900/10 border border-amber-500/30 rounded-xl p-3 text-center mb-1">
+                                    <span className="text-[10px] text-amber-300 font-mono uppercase tracking-wider block mb-0.5">Yesterday&apos;s Archetype</span>
+                                    <h4 className="text-xl font-bold text-white font-medieval tracking-wide flex items-center justify-center gap-1.5">
+                                        ✨ {yesterdayReport.archetype || 'Adventurer'} ✨
+                                    </h4>
+                                    <p className="text-[10px] text-zinc-400 mt-1 font-serif">
+                                        {yesterdayReport.archetype === 'Gladiator' && 'You focused heavily on Might and physical challenges.'}
+                                        {yesterdayReport.archetype === 'Grand Mage' && 'You focused heavily on Knowledge and mental growth.'}
+                                        {yesterdayReport.archetype === 'Paladin' && 'You focused heavily on Honor and community habits.'}
+                                        {yesterdayReport.archetype === 'Merchant Lord' && 'You focused heavily on Wealth and discipline.'}
+                                        {yesterdayReport.archetype === 'Cleric' && 'You focused heavily on Heart, wellness, and recovery.'}
+                                        {yesterdayReport.archetype === 'Adventurer' && 'You took balance steps along your path today.'}
+                                    </p>
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
                                         <div className="text-2xl font-bold text-amber-400">⚔️ {yesterdayReport.completedQuestsCount}</div>

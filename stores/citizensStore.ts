@@ -74,8 +74,22 @@ const getMythicType = (cardId: number): 'fire' | 'water' | 'earth' | 'nature' | 
   }
 };
 
+function calculateDecayedAffection(savedAffection: number, lastFedAt: string | null, activeDays: number): number {
+  if (!lastFedAt) return 0;
+  const fedTime = new Date(lastFedAt).getTime();
+  const durationMs = activeDays * 24 * 60 * 60 * 1000;
+  const hungryDurationMs = Math.max(0, Date.now() - (fedTime + durationMs));
+  const hungryDays = Math.floor(hungryDurationMs / (24 * 60 * 60 * 1000));
+  if (hungryDays > 0) {
+    return Math.max(0, savedAffection - hungryDays * 2);
+  }
+  return savedAffection;
+}
+
 function generateGatherDrop(citizen: Citizen): { id: string; name: string; description: string; type: 'consumable'|'material'; emoji: string; image: string; quantity: number } | null {
-  if (Math.random() >= 0.20) return null;
+  const affection = citizen.affection || 0;
+  const dropChance = 0.20 + (affection / 100) * 0.20; // 20% to 40% chance based on affection
+  if (Math.random() >= dropChance) return null;
   let gatheredItem = 'food-red';
   let gatheredName = 'Red Fish';
   let gatheredDesc = 'A red fish';
@@ -216,13 +230,17 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         if (id.startsWith('9')) return; // Exclude animal companions
         if (unlockedAchievementIds.has(id)) {
           const def = CREATURE_DEFINITIONS[id]!;
-          const state: CitizenState = savedPrefs[id] || {
+          const rawState: CitizenState = savedPrefs[id] || {
             active: false,
             favorite: false,
             lastFedAt: null,
             activeDays: 0,
             lastHarvestedAt: null,
             affection: 0
+          };
+          const state = {
+            ...rawState,
+            affection: calculateDecayedAffection(rawState.affection || 0, rawState.lastFedAt, rawState.activeDays)
           };
 
           updatedCitizens.push({
@@ -248,13 +266,17 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         const colorNames = ['red', 'green', 'blue', 'white', 'black'];
         const colorName = colorNames[variantId] || 'red';
         const citizenId = `mythic-${cardId}-${variantId}`;
-        const state: CitizenState = savedPrefs[citizenId] || {
+        const rawState: CitizenState = savedPrefs[citizenId] || {
           active: false,
           favorite: false,
           lastFedAt: null,
           activeDays: 0,
           lastHarvestedAt: null,
           affection: 0
+        };
+        const state = {
+          ...rawState,
+          affection: calculateDecayedAffection(rawState.affection || 0, rawState.lastFedAt, rawState.activeDays)
         };
 
         updatedCitizens.push({
@@ -483,7 +505,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       ? Math.floor(Math.random() * 36) + 40 // 40-75 gold
       : Math.floor(Math.random() * 11) + 15; // 15-25 gold
 
-    const goldAmount = Math.floor(baseGold * (multiplier || 1));
+    const affection = citizen.affection || 0;
+    const affectionScale = 1.0 + (affection / 100) * 0.5; // up to +50% gold
+    const goldAmount = Math.floor(baseGold * affectionScale * (multiplier || 1));
 
     // Award gold
     await gainGold(goldAmount, `citizen-collect:${citizen.name}`);
@@ -546,7 +570,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         ? Math.floor(Math.random() * 36) + 40
         : Math.floor(Math.random() * 11) + 15;
       
-      const goldAmount = baseGold;
+      const affection = citizen.affection || 0;
+      const affectionScale = 1.0 + (affection / 100) * 0.5; // up to +50% gold
+      const goldAmount = Math.floor(baseGold * affectionScale);
       totalGoldCollected += goldAmount;
 
       await gainGold(goldAmount, `autopilot-collect:${citizen.name}`);

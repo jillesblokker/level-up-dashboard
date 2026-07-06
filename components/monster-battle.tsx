@@ -91,14 +91,40 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
   const [goldLost, setGoldLost] = useState(0)
   const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
+  const [stats, setStats] = useState({ attack: 0, defense: 0 })
 
   const monster = monsterData[monsterType]
 
-
+  useEffect(() => {
+    const fetchEquippedStats = async () => {
+      try {
+        const res = await fetch('/api/inventory?equipped=true');
+        if (res.ok) {
+          const items = await res.json();
+          let attack = 0;
+          let defense = 0;
+          if (Array.isArray(items)) {
+            items.forEach((item: any) => {
+              const itemStats = item.stats || {};
+              if (itemStats.attack) attack += itemStats.attack;
+              if (itemStats.defense) defense += itemStats.defense;
+            });
+          }
+          setStats({ attack, defense });
+        }
+      } catch (err) {
+        logger.error('Failed to load equipped stats:', err);
+      }
+    };
+    if (isOpen) {
+      fetchEquippedStats();
+    }
+  }, [isOpen]);
 
   // Generate new sequence for current round
   const generateSequence = useCallback((round: number) => {
-    const roundLength = 2 + round // Starts with 3 items, adds 1 each round
+    const attackBonus = Math.min(2, Math.floor(stats.attack / 8));
+    const roundLength = Math.max(3, 2 + round - attackBonus);
     const newSequence: string[] = []
 
     for (let i = 0; i < roundLength; i++) {
@@ -109,7 +135,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     }
 
     return newSequence
-  }, [])
+  }, [stats.attack])
 
   // Show sequence to player
   const showSequence = useCallback(async (sequenceToShow: string[]) => {
@@ -341,6 +367,18 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               <p className="text-sm text-zinc-400">{monster.description}</p>
             </div>
           </div>
+
+          {/* Gear Bonus Info */}
+          {stats.attack > 0 && (
+            <div className="bg-red-950/20 border border-red-500/20 rounded-lg p-2.5 flex items-center justify-between text-xs text-red-200">
+              <div className="flex items-center gap-2">
+                <Sword className="w-4 h-4 text-red-500 animate-pulse" />
+                <span>
+                  Weapon Attack bonus +{stats.attack}: Enemy matching sequence length reduced by {Math.min(2, Math.floor(stats.attack / 8))}!
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Progress Bar */}
           <div className="space-y-2">

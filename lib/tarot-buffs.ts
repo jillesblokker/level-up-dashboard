@@ -1,4 +1,5 @@
 import { getTodaysCard, TarotCard } from './tarot-data';
+import { getUserScopedItem } from './user-scoped-storage';
 
 export interface BuffedRewards {
     xp: number;
@@ -8,7 +9,7 @@ export interface BuffedRewards {
 }
 
 /**
- * Apply tarot card buffs to quest rewards
+ * Apply tarot card buffs to quest rewards scaled by current streak
  * @param baseXp - Base XP reward
  * @param baseGold - Base gold reward
  * @param questCategory - Category of the quest (e.g., 'might', 'knowledge')
@@ -30,6 +31,30 @@ export function applyTarotBuffs(
         };
     }
 
+    // Retrieve active streak to scale the buff
+    let streak = 0;
+    try {
+        const stored = getUserScopedItem('character-stats');
+        if (stored) {
+            const stats = JSON.parse(stored);
+            streak = stats.streakDays || stats.streak_days || 0;
+        }
+    } catch (e) {
+        // Fallback to 0
+    }
+
+    const scaleBonusMultiplier = (val: number, currentStreak: number) => {
+        if (val > 1.0) {
+            // +2% card potency per streak day
+            return 1.0 + (val - 1.0) * (1.0 + currentStreak * 0.02);
+        }
+        if (val < 1.0) {
+            // Mitigate penalty as streak grows
+            return 1.0 - (1.0 - val) * (1.0 / (1.0 + currentStreak * 0.02));
+        }
+        return 1.0;
+    };
+
     const effect = activeCard.effect;
     let xpMultiplier = 1.0;
     let goldMultiplier = 1.0;
@@ -38,41 +63,45 @@ export function applyTarotBuffs(
     // Determine if buff applies based on card type
     switch (effect.type) {
         case 'xp_boost':
-            // Global XP boost
-            xpMultiplier = effect.xpMultiplier || 1.0;
-            goldMultiplier = effect.goldMultiplier || 1.0;
+            xpMultiplier = scaleBonusMultiplier(effect.xpMultiplier || 1.0, streak);
+            goldMultiplier = scaleBonusMultiplier(effect.goldMultiplier || 1.0, streak);
             buffApplied = true;
             break;
 
         case 'gold_boost':
-            // Global gold boost
-            xpMultiplier = effect.xpMultiplier || 1.0;
-            goldMultiplier = effect.goldMultiplier || 1.0;
+            xpMultiplier = scaleBonusMultiplier(effect.xpMultiplier || 1.0, streak);
+            goldMultiplier = scaleBonusMultiplier(effect.goldMultiplier || 1.0, streak);
             buffApplied = true;
             break;
 
         case 'category_boost':
-            // Category-specific boost
             if (questCategory && effect.category === questCategory) {
-                xpMultiplier = effect.xpMultiplier || 1.0;
-                goldMultiplier = effect.goldMultiplier || 1.0;
+                xpMultiplier = scaleBonusMultiplier(effect.xpMultiplier || 1.0, streak);
+                goldMultiplier = scaleBonusMultiplier(effect.goldMultiplier || 1.0, streak);
                 buffApplied = true;
             }
             break;
 
         case 'mixed':
-            // Mixed effects (e.g., double XP, half gold)
-            xpMultiplier = effect.xpMultiplier || 1.0;
-            goldMultiplier = effect.goldMultiplier || 1.0;
+            xpMultiplier = scaleBonusMultiplier(effect.xpMultiplier || 1.0, streak);
+            goldMultiplier = scaleBonusMultiplier(effect.goldMultiplier || 1.0, streak);
             buffApplied = true;
             break;
     }
 
+    const finalXp = Math.floor(baseXp * xpMultiplier);
+    const finalGold = Math.floor(baseGold * goldMultiplier);
+
+    let displayMessage = effect.message;
+    if (buffApplied && streak > 0) {
+        displayMessage = `${effect.message} (Scaled +${streak * 2}% by Day ${streak} Streak)`;
+    }
+
     return {
-        xp: Math.floor(baseXp * xpMultiplier),
-        gold: Math.floor(baseGold * goldMultiplier),
+        xp: finalXp,
+        gold: finalGold,
         buffApplied,
-        buffMessage: buffApplied ? `${activeCard.symbol} ${activeCard.name}: ${effect.message} ` : undefined
+        buffMessage: buffApplied ? `${activeCard.symbol} ${activeCard.name}: ${displayMessage}` : undefined
     };
 }
 
@@ -83,8 +112,24 @@ export function getActiveTarotBuff(): { card: TarotCard; message: string } | nul
     const activeCard = getTodaysCard();
     if (!activeCard) return null;
 
+    let streak = 0;
+    try {
+        const stored = getUserScopedItem('character-stats');
+        if (stored) {
+            const stats = JSON.parse(stored);
+            streak = stats.streakDays || stats.streak_days || 0;
+        }
+    } catch (e) {
+        // Fallback to 0
+    }
+
+    let displayMessage = activeCard.effect.message;
+    if (streak > 0) {
+        displayMessage = `${activeCard.effect.message} (Scaled +${streak * 2}% by Day ${streak} Streak)`;
+    }
+
     return {
         card: activeCard,
-        message: `${activeCard.symbol} ${activeCard.name} is active: ${activeCard.effect.message} `
+        message: `${activeCard.symbol} ${activeCard.name} is active: ${displayMessage}`
     };
 }
