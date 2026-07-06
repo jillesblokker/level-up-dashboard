@@ -84,6 +84,7 @@ export function DailyHubClient() {
         goldEarned: number;
         xpEarned: number;
         milestonesUnlocked: number;
+        archetype?: string;
     } | null>(null)
 
     // Active Perks State & Timer
