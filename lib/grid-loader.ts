@@ -226,7 +226,10 @@ export const numericToTileType: { [key: number]: TileType } = {
   72: 'frostfire-obelisk',
   73: 'fairy-ring',
   74: 'settlement',
-  75: 'megapolis'
+  75: 'megapolis',
+  76: 'mystic-obelisk',
+  77: 'golden-pantheon',
+  78: 'plank-labyrinth'
 }
 
 // Create the reverse mapping from TileType to numeric

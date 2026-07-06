@@ -226,7 +226,10 @@ export class MapGenerator {
       'frostfire-obelisk': 'Frostfire Obelisk',
       'fairy-ring': 'Fairy Ring',
       'settlement': 'Settlement',
-      'megapolis': 'Megapolis'
+      'megapolis': 'Megapolis',
+      'mystic-obelisk': 'Mystic Obelisk',
+      'golden-pantheon': 'Golden Pantheon',
+      'plank-labyrinth': 'Plank Labyrinth'
     };
 
     const tileDescriptions = {
@@ -307,7 +310,10 @@ export class MapGenerator {
       'frostfire-obelisk': 'A frozen monument that can seal a daily streak freeze pact or award glacial shards',
       'fairy-ring': 'A mystical circle of toadstools where pixies trade resources and play luck games',
       'settlement': 'A small rustic settlement with a local marketplace shop',
-      'megapolis': 'A grand megapolis protected by concentric walls containing six unique trade districts'
+      'megapolis': 'A grand megapolis protected by concentric walls containing six unique trade districts',
+      'mystic-obelisk': 'A celestial spire that grants the Astral Fortune perk (+15% unowned scratch card chance)',
+      'golden-pantheon': 'A magnificent golden temple yielding massive wealth and rare Crown card packs daily',
+      'plank-labyrinth': 'A complex puzzle maze of wooden planks. Solve it to retrieve legendary treasures!'
     };
 
     const tileImages = {
@@ -388,7 +394,10 @@ export class MapGenerator {
       'frostfire-obelisk': '/images/tiles/frostfire-obelisk-tile.png',
       'fairy-ring': '/images/tiles/fairy-ring-tile.png',
       'settlement': '/images/tiles/settlement-tile.webp',
-      'megapolis': '/images/tiles/megapolis-tile.webp'
+      'megapolis': '/images/tiles/megapolis-tile.webp',
+      'mystic-obelisk': '/images/tiles/mystic-obelisk-tile.webp',
+      'golden-pantheon': '/images/tiles/golden-pantheon-tile.webp',
+      'plank-labyrinth': '/images/tiles/plank-labyrinth-tile.webp'
     };
 
     return {

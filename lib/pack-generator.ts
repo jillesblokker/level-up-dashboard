@@ -206,13 +206,30 @@ function pickVariantIndex(random = Math.random) {
     return 4; // Black
 }
 
-export function generatePack(packTypeId = "starter", random = Math.random) {
+export function generatePack(
+  packTypeId = "starter",
+  random = Math.random,
+  ownedCards?: { cardId: number; variantId: number }[],
+  hasAstralFortune = false
+) {
   const packType = PACK_TYPE_BY_ID.get(packTypeId) ?? PACK_TYPES[0]!;
   
   // Generating a simple 9-card scratch pack (like typical 3x3)
   // For the scratch off logic: the user must find 3 matching cards to "win" it.
-  const winner = pickWeightedCard(random)!;
-  const winnerVariant = pickVariantIndex(random);
+  let winner = pickWeightedCard(random)!;
+  let winnerVariant = pickVariantIndex(random);
+
+  // If Astral Fortune is active, attempt to roll an unowned card
+  if (hasAstralFortune && ownedCards && ownedCards.length > 0) {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const isOwned = ownedCards.some(oc => oc.cardId === winner.number && oc.variantId === winnerVariant);
+      if (!isOwned) {
+        break; // Found unowned card!
+      }
+      winner = pickWeightedCard(random)!;
+      winnerVariant = pickVariantIndex(random);
+    }
+  }
   
   // The winner must appear 3 times.
   const numbers = [winner.number, winner.number, winner.number];

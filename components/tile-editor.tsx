@@ -167,6 +167,12 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
         return '/images/tiles/settlement-tile.webp'
       case 'megapolis':
         return '/images/tiles/megapolis-tile.webp'
+      case 'mystic-obelisk':
+        return '/images/tiles/mystic-obelisk-tile.webp'
+      case 'golden-pantheon':
+        return '/images/tiles/golden-pantheon-tile.webp'
+      case 'plank-labyrinth':
+        return '/images/tiles/plank-labyrinth-tile.webp'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

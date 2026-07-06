@@ -77,7 +77,10 @@ export type TileType =
   | 'frostfire-obelisk'
   | 'fairy-ring'
   | 'settlement'
-  | 'megapolis';
+  | 'megapolis'
+  | 'mystic-obelisk'
+  | 'golden-pantheon'
+  | 'plank-labyrinth';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

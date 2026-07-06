@@ -79,6 +79,9 @@ export function getTileName(type: TileType): string {
     'fairy-ring': 'Fairy Ring',
     'settlement': 'Settlement',
     'megapolis': 'Megapolis',
+    'mystic-obelisk': 'Mystic Obelisk',
+    'golden-pantheon': 'Golden Pantheon',
+    'plank-labyrinth': 'Plank Labyrinth',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -162,6 +165,9 @@ export function getDefaultConnections(type: TileType): string[] {
     'fairy-ring': ['grass', 'forest'],
     'settlement': ['grass', 'forest', 'water'],
     'megapolis': ['grass', 'mountain', 'water'],
+    'mystic-obelisk': ['grass', 'forest', 'mountain'],
+    'golden-pantheon': ['grass', 'city', 'town', 'castle'],
+    'plank-labyrinth': ['grass', 'forest', 'swamp'],
   };
   return defaultConnections[type] || [];
 } 

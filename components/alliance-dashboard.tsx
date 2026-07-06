@@ -574,10 +574,10 @@ export function AllianceDashboard() {
                 <PackOpeningModal 
                     packData={openingPack} 
                     onClose={() => setOpeningPack(null)} 
-                    onClaimed={() => {
+                    onClaimed={(isNew) => {
                         toast({
-                            title: "Card Claimed!",
-                            description: "The reward has been added to your collection."
+                            title: isNew ? "NEW Mythic Discovered! 🎉" : "Card Claimed!",
+                            description: isNew ? "A new creature has been unlocked in your collection." : "The reward has been added to your collection."
                         });
                     }} 
                 />

@@ -78,6 +78,7 @@ const KingdomGridWithTimers = dynamic(() => import("@/components/kingdom-grid-wi
 const KingdomPropertiesInventory = dynamic(() => import("@/components/kingdom-properties-inventory").then(m => m.KingdomPropertiesInventory), { ssr: false });
 const KingdomTileGrid = dynamic(() => import("@/components/kingdom-tile-grid").then(m => m.KingdomTileGrid), { ssr: false });
 const KingdomGuide = dynamic(() => import("@/components/kingdom/kingdom-guide").then(m => m.KingdomGuide), { ssr: false });
+const PackOpeningModal = dynamic(() => import("@/components/pack-opening-modal").then(m => m.PackOpeningModal), { ssr: false });
 import { KingdomBonusesBlock } from "@/components/kingdom/kingdom-bonuses-block";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 
@@ -469,6 +470,7 @@ export function KingdomClient() {
   const [gridLoading, setGridLoading] = useState(true);
   const [soldItem, setSoldItem] = useState<{ name: string; gold: number } | null>(null);
   const [sellingModalOpen, setSellingModalOpen] = useState(false);
+  const [openingPack, setOpeningPack] = useState<any>(null);
 
 
   const [userTokens, setUserTokens] = useState(0);
@@ -490,6 +492,42 @@ export function KingdomClient() {
         .catch(err => logger.error('Failed to load journey stats', err));
     }
   }, [activeTab, kingdomTab]);
+
+  useEffect(() => {
+    const handleOpenPack = async (e: Event) => {
+      const { packType } = (e as CustomEvent).detail;
+      let owned: any[] = [];
+      let astral = false;
+      try {
+        const res = await fetch('/api/packs/mythics');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.mythics) {
+            owned = json.mythics.map((m: any) => ({
+              cardId: parseInt(m.card_id, 10),
+              variantId: parseInt(m.variant_id, 10)
+            }));
+          }
+        }
+      } catch (err) {}
+      try {
+        const res = await fetch('/api/active-perks');
+        if (res.ok) {
+          const json = await res.json();
+          const list = json.data || [];
+          const now = new Date();
+          astral = list.some((p: any) => p.perk_name === 'Astral Fortune' && new Date(p.expires_at) > now);
+        }
+      } catch (err) {}
+
+      const { generatePack } = await import('@/lib/pack-generator');
+      const pack = generatePack(packType, Math.random, owned, astral);
+      setOpeningPack(pack);
+    };
+
+    window.addEventListener('open-card-pack', handleOpenPack);
+    return () => window.removeEventListener('open-card-pack', handleOpenPack);
+  }, []);
 
   const isInventoryLoadingRef = useRef(false);
 
@@ -1968,6 +2006,19 @@ export function KingdomClient() {
       </Dialog>
 
       {/* Kingdom Properties Inventory Overlay was moved to kingdom-grid-with-timers */}
+
+      {openingPack && (
+        <PackOpeningModal 
+          packData={openingPack} 
+          onClose={() => setOpeningPack(null)} 
+          onClaimed={(isNew) => {
+            toast({
+              title: isNew ? "NEW Mythic Discovered! 🎉" : "Card Claimed!",
+              description: isNew ? "A new creature has been unlocked in your collection." : "It has been added to your Mythics collection."
+            });
+          }} 
+        />
+      )}
     </div>
   );
 }

@@ -80,6 +80,45 @@ export default function MarketPage() {
     return () => clearInterval(timer)
   }, [])
 
+  const [ownedMythics, setOwnedMythics] = useState<{ cardId: number; variantId: number }[]>([]);
+  const [hasAstralFortune, setHasAstralFortune] = useState(false);
+
+  useEffect(() => {
+    const loadMythics = async () => {
+      try {
+        const res = await fetch('/api/packs/mythics');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.mythics) {
+            setOwnedMythics(json.mythics.map((m: any) => ({
+              cardId: parseInt(m.card_id, 10),
+              variantId: parseInt(m.variant_id, 10)
+            })));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load owned mythics:', err);
+      }
+    };
+    loadMythics();
+
+    const checkPerks = async () => {
+      try {
+        const res = await fetch('/api/active-perks');
+        if (res.ok) {
+          const json = await res.json();
+          const list = json.data || [];
+          const now = new Date();
+          const hasAstral = list.some((p: any) => p.perk_name === 'Astral Fortune' && new Date(p.expires_at) > now);
+          setHasAstralFortune(hasAstral);
+        }
+      } catch (err) {
+        console.error('Failed to load active perks for market:', err);
+      }
+    };
+    checkPerks();
+  }, [openingPack]);
+
   const isPackOnCooldown = (pack: any) => {
     if (!pack.cooldownType) return false
     const lastClaimed = claimedTimestamps[pack.id]
@@ -314,7 +353,7 @@ export default function MarketPage() {
     }
     
     // Generate and open pack
-    const pack = generatePack(packType.id)
+    const pack = generatePack(packType.id, Math.random, ownedMythics, hasAstralFortune)
     setOpeningPack(pack)
   }
 
@@ -763,10 +802,10 @@ export default function MarketPage() {
         <PackOpeningModal 
           packData={openingPack} 
           onClose={() => setOpeningPack(null)} 
-          onClaimed={() => {
+          onClaimed={(isNew) => {
             toast({
-              title: "Card Claimed!",
-              description: "It has been added to your Mythics collection."
+              title: isNew ? "NEW Mythic Discovered! 🎉" : "Card Claimed!",
+              description: isNew ? "A new creature has been unlocked in your collection." : "It has been added to your Mythics collection."
             })
           }} 
         />

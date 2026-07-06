@@ -27,6 +27,7 @@ import { TileActionSheet } from '@/components/tile-action-sheet'
 import { KingdomSummaryModal } from './kingdom-summary-modal'
 import { FortuneTellerModal } from './fortune-teller-modal'
 import { useGameStore } from '@/stores/game-store'
+import { PlankPuzzleModal } from './plank-puzzle-modal'
 
 
 // Game managers will be loaded dynamically to keep the initial bundle light
@@ -424,6 +425,8 @@ export function KingdomGridWithTimers({
 
   const [fortuneModalOpen, setFortuneModalOpen] = useState(false);
   const [fortuneTileData, setFortuneTileData] = useState<{x: number, y: number, tileId: string} | null>(null);
+  const [plankModalOpen, setPlankModalOpen] = useState(false);
+  const [plankTileData, setPlankTileData] = useState<{ x: number, y: number } | null>(null);
 
   // Batch collection state
   const [showSummaryModal, setShowSummaryModal] = useState(false)
@@ -1321,6 +1324,16 @@ export function KingdomGridWithTimers({
       }
       return;
     }
+    if (tile.type === 'plank-labyrinth') {
+      const activeTimer = tileTimers.find(t => t.x === x && t.y === y && t.tileId === tile.type);
+      if (activeTimer && !activeTimer.isReady) {
+        toast({ title: "Labyrinth Locked", description: "The Plank Labyrinth is resetting. Come back later." });
+      } else {
+        setPlankTileData({ x, y });
+        setPlankModalOpen(true);
+      }
+      return;
+    }
     if (tile.type === 'monument') {
       toast({ title: "Viewing Hall of Fame...", description: "Going to Achievements." });
       router.push('/achievements');
@@ -1360,7 +1373,8 @@ export function KingdomGridWithTimers({
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
       tile.type === 'well' || tile.type === 'windmill' ||
       tile.type === 'fountain' ||
-      tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower')) {
+      tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower' ||
+      tile.type === 'mystic-obelisk' || tile.type === 'golden-pantheon')) {
 
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
@@ -1459,6 +1473,76 @@ export function KingdomGridWithTimers({
           }
         })()
 
+      let finalMessage = kingdomTile.clickMessage;
+
+      // Handle Mystic Obelisk special effect
+      if (kingdomTile.id === 'mystic-obelisk') {
+        const expiry = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+        fetch('/api/active-perks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            perk_name: 'Astral Fortune',
+            effect: '+15% unowned scratch card chance',
+            expires_at: expiry
+          })
+        }).then(() => {
+          try {
+            const stored = localStorage.getItem('active-potion-perks');
+            const perks = stored ? JSON.parse(stored) : {};
+            perks['Astral Fortune'] = {
+              effect: '+15% unowned scratch card chance',
+              expiresAt: expiry
+            };
+            localStorage.setItem('active-potion-perks', JSON.stringify(perks));
+          } catch (e) {}
+        }).catch(err => console.error(err));
+      }
+
+      // Handle Golden Pantheon special drops
+      if (kingdomTile.id === 'golden-pantheon') {
+        const roll = Math.random();
+        if (roll < 0.35) {
+          const subRoll = Math.random();
+          if (subRoll < 0.33) {
+            finalMessage += " Special reward: Dropped a bonus Crown card pack!";
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('open-card-pack', { detail: { packType: 'crown' } }));
+            }
+          } else if (subRoll < 0.66) {
+            finalMessage += " Special reward: Found 5 bonus Gems!";
+            (async () => {
+              try {
+                const { statsService } = await loadManagers();
+                const currentStats = statsService.getCharacterStats();
+                const newGems = (currentStats.gems || 0) + 5;
+                await statsService.updateCharacterStats({ gems: newGems }, 'golden-pantheon-bonus');
+                setGemBalance(newGems);
+              } catch (err) {}
+            })();
+          } else {
+            finalMessage += " Special reward: Acquired 500 Ember Essence!";
+            (async () => {
+              try {
+                const { invManager } = await loadManagers();
+                await invManager.addToKingdomInventory(userId, {
+                  id: 'material-essence',
+                  name: 'Ember Essence',
+                  type: 'resource',
+                  quantity: 500,
+                  image: '/images/items/materials/material-essence.webp',
+                  description: 'Powerful magical essence used for upgrades.',
+                  emoji: '✨',
+                  stats: {},
+                  category: 'material',
+                  rarity: 'epic'
+                });
+              } catch (err) {}
+            })();
+          }
+        }
+      }
+
       // Show modal with rewards
       setModalData({
         tileName: kingdomTile.name,
@@ -1469,7 +1553,7 @@ export function KingdomGridWithTimers({
           type: kingdomTile.itemType
         } : undefined,
         isLucky: wasLucky,
-        message: kingdomTile.clickMessage
+        message: finalMessage
       })
 
       // If lucky, show celebration first, then modal
@@ -2278,7 +2362,7 @@ export function KingdomGridWithTimers({
             handleUpgradeTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         }}
-        onEnter={actionSheetTile && ['dungeon', 'market', 'quest-board', 'monument', 'tavern', 'castle', 'library', 'training-grounds', 'crystal_cavern'].includes(actionSheetTile.tile.type) ? () => {
+        onEnter={actionSheetTile && ['dungeon', 'market', 'quest-board', 'monument', 'tavern', 'castle', 'library', 'training-grounds', 'crystal_cavern', 'plank-labyrinth'].includes(actionSheetTile.tile.type) ? () => {
           if (actionSheetTile) {
             handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
@@ -2325,6 +2409,53 @@ export function KingdomGridWithTimers({
                 isReady: false
               }
             ])
+          }}
+        />
+      )}
+      {plankModalOpen && plankTileData && (
+        <PlankPuzzleModal
+          isOpen={plankModalOpen}
+          onClose={() => {
+            setPlankModalOpen(false);
+            setPlankTileData(null);
+          }}
+          onComplete={async (success, gold, xp) => {
+            if (success && plankTileData) {
+              const newEndTime = Date.now() + (30 * 60 * 1000);
+              setTileTimers(prev => [
+                ...prev.filter(t => t.x !== plankTileData.x || t.y !== plankTileData.y),
+                {
+                  x: plankTileData.x,
+                  y: plankTileData.y,
+                  tileId: 'plank-labyrinth',
+                  endTime: newEndTime,
+                  isReady: false
+                }
+              ]);
+
+              try {
+                const endIso = new Date(newEndTime).toISOString();
+                await fetchAuthRetry('/api/property-timers', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ x: plankTileData.x, y: plankTileData.y, isReady: false, endTime: endIso, tileId: 'plank-labyrinth' })
+                });
+                window.dispatchEvent(new CustomEvent('kingdom-building-collected'));
+              } catch (e) {}
+
+              try {
+                const { goldManager, expManager, statsService } = await loadManagers();
+                goldManager.gainGold(gold, 'tile-collect:plank-labyrinth');
+                expManager.gainExperience(xp, 'tile-collect:plank-labyrinth', 'general');
+
+                const currentStats = statsService.getCharacterStats();
+                const newTokens = (currentStats.build_tokens || 0) + 1;
+                await statsService.updateCharacterStats({ build_tokens: newTokens }, 'plank-labyrinth-solve');
+                setBuildTokens(newTokens);
+              } catch (err) {
+                console.error('Failed to award plank labyrinth rewards:', err);
+              }
+            }
           }}
         />
       )}

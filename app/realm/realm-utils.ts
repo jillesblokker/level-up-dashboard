@@ -35,6 +35,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'fairy-ring') image = '/images/tiles/fairy-ring-tile.png';
     if (type === 'settlement') image = '/images/tiles/settlement-tile.webp';
     if (type === 'megapolis') image = '/images/tiles/megapolis-tile.webp';
+    if (type === 'mystic-obelisk') image = '/images/tiles/mystic-obelisk-tile.webp';
+    if (type === 'golden-pantheon') image = '/images/tiles/golden-pantheon-tile.webp';
+    if (type === 'plank-labyrinth') image = '/images/tiles/plank-labyrinth-tile.webp';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -50,6 +53,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'fairy-ring') name = 'Fairy Ring';
     if (type === 'settlement') name = 'Settlement';
     if (type === 'megapolis') name = 'Megapolis';
+    if (type === 'mystic-obelisk') name = 'Mystic Obelisk';
+    if (type === 'golden-pantheon') name = 'Golden Pantheon';
+    if (type === 'plank-labyrinth') name = 'Plank Labyrinth';
 
     return {
         id: type,
@@ -146,6 +152,9 @@ export const initialInventory: Record<TileType, Tile> = {
     'fairy-ring': { ...defaultTile('fairy-ring'), cost: 1200, owned: 0 },
     settlement: { ...defaultTile('settlement'), cost: 300, owned: 0 },
     megapolis: { ...defaultTile('megapolis'), cost: 3000, owned: 0 },
+    'mystic-obelisk': { ...defaultTile('mystic-obelisk'), cost: 1500, owned: 0 },
+    'golden-pantheon': { ...defaultTile('golden-pantheon'), cost: 100000, owned: 0 },
+    'plank-labyrinth': { ...defaultTile('plank-labyrinth'), cost: 10000, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -177,6 +186,9 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'fairy-ring') return '/images/tiles/fairy-ring-tile.png';
     if (type === 'settlement') return '/images/tiles/settlement-tile.webp';
     if (type === 'megapolis') return '/images/tiles/megapolis-tile.webp';
+    if (type === 'mystic-obelisk') return '/images/tiles/mystic-obelisk-tile.webp';
+    if (type === 'golden-pantheon') return '/images/tiles/golden-pantheon-tile.webp';
+    if (type === 'plank-labyrinth') return '/images/tiles/plank-labyrinth-tile.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 

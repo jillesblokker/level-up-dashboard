@@ -64,6 +64,9 @@ const allPossibleTiles: Tile[] = [
   { id: 'whispering-canopy', name: 'Whispering Canopy', type: 'whispering-canopy', quantity: 0, cost: 1200, connections: [], description: 'An ancient forest canopy where you can seal a focus pact of silence', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Whispering Canopy tile', image: '/images/tiles/whispering-canopy-tile.png' },
   { id: 'frostfire-obelisk', name: 'Frostfire Obelisk', type: 'frostfire-obelisk', quantity: 0, cost: 1500, connections: [], description: 'A frozen monument that can seal a daily streak freeze pact or award glacial shards', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Frostfire Obelisk tile', image: '/images/tiles/frostfire-obelisk-tile.png' },
   { id: 'fairy-ring', name: 'Fairy Ring', type: 'fairy-ring', quantity: 0, cost: 1200, connections: [], description: 'A mystical circle of toadstools where pixies trade resources and play luck games', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fairy Ring tile', image: '/images/tiles/fairy-ring-tile.png' },
+  { id: 'mystic-obelisk', name: 'Mystic Obelisk', type: 'mystic-obelisk', quantity: 0, cost: 1500, connections: [], description: 'A celestial spire that grants the Astral Fortune perk (+15% unowned scratch card chance)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mystic Obelisk tile', image: '/images/tiles/mystic-obelisk-tile.webp' },
+  { id: 'golden-pantheon', name: 'Golden Pantheon', type: 'golden-pantheon', quantity: 0, cost: 100000, connections: [], description: 'A magnificent golden temple yielding massive wealth and rare Crown card packs daily', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Golden Pantheon tile', image: '/images/tiles/golden-pantheon-tile.webp' },
+  { id: 'plank-labyrinth', name: 'Plank Labyrinth', type: 'plank-labyrinth', quantity: 0, cost: 10000, connections: [], description: 'A complex puzzle maze of wooden planks. Solve it to retrieve legendary treasures!', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Plank Labyrinth tile', image: '/images/tiles/plank-labyrinth-tile.webp' },
 
   // New Realm Tiles (Adventure & Mystic)
   { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.webp' },
@@ -100,7 +103,7 @@ const tileCategories = [
     minLevel: 40,
     maxLevel: 60,
     description: 'Advanced infrastructure and specialized buildings',
-    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit', 'fortune_teller', 'whispering-canopy', 'frostfire-obelisk', 'fairy-ring']
+    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit', 'fortune_teller', 'whispering-canopy', 'frostfire-obelisk', 'fairy-ring', 'mystic-obelisk', 'golden-pantheon', 'plank-labyrinth']
   },
   {
     id: 'advanced',
@@ -380,6 +383,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         return '/images/tiles/settlement-tile.webp'
       case 'megapolis':
         return '/images/tiles/megapolis-tile.webp'
+      case 'mystic-obelisk':
+        return '/images/tiles/mystic-obelisk-tile.webp'
+      case 'golden-pantheon':
+        return '/images/tiles/golden-pantheon-tile.webp'
+      case 'plank-labyrinth':
+        return '/images/tiles/plank-labyrinth-tile.webp'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

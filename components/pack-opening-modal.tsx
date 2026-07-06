@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 interface PackOpeningModalProps {
   packData: any; // Result from generatePack
   onClose: () => void;
-  onClaimed: () => void;
+  onClaimed: (isNew: boolean) => void;
 }
 
 export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningModalProps) {
@@ -30,7 +30,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
         const token = await getToken();
         if (!token) return;
         
-        await fetch('/api/packs/claim-card', {
+        const res = await fetch('/api/packs/claim-card', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
@@ -40,7 +40,17 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
             })
         });
         
-        onClaimed();
+        let isNew = false;
+        if (res.ok) {
+          try {
+            const data = await res.json();
+            isNew = !!data.isNew;
+          } catch (e) {
+            console.error('Failed to parse claim response:', e);
+          }
+        }
+        
+        onClaimed(isNew);
       };
       claim();
     }

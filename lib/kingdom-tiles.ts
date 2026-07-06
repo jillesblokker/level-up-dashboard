@@ -852,6 +852,48 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/fortune_teller.png',
     cost: 200,
     gemCost: 10
+  },
+  {
+    id: 'mystic-obelisk',
+    name: 'Mystic Obelisk',
+    timerMinutes: 240, // 4 hours
+    normalGoldRange: [50, 150],
+    luckyGoldAmount: 300,
+    luckyChance: 0.2,
+    clickMessage: 'The obelisk hums with cosmic energy, granting you Astral Fortune (+15% unowned scratch card chance for 2 hours)!',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'rare',
+    image: '/images/tiles/mystic-obelisk-tile.webp',
+    cost: 1500
+  },
+  {
+    id: 'golden-pantheon',
+    name: 'Golden Pantheon',
+    timerMinutes: 1440, // 24 hours
+    normalGoldRange: [1000, 3000],
+    luckyGoldAmount: 10000,
+    luckyChance: 0.1,
+    clickMessage: 'You pay homage at the Golden Pantheon, receiving a massive daily gold dividend!',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'legendary',
+    image: '/images/tiles/golden-pantheon-tile.webp',
+    cost: 100000
+  },
+  {
+    id: 'plank-labyrinth',
+    name: 'Plank Labyrinth',
+    timerMinutes: 30, // 30 minutes
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Solve the Plank Labyrinth to find the exit and claim the treasures.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'epic',
+    image: '/images/tiles/plank-labyrinth-tile.webp',
+    cost: 10000
   }
 ]
 
