@@ -1517,7 +1517,6 @@ export function KingdomGridWithTimers({
                 const currentStats = statsService.getCharacterStats();
                 const newGems = (currentStats.gems || 0) + 5;
                 await statsService.updateCharacterStats({ gems: newGems }, 'golden-pantheon-bonus');
-                setGemBalance(newGems);
               } catch (err) {}
             })();
           } else {
