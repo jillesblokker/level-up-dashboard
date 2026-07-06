@@ -359,12 +359,14 @@ export async function PUT(req: NextRequest) {
       : 'streak_days, week_streaks';
 
     // Get current streak data
-    const { data: currentStreak, error: fetchError } = await supabaseServer
+    const { data: fetchResult, error: fetchError } = await supabaseServer
       .from('streaks')
       .select(selectColumns)
       .eq('user_id', userId)
       .eq('category', category)
       .single();
+
+    const currentStreak = fetchResult as any;
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       return NextResponse.json({ error: fetchError.message }, {
