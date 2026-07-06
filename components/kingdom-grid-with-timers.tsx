@@ -1337,7 +1337,13 @@ export function KingdomGridWithTimers({
       }
       return;
     }
-    if (tile.type === 'mystic-obelisk' || tile.type === 'golden-pantheon') {
+    const propertyTypes = [
+      'blacksmith', 'sawmill', 'fisherman', 'grocery', 'foodcourt',
+      'well', 'windmill', 'fountain', 'mansion', 'mayor',
+      'archery', 'jousting', 'watchtower', 'mystic-obelisk', 'golden-pantheon'
+    ];
+
+    if (tile.type && propertyTypes.includes(tile.type.toLowerCase())) {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       setSpecialTileData({ x, y, tile, timer: activeTimer });
       setSpecialModalOpen(true);
@@ -1709,7 +1715,7 @@ export function KingdomGridWithTimers({
     }
   }
 
-  const collectSpecialTile = (x: number, y: number, tile: Tile) => {
+  const collectPropertyTile = (x: number, y: number, tile: Tile) => {
     const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
     if (!kingdomTile) return
 
@@ -1732,6 +1738,22 @@ export function KingdomGridWithTimers({
         ? Math.ceil(baseExperience * 1.1)
         : baseExperience
 
+    // Roll for items
+    let itemFound: string | null = null
+    if (kingdomTile.itemChance && kingdomTile.itemType && Math.random() < kingdomTile.itemChance) {
+      if (kingdomTile.itemType === 'metal') {
+        itemFound = '/images/items/materials/material-iron.webp'
+      } else if (kingdomTile.itemType === 'wood') {
+        itemFound = '/images/items/materials/material-wood.webp'
+      } else if (kingdomTile.itemType === 'fish') {
+        itemFound = '/images/items/materials/fish-bass.webp'
+      } else if (kingdomTile.itemType === 'food') {
+        itemFound = '/images/items/materials/material-grain.webp'
+      } else if (kingdomTile.itemType === 'stone') {
+        itemFound = '/images/items/materials/material-stone.webp'
+      }
+    }
+
     ;(async () => {
       try {
         const { goldManager, expManager } = await loadManagers();
@@ -1749,6 +1771,91 @@ export function KingdomGridWithTimers({
         })
       } catch {}
     })()
+
+    // Add item to inventory if found
+    if (itemFound) {
+      ;(async () => {
+        try {
+          const { invManager } = await loadManagers()
+          if (kingdomTile.itemType === 'metal') {
+            await invManager.addToKingdomInventory(userId, {
+              id: 'material-iron',
+              name: 'Iron Ore',
+              type: 'resource',
+              quantity: 1,
+              image: '/images/items/materials/material-iron.webp',
+              description: 'Refined iron ore used for crafting equipment.',
+              emoji: '🪙',
+              stats: {},
+              category: 'material',
+              rarity: 'common'
+            } as any);
+          } else if (kingdomTile.itemType === 'wood') {
+            await invManager.addToKingdomInventory(userId, {
+              id: 'material-wood',
+              name: 'Hardwood Board',
+              type: 'resource',
+              quantity: 1,
+              image: '/images/items/materials/material-wood.webp',
+              description: 'Sturdy wooden plank used for building and upgrades.',
+              emoji: '🪵',
+              stats: {},
+              category: 'material',
+              rarity: 'common'
+            } as any);
+          } else if (kingdomTile.itemType === 'fish') {
+            await invManager.addToKingdomInventory(userId, {
+              id: 'fish-bass',
+              name: 'River Bass',
+              type: 'food',
+              quantity: 1,
+              image: '/images/items/materials/fish-bass.webp',
+              description: 'Fresh water fish, high in protein.',
+              emoji: '🐟',
+              stats: {},
+              category: 'fish',
+              rarity: 'common'
+            } as any);
+          } else if (kingdomTile.itemType === 'food') {
+            await invManager.addToKingdomInventory(userId, {
+              id: 'material-grain',
+              name: 'Golden Grain',
+              type: 'resource',
+              quantity: 1,
+              image: '/images/items/materials/material-grain.webp',
+              description: 'High-quality harvested grains.',
+              emoji: '🌾',
+              stats: {},
+              category: 'material',
+              rarity: 'common'
+            } as any);
+          } else if (kingdomTile.itemType === 'stone') {
+            await invManager.addToKingdomInventory(userId, {
+              id: 'material-stone',
+              name: 'Quarried Stone',
+              type: 'resource',
+              quantity: 1,
+              image: '/images/items/materials/material-stone.webp',
+              description: 'Sturdy building stone harvested from quarries.',
+              emoji: '🪨',
+              stats: {},
+              category: 'material',
+              rarity: 'common'
+            } as any);
+          }
+        } catch (e) {
+          logger.error('Failed to add found item to inventory', e);
+        }
+      })();
+
+      if (onItemFound) {
+        onItemFound({
+          image: itemFound,
+          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          type: kingdomTile.itemType
+        })
+      }
+    }
 
     let finalMessage = kingdomTile.clickMessage;
 
@@ -1844,7 +1951,11 @@ export function KingdomGridWithTimers({
     setModalData({
       tileName: kingdomTile.name,
       goldEarned,
-      itemFound: undefined,
+      itemFound: itemFound ? {
+        image: itemFound,
+        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        type: kingdomTile.itemType
+      } : undefined,
       isLucky: wasLucky,
       message: finalMessage
     })
@@ -2538,7 +2649,7 @@ export function KingdomGridWithTimers({
         }}
         onCollect={actionSheetTile?.timer?.isReady ? () => {
           if (actionSheetTile) {
-            handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+            collectPropertyTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         } : undefined}
         onCollectAll={handleCollectAllReady}
@@ -2625,7 +2736,7 @@ export function KingdomGridWithTimers({
           tile={specialTileData.tile}
           timer={specialTileData.timer}
           onCollect={() => {
-            collectSpecialTile(specialTileData.x, specialTileData.y, specialTileData.tile);
+            collectPropertyTile(specialTileData.x, specialTileData.y, specialTileData.tile);
           }}
         />
       )}
