@@ -7,7 +7,8 @@ export interface KingdomTile {
   luckyChance: number
   clickMessage: string
   possibleItems: string[]
-  itemType: 'weapon' | 'armor' | 'scroll' | 'potion' | 'food' | 'material' | 'artifact' | 'none'
+  itemType: 'weapon' | 'armor' | 'scroll' | 'potion' | 'food' | 'material' | 'artifact' | 'none' | 'metal' | 'wood' | 'fish' | 'stone'
+  itemChance?: number
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
   image: string
   materialCost?: { itemId: string; quantity: number }[]
