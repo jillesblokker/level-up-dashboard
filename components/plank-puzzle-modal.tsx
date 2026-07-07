@@ -73,54 +73,29 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
     }
   }, [isOpen])
 
-  // Disable global shortcuts during plank game (capture phase)
+  // Single capture-phase handler: blocks ALL shortcuts and handles game movement
   useEffect(() => {
     if (!isOpen) return
 
     const handleKeyDownCapture = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase()
       // Let Escape close the dialog natively
       if (e.key === "Escape") return
 
-      // Stop propagation of all other shortcut keys to keep user on the page
-      const gameKeys = ["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", " "]
-      if (gameKeys.includes(key)) {
-        return
-      }
-
+      // Block ALL keys from reaching global shortcuts (achievements, kingdom, etc.)
       e.stopPropagation()
       e.preventDefault()
+
+      // Handle game movement keys directly
+      if (hasWon || !selectedId) return
+      const key = e.key.toLowerCase()
+      if (key === "arrowup" || key === "w") moveSelected("up")
+      else if (key === "arrowdown" || key === "s") moveSelected("down")
+      else if (key === "arrowleft" || key === "a") moveSelected("left")
+      else if (key === "arrowright" || key === "d") moveSelected("right")
     }
 
     window.addEventListener("keydown", handleKeyDownCapture, true)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDownCapture, true)
-    }
-  }, [isOpen])
-
-  // Keyboard navigation for active plank
-  useEffect(() => {
-    if (!isOpen || hasWon || !selectedId) return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase()
-      if (key === "arrowup" || key === "w") {
-        e.preventDefault()
-        moveSelected("up")
-      } else if (key === "arrowdown" || key === "s") {
-        e.preventDefault()
-        moveSelected("down")
-      } else if (key === "arrowleft" || key === "a") {
-        e.preventDefault()
-        moveSelected("left")
-      } else if (key === "arrowright" || key === "d") {
-        e.preventDefault()
-        moveSelected("right")
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDownCapture, true)
   }, [isOpen, hasWon, selectedId, planks, moves])
 
   // Helper to build 6x6 occupation grid
@@ -142,6 +117,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
   // Pointer drag triggers
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent, plank: Plank) => {
     if (hasWon) return
+    e.preventDefault()
     setSelectedId(plank.id)
     
     const clientX = "touches" in e ? e.touches[0]!.clientX : e.clientX
@@ -426,16 +402,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                         : "opacity-90 hover:opacity-100"
                     )}
                   >
-                    {plank.isTarget ? (
-                      <div className="flex flex-col items-center justify-center gap-0.5">
-                        <span className="text-red-500 animate-pulse text-sm">᚛ ᚜</span>
-                        <span className="text-[8px] font-mono tracking-widest text-red-600">KEY</span>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-amber-100/60 font-mono tracking-tighter">
-                        {plank.orientation === "horizontal" ? "⟷" : "↕"}
-                      </span>
-                    )}
+                    {/* Clean planks — no labels or icons */}
                   </div>
                 </div>
               )
