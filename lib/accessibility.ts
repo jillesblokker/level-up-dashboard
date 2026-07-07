@@ -140,7 +140,9 @@ export class KeyboardShortcuts {
     if (!element) return false
     return element.tagName === 'INPUT' || 
            element.tagName === 'TEXTAREA' || 
-           element.isContentEditable
+           element.tagName === 'SELECT' ||
+           element.isContentEditable ||
+           !!element.closest('[role="dialog"]')
   }
   
   enable() {

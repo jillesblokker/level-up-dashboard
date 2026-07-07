@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
+import { DebouncedInput } from '@/components/debounced-input'
 import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag, Crown } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
@@ -498,10 +499,11 @@ export function QuestOrganization({
                 {/* Search */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                  <Input
+                  <DebouncedInput
                     placeholder={currentLabels.searchPlaceholder}
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={setSearchQuery}
+                    debounceMs={200}
                     className="pl-10 bg-zinc-800 border-zinc-700 text-white"
                   />
                 </div>
@@ -642,12 +644,16 @@ export function QuestOrganization({
                       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                     >
                       <Card
-                        className={`border transition-all duration-300 hover:shadow-lg ${quest.completed
+                        className={`relative overflow-hidden border transition-all duration-300 hover:shadow-lg ${quest.completed
                           ? 'border-green-800/30 bg-green-900/10'
                           : 'border-amber-800/20 bg-zinc-900 hover:border-amber-500/40'
                           }`}
                         aria-label={`Quest card: ${quest.name}`}
                       >
+                        {/* Mobile swipe/tap affordance indicator strip */}
+                        {!quest.completed && (
+                          <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-amber-600/10 via-amber-500/40 to-amber-600/10 rounded-r-xl pointer-events-none md:hidden" />
+                        )}
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2 flex-wrap">

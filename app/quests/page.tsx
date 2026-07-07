@@ -57,7 +57,7 @@ import { ActivityRingsCard } from '@/components/activity-rings-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
 import dynamic from 'next/dynamic';
 const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m => ({ default: m.TarotCardDisplay })), {
-  loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" />,
+  loading: () => <div className="animate-pulse min-h-[180px] max-h-[250px] bg-zinc-900 rounded-xl border border-zinc-800" />,
   ssr: false,
 });
 import { StreakIndicator } from "@/components/streak-indicator"
@@ -2553,8 +2553,8 @@ export default function QuestsPage() {
                   <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
                 </TabsTrigger>
                 <TabsTrigger value="sanctuary" disabled={stats.level < 20}>
-                  <Trophy className="w-4 h-4" />
-                  <span>{stats.level < 20 ? 'Sanctuary (Lvl 20)' : 'The Sanctuary'}</span>
+                  <Trophy className={`w-4 h-4 ${stats.level >= 20 ? 'text-green-400 animate-pulse' : ''}`} />
+                  <span>{stats.level < 20 ? 'Sanctuary (Lvl 20)' : 'The Sanctuary ⭐'}</span>
                 </TabsTrigger>
                 <TabsTrigger value="recovery">
                   <Heart className="w-4 h-4" />
@@ -2563,12 +2563,10 @@ export default function QuestsPage() {
               </TabsList>
             </Tabs>
 
-            {/* THE LEDGER - Mastery Tracking */}
-            {
-              activeView === 'ledger' && (
-                <MasteryLedger />
-              )
-            }
+            {/* THE LEDGER - Mastery Tracking (Preserves scroll position) */}
+            <div className={activeView === 'ledger' ? 'block' : 'hidden'}>
+              <MasteryLedger />
+            </div>
 
             {/* THE FORGE - Unified Active Board */}
             {
@@ -2583,10 +2581,15 @@ export default function QuestsPage() {
                       aria-label={forgeTab === 'quests' ? "Complete all favorited quests in this category" : "Complete all favorited tasks in this category"}
                     >
                       <Star className="w-4 h-4" />
-                      {(forgeTab === 'quests' 
-                        ? TEXT_CONTENT.questBoard.buttons.completeFavorites 
-                        : "Complete {count} Starred Tasks"
-                      ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
+                      <span className="hidden sm:inline">
+                        {(forgeTab === 'quests' 
+                          ? TEXT_CONTENT.questBoard.buttons.completeFavorites 
+                          : "Complete {count} Starred Tasks"
+                        ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
+                      </span>
+                      <span className="sm:hidden">
+                        Complete Starred ({(forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length})
+                      </span>
                     </Button>
                     <Button
                       onClick={handleBulkCompleteAllFavorites}
@@ -2595,10 +2598,15 @@ export default function QuestsPage() {
                       aria-label={forgeTab === 'quests' ? "Complete all favorited quests across all categories" : "Complete all favorited tasks across all categories"}
                     >
                       <Star className="w-4 h-4" />
-                      {(forgeTab === 'quests'
-                        ? TEXT_CONTENT.questBoard.buttons.completeAllFavorites
-                        : "Complete All {count} Starred Tasks"
-                      ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
+                      <span className="hidden sm:inline">
+                        {(forgeTab === 'quests'
+                          ? TEXT_CONTENT.questBoard.buttons.completeAllFavorites
+                          : "Complete All {count} Starred Tasks"
+                        ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
+                      </span>
+                      <span className="sm:hidden">
+                        Complete All ({(forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length})
+                      </span>
                     </Button>
                     <Button
                       onClick={handleManualReset}

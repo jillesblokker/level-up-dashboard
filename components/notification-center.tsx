@@ -274,11 +274,11 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {children || (
-          <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative">
+          <Button variant="ghost" size="icon" aria-label="Open notification center" className="relative overflow-visible">
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {unreadCount > 99 ? '99+' : unreadCount}
+              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
             <span className="sr-only">Notifications</span>
@@ -301,8 +301,8 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
               </div>
 
               {unreadCount > 0 && (
-                <div className="bg-green-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg flex-shrink-0">
-                  {unreadCount > 99 ? '99+' : unreadCount}
+                <div className="bg-green-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg flex-shrink-0">
+                  {unreadCount > 9 ? '9+' : unreadCount}
                 </div>
               )}
             </div>

@@ -3,6 +3,7 @@
 import { Map, Shield, Compass, Navigation, ShieldAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { toast } from "sonner"
 
 interface StreakIndicatorProps {
     currentStreak: number
@@ -35,14 +36,27 @@ export function StreakIndicator({ currentStreak, isCompletedToday }: StreakIndic
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300",
-                        isCompletedToday
-                            ? "bg-indigo-950/40 border-indigo-500/50 text-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.2)]"
-                            : isPaused 
-                                ? "bg-amber-950/40 border-amber-700/50 text-amber-500" 
-                                : "bg-zinc-900 border-zinc-700 text-zinc-400"
-                    )}>
+                    <div 
+                        onClick={() => {
+                            toast(`${exp.name} Expedition`, {
+                                description: isCompletedToday
+                                    ? "You've continued your journey today. Great work!"
+                                    : isPaused 
+                                        ? "Your journey is paused. Complete a habit to resume travel."
+                                        : isAtRisk
+                                            ? "Your streak shield is cracking! Complete a quest soon to protect your streak."
+                                            : "Complete at least one quest today to continue your journey."
+                            });
+                        }}
+                        className={cn(
+                            "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300 cursor-pointer active:scale-95 select-none",
+                            isCompletedToday
+                                ? "bg-indigo-950/40 border-indigo-500/50 text-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.2)]"
+                                : isPaused 
+                                    ? "bg-amber-950/40 border-amber-700/50 text-amber-500" 
+                                    : "bg-zinc-900 border-zinc-700 text-zinc-400"
+                        )}
+                    >
                         <div className="relative">
                             <div className={cn(
                                 "transition-all duration-500",

@@ -99,9 +99,9 @@ export function ImageGallery({ folderPath = 'images' }: ImageGalleryProps) {
                 <Image
                   src={typeof image.url === 'string' ? image.url : ''}
                   alt={typeof image.description === 'string' ? image.description : image.name}
-                  className="object-cover w-full h-full"
-                  width={400}
-                  height={300}
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 />
               </div>
             </CardHeader>

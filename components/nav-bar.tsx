@@ -192,7 +192,18 @@ export function NavBar({ session }: NavBarProps) {
               )}
               Lvl {characterStats.level}
             </div>
-            <Progress value={levelProgress} className="w-32 h-2" />
+            {(() => {
+              const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
+              const expInCurrentLevel = Math.max(0, characterStats.experience - expForPreviousLevels);
+              const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
+              return (
+                <Progress 
+                  value={levelProgress} 
+                  className="w-32 h-2 cursor-help" 
+                  title={`XP: ${expInCurrentLevel} / ${expForCurrentLevel} (${Math.round(levelProgress)}%)`}
+                />
+              );
+            })()}
             <div
               className={`flex items-center space-x-1 transition-all duration-300 ${goldHighlight ? 'bg-amber-400/30 rounded px-2 py-1 shadow' : ''}`}
               aria-live="polite"

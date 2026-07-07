@@ -351,12 +351,12 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
 
         <div className="flex flex-col items-center gap-6 mt-6">
           {/* Stats Bar */}
-          <div className="flex justify-between items-center w-full px-4 text-xs font-mono tracking-wider text-amber-500">
-            <span>MOVES EXPENDED: <strong className="text-white text-base font-bold ml-1">{moves}</strong></span>
+          <div className="flex justify-between items-center w-full px-4 text-xs sm:text-sm font-mono tracking-wider text-amber-500 font-semibold">
+            <span>MOVES EXPENDED: <strong className="text-white text-base font-extrabold ml-1">{moves}</strong></span>
             {hasWon ? (
               <span className="text-green-400 font-bold flex items-center gap-1 animate-pulse"><Trophy className="w-4 h-4 animate-bounce" /> SOLVED</span>
             ) : (
-              <span className="text-zinc-500">LABYRINTH ACTIVE</span>
+              <span className="text-zinc-500 font-bold">LABYRINTH ACTIVE</span>
             )}
           </div>
 

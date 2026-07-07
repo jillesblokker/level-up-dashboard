@@ -70,10 +70,31 @@ const getRarityColorClass = (rarity: string) => {
 }
 
 export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: SpecialTileModalProps) {
+  const [timeLeft, setTimeLeft] = React.useState(timer ? Math.max(0, timer.endTime - Date.now()) : 0)
+
+  React.useEffect(() => {
+    if (!timer || timer.isReady) {
+      setTimeLeft(0)
+      return
+    }
+
+    setTimeLeft(Math.max(0, timer.endTime - Date.now()))
+
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, timer.endTime - Date.now())
+      setTimeLeft(remaining)
+      if (remaining <= 0) {
+        clearInterval(interval)
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [timer, isOpen])
+
   if (!tile) return null
 
-  const isReady = timer ? (Date.now() >= timer.endTime || timer.isReady) : true
-  const timeRemainingMs = timer ? Math.max(0, timer.endTime - Date.now()) : 0
+  const isReady = timer ? (Date.now() >= timer.endTime || timer.isReady || timeLeft <= 0) : true
+  const timeRemainingMs = timeLeft
   
   const formatTime = (ms: number) => {
     const totalSecs = Math.floor(ms / 1000)

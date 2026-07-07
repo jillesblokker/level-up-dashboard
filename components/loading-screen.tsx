@@ -32,7 +32,7 @@ export function LoadingScreen({ title, content, icon, className, variant = 'blue
         radialFrom: isAmber ? 'from-amber-900/10' : 'from-blue-900/10',
     };
     return (
-        <div className={cn("fixed inset-0 z-[1000] flex items-center justify-center p-6 overflow-hidden", className)}>
+        <div className={cn("fixed inset-0 z-[9998] flex items-center justify-center p-6 overflow-hidden", className)}>
             {/* Cinematic Radial Background */}
             <div 
                 className={cn("fixed inset-0 bg-[#020617] bg-radial-gradient via-black to-black", themeColors.radialFrom)} 

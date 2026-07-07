@@ -196,7 +196,7 @@ export function ActivityRingsCard({
         <div className="flex flex-col sm:flex-row items-center gap-6">
 
           {/* ── SVG rings ── */}
-          <div className="relative flex-shrink-0 w-full max-w-[240px] sm:max-w-none sm:w-[136px] aspect-square mx-auto mb-4 sm:mb-0">
+          <div className="relative flex-shrink-0 w-full max-w-[240px] sm:max-w-none sm:w-[180px] lg:w-[200px] aspect-square mx-auto mb-4 sm:mb-0">
             <svg
               className="w-full h-full"
               viewBox={`0 0 ${CX * 2} ${CY * 2}`}
@@ -226,12 +226,6 @@ export function ActivityRingsCard({
               </text>
             </svg>
 
-            {/* Legend dots bottom-left */}
-            <div className="absolute bottom-0 left-0 hidden sm:flex flex-col gap-0.5 text-[10px]">
-              <span className="flex items-center gap-1 text-orange-300"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block" />Quests</span>
-              <span className="flex items-center gap-1 text-indigo-300"><span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />XP</span>
-              <span className="flex items-center gap-1 text-emerald-300"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Categories</span>
-            </div>
           </div>
 
           {/* ── Right: ring stats ── */}
@@ -297,7 +291,7 @@ export function ActivityRingsCard({
             })}
 
             {/* Zone legend */}
-            <div className="flex items-center gap-3 pt-1 border-t border-zinc-800/50 text-[10px] text-zinc-500">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 border-t border-zinc-800/50 text-[10px] text-zinc-500">
               <span className="flex items-center gap-1"><span className="w-2 h-1.5 rounded-sm bg-zinc-300/30 inline-block" />Good ≥1</span>
               <span className="flex items-center gap-1"><span className="w-2 h-1.5 rounded-sm bg-zinc-300/60 inline-block" />Great ≥33%</span>
               <span className="flex items-center gap-1"><span className="w-2 h-1.5 rounded-sm bg-amber-400/80 inline-block" />Amazing ≥66%</span>

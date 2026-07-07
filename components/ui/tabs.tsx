@@ -17,7 +17,14 @@ const TabsList = React.forwardRef<
       "flex h-14 items-center justify-start rounded-2xl bg-zinc-950 border border-amber-900/20 p-1.5 text-white/50 overflow-x-auto overflow-y-hidden no-scrollbar w-full flex-nowrap gap-1",
       className
     )}
-    style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
+    style={{ 
+      WebkitOverflowScrolling: 'touch', 
+      scrollbarWidth: 'none', 
+      msOverflowStyle: 'none', 
+      touchAction: 'pan-x',
+      WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent 100%)',
+      maskImage: 'linear-gradient(to right, black 90%, transparent 100%)'
+    }}
     {...props}
   />
 ))

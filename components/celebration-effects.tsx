@@ -78,6 +78,14 @@ export function QuestCelebration({
   questName = 'Quest',
 }: QuestCelebrationProps) {
   const [showParticles, setShowParticles] = useState(false);
+  const [animationQuality, setAnimationQuality] = useState<'high' | 'low'>('high');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem("animation-quality") || 'high';
+      setAnimationQuality(saved as 'high' | 'low');
+    }
+  }, []);
 
   useEffect(() => {
     if (isVisible) {
@@ -89,17 +97,18 @@ export function QuestCelebration({
       return () => clearTimeout(timer);
     }
     return undefined;
-    return undefined;
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
 
-  // Generate random particle positions
-  const particles: ParticleProps[] = Array.from({ length: 12 }, (_, i) => ({
+  // Generate random particle positions (scaled by quality setting)
+  const isLowQuality = animationQuality === 'low';
+  const particleCount = isLowQuality ? 6 : 12;
+  const particles: ParticleProps[] = Array.from({ length: particleCount }, (_, i) => ({
     x: Math.random() * 100,
     y: Math.random() * 100,
-    delay: i * 100,
-    type: i < 4 ? 'gold' : i < 8 ? 'xp' : 'sparkle',
+    delay: i * (isLowQuality ? 150 : 100),
+    type: i % 3 === 0 ? 'gold' : i % 3 === 1 ? 'xp' : 'sparkle',
   }));
 
   return (

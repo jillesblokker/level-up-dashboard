@@ -2288,6 +2288,7 @@ export function KingdomGridWithTimers({
           minHeight: '400px',
           background: 'none',
           border: '20px solid #374151',
+          touchAction: 'pan-x pan-y',
         }}
         aria-label="thrivehaven-grid"
       >

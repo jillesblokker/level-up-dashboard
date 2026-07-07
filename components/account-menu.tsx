@@ -173,9 +173,11 @@ export function AccountMenu() {
           <div className="border-b border-amber-800/20" />
 
           {/* Enhanced Menu Items with Better Mobile Support */}
-          <div className="p-2 space-y-1">
+          <div className="p-2 space-y-1" role="menu">
             <Link
               href="/profile"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Profile page"
               onClick={() => setIsOpen(false)}
@@ -189,6 +191,8 @@ export function AccountMenu() {
 
             <Link
               href="/requirements"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Requirements page"
               onClick={() => setIsOpen(false)}
@@ -202,6 +206,8 @@ export function AccountMenu() {
 
             <Link
               href="/design-system"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Design System page"
               onClick={() => setIsOpen(false)}
@@ -215,6 +221,8 @@ export function AccountMenu() {
 
             <Link
               href="/admin/stored-data"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Admin page"
               onClick={() => setIsOpen(false)}
@@ -228,6 +236,8 @@ export function AccountMenu() {
 
             <Link
               href="/account/monitoring"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Monitoring page"
               onClick={() => setIsOpen(false)}
@@ -241,6 +251,8 @@ export function AccountMenu() {
 
             <Link
               href="/settings"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Settings page"
               onClick={() => setIsOpen(false)}
@@ -254,6 +266,8 @@ export function AccountMenu() {
 
             <Link
               href="/daily-hub"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Daily Hub page"
               onClick={() => setIsOpen(false)}
@@ -267,6 +281,8 @@ export function AccountMenu() {
 
             <Link
               href="/market"
+              role="menuitem"
+              tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
               aria-label="Market page"
               onClick={() => setIsOpen(false)}
@@ -277,23 +293,22 @@ export function AccountMenu() {
                 <p className="text-xs text-zinc-400">Buy card packs and materials</p>
               </div>
             </Link>
+
+            <Link
+              href="/account/log-center"
+              role="menuitem"
+              tabIndex={0}
+              className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
+              aria-label="Log Center page"
+              onClick={() => setIsOpen(false)}
+            >
+              <Bug className="h-5 w-5 text-amber-400" />
+              <div className="flex-1 text-left">
+                <span className="text-base font-medium text-white">Log Center</span>
+                <p className="text-xs text-zinc-400">View debug logs</p>
+              </div>
+            </Link>
           </div>
-
-
-
-          {/* Log Center Button */}
-          <Link
-            href="/account/log-center"
-            className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
-            aria-label="Log Center page"
-            onClick={() => setIsOpen(false)}
-          >
-            <Bug className="h-5 w-5 text-amber-400" />
-            <div className="flex-1 text-left">
-              <span className="text-base font-medium text-white">Log Center</span>
-              <p className="text-xs text-zinc-400">View debug logs</p>
-            </div>
-          </Link>
 
           <div className="border-b border-amber-800/20" />
 
@@ -301,7 +316,8 @@ export function AccountMenu() {
           <button
             className="w-full min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation text-left rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 transition-all duration-200"
             aria-label="Log out"
-            role="button"
+            role="menuitem"
+            tabIndex={0}
             onClick={async () => {
               setIsLoading(true);
               // Remove guest mode flags

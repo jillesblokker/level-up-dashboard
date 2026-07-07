@@ -164,7 +164,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             {/* Burned edge shadow layer */}
                             <div className="absolute inset-0 pointer-events-none border border-amber-950/10 rounded-2xl" />
                             
-                            <div className="md:columns-2 md:gap-8 pr-1">
+                            <div className="md:columns-2 md:gap-8 pr-1 max-h-[200px] sm:max-h-none overflow-y-auto" style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)' }}>
                                 {paragraphs.map((p, i) => {
                                     if (i === 0 && p.length > 0) {
                                         const firstChar = p.charAt(0);

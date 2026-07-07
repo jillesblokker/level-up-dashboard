@@ -47,10 +47,10 @@ export function BottomNav() {
 
     return (
         <nav
-            className="lg:landscape:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-zinc-900 via-zinc-900/98 to-zinc-900/95 border-t border-amber-800/20  pb-safe"
+            className="lg:landscape:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-zinc-900 via-zinc-900/98 to-zinc-900/95 border-t border-amber-800/20"
             style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}
         >
-            <div className="flex items-center justify-around px-1 py-1">
+            <div className="flex items-center justify-around px-1 py-2">
                 {navItems.map((item) => {
                     const Icon = item.icon
                     const active = isActive(item.href)

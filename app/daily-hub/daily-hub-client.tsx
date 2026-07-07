@@ -364,7 +364,21 @@ export function DailyHubClient() {
     };
 
     return (
-        <div className="min-h-screen bg-black pb-20">
+        <div className="min-h-screen bg-black pb-20 relative">
+            {/* Mobile Back Button (Point 24) */}
+            <div className="absolute top-4 left-4 z-50 md:hidden">
+              <Link href="/kingdom">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="bg-black/60 backdrop-blur-md border border-amber-900/30 text-amber-500 hover:text-amber-400 text-xs font-bold"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                  Kingdom
+                </Button>
+              </Link>
+            </div>
+
             {/* Header Section with CTA */}
             <HeaderSection
                 title={getTimeBasedGreeting()}

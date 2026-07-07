@@ -60,7 +60,7 @@ export function TileActionSheet({
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-zinc-950  z-[9999]"
+                className="fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-[9999]"
                 onClick={onClose}
             />
 
@@ -117,7 +117,7 @@ export function TileActionSheet({
                     </div>
 
                     {/* Actions */}
-                    <div className="p-4 space-y-2">
+                    <div className="p-4 space-y-2 overflow-y-auto">
                         {/* Enter Hub Action - for Dungeons, Markets, etc. */}
                         {onEnter && (
                             <button
