@@ -1,8 +1,9 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v1.2.2 - Force cache invalidation to load new chunks
-const CACHE_NAME = 'level-up-v1.2.2'
-const STATIC_CACHE = 'level-up-static-v1.2.2'
-const DYNAMIC_CACHE = 'level-up-dynamic-v1.2.2'
+// v1.3.0 - Self-healing dual-pane cache with automatic rollback
+const CACHE_VERSION = 'v1.3.0'
+const STATIC_CACHE = `level-up-static-${CACHE_VERSION}`
+const DYNAMIC_CACHE = `level-up-dynamic-${CACHE_VERSION}`
+const PREV_CACHE = 'level-up-prev-stable' // Rollback pane
 
 // Only cache static assets - NOT app routes (they are SSR/authenticated and will always fail)
 const STATIC_FILES = [
@@ -12,46 +13,88 @@ const STATIC_FILES = [
   '/icons/icon-512x512.png'
 ]
 
-// Install event - cache only truly static assets, then immediately take control
+// Critical files that must be cacheable for the app to function
+const HEALTH_CHECK_FILES = [
+  '/manifest.webmanifest',
+  '/icons/icon-192x192.png',
+]
+
+// ─── Install: pre-cache into staging, keep previous as rollback ────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        return Promise.allSettled(
-          STATIC_FILES.map(url =>
-            cache.add(url).catch(err => {
-              console.warn(`[SW] Failed to cache static file: ${url}`, err)
-              return null
-            })
-          )
+    (async () => {
+      // 1. Snapshot the current live static cache into the rollback pane
+      const prevCache = await caches.open(PREV_CACHE)
+      const existingKeys = await caches.keys()
+      const oldStaticKey = existingKeys.find(k => k.startsWith('level-up-static-') && k !== STATIC_CACHE)
+      if (oldStaticKey) {
+        const oldCache = await caches.open(oldStaticKey)
+        const oldEntries = await oldCache.keys()
+        for (const req of oldEntries) {
+          const resp = await oldCache.match(req)
+          if (resp) await prevCache.put(req, resp.clone())
+        }
+      }
+
+      // 2. Pre-cache new version assets into STATIC_CACHE
+      const newCache = await caches.open(STATIC_CACHE)
+      await Promise.allSettled(
+        STATIC_FILES.map(url =>
+          newCache.add(url).catch(err => {
+            console.warn(`[SW] Failed to cache static file: ${url}`, err)
+            return null
+          })
         )
-      })
-      .then(() => {
-        // Take control immediately - don't wait for old SW to die
-        return self.skipWaiting()
-      })
+      )
+
+      // 3. Take control immediately
+      return self.skipWaiting()
+    })()
   )
 })
 
-// Activate event - clean up old caches
+// ─── Activate: health-check the new cache; rollback if broken ──────────────
 self.addEventListener('activate', (event) => {
-  // console.log('[SW] Activating service worker...')
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              // console.log('[SW] Deleting old cache:', cacheName)
-              return caches.delete(cacheName)
-            }
-          })
-        )
-      })
-      .then(() => {
-        // console.log('[SW] Service worker activated and ready')
-        return self.clients.claim()
-      })
+    (async () => {
+      // Health check: verify critical files are cached
+      const newCache = await caches.open(STATIC_CACHE)
+      let healthy = true
+      for (const file of HEALTH_CHECK_FILES) {
+        const entry = await newCache.match(file)
+        if (!entry || !entry.ok) {
+          console.error(`[SW] Health check FAILED: missing ${file}`)
+          healthy = false
+          break
+        }
+      }
+
+      if (!healthy) {
+        // Rollback: restore from previous stable cache
+        console.warn('[SW] Rolling back to previous stable cache')
+        const prevCache = await caches.open(PREV_CACHE)
+        const prevEntries = await prevCache.keys()
+        if (prevEntries.length > 0) {
+          for (const req of prevEntries) {
+            const resp = await prevCache.match(req)
+            if (resp) await newCache.put(req, resp.clone())
+          }
+          console.log('[SW] Rollback complete — restored', prevEntries.length, 'entries')
+        }
+      }
+
+      // Clean up old versioned caches (keep PREV_CACHE for future rollbacks)
+      const allCaches = await caches.keys()
+      await Promise.all(
+        allCaches.map((cacheName) => {
+          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE && cacheName !== PREV_CACHE) {
+            return caches.delete(cacheName)
+          }
+        })
+      )
+
+      return self.clients.claim()
+    })()
   )
 })
 

@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useOfflineSupport } from './useOfflineSupport';
 import { useQuestToasts } from '@/components/enhanced-toast-system';
 import { getTodaysCard } from '@/lib/tarot-data';
+import { recordCompletion } from '@/lib/daily-activity-summary-service';
 
 interface QuestCompletionState {
   isLoading: boolean;
@@ -149,6 +150,14 @@ export function useQuestCompletion() {
         // Use verified rewards from server if available
         const finalXP = responseData.verifiedRewards?.xp ?? xpReward;
         const finalGold = responseData.verifiedRewards?.gold ?? goldReward;
+
+        // Record into daily activity snapshot for history graphs
+        recordCompletion({
+          questId,
+          category: questData.category || 'General',
+          xp: finalXP,
+          gold: finalGold,
+        });
 
         // Show Quest Completed Toast with UNDO action
         const toastId = questToasts.addToast({

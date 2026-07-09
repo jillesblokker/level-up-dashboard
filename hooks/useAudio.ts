@@ -373,6 +373,78 @@ export function useAudio() {
     playSFX('page-turn')
   }, [playSFX])
 
+  /**
+   * Adaptive contextual music: maps the current page/context to the best
+   * thematic background track and crossfades if the track changes.
+   */
+  const CONTEXT_MUSIC_MAP: Record<string, string> = {
+    '/kingdom':       'medieval-castle',
+    '/quests':        'medieval-adventure',
+    '/daily-hub':     'medieval-village',
+    '/market':        'medieval-tavern',
+    '/profile':       'medieval-calm',
+    '/settings':      'medieval-calm',
+    '/realm':         'medieval-forest',
+    '/character':     'medieval-epic',
+    '/design-system': 'medieval-mystical',
+  }
+
+  const playContextualMusic = useCallback((pathname: string) => {
+    if (!settings.musicEnabled) return
+
+    // Find best match: exact path first, then prefix match
+    let trackId = CONTEXT_MUSIC_MAP[pathname]
+    if (!trackId) {
+      const match = Object.entries(CONTEXT_MUSIC_MAP).find(([route]) =>
+        pathname.startsWith(route)
+      )
+      trackId = match?.[1] || 'medieval-ambient'
+    }
+
+    // Don't restart if same track is already playing
+    if (currentMusic === trackId && isPlaying) return
+
+    // Crossfade: fade out current, fade in new
+    if (currentMusic && currentMusic !== trackId) {
+      const oldAudio = audioRefs.current.get(currentMusic)
+      if (oldAudio) {
+        // Quick fade out over 500ms
+        const fadeOut = setInterval(() => {
+          if (oldAudio.volume > 0.05) {
+            oldAudio.volume = Math.max(0, oldAudio.volume - 0.05)
+          } else {
+            clearInterval(fadeOut)
+            oldAudio.pause()
+            oldAudio.currentTime = 0
+          }
+        }, 50)
+      }
+    }
+
+    // Start new track with fade in
+    const newAudio = audioRefs.current.get(trackId)
+    if (newAudio) {
+      const targetVolume = (audioTracks.find(t => t.id === trackId)?.volume || 0.3) * settings.masterVolume * settings.musicVolume
+      newAudio.volume = 0
+      newAudio.loop = true
+      newAudio.play().then(() => {
+        setCurrentMusic(trackId!)
+        setIsPlaying(true)
+        // Fade in over 500ms
+        const fadeIn = setInterval(() => {
+          if (newAudio.volume < targetVolume - 0.05) {
+            newAudio.volume = Math.min(targetVolume, newAudio.volume + 0.05)
+          } else {
+            newAudio.volume = targetVolume
+            clearInterval(fadeIn)
+          }
+        }, 50)
+      }).catch(err => {
+        console.warn(`[Audio] Contextual music failed for ${trackId}:`, err)
+      })
+    }
+  }, [settings, currentMusic, isPlaying])
+
   return {
     settings,
     setSettings,
@@ -389,6 +461,8 @@ export function useAudio() {
     playGoldEarned,
     playXPEarned,
     playButtonClick,
-    playPageTurn
+    playPageTurn,
+    playContextualMusic,
   }
 }
+

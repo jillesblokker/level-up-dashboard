@@ -196,7 +196,21 @@ export default function QuestsPage() {
 
   logger.debug('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
-  const [quests, setQuests] = useState<Quest[]>([]);
+  const [quests, setQuests] = useState<Quest[]>(() => {
+    // Instant Optimistic UI: hydrate from last cached state immediately
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('quests-cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return [];
+  });
   const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
   const [forgeTab, setForgeTab] = useState<'quests' | 'challenges'>('quests'); // New toggle for Forge
   const [loading, setLoading] = useState(false);
@@ -552,6 +566,10 @@ export default function QuestsPage() {
         }
 
         setQuests(data || []);
+        // Persist to localStorage for instant optimistic loading on next visit
+        try {
+          localStorage.setItem('quests-cache', JSON.stringify(data || []));
+        } catch {}
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
         setQuests([]);

@@ -43,6 +43,7 @@ export interface CharacterStats {
 class CharacterStatsService {
     private static instance: CharacterStatsService;
     private syncQueue: Array<Partial<CharacterStats>> = [];
+    private deltaQueue: Array<{ stat: string; delta: number }> = [];
     private syncTimer: NodeJS.Timeout | null = null;
     private isSyncing = false;
     private lastSyncTime = 0;
@@ -129,13 +130,17 @@ class CharacterStatsService {
         // Handle progressive stats (can only increase)
         if (updates.gold !== undefined) {
             const goldDelta = updates.gold - currentStats.gold;
-
+            if (goldDelta !== 0) {
+                this.deltaQueue.push({ stat: 'gold', delta: goldDelta });
+            }
             newStats.gold = Math.max(currentStats.gold, updates.gold);
         }
 
         if (updates.experience !== undefined) {
             const xpDelta = updates.experience - currentStats.experience;
-
+            if (xpDelta !== 0) {
+                this.deltaQueue.push({ stat: 'experience', delta: xpDelta });
+            }
             newStats.experience = Math.max(currentStats.experience, updates.experience);
         }
 
@@ -143,7 +148,13 @@ class CharacterStatsService {
         if (updates.level !== undefined) newStats.level = updates.level;
         if (updates.health !== undefined) newStats.health = updates.health;
         if (updates.max_health !== undefined) newStats.max_health = updates.max_health;
-        if (updates.build_tokens !== undefined) newStats.build_tokens = updates.build_tokens;
+        if (updates.build_tokens !== undefined) {
+            const tokenDelta = updates.build_tokens - (currentStats.build_tokens || 0);
+            if (tokenDelta !== 0) {
+                this.deltaQueue.push({ stat: 'build_tokens', delta: tokenDelta });
+            }
+            newStats.build_tokens = updates.build_tokens;
+        }
         if (updates.streak_tokens !== undefined) newStats.streak_tokens = updates.streak_tokens;
         if (updates.kingdom_expansions !== undefined) newStats.kingdom_expansions = updates.kingdom_expansions;
         if (updates.display_name !== undefined) newStats.display_name = updates.display_name;
@@ -318,6 +329,7 @@ class CharacterStatsService {
         try {
             // Get current local stats (source of truth)
             const currentStats = this.getStats();
+            const currentDeltas = [...this.deltaQueue];
 
             // Prepare payload
             const payload = {
@@ -339,7 +351,8 @@ class CharacterStatsService {
                     frost_essence: currentStats.frost_essence,
                     tide_essence: currentStats.tide_essence,
                     verdant_essence: currentStats.verdant_essence
-                }
+                },
+                deltas: currentDeltas
             };
 
             // Send to server
@@ -353,6 +366,7 @@ class CharacterStatsService {
             if (response.ok) {
                 // Clear queue and reset ahead sync counter (server is now up to date)
                 this.syncQueue = [];
+                this.deltaQueue = [];
                 this.aheadSyncCount = 0;
             } else {
                 // Sync failed - log once but don't spam

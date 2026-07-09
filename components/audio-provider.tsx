@@ -18,6 +18,7 @@ interface AudioContextType {
   settings: any
   currentMusic: string | null
   isPlaying: boolean
+  playContextualMusic: (pathname: string) => void
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined)
