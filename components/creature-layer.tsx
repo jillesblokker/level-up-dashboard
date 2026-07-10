@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { gainGold } from '@/lib/gold-manager';
-import { getCharacterStats } from '@/lib/character-stats-service';
+import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
 import { Heart, Sparkles, Star, Clock, Coins } from 'lucide-react';
 import Image from 'next/image';
 
@@ -226,6 +226,7 @@ interface CitizenWithChatterProps {
         completed: boolean;
         text: string;
         rewardGold: number;
+        rewardGems?: number | undefined;
     } | null;
 }
 
@@ -301,7 +302,7 @@ function CitizenWithChatter({
                         visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-2"
                     }`}
                 >
-                    {chatter}
+                    {hasEncounter && !dailyEncounter.completed ? `⭐ ${chatter}` : chatter}
                     {/* Bubble tail */}
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-950 border-r border-b border-amber-500/40 rotate-45" />
                 </div>
@@ -355,6 +356,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         completed: boolean;
         text: string;
         rewardGold: number;
+        rewardGems?: number | undefined;
     }
     const [dailyEncounter, setDailyEncounter] = useState<DailyEncounter | null>(null);
     const [materialsCount, setMaterialsCount] = useState<Record<string, number>>({});
@@ -402,13 +404,18 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             const randomCitizen = citizens[Math.floor(Math.random() * citizens.length)];
             if (randomCitizen) {
                 const materials = [
-                    { id: 'material-logs', name: 'Wood Logs', emoji: '🪵', verb: 'build a sturdier fence' },
-                    { id: 'material-stone', name: 'Stone Blocks', emoji: '🪨', verb: 'reinforce the foundation' },
-                    { id: 'material-steel', name: 'Steel Sheets', emoji: '⛓️', verb: 'mend some rusted tools' }
+                    { id: 'material-logs', name: 'Wood Logs', emoji: '🪵', verb: 'build a sturdier fence', rare: false },
+                    { id: 'material-stone', name: 'Stone Blocks', emoji: '🪨', verb: 'reinforce the foundation', rare: false },
+                    { id: 'material-steel', name: 'Steel Sheets', emoji: '⛓️', verb: 'mend some rusted tools', rare: true },
+                    { id: 'material-crystal', name: 'Crystal', emoji: '🔮', verb: 'power a magic lantern', rare: true },
+                    { id: 'material-planks', name: 'Planks', emoji: '🪵', verb: 'build a warm cabin floor', rare: false },
+                    { id: 'material-stone-block', name: 'Polished Stone', emoji: '🪨', verb: 'pave the pathways', rare: true }
                 ];
                 const mat = materials[Math.floor(Math.random() * materials.length)]!;
                 const amount = Math.floor(Math.random() * 2) + 1; // 1 or 2
                 const rewardGold = amount * 30 + 10;
+                const hasGemReward = mat.rare || Math.random() < 0.25;
+                const rewardGems = hasGemReward ? (mat.rare ? 2 : 1) : undefined;
                 
                 encounter = {
                     date: todayStr,
@@ -417,7 +424,8 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                     amount,
                     completed: false,
                     text: `needs ${amount}x ${mat.name} ${mat.emoji} to ${mat.verb}`,
-                    rewardGold
+                    rewardGold,
+                    rewardGems
                 };
                 localStorage.setItem('daily_kingdom_encounter', JSON.stringify(encounter));
             }
@@ -804,6 +812,11 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             // Award gold
             await gainGold(dailyEncounter.rewardGold, 'daily-encounter-request');
             
+            // Award gems if present
+            if (dailyEncounter.rewardGems) {
+                await addToCharacterStat('gems', dailyEncounter.rewardGems, 'daily-encounter-request');
+            }
+            
             // Trigger coin burst animation
             window.dispatchEvent(new CustomEvent('coin-burst', {
                 detail: { amount: dailyEncounter.rewardGold, x: window.innerWidth / 2, y: window.innerHeight / 2 }
@@ -814,9 +827,10 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             setDailyEncounter(updated);
             localStorage.setItem('daily_kingdom_encounter', JSON.stringify(updated));
 
+            const gemText = dailyEncounter.rewardGems ? ` and +${dailyEncounter.rewardGems} Gems 💎` : '';
             toast({
                 title: "🔧 Request Fulfilled!",
-                description: `You helped ${selectedCitizen.name} and received +${dailyEncounter.rewardGold} Gold!`,
+                description: `You helped ${selectedCitizen.name} and received +${dailyEncounter.rewardGold} Gold${gemText}!`,
                 className: "bg-zinc-900 border-amber-500/50 border text-white shadow-2xl"
             });
 
@@ -1139,14 +1153,21 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 
                                 {dailyEncounter.completed ? (
                                     <div className="bg-emerald-950/30 border border-emerald-500/20 text-emerald-400 font-bold rounded-lg py-2 text-center text-[11px] flex items-center justify-center gap-1">
-                                        <span>✓ Request Completed! (+{dailyEncounter.rewardGold} Gold)</span>
+                                        <span>✓ Request Completed! (+{dailyEncounter.rewardGold} Gold{dailyEncounter.rewardGems ? `, +${dailyEncounter.rewardGems} Gems 💎` : ''})</span>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-center text-[10px] text-zinc-400">
                                             <span>Required Material:</span>
                                             <span className="font-semibold text-zinc-200">
-                                                {dailyEncounter.amount}x {dailyEncounter.materialId === 'material-logs' ? 'Wood Logs 🪵' : dailyEncounter.materialId === 'material-stone' ? 'Stone Blocks 🪨' : 'Steel Sheets ⛓️'}
+                                                {dailyEncounter.amount}x {
+                                                    dailyEncounter.materialId === 'material-logs' ? 'Wood Logs 🪵' : 
+                                                    dailyEncounter.materialId === 'material-stone' ? 'Stone Blocks 🪨' : 
+                                                    dailyEncounter.materialId === 'material-steel' ? 'Steel Sheets ⛓️' :
+                                                    dailyEncounter.materialId === 'material-crystal' ? 'Crystal 🔮' :
+                                                    dailyEncounter.materialId === 'material-planks' ? 'Planks 🪵' :
+                                                    dailyEncounter.materialId === 'material-stone-block' ? 'Polished Stone 🪨' : 'Materials 📦'
+                                                }
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] text-zinc-400">
@@ -1164,10 +1185,22 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                             disabled={isInteracting || (materialsCount[dailyEncounter.materialId] || 0) < dailyEncounter.amount}
                                             className="w-full h-9 mt-1 bg-amber-600 hover:bg-amber-500 text-black font-semibold text-[11px] rounded-lg"
                                         >
-                                            Fulfill Request (+{dailyEncounter.rewardGold} Gold)
+                                            Fulfill Request (+{dailyEncounter.rewardGold} Gold{dailyEncounter.rewardGems ? `, +${dailyEncounter.rewardGems} Gems 💎` : ''})
                                         </Button>
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {selectedCitizen && dailyEncounter && !dailyEncounter.completed && dailyEncounter.citizenId !== selectedCitizen.id && (
+                            <div className="bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-3 flex flex-col gap-1.5 text-xs mb-1">
+                                <p className="text-zinc-500 text-[10px] leading-relaxed">
+                                    This citizen has no active requests today.
+                                    {(() => {
+                                        const questGiver = citizens.find(c => c.id === dailyEncounter.citizenId);
+                                        return questGiver ? ` Go visit ${questGiver.name} who has an active quest! ⭐` : '';
+                                    })()}
+                                </p>
                             </div>
                         )}
 
