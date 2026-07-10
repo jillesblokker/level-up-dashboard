@@ -6,7 +6,7 @@ import { getCityData } from "@/lib/city-data"
 import { HeaderSection } from "@/components/HeaderSection"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Users, Trophy, UserPlus, Coins, Shield, Sword, ShoppingBag, Plus, Minus, Info, Flame, Sparkles, Package } from "lucide-react"
+import { ChevronLeft, Users, Trophy, UserPlus, Coins, Shield, Sword, ShoppingBag, Plus, Minus, Info, Flame, Sparkles, Package, Dices } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -24,7 +24,7 @@ import { useRealmInventory } from "@/hooks/use-realm-inventory"
 import { TileType } from "@/types/tiles"
 import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
-import { formatGold } from "@/lib/utils"
+import { formatGold, cn } from "@/lib/utils"
 import { ShopItemCard } from "@/components/shop-item-card"
 import {
   BLACKSMITH_WEAPONS, BLACKSMITH_SHIELDS, BLACKSMITH_ARMOR,
@@ -144,6 +144,106 @@ function CityLocationPageInner() {
   const [playerLevel, setPlayerLevel] = useState(1)
   const [tradeQuantities, setTradeQuantities] = useState<Record<string, number>>({})
   const [openingPack, setOpeningPack] = useState<any>(null)
+  
+  // Tavern Dice Game State
+  const [diceBetType, setDiceBetType] = useState<'under' | 'exact' | 'over'>('over')
+  const [diceBetAmount, setDiceBetAmount] = useState<number>(20)
+  const [isRolling, setIsRolling] = useState(false)
+  const [dice1, setDice1] = useState(1)
+  const [dice2, setDice2] = useState(6)
+  const [rollsToday, setRollsToday] = useState(0)
+  const [diceResultMsg, setDiceResultMsg] = useState<string | null>(null)
+  const [diceWinStatus, setDiceWinStatus] = useState<'win' | 'lose' | null>(null)
+
+  // Initialize/retrieve daily rolls limit
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const todayStr = new Date().toISOString().slice(0, 10)
+      const stored = localStorage.getItem(`tavern_dice_rolls_${todayStr}`)
+      if (stored) {
+        setRollsToday(parseInt(stored, 10))
+      }
+    }
+  }, [activeTab])
+
+  const rollDiceGame = async () => {
+    if (isRolling || rollsToday >= 5) return;
+    
+    if (goldBalance < diceBetAmount) {
+      toast({
+        title: "⚠️ Insufficient Gold",
+        description: "You do not have enough gold to place this bet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRolling(true);
+    setDiceResultMsg(null);
+    setDiceWinStatus(null);
+
+    try {
+      await addToCharacterStat('gold', -diceBetAmount, 'tavern-dice-bet');
+      setGoldBalance(prev => prev - diceBetAmount);
+    } catch (e) {
+      console.error(e);
+    }
+
+    let animationInterval = setInterval(() => {
+      setDice1(Math.floor(Math.random() * 6) + 1);
+      setDice2(Math.floor(Math.random() * 6) + 1);
+    }, 80);
+
+    setTimeout(async () => {
+      clearInterval(animationInterval);
+      
+      const finalD1 = Math.floor(Math.random() * 6) + 1;
+      const finalD2 = Math.floor(Math.random() * 6) + 1;
+      const total = finalD1 + finalD2;
+
+      setDice1(finalD1);
+      setDice2(finalD2);
+
+      let won = false;
+      let payout = 0;
+
+      if (diceBetType === 'under' && total < 7) {
+        won = true;
+        payout = diceBetAmount * 2;
+      } else if (diceBetType === 'over' && total > 7) {
+        won = true;
+        payout = diceBetAmount * 2;
+      } else if (diceBetType === 'exact' && total === 7) {
+        won = true;
+        payout = diceBetAmount * 4;
+      }
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const newRolls = rollsToday + 1;
+      setRollsToday(newRolls);
+      localStorage.setItem(`tavern_dice_rolls_${todayStr}`, String(newRolls));
+
+      if (won) {
+        setDiceWinStatus('win');
+        setDiceResultMsg(`You rolled a total of ${total} (${finalD1} + ${finalD2}). You won ${payout} Gold! 🎉`);
+        try {
+          await addToCharacterStat('gold', payout, 'tavern-dice-payout');
+          setGoldBalance(prev => prev + payout);
+          
+          window.dispatchEvent(new CustomEvent('coin-burst', {
+            detail: { amount: payout, x: window.innerWidth / 2, y: window.innerHeight / 2 }
+          }));
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setDiceWinStatus('lose');
+        setDiceResultMsg(`You rolled a total of ${total} (${finalD1} + ${finalD2}). Better luck next time! 😭`);
+      }
+
+      setIsRolling(false);
+    }, 1200);
+  };
   
   const [bounties, setBounties] = useState<any[]>([])
   const [bountiesLoading, setBountiesLoading] = useState(false)
@@ -792,6 +892,10 @@ function CityLocationPageInner() {
                   <Trophy className="w-4 h-4" />
                   Legends
                 </TabsTrigger>
+                <TabsTrigger value="tavern-dice">
+                  <Dices className="w-4 h-4" />
+                  Tavern Dice
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="alliances" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
@@ -804,6 +908,154 @@ function CityLocationPageInner() {
               
               <TabsContent value="leaderboard" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                 <Leaderboard />
+              </TabsContent>
+
+              <TabsContent value="tavern-dice" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                <Card className="border border-amber-900/30 bg-gradient-to-br from-amber-950/20 via-zinc-950 to-zinc-900/80 rounded-3xl relative overflow-hidden shadow-2xl max-w-2xl mx-auto">
+                  {/* Decorative top border */}
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-700 via-amber-500 to-amber-700" />
+                  
+                  <CardHeader className="text-center pt-8">
+                    <div className="flex justify-center mb-2">
+                      <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/30">
+                        <Dices className="h-6 w-6 text-amber-400 animate-pulse" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-3xl font-serif text-amber-400 font-bold">The Green Dragon Tavern</CardTitle>
+                    <CardDescription className="text-zinc-400 max-w-md mx-auto font-serif">
+                      Step up to the counter, traveler! Wager your gold on a roll of the bones. 
+                      Get closer to fortune or lose it to the barkeep.
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="space-y-6 px-6 sm:px-8 pb-8">
+                    {/* Daily rolls tracking */}
+                    <div className="flex justify-between items-center bg-zinc-950 p-3 rounded-xl border border-zinc-900">
+                      <div className="flex flex-col text-left">
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Barkeep&apos;s Rule</span>
+                        <span className="text-xs text-zinc-300 font-medium">Daily Limit: 5 rolls max</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={cn(
+                          "font-mono text-sm px-3 py-1 border-2",
+                          rollsToday >= 5 ? "border-red-500/30 text-red-400 bg-red-950/20" : "border-amber-500/30 text-amber-400 bg-amber-500/5"
+                        )}>
+                          {rollsToday} / 5 Played Today
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {rollsToday >= 5 ? (
+                      <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-4 text-center text-red-400 text-xs italic">
+                        {"\"The Barkeep wipes the glass and nods, 'That's enough excitement for you today, friend. Come back tomorrow!'\""}
+                      </div>
+                    ) : (
+                      <>
+                        {/* Betting Target */}
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold uppercase text-zinc-400 tracking-wider flex justify-center">1. Choose Your Prediction</label>
+                          <div className="grid grid-cols-3 gap-3">
+                            {(['under', 'exact', 'over'] as const).map((type) => {
+                              const label = type === 'under' ? 'Under 7' : type === 'exact' ? 'Exactly 7' : 'Over 7';
+                              const multiplier = type === 'exact' ? '4x Payout' : '2x Payout';
+                              const selected = diceBetType === type;
+                              return (
+                                <button
+                                  key={type}
+                                  disabled={isRolling}
+                                  onClick={() => { setDiceBetType(type); setDiceResultMsg(null); }}
+                                  className={cn(
+                                    "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all",
+                                    selected
+                                      ? "border-amber-500 bg-amber-500/10 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                                      : "border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
+                                  )}
+                                >
+                                  <span className="text-sm font-serif font-bold">{label}</span>
+                                  <span className="text-[10px] font-mono opacity-80 mt-0.5">{multiplier}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Betting Amount */}
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold uppercase text-zinc-400 tracking-wider flex justify-center">2. Set Your Wager (Gold)</label>
+                          <div className="flex justify-center gap-3">
+                            {[10, 20, 50, 100].map((amount) => {
+                              const selected = diceBetAmount === amount;
+                              return (
+                                <button
+                                  key={amount}
+                                  disabled={isRolling}
+                                  onClick={() => { setDiceBetAmount(amount); setDiceResultMsg(null); }}
+                                  className={cn(
+                                    "relative w-14 h-14 rounded-full border-2 flex flex-col items-center justify-center transition-all",
+                                    selected
+                                      ? "border-yellow-500 bg-yellow-950/40 text-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.25)] scale-105"
+                                      : "border-zinc-800 bg-zinc-950/30 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
+                                  )}
+                                >
+                                  <span className="text-xs font-bold font-mono">{amount}</span>
+                                  <span className="text-[9px] uppercase tracking-wider text-amber-600 font-extrabold -mt-0.5">Gold</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Dice Display Area */}
+                        <div className="flex flex-col items-center justify-center py-4 bg-zinc-950 rounded-2xl border border-zinc-900 shadow-inner">
+                          <div className="flex gap-6 justify-center items-center">
+                            {/* Die 1 */}
+                            <div className={cn(
+                              "w-16 h-16 bg-zinc-900 border-2 border-amber-900/50 rounded-2xl flex items-center justify-center text-3xl font-bold font-serif text-amber-200 shadow-lg shadow-black/80",
+                              isRolling && "animate-bounce"
+                            )}>
+                              {dice1}
+                            </div>
+                            {/* Die 2 */}
+                            <div className={cn(
+                              "w-16 h-16 bg-zinc-900 border-2 border-amber-900/50 rounded-2xl flex items-center justify-center text-3xl font-bold font-serif text-amber-200 shadow-lg shadow-black/80",
+                              isRolling && "animate-bounce"
+                            )} style={{ animationDelay: '0.15s' }}>
+                              {dice2}
+                            </div>
+                          </div>
+
+                          {/* Display Sum */}
+                          {!isRolling && diceResultMsg && (
+                            <div className="mt-4 font-serif text-sm text-zinc-400">
+                              Total Rolled: <span className="text-lg font-bold text-amber-400 font-mono">{dice1 + dice2}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Result Announcement */}
+                        {diceResultMsg && (
+                          <div className={cn(
+                            "p-4 rounded-xl border text-center text-xs font-serif leading-relaxed",
+                            diceWinStatus === 'win'
+                              ? "bg-emerald-950/30 border-emerald-500/20 text-emerald-400"
+                              : "bg-red-950/20 border-red-500/20 text-red-400"
+                          )}>
+                            {diceResultMsg}
+                          </div>
+                        )}
+
+                        {/* Roll Button */}
+                        <Button
+                          onClick={rollDiceGame}
+                          disabled={isRolling || goldBalance < diceBetAmount}
+                          className="w-full h-12 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-base rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          {isRolling ? "Rolling the Bones..." : "Roll the Bones 🎲"}
+                        </Button>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>

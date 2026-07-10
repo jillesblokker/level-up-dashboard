@@ -35,7 +35,7 @@ import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
-import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
+import { getCharacterStats, updateCharacterStats, fetchFreshCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
 import { addToInventory } from '@/lib/inventory-manager';
 import { addTileToInventory } from '@/lib/tile-inventory-manager';
 import { MonsterSpawn, MonsterType } from '@/types/monsters';
@@ -205,13 +205,15 @@ function RealmPageContent() {
     interface ScoutExpedition {
         scoutName: string;
         scoutFilename: string;
-        destination: 'woods' | 'caves' | 'ruins';
+        destination: 'woods' | 'caves' | 'ruins' | 'weekly-abyss';
         startTime: number;
         endTime: number;
         logs: string[];
         goldCost: number;
+        gemCost?: number;
         rewardGold: number;
         rewardItems: Array<{ id: string; name: string; quantity: number; emoji: string }>;
+        doubleRewards?: boolean;
     }
     const [isExpeditionModalOpen, setIsExpeditionModalOpen] = useState(false);
     const [activeExpedition, setActiveExpedition] = useState<ScoutExpedition | null>(null);
@@ -258,7 +260,14 @@ function RealmPageContent() {
             const progress = Math.min(elapsedMs / durationMs, 1);
 
             // Generate narrative logs based on progress
-            const logSteps = [
+            const logSteps = activeExpedition.destination === 'weekly-abyss' ? [
+                { limit: 0.1, msg: `🌌 ${activeExpedition.scoutName} crossed the void threshold into the Realm Core.` },
+                { limit: 0.3, msg: `💎 Found a floating field of raw ether gems. Handled with protective runes.` },
+                { limit: 0.5, msg: `🌀 Bypassed a raging chaotic rift vortex safely.` },
+                { limit: 0.7, msg: `🏛️ Explored a grand celestial treasury sanctuary.` },
+                { limit: 0.9, msg: `🏺 Loaded the containment pack with deep-core crystal clusters.` },
+                { limit: 1.0, msg: `🏁 Expedition complete! Scout returned with legendary loot.` },
+            ] : [
                 { limit: 0.1, msg: `⛺ ${activeExpedition.scoutName} packed gear and entered the wilderness.` },
                 { limit: 0.3, msg: `🪵 Encountered a fallen tree blocking the trail, cleared a path.` },
                 { limit: 0.5, msg: `🦊 Spotted a group of wild creatures. Scout stayed hidden and bypassed them.` },
@@ -285,10 +294,11 @@ function RealmPageContent() {
         return () => clearInterval(interval);
     }, [activeExpedition, userId]);
 
-    const startExpedition = async (scout: any, destination: 'woods' | 'caves' | 'ruins') => {
+    const startExpedition = async (scout: any, destination: 'woods' | 'caves' | 'ruins' | 'weekly-abyss') => {
         if (!userId) return;
 
         let goldCost = 10;
+        let gemCost = 0;
         let durationMin = 1; // Default Whispering Woods
         let rewardGold = 25;
         let rewardItems: Array<{ id: string; name: string; quantity: number; emoji: string }> = [];
@@ -316,22 +326,53 @@ function RealmPageContent() {
                 { id: 'material-crystal', name: 'Crystal', quantity: 1, emoji: '🔮' },
                 { id: 'material-steel', name: 'Steel Sheets', quantity: Math.floor(Math.random() * 2) + 1, emoji: '⛓️' }
             ];
+        } else if (destination === 'weekly-abyss') {
+            gemCost = 5;
+            durationMin = 7 * 24 * 60; // 7 days (weekly)
+            rewardGold = 500;
+            rewardItems = [
+                { id: 'material-crystal', name: 'Void Crystal', quantity: 5, emoji: '🔮' },
+                { id: 'material-steel', name: 'Steel Sheets', quantity: 5, emoji: '⛓️' }
+            ];
         }
 
-        if (characterStats.gold < goldCost) {
-            toast({
-                title: "Insufficient Gold",
-                description: `You need ${goldCost} gold to launch this expedition. You have ${characterStats.gold} gold.`,
-                variant: "destructive"
-            });
-            return;
+        if (destination === 'weekly-abyss') {
+            if ((characterStats.gems ?? 0) < gemCost) {
+                toast({
+                    title: "Insufficient Gems",
+                    description: `You need ${gemCost} gems to launch this weekly expedition. You have ${characterStats.gems ?? 0} gems.`,
+                    variant: "destructive"
+                });
+                return;
+            }
+        } else {
+            if (characterStats.gold < goldCost) {
+                toast({
+                    title: "Insufficient Gold",
+                    description: `You need ${goldCost} gold to launch this expedition. You have ${characterStats.gold} gold.`,
+                    variant: "destructive"
+                });
+                return;
+            }
         }
 
         try {
-            // Deduct Gold
-            await gainGold(-goldCost, 'expedition-cost');
+            // Deduct cost
+            if (destination === 'weekly-abyss') {
+                await addToCharacterStat('gems', -gemCost, 'weekly-scout');
+            } else {
+                await gainGold(-goldCost, 'expedition-cost');
+            }
             const stats = getCharacterStats();
-            if (stats) setCharacterStats(stats);
+            if (stats) setCharacterStats({
+                gold: stats.gold ?? 0,
+                level: stats.level ?? 1,
+                experience: stats.experience ?? 0,
+                gems: stats.gems ?? 0
+            });
+
+            // Determine if double rewards occur (15% chance)
+            const doubleRewards = Math.random() < 0.15;
 
             const now = Date.now();
             const endTime = now + durationMin * 60 * 1000;
@@ -341,10 +382,16 @@ function RealmPageContent() {
                 destination,
                 startTime: now,
                 endTime,
-                logs: [`⛺ ${scout.name} packed gear and entered the wilderness.`],
+                logs: [
+                    destination === 'weekly-abyss'
+                        ? `🌌 ${scout.name} crossed the void threshold into the Realm Core.`
+                        : `⛺ ${scout.name} packed gear and entered the wilderness.`
+                ],
                 goldCost,
+                gemCost,
                 rewardGold,
-                rewardItems
+                rewardItems,
+                doubleRewards
             };
 
             setActiveExpedition(newExpedition);
@@ -352,7 +399,11 @@ function RealmPageContent() {
 
             toast({
                 title: "🗺️ Expedition Launched!",
-                description: `${scout.name} has set off for the ${destination === 'woods' ? 'Whispering Woods' : destination === 'caves' ? 'Shimmering Caves' : 'Forgotten Ruins'}.`,
+                description: `${scout.name} has set off for the ${
+                    destination === 'woods' ? 'Whispering Woods' : 
+                    destination === 'caves' ? 'Shimmering Caves' : 
+                    destination === 'ruins' ? 'Forgotten Ruins' : 'Realm Core Abyss'
+                }.${doubleRewards ? " 🍀 Good fortune follows them (Double Rewards active)!" : ""}`,
             });
         } catch (err) {
             console.error('Failed to launch expedition:', err);
@@ -363,24 +414,40 @@ function RealmPageContent() {
         if (!activeExpedition || !userId) return;
 
         try {
-            // Award Gold
-            await gainGold(activeExpedition.rewardGold, 'expedition-reward');
+            // Check double rewards
+            const multiplier = activeExpedition.doubleRewards ? 2 : 1;
+            const finalGold = activeExpedition.rewardGold * multiplier;
+            const finalXp = 50 * multiplier;
             
-            // Award XP (50 XP)
-            await gainExperience(50, 'expedition-reward');
+            // Award Gold
+            await gainGold(finalGold, 'expedition-reward');
+            
+            // Award XP
+            await gainExperience(finalXp, 'expedition-reward');
 
             // Add items to inventory
+            const claimedItems = [];
             for (const item of activeExpedition.rewardItems) {
-                await addToInventory(userId, item as any);
+                const finalItem = {
+                    ...item,
+                    quantity: item.quantity * multiplier
+                };
+                await addToInventory(userId, finalItem as any);
+                claimedItems.push(finalItem);
             }
 
             // Sync stats
             const stats = getCharacterStats();
-            if (stats) setCharacterStats(stats);
+            if (stats) setCharacterStats({
+                gold: stats.gold ?? 0,
+                level: stats.level ?? 1,
+                experience: stats.experience ?? 0,
+                gems: stats.gems ?? 0
+            });
 
             toast({
-                title: "🎉 Scout Returned!",
-                description: `Expedition complete! Received +${activeExpedition.rewardGold} Gold, +50 XP, and resources: ${activeExpedition.rewardItems.map(i => `${i.quantity}x ${i.name} ${i.emoji}`).join(', ')}.`,
+                title: activeExpedition.doubleRewards ? "🎉 Scout Returned! 🍀 DOUBLE REWARDS!" : "🎉 Scout Returned!",
+                description: `Expedition complete! Received +${finalGold} Gold, +${finalXp} XP, and resources: ${claimedItems.map(i => `${i.quantity}x ${i.name} ${i.emoji}`).join(', ')}.${activeExpedition.doubleRewards ? " (Double rewards applied!)" : ""}`,
                 className: "bg-zinc-900 border-amber-500/50 border text-white shadow-2xl"
             });
 
@@ -539,7 +606,7 @@ function RealmPageContent() {
         return () => clearInterval(timer);
     }, []);
 
-    const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
+    const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0, gems: 0 });
     const [monsters, setMonsters] = useState<MonsterSpawn[]>([]);
     const [monsterEvent, setMonsterEvent] = useState<{ open: boolean; monster: MonsterSpawn | null }>({ open: false, monster: null });
 
@@ -551,12 +618,22 @@ function RealmPageContent() {
     useEffect(() => {
         // Load initial stats
         const stats = getCharacterStats();
-        if (stats) setCharacterStats(stats);
+        if (stats) setCharacterStats({
+            gold: stats.gold ?? 0,
+            level: stats.level ?? 1,
+            experience: stats.experience ?? 0,
+            gems: stats.gems ?? 0
+        });
 
         // Fetch fresh stats from server
         if (userId) {
             fetchFreshCharacterStats().then(freshStats => {
-                if (freshStats) setCharacterStats(freshStats);
+                if (freshStats) setCharacterStats({
+                    gold: freshStats.gold ?? 0,
+                    level: freshStats.level ?? 1,
+                    experience: freshStats.experience ?? 0,
+                    gems: freshStats.gems ?? 0
+                });
             });
             // Trigger achievement catch-up when visiting realm page
             triggerCatchUp(true);
@@ -2119,6 +2196,7 @@ function RealmPageContent() {
                                 <ExpeditionLauncher
                                     citizens={unlockedCitizensList}
                                     gold={characterStats.gold}
+                                    gems={characterStats.gems ?? 0}
                                     onLaunch={startExpedition}
                                 />
                             )}
@@ -3025,24 +3103,31 @@ function RealmPageContent() {
 function ExpeditionLauncher({
     citizens,
     gold,
+    gems,
     onLaunch
 }: {
     citizens: any[];
     gold: number;
-    onLaunch: (scout: any, destination: 'woods' | 'caves' | 'ruins') => void;
+    gems: number;
+    onLaunch: (scout: any, destination: 'woods' | 'caves' | 'ruins' | 'weekly-abyss') => void;
 }) {
     const [selectedScoutId, setSelectedScoutId] = useState<string>('');
-    const [selectedDestination, setSelectedDestination] = useState<'woods' | 'caves' | 'ruins'>('woods');
+    const [selectedDestination, setSelectedDestination] = useState<'woods' | 'caves' | 'ruins' | 'weekly-abyss'>('woods');
 
     const selectedScout = citizens.find(c => c.id === selectedScoutId) || null;
 
     const destinations = [
-        { id: 'woods', name: '🌲 Whispering Woods', duration: '1 Minute', cost: 10, reward: 'Wood Logs 🪵', desc: 'A quick patrol through nearby woods to gather basic timber.' },
-        { id: 'caves', name: '🪨 Shimmering Caves', duration: '4 Hours', cost: 25, reward: 'Stone & Steel 🪨', desc: 'Delve into abandoned mines to excavate stone and steel ore.' },
-        { id: 'ruins', name: '🏰 Forgotten Ruins', duration: '8 Hours', cost: 50, reward: 'Crystals & Steel 🔮', desc: 'Search ancient royal ruins for crystals and advanced crafting materials.' }
+        { id: 'woods', name: '🌲 Whispering Woods', duration: '1 Minute', cost: 10, gemCost: 0, reward: 'Wood Logs 🪵', desc: 'A quick patrol through nearby woods to gather basic timber.' },
+        { id: 'caves', name: '🪨 Shimmering Caves', duration: '4 Hours', cost: 25, gemCost: 0, reward: 'Stone & Steel 🪨', desc: 'Delve into abandoned mines to excavate stone and steel ore.' },
+        { id: 'ruins', name: '🏰 Forgotten Ruins', duration: '8 Hours', cost: 50, gemCost: 0, reward: 'Crystals & Steel 🔮', desc: 'Search ancient royal ruins for crystals and advanced crafting materials.' },
+        { id: 'weekly-abyss', name: '🌌 Realm Core Abyss', duration: '7 Days', cost: 0, gemCost: 5, reward: 'Void Crystals 🔮', desc: 'Weekly deep-core search. Chance for massive loot. 15% Double Reward chance!' }
     ] as const;
 
     const activeDest = destinations.find(d => d.id === selectedDestination)!;
+
+    const hasEnoughCurrency = activeDest.id === 'weekly-abyss'
+        ? gems >= (activeDest.gemCost || 0)
+        : gold >= activeDest.cost;
 
     return (
         <div className="space-y-4 text-left">
@@ -3113,7 +3198,9 @@ function ExpeditionLauncher({
                                 </div>
                                 <div className="text-right flex flex-col items-end gap-0.5 shrink-0">
                                     <span className="text-[10px] font-mono text-zinc-400">🕒 {dest.duration}</span>
-                                    <span className="text-[10px] font-mono text-amber-500">💰 {dest.cost} Gold</span>
+                                    <span className="text-[10px] font-mono text-amber-500">
+                                        {dest.id === 'weekly-abyss' ? `💎 ${dest.gemCost} Gems` : `💰 ${dest.cost} Gold`}
+                                    </span>
                                 </div>
                             </button>
                         );
@@ -3124,14 +3211,14 @@ function ExpeditionLauncher({
             {/* Launch Action */}
             <Button
                 onClick={() => selectedScout && onLaunch(selectedScout, selectedDestination)}
-                disabled={!selectedScout || gold < activeDest.cost}
+                disabled={!selectedScout || !hasEnoughCurrency}
                 className="w-full h-11 mt-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
                 {!selectedScout 
                     ? "Select a Scout" 
-                    : gold < activeDest.cost 
-                    ? "Insufficient Gold" 
-                    : `Launch Scout (${activeDest.cost} Gold) 🗺️`
+                    : !hasEnoughCurrency
+                    ? (activeDest.id === 'weekly-abyss' ? "Insufficient Gems" : "Insufficient Gold")
+                    : `Launch Scout (${activeDest.id === 'weekly-abyss' ? `${activeDest.gemCost} Gems` : `${activeDest.cost} Gold`}) 🗺️`
                 }
             </Button>
         </div>

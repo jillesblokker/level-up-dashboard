@@ -14,7 +14,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Flamio',
         filename: 'Flamio.png',
         type: 'fire',
-        greetings: ["Hot stuff coming through!", "Watch the sparks, boss!", "Is it hot in here, or is it just me?"],
+        greetings: ["A habit is forged in the hottest fire. What are we hammering out today?", "Keep that streak burning, traveler! Stagnation is just cold ash.", "Let's melt away yesterday's failures. Fresh iron is ready for the anvil!"],
         scale: 0.8
     },
     '002': {
@@ -22,7 +22,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Embera',
         filename: 'Embera.png',
         type: 'fire',
-        greetings: ["Finally, some room to breathe!", "Burn bright, little one.", "The fire rises."],
+        greetings: ["A habit is forged in the hottest fire. What are we hammering out today?", "Keep that streak burning, traveler! Stagnation is just cold ash.", "Let's melt away yesterday's failures. Fresh iron is ready for the anvil!"],
         scale: 0.9
     },
     '003': {
@@ -30,7 +30,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Vulcana',
         filename: 'Vulcana.png',
         type: 'fire',
-        greetings: ["DESTRUCTION! I LOVE IT!", "My power overflows!", "Behold the inferno!"],
+        greetings: ["A habit is forged in the hottest fire. What are we hammering out today?", "Keep that streak burning, traveler! Stagnation is just cold ash.", "Let's melt away yesterday's failures. Fresh iron is ready for the anvil!"],
         scale: 1.1
     },
 
@@ -40,7 +40,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Dolphio',
         filename: 'Dolphio.png',
         type: 'water',
-        greetings: ["Splash! You found me!", "Wanna play tag?", "More water! More water!"],
+        greetings: ["Discipline is like a river—it carves canyons through rock, drop by drop.", "Start your day with a clear flow. Have you drank a glass of fresh water yet?", "Let your daily routines wash away the noise. Just find your flow state."],
         scale: 0.8
     },
     '005': {
@@ -48,7 +48,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Divero',
         filename: 'Divero.png',
         type: 'water',
-        greetings: ["Nice flow you got there.", "Deep waters run still.", "Just keep swimming."],
+        greetings: ["Discipline is like a river—it carves canyons through rock, drop by drop.", "Start your day with a clear flow. Have you drank a glass of fresh water yet?", "Let your daily routines wash away the noise. Just find your flow state."],
         scale: 0.9
     },
     '006': {
@@ -56,7 +56,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Flippur',
         filename: 'Flippur.png',
         type: 'water',
-        greetings: ["You have mastered the tides.", "The ocean bows to you.", "Ride the wave."],
+        greetings: ["Discipline is like a river—it carves canyons through rock, drop by drop.", "Start your day with a clear flow. Have you drank a glass of fresh water yet?", "Let your daily routines wash away the noise. Just find your flow state."],
         scale: 1.1
     },
 
@@ -66,7 +66,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Leaf',
         filename: 'Leaf.png',
         type: 'nature',
-        greetings: ["Peek-a-boo!", "Yay! A new friend!", "Don't step on the flowers!"],
+        greetings: ["A giant oak grows from a tiny acorn. Plant one small habit today.", "Patience, traveler. You don't see the roots growing, but they are securing your foundation.", "Every daily checklist completed is fresh sunlight for our golden meadows."],
         scale: 0.7
     },
     '008': {
@@ -74,7 +74,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Oaky',
         filename: 'Oaky.png',
         type: 'nature',
-        greetings: ["Growth... takes... time...", "Strong roots... strong kingdom...", "Patience..."],
+        greetings: ["A giant oak grows from a tiny acorn. Plant one small habit today.", "Patience, traveler. You don't see the roots growing, but they are securing your foundation.", "Every daily checklist completed is fresh sunlight for our golden meadows."],
         scale: 1.0
     },
     '009': {
@@ -82,7 +82,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Seqoio',
         filename: 'Seqoio.png',
         type: 'nature',
-        greetings: ["You build a legacy for the ages.", "Stand tall, little one.", "The forest protects its own."],
+        greetings: ["A giant oak grows from a tiny acorn. Plant one small habit today.", "Patience, traveler. You don't see the roots growing, but they are securing your foundation.", "Every daily checklist completed is fresh sunlight for our golden meadows."],
         scale: 1.2
     },
 
@@ -92,7 +92,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Rockie',
         filename: 'Rockie.png',
         type: 'earth',
-        greetings: ["Oof. Watch the toes.", "I was napping...", "Solid ground is best."],
+        greetings: ["A fortress is built block by block. Your daily habit is today's stone.", "Steady feet, heavy tasks. Let's get the foundation solid before nightfall.", "Your streak is a granite wall. Don't let a single brick crumble."],
         scale: 0.8
     },
     '011': {
@@ -100,7 +100,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Buldour',
         filename: 'Buldour.png',
         type: 'earth',
-        greetings: ["Hmph. Good smash.", "Strong foundation.", "Rock solid."],
+        greetings: ["A fortress is built block by block. Your daily habit is today's stone.", "Steady feet, heavy tasks. Let's get the foundation solid before nightfall.", "Your streak is a granite wall. Don't let a single brick crumble."],
         scale: 1.0
     },
     '012': {
@@ -108,7 +108,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Montano',
         filename: 'Montano.png',
         type: 'earth',
-        greetings: ["YOU MOVE MOUNTAINS LIKE PEBBLES.", "Stand firm.", "The earth shakes."],
+        greetings: ["A fortress is built block by block. Your daily habit is today's stone.", "Steady feet, heavy tasks. Let's get the foundation solid before nightfall.", "Your streak is a granite wall. Don't let a single brick crumble."],
         scale: 1.2
     },
 
@@ -118,7 +118,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Icey',
         filename: 'Icey.png',
         type: 'ice',
-        greetings: ["Brrr! Close the door!", "Chilly today, isn't it?", "Stay cool."],
+        greetings: ["Freeze out the distractions. Absolute clarity is your greatest weapon.", "A cool head and a sharp schedule. That is how empires are built.", "Icy precision beats emotional chaos. Just follow the checklist."],
         scale: 0.8
     },
     '014': {
@@ -126,7 +126,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Hailey',
         filename: 'Hailey.png',
         type: 'ice',
-        greetings: ["A precise strike.", "Cool and collected.", "Sharp as ice."],
+        greetings: ["Freeze out the distractions. Absolute clarity is your greatest weapon.", "A cool head and a sharp schedule. That is how empires are built.", "Icy precision beats emotional chaos. Just follow the checklist."],
         scale: 0.9
     },
     '015': {
@@ -134,7 +134,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         name: 'Blizzey',
         filename: 'Blizzey.png',
         type: 'ice',
-        greetings: ["The cold never bothered me anyway.", "Winter is coming.", "Frozen perfection."],
+        greetings: ["Freeze out the distractions. Absolute clarity is your greatest weapon.", "A cool head and a sharp schedule. That is how empires are built.", "Icy precision beats emotional chaos. Just follow the checklist."],
         scale: 1.1
     },
 

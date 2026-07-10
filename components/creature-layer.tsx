@@ -45,91 +45,91 @@ export function getUnifiedChatterPool(def: any, questStats: { total: number; com
         case 'fire':
             if (allCompleted) {
                 progressQuotes = [
-                    "The forge fires are roaring hot today! Pure power!",
-                    "Yes! Let's burn through all these tasks!",
-                    "A blazing victory! The realm is burning bright!"
+                    "Superb! That's a masterfully tempered day of discipline. Pure steel!",
+                    "Your habit flame is roaring! Absolute power!",
+                    "Forge heat is at maximum! Stagnation is vaporized!"
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "Heating up! We are halfway there!",
-                    "Keep feeding the flames, boss!",
-                    "Sparks are flying! Keep it going!"
+                    "We are heating up! Halfway through forging today's routine!",
+                    "Keep feeding the flames, boss! Hammer that metal!",
+                    "Sparks are flying! The habit is taking shape!"
                 ];
             } else {
                 progressQuotes = [
-                    "The fire is dying down... we need more spark!",
-                    "These cold, uncompleted tasks are killing my vibe!",
-                    "Blow some bellows on those habits!"
+                    "The forge is going cold! Complete a task to throw more coal on the flame!",
+                    "Don't let the fire die down. A single small habit can spark a massive blaze!",
+                    "These cold, uncompleted tasks are choking my bellows!"
                 ];
             }
             break;
         case 'water':
             if (allCompleted) {
                 progressQuotes = [
-                    "A flood of completions! Wonderful!",
-                    "Everything is flowing perfectly today!",
+                    "Flowing beautifully! Today was a perfect tide. Rest now, traveler.",
+                    "A flood of completions! Flow state level: maximum!",
                     "Clean sweep! We are swimming in success!"
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
                     "Making waves today! Keep paddling!",
-                    "The tide is rising in our favor!",
-                    "Smooth sailing ahead!"
+                    "The tide is rising in our favor. Keep moving!",
+                    "Smooth sailing! Let's glide to the finish line."
                 ];
             } else {
                 progressQuotes = [
-                    "Stagnant water... we need movement!",
-                    "The water level is dropping... focus, please!",
-                    "Don't let the realm dry out!"
+                    "The current is slowing. Let's do one small task to get back into the stream.",
+                    "Stagnant water grows stale. Keep moving, even if it's just a trickle!",
+                    "Don't let the daily flow dry out completely!"
                 ];
             }
             break;
         case 'earth':
             if (allCompleted) {
                 progressQuotes = [
-                    "A rock-solid day of completions!",
-                    "We moved mountains today!",
-                    "Solid ground beneath us. A triumphant day!"
+                    "Rock solid! Today's fortress is impenetrable. You've earned your rest.",
+                    "A rock-solid day of completions! We moved mountains!",
+                    "Granite foundation secured. A triumphant day!"
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
                     "Good foundations! Almost there!",
-                    "Steady as she goes, Sire!",
-                    "Building strength block by block!"
+                    "Steady as she goes. Building strength block by block!",
+                    "Today's stone wall is growing taller. Lift that load!"
                 ];
             } else {
                 progressQuotes = [
-                    "Stuck in a mudslide... we need effort!",
-                    "The ground is crumbling without focus!",
-                    "Heave ho! We need more heavy lifting on those habits!"
+                    "The ground is shaking under uncompleted tasks! Grab your shovel, let's work.",
+                    "Too much napping, too little lifting. Let's place just one stone right now.",
+                    "Your streak is a granite wall. Don't let a single brick crumble!"
                 ];
             }
             break;
         case 'nature':
             if (allCompleted) {
                 progressQuotes = [
-                    "A bountiful harvest of completed quests!",
+                    "A bountiful harvest of focus! Look how much our little realm has bloomed!",
                     "The realm is blooming beautifully today!",
-                    "Nature flourishes when you are focused!"
+                    "Nature flourishes when you are focused and consistent!"
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
                     "Green shoots! We are growing fast today!",
                     "Nurture your habits and watch us grow!",
-                    "Reaching for the sun! Almost there!"
+                    "Reaching for the sun! Daily growth in progress!"
                 ];
             } else {
                 progressQuotes = [
-                    "The leaves are wilting... water us with focus!",
-                    "Stagnation has set in... cultivate discipline!",
-                    "Don't let the weeds overtake the garden!"
+                    "The leaves are drooping... water us with focus!",
+                    "Discipline is watering the seeds even when you don't see the sprouts yet.",
+                    "Don't let the weeds of distraction overtake the garden!"
                 ];
             }
             break;
         case 'ice':
             if (allCompleted) {
                 progressQuotes = [
-                    "Frozen perfection! Every task iced!",
+                    "Beautifully iced! Cold, precise execution. Not a single slip today.",
                     "Cool, calm, and 100% completed!",
                     "Absolute zero stagnation today!"
                 ];
@@ -137,13 +137,13 @@ export function getUnifiedChatterPool(def: any, questStats: { total: number; com
                 progressQuotes = [
                     "Ice is forming! Solid progress!",
                     "Chillingly good work today!",
-                    "Keeping our cool and getting it done!"
+                    "Keeping our cool and checking off the list!"
                 ];
             } else {
                 progressQuotes = [
-                    "A meltdown is coming! We need discipline!",
-                    "Cold winds blow when habits are forgotten...",
-                    "Brrr... the energy is freezing up."
+                    "A meltdown is imminent! Lock in your focus before the structure dissolves.",
+                    "Distractions are melting your day away. Freeze them out and complete a task.",
+                    "Cold winds blow when habits are forgotten... stay warm and work."
                 ];
             }
             break;
