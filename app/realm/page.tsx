@@ -27,6 +27,7 @@ import { RealmEventModal } from '@/components/realm-event-modal'
 import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
+import { useCitizensStore } from '@/stores/citizensStore'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { cn } from "@/lib/utils"
 import Image from 'next/image'
@@ -199,6 +200,201 @@ function RealmPageContent() {
         animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
         animalName: string;
     } | null>(null);
+
+    // Scout Expedition State (Point 6)
+    interface ScoutExpedition {
+        scoutName: string;
+        scoutFilename: string;
+        destination: 'woods' | 'caves' | 'ruins';
+        startTime: number;
+        endTime: number;
+        logs: string[];
+        goldCost: number;
+        rewardGold: number;
+        rewardItems: Array<{ id: string; name: string; quantity: number; emoji: string }>;
+    }
+    const [isExpeditionModalOpen, setIsExpeditionModalOpen] = useState(false);
+    const [activeExpedition, setActiveExpedition] = useState<ScoutExpedition | null>(null);
+    const [unlockedCitizensList, setUnlockedCitizensList] = useState<any[]>([]);
+
+    // Load active expedition from localStorage
+    useEffect(() => {
+        if (typeof window !== "undefined" && userId) {
+            const saved = localStorage.getItem(`scout_expedition_${userId}`);
+            if (saved) {
+                try {
+                    setActiveExpedition(JSON.parse(saved));
+                } catch (e) {}
+            }
+        }
+    }, [userId]);
+
+    // Load unlocked citizens list
+    useEffect(() => {
+        const fetchCitizens = async () => {
+            if (!userId) return;
+            try {
+                // Ensure citizens are loaded in citizensStore
+                const citizensStore = useCitizensStore.getState();
+                await citizensStore.loadCitizens(userId);
+                setUnlockedCitizensList(citizensStore.citizens);
+            } catch (err) {
+                console.error('Failed to load citizens for expeditions:', err);
+            }
+        };
+        if (isExpeditionModalOpen) {
+            fetchCitizens();
+        }
+    }, [userId, isExpeditionModalOpen]);
+
+    // Timer effect to dynamically generate progress logs as time passes
+    useEffect(() => {
+        if (!activeExpedition || !userId) return;
+
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const elapsedMs = now - activeExpedition.startTime;
+            const durationMs = activeExpedition.endTime - activeExpedition.startTime;
+            const progress = Math.min(elapsedMs / durationMs, 1);
+
+            // Generate narrative logs based on progress
+            const logSteps = [
+                { limit: 0.1, msg: `⛺ ${activeExpedition.scoutName} packed gear and entered the wilderness.` },
+                { limit: 0.3, msg: `🪵 Encountered a fallen tree blocking the trail, cleared a path.` },
+                { limit: 0.5, msg: `🦊 Spotted a group of wild creatures. Scout stayed hidden and bypassed them.` },
+                { limit: 0.7, msg: `🏺 Found ruins from the ancient kingdom. Searched the rubble.` },
+                { limit: 0.9, msg: `📦 Located a buried chest! Scout is heading back with the goods.` },
+                { limit: 1.0, msg: `🏁 Expedition complete! Scout returned safely to the grand citadel.` },
+            ];
+
+            const currentLogs = [logSteps[0]!.msg];
+            logSteps.slice(1).forEach(step => {
+                if (progress >= step.limit) {
+                    currentLogs.push(step.msg);
+                }
+            });
+
+            // Update logs in state if changed
+            if (currentLogs.length !== activeExpedition.logs.length) {
+                const updated = { ...activeExpedition, logs: currentLogs };
+                setActiveExpedition(updated);
+                localStorage.setItem(`scout_expedition_${userId}`, JSON.stringify(updated));
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [activeExpedition, userId]);
+
+    const startExpedition = async (scout: any, destination: 'woods' | 'caves' | 'ruins') => {
+        if (!userId) return;
+
+        let goldCost = 10;
+        let durationMin = 1; // Default Whispering Woods
+        let rewardGold = 25;
+        let rewardItems: Array<{ id: string; name: string; quantity: number; emoji: string }> = [];
+
+        if (destination === 'woods') {
+            goldCost = 10;
+            durationMin = 1; // 1 min for testing/demo
+            rewardGold = 25;
+            rewardItems = [
+                { id: 'material-logs', name: 'Wood Logs', quantity: Math.floor(Math.random() * 2) + 2, emoji: '🪵' }
+            ];
+        } else if (destination === 'caves') {
+            goldCost = 25;
+            durationMin = 4 * 60; // 4 hours
+            rewardGold = 60;
+            rewardItems = [
+                { id: 'material-stone', name: 'Stone Blocks', quantity: Math.floor(Math.random() * 2) + 2, emoji: '🪨' },
+                { id: 'material-steel', name: 'Steel Sheets', quantity: 1, emoji: '⛓️' }
+            ];
+        } else if (destination === 'ruins') {
+            goldCost = 50;
+            durationMin = 8 * 60; // 8 hours
+            rewardGold = 120;
+            rewardItems = [
+                { id: 'material-crystal', name: 'Crystal', quantity: 1, emoji: '🔮' },
+                { id: 'material-steel', name: 'Steel Sheets', quantity: Math.floor(Math.random() * 2) + 1, emoji: '⛓️' }
+            ];
+        }
+
+        if (characterStats.gold < goldCost) {
+            toast({
+                title: "Insufficient Gold",
+                description: `You need ${goldCost} gold to launch this expedition. You have ${characterStats.gold} gold.`,
+                variant: "destructive"
+            });
+            return;
+        }
+
+        try {
+            // Deduct Gold
+            await gainGold(-goldCost, 'expedition-cost');
+            const stats = getCharacterStats();
+            if (stats) setCharacterStats(stats);
+
+            const now = Date.now();
+            const endTime = now + durationMin * 60 * 1000;
+            const newExpedition: ScoutExpedition = {
+                scoutName: scout.name,
+                scoutFilename: scout.filename,
+                destination,
+                startTime: now,
+                endTime,
+                logs: [`⛺ ${scout.name} packed gear and entered the wilderness.`],
+                goldCost,
+                rewardGold,
+                rewardItems
+            };
+
+            setActiveExpedition(newExpedition);
+            localStorage.setItem(`scout_expedition_${userId}`, JSON.stringify(newExpedition));
+
+            toast({
+                title: "🗺️ Expedition Launched!",
+                description: `${scout.name} has set off for the ${destination === 'woods' ? 'Whispering Woods' : destination === 'caves' ? 'Shimmering Caves' : 'Forgotten Ruins'}.`,
+            });
+        } catch (err) {
+            console.error('Failed to launch expedition:', err);
+        }
+    };
+
+    const claimExpeditionRewards = async () => {
+        if (!activeExpedition || !userId) return;
+
+        try {
+            // Award Gold
+            await gainGold(activeExpedition.rewardGold, 'expedition-reward');
+            
+            // Award XP (50 XP)
+            await gainExperience(50, 'expedition-reward');
+
+            // Add items to inventory
+            for (const item of activeExpedition.rewardItems) {
+                await addToInventory(userId, item as any);
+            }
+
+            // Sync stats
+            const stats = getCharacterStats();
+            if (stats) setCharacterStats(stats);
+
+            toast({
+                title: "🎉 Scout Returned!",
+                description: `Expedition complete! Received +${activeExpedition.rewardGold} Gold, +50 XP, and resources: ${activeExpedition.rewardItems.map(i => `${i.quantity}x ${i.name} ${i.emoji}`).join(', ')}.`,
+                className: "bg-zinc-900 border-amber-500/50 border text-white shadow-2xl"
+            });
+
+            // Dispatch inventory update
+            window.dispatchEvent(new Event('character-inventory-update'));
+
+            // Clear state
+            setActiveExpedition(null);
+            localStorage.removeItem(`scout_expedition_${userId}`);
+        } catch (err) {
+            console.error('Failed to claim rewards:', err);
+        }
+    };
+
     const [availableFood, setAvailableFood] = useState<any[]>([]);
 
     const fetchFoodForAnimal = useCallback(async () => {
@@ -333,6 +529,16 @@ function RealmPageContent() {
     const [isCanopyClaiming, setIsCanopyClaiming] = useState(false);
     const [isObeliskClaiming, setIsObeliskClaiming] = useState(false);
     const [isFairyClaiming, setIsFairyClaiming] = useState(false);
+    const [currentTime, setCurrentTime] = useState(Date.now());
+
+    // Timer effect to keep countdowns alive
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     const [characterStats, setCharacterStats] = useState({ gold: 0, level: 1, experience: 0 });
     const [monsters, setMonsters] = useState<MonsterSpawn[]>([]);
     const [monsterEvent, setMonsterEvent] = useState<{ open: boolean; monster: MonsterSpawn | null }>({ open: false, monster: null });
@@ -1601,6 +1807,17 @@ function RealmPageContent() {
                                     </div>
                                 )}
 
+                                {/* Expeditions Button (Point 6) */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setIsExpeditionModalOpen(true)}
+                                    className="flex items-center gap-2 min-w-[44px] min-h-[44px] bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
+                                >
+                                    <Compass className="w-4 h-4 text-emerald-400" />
+                                    <span>Expeditions</span>
+                                </Button>
+
                                 {/* Inventory Button */}
                                 <Button
                                     variant="outline"
@@ -1799,6 +2016,115 @@ function RealmPageContent() {
                         questions={dungeonEvent.questions}
                     />
                 )}
+
+                {/* Scout Expedition Dialog (Point 6) */}
+                <Dialog open={isExpeditionModalOpen} onOpenChange={setIsExpeditionModalOpen}>
+                    <DialogContent className="sm:max-w-[480px] bg-zinc-900 border-zinc-800 text-zinc-100 p-0 overflow-hidden shadow-2xl rounded-2xl">
+                        {/* Title bar */}
+                        <div className="relative p-6 pb-4 border-b border-zinc-800">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-serif text-amber-500 font-bold flex items-center gap-2">
+                                    <Compass className="w-6 h-6 text-amber-400" /> Royal Scout Expeditions
+                                </DialogTitle>
+                                <DialogDescription className="text-zinc-400 text-xs">
+                                    Send your citizens to discover raw resources and claim royal treasury gold.
+                                </DialogDescription>
+                            </DialogHeader>
+                        </div>
+
+                        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                            {activeExpedition ? (
+                                <div className="space-y-4">
+                                    {/* Active Scout Portrait */}
+                                    <div className="flex items-center gap-4 bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                                        <div className="relative w-16 h-16 bg-zinc-900 rounded-full border border-zinc-800 p-2 overflow-hidden flex items-center justify-center">
+                                            {activeExpedition.scoutFilename && (
+                                                <Image
+                                                    src={activeExpedition.scoutFilename.startsWith('Mythic')
+                                                        ? `/images/Mythics/${activeExpedition.scoutFilename}?v=2`
+                                                        : `/images/creatures/${activeExpedition.scoutFilename}`
+                                                    }
+                                                    alt={activeExpedition.scoutName}
+                                                    fill
+                                                    sizes="64px"
+                                                    className="object-contain"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                            <h3 className="font-bold text-amber-400 text-sm font-serif">{activeExpedition.scoutName}</h3>
+                                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mt-0.5">
+                                                Exploring: {activeExpedition.destination === 'woods' ? '🌲 Whispering Woods' : activeExpedition.destination === 'caves' ? '🪨 Shimmering Caves' : '🏰 Forgotten Ruins'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Timer and Progress */}
+                                    <div className="space-y-2 bg-zinc-950 p-4 rounded-xl border border-zinc-800 text-center">
+                                        {currentTime >= activeExpedition.endTime ? (
+                                            <div className="text-emerald-400 font-bold text-sm">✓ Expedition Complete! Scout has returned.</div>
+                                        ) : (
+                                            <div className="space-y-1.5">
+                                                <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Time Remaining</span>
+                                                <div className="text-amber-500 font-serif font-bold text-xl font-mono">
+                                                    {(() => {
+                                                        const diff = activeExpedition.endTime - currentTime;
+                                                        if (diff <= 0) return "00:00:00";
+                                                        const hrs = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+                                                        const mins = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                                                        const secs = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+                                                        return `${hrs}:${mins}:${secs}`;
+                                                    })()}
+                                                </div>
+                                                {/* Progress Bar */}
+                                                <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+                                                    <div 
+                                                        className="bg-amber-500 h-1.5 transition-all"
+                                                        style={{ 
+                                                            width: `${Math.min(((currentTime - activeExpedition.startTime) / (activeExpedition.endTime - activeExpedition.startTime)) * 100, 100)}%` 
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Log Screen */}
+                                    <div className="space-y-1.5">
+                                        <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider text-left block">Expedition Log</span>
+                                        <ScrollArea className="h-32 bg-zinc-950/80 rounded-xl p-3 border border-zinc-800 font-mono text-[10px] text-zinc-300">
+                                            <div className="flex flex-col gap-2 text-left">
+                                                {activeExpedition.logs.map((log, index) => (
+                                                    <div key={index} className="leading-relaxed border-l-2 border-amber-500/20 pl-2">{log}</div>
+                                                ))}
+                                            </div>
+                                        </ScrollArea>
+                                    </div>
+
+                                    {/* Claim / Wait Button */}
+                                    {currentTime >= activeExpedition.endTime ? (
+                                        <Button
+                                            onClick={claimExpeditionRewards}
+                                            className="w-full h-11 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                                        >
+                                            Claim Scout Rewards 🎁
+                                        </Button>
+                                    ) : (
+                                        <Button disabled className="w-full h-11 bg-zinc-800 text-zinc-500 font-serif font-bold text-sm rounded-xl border border-zinc-700">
+                                            Exploring... ⛺
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                <ExpeditionLauncher
+                                    citizens={unlockedCitizensList}
+                                    gold={characterStats.gold}
+                                    onLaunch={startExpedition}
+                                />
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
 
                 {monsterEvent.open && monsterEvent.monster && (
                     <MonsterBattle
@@ -2693,5 +3019,121 @@ function RealmPageContent() {
                 )}
             </RealmAnimationWrapper>
         </div >
+    );
+}
+
+function ExpeditionLauncher({
+    citizens,
+    gold,
+    onLaunch
+}: {
+    citizens: any[];
+    gold: number;
+    onLaunch: (scout: any, destination: 'woods' | 'caves' | 'ruins') => void;
+}) {
+    const [selectedScoutId, setSelectedScoutId] = useState<string>('');
+    const [selectedDestination, setSelectedDestination] = useState<'woods' | 'caves' | 'ruins'>('woods');
+
+    const selectedScout = citizens.find(c => c.id === selectedScoutId) || null;
+
+    const destinations = [
+        { id: 'woods', name: '🌲 Whispering Woods', duration: '1 Minute', cost: 10, reward: 'Wood Logs 🪵', desc: 'A quick patrol through nearby woods to gather basic timber.' },
+        { id: 'caves', name: '🪨 Shimmering Caves', duration: '4 Hours', cost: 25, reward: 'Stone & Steel 🪨', desc: 'Delve into abandoned mines to excavate stone and steel ore.' },
+        { id: 'ruins', name: '🏰 Forgotten Ruins', duration: '8 Hours', cost: 50, reward: 'Crystals & Steel 🔮', desc: 'Search ancient royal ruins for crystals and advanced crafting materials.' }
+    ] as const;
+
+    const activeDest = destinations.find(d => d.id === selectedDestination)!;
+
+    return (
+        <div className="space-y-4 text-left">
+            {/* Choose Scout */}
+            <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">1. Choose a Scout</label>
+                {citizens.length === 0 ? (
+                    <div className="bg-zinc-950/40 p-4 border border-zinc-800 rounded-xl text-center text-xs text-zinc-400">
+                        No citizens available. Unlock citizens in the main Kingdom tab!
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-2 max-h-[140px] overflow-y-auto pr-1">
+                        {citizens.map((scout) => {
+                            const selected = selectedScoutId === scout.id;
+                            return (
+                                <button
+                                    key={scout.id}
+                                    type="button"
+                                    onClick={() => setSelectedScoutId(scout.id)}
+                                    className={cn(
+                                        "flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all",
+                                        selected
+                                            ? "border-amber-500 bg-amber-500/10"
+                                            : "border-zinc-800 bg-zinc-950/20 hover:border-zinc-700"
+                                    )}
+                                >
+                                    <div className="relative w-8 h-8 rounded-full bg-zinc-900 border border-zinc-850 p-1 flex items-center justify-center">
+                                        <Image
+                                            src={scout.isMythic
+                                                ? `/images/Mythics/${scout.filename}?v=2`
+                                                : `/images/creatures/${scout.filename}`
+                                            }
+                                            alt={scout.name}
+                                            fill
+                                            sizes="32px"
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                    <span className="text-xs font-semibold text-zinc-200 truncate">{scout.name}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* Choose Destination */}
+            <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">2. Select Destination</label>
+                <div className="space-y-2">
+                    {destinations.map((dest) => {
+                        const selected = selectedDestination === dest.id;
+                        return (
+                            <button
+                                key={dest.id}
+                                type="button"
+                                onClick={() => setSelectedDestination(dest.id)}
+                                className={cn(
+                                    "w-full p-3 rounded-xl border text-left flex justify-between items-start transition-all",
+                                    selected
+                                        ? "border-amber-500 bg-amber-500/5"
+                                        : "border-zinc-800 bg-zinc-950/20 hover:border-zinc-700"
+                                )}
+                            >
+                                <div className="space-y-0.5 max-w-[70%] text-left">
+                                    <span className="text-xs font-bold text-zinc-200 block">{dest.name}</span>
+                                    <span className="text-[10px] text-zinc-400 block font-normal leading-normal">{dest.desc}</span>
+                                </div>
+                                <div className="text-right flex flex-col items-end gap-0.5 shrink-0">
+                                    <span className="text-[10px] font-mono text-zinc-400">🕒 {dest.duration}</span>
+                                    <span className="text-[10px] font-mono text-amber-500">💰 {dest.cost} Gold</span>
+                                </div>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Launch Action */}
+            <Button
+                onClick={() => selectedScout && onLaunch(selectedScout, selectedDestination)}
+                disabled={!selectedScout || gold < activeDest.cost}
+                className="w-full h-11 mt-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+                {!selectedScout 
+                    ? "Select a Scout" 
+                    : gold < activeDest.cost 
+                    ? "Insufficient Gold" 
+                    : `Launch Scout (${activeDest.cost} Gold) 🗺️`
+                }
+            </Button>
+        </div>
     );
 }

@@ -5,12 +5,14 @@ import { CreatureSprite } from './creature-sprite';
 import { Tile } from '@/types/tiles';
 import { useUser } from '@clerk/nextjs';
 import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
-import { getInventory } from '@/lib/inventory-manager';
+import { getInventory, removeFromInventory } from '@/lib/inventory-manager';
 import { useGameStore } from '@/stores/game-store';
 import { loadTileInventory } from '@/lib/data-loaders';
 import { useToast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { gainGold } from '@/lib/gold-manager';
 import { Heart, Sparkles, Star, Clock, Coins } from 'lucide-react';
 import Image from 'next/image';
 
@@ -180,6 +182,15 @@ interface CitizenWithChatterProps {
     questStats: { total: number; completed: number } | null;
     citizen: any;
     isHarvestReady: boolean;
+    dailyEncounter: {
+        date: string;
+        citizenId: string;
+        materialId: string;
+        amount: number;
+        completed: boolean;
+        text: string;
+        rewardGold: number;
+    } | null;
 }
 
 function CitizenWithChatter({
@@ -189,18 +200,27 @@ function CitizenWithChatter({
     isSleepy,
     questStats,
     citizen,
-    isHarvestReady
+    isHarvestReady,
+    dailyEncounter
 }: CitizenWithChatterProps) {
     const [chatter, setChatter] = useState<string | null>(null);
     const [visible, setVisible] = useState(false);
 
+    const hasEncounter = dailyEncounter && dailyEncounter.citizenId === def.id;
+
     useEffect(() => {
-        const pool = getUnifiedChatterPool(def, questStats);
+        const basePool = getUnifiedChatterPool(def, questStats);
+        
+        // Add quest requests to the pool if active
+        const pool = hasEncounter && !dailyEncounter.completed
+            ? [...basePool, "Traveler, I have a request for you! 💬", "Could you spare some raw materials? 🪵"]
+            : basePool;
 
         // Set chatter periodically
         const triggerChatter = () => {
-            // 30% chance to speak every 20 seconds
-            if (Math.random() < 0.3) {
+            // Higher chance (50% vs 30%) if there is an active quest
+            const chance = hasEncounter && !dailyEncounter.completed ? 0.5 : 0.3;
+            if (Math.random() < chance) {
                 const randomPhrase = pool[Math.floor(Math.random() * pool.length)];
                 if (randomPhrase) {
                     setChatter(randomPhrase);
@@ -222,20 +242,29 @@ function CitizenWithChatter({
             clearInterval(interval);
             clearTimeout(initialTimeout);
         };
-    }, [questStats, def]);
+    }, [questStats, def, hasEncounter, dailyEncounter]);
 
     return (
         <div className="relative w-full h-full">
+            {/* Quest Exclamation Mark (Point 3) */}
+            {hasEncounter && !dailyEncounter.completed && (
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-[25] animate-bounce pointer-events-none drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">
+                    <div className="bg-amber-500 text-black font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-yellow-300 shadow text-xs select-none">
+                        !
+                    </div>
+                </div>
+            )}
+
             {/* Speech Bubble */}
             {chatter && (
                 <div
-                    className={`absolute -top-14 left-1/2 -translate-x-1/2 z-[30] bg-zinc-950/95 text-[9px] text-amber-200 px-2.5 py-1.5 rounded-xl border border-amber-500/30 shadow-2xl transition-all duration-500 min-w-[120px] max-w-[140px] text-center font-serif pointer-events-none leading-relaxed select-none ${
+                    className={`absolute -top-14 left-1/2 -translate-x-1/2 z-[30] bg-zinc-950/95 text-[10px] text-amber-100 px-2.5 py-1.5 rounded-xl border border-amber-500/40 shadow-2xl transition-all duration-500 min-w-[125px] max-w-[160px] text-center font-serif pointer-events-none leading-relaxed select-none ${
                         visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-2"
                     }`}
                 >
                     {chatter}
                     {/* Bubble tail */}
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-950 border-r border-b border-amber-500/30 rotate-45" />
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-950 border-r border-b border-amber-500/40 rotate-45" />
                 </div>
             )}
 
@@ -277,6 +306,86 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     const [quoteIndex, setQuoteIndex] = useState(0);
 
     const [questStats, setQuestStats] = useState<{ total: number; completed: number } | null>(null);
+    
+    // Daily Citizen Encounters / Whispers (Point 3)
+    interface DailyEncounter {
+        date: string;
+        citizenId: string;
+        materialId: string;
+        amount: number;
+        completed: boolean;
+        text: string;
+        rewardGold: number;
+    }
+    const [dailyEncounter, setDailyEncounter] = useState<DailyEncounter | null>(null);
+    const [materialsCount, setMaterialsCount] = useState<Record<string, number>>({});
+
+    const refreshInventory = useCallback(async () => {
+        if (!user?.id) return;
+        try {
+            const items = await getInventory(user.id);
+            const counts: Record<string, number> = {};
+            items.forEach(item => {
+                counts[item.id] = item.quantity;
+            });
+            setMaterialsCount(counts);
+        } catch (e) {
+            console.error('Failed to load inventory for daily encounter check:', e);
+        }
+    }, [user]);
+
+    // Load inventory on mount or when modal opens
+    useEffect(() => {
+        if (user) {
+            refreshInventory();
+        }
+    }, [user, isModalOpen, refreshInventory]);
+
+    // Setup daily encounter
+    useEffect(() => {
+        if (!isLoaded || !user?.id || citizens.length === 0) return;
+
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const storedStr = localStorage.getItem('daily_kingdom_encounter');
+        
+        let encounter: DailyEncounter | null = null;
+        if (storedStr) {
+            try {
+                const parsed = JSON.parse(storedStr);
+                if (parsed && parsed.date === todayStr) {
+                    encounter = parsed;
+                }
+            } catch (e) {}
+        }
+
+        if (!encounter) {
+            // Pick a random citizen
+            const randomCitizen = citizens[Math.floor(Math.random() * citizens.length)];
+            if (randomCitizen) {
+                const materials = [
+                    { id: 'material-logs', name: 'Wood Logs', emoji: '🪵', verb: 'build a sturdier fence' },
+                    { id: 'material-stone', name: 'Stone Blocks', emoji: '🪨', verb: 'reinforce the foundation' },
+                    { id: 'material-steel', name: 'Steel Sheets', emoji: '⛓️', verb: 'mend some rusted tools' }
+                ];
+                const mat = materials[Math.floor(Math.random() * materials.length)]!;
+                const amount = Math.floor(Math.random() * 2) + 1; // 1 or 2
+                const rewardGold = amount * 30 + 10;
+                
+                encounter = {
+                    date: todayStr,
+                    citizenId: randomCitizen.id,
+                    materialId: mat.id,
+                    amount,
+                    completed: false,
+                    text: `needs ${amount}x ${mat.name} ${mat.emoji} to ${mat.verb}`,
+                    rewardGold
+                };
+                localStorage.setItem('daily_kingdom_encounter', JSON.stringify(encounter));
+            }
+        }
+
+        setDailyEncounter(encounter);
+    }, [isLoaded, user, citizens]);
 
     useEffect(() => {
         if (!user) return;
@@ -636,6 +745,59 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         }
     };
 
+    const handleFulfillRequest = async () => {
+        if (!user?.id || !dailyEncounter || dailyEncounter.completed || !selectedCitizen) return;
+        
+        const owned = materialsCount[dailyEncounter.materialId] || 0;
+        if (owned < dailyEncounter.amount) {
+            toast({
+                title: "Missing Materials",
+                description: "You don't have enough materials to fulfill this request.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setIsInteracting(true);
+        try {
+            await removeFromInventory(user.id, dailyEncounter.materialId, dailyEncounter.amount);
+            
+            // Award gold
+            await gainGold(dailyEncounter.rewardGold, 'daily-encounter-request');
+            
+            // Trigger coin burst animation
+            window.dispatchEvent(new CustomEvent('coin-burst', {
+                detail: { amount: dailyEncounter.rewardGold, x: window.innerWidth / 2, y: window.innerHeight / 2 }
+            }));
+
+            // Update state and localStorage
+            const updated = { ...dailyEncounter, completed: true };
+            setDailyEncounter(updated);
+            localStorage.setItem('daily_kingdom_encounter', JSON.stringify(updated));
+
+            toast({
+                title: "🔧 Request Fulfilled!",
+                description: `You helped ${selectedCitizen.name} and received +${dailyEncounter.rewardGold} Gold!`,
+                className: "bg-zinc-900 border-amber-500/50 border text-white shadow-2xl"
+            });
+
+            // Dispatch event so other pages (like Character inventory) sync up
+            window.dispatchEvent(new Event('character-inventory-update'));
+
+            // Refresh inventory
+            refreshInventory();
+        } catch (e) {
+            console.error('Error fulfilling daily request:', e);
+            toast({
+                title: "Request Failed",
+                description: "An error occurred while transferring materials.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsInteracting(false);
+        }
+    };
+
 
     if (!grid || grid.length === 0 || !grid[0]) return null;
 
@@ -786,6 +948,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             questStats={questStats}
                             citizen={citizen}
                             isHarvestReady={citizen ? isHarvestReady(citizen) : false}
+                            dailyEncounter={dailyEncounter}
                         />
                     </div>
                 );
@@ -922,6 +1085,50 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 </div>
                             );
                         })()}
+
+                        {/* Daily Request Panel (Point 3) */}
+                        {selectedCitizen && dailyEncounter && dailyEncounter.citizenId === selectedCitizen.id && (
+                            <div className="bg-zinc-900 border border-amber-500/30 rounded-xl p-3 flex flex-col gap-2.5 text-xs mb-1">
+                                <div className="flex items-center gap-1.5 text-amber-400 font-bold border-b border-zinc-800/50 pb-1.5">
+                                    <span>👑 Daily Citizen Request</span>
+                                </div>
+                                <p className="text-zinc-300 text-[11px] leading-relaxed italic">
+                                    "{selectedCitizen.name} {dailyEncounter.text}."
+                                </p>
+                                
+                                {dailyEncounter.completed ? (
+                                    <div className="bg-emerald-950/30 border border-emerald-500/20 text-emerald-400 font-bold rounded-lg py-2 text-center text-[11px] flex items-center justify-center gap-1">
+                                        <span>✓ Request Completed! (+{dailyEncounter.rewardGold} Gold)</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex justify-between items-center text-[10px] text-zinc-400">
+                                            <span>Required Material:</span>
+                                            <span className="font-semibold text-zinc-200">
+                                                {dailyEncounter.amount}x {dailyEncounter.materialId === 'material-logs' ? 'Wood Logs 🪵' : dailyEncounter.materialId === 'material-stone' ? 'Stone Blocks 🪨' : 'Steel Sheets ⛓️'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[10px] text-zinc-400">
+                                            <span>Your Inventory:</span>
+                                            <span className={cn(
+                                                "font-semibold",
+                                                (materialsCount[dailyEncounter.materialId] || 0) >= dailyEncounter.amount ? "text-emerald-400" : "text-red-400"
+                                            )}>
+                                                {materialsCount[dailyEncounter.materialId] || 0} owned
+                                            </span>
+                                        </div>
+
+                                        <Button
+                                            onClick={handleFulfillRequest}
+                                            disabled={isInteracting || (materialsCount[dailyEncounter.materialId] || 0) < dailyEncounter.amount}
+                                            className="w-full h-9 mt-1 bg-amber-600 hover:bg-amber-500 text-black font-semibold text-[11px] rounded-lg"
+                                        >
+                                            Fulfill Request (+{dailyEncounter.rewardGold} Gold)
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Cooldown or Harvest Button */}
                         {selectedCitizen && isHarvestReady(selectedCitizen) ? (

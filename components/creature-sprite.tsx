@@ -55,14 +55,14 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
             {/* Speech Bubble */}
             <div
                 className={cn(
-                    "absolute z-50 bg-white/95 text-zinc-900 px-3 py-2 rounded-xl shadow-xl border-2 border-amber-500/50 text-xs font-bold whitespace-nowrap pointer-events-none transition-all duration-300 transform",
+                    "absolute z-50 bg-zinc-950/95 text-amber-100 px-3 py-2 rounded-xl shadow-2xl border border-amber-500/40 text-xs font-serif whitespace-nowrap pointer-events-none transition-all duration-300 transform",
                     showGreeting ? "opacity-100 -translate-y-8 scale-100" : "opacity-0 translate-y-0 scale-75"
                 )}
                 style={{ bottom: '100%' }}
             >
-                <span className="text-amber-600 font-extrabold mr-1">{creature.name}:</span>
+                <span className="text-amber-500 font-bold mr-1">{creature.name}:</span>
                 {greetingText}
-                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 border-b-2 border-r-2 border-amber-500/50" />
+                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-zinc-950 rotate-45 border-b border-r border-amber-500/40" />
             </div>
 
             {/* Favorite Glow Ring */}
