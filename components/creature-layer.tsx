@@ -411,11 +411,37 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                     { id: 'material-planks', name: 'Planks', emoji: '🪵', verb: 'build a warm cabin floor', rare: false },
                     { id: 'material-stone-block', name: 'Polished Stone', emoji: '🪨', verb: 'pave the pathways', rare: true }
                 ];
-                const mat = materials[Math.floor(Math.random() * materials.length)]!;
-                const amount = Math.floor(Math.random() * 2) + 1; // 1 or 2
-                const rewardGold = amount * 30 + 10;
-                const hasGemReward = mat.rare || Math.random() < 0.25;
-                const rewardGems = hasGemReward ? (mat.rare ? 2 : 1) : undefined;
+                 const mat = materials[Math.floor(Math.random() * materials.length)]!;
+                 const stats = getCharacterStats();
+                 const playerLevel = stats?.level || 1;
+
+                // Scale material quantity based on player level
+                let amount = 1;
+                if (playerLevel > 25) {
+                    amount = mat.rare 
+                        ? Math.floor(Math.random() * 3) + 4   // 4-6 rare items
+                        : Math.floor(Math.random() * 9) + 10; // 10-18 normal items
+                } else if (playerLevel > 10) {
+                    amount = mat.rare
+                        ? Math.floor(Math.random() * 2) + 2   // 2-3 rare items
+                        : Math.floor(Math.random() * 5) + 4;  // 4-8 normal items
+                } else {
+                    amount = mat.rare
+                        ? Math.floor(Math.random() * 2) + 1   // 1-2 rare items
+                        : Math.floor(Math.random() * 3) + 1;  // 1-3 normal items
+                }
+
+                // Scale Gold reward: Gold reward = amount * (30 + level * 2)
+                const rewardGold = amount * (30 + Math.min(playerLevel * 2, 60));
+
+                // Scale Gems reward
+                let rewardGems: number | undefined = undefined;
+                if (mat.rare) {
+                    rewardGems = playerLevel >= 25 ? 4 : playerLevel >= 15 ? 2 : 1;
+                } else {
+                    const hasGemReward = playerLevel >= 15 || Math.random() < 0.25;
+                    if (hasGemReward) rewardGems = 1;
+                }
                 
                 encounter = {
                     date: todayStr,

@@ -986,20 +986,29 @@ function CityLocationPageInner() {
                             {[1000, 10000, 50000, 100000].map((amount) => {
                               const selected = diceBetAmount === amount;
                               const displayLabel = amount === 1000 ? "1.000" : amount === 10000 ? "10.000" : amount === 50000 ? "50.000" : "100.000";
+                              const requiredLevel = amount === 10000 ? 10 : amount === 50000 ? 20 : amount === 100000 ? 30 : 1;
+                              const isLocked = playerLevel < requiredLevel;
                               return (
                                 <button
                                   key={amount}
-                                  disabled={isRolling}
+                                  disabled={isRolling || isLocked}
                                   onClick={() => { setDiceBetAmount(amount); setDiceResultMsg(null); }}
                                   className={cn(
                                     "relative px-4 h-14 rounded-xl border-2 flex flex-col items-center justify-center transition-all min-w-[70px]",
                                     selected
                                       ? "border-amber-500 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.25)] scale-105"
+                                      : isLocked
+                                      ? "border-zinc-900 bg-zinc-950/10 text-zinc-600 cursor-not-allowed opacity-50"
                                       : "border-zinc-800 bg-zinc-950/30 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
                                   )}
+                                  title={isLocked ? `Unlocks at Level ${requiredLevel}` : ''}
                                 >
                                   <span className="text-xs font-bold font-mono">{displayLabel}</span>
-                                  <span className="text-[9px] uppercase tracking-wider text-amber-600 font-extrabold -mt-0.5">Gold</span>
+                                  {isLocked ? (
+                                    <span className="text-[8px] uppercase tracking-wider text-zinc-500 font-extrabold -mt-0.5">Lvl {requiredLevel} 🔒</span>
+                                  ) : (
+                                    <span className="text-[9px] uppercase tracking-wider text-amber-600 font-extrabold -mt-0.5">Gold</span>
+                                  )}
                                 </button>
                               );
                             })}
