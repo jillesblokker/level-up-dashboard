@@ -922,7 +922,7 @@ export default function MarketPage() {
                 {/* Daily rolls tracking */}
                 <div className="flex justify-between items-center bg-zinc-950 p-3 rounded-xl border border-zinc-800">
                   <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Barkeep's Rule</span>
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Barkeep&apos;s Rule</span>
                     <span className="text-xs text-zinc-300 font-medium">Daily Limit: 5 rolls max</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -937,7 +937,7 @@ export default function MarketPage() {
 
                 {rollsToday >= 5 ? (
                   <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-4 text-center text-red-400 text-xs italic">
-                    "The Barkeep wipes the glass and nods, 'That's enough excitement for you today, friend. Come back tomorrow!'"
+                    {"\"The Barkeep wipes the glass and nods, 'That's enough excitement for you today, friend. Come back tomorrow!'\""}
                   </div>
                 ) : (
                   <>

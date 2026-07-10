@@ -1093,7 +1093,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                     <span>👑 Daily Citizen Request</span>
                                 </div>
                                 <p className="text-zinc-300 text-[11px] leading-relaxed italic">
-                                    "{selectedCitizen.name} {dailyEncounter.text}."
+                                    &ldquo;{selectedCitizen.name} {dailyEncounter.text}.&rdquo;
                                 </p>
                                 
                                 {dailyEncounter.completed ? (
