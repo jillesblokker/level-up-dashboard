@@ -147,7 +147,7 @@ function CityLocationPageInner() {
   
   // Tavern Dice Game State
   const [diceBetType, setDiceBetType] = useState<'under' | 'exact' | 'over'>('over')
-  const [diceBetAmount, setDiceBetAmount] = useState<number>(20)
+  const [diceBetAmount, setDiceBetAmount] = useState<number>(1000)
   const [isRolling, setIsRolling] = useState(false)
   const [dice1, setDice1] = useState(1)
   const [dice2, setDice2] = useState(6)
@@ -983,21 +983,22 @@ function CityLocationPageInner() {
                         <div className="space-y-3">
                           <label className="text-xs font-bold uppercase text-zinc-400 tracking-wider flex justify-center">2. Set Your Wager (Gold)</label>
                           <div className="flex justify-center gap-3">
-                            {[10, 20, 50, 100].map((amount) => {
+                            {[1000, 10000, 50000, 100000].map((amount) => {
                               const selected = diceBetAmount === amount;
+                              const displayLabel = amount === 1000 ? "1.000" : amount === 10000 ? "10.000" : amount === 50000 ? "50.000" : "100.000";
                               return (
                                 <button
                                   key={amount}
                                   disabled={isRolling}
                                   onClick={() => { setDiceBetAmount(amount); setDiceResultMsg(null); }}
                                   className={cn(
-                                    "relative w-14 h-14 rounded-full border-2 flex flex-col items-center justify-center transition-all",
+                                    "relative px-4 h-14 rounded-xl border-2 flex flex-col items-center justify-center transition-all min-w-[70px]",
                                     selected
-                                      ? "border-yellow-500 bg-yellow-950/40 text-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.25)] scale-105"
+                                      ? "border-amber-500 bg-amber-950/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.25)] scale-105"
                                       : "border-zinc-800 bg-zinc-950/30 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
                                   )}
                                 >
-                                  <span className="text-xs font-bold font-mono">{amount}</span>
+                                  <span className="text-xs font-bold font-mono">{displayLabel}</span>
                                   <span className="text-[9px] uppercase tracking-wider text-amber-600 font-extrabold -mt-0.5">Gold</span>
                                 </button>
                               );
@@ -1006,8 +1007,14 @@ function CityLocationPageInner() {
                         </div>
 
                         {/* Dice Display Area */}
-                        <div className="flex flex-col items-center justify-center py-4 bg-zinc-950 rounded-2xl border border-zinc-900 shadow-inner">
-                          <div className="flex gap-6 justify-center items-center">
+                        <div 
+                          className="flex flex-col items-center justify-center py-8 rounded-2xl border border-amber-900/40 shadow-inner relative overflow-hidden bg-cover bg-center"
+                          style={{ backgroundImage: "url('/images/tavern-wood-bg.png')" }}
+                        >
+                          {/* Subtle overlay to keep dice legible */}
+                          <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+
+                          <div className="relative z-10 flex gap-6 justify-center items-center">
                             {/* Die 1 */}
                             <div className={cn(
                               "w-16 h-16 bg-zinc-900 border-2 border-amber-900/50 rounded-2xl flex items-center justify-center text-3xl font-bold font-serif text-amber-200 shadow-lg shadow-black/80",
@@ -1026,7 +1033,7 @@ function CityLocationPageInner() {
 
                           {/* Display Sum */}
                           {!isRolling && diceResultMsg && (
-                            <div className="mt-4 font-serif text-sm text-zinc-400">
+                            <div className="relative z-10 mt-4 font-serif text-sm text-zinc-100 bg-black/40 px-3 py-1 rounded-full border border-zinc-800/40">
                               Total Rolled: <span className="text-lg font-bold text-amber-400 font-mono">{dice1 + dice2}</span>
                             </div>
                           )}

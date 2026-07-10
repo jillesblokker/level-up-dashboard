@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { gainGold } from '@/lib/gold-manager';
+import { getCharacterStats } from '@/lib/character-stats-service';
 import { Heart, Sparkles, Star, Clock, Coins } from 'lucide-react';
 import Image from 'next/image';
 
@@ -32,8 +33,43 @@ interface ActiveCreature {
     state: 'idle' | 'walking';
 }
 
-export function getUnifiedChatterPool(def: any, questStats: { total: number; completed: number } | null): string[] {
-    const base = def.greetings || [];
+const CITIZEN_TITLES: Record<string, string> = {
+    '001': 'Forge-Master',
+    '002': 'Flame-Weaver',
+    '003': 'Embersmith',
+    '004': 'Tide-Caller',
+    '005': 'Deep Diver',
+    '006': 'Ocean Guardian',
+    '007': 'Forest Guide',
+    '008': 'Ancient Sprout',
+    '009': 'Wood Warden',
+    '010': 'Granite Builder',
+    '011': 'Stone Mason',
+    '012': 'Mountain Shaper',
+    '013': 'Frost Weaver',
+    '014': 'Glacier Sentinel',
+    '015': 'Winter Sage'
+};
+
+export function getUnifiedChatterPool(
+    def: any, 
+    questStats: { total: number; completed: number } | null,
+    playerName: string = 'Traveler',
+    playerTitle: string = 'Lord'
+): string[] {
+    const citizenTitle = CITIZEN_TITLES[def.id] || 'Elder';
+    
+    // Greetings: alternate names, titles, and player variables
+    const base = (def.greetings || []).map((greet: string, index: number) => {
+        if (index % 3 === 0) {
+            return `${greet} — Sincerely, the ${citizenTitle}.`;
+        } else if (index % 3 === 1) {
+            return `"${greet}" says ${def.name}.`;
+        } else {
+            return `${greet} What news, ${playerTitle} ${playerName}?`;
+        }
+    });
+
     if (!questStats) return base;
 
     const allCompleted = questStats.total > 0 && questStats.completed === questStats.total;
@@ -45,127 +81,127 @@ export function getUnifiedChatterPool(def: any, questStats: { total: number; com
         case 'fire':
             if (allCompleted) {
                 progressQuotes = [
-                    "Superb! That's a masterfully tempered day of discipline. Pure steel!",
-                    "Your habit flame is roaring! Absolute power!",
-                    "Forge heat is at maximum! Stagnation is vaporized!"
+                    `Superb, ${playerName}! That's a masterfully tempered day of discipline from ${def.name}!`,
+                    `Your habit flame is roaring, ${playerTitle}! The ${citizenTitle} is impressed!`,
+                    `Forge heat is at maximum, ${playerName}! Stagnation is vaporized!`
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "We are heating up! Halfway through forging today's routine!",
-                    "Keep feeding the flames, boss! Hammer that metal!",
-                    "Sparks are flying! The habit is taking shape!"
+                    `We are heating up, ${playerName}! ${def.name} says we are halfway through forging today's routine!`,
+                    `Keep feeding the flames, ${playerTitle}! The ${citizenTitle} wants you to hammer that metal!`,
+                    `Sparks are flying, ${playerName}! The habit is taking shape!`
                 ];
             } else {
                 progressQuotes = [
-                    "The forge is going cold! Complete a task to throw more coal on the flame!",
-                    "Don't let the fire die down. A single small habit can spark a massive blaze!",
-                    "These cold, uncompleted tasks are choking my bellows!"
+                    `The forge is going cold! ${def.name} urges you to complete a task to throw more coal!`,
+                    `Don't let the fire die down, ${playerName}. The ${citizenTitle} knows a single small habit can spark a massive blaze!`,
+                    `These cold, uncompleted tasks are choking the ${citizenTitle}'s bellows!`
                 ];
             }
             break;
         case 'water':
             if (allCompleted) {
                 progressQuotes = [
-                    "Flowing beautifully! Today was a perfect tide. Rest now, traveler.",
-                    "A flood of completions! Flow state level: maximum!",
-                    "Clean sweep! We are swimming in success!"
+                    `Flowing beautifully, ${playerTitle}! Today was a perfect tide. ${def.name} bids you rest.`,
+                    `A flood of completions, ${playerName}! The ${citizenTitle} salutes your flow state.`,
+                    `Clean sweep, ${playerName}! We are swimming in success!`
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "Making waves today! Keep paddling!",
-                    "The tide is rising in our favor. Keep moving!",
-                    "Smooth sailing! Let's glide to the finish line."
+                    `Making waves today, ${playerName}! ${def.name} says keep paddling!`,
+                    `The tide is rising in our favor, ${playerTitle}. The ${citizenTitle} says keep moving!`,
+                    `Smooth sailing! Let's glide to the finish line, ${playerName}.`
                 ];
             } else {
                 progressQuotes = [
-                    "The current is slowing. Let's do one small task to get back into the stream.",
-                    "Stagnant water grows stale. Keep moving, even if it's just a trickle!",
-                    "Don't let the daily flow dry out completely!"
+                    `The current is slowing, ${playerName}. ${def.name} advises doing one small task.`,
+                    `Stagnant water grows stale, ${playerTitle}. The ${citizenTitle} urges you to keep moving!`,
+                    `Don't let the daily flow dry out, ${playerName}!`
                 ];
             }
             break;
         case 'earth':
             if (allCompleted) {
                 progressQuotes = [
-                    "Rock solid! Today's fortress is impenetrable. You've earned your rest.",
-                    "A rock-solid day of completions! We moved mountains!",
-                    "Granite foundation secured. A triumphant day!"
+                    `Rock solid! Today's fortress is impenetrable, ${playerTitle}. ${def.name} has finished building.`,
+                    `We moved mountains today! The ${citizenTitle} is proud of you, ${playerName}.`,
+                    `Granite foundation secured, ${playerName}! A triumphant day!`
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "Good foundations! Almost there!",
-                    "Steady as she goes. Building strength block by block!",
-                    "Today's stone wall is growing taller. Lift that load!"
+                    `Good foundations, ${playerTitle}! ${def.name} says we are almost there!`,
+                    `Steady as she goes. The ${citizenTitle} sees you building strength block by block!`,
+                    `Today's stone wall is growing taller, ${playerName}. Lift that load!`
                 ];
             } else {
                 progressQuotes = [
-                    "The ground is shaking under uncompleted tasks! Grab your shovel, let's work.",
-                    "Too much napping, too little lifting. Let's place just one stone right now.",
-                    "Your streak is a granite wall. Don't let a single brick crumble!"
+                    `The ground is shaking under uncompleted tasks! ${def.name} says grab your shovel.`,
+                    `Too much napping, too little lifting. The ${citizenTitle} urges placing just one stone right now.`,
+                    `Your streak is a granite wall, ${playerName}. Don't let a single brick crumble!`
                 ];
             }
             break;
         case 'nature':
             if (allCompleted) {
                 progressQuotes = [
-                    "A bountiful harvest of focus! Look how much our little realm has bloomed!",
-                    "The realm is blooming beautifully today!",
-                    "Nature flourishes when you are focused and consistent!"
+                    `A bountiful harvest, ${playerName}! Look how much ${def.name}'s realm has bloomed!`,
+                    `The realm is blooming beautifully today under the ${citizenTitle}'s care!`,
+                    `Nature flourishes, ${playerTitle}, when you are focused and consistent!`
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "Green shoots! We are growing fast today!",
-                    "Nurture your habits and watch us grow!",
-                    "Reaching for the sun! Daily growth in progress!"
+                    `Green shoots! ${def.name} says we are growing fast today!`,
+                    `Nurture your habits, ${playerName}, and watch the ${citizenTitle} flourish!`,
+                    `Reaching for the sun! Daily growth in progress, ${playerTitle}!`
                 ];
             } else {
                 progressQuotes = [
-                    "The leaves are drooping... water us with focus!",
-                    "Discipline is watering the seeds even when you don't see the sprouts yet.",
-                    "Don't let the weeds of distraction overtake the garden!"
+                    `The leaves are drooping... water us with focus, ${playerName}!`,
+                    `Discipline is watering the seeds even when you don't see the sprouts yet, ${playerTitle}.`,
+                    `Don't let the weeds of distraction overtake ${def.name}'s garden!`
                 ];
             }
             break;
         case 'ice':
             if (allCompleted) {
                 progressQuotes = [
-                    "Beautifully iced! Cold, precise execution. Not a single slip today.",
-                    "Cool, calm, and 100% completed!",
-                    "Absolute zero stagnation today!"
+                    `Beautifully iced, ${playerName}! Cold, precise execution. ${def.name} is pleased.`,
+                    `Cool, calm, and 100% completed, ${playerTitle}! The ${citizenTitle} approves.`,
+                    `Absolute zero stagnation today, ${playerName}!`
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "Ice is forming! Solid progress!",
-                    "Chillingly good work today!",
-                    "Keeping our cool and checking off the list!"
+                    `Ice is forming! ${def.name} sees solid progress!`,
+                    `Chillingly good work today, ${playerTitle}! The ${citizenTitle} watches your path.`,
+                    `Keeping our cool and checking off the list, ${playerName}!`
                 ];
             } else {
                 progressQuotes = [
-                    "A meltdown is imminent! Lock in your focus before the structure dissolves.",
-                    "Distractions are melting your day away. Freeze them out and complete a task.",
-                    "Cold winds blow when habits are forgotten... stay warm and work."
+                    `A meltdown is imminent! ${def.name} urges locking in focus before the structure dissolves.`,
+                    `Distractions are melting your day away, ${playerName}. The ${citizenTitle} says freeze them out!`,
+                    `Cold winds blow when habits are forgotten... stay warm and work, ${playerTitle}.`
                 ];
             }
             break;
         default: // special, monster, animals
             if (allCompleted) {
                 progressQuotes = [
-                    "The fire of your resolve burns as bright as Drakon's breath!",
-                    "We have conquered all stagnation today!",
-                    "Baa! The grass has never tasted sweeter!",
-                    "Neigh! Ready for a victory lap!"
+                    `The fire of your resolve burns as bright as Drakon's breath, ${playerName}!`,
+                    `We have conquered all stagnation today, ${playerTitle}!`,
+                    `Baa! ${def.name} says the grass has never tasted sweeter!`,
+                    `Neigh! Ready for a victory lap, ${playerName}!`
                 ];
             } else if (progressRatio > 0.5) {
                 progressQuotes = [
-                    "The horde is retreating! Keep the pressure on!",
-                    "Your strength grows by the hour!",
-                    "Munch munch... getting closer to full!"
+                    `The horde is retreating! Keep the pressure on, ${playerTitle}!`,
+                    `Your strength grows by the hour, ${playerName}!`,
+                    `Munch munch... ${def.name} is getting closer to full!`
                 ];
             } else {
                 progressQuotes = [
-                    "Necrion's shadows are creeping closer... stay vigilant!",
-                    "The darkness thrives on broken streaks...",
-                    "Baa... it's a bit drafty out here."
+                    `Necrion's shadows are creeping closer... stay vigilant, ${playerName}!`,
+                    `The darkness thrives on broken streaks, ${playerTitle}...`,
+                    `Baa... ${def.name} says it's a bit drafty out here.`
                 ];
             }
             break;
@@ -205,11 +241,14 @@ function CitizenWithChatter({
 }: CitizenWithChatterProps) {
     const [chatter, setChatter] = useState<string | null>(null);
     const [visible, setVisible] = useState(false);
+    const { user } = useUser();
 
     const hasEncounter = dailyEncounter && dailyEncounter.citizenId === def.id;
 
     useEffect(() => {
-        const basePool = getUnifiedChatterPool(def, questStats);
+        const playerName = user?.firstName || 'Traveler';
+        const playerTitle = getCharacterStats()?.title || 'Lord';
+        const basePool = getUnifiedChatterPool(def, questStats, playerName, playerTitle);
         
         // Add quest requests to the pool if active
         const pool = hasEncounter && !dailyEncounter.completed
@@ -1031,7 +1070,9 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         <div className="mt-4 bg-zinc-900 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative transition-opacity duration-300">
                             {(() => {
                                 if (!selectedCitizen) return null;
-                                const pool = getUnifiedChatterPool(selectedCitizen, questStats);
+                                const playerName = user?.firstName || 'Traveler';
+                                const playerTitle = getCharacterStats()?.title || 'Lord';
+                                const pool = getUnifiedChatterPool(selectedCitizen, questStats, playerName, playerTitle);
                                 const quote = pool[quoteIndex % (pool.length || 1)] || "";
                                 return <span>&ldquo;{quote}&rdquo;</span>;
                             })()}
