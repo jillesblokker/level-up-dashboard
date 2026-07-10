@@ -195,6 +195,18 @@ const audioTracks: AudioTrack[] = [
   }
 ]
 
+const CONTEXT_MUSIC_MAP: Record<string, string> = {
+  '/kingdom':       'medieval-castle',
+  '/quests':        'medieval-adventure',
+  '/daily-hub':     'medieval-village',
+  '/market':        'medieval-tavern',
+  '/profile':       'medieval-calm',
+  '/settings':      'medieval-calm',
+  '/realm':         'medieval-forest',
+  '/character':     'medieval-epic',
+  '/design-system': 'medieval-mystical',
+}
+
 export function useAudio() {
   const [settings, setSettings] = useState<AudioSettings>(defaultSettings)
   const [currentMusic, setCurrentMusic] = useState<string | null>(null)
@@ -377,17 +389,6 @@ export function useAudio() {
    * Adaptive contextual music: maps the current page/context to the best
    * thematic background track and crossfades if the track changes.
    */
-  const CONTEXT_MUSIC_MAP: Record<string, string> = {
-    '/kingdom':       'medieval-castle',
-    '/quests':        'medieval-adventure',
-    '/daily-hub':     'medieval-village',
-    '/market':        'medieval-tavern',
-    '/profile':       'medieval-calm',
-    '/settings':      'medieval-calm',
-    '/realm':         'medieval-forest',
-    '/character':     'medieval-epic',
-    '/design-system': 'medieval-mystical',
-  }
 
   const playContextualMusic = useCallback((pathname: string) => {
     if (!settings.musicEnabled) return
