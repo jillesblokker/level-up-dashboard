@@ -173,6 +173,7 @@ export interface InventoryItem {
     stamina?: number | undefined;
     gold?: number | undefined;
     experience?: number | undefined;
+    upgradeLevel?: number | undefined;
   } | undefined;
   emoji?: string | undefined;
   quantity: number;

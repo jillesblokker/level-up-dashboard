@@ -39,17 +39,29 @@ export async function GET(request: Request) {
     // Format items for the frontend
     const formattedData = (data || []).map((row: any) => {
       const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === row.item_id);
+      
+      const dbStats = row.stats || {};
+      const baseStats = sourceOfTruth ? (sourceOfTruth.stats || {}) : {};
+      const mergedStats = { ...baseStats, ...dbStats };
+
+      let itemName = row.name || (sourceOfTruth ? sourceOfTruth.name : row.item_id);
+      const upgradeLvl = dbStats.upgradeLevel || 0;
+      if (upgradeLvl > 0 && !itemName.includes('+')) {
+        itemName = `${itemName} +${upgradeLvl}`;
+      }
+
       return {
         ...row,
-        id: row.item_id, // Frontend expects 'id'
-        name: sourceOfTruth ? sourceOfTruth.name : row.name,
+        dbId: row.id, // Primary database row UUID
+        id: row.item_id, // Frontend expects standard compendium item_id
+        name: itemName,
         description: sourceOfTruth ? sourceOfTruth.description : row.description,
         type: sourceOfTruth ? sourceOfTruth.type : row.type,
         category: sourceOfTruth ? sourceOfTruth.category : row.category,
         image: sourceOfTruth ? sourceOfTruth.image : row.image,
         emoji: sourceOfTruth ? sourceOfTruth.emoji : row.emoji,
         rarity: sourceOfTruth ? sourceOfTruth.rarity : row.rarity,
-        stats: sourceOfTruth ? (sourceOfTruth.stats || {}) : (row.stats || {}),
+        stats: mergedStats,
       };
     });
 

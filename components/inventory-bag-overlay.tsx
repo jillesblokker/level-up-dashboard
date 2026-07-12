@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Hammer, Coins } from "lucide-react";
+import { Hammer, Coins, Sword, Shield, ArrowRight } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 import { useUser } from "@clerk/nextjs";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
@@ -33,6 +34,8 @@ interface KingdomInventoryItem {
   canEquip?: boolean;
   canUse?: boolean;
   sellPrice?: number;
+  dbId?: string;
+  rarity?: string;
 }
 
 interface Recipe {
@@ -118,6 +121,9 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   
   const [playerGold, setPlayerGold] = useState(0);
   const [isCrafting, setIsCrafting] = useState<string | null>(null);
+  const [forgeSubTab, setForgeSubTab] = useState<'craft' | 'upgrade'>('craft');
+  const [selectedUpgradeItem, setSelectedUpgradeItem] = useState<KingdomInventoryItem | null>(null);
+  const [isUpgrading, setIsUpgrading] = useState(false);
   const [floatingCosts, setFloatingCosts] = useState<{ id: number, x: number, y: number, text: string }[]>([]);
 
   const isInventoryLoadingRef = useRef(false);
@@ -177,13 +183,23 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
           else if (finalType === 'material') finalCategory = 'material';
           else if (finalType === 'artifact') finalCategory = 'artifact';
 
+          const dbStats = item.stats || {};
+          const mergedStats = { ...(comp.stats || {}), ...dbStats };
+          
+          let itemName = item.name || comp.name;
+          const upgradeLvl = dbStats.upgradeLevel || 0;
+          if (upgradeLvl > 0 && !itemName.includes('+')) {
+            itemName = `${itemName} +${upgradeLvl}`;
+          }
+
           return {
             ...item,
+            dbId: item.dbId || item.id, // Store DB UUID
             id: comp.id,
-            name: comp.name,
+            name: itemName,
             type: finalType as any,
             category: finalCategory,
-            stats: comp.stats || {},
+            stats: mergedStats,
             description: comp.description || '',
             image: comp.image,
             emoji: comp.emoji,
@@ -200,11 +216,16 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         // Combine duplicates
         const combined = new Map<string, KingdomInventoryItem>();
         mapped.forEach(item => {
-          if (combined.has(item.id)) {
-            const existing = combined.get(item.id)!;
+          // Unique key: for equippable gear, distinguish by item ID and upgrade level
+          const isEquippable = ['weapon', 'shield', 'armor'].includes(item.type);
+          const upgradeLevel = item.stats?.['upgradeLevel'] || 0;
+          const uniqueKey = isEquippable ? `${item.id}_lvl_${upgradeLevel}` : item.id;
+
+          if (combined.has(uniqueKey)) {
+            const existing = combined.get(uniqueKey)!;
             existing.quantity = (existing.quantity || 1) + (item.quantity || 1);
           } else {
-            combined.set(item.id, { ...item });
+            combined.set(uniqueKey, { ...item });
           }
         });
         
@@ -380,6 +401,168 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     }
   };
 
+  const playHammerCling = (success: boolean) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(120, ctx.currentTime);
+      osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.3);
+      gain1.gain.setValueAtTime(0.5, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      osc1.start();
+      osc1.stop(ctx.currentTime + 0.3);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(success ? 880 : 330, ctx.currentTime + 0.05);
+      osc2.frequency.exponentialRampToValueAtTime(success ? 1760 : 110, ctx.currentTime + 0.6);
+      gain2.gain.setValueAtTime(success ? 0.3 : 0.2, ctx.currentTime + 0.05);
+      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+      osc2.start(ctx.currentTime + 0.05);
+      osc2.stop(ctx.currentTime + 0.6);
+    } catch { }
+  };
+
+  const getUpgradeRequirements = (itemType: string, rarity: string, nextLevel: number) => {
+    const goldCost = Math.floor(100 * Math.pow(1.5, nextLevel - 1));
+    const materials: { itemId: string; quantity: number }[] = [];
+
+    if (nextLevel <= 3) {
+      materials.push({ itemId: 'material-steel', quantity: 3 });
+      if (itemType === 'shield') {
+        materials.push({ itemId: 'material-planks', quantity: 2 });
+      } else {
+        materials.push({ itemId: 'material-logs', quantity: 2 });
+      }
+    } else if (nextLevel <= 7) {
+      materials.push({ itemId: 'material-steel', quantity: 5 });
+      materials.push({ itemId: 'material-silver', quantity: 3 });
+      materials.push({ itemId: 'material-crystal', quantity: 1 });
+    } else {
+      materials.push({ itemId: 'material-silver', quantity: 8 });
+      materials.push({ itemId: 'material-gold', quantity: 3 });
+      materials.push({ itemId: 'material-crystal', quantity: 3 });
+    }
+
+    if (rarity === 'legendary' || rarity === 'epic') {
+      materials.forEach(m => { m.quantity = Math.floor(m.quantity * 1.5); });
+    }
+
+    return { goldCost, materials };
+  };
+
+  const getSuccessRate = (nextLevel: number) => {
+    if (nextLevel <= 3) return 1.0;
+    if (nextLevel <= 5) return 0.8;
+    if (nextLevel <= 7) return 0.65;
+    if (nextLevel <= 9) return 0.45;
+    return 0.25;
+  };
+
+  const getStatBonus = (rarity: string) => {
+    if (rarity === 'common') return 1;
+    if (rarity === 'uncommon') return 2;
+    if (rarity === 'rare') return 3;
+    return 5;
+  };
+
+  const handleUpgrade = async (item: KingdomInventoryItem) => {
+    if (!user?.id || isUpgrading || !item.dbId) return;
+
+    const currentLevel = item.stats?.['upgradeLevel'] || 0;
+    const nextLevel = currentLevel + 1;
+    const rarity = item.rarity || 'common';
+    const reqs = getUpgradeRequirements(item.type, rarity, nextLevel);
+
+    if (playerGold < reqs.goldCost) {
+      toast({
+        title: "Insufficient Gold",
+        description: "You need more gold to perform this upgrade.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    for (const mat of reqs.materials) {
+      if (getOwnedQty(mat.itemId) < mat.quantity) {
+        toast({
+          title: "Missing Materials",
+          description: `You need ${mat.quantity}x ${getMaterialName(mat.itemId)} to proceed.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    try {
+      setIsUpgrading(true);
+
+      const bagPanel = document.querySelector('.bag-overlay-container');
+      if (bagPanel) {
+        bagPanel.classList.add('animate-forge-shake');
+        setTimeout(() => bagPanel.classList.remove('animate-forge-shake'), 600);
+      }
+
+      const response = await fetch('/api/forge/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dbId: item.dbId })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upgrade gear');
+      }
+
+      const data = await response.json();
+
+      playHammerCling(data.upgraded);
+
+      if (data.upgraded) {
+        toast({
+          title: "Tempering Success! 🔨✨",
+          description: `Upgraded ${item.name} to level +${data.nextLevel}!`,
+        });
+        setSelectedUpgradeItem(prev => prev ? { ...prev, name: data.name, stats: data.stats } : null);
+      } else if (data.degraded) {
+        toast({
+          title: "Tempering Failure 💢",
+          description: `Failed! The item's level degraded to +${data.nextLevel}.`,
+          variant: "destructive",
+        });
+        setSelectedUpgradeItem(prev => prev ? { ...prev, name: data.name, stats: data.stats } : null);
+      } else {
+        toast({
+          title: "Tempering Failure",
+          description: "Failed! Materials were lost, but the item level remains unchanged.",
+          variant: "destructive",
+        });
+      }
+
+      window.dispatchEvent(new Event('character-inventory-update'));
+    } catch (error: any) {
+      logger.error('[Bag] Upgrade Error:', error);
+      toast({
+        title: "Tempering Failed",
+        description: error.message || "An unexpected error occurred during upgrade.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
   // --- Rendering ---
   
   const fullInventory = [
@@ -550,7 +733,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-zinc-950/50 " role="dialog" aria-modal="true">
-      <div className="bg-[#0f1115] w-full max-w-xl h-full border-l border-amber-900/30 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="bag-overlay-container bg-[#0f1115] w-full max-w-xl h-full border-l border-amber-900/30 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
@@ -647,77 +830,309 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                 </div>
               </div>
 
-              <div className="space-y-3 pb-8">
-                {FORGE_RECIPES.map(recipe => {
-                  const item = comprehensiveItems.find(i => i.id === recipe.targetItemId);
-                  if (!item) return null;
-                  const canCraft = playerGold >= recipe.goldCost &&
-                    recipe.materials.every(req => getOwnedQty(req.itemId) >= req.quantity);
+              {/* Sub-tabs for Craft vs Tempering */}
+              <div className="flex gap-2 mb-4 bg-zinc-950 p-1 rounded-xl border border-white/5">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setForgeSubTab('craft')}
+                  className={cn(
+                    'flex-1 text-xs font-bold py-1.5 rounded-lg transition-all',
+                    forgeSubTab === 'craft' 
+                      ? 'bg-orange-950/40 text-orange-400 border border-orange-500/30 shadow' 
+                      : 'text-zinc-400 hover:text-white border border-transparent'
+                  )}
+                >
+                  🔨 Craft Recipes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setForgeSubTab('upgrade')}
+                  className={cn(
+                    'flex-1 text-xs font-bold py-1.5 rounded-lg transition-all',
+                    forgeSubTab === 'upgrade' 
+                      ? 'bg-orange-950/40 text-orange-400 border border-orange-500/30 shadow' 
+                      : 'text-zinc-400 hover:text-white border border-transparent'
+                  )}
+                >
+                  ✨ Tempering (Upgrade)
+                </Button>
+              </div>
 
-                  return (
-                    <div
-                      key={recipe.id}
-                      className={cn(
-                        'p-4 rounded-xl border transition-all',
-                        canCraft
-                          ? 'bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-400/50'
-                          : 'bg-[#0f1115] border-white/5'
-                      )}
-                    >
-                      <div className="flex gap-3 items-start">
-                        <div className="w-12 h-12 shrink-0 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center text-2xl">
-                          {item.emoji}
+              {forgeSubTab === 'craft' ? (
+                <div className="space-y-3 pb-8">
+                  {FORGE_RECIPES.map(recipe => {
+                    const item = comprehensiveItems.find(i => i.id === recipe.targetItemId);
+                    if (!item) return null;
+                    const canCraft = playerGold >= recipe.goldCost &&
+                      recipe.materials.every(req => getOwnedQty(req.itemId) >= req.quantity);
+
+                    return (
+                      <div
+                        key={recipe.id}
+                        className={cn(
+                          'p-4 rounded-xl border transition-all',
+                          canCraft
+                            ? 'bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-400/50'
+                            : 'bg-[#0f1115] border-white/5'
+                        )}
+                      >
+                        <div className="flex gap-3 items-start">
+                          <div className="w-12 h-12 shrink-0 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center text-2xl">
+                            {item.emoji}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-bold text-white text-sm truncate">{item.name}</h4>
+                              {item.rarity && (
+                                <Badge variant="outline" className={cn('text-[9px] capitalize shrink-0',
+                                  item.rarity === 'legendary' ? 'border-orange-500 text-orange-400' :
+                                  item.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
+                                  item.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
+                                  item.rarity === 'uncommon' ? 'border-green-500 text-green-400' :
+                                  'border-zinc-500 text-zinc-400'
+                                )}>
+                                  {item.rarity}
+                                </Badge>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-x-3 gap-y-1">
+                              {recipe.materials.map(req => {
+                                const owned = getOwnedQty(req.itemId);
+                                const met = owned >= req.quantity;
+                                return (
+                                  <span key={req.itemId} className={cn('text-xs flex items-center gap-1', met ? 'text-emerald-400' : 'text-red-400')}>
+                                    {getMaterialEmoji(req.itemId)} {getMaterialName(req.itemId)}: {owned}/{req.quantity}
+                                  </span>
+                                );
+                              })}
+                              <span className={cn('text-xs flex items-center gap-1', playerGold >= recipe.goldCost ? 'text-amber-400' : 'text-red-400')}>
+                                🪙 {recipe.goldCost}g
+                              </span>
+                            </div>
+                          </div>
+
+                          <Button
+                            size="sm"
+                            disabled={!canCraft || isCrafting !== null}
+                            onClick={() => handleCraft(recipe)}
+                            className={cn(
+                              'shrink-0 h-9 text-xs font-bold w-20',
+                              canCraft
+                                ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-lg'
+                                : 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
+                            )}
+                          >
+                            {isCrafting === recipe.id ? '⏳' : '🔨 Forge'}
+                          </Button>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-white text-sm truncate">{item.name}</h4>
-                            {item.rarity && (
-                              <Badge variant="outline" className={cn('text-[9px] capitalize shrink-0',
-                                item.rarity === 'legendary' ? 'border-orange-500 text-orange-400' :
-                                item.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
-                                item.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
-                                item.rarity === 'uncommon' ? 'border-green-500 text-green-400' :
-                                'border-zinc-500 text-zinc-400'
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-4 pb-8">
+                  {selectedUpgradeItem === null ? (
+                    // 1. Gear Selection list
+                    <div className="space-y-3">
+                      <p className="text-xs text-zinc-400 px-1">Select an equipped or stored piece of gear to upgrade its base stats:</p>
+                      {inventoryItems.filter(item => ['weapon', 'shield', 'armor'].includes(item.type)).length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-center text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-950">
+                          <span className="text-4xl mb-3">🛡️</span>
+                          <h4 className="text-sm font-bold text-amber-500/80 mb-1">No Upgradeable Gear</h4>
+                          <p className="text-xs max-w-xs px-4">Buy equipment from shops or craft gear recipes first!</p>
+                        </div>
+                      ) : (
+                        inventoryItems
+                          .filter(item => ['weapon', 'shield', 'armor'].includes(item.type))
+                          .map(item => {
+                            const curLvl = item.stats?.['upgradeLevel'] || 0;
+                            const statLabel = item.type === 'weapon' ? 'Attack' : 'Defense';
+                            const statVal = item.type === 'weapon' ? (item.stats?.['attack'] || 0) : (item.stats?.['defense'] || 0);
+
+                            return (
+                              <div
+                                key={item.dbId || item.id}
+                                className="p-3 bg-[#0f1115] border border-white/5 rounded-xl flex items-center justify-between hover:border-orange-500/30 transition-all"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center text-xl shrink-0">
+                                    {item.emoji}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h4 className="font-bold text-white text-xs truncate max-w-[150px]">{item.name}</h4>
+                                      {item.equipped && (
+                                        <Badge className="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-[8px] scale-90 px-1 py-0 capitalize">
+                                          Equipped
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-[10px] text-zinc-500 mt-0.5">
+                                      {statLabel}: <span className="text-zinc-300 font-bold">{statVal}</span>
+                                      {curLvl > 0 && <span className="text-orange-400 ml-2 font-bold">Grade +{curLvl}</span>}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => setSelectedUpgradeItem(item)}
+                                  className="h-8 text-xs bg-zinc-800 hover:bg-zinc-700 text-white font-bold"
+                                >
+                                  Select
+                                </Button>
+                              </div>
+                            );
+                          })
+                      )}
+                    </div>
+                  ) : (
+                    // 2. Tempering panel for selected item
+                    (() => {
+                      const curLvl = selectedUpgradeItem.stats?.['upgradeLevel'] || 0;
+                      const nextLvl = curLvl + 1;
+                      const rarity = selectedUpgradeItem.rarity || 'common';
+                      const reqs = getUpgradeRequirements(selectedUpgradeItem.type, rarity, nextLvl);
+                      const successRate = getSuccessRate(nextLvl);
+                      const bonus = getStatBonus(rarity);
+
+                      const isWeapon = selectedUpgradeItem.type === 'weapon';
+                      const statLabel = isWeapon ? 'Attack' : 'Defense';
+                      const curStat = isWeapon ? (selectedUpgradeItem.stats?.['attack'] || 0) : (selectedUpgradeItem.stats?.['defense'] || 0);
+                      const nextStat = curStat + bonus;
+
+                      const metGold = playerGold >= reqs.goldCost;
+                      const metMats = reqs.materials.every(m => getOwnedQty(m.itemId) >= m.quantity);
+                      const canUpgrade = metGold && metMats && nextLvl <= 10;
+
+                      return (
+                        <div className="space-y-4 bg-zinc-950/40 p-4 border border-white/5 rounded-xl shadow-inner">
+                          {/* Header */}
+                          <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{selectedUpgradeItem.emoji}</span>
+                              <div>
+                                <h4 className="font-bold text-white text-sm">{selectedUpgradeItem.name}</h4>
+                                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">{rarity} {selectedUpgradeItem.type}</p>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setSelectedUpgradeItem(null)}
+                              className="text-xs text-zinc-400 hover:text-white"
+                            >
+                              ✕ Back
+                            </Button>
+                          </div>
+
+                          {/* Stats Preview Panel */}
+                          <div className="grid grid-cols-3 items-center justify-center p-3 bg-zinc-900/60 border border-white/5 rounded-lg text-center">
+                            <div>
+                              <p className="text-[10px] text-zinc-400 font-bold uppercase">Current</p>
+                              <p className="font-bold text-sm text-zinc-300 mt-0.5">+{curLvl}</p>
+                              <p className="text-xs text-zinc-400 mt-0.5">{statLabel}: {curStat}</p>
+                            </div>
+                            <div className="flex flex-col items-center justify-center text-orange-500">
+                              <ArrowRight className="w-5 h-5 animate-pulse" />
+                              <span className="text-[9px] uppercase font-bold mt-1 text-orange-400/80">Tempering</span>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-orange-400 font-bold uppercase">Upgraded</p>
+                              <p className="font-bold text-sm text-orange-400 mt-0.5">+{nextLvl}</p>
+                              <p className="text-xs text-emerald-400 font-bold mt-0.5">{statLabel}: {nextStat}</p>
+                            </div>
+                          </div>
+
+                          {/* Success probability indicator */}
+                          <div className="p-3 bg-[#0a0c10] border border-white/5 rounded-lg space-y-1.5">
+                            <div className="flex justify-between text-xs font-bold">
+                              <span className="text-zinc-400">Success Rate:</span>
+                              <span className={cn(
+                                successRate >= 0.8 ? 'text-emerald-400' :
+                                successRate >= 0.5 ? 'text-amber-400' :
+                                'text-red-400'
                               )}>
-                                {item.rarity}
-                              </Badge>
+                                {Math.floor(successRate * 100)}%
+                              </span>
+                            </div>
+                            <Progress value={successRate * 100} className="h-1.5 bg-zinc-800" indicatorClassName="bg-gradient-to-r from-orange-600 to-amber-400" />
+                            {curLvl >= 5 && (
+                              <p className="text-[10px] text-red-400 font-bold mt-1">
+                                ⚠️ Failure Risk: At +5 or higher, failures have a 50% chance to degrade the item level by 1.
+                              </p>
                             )}
                           </div>
 
-                          <div className="flex flex-wrap gap-x-3 gap-y-1">
-                            {recipe.materials.map(req => {
-                              const owned = getOwnedQty(req.itemId);
-                              const met = owned >= req.quantity;
-                              return (
-                                <span key={req.itemId} className={cn('text-xs flex items-center gap-1', met ? 'text-emerald-400' : 'text-red-400')}>
-                                  {getMaterialEmoji(req.itemId)} {getMaterialName(req.itemId)}: {owned}/{req.quantity}
-                                </span>
-                              );
-                            })}
-                            <span className={cn('text-xs flex items-center gap-1', playerGold >= recipe.goldCost ? 'text-amber-400' : 'text-red-400')}>
-                              🪙 {recipe.goldCost}g
-                            </span>
+                          {/* Requirements Checklist */}
+                          <div className="space-y-2">
+                            <h5 className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Required Materials:</h5>
+                            <div className="grid grid-cols-2 gap-2">
+                              {/* Gold requirement */}
+                              <div className={cn(
+                                'p-2 rounded-lg border text-xs flex justify-between items-center',
+                                metGold ? 'bg-emerald-950/10 border-emerald-500/20 text-emerald-400' : 'bg-red-950/10 border-red-500/20 text-red-400'
+                              )}>
+                                <span className="flex items-center gap-1 font-medium">🪙 Gold Required</span>
+                                <span className="font-bold">{reqs.goldCost}g</span>
+                              </div>
+
+                              {/* Material requirements */}
+                              {reqs.materials.map(m => {
+                                const owned = getOwnedQty(m.itemId);
+                                const met = owned >= m.quantity;
+                                return (
+                                  <div
+                                    key={m.itemId}
+                                    className={cn(
+                                      'p-2 rounded-lg border text-xs flex justify-between items-center',
+                                      met ? 'bg-emerald-950/10 border-emerald-500/20 text-emerald-400' : 'bg-red-950/10 border-red-500/20 text-red-400'
+                                    )}
+                                  >
+                                    <span className="flex items-center gap-1 font-medium truncate">
+                                      {getMaterialEmoji(m.itemId)} {getMaterialName(m.itemId)}
+                                    </span>
+                                    <span className="font-bold shrink-0">{owned}/{m.quantity}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Upgrade Action Button */}
+                          <div className="pt-2">
+                            {curLvl >= 10 ? (
+                              <Button disabled className="w-full bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
+                                Max Upgrade Reached (+10)
+                              </Button>
+                            ) : (
+                              <Button
+                                disabled={!canUpgrade || isUpgrading}
+                                onClick={() => handleUpgrade(selectedUpgradeItem)}
+                                className={cn(
+                                  'w-full text-xs font-bold py-5 rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2',
+                                  canUpgrade 
+                                    ? 'bg-gradient-to-r from-orange-600 to-amber-500 text-black font-extrabold shadow-lg hover:brightness-110 active:scale-95' 
+                                    : 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
+                                )}
+                              >
+                                {isUpgrading ? (
+                                  <>⏳ Hammering Forge...</>
+                                ) : (
+                                  <>🔨 Temper Equipment</>
+                                )}
+                              </Button>
+                            )}
                           </div>
                         </div>
-
-                        <Button
-                          size="sm"
-                          disabled={!canCraft || isCrafting !== null}
-                          onClick={() => handleCraft(recipe)}
-                          className={cn(
-                            'shrink-0 h-9 text-xs font-bold w-20',
-                            canCraft
-                              ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-lg'
-                              : 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
-                          )}
-                        >
-                          {isCrafting === recipe.id ? '⏳' : '🔨 Forge'}
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })()
+                  )}
+                </div>
+              )}
             </TabsContent>
 
           </ScrollArea>

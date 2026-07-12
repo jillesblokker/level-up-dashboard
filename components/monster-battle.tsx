@@ -92,15 +92,20 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [goldLost, setGoldLost] = useState(0)
   const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
   const [stats, setStats] = useState({ attack: 0, defense: 0 })
+  const [playerLevel, setPlayerLevel] = useState<number>(1)
 
   const monster = monsterData[monsterType]
 
   useEffect(() => {
     const fetchEquippedStats = async () => {
       try {
-        const res = await fetch('/api/inventory?equipped=true');
-        if (res.ok) {
-          const items = await res.json();
+        const [invRes, statsRes] = await Promise.all([
+          fetch('/api/inventory?equipped=true'),
+          fetch('/api/character-stats')
+        ]);
+
+        if (invRes.ok) {
+          const items = await invRes.json();
           let attack = 0;
           let defense = 0;
           if (Array.isArray(items)) {
@@ -112,8 +117,15 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           }
           setStats({ attack, defense });
         }
+
+        if (statsRes.ok) {
+          const charStats = await statsRes.json();
+          if (charStats && charStats.level) {
+            setPlayerLevel(charStats.level);
+          }
+        }
       } catch (err) {
-        logger.error('Failed to load equipped stats:', err);
+        logger.error('Failed to load equipped stats and level:', err);
       }
     };
     if (isOpen) {
@@ -123,8 +135,16 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
   // Generate new sequence for current round
   const generateSequence = useCallback((round: number) => {
-    const attackBonus = Math.min(2, Math.floor(stats.attack / 8));
-    const roundLength = Math.max(3, 2 + round - attackBonus);
+    const isEasy = ['goblin', 'fairy'].includes(monsterType);
+    const isMedium = ['troll', 'pegasus'].includes(monsterType);
+    const baseSteps = isEasy ? 4 : isMedium ? 5 : 6;
+    
+    const gearScore = stats.attack + stats.defense;
+    const levelModifier = Math.floor(playerLevel / 10);
+    const gearBonus = Math.floor(gearScore / 15);
+    
+    // Steps required: base steps + current round modifier, scaled by level and mitigated by gear score
+    const roundLength = Math.max(3, Math.min(10, baseSteps + round - 1 + levelModifier - gearBonus));
     const newSequence: string[] = []
 
     for (let i = 0; i < roundLength; i++) {
@@ -135,7 +155,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     }
 
     return newSequence
-  }, [stats.attack])
+  }, [stats.attack, stats.defense, playerLevel, monsterType])
 
   // Show sequence to player
   const showSequence = useCallback(async (sequenceToShow: string[]) => {
@@ -223,7 +243,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   }
 
   const handleRoundLoss = () => {
-    const lostGold = 10
+    const basePenalty = 10 * (1 + playerLevel / 10);
+    const lostGold = Math.max(5, Math.floor(basePenalty / (1 + stats.defense * 0.05)));
     setGoldLost(prev => prev + lostGold)
     gainGold(-lostGold, 'monster-battle-loss')
 
@@ -253,8 +274,16 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   }
 
   const handleGameWin = () => {
-    const earnedGold = 100
-    const earnedXP = 100
+    const isEasy = ['goblin', 'fairy'].includes(monsterType);
+    const isMedium = ['troll', 'pegasus'].includes(monsterType);
+    const baseGold = isEasy ? 100 : isMedium ? 180 : 300;
+    const baseXP = isEasy ? 50 : isMedium ? 80 : 120;
+
+    const gearScore = stats.attack + stats.defense;
+    const scaleFactor = 1 + playerLevel / 15 + gearScore / 20;
+
+    const earnedGold = Math.floor(baseGold * scaleFactor);
+    const earnedXP = Math.floor(baseXP * scaleFactor);
 
     setGameState('won')
     gainGold(earnedGold, 'monster-battle-win')
