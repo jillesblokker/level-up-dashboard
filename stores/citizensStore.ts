@@ -14,6 +14,8 @@ export interface CitizenState {
   activeDays: number; // Duration in days (e.g. 1, 3, 7)
   lastHarvestedAt: string | null; // ISO String
   affection: number;
+  level?: number;
+  experience?: number;
 }
 
 export interface Citizen {
@@ -35,10 +37,13 @@ export interface Citizen {
   activeDays: number;
   lastHarvestedAt: string | null;
   affection: number;
+  level: number;
+  experience: number;
 }
 
 interface CitizensStore {
   citizens: Citizen[];
+  combatSupporters: string[]; // Active combat supporters (max 2)
   loading: boolean;
   error: string | null;
   isSleepy: boolean;
@@ -55,6 +60,8 @@ interface CitizensStore {
   harvestCitizen: (userId: string, citizenId: string, multiplier?: number) => Promise<boolean>;
   increaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
   decreaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
+  trainCitizen: (userId: string, citizenId: string, foodItemId: string, scrollItemId: string) => Promise<{ success: boolean; error?: string; leveledUp?: boolean }>;
+  toggleSupporter: (userId: string, citizenId: string) => Promise<void>;
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
 }
 
@@ -171,6 +178,7 @@ export const FOOD_DAYS_MAP: Record<string, number> = {
 
 export const useCitizensStore = create<CitizensStore>((set, get) => ({
   citizens: [],
+  combatSupporters: [],
   loading: false,
   error: null,
   isSleepy: false,
@@ -186,11 +194,12 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
       // Parallel fetches for achievements, mythic cards, citizen preferences, and character stats (for sleepy check)
-      const [achievementsRes, mythicsRes, prefState, charStatsRes] = await Promise.all([
+      const [achievementsRes, mythicsRes, prefState, charStatsRes, supportersState] = await Promise.all([
         fetch('/api/achievements', { headers }).catch(() => null),
         fetch('/api/packs/mythics', { headers }).catch(() => null),
         getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>,
-        fetch('/api/character-stats', { headers }).catch(() => null)
+        fetch('/api/character-stats', { headers }).catch(() => null),
+        getUserPreference('combat_supporters') as Promise<string[] | null>
       ]);
 
       let isSleepy = false;
@@ -205,6 +214,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       }
 
       const savedPrefs = prefState || {};
+      const combatSupporters = Array.isArray(supportersState) ? supportersState : [];
 
       // 1. Get unlocked standard achievement creature IDs (length 3, not starting with '9')
       let unlockedAchievementIds = new Set<string>();
@@ -240,11 +250,15 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
             lastFedAt: null,
             activeDays: 0,
             lastHarvestedAt: null,
-            affection: 0
+            affection: 0,
+            level: 1,
+            experience: 0
           };
           const state = {
             ...rawState,
-            affection: calculateDecayedAffection(rawState.affection || 0, rawState.lastFedAt, rawState.activeDays)
+            affection: calculateDecayedAffection(rawState.affection || 0, rawState.lastFedAt, rawState.activeDays),
+            level: rawState.level || 1,
+            experience: rawState.experience || 0
           };
 
           updatedCitizens.push({
@@ -276,11 +290,15 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
           lastFedAt: null,
           activeDays: 0,
           lastHarvestedAt: null,
-          affection: 0
+          affection: 0,
+          level: 1,
+          experience: 0
         };
         const state = {
           ...rawState,
-          affection: calculateDecayedAffection(rawState.affection || 0, rawState.lastFedAt, rawState.activeDays)
+          affection: calculateDecayedAffection(rawState.affection || 0, rawState.lastFedAt, rawState.activeDays),
+          level: rawState.level || 1,
+          experience: rawState.experience || 0
         };
 
         updatedCitizens.push({
@@ -359,7 +377,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
          };
       }
 
-      set({ citizens: updatedCitizens, isSleepy, offlineCatchup, loading: false });
+      set({ citizens: updatedCitizens, combatSupporters, isSleepy, offlineCatchup, loading: false });
     } catch (error: any) {
       console.error('Failed to load citizens:', error);
       set({ error: error.message || 'Failed to load citizens', loading: false });
@@ -686,6 +704,101 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     const currentPrefs = await getUserPreference('citizens_state') || {};
     await setUserPreference('citizens_state', { ...currentPrefs, [citizen.id]: citizenState });
+  },
+
+  trainCitizen: async (userId: string, citizenId: string, foodItemId: string, scrollItemId: string) => {
+    if (!userId || !citizenId) return { success: false, error: 'User or Citizen ID missing' };
+    const { citizens } = get();
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (!citizen) return { success: false, error: 'Citizen not found' };
+
+    const level = citizen.level || 1;
+    if (level >= 10) return { success: false, error: 'Maximum level (+10) reached' };
+
+    const goldCost = 50 * level;
+
+    // Check stats & gold
+    try {
+      const statsRes = await fetch('/api/character-stats');
+      if (!statsRes.ok) return { success: false, error: 'Failed to retrieve stats' };
+      const stats = await statsRes.json();
+      if (stats.gold < goldCost) return { success: false, error: 'Not enough gold' };
+
+      // Check materials
+      const inventory = await getInventory(userId);
+      const foodMat = inventory.find(i => i.id === foodItemId);
+      const scrollMat = inventory.find(i => i.id === scrollItemId);
+
+      if (!foodMat || foodMat.quantity < 1) {
+        return { success: false, error: 'Not enough food' };
+      }
+      if (!scrollMat || scrollMat.quantity < 1) {
+        return { success: false, error: 'Not enough scrolls' };
+      }
+
+      // Deduct gold & resources
+      await gainGold(-goldCost, 'barracks-training');
+      await removeFromInventory(userId, foodItemId, 1);
+      await removeFromInventory(userId, scrollItemId, 1);
+
+      // Add experience
+      let newXP = (citizen.experience || 0) + 50;
+      let newLevel = level;
+      let leveledUp = false;
+      const xpReq = level * 100;
+
+      if (newXP >= xpReq) {
+        newXP = newXP - xpReq;
+        newLevel = Math.min(10, level + 1);
+        leveledUp = true;
+      }
+
+      const citizenState: CitizenState = {
+        active: citizen.active,
+        favorite: citizen.favorite,
+        lastFedAt: citizen.lastFedAt,
+        activeDays: citizen.activeDays,
+        lastHarvestedAt: citizen.lastHarvestedAt,
+        affection: citizen.affection || 0,
+        level: newLevel,
+        experience: newXP
+      };
+
+      const currentPrefs = await getUserPreference('citizens_state') || {};
+      await setUserPreference('citizens_state', { ...currentPrefs, [citizen.id]: citizenState });
+
+      // Update store state
+      set(state => ({
+        citizens: state.citizens.map(c => 
+          c.id === citizenId ? { ...c, level: newLevel, experience: newXP } : c
+        )
+      }));
+
+      // Trigger inventory update
+      window.dispatchEvent(new Event('character-inventory-update'));
+
+      return { success: true, leveledUp };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Error training citizen' };
+    }
+  },
+
+  toggleSupporter: async (userId: string, citizenId: string) => {
+    if (!userId || !citizenId) return;
+    const { combatSupporters } = get();
+
+    let newSupporters = [...combatSupporters];
+    if (newSupporters.includes(citizenId)) {
+      newSupporters = newSupporters.filter(id => id !== citizenId);
+    } else {
+      if (newSupporters.length >= 2) {
+        newSupporters.shift(); // Remove oldest
+      }
+      newSupporters.push(citizenId);
+    }
+
+    await setUserPreference('combat_supporters', newSupporters);
+    set({ combatSupporters: newSupporters });
   }
 }));
 

@@ -6,13 +6,15 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Shield, Sword, Zap, Heart, Shield as Armor } from 'lucide-react'
+import { Shield, Sword, Zap, Heart, Shield as Armor, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { gainGold } from '@/lib/gold-manager'
 import { addToCharacterStat } from '@/lib/character-stats-service'
 import { toast } from '@/components/ui/use-toast'
 import Image from 'next/image'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { useUser } from "@clerk/nextjs"
+import { useCitizensStore } from "@/stores/citizensStore"
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -94,11 +96,29 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [stats, setStats] = useState({ attack: 0, defense: 0 })
   const [playerLevel, setPlayerLevel] = useState<number>(1)
 
+  const { user } = useUser();
+  const loadCitizens = useCitizensStore(state => state.loadCitizens);
+  const citizens = useCitizensStore(state => state.citizens);
+  const combatSupporters = useCitizensStore(state => state.combatSupporters);
+
+  const activeSupporters = citizens.filter(c => combatSupporters.includes(c.id));
+  const natureSupporter = activeSupporters.find(c => c.type === 'nature');
+  const fireSupporter = activeSupporters.find(c => c.type === 'fire');
+  const waterSupporter = activeSupporters.find(c => c.type === 'water');
+  const earthSupporter = activeSupporters.find(c => c.type === 'earth');
+  const iceSupporter = activeSupporters.find(c => c.type === 'ice');
+
+  const effectiveAttack = Math.floor(stats.attack * (fireSupporter ? 1 + (fireSupporter.level || 1) * 0.03 : 1));
+  const effectiveDefense = Math.floor(stats.defense * (waterSupporter ? 1 + (waterSupporter.level || 1) * 0.03 : 1));
+
   const monster = monsterData[monsterType]
 
   useEffect(() => {
     const fetchEquippedStats = async () => {
       try {
+        if (user?.id) {
+          loadCitizens(user.id).catch(console.error);
+        }
         const [invRes, statsRes] = await Promise.all([
           fetch('/api/inventory?equipped=true'),
           fetch('/api/character-stats')
@@ -139,7 +159,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     const isMedium = ['troll', 'pegasus'].includes(monsterType);
     const baseSteps = isEasy ? 4 : isMedium ? 5 : 6;
     
-    const gearScore = stats.attack + stats.defense;
+    const gearScore = effectiveAttack + effectiveDefense;
     const levelModifier = Math.floor(playerLevel / 10);
     const gearBonus = Math.floor(gearScore / 15);
     
@@ -155,7 +175,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     }
 
     return newSequence
-  }, [stats.attack, stats.defense, playerLevel, monsterType])
+  }, [effectiveAttack, effectiveDefense, playerLevel, monsterType])
 
   // Show sequence to player
   const showSequence = useCallback(async (sequenceToShow: string[]) => {
@@ -163,12 +183,15 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     setIsPlayerTurn(false)
     setCurrentSequenceIndex(0)
 
+    const natureLvl = natureSupporter ? natureSupporter.level || 1 : 0;
+    const showDuration = 1000 + (natureLvl * 500); // add 0.5s per level
+
     for (let i = 0; i < sequenceToShow.length; i++) {
       const weaponId = sequenceToShow[i]
       if (weaponId) {
         setHighlightedWeapon(weaponId)
         setCurrentSequenceIndex(i + 1)
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Show each weapon for 1 second
+        await new Promise(resolve => setTimeout(resolve, showDuration)) // Show each weapon longer based on Nature supporter level
         setHighlightedWeapon(null)
         await new Promise(resolve => setTimeout(resolve, 300)) // Brief pause between weapons
       }
@@ -177,7 +200,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     setIsShowingSequence(false)
     setIsPlayerTurn(true)
     setCurrentSequenceIndex(0)
-  }, [])
+  }, [natureSupporter])
 
   // Initialize game
   useEffect(() => {
@@ -239,12 +262,33 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           showSequence(newSequence)
         }, 1000)
       }
+    } else {
+      // Roll for Tactical Supporter Strike
+      const tacticalSupporter = activeSupporters.find(s => !['nature', 'fire', 'water', 'earth', 'ice'].includes(s.type));
+      if (tacticalSupporter) {
+        const lvl = tacticalSupporter.level || 1;
+        const chance = lvl * 0.05; // 5% chance per level
+        if (Math.random() < chance) {
+          const nextCorrectWeaponId = sequence[newPlayerSequence.length];
+          if (nextCorrectWeaponId) {
+            setIsPlayerTurn(false);
+            setTimeout(() => {
+              toast({
+                title: "🎯 Supporter Strike!",
+                description: `${tacticalSupporter.name} auto-inputs the next weapon!`,
+              });
+              setIsPlayerTurn(true);
+              handleWeaponClick(nextCorrectWeaponId);
+            }, 600);
+          }
+        }
+      }
     }
   }
 
   const handleRoundLoss = () => {
     const basePenalty = 10 * (1 + playerLevel / 10);
-    const lostGold = Math.max(5, Math.floor(basePenalty / (1 + stats.defense * 0.05)));
+    const lostGold = Math.max(5, Math.floor(basePenalty / (1 + effectiveDefense * 0.05)));
     setGoldLost(prev => prev + lostGold)
     gainGold(-lostGold, 'monster-battle-loss')
 
@@ -279,11 +323,14 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     const baseGold = isEasy ? 100 : isMedium ? 180 : 300;
     const baseXP = isEasy ? 50 : isMedium ? 80 : 120;
 
-    const gearScore = stats.attack + stats.defense;
+    const gearScore = effectiveAttack + effectiveDefense;
     const scaleFactor = 1 + playerLevel / 15 + gearScore / 20;
 
-    const earnedGold = Math.floor(baseGold * scaleFactor);
-    const earnedXP = Math.floor(baseXP * scaleFactor);
+    const iceBonus = iceSupporter ? 1 + (iceSupporter.level || 1) * 0.03 : 1;
+    const earthBonus = earthSupporter ? 1 + (earthSupporter.level || 1) * 0.03 : 1;
+
+    const earnedGold = Math.floor(baseGold * scaleFactor * iceBonus);
+    const earnedXP = Math.floor(baseXP * scaleFactor * earthBonus);
 
     setGameState('won')
     gainGold(earnedGold, 'monster-battle-win')
@@ -357,6 +404,18 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     }, 2000)
   }
 
+  const getPassiveShortLabel = (c: any) => {
+    const lvl = c.level || 1;
+    switch (c.type) {
+      case 'nature': return `+${(lvl * 0.5).toFixed(1)}s Memory`;
+      case 'fire': return `+${lvl * 3}% Attack`;
+      case 'water': return `+${lvl * 3}% Defense`;
+      case 'earth': return `+${lvl * 3}% XP`;
+      case 'ice': return `+${lvl * 3}% Gold`;
+      default: return `+${lvl * 5}% Tactical Strike`;
+    }
+  };
+
   if (!isOpen) return null
 
   return (
@@ -405,6 +464,34 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 <span>
                   Weapon Attack bonus +{stats.attack}: Enemy matching sequence length reduced by {Math.min(2, Math.floor(stats.attack / 8))}!
                 </span>
+              </div>
+            </div>
+          )}
+
+          {/* Active Battle Squad Support */}
+          {activeSupporters.length > 0 && (
+            <div className="bg-amber-950/20 border border-amber-500/20 rounded-lg p-3 space-y-2">
+              <h5 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                <Users className="w-4 h-4" /> Active Battle Squad Support
+              </h5>
+              <div className="flex flex-col sm:flex-row gap-3">
+                {activeSupporters.map(c => (
+                  <div key={c.id} className="flex items-center gap-2 text-xs text-amber-200">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-amber-500/30 flex items-center justify-center shrink-0 relative overflow-hidden">
+                      <Image
+                        src={c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp'}
+                        alt={c.name}
+                        width={28}
+                        height={28}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[10px] text-white leading-none">{c.name}</p>
+                      <p className="text-[9px] text-zinc-400 mt-1">Level {c.level || 1} • {getPassiveShortLabel(c)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
