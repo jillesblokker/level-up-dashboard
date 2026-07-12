@@ -154,13 +154,14 @@ export async function POST(req: NextRequest) {
                             if (!dist) return;
 
                             const matches = dist.categories.some((cat: string) => {
-                                const jc = cat.toLowerCase();
-                                if (jc === 'knowledge') return categoryName.includes('knowledge') || categoryName.includes('intelligence');
-                                if (jc === 'might') return categoryName.includes('might') || categoryName.includes('agility');
-                                if (jc === 'wellness') return categoryName.includes('wellness') || categoryName.includes('vitality') || categoryName.includes('spiritual');
-                                if (jc === 'social') return categoryName.includes('social') || categoryName.includes('creative');
-                                return categoryName.includes(jc);
-                            });
+                                 const jc = cat.toLowerCase();
+                                 const qCat = categoryName.toLowerCase();
+                                 if (jc === qCat) return true;
+                                 if (jc === 'knowledge' && (qCat.includes('knowledge') || qCat.includes('intelligence'))) return true;
+                                 if (jc === 'might' && (qCat.includes('might') || qCat.includes('agility'))) return true;
+                                 if (jc === 'vitality' && (qCat.includes('vitality') || qCat.includes('wellness') || qCat.includes('spiritual'))) return true;
+                                 return qCat.includes(jc) || jc.includes(qCat);
+                             });
 
                             if (dist.locationType === 'settlement') {
                                 if (dist.boundHabitId === questId) {
@@ -380,13 +381,14 @@ export async function POST(req: NextRequest) {
                         if (!dist) return;
 
                         const matches = dist.categories.some((cat: string) => {
-                            const jc = cat.toLowerCase();
-                            if (jc === 'knowledge') return categoryName.includes('knowledge') || categoryName.includes('intelligence');
-                            if (jc === 'might') return categoryName.includes('might') || categoryName.includes('agility');
-                            if (jc === 'wellness') return categoryName.includes('wellness') || categoryName.includes('vitality') || categoryName.includes('spiritual');
-                            if (jc === 'social') return categoryName.includes('social') || categoryName.includes('creative');
-                            return categoryName.includes(jc);
-                        });
+                             const jc = cat.toLowerCase();
+                             const qCat = categoryName.toLowerCase();
+                             if (jc === qCat) return true;
+                             if (jc === 'knowledge' && (qCat.includes('knowledge') || qCat.includes('intelligence'))) return true;
+                             if (jc === 'might' && (qCat.includes('might') || qCat.includes('agility'))) return true;
+                             if (jc === 'vitality' && (qCat.includes('vitality') || qCat.includes('wellness') || qCat.includes('spiritual'))) return true;
+                             return qCat.includes(jc) || jc.includes(qCat);
+                         });
 
                         if (dist.locationType === 'settlement') {
                             if (dist.boundHabitId === questId) {

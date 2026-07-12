@@ -34,14 +34,32 @@ interface HabitFocusCardProps {
   locationType: 'settlement' | 'town' | 'city' | 'megapolis';
 }
 
-const CATEGORY_NAMES = ['might', 'knowledge', 'wellness', 'social'];
+const CATEGORY_NAMES = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality'];
 
 const MONUMENT_TYPES = [
   { id: 'monument-might', name: 'Pantheon of Might', category: 'might', rewardDesc: 'A colossal weapon treasury chest.' },
   { id: 'monument-knowledge', name: 'Observatory of Knowledge', category: 'knowledge', rewardDesc: 'An arcane library relic chest.' },
-  { id: 'monument-wellness', name: 'Garden of Wellness', category: 'wellness', rewardDesc: 'A mystical fish & water reservoir.' },
-  { id: 'monument-social', name: 'Assembly of Social Bonds', category: 'social', rewardDesc: 'A precious gold & silver chest.' }
+  { id: 'monument-honor', name: 'Citadel of Honor', category: 'honor', rewardDesc: 'A knightly badge & shield chest.' },
+  { id: 'monument-castle', name: 'Palace of the Castle', category: 'castle', rewardDesc: 'A grand stone & wood masonry crate.' },
+  { id: 'monument-craft', name: 'Workshop of Crafting', category: 'craft', rewardDesc: 'A rare steel & tool stockpile.' },
+  { id: 'monument-vitality', name: 'Garden of Vitality', category: 'vitality', rewardDesc: 'A magical potion & herb supply.' }
 ];
+
+const formatLocationTitle = (name: string, type: string) => {
+  const decoded = decodeURIComponent(name);
+  
+  const coordMatch = decoded.match(/^(settlement|town|city|megapolis)-(\d+)-(\d+)$/i);
+  if (coordMatch && coordMatch[1]) {
+    const locType = coordMatch[1];
+    const x = coordMatch[2];
+    const y = coordMatch[3];
+    const typeLabel = locType.charAt(0).toUpperCase() + locType.slice(1);
+    return `${typeLabel} (Grid ${x}, ${y})`;
+  }
+
+  const cleaned = decoded.replace(/-/g, ' ');
+  return cleaned.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
 
 export function HabitFocusCard({ locationName, locationType }: HabitFocusCardProps) {
   const { user } = useUser();
@@ -280,15 +298,25 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
         { id: 'material-crystal', quantity: 3 },
         { id: 'material-water', quantity: 3 }
       ];
-    } else if (chestType === 'wellness') {
+    } else if (chestType === 'honor') {
+      rewards = [
+        { id: 'material-silver', quantity: 3 },
+        { id: 'material-steel', quantity: 2 }
+      ];
+    } else if (chestType === 'castle') {
+      rewards = [
+        { id: 'material-stone', quantity: 4 },
+        { id: 'material-logs', quantity: 4 }
+      ];
+    } else if (chestType === 'craft') {
+      rewards = [
+        { id: 'material-planks', quantity: 4 },
+        { id: 'material-steel', quantity: 3 }
+      ];
+    } else if (chestType === 'vitality') {
       rewards = [
         { id: 'fish-rainbow', quantity: 2 },
         { id: 'material-water', quantity: 4 }
-      ];
-    } else if (chestType === 'social') {
-      rewards = [
-        { id: 'material-silver', quantity: 3 },
-        { id: 'material-gold', quantity: 1 }
       ];
     }
 
@@ -375,8 +403,12 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                 <Compass className="w-5 h-5 text-amber-500" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-amber-500 tracking-wider">Habit Focus District</span>
-                <h3 className="font-cardo font-bold text-base text-white mt-0.5 capitalize">{locationType}: {locationName.replace(/-/g, ' ')}</h3>
+                <span className="text-[10px] uppercase font-bold text-amber-500 tracking-wider">
+                  {locationType.charAt(0).toUpperCase() + locationType.slice(1)} Focus Altar
+                </span>
+                <h3 className="font-cardo font-bold text-base text-[#e5c158] mt-0.5">
+                  {formatLocationTitle(locationName, locationType)}
+                </h3>
               </div>
             </div>
             <Button
@@ -551,7 +583,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             <div>
               <h3 className="font-cardo font-bold text-white text-sm">Configure Habit Focus District</h3>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">
-                Location: {locationName.replace(/-/g, ' ')} ({locationType})
+                {locationType.charAt(0).toUpperCase() + locationType.slice(1)}: {formatLocationTitle(locationName, locationType)}
               </p>
             </div>
           </div>
