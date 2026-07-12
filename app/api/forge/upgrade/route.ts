@@ -213,6 +213,34 @@ export async function POST(request: Request) {
     // Fetch active alchemy buffs to check for Forge Luck Elixir charges
     let successRateModifier = 0;
     let forgeLuckApplied = false;
+    let cityGuildBlessingApplied = false;
+
+    // Check City Guild Blessing (+20% success rate modifier)
+    try {
+      const { data: focusPrefs } = await supabase
+        .from('user_preferences')
+        .select('preference_value')
+        .eq('user_id', userId)
+        .eq('preference_key', 'habit_focus_districts')
+        .maybeSingle();
+
+      const allDistricts = (focusPrefs?.preference_value as any) || {};
+      Object.keys(allDistricts).forEach(key => {
+        const dist = allDistricts[key];
+        if (dist && dist.locationType === 'city' && dist.guildBlessingUntil) {
+          if (new Date(dist.guildBlessingUntil).getTime() > Date.now()) {
+            cityGuildBlessingApplied = true;
+          }
+        }
+      });
+
+      if (cityGuildBlessingApplied) {
+        successRateModifier += 0.20;
+      }
+    } catch (err) {
+      logger.error('[Upgrade API] Failed to check city guild blessing:', err);
+    }
+
     try {
       const { data: prefData } = await supabase
         .from('user_preferences')

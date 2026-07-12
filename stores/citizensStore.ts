@@ -770,8 +770,22 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       await removeFromInventory(userId, foodItemId, 1);
       await removeFromInventory(userId, scrollItemId, 1);
 
+      // Check City Guild Blessing for Double Citizen Training XP
+      let xpMultiplier = 1;
+      try {
+        const allDistricts: any = await getUserPreference('habit_focus_districts') || {};
+        Object.keys(allDistricts).forEach(key => {
+          const dist = allDistricts[key];
+          if (dist && dist.locationType === 'city' && dist.guildBlessingUntil) {
+            if (new Date(dist.guildBlessingUntil).getTime() > Date.now()) {
+              xpMultiplier = 2;
+            }
+          }
+        });
+      } catch {}
+
       // Add experience
-      let newXP = (citizen.experience || 0) + 50;
+      let newXP = (citizen.experience || 0) + (50 * xpMultiplier);
       let newLevel = level;
       let leveledUp = false;
       const xpReq = level * 100;

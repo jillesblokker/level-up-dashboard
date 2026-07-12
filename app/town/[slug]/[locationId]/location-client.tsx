@@ -14,6 +14,7 @@ import { HeaderSection } from "@/components/HeaderSection"
 import { PageGuide } from "@/components/page-guide"
 import Image from "next/image"
 import { useInventory, useCharacterStats, useUpdateCharacterStats, useAddInventoryItem } from "@/lib/queries"
+import { getUserPreference } from "@/lib/user-preferences-manager"
 
 interface LocationItem {
   id: string
@@ -115,6 +116,23 @@ export default function LocationClient({ slug, locationId }: Props) {
 
   const inventory: InventoryItem[] = Array.isArray(inventoryData) ? inventoryData : []
 
+  const [hasDiscount, setHasDiscount] = useState(false);
+
+  useEffect(() => {
+    const checkDiscount = async () => {
+      try {
+        const allDistricts: any = await getUserPreference('habit_focus_districts') || {};
+        const dist = allDistricts[slug];
+        if (dist && dist.discountUntil && new Date(dist.discountUntil).getTime() > Date.now()) {
+          setHasDiscount(true);
+        }
+      } catch {}
+    };
+    checkDiscount();
+  }, [slug]);
+
+  const discountMultiplier = hasDiscount ? 0.9 : 1.0;
+
   // Keep legacy event listeners so other parts of the app can still trigger a re-check
   useEffect(() => {
     // Nothing to do — React Query will automatically refetch on window focus if needed.
@@ -128,7 +146,19 @@ export default function LocationClient({ slug, locationId }: Props) {
     }
   }, [])
 
-  const location = locationData[locationId]
+  const rawLocation = locationData[locationId]
+  const location = rawLocation ? {
+    ...rawLocation,
+    items: rawLocation.items?.map(item => ({
+      ...item,
+      price: Math.round(item.price * discountMultiplier)
+    })),
+    horses: rawLocation.horses?.map(horse => ({
+      ...horse,
+      price: Math.round(horse.price * discountMultiplier)
+    }))
+  } : undefined;
+
   useEffect(() => {
     if (!location) {
       router.push(`/town/${slug}`)

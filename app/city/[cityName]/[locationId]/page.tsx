@@ -20,6 +20,7 @@ import { useGameStore } from "@/stores/game-store"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { MARKETPLACE_CONSUMABLES } from "@/lib/shop-items"
 import { spendGold } from "@/lib/gold-manager"
+import { getUserPreference } from "@/lib/user-preferences-manager"
 import { useRealmInventory } from "@/hooks/use-realm-inventory"
 import { TileType } from "@/types/tiles"
 import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
@@ -144,6 +145,23 @@ function CityLocationPageInner() {
   const [playerLevel, setPlayerLevel] = useState(1)
   const [tradeQuantities, setTradeQuantities] = useState<Record<string, number>>({})
   const [openingPack, setOpeningPack] = useState<any>(null)
+
+  const [hasDiscount, setHasDiscount] = useState(false)
+
+  useEffect(() => {
+    const checkDiscount = async () => {
+      try {
+        const allDistricts: any = await getUserPreference('habit_focus_districts') || {};
+        const dist = allDistricts[cityName];
+        if (dist && dist.discountUntil && new Date(dist.discountUntil).getTime() > Date.now()) {
+          setHasDiscount(true);
+        }
+      } catch {}
+    };
+    checkDiscount();
+  }, [cityName]);
+
+  const discountMultiplier = hasDiscount ? 0.9 : 1.0;
   
   // Tavern Dice Game State
   const [diceBetType, setDiceBetType] = useState<'under' | 'exact' | 'over'>('over')
@@ -156,8 +174,9 @@ function CityLocationPageInner() {
   const [diceWinStatus, setDiceWinStatus] = useState<'win' | 'lose' | null>(null)
 
   const getScaledCost = useCallback((baseCost: number) => {
-    return Math.floor(baseCost * Math.pow(1 + playerLevel / 10, 1.5));
-  }, [playerLevel]);
+    const scaled = Math.floor(baseCost * Math.pow(1 + playerLevel / 10, 1.5));
+    return Math.round(scaled * discountMultiplier);
+  }, [playerLevel, discountMultiplier]);
 
   const scaledWeapons = useMemo(() => BLACKSMITH_WEAPONS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
   const scaledShields = useMemo(() => BLACKSMITH_SHIELDS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);

@@ -10,6 +10,7 @@ import Link from "next/link"
 import { setUserPreference } from '@/lib/user-preferences-manager'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { HeaderSection } from "@/components/HeaderSection"
+import { HabitFocusCard } from "@/components/kingdom/habit-focus-card"
 
 interface TownData {
   name: string
@@ -140,6 +141,11 @@ export default function TownClient({ slug }: Props) {
       </div>
 
       <main className="flex-1 p-4 md:p-6 space-y-6">
+        <HabitFocusCard
+          locationName={slug}
+          locationType={slug.toLowerCase().includes('settlement') ? 'settlement' : 'town'}
+        />
+
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3" aria-label="town-locations-grid">
           {townData.locations.map((location) => (
             <Link

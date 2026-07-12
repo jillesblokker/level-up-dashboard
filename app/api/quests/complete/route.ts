@@ -157,6 +157,68 @@ export async function POST(request: NextRequest) {
             logger.error('[Airship Hook] Failed to advance active expedition:', err);
         }
 
+        // Habit Focus District Hook
+        try {
+            const { data: focusPrefs } = await supabase
+                .from('user_preferences')
+                .select('preference_value')
+                .eq('user_id', userId)
+                .eq('preference_key', 'habit_focus_districts')
+                .maybeSingle();
+
+            const allDistricts = (focusPrefs?.preference_value as any) || {};
+            const categoryName = (quest.category || 'might').toLowerCase();
+            let updated = false;
+
+            Object.keys(allDistricts).forEach(key => {
+                const dist = allDistricts[key];
+                if (!dist) return;
+
+                const matches = dist.categories.some((cat: string) => {
+                    const jc = cat.toLowerCase();
+                    if (jc === 'knowledge') return categoryName.includes('knowledge') || categoryName.includes('intelligence');
+                    if (jc === 'might') return categoryName.includes('might') || categoryName.includes('agility');
+                    if (jc === 'wellness') return categoryName.includes('wellness') || categoryName.includes('vitality') || categoryName.includes('spiritual');
+                    if (jc === 'social') return categoryName.includes('social') || categoryName.includes('creative');
+                    return categoryName.includes(jc);
+                });
+
+                if (dist.locationType === 'settlement') {
+                    if (dist.boundHabitId === questId) {
+                        dist.streak = (dist.streak || 0) + 1;
+                        dist.taxGold = (dist.taxGold || 0) + 50 * dist.streak;
+                        updated = true;
+                    }
+                } else if (matches) {
+                    if (dist.locationType === 'town') {
+                        const expires = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+                        dist.discountUntil = expires;
+                        updated = true;
+                    } else if (dist.locationType === 'city') {
+                        dist.guildCharges = Math.min(5, (dist.guildCharges || 0) + 1);
+                        updated = true;
+                    } else if (dist.locationType === 'megapolis') {
+                        dist.monumentProgress = Math.min(10, (dist.monumentProgress || 0) + 1);
+                        updated = true;
+                    }
+                }
+            });
+
+            if (updated) {
+                await supabase
+                    .from('user_preferences')
+                    .upsert({
+                        user_id: userId,
+                        preference_key: 'habit_focus_districts',
+                        preference_value: allDistricts,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,preference_key' });
+                logger.debug('[Focus Hook] Advanced habit focus districts state.');
+            }
+        } catch (err) {
+            logger.error('[Focus Hook] Failed to advance focus districts:', err);
+        }
+
         // Update character stats
         const { data: currentStats, error: statsError } = await supabase
             .from('character_stats')

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getCityData, type CityLocation } from "@/lib/city-data"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { HeaderSection } from "@/components/HeaderSection"
+import { HabitFocusCard } from "@/components/kingdom/habit-focus-card"
 
 export default function CityPage() {
   const params = useParams()
@@ -59,6 +60,11 @@ export default function CityPage() {
             </Link>
           </div>
         </div>
+
+        <HabitFocusCard
+          locationName={cityName}
+          locationType={cityName.toLowerCase().includes('megapolis') ? 'megapolis' : 'city'}
+        />
 
         {(() => {
           const getAveragePriceAdjustment = (): number => {
