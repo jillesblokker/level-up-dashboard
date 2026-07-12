@@ -88,13 +88,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item not found in inventory' }, { status: 404 });
     }
 
-    const itemType = (item.type || '').toLowerCase();
+    const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === item.item_id);
+    if (!sourceOfTruth) {
+      return NextResponse.json({ error: 'Item compendium details not found' }, { status: 400 });
+    }
+
+    const itemType = sourceOfTruth.type.toLowerCase();
     if (!['weapon', 'shield', 'armor'].includes(itemType)) {
       return NextResponse.json({ error: 'Only weapons, shields, and armor can be upgraded' }, { status: 400 });
     }
 
-    const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === item.item_id);
-    const rarity = sourceOfTruth ? sourceOfTruth.rarity : (item.rarity || 'common');
+    const rarity = sourceOfTruth.rarity || 'common';
 
     const dbStats = item.stats || {};
     const currentLevel = dbStats.upgradeLevel || 0;
@@ -215,8 +219,8 @@ export async function POST(request: Request) {
             user_id: userId,
             item_id: item.item_id,
             name: newName,
-            type: item.type,
-            category: item.category,
+            type: itemType,
+            category: item.category || sourceOfTruth.category,
             description: item.description,
             emoji: item.emoji,
             image: item.image,
@@ -233,6 +237,7 @@ export async function POST(request: Request) {
           .from('inventory_items')
           .update({
             name: newName,
+            type: itemType,
             stats: newStats,
             updated_at: new Date().toISOString()
           })
@@ -297,8 +302,8 @@ export async function POST(request: Request) {
                 user_id: userId,
                 item_id: item.item_id,
                 name: newName,
-                type: item.type,
-                category: item.category,
+                type: itemType,
+                category: item.category || sourceOfTruth.category,
                 description: item.description,
                 emoji: item.emoji,
                 image: item.image,
@@ -315,6 +320,7 @@ export async function POST(request: Request) {
               .from('inventory_items')
               .update({
                 name: newName,
+                type: itemType,
                 stats: newStats,
                 updated_at: new Date().toISOString()
               })
