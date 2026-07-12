@@ -5,6 +5,7 @@ import { CARD_TYPES, variantLabel } from '@/lib/pack-generator';
 import { getInventory, removeFromInventory, addToInventory } from '@/lib/inventory-manager';
 import { gainGold } from '@/lib/gold-manager';
 import { loadTileInventory, saveTileInventory } from '@/lib/data-loaders';
+import { getClerkToken } from '@/lib/auth-helpers';
 
 export interface CitizenState {
   active: boolean;
@@ -181,12 +182,15 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
+      const token = await getClerkToken().catch(() => null);
+      const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
       // Parallel fetches for achievements, mythic cards, citizen preferences, and character stats (for sleepy check)
       const [achievementsRes, mythicsRes, prefState, charStatsRes] = await Promise.all([
-        fetch('/api/achievements').catch(() => null),
-        fetch('/api/packs/mythics').catch(() => null),
+        fetch('/api/achievements', { headers }).catch(() => null),
+        fetch('/api/packs/mythics', { headers }).catch(() => null),
         getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>,
-        fetch('/api/character-stats').catch(() => null)
+        fetch('/api/character-stats', { headers }).catch(() => null)
       ]);
 
       let isSleepy = false;

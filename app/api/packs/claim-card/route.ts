@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
-import { getAuth } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 
 export async function POST(req: Request) {
     try {
-        const { userId } = getAuth(req as any);
+        const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { cardId, variantId, packId } = await req.json();
+        const { cardId, variantId } = await req.json();
 
         // Check if user already owns this card
         const { data: existing } = await supabaseServer
