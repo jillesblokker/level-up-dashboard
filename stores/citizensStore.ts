@@ -529,7 +529,20 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     const affection = citizen.affection || 0;
     const affectionScale = 1.0 + (affection / 100) * 0.5; // up to +50% gold
-    const goldAmount = Math.floor(baseGold * affectionScale * (multiplier || 1));
+
+    // Check active alchemy buffs for Double Harvest Draught
+    let doubleHarvestActive = false;
+    try {
+      const activeBuffs = await getUserPreference('active_alchemy_buffs') as any || {};
+      if (activeBuffs.doubleHarvestUntil && new Date(activeBuffs.doubleHarvestUntil).getTime() > Date.now()) {
+        doubleHarvestActive = true;
+      }
+    } catch (e) {
+      console.error('[Citizens Store] Failed to check double harvest buff:', e);
+    }
+
+    const harvestMultiplier = doubleHarvestActive ? 2 : 1;
+    const goldAmount = Math.floor(baseGold * affectionScale * (multiplier || 1) * harvestMultiplier);
 
     // Award gold
     await gainGold(goldAmount, `citizen-collect:${citizen.name}`);
@@ -537,7 +550,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     // Biome-Specific Passive Gathering
     const drop = generateGatherDrop(citizen);
     if (drop) {
-      await addToInventory(userId, drop as any);
+      const finalQuantity = drop.quantity * harvestMultiplier;
+      await addToInventory(userId, { ...drop, quantity: finalQuantity } as any);
       
       // We don't have a reliable way to show an individual toast here if the UI doesn't know what was gathered,
       // but the old code also just dispatched an event.
@@ -583,6 +597,17 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     const harvestable = citizens.filter((c) => c.active && isHarvestReady(c));
     if (harvestable.length === 0) return null;
 
+    let doubleHarvestActive = false;
+    try {
+      const activeBuffs = await getUserPreference('active_alchemy_buffs') as any || {};
+      if (activeBuffs.doubleHarvestUntil && new Date(activeBuffs.doubleHarvestUntil).getTime() > Date.now()) {
+        doubleHarvestActive = true;
+      }
+    } catch (e) {
+      console.error('[Citizens Store] Failed to check double harvest buff in autopilot:', e);
+    }
+
+    const harvestMultiplier = doubleHarvestActive ? 2 : 1;
     let totalGoldCollected = 0;
     const itemsCollected: Record<string, { quantity: number; name: string; emoji: string }> = {};
 
@@ -594,19 +619,20 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       
       const affection = citizen.affection || 0;
       const affectionScale = 1.0 + (affection / 100) * 0.5; // up to +50% gold
-      const goldAmount = Math.floor(baseGold * affectionScale);
+      const goldAmount = Math.floor(baseGold * affectionScale * harvestMultiplier);
       totalGoldCollected += goldAmount;
 
       await gainGold(goldAmount, `autopilot-collect:${citizen.name}`);
 
       const drop = generateGatherDrop(citizen);
       if (drop) {
-        await addToInventory(userId, drop as any);
+        const finalQuantity = drop.quantity * harvestMultiplier;
+        await addToInventory(userId, { ...drop, quantity: finalQuantity } as any);
         const existing = itemsCollected[drop.id];
         if (existing) {
-          existing.quantity += drop.quantity;
+          existing.quantity += finalQuantity;
         } else {
-          itemsCollected[drop.id] = { quantity: drop.quantity, name: drop.name, emoji: drop.emoji };
+          itemsCollected[drop.id] = { quantity: finalQuantity, name: drop.name, emoji: drop.emoji };
         }
       }
     }

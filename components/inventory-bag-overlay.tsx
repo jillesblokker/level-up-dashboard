@@ -17,6 +17,7 @@ import { equipItem, unequipItem } from "@/lib/inventory-manager";
 import { KINGDOM_TILES } from "@/lib/kingdom-tiles";
 import { useToast } from "@/components/ui/use-toast";
 import { TEXT_CONTENT } from "@/lib/text-content";
+import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 
 // --- Types ---
 
@@ -321,11 +322,49 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ itemId: item.id, quantity: 1 })
           });
-          toast({
-            title: "Used Item",
-            description: `You used ${item.name}`,
-          });
+
+          // Apply custom Alchemy buffs
+          if (item.id === 'potion-forge-luck') {
+            const current: any = await getUserPreference('active_alchemy_buffs') || {};
+            await setUserPreference('active_alchemy_buffs', {
+              ...current,
+              forgeLuckCharges: (current.forgeLuckCharges || 0) + 1
+            });
+            toast({
+              title: "Forge Luck Activated! 🧪✨",
+              description: "Tempering success rate increased by +10% for your next upgrade attempt."
+            });
+          } else if (item.id === 'potion-combat-protection') {
+            const current: any = await getUserPreference('active_alchemy_buffs') || {};
+            await setUserPreference('active_alchemy_buffs', {
+              ...current,
+              combatProtectionCharges: (current.combatProtectionCharges || 0) + 1
+            });
+            toast({
+              title: "Shield Barrier Activated! 🧪🛡️",
+              description: "Your gold is safe from losses on the next round failure in Monster Battles."
+            });
+          } else if (item.id === 'potion-double-harvest') {
+            const current: any = await getUserPreference('active_alchemy_buffs') || {};
+            const next24h = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            await setUserPreference('active_alchemy_buffs', {
+              ...current,
+              doubleHarvestUntil: next24h
+            });
+            toast({
+              title: "Nourishing Draught Consumed! 🧪🐟",
+              description: "Citizen harvesting yields are doubled for the next 24 hours!"
+            });
+          } else {
+            toast({
+              title: "Used Item",
+              description: `You used ${item.name}`,
+            });
+          }
+
           window.dispatchEvent(new Event('character-inventory-update'));
+          // Dispatch custom event to update active buffs state in UI tabs
+          window.dispatchEvent(new Event('alchemy-buffs-update'));
         } catch (e) {
           logger.error('[Bag] Failed to remove consumable after use', e);
         }

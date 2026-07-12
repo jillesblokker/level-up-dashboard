@@ -76,9 +76,32 @@ export async function POST(request: NextRequest) {
         }
 
         const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 }
+
+        // Check active alchemy spell blessings
+        let xpMultiplier = 1;
+        let goldMultiplier = 1;
+        try {
+            const { data: prefData } = await supabase
+                .from('user_preferences')
+                .select('preference_value')
+                .eq('user_id', userId)
+                .eq('preference_key', 'active_alchemy_buffs')
+                .maybeSingle();
+
+            const activeBuffs = (prefData?.preference_value as any) || {};
+            if (activeBuffs.activeSpell === 'swiftness' && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > Date.now()) {
+                xpMultiplier = 2;
+            }
+            if (activeBuffs.activeSpell === 'greed' && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > Date.now()) {
+                goldMultiplier = 2;
+            }
+        } catch (err) {
+            logger.error('[Quest Complete API] Failed to load alchemy spell blessings:', err);
+        }
+
         const rewards = {
-            xp: Math.floor(baseRewards.xp * streakMultiplier),
-            gold: Math.floor(baseRewards.gold * streakMultiplier)
+            xp: Math.floor(baseRewards.xp * streakMultiplier * xpMultiplier),
+            gold: Math.floor(baseRewards.gold * streakMultiplier * goldMultiplier)
         }
 
         // Mark quest as complete

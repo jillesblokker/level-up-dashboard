@@ -15,6 +15,7 @@ import Image from 'next/image'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { useUser } from "@clerk/nextjs"
 import { useCitizensStore } from "@/stores/citizensStore"
+import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -95,6 +96,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
   const [stats, setStats] = useState({ attack: 0, defense: 0 })
   const [playerLevel, setPlayerLevel] = useState<number>(1)
+  const [protectionCharges, setProtectionCharges] = useState<number>(0)
 
   const { user } = useUser();
   const loadCitizens = useCitizensStore(state => state.loadCitizens);
@@ -118,6 +120,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       try {
         if (user?.id) {
           loadCitizens(user.id).catch(console.error);
+          getUserPreference('active_alchemy_buffs').then((buffs: any) => {
+            if (buffs && buffs.combatProtectionCharges) {
+              setProtectionCharges(buffs.combatProtectionCharges);
+            }
+          }).catch(console.error);
         }
         const [invRes, statsRes] = await Promise.all([
           fetch('/api/inventory?equipped=true'),
@@ -288,15 +295,36 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
   const handleRoundLoss = () => {
     const basePenalty = 10 * (1 + playerLevel / 10);
-    const lostGold = Math.max(5, Math.floor(basePenalty / (1 + effectiveDefense * 0.05)));
-    setGoldLost(prev => prev + lostGold)
-    gainGold(-lostGold, 'monster-battle-loss')
+    let lostGold = Math.max(5, Math.floor(basePenalty / (1 + effectiveDefense * 0.05)));
+    
+    const isProtected = protectionCharges > 0;
+    if (isProtected) {
+      lostGold = 0;
+      setProtectionCharges(prev => Math.max(0, prev - 1));
+      
+      // Update DB preference
+      getUserPreference('active_alchemy_buffs').then((current: any) => {
+        const updated = {
+          ...current,
+          combatProtectionCharges: Math.max(0, (current?.combatProtectionCharges || 1) - 1)
+        };
+        setUserPreference('active_alchemy_buffs', updated);
+      }).catch(console.error);
 
-    toast({
-      title: TEXT_CONTENT.monsterBattle.roundFailed.title,
-      description: TEXT_CONTENT.monsterBattle.roundFailed.description.replace('{lostGold}', lostGold.toString()),
-      variant: "destructive",
-    })
+      toast({
+        title: "🛡️ Barrier Protected!",
+        description: "Your Combat Protection Potion absorbed the gold loss penalty!",
+      });
+    } else {
+      setGoldLost(prev => prev + lostGold)
+      gainGold(-lostGold, 'monster-battle-loss')
+
+      toast({
+        title: TEXT_CONTENT.monsterBattle.roundFailed.title,
+        description: TEXT_CONTENT.monsterBattle.roundFailed.description.replace('{lostGold}', lostGold.toString()),
+        variant: "destructive",
+      })
+    }
 
     // Continue to next round or end game
     if (currentRound === 5) {

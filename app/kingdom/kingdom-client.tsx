@@ -91,11 +91,12 @@ const EconomyTransparency = dynamic(
   () => import('@/components/economy-transparency').then(m => ({ default: m.EconomyTransparency })),
   { loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" />, ssr: false }
 );
-import { Users, Crown, Shield } from "lucide-react";
+import { Users, Crown, Shield, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from "@/lib/text-content";
 import { CitizensTab } from "@/components/kingdom/citizens-tab";
 import { BarracksTab } from "@/components/kingdom/barracks-tab";
+import { AlchemyLabTab } from "@/components/kingdom/alchemy-lab-tab";
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number | undefined> | undefined,
@@ -1756,6 +1757,10 @@ export function KingdomClient() {
                 <Sword className="w-4 h-4" />
                 <span>Barracks</span>
               </TabsTrigger>
+              <TabsTrigger value="alchemy">
+                <FlaskConical className="w-4 h-4" />
+                <span>Alchemy Lab</span>
+              </TabsTrigger>
             </TabsList>
             
             <Link href="/kingdom/archive">
@@ -1975,6 +1980,9 @@ export function KingdomClient() {
           </TabsContent>
           <TabsContent value="barracks">
             <BarracksTab />
+          </TabsContent>
+          <TabsContent value="alchemy">
+            <AlchemyLabTab />
           </TabsContent>
         </Tabs>
       </div>

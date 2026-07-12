@@ -210,8 +210,43 @@ export async function POST(request: Request) {
       }
     }
 
+    // Fetch active alchemy buffs to check for Forge Luck Elixir charges
+    let successRateModifier = 0;
+    let forgeLuckApplied = false;
+    try {
+      const { data: prefData } = await supabase
+        .from('user_preferences')
+        .select('preference_value')
+        .eq('user_id', userId)
+        .eq('preference_key', 'active_alchemy_buffs')
+        .maybeSingle();
+
+      const activeBuffs = (prefData?.preference_value as any) || {};
+      if (activeBuffs.forgeLuckCharges && activeBuffs.forgeLuckCharges > 0) {
+        successRateModifier = 0.10;
+        forgeLuckApplied = true;
+
+        const updatedBuffs = {
+          ...activeBuffs,
+          forgeLuckCharges: activeBuffs.forgeLuckCharges - 1
+        };
+
+        await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: userId,
+            preference_key: 'active_alchemy_buffs',
+            preference_value: updatedBuffs,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id,preference_key' });
+      }
+    } catch (err) {
+      logger.error('[Upgrade API] Failed to apply forge luck buff:', err);
+    }
+
     // 5. Upgrade Roll
-    const successRate = getSuccessRate(nextLevel);
+    const baseSuccessRate = getSuccessRate(nextLevel);
+    const successRate = Math.min(1.0, baseSuccessRate + successRateModifier);
     const roll = Math.random();
     const isSuccess = roll <= successRate;
 
@@ -286,7 +321,8 @@ export async function POST(request: Request) {
         name: newName,
         stats: newStats,
         roll,
-        successRate
+        successRate,
+        forgeLuckApplied
       });
     } else {
       // UPGRADE FAILURE
@@ -371,7 +407,8 @@ export async function POST(request: Request) {
         name: newName,
         stats: newStats,
         roll,
-        successRate
+        successRate,
+        forgeLuckApplied
       });
     }
   } catch (error) {
