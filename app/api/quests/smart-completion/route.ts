@@ -10,9 +10,9 @@ import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { questId } = body;
+        const { questId, completed = true } = body;
 
-        logger.debug('[Smart Completion v2] Processing request for quest:', questId);
+        logger.debug('[Smart Completion v2] Processing request for quest:', { questId, completed });
 
         if (!questId) {
             return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
@@ -58,27 +58,156 @@ export async function POST(req: NextRequest) {
                 // 2. Check if already completed TODAY
                 const today = new Date().toISOString().split('T')[0];
                 const { data: existing } = await supabase
-                    .from('quest_completion')
-                    .select('id')
-                    .eq('quest_id', questId)
+                    .from('challenge_completion')
+                    .select('*')
+                    .eq('challenge_id', questId)
                     .eq('user_id', userId)
-                    .gte('completed_at', today)
-                    .single();
+                    .eq('date', today)
+                    .maybeSingle();
 
+                if (completed) {
+                    if (existing) {
+                        return { success: true, alreadyCompleted: true, message: 'Already completed today' };
+                    }
+
+                    // 3. Insert completion
+                    const difficultyRewards: Record<string, { xp: number; gold: number }> = {
+                        easy: { xp: 25, gold: 25 },
+                        medium: { xp: 50, gold: 50 },
+                        hard: { xp: 100, gold: 100 }
+                    };
+                    const baseRewards = difficultyRewards[challenge.difficulty || 'medium'] || { xp: 50, gold: 50 };
+                    const rewards = {
+                        xp: Math.floor(baseRewards.xp * streakMultiplier),
+                        gold: Math.floor(baseRewards.gold * streakMultiplier)
+                    };
+
+                    const { error: insertError } = await supabase
+                        .from('challenge_completion')
+                        .insert({
+                            challenge_id: questId,
+                            user_id: userId,
+                            completed: true,
+                            date: today,
+                            xp_earned: rewards.xp,
+                            gold_earned: rewards.gold
+                        });
+
+                    if (insertError) {
+                        if (insertError.code === '23505') { // Duplicate key
+                            return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
+                        }
+                        throw insertError;
+                    }
+
+                    try {
+                        await grantReward({ userId, type: 'challenge', relatedId: questId, amount: rewards.xp, context: { gold: rewards.gold } });
+                        await grantReward({ userId, type: 'gold', relatedId: questId, amount: rewards.gold, context: { xp: rewards.xp } });
+                    } catch (rewardError) {
+                        logger.error('[Smart Completion] Error granting rewards for challenge:', rewardError);
+                    }
+
+                    return { success: true, completed: true, rewards };
+                } else {
+                    // UNCOMPLETE CHALLENGE
+                    if (existing) {
+                        const revokedXP = existing.xp_earned || (challenge.xp || 50);
+                        const revokedGold = existing.gold_earned || (challenge.gold || 25);
+
+                        await supabase
+                            .from('challenge_completion')
+                            .delete()
+                            .eq('user_id', userId)
+                            .eq('challenge_id', questId)
+                            .eq('date', today);
+
+                        // Revoke stats
+                        const { data: currentStats } = await supabase
+                            .from('character_stats')
+                            .select('*')
+                            .eq('user_id', userId)
+                            .single();
+
+                        if (currentStats) {
+                            await supabase
+                                .from('character_stats')
+                                .update({
+                                    experience: Math.max(0, (currentStats.experience || 0) - revokedXP),
+                                    gold: Math.max(0, (currentStats.gold || 0) - revokedGold),
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('user_id', userId);
+                        }
+                        return { success: true, completed: false };
+                    }
+                    return { success: true, message: 'Not completed today' };
+                }
+            }
+
+            // Quest found in 'quests' table
+            // 2. Check if already completed TODAY
+            const today = new Date().toISOString().split('T')[0];
+
+            const { data: existing } = await supabase
+                .from('quest_completion')
+                .select('*')
+                .eq('quest_id', questId)
+                .eq('user_id', userId)
+                .gte('completed_at', today)
+                .maybeSingle();
+
+            if (completed) {
                 if (existing) {
                     return { success: true, alreadyCompleted: true, message: 'Already completed today' };
                 }
 
-                // 3. Insert completion
+                // 3. Mark as complete
+                const currentHour = new Date().getHours();
+                const isDay = currentHour >= 6 && currentHour < 18;
+                
                 const difficultyRewards: Record<string, { xp: number; gold: number }> = {
                     easy: { xp: 25, gold: 25 },
                     medium: { xp: 50, gold: 50 },
                     hard: { xp: 100, gold: 100 }
                 };
-                const baseRewards = difficultyRewards[challenge.difficulty || 'medium'] || { xp: 50, gold: 50 };
-                const rewards = {
-                    xp: Math.floor(baseRewards.xp * streakMultiplier),
-                    gold: Math.floor(baseRewards.gold * streakMultiplier)
+                const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
+                
+                // Check for First Action Bonus
+                const { count: questsCompletedToday } = await supabase
+                    .from('quest_completion')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', userId)
+                    .gte('completed_at', today);
+
+                const isFirstAction = questsCompletedToday === 0;
+                const firstActionMultiplier = isFirstAction ? 1.5 : 1.0;
+
+                // Apply Spell blessings from Alchemy Lab
+                let xpMultiplier = 1;
+                let goldMultiplier = 1;
+                try {
+                    const { data: prefData } = await supabase
+                        .from('user_preferences')
+                        .select('preference_value')
+                        .eq('user_id', userId)
+                        .eq('preference_key', 'active_alchemy_buffs')
+                        .maybeSingle();
+
+                    const activeBuffs = (prefData?.preference_value as any) || {};
+                    if (activeBuffs.activeSpell === 'swiftness' && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > Date.now()) {
+                        xpMultiplier = 2;
+                    }
+                    if (activeBuffs.activeSpell === 'greed' && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > Date.now()) {
+                        goldMultiplier = 2;
+                    }
+                } catch (err) {
+                    logger.error('[Smart Completion] Failed to load alchemy spell blessings:', err);
+                }
+
+                // Apply Time-of-Day, Streak, Altar spell, and First Action Bonuses
+                const finalRewards = {
+                    gold: Math.floor((isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold) * streakMultiplier * firstActionMultiplier * goldMultiplier),
+                    xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier * firstActionMultiplier * xpMultiplier)
                 };
 
                 const { error: insertError } = await supabase
@@ -88,8 +217,8 @@ export async function POST(req: NextRequest) {
                         user_id: userId,
                         completed: true,
                         completed_at: new Date().toISOString(),
-                        xp_earned: rewards.xp,
-                        gold_earned: rewards.gold
+                        xp_earned: finalRewards.xp,
+                        gold_earned: finalRewards.gold
                     });
 
                 if (insertError) {
@@ -99,161 +228,123 @@ export async function POST(req: NextRequest) {
                     throw insertError;
                 }
 
+                // 4. Update Character Stats
                 try {
-                    await grantReward({ userId, type: 'challenge', relatedId: questId, amount: rewards.xp, context: { gold: rewards.gold } });
-                    await grantReward({ userId, type: 'gold', relatedId: questId, amount: rewards.gold, context: { xp: rewards.xp } });
+                    await grantReward({ userId, type: 'quest', relatedId: questId, amount: finalRewards.xp, context: { gold: finalRewards.gold } });
+                    await grantReward({ userId, type: 'gold', relatedId: questId, amount: finalRewards.gold, context: { xp: finalRewards.xp } });
                 } catch (rewardError) {
-                    logger.error('[Smart Completion] Error granting rewards for challenge:', rewardError);
+                    logger.error('[Smart Completion] Error granting rewards for quest:', rewardError);
                 }
 
-                return { success: true, completed: true, rewards };
-            }
+                // 5. Material Scavenging & Gem Drops (30% chance total: 10% Gems, 20% Materials)
+                let scavengedMaterial = null;
+                let droppedGems = 0;
+                const dropRoll = Math.random();
 
-            // Quest found in 'quests' table
-            // 2. Check if already completed TODAY
-            const today = new Date().toISOString().split('T')[0];
+                // Check if this is the very first quest completion ever to guarantee a drop
+                const { count: completionCount } = await supabase
+                    .from('quest_completion')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', userId);
 
-            const { data: existing } = await supabase
-                .from('quest_completion')
-                .select('id')
-                .eq('quest_id', questId)
-                .eq('user_id', userId)
-                .gte('completed_at', today)
-                .single();
+                const isFirstEver = completionCount === 1;
+                
+                if (dropRoll < 0.10 || isFirstEver) {
+                    droppedGems = isFirstEver ? 5 : (Math.floor(Math.random() * 3) + 1);
+                    try {
+                        await grantReward({ userId, type: 'gems', amount: droppedGems, relatedId: questId });
+                    } catch (gemError) {
+                        logger.error('[Smart Completion] Error granting gems:', gemError);
+                    }
+                } 
+                
+                if ((dropRoll >= 0.10 && dropRoll < 0.30) || isFirstEver) {
+                    const categoryName = (quest.category || 'might').toLowerCase();
+                    let materialId = 'material-logs';
+                    if (['might', 'craft'].includes(categoryName)) materialId = 'material-steel';
+                    else if (['knowledge', 'honor', 'castle'].includes(categoryName)) materialId = 'material-crystal';
+                    else if (['exploration'].includes(categoryName)) materialId = 'material-planks';
 
-            if (existing) {
-                return { success: true, alreadyCompleted: true, message: 'Already completed today' };
-            }
+                    const materialRef = comprehensiveItems.find(i => i.id === materialId);
 
-            // 3. Mark as complete
-            const currentHour = new Date().getHours();
-            const isDay = currentHour >= 6 && currentHour < 18;
-            
-            const difficultyRewards: Record<string, { xp: number; gold: number }> = {
-                easy: { xp: 25, gold: 25 },
-                medium: { xp: 50, gold: 50 },
-                hard: { xp: 100, gold: 100 }
-            };
-            const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
-            
-            // Check for First Action Bonus
-            const { count: questsCompletedToday } = await supabase
-                .from('quest_completion')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .gte('completed_at', today);
+                    if (materialRef) {
+                        const { data: existingItem } = await supabase
+                            .from('inventory_items')
+                            .select('*')
+                            .eq('user_id', userId)
+                            .eq('item_id', materialId)
+                            .maybeSingle();
 
-            const isFirstAction = questsCompletedToday === 0;
-            const firstActionMultiplier = isFirstAction ? 1.5 : 1.0;
-
-            // Apply Time-of-Day, Streak, and First Action Bonuses
-            const finalRewards = {
-                gold: Math.floor((isDay ? Math.floor(baseRewards.gold * 1.2) : baseRewards.gold) * streakMultiplier * firstActionMultiplier),
-                xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier * firstActionMultiplier)
-            };
-
-            const { error: insertError } = await supabase
-                .from('quest_completion')
-                .insert({
-                    quest_id: questId,
-                    user_id: userId,
-                    completed: true,
-                    completed_at: new Date().toISOString(),
-                    xp_earned: finalRewards.xp,
-                    gold_earned: finalRewards.gold
-                });
-
-            if (insertError) {
-                if (insertError.code === '23505') { // Duplicate key
-                    return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
+                        if (existingItem) {
+                            await supabase
+                                .from('inventory_items')
+                                .update({ quantity: (existingItem.quantity || 1) + 1 })
+                                .eq('id', existingItem.id);
+                        } else {
+                            await supabase
+                                .from('inventory_items')
+                                .insert({
+                                    user_id: userId,
+                                    item_id: materialRef.id,
+                                    name: materialRef.name,
+                                    type: materialRef.type,
+                                    category: materialRef.category,
+                                    description: materialRef.description,
+                                    emoji: materialRef.emoji,
+                                    image: materialRef.image,
+                                    stats: materialRef.stats || {},
+                                    quantity: 1,
+                                    equipped: false,
+                                    is_default: false
+                                });
+                        }
+                        scavengedMaterial = { name: materialRef.name, emoji: materialRef.emoji };
+                    }
                 }
-                throw insertError;
-            }
 
-            // 4. Update Character Stats
-            try {
-                await grantReward({ userId, type: 'quest', relatedId: questId, amount: finalRewards.xp, context: { gold: finalRewards.gold } });
-                await grantReward({ userId, type: 'gold', relatedId: questId, amount: finalRewards.gold, context: { xp: finalRewards.xp } });
-            } catch (rewardError) {
-                logger.error('[Smart Completion] Error granting rewards for quest:', rewardError);
-            }
+                return { 
+                    success: true, 
+                    completed: true, 
+                    rewards: finalRewards, 
+                    bonusType: isDay ? 'Day (Gold)' : 'Night (XP)',
+                    scavengedMaterial,
+                    droppedGems,
+                    isFirstAction
+                };
+            } else {
+                // UNCOMPLETE QUEST
+                if (existing) {
+                    const revokedXP = existing.xp_earned || (quest.xp_reward || 50);
+                    const revokedGold = existing.gold_earned || (quest.gold_reward || 25);
 
-            // 5. Material Scavenging & Gem Drops (30% chance total: 10% Gems, 20% Materials)
-            let scavengedMaterial = null;
-            let droppedGems = 0;
-            const dropRoll = Math.random();
+                    await supabase
+                        .from('quest_completion')
+                        .delete()
+                        .eq('user_id', userId)
+                        .eq('quest_id', questId)
+                        .gte('completed_at', today);
 
-            // Check if this is the very first quest completion ever to guarantee a drop
-            const { count: completionCount } = await supabase
-                .from('quest_completion')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId);
-
-            const isFirstEver = completionCount === 1;
-            
-            if (dropRoll < 0.10 || isFirstEver) {
-                // 10% chance for Gems! (or guaranteed 5 Gems if first ever)
-                droppedGems = isFirstEver ? 5 : (Math.floor(Math.random() * 3) + 1); // 1-3 Gems normally
-                try {
-                    await grantReward({ userId, type: 'gems', amount: droppedGems, relatedId: questId });
-                } catch (gemError) {
-                    logger.error('[Smart Completion] Error granting gems:', gemError);
-                }
-            } 
-            
-            if ((dropRoll >= 0.10 && dropRoll < 0.30) || isFirstEver) {
-                const category = (quest.category || 'might').toLowerCase();
-                let materialId = 'material-logs';
-                if (['might', 'craft'].includes(category)) materialId = 'material-steel';
-                else if (['knowledge', 'honor', 'castle'].includes(category)) materialId = 'material-crystal';
-                else if (['exploration'].includes(category)) materialId = 'material-planks';
-
-                const materialRef = comprehensiveItems.find(i => i.id === materialId);
-
-                if (materialRef) {
-                    const { data: existing } = await supabase
-                        .from('inventory_items')
+                    // Revoke stats
+                    const { data: currentStats } = await supabase
+                        .from('character_stats')
                         .select('*')
                         .eq('user_id', userId)
-                        .eq('item_id', materialId)
                         .single();
 
-                    if (existing) {
+                    if (currentStats) {
                         await supabase
-                            .from('inventory_items')
-                            .update({ quantity: (existing.quantity || 1) + 1 })
-                            .eq('id', existing.id);
-                    } else {
-                        await supabase
-                            .from('inventory_items')
-                            .insert({
-                                user_id: userId,
-                                item_id: materialRef.id,
-                                name: materialRef.name,
-                                type: materialRef.type,
-                                category: materialRef.category,
-                                description: materialRef.description,
-                                emoji: materialRef.emoji,
-                                image: materialRef.image,
-                                stats: materialRef.stats || {},
-                                quantity: 1,
-                                equipped: false,
-                                is_default: false
-                            });
+                            .from('character_stats')
+                            .update({
+                                experience: Math.max(0, (currentStats.experience || 0) - revokedXP),
+                                gold: Math.max(0, (currentStats.gold || 0) - revokedGold),
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('user_id', userId);
                     }
-                    scavengedMaterial = { name: materialRef.name, emoji: materialRef.emoji };
+                    return { success: true, completed: false };
                 }
+                return { success: true, message: 'Not completed today' };
             }
-
-            return { 
-                success: true, 
-                completed: true, 
-                rewards: finalRewards, 
-                bonusType: isDay ? 'Day (Gold)' : 'Night (XP)',
-                scavengedMaterial,
-                droppedGems,
-                isFirstAction
-            };
         });
 
         if (!result.success) {
