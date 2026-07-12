@@ -6,6 +6,40 @@ import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 
 export const dynamic = 'force-dynamic';
 
+function findCompendiumItem(itemId: string, name: string | null | undefined = '') {
+  const cleanId = (itemId || '').toLowerCase();
+  
+  // Try exact match
+  let match = comprehensiveItems.find(i => i.id === itemId);
+  if (match) return match;
+
+  // Try case-insensitive ID match
+  match = comprehensiveItems.find(i => i.id.toLowerCase() === cleanId);
+  if (match) return match;
+
+  // Try legacy mapping translation
+  let lookupId = cleanId;
+  if (lookupId === 'blanko') lookupId = 'armor-blanko';
+  else if (lookupId === 'sunblade') lookupId = 'sword-sunblade';
+  else if (lookupId === 'twigsword' || lookupId === 'sword-twig') lookupId = 'sword-twig';
+  else if (lookupId === 'ironsword' || lookupId === 'sword-irony') lookupId = 'sword-irony';
+  else if (lookupId === 'logs') lookupId = 'material-logs';
+  else if (lookupId === 'scroll of perkament') lookupId = 'scroll-perkamento';
+  else if (lookupId === 'scroll of scrolly') lookupId = 'scroll-scrolly';
+
+  match = comprehensiveItems.find(i => i.id === lookupId || i.id.toLowerCase() === lookupId);
+  if (match) return match;
+
+  // Try matching by item name (case-insensitive)
+  if (name) {
+    const cleanName = ((name || '').toLowerCase().split(' +')[0] || '').trim();
+    match = comprehensiveItems.find(i => i.name.toLowerCase() === cleanName);
+    if (match) return match;
+  }
+
+  return undefined;
+}
+
 export async function GET(request: Request) {
   try {
     const { userId } = await auth();
@@ -24,9 +58,9 @@ export async function GET(request: Request) {
       .select('*')
       .eq('user_id', userId);
 
+    if (itemId) query = query.eq('item_id', itemId);
     if (type) query = query.eq('type', type);
     if (category) query = query.eq('category', category);
-    if (itemId) query = query.eq('item_id', itemId);
     if (equipped === 'true') query = query.eq('equipped', true);
     if (equipped === 'false') query = query.eq('equipped', false);
 
@@ -38,7 +72,7 @@ export async function GET(request: Request) {
 
     // Format items for the frontend
     const formattedData = (data || []).map((row: any) => {
-      const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === row.item_id);
+      const sourceOfTruth = findCompendiumItem(row.item_id, row.name);
       
       const dbStats = row.stats || {};
       const baseStats = sourceOfTruth ? (sourceOfTruth.stats || {}) : {};

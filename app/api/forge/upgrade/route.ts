@@ -14,6 +14,40 @@ function getSupabaseAdmin() {
   );
 }
 
+function findCompendiumItem(itemId: string, name: string | null | undefined = '') {
+  const cleanId = (itemId || '').toLowerCase();
+  
+  // Try exact match
+  let match = comprehensiveItems.find(i => i.id === itemId);
+  if (match) return match;
+
+  // Try case-insensitive ID match
+  match = comprehensiveItems.find(i => i.id.toLowerCase() === cleanId);
+  if (match) return match;
+
+  // Try legacy mapping translation
+  let lookupId = cleanId;
+  if (lookupId === 'blanko') lookupId = 'armor-blanko';
+  else if (lookupId === 'sunblade') lookupId = 'sword-sunblade';
+  else if (lookupId === 'twigsword' || lookupId === 'sword-twig') lookupId = 'sword-twig';
+  else if (lookupId === 'ironsword' || lookupId === 'sword-irony') lookupId = 'sword-irony';
+  else if (lookupId === 'logs') lookupId = 'material-logs';
+  else if (lookupId === 'scroll of perkament') lookupId = 'scroll-perkamento';
+  else if (lookupId === 'scroll of scrolly') lookupId = 'scroll-scrolly';
+
+  match = comprehensiveItems.find(i => i.id === lookupId || i.id.toLowerCase() === lookupId);
+  if (match) return match;
+
+  // Try matching by item name (case-insensitive)
+  if (name) {
+    const cleanName = ((name || '').toLowerCase().split(' +')[0] || '').trim();
+    match = comprehensiveItems.find(i => i.name.toLowerCase() === cleanName);
+    if (match) return match;
+  }
+
+  return undefined;
+}
+
 // Helper to determine upgrade cost & materials
 function getUpgradeRequirements(itemType: string, rarity: string, nextLevel: number) {
   const goldCost = Math.floor(100 * Math.pow(1.5, nextLevel - 1));
@@ -88,7 +122,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Item not found in inventory' }, { status: 404 });
     }
 
-    const sourceOfTruth = comprehensiveItems.find((i: any) => i.id === item.item_id);
+    const sourceOfTruth = findCompendiumItem(item.item_id, item.name);
     if (!sourceOfTruth) {
       return NextResponse.json({ error: 'Item compendium details not found' }, { status: 400 });
     }
