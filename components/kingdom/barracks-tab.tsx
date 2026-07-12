@@ -298,11 +298,12 @@ export function BarracksTab() {
             const currentXP = c.experience || 0;
             const targetXP = lvl * 100;
             const isSlotted = combatSupporters.includes(c.id);
+            const isLocked = c.lockedReason === 'expedition';
 
             const hasGold = playerGold >= goldCost;
             const chosenFood = inventoryFood.find(f => f.quantity >= 1);
             const chosenScroll = inventoryScrolls.find(s => s.quantity >= 1);
-            const canTrain = hasGold && chosenFood && chosenScroll && lvl < 10;
+            const canTrain = hasGold && chosenFood && chosenScroll && lvl < 10 && !isLocked;
 
             return (
               <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[480px]">
@@ -343,14 +344,15 @@ export function BarracksTab() {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
+                        disabled={isLocked}
                         variant={isSlotted ? "destructive" : "secondary"}
                         onClick={() => toggleSupporter(user!.id, c.id)}
                         className={cn(
                           "h-8 text-xs font-bold transition-all px-3",
-                          !isSlotted && "bg-emerald-600 hover:bg-emerald-700 text-white"
+                          !isSlotted && !isLocked && "bg-emerald-600 hover:bg-emerald-700 text-white"
                         )}
                       >
-                        {isSlotted ? "Remove squad" : "⚔️ Slot Supporter"}
+                        {isLocked ? "Away 🚀" : isSlotted ? "Remove squad" : "⚔️ Slot Supporter"}
                       </Button>
                     </div>
                   </div>
@@ -414,9 +416,13 @@ export function BarracksTab() {
 
                 {/* Training Actions */}
                 <div className="pt-4 border-t border-white/5 mt-4">
-                  {lvl >= 10 ? (
+                  {isLocked ? (
+                    <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
+                      Locked: Away on Expedition 🚀
+                    </Button>
+                  ) : lvl >= 10 ? (
                     <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
-                      Maximum Rank Attained (+10)
+                      Maximum Level (+10) reached
                     </Button>
                   ) : (
                     <Button
@@ -436,12 +442,17 @@ export function BarracksTab() {
                       )}
                     </Button>
                   )}
-                  {isSlotted && (
+                  {isLocked && (
+                    <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-zinc-400 font-bold bg-zinc-950/40 p-1.5 rounded-lg border border-white/5">
+                      🚀 Away on Voyage: This citizen is locked until they return from their Airship Journey.
+                    </div>
+                  )}
+                  {!isLocked && isSlotted && (
                     <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-500 font-bold bg-emerald-950/10 p-1.5 rounded-lg border border-emerald-500/10">
                       <Check className="w-3.5 h-3.5" /> Ready for Action: This citizen will support your next monster battle!
                     </div>
                   )}
-                  {!isSlotted && combatSupporters.length >= 2 && (
+                  {!isLocked && !isSlotted && combatSupporters.length >= 2 && (
                     <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-500 font-bold bg-amber-950/10 p-1.5 rounded-lg border border-amber-500/10">
                       <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Slot squad is full. Slotting this card rotates out the oldest supporter.
                     </div>

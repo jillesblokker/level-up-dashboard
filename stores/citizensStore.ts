@@ -16,6 +16,7 @@ export interface CitizenState {
   affection: number;
   level?: number;
   experience?: number;
+  lockedReason?: 'expedition' | null;
 }
 
 export interface Citizen {
@@ -39,6 +40,7 @@ export interface Citizen {
   affection: number;
   level: number;
   experience: number;
+  lockedReason?: 'expedition' | null;
 }
 
 interface CitizensStore {
@@ -737,6 +739,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     const { citizens } = get();
     const citizen = citizens.find(c => c.id === citizenId);
     if (!citizen) return { success: false, error: 'Citizen not found' };
+    if (citizen.lockedReason) return { success: false, error: 'Citizen is currently away on an airship expedition' };
 
     const level = citizen.level || 1;
     if (level >= 10) return { success: false, error: 'Maximum level (+10) reached' };
@@ -811,8 +814,10 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
   toggleSupporter: async (userId: string, citizenId: string) => {
     if (!userId || !citizenId) return;
-    const { combatSupporters } = get();
-
+    const { combatSupporters, citizens } = get();
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (citizen?.lockedReason) return;
+ 
     let newSupporters = [...combatSupporters];
     if (newSupporters.includes(citizenId)) {
       newSupporters = newSupporters.filter(id => id !== citizenId);

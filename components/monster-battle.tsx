@@ -103,7 +103,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const citizens = useCitizensStore(state => state.citizens);
   const combatSupporters = useCitizensStore(state => state.combatSupporters);
 
-  const activeSupporters = citizens.filter(c => combatSupporters.includes(c.id));
+  const activeSupporters = citizens.filter(c => combatSupporters.includes(c.id) && c.lockedReason !== 'expedition');
   const natureSupporter = activeSupporters.find(c => c.type === 'nature');
   const fireSupporter = activeSupporters.find(c => c.type === 'fire');
   const waterSupporter = activeSupporters.find(c => c.type === 'water');

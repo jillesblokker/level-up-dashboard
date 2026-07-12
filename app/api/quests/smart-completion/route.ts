@@ -100,6 +100,42 @@ export async function POST(req: NextRequest) {
                         throw insertError;
                     }
 
+                    // Airship Voyage Progress Hook
+                    try {
+                        const { data: prefData } = await supabase
+                            .from('user_preferences')
+                            .select('preference_value')
+                            .eq('user_id', userId)
+                            .eq('preference_key', 'active_expeditions')
+                            .maybeSingle();
+
+                        const activeExp = (prefData?.preference_value as any);
+                        const categoryName = (challenge.category || 'might').toLowerCase();
+                        
+                        const isCategoryMatch = (qc: string, jc: string): boolean => {
+                            if (jc === 'knowledge') return qc.includes('knowledge') || qc.includes('intelligence');
+                            if (jc === 'might') return qc.includes('might') || qc.includes('agility');
+                            if (jc === 'wellness') return qc.includes('wellness') || qc.includes('vitality') || qc.includes('spiritual');
+                            if (jc === 'social') return qc.includes('social') || qc.includes('creative');
+                            return qc.includes(jc);
+                        };
+
+                        if (activeExp && activeExp.active && isCategoryMatch(categoryName, activeExp.category) && activeExp.progress < 100) {
+                            const newProgress = Math.min(100, activeExp.progress + 20);
+                            await supabase
+                                .from('user_preferences')
+                                .upsert({
+                                    user_id: userId,
+                                    preference_key: 'active_expeditions',
+                                    preference_value: { ...activeExp, progress: newProgress },
+                                    updated_at: new Date().toISOString()
+                                }, { onConflict: 'user_id,preference_key' });
+                            logger.debug(`[Airship Hook] Challenge advanced expedition: ${activeExp.progress}% -> ${newProgress}%`);
+                        }
+                    } catch (err) {
+                        logger.error('[Airship Hook] Failed to advance active expedition:', err);
+                    }
+
                     try {
                         await grantReward({ userId, type: 'challenge', relatedId: questId, amount: rewards.xp, context: { gold: rewards.gold } });
                         await grantReward({ userId, type: 'gold', relatedId: questId, amount: rewards.gold, context: { xp: rewards.xp } });
@@ -226,6 +262,42 @@ export async function POST(req: NextRequest) {
                         return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
                     }
                     throw insertError;
+                }
+
+                // Airship Voyage Progress Hook
+                try {
+                    const { data: prefData } = await supabase
+                        .from('user_preferences')
+                        .select('preference_value')
+                        .eq('user_id', userId)
+                        .eq('preference_key', 'active_expeditions')
+                        .maybeSingle();
+
+                    const activeExp = (prefData?.preference_value as any);
+                    const categoryName = (quest.category || 'might').toLowerCase();
+                    
+                    const isCategoryMatch = (qc: string, jc: string): boolean => {
+                        if (jc === 'knowledge') return qc.includes('knowledge') || qc.includes('intelligence');
+                        if (jc === 'might') return qc.includes('might') || qc.includes('agility');
+                        if (jc === 'wellness') return qc.includes('wellness') || qc.includes('vitality') || qc.includes('spiritual');
+                        if (jc === 'social') return qc.includes('social') || qc.includes('creative');
+                        return qc.includes(jc);
+                    };
+
+                    if (activeExp && activeExp.active && isCategoryMatch(categoryName, activeExp.category) && activeExp.progress < 100) {
+                        const newProgress = Math.min(100, activeExp.progress + 20);
+                        await supabase
+                            .from('user_preferences')
+                            .upsert({
+                                user_id: userId,
+                                preference_key: 'active_expeditions',
+                                preference_value: { ...activeExp, progress: newProgress },
+                                updated_at: new Date().toISOString()
+                            }, { onConflict: 'user_id,preference_key' });
+                        logger.debug(`[Airship Hook] Quest advanced expedition: ${activeExp.progress}% -> ${newProgress}%`);
+                    }
+                } catch (err) {
+                    logger.error('[Airship Hook] Failed to advance active expedition:', err);
                 }
 
                 // 4. Update Character Stats

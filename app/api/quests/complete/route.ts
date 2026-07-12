@@ -121,7 +121,41 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to complete quest' }, { status: 500 })
         }
 
+        // Airship Voyage Progress Hook
+        try {
+            const { data: prefData } = await supabase
+                .from('user_preferences')
+                .select('preference_value')
+                .eq('user_id', userId)
+                .eq('preference_key', 'active_expeditions')
+                .maybeSingle();
 
+            const activeExp = (prefData?.preference_value as any);
+            const categoryName = (quest.category || 'might').toLowerCase();
+            
+            const isCategoryMatch = (qc: string, jc: string): boolean => {
+                if (jc === 'knowledge') return qc.includes('knowledge') || qc.includes('intelligence');
+                if (jc === 'might') return qc.includes('might') || qc.includes('agility');
+                if (jc === 'wellness') return qc.includes('wellness') || qc.includes('vitality') || qc.includes('spiritual');
+                if (jc === 'social') return qc.includes('social') || qc.includes('creative');
+                return qc.includes(jc);
+            };
+
+            if (activeExp && activeExp.active && isCategoryMatch(categoryName, activeExp.category) && activeExp.progress < 100) {
+                const newProgress = Math.min(100, activeExp.progress + 20);
+                await supabase
+                    .from('user_preferences')
+                    .upsert({
+                        user_id: userId,
+                        preference_key: 'active_expeditions',
+                        preference_value: { ...activeExp, progress: newProgress },
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,preference_key' });
+                logger.debug(`[Airship Hook] Quest advanced expedition: ${activeExp.progress}% -> ${newProgress}%`);
+            }
+        } catch (err) {
+            logger.error('[Airship Hook] Failed to advance active expedition:', err);
+        }
 
         // Update character stats
         const { data: currentStats, error: statsError } = await supabase
