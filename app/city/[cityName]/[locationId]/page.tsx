@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useState, useMemo, useCallback } from "react"
 import { getCityData } from "@/lib/city-data"
 import { HeaderSection } from "@/components/HeaderSection"
 import Link from "next/link"
@@ -154,6 +154,19 @@ function CityLocationPageInner() {
   const [rollsToday, setRollsToday] = useState(0)
   const [diceResultMsg, setDiceResultMsg] = useState<string | null>(null)
   const [diceWinStatus, setDiceWinStatus] = useState<'win' | 'lose' | null>(null)
+
+  const getScaledCost = useCallback((baseCost: number) => {
+    return Math.floor(baseCost * Math.pow(1 + playerLevel / 10, 1.5));
+  }, [playerLevel]);
+
+  const scaledWeapons = useMemo(() => BLACKSMITH_WEAPONS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledShields = useMemo(() => BLACKSMITH_SHIELDS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledArmor = useMemo(() => BLACKSMITH_ARMOR.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledPotions = useMemo(() => POTION_ITEMS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledScrolls = useMemo(() => SCROLL_ITEMS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledArtifacts = useMemo(() => ARTIFACT_ITEMS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledFood = useMemo(() => FOOD_ITEMS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
+  const scaledStables = useMemo(() => STABLE_ITEMS.map(item => ({ ...item, cost: getScaledCost(item.cost) })), [playerLevel, getScaledCost]);
 
   // Initialize/retrieve daily rolls limit
   useEffect(() => {
@@ -607,18 +620,20 @@ function CityLocationPageInner() {
     }))
   }
 
+
   // Handle shop item purchase (works with ShopItem from comprehensive-items)
   const handleItemPurchase = async (item: ShopItem) => {
-    if (goldBalance < item.cost) {
+    const finalCost = getScaledCost(item.cost);
+    if (goldBalance < finalCost) {
       toast({
         title: "Insufficient Gold",
-        description: `You need ${item.cost} gold to purchase this item.`,
+        description: `You need ${finalCost} gold to purchase this item.`,
         variant: "destructive"
       })
       return
     }
 
-    const success = await spendGold(item.cost, `purchase-${item.id}`);
+    const success = await spendGold(finalCost, `purchase-${item.id}`);
     if (success) {
       if (user?.id) {
         addToKingdomInventory(user.id, {
@@ -633,10 +648,10 @@ function CityLocationPageInner() {
           stats: item.stats || {}
         })
       }
-      setGoldBalance(prev => prev - item.cost)
+      setGoldBalance(prev => prev - finalCost)
       toast({
         title: "Purchase Successful",
-        description: `Bought 1x ${item.name} for ${item.cost} gold. Item added to your inventory!`,
+        description: `Bought 1x ${item.name} for ${finalCost} gold. Item added to your inventory!`,
       })
       window.dispatchEvent(new Event('character-inventory-update'))
       window.dispatchEvent(new Event('character-stats-update'))
@@ -1082,7 +1097,7 @@ function CityLocationPageInner() {
               <p className="text-zinc-400 max-w-2xl font-serif">Purchase weapons of all tiers and shapes from legendary smiths.</p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {BLACKSMITH_WEAPONS.map((item) => (
+              {scaledWeapons.map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}
@@ -1101,7 +1116,7 @@ function CityLocationPageInner() {
               <p className="text-zinc-400 max-w-2xl font-serif">Protect yourself with the strongest shields and armor available in the realm.</p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {[...BLACKSMITH_SHIELDS, ...BLACKSMITH_ARMOR].map((item) => (
+              {[...scaledShields, ...scaledArmor].map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}
@@ -1120,7 +1135,7 @@ function CityLocationPageInner() {
               <p className="text-zinc-400 max-w-2xl font-serif">Stock up on health potions, mana, and buffing brews.</p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {POTION_ITEMS.map((item) => (
+              {scaledPotions.map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}
@@ -1139,7 +1154,7 @@ function CityLocationPageInner() {
               <p className="text-zinc-400 max-w-2xl font-serif">Obtain scrolls for spells, streak recovery, and magical boosts.</p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {SCROLL_ITEMS.map((item) => (
+              {scaledScrolls.map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}
@@ -1158,7 +1173,7 @@ function CityLocationPageInner() {
               <p className="text-zinc-400 max-w-2xl font-serif">Obtain rare items and magical artifacts of lost eras.</p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {ARTIFACT_ITEMS.map((item) => (
+              {scaledArtifacts.map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}
@@ -1177,7 +1192,7 @@ function CityLocationPageInner() {
               <p className="text-zinc-400 max-w-2xl font-serif">Stock up on food supplies, rations, and chef ingredients.</p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {FOOD_ITEMS.map((item) => (
+              {scaledFood.map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}
@@ -1220,7 +1235,7 @@ function CityLocationPageInner() {
                   </TabsList>
                   <TabsContent value="potions" className="mt-0 outline-none">
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                      {POTION_ITEMS.map((item) => (
+                      {scaledPotions.map((item) => (
                         <ShopItemCard
                           key={item.id}
                           item={item}
@@ -1234,7 +1249,7 @@ function CityLocationPageInner() {
                   </TabsContent>
                   <TabsContent value="scrolls" className="mt-0 outline-none">
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                      {SCROLL_ITEMS.map((item) => (
+                      {scaledScrolls.map((item) => (
                         <ShopItemCard
                           key={item.id}
                           item={item}
@@ -1248,7 +1263,7 @@ function CityLocationPageInner() {
                   </TabsContent>
                   <TabsContent value="artifacts" className="mt-0 outline-none">
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                      {ARTIFACT_ITEMS.map((item) => (
+                      {scaledArtifacts.map((item) => (
                         <ShopItemCard
                           key={item.id}
                           item={item}
@@ -1262,7 +1277,7 @@ function CityLocationPageInner() {
                   </TabsContent>
                   <TabsContent value="food" className="mt-0 outline-none">
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                      {FOOD_ITEMS.map((item) => (
+                      {scaledFood.map((item) => (
                         <ShopItemCard
                           key={item.id}
                           item={item}
@@ -1424,7 +1439,7 @@ function CityLocationPageInner() {
 
               <TabsContent value="weapons" className="mt-0 outline-none">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                  {BLACKSMITH_WEAPONS.map((item) => (
+                  {scaledWeapons.map((item) => (
                     <ShopItemCard
                       key={item.id}
                       item={item}
@@ -1439,7 +1454,7 @@ function CityLocationPageInner() {
 
               <TabsContent value="shields" className="mt-0 outline-none">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                  {BLACKSMITH_SHIELDS.map((item) => (
+                  {scaledShields.map((item) => (
                     <ShopItemCard
                       key={item.id}
                       item={item}
@@ -1454,7 +1469,7 @@ function CityLocationPageInner() {
 
               <TabsContent value="armor" className="mt-0 outline-none">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                  {BLACKSMITH_ARMOR.map((item) => (
+                  {scaledArmor.map((item) => (
                     <ShopItemCard
                       key={item.id}
                       item={item}
@@ -1476,7 +1491,7 @@ function CityLocationPageInner() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {STABLE_ITEMS.map((item) => (
+              {scaledStables.map((item) => (
                 <ShopItemCard
                   key={item.id}
                   item={item}

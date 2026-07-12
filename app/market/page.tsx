@@ -38,11 +38,25 @@ export default function MarketPage() {
   const { user } = useUser()
   const [goldBalance, setGoldBalance] = useState(0)
   const [gemBalance, setGemBalance] = useState(0)
+  const [playerLevel, setPlayerLevel] = useState(1)
   const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true)
   const [mainTab, setMainTab] = useState("trading-post")
   const [activeTab, setActiveTab] = useState("buy")
   const [isProcessing, setIsProcessing] = useState(false)
   const [openingPack, setOpeningPack] = useState<any>(null)
+
+  const scaledMaterials = useMemo(() => {
+    return MATERIALS.map(mat => {
+      const multiplier = 1 + playerLevel * 0.1;
+      const scaledBuy = Math.floor(mat.buyPrice * multiplier);
+      const scaledSell = Math.floor(scaledBuy * 0.5); // Sell price is 50% of scaled buy price
+      return {
+        ...mat,
+        buyPrice: scaledBuy,
+        sellPrice: scaledSell
+      };
+    });
+  }, [playerLevel]);
 
   // Search, Filter & Sort State
   const [searchQuery, setSearchQuery] = useState("")
@@ -176,11 +190,13 @@ export default function MarketPage() {
     const stats = getCharacterStats()
     setGoldBalance(stats.gold)
     setGemBalance(stats.gems || 0)
+    if (stats.level) setPlayerLevel(stats.level)
 
     fetchFreshCharacterStats().then(fresh => {
       if (fresh) {
         setGoldBalance(fresh.gold)
         setGemBalance(fresh.gems || 0)
+        if (fresh.level) setPlayerLevel(fresh.level)
       }
     })
 
@@ -188,6 +204,7 @@ export default function MarketPage() {
       const updated = getCharacterStats()
       setGoldBalance(updated.gold)
       setGemBalance(updated.gems || 0)
+      if (updated.level) setPlayerLevel(updated.level)
     }
     window.addEventListener('character-stats-update', handleStatsUpdate)
     return () => window.removeEventListener('character-stats-update', handleStatsUpdate)
@@ -360,7 +377,7 @@ export default function MarketPage() {
 
   // Filter and sort standard materials dynamically
   const filteredAndSortedMaterials = useMemo(() => {
-    return MATERIALS.filter(material => {
+    return scaledMaterials.filter(material => {
       // 1. Search Query filter
       const matchesSearch = material.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             material.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -395,7 +412,7 @@ export default function MarketPage() {
       }
       return 0;
     });
-  }, [searchQuery, sortBy, filterBy, activeTab, inventoryAsItems]);
+  }, [searchQuery, sortBy, filterBy, activeTab, inventoryAsItems, scaledMaterials]);
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-white font-sans">

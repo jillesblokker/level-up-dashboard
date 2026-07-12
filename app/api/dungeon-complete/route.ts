@@ -34,11 +34,23 @@ export async function POST(req: NextRequest) {
 
         apiLogger.info(`Processing dungeon completion for user ${userId}, status: ${status}`);
 
+        // Fetch current character stats for level scaling
+        const { data: currentStats } = await supabaseServer
+            .from('character_stats')
+            .select('level, experience')
+            .eq('user_id', userId)
+            .single();
+
+        const playerLevel = currentStats?.level || 1;
+
         // Calculate rewards
-        let totalGold = loot.reduce((acc: number, item: LootItem) =>
+        let baseGold = loot.reduce((acc: number, item: LootItem) =>
             acc + (item.type === 'gold' ? (item.amount || 0) : 0), 0);
-        let totalXp = Math.floor(totalGold * 0.5);
-        let totalGems = (status === 'completed' || status === 'victory') ? 5 : 0;
+        
+        // Scale gold reward: Gold Chest Reward = baseGold * (1 + playerLevel * 0.2)
+        const totalGold = Math.floor(baseGold * (1 + playerLevel * 0.2));
+        const totalXp = Math.floor(totalGold * 0.5);
+        const totalGems = (status === 'completed' || status === 'victory') ? (5 + Math.floor(playerLevel / 10)) : 0;
 
         // Record Dungeon Run
         if (status === 'completed' || status === 'victory') {
@@ -67,7 +79,6 @@ export async function POST(req: NextRequest) {
         // Grant gems
         if (totalGems > 0) {
             try {
-                
                 await grantReward({ userId, type: 'gems', amount: totalGems, relatedId: dungeonId });
             } catch (gemError) {
                 apiLogger.error("Failed to grant gems", gemError);
@@ -75,25 +86,17 @@ export async function POST(req: NextRequest) {
         }
 
         // Grant XP
-        if (totalXp > 0) {
-            const { data: currentStats } = await supabaseServer
+        if (totalXp > 0 && currentStats) {
+            const newExperience = (currentStats.experience || 0) + totalXp;
+            const newLevel = calculateLevelFromExperience(newExperience);
+
+            await supabaseServer
                 .from('character_stats')
-                .select('experience')
-                .eq('user_id', userId)
-                .single();
-
-            if (currentStats) {
-                const newExperience = (currentStats.experience || 0) + totalXp;
-                const newLevel = calculateLevelFromExperience(newExperience);
-
-                await supabaseServer
-                    .from('character_stats')
-                    .update({
-                        experience: newExperience,
-                        level: newLevel
-                    })
-                    .eq('user_id', userId);
-            }
+                .update({
+                    experience: newExperience,
+                    level: newLevel
+                })
+                .eq('user_id', userId);
         }
 
         // Award Items
