@@ -181,7 +181,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
       await setUserPreference('habit_focus_districts', allDistricts);
       toast({
         title: "Focus District Configured! ✨",
-        description: `Successfully activated the Habit Focus at ${locationName.replace(/-/g, ' ')}.`
+        description: `Successfully activated the Habit Focus at ${formatLocationTitle(locationName, locationType)}.`
       });
       await loadData();
     } catch (err) {
