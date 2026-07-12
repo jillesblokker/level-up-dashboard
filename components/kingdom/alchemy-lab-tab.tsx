@@ -278,7 +278,29 @@ export function AlchemyLabTab() {
   const spellActive = activeBuffs.activeSpell && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > timeState;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      
+      {/* Alchemy Lab Header */}
+      <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
+        <Image
+          src="/images/alchemy-hero.png"
+          alt="Alchemy Lab"
+          fill
+          className="object-cover brightness-75 select-none pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <div className="p-6 relative z-10 space-y-1">
+          <Badge className="bg-amber-600 text-black font-extrabold text-[9px] uppercase tracking-wider mb-2">
+            Arcane Sanctuary
+          </Badge>
+          <h2 className="font-cardo font-bold text-2xl text-white">Alchemy Laboratory</h2>
+          <p className="text-xs text-zinc-300 max-w-xl">
+            Brew powerful elixirs and channel blessings at the Spell Altar. Utilize materials harvested by your citizens to gain game-changing boosts.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       {/* Selection Column */}
       <div className="lg:col-span-1 space-y-4">
@@ -522,5 +544,6 @@ export function AlchemyLabTab() {
       </div>
 
     </div>
+  </div>
   );
 }

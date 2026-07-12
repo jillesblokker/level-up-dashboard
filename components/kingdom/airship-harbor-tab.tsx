@@ -557,6 +557,25 @@ export function AirshipHarborTab() {
                     </div>
                   )}
                 </div>
+
+                {/* Launch Requirements Checklist */}
+                <div className="p-3.5 bg-zinc-950/60 border border-white/5 rounded-xl space-y-2.5">
+                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Launch Requirements Checklist:</div>
+                  <div className="space-y-1.5 text-xs font-semibold">
+                    <div className="flex items-center gap-2 text-zinc-400">
+                      <span className={cn("w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-black font-extrabold", selectedJourneyId ? "bg-emerald-500" : "bg-red-500")}>
+                        {selectedJourneyId ? "✓" : "✗"}
+                      </span>
+                      <span>Select a Habit Journey (Selected: <strong className="text-amber-500">{selectedJourney.name}</strong>)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-zinc-400">
+                      <span className={cn("w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-black font-extrabold", selectedCrew.length > 0 ? "bg-emerald-500" : "bg-red-500")}>
+                        {selectedCrew.length > 0 ? "✓" : "✗"}
+                      </span>
+                      <span>Assign Crew (Assigned: <strong className="text-amber-500">{selectedCrew.length} / 2</strong> — Click citizen names in the grid below to assign)</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Actions */}

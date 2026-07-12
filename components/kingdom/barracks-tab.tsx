@@ -215,7 +215,29 @@ export function BarracksTab() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      
+      {/* Barracks Header */}
+      <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
+        <Image
+          src="/images/barracks-hero.png"
+          alt="Barracks"
+          fill
+          className="object-cover brightness-75 select-none pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <div className="p-6 relative z-10 space-y-1">
+          <Badge className="bg-amber-600 text-black font-extrabold text-[9px] uppercase tracking-wider mb-2">
+            Kingdom Training Ground
+          </Badge>
+          <h2 className="font-cardo font-bold text-2xl text-white">Citizen Barracks</h2>
+          <p className="text-xs text-zinc-300 max-w-xl">
+            Train your citizens using scrolls and food to power up their levels, enhancing their combat support skills and attributes.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       {/* Left panel: Citizen Selection List */}
       <div className="lg:col-span-1 space-y-4">
@@ -466,5 +488,6 @@ export function BarracksTab() {
       </div>
 
     </div>
+  </div>
   );
 }
