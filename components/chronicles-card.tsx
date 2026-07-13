@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { getUserPreference } from "@/lib/user-preferences-manager"
 
 interface ChroniclesCardProps {
     currentLevel: number
@@ -25,6 +26,23 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
     // State for the currently viewed chapter (default to the latest unlocked)
     const [viewedChapterId, setViewedChapterId] = useState<string>(latestUnlockedChapter.id.toString())
+    const [allFillerEpisodes, setAllFillerEpisodes] = useState<any[]>([])
+
+    useEffect(() => {
+        const loadFillerEpisodes = async () => {
+            try {
+                const list = await getUserPreference('chronicle_filler_episodes') as any[] || []
+                setAllFillerEpisodes(list)
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        loadFillerEpisodes()
+    }, [viewedChapterId])
+
+    const fillerEpisodes = useMemo(() => {
+        return allFillerEpisodes.filter((ep: any) => ep.chapterId.toString() === viewedChapterId)
+    }, [allFillerEpisodes, viewedChapterId])
 
     // Get the current chapter index in CHRONICLES_DATA
     const currentChapterIndex = CHRONICLES_DATA.findIndex(c => c.id.toString() === viewedChapterId)
@@ -193,6 +211,23 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                     );
                                 })}
                             </div>
+
+                            {fillerEpisodes.length > 0 && (
+                                <div className="mt-6 border-t border-[#b58b4c]/30 pt-4 space-y-4 max-h-[300px] overflow-y-auto">
+                                    <h4 className="font-serif font-black text-xs uppercase tracking-widest text-[#7c2d12] flex items-center gap-1.5">
+                                        ✨ Filler Episodes (Daily Deeds)
+                                    </h4>
+                                    {fillerEpisodes.map((ep: any, index: number) => (
+                                        <div key={ep.id || index} className="space-y-1 bg-[#fffdfb]/60 p-3.5 rounded-xl border border-[#b58b4c]/20 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                                            <div className="flex justify-between items-center text-[10px] font-mono text-[#7c2d12] uppercase tracking-wider font-bold">
+                                                <span>Episode {index + 1}: {ep.category}</span>
+                                                <span>{ep.date}</span>
+                                            </div>
+                                            <p className="font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify">{ep.content}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

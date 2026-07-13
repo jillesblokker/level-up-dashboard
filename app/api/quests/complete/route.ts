@@ -220,6 +220,144 @@ export async function POST(request: NextRequest) {
             logger.error('[Focus Hook] Failed to advance focus districts:', err);
         }
 
+        // Habit Guardian XP Hook
+        try {
+            const { data: petPref } = await supabase
+                .from('user_preferences')
+                .select('preference_value')
+                .eq('user_id', userId)
+                .eq('preference_key', 'habit_guardian_state')
+                .maybeSingle();
+
+            const petState = (petPref?.preference_value as any);
+            if (petState && petState.selectedId) {
+                let newXP = (petState.experience || 0) + 15;
+                let newLvl = petState.level || 1;
+                const xpReq = newLvl * 100;
+                if (newXP >= xpReq) {
+                    newXP -= xpReq;
+                    newLvl += 1;
+                }
+                await supabase
+                    .from('user_preferences')
+                    .upsert({
+                        user_id: userId,
+                        preference_key: 'habit_guardian_state',
+                        preference_value: { ...petState, experience: newXP, level: newLvl },
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,preference_key' });
+                logger.debug(`[Guardian Hook] Awarded XP: level ${newLvl}, xp ${newXP}`);
+            }
+        } catch (err) {
+            logger.error('[Guardian Hook] Failed to award pet XP:', err);
+        }
+
+        // Chronicle Filler Episodes Hook
+        try {
+            const { data: countPref } = await supabase
+                .from('user_preferences')
+                .select('preference_value')
+                .eq('user_id', userId)
+                .eq('preference_key', 'total_habit_completions')
+                .maybeSingle();
+
+            const currentCount = typeof countPref?.preference_value === 'number' ? countPref.preference_value : 0;
+            const newCount = currentCount + 1;
+
+            await supabase
+                .from('user_preferences')
+                .upsert({
+                    user_id: userId,
+                    preference_key: 'total_habit_completions',
+                    preference_value: newCount,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id,preference_key' });
+
+            if (newCount % 3 === 0) {
+                const category = (quest.category || 'might').toLowerCase();
+                
+                const templates: Record<string, string[]> = {
+                    might: [
+                        "The hero spent hours swinging a heavy iron broadsword against training dummies, perfecting their double-strike form as sweat gleamed in the firelight.",
+                        "Under the tutelage of the Citadel's weapon master, the hero ran a grueling physical obstacle course, sharpening their combat reflexes and stamina.",
+                        "A long march through the rugged outskirts of Valoreth tested the hero's endurance, preparing their muscles for the battles ahead."
+                    ],
+                    knowledge: [
+                        "Enveloped in the quiet scent of parchment, the hero deciphered ancient texts in the Citadel archives, unlocking secrets of the realm's ancestors.",
+                        "The hero spent the evening observing the celestial alignment from the high tower, drawing cosmic maps to aid future navigators.",
+                        "A deep study of local flora and herbalism expanded the hero's intellect, adding new recipes to their brewing journal."
+                    ],
+                    honor: [
+                        "The hero spent the afternoon assisting local villagers with repairing the town shrine, earning the respect and blessings of the elder.",
+                        "Standing guard at the outer gates, the hero upheld the strict code of the realm, protecting travelers from passing bandits.",
+                        "By mediating a heated dispute between two blacksmith apprentices, the hero restored peace and honor to the trade guild."
+                    ],
+                    castle: [
+                        "With stone and mortar, the hero helped reinforce the southern ramparts, securing the Citadel's foundations against winter storms.",
+                        "The hero organized the granary storage chambers, ensuring the kingdom's winter supplies were locked and preserved.",
+                        "A detailed inspection of the castle masonry revealed secret pathways, expanding the hero's layout knowledge of the fortress."
+                    ],
+                    craft: [
+                        "The forge fires roared as the hero spent the day tempering steel, shaping raw ingots into intricate mechanical gears.",
+                        "With seasoned oak planks and leather cords, the hero crafted sturdy supply chests to aid the Airship crew's voyages.",
+                        "The hero worked on a detailed blueprints scroll for a new watermill, applying advanced carpentry math to the wheels."
+                    ],
+                    vitality: [
+                        "A peaceful walk through the whispering forests allowed the hero to clear their mind, breathing in the fresh mountain air to restore vitality.",
+                        "The hero prepared a nourishing soup of wild herbs and roots, restoring their strength and centering their inner essence.",
+                        "A long, deep rest by the roaring hearth restored the hero's energy, soothing their tired muscles after days of adventure."
+                    ]
+                };
+
+                const list = templates[category] || templates['might']!;
+                const content = list[Math.floor(Math.random() * list.length)]!;
+
+                const { data: statsData } = await supabase
+                    .from('character_stats')
+                    .select('level')
+                    .eq('user_id', userId)
+                    .single();
+
+                const playerLevel = statsData?.level || 1;
+                let activeChapterId = 1;
+                if (playerLevel >= 70) activeChapterId = 8;
+                else if (playerLevel >= 60) activeChapterId = 7;
+                else if (playerLevel >= 50) activeChapterId = 6;
+                else if (playerLevel >= 40) activeChapterId = 5;
+                else if (playerLevel >= 30) activeChapterId = 4;
+                else if (playerLevel >= 20) activeChapterId = 3;
+                else if (playerLevel >= 10) activeChapterId = 2;
+
+                const { data: fillPref } = await supabase
+                    .from('user_preferences')
+                    .select('preference_value')
+                    .eq('user_id', userId)
+                    .eq('preference_key', 'chronicle_filler_episodes')
+                    .maybeSingle();
+
+                const listEp = Array.isArray(fillPref?.preference_value) ? fillPref.preference_value : [];
+                const newEpisode = {
+                    id: `filler-${Date.now()}`,
+                    date: new Date().toISOString().split('T')[0],
+                    chapterId: activeChapterId,
+                    category: category.toUpperCase(),
+                    content
+                };
+
+                await supabase
+                    .from('user_preferences')
+                    .upsert({
+                        user_id: userId,
+                        preference_key: 'chronicle_filler_episodes',
+                        preference_value: [...listEp, newEpisode],
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,preference_key' });
+                logger.debug('[Chronicle Hook] Added new filler episode.');
+            }
+        } catch (err) {
+            logger.error('[Chronicle Hook] Failed to progress filler episodes:', err);
+        }
+
         // Update character stats
         const { data: currentStats, error: statsError } = await supabase
             .from('character_stats')

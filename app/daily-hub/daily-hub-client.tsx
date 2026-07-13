@@ -33,6 +33,7 @@ const ChroniclesCard = dynamic(
 import NextImage from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
+import { HabitGuardian } from "@/components/kingdom/habit-guardian"
 
 interface Quest {
     id: string
@@ -404,7 +405,8 @@ export function DailyHubClient() {
             <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
-                
+                <HabitGuardian favoritedQuests={favoritedQuests} />
+
                 {/* Active Partner Widget (Fixed Bottom Left) */}
                 {(() => {
                     const activePartner = citizens.find(c => c.id === activePartnerId);
