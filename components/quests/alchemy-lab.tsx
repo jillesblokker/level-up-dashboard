@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
+import { comprehensiveItems } from "@/app/lib/comprehensive-items"
 
 interface InventoryItem {
   id: string
@@ -510,40 +511,48 @@ export function AlchemyLab() {
           {/* 2. REAGENTS INVENTORY CARD */}
           <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
             <CardHeader className="border-b border-white/5 pb-4">
-              <CardTitle className="font-serif text-sm text-white">Your Reagent Bag</CardTitle>
+              <CardTitle className="font-serif text-base text-white">Your Reagent Bag</CardTitle>
               <CardDescription className="text-zinc-400 text-xs">Ingredients collected from daily checkmarks (Click to add to cauldron)</CardDescription>
             </CardHeader>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <CardContent className="p-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {inventory.filter(i => i.id.startsWith('material-')).map(item => {
                   const qtyInCauldron = cauldron[item.id] || 0
                   const availableQty = item.quantity - qtyInCauldron
+
+                  // Map raw database IDs to friendly items from compendium
+                  const compItem = comprehensiveItems.find(i => i.id === item.id)
+                  const prettyName = compItem ? compItem.name : item.name
+                  const prettyEmoji = compItem ? compItem.emoji : item.emoji
+                  const prettyDesc = compItem ? compItem.description : item.description
 
                   return (
                     <div
                       key={item.id}
                       onClick={() => availableQty > 0 && addIngredient(item.id)}
-                      className={`p-3 bg-zinc-900/40 border rounded-2xl flex items-center justify-between cursor-pointer transition-all ${
+                      className={`p-4 bg-zinc-900/50 border rounded-2xl flex items-center justify-between cursor-pointer transition-all duration-200 ${
                         availableQty > 0
-                          ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80"
+                          ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80 hover:scale-[1.01]"
                           : "border-zinc-900 opacity-40 cursor-not-allowed"
                       }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-2xl">{item.emoji}</span>
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <span className="text-3xl shrink-0 select-none">{prettyEmoji}</span>
                         <div className="min-w-0">
-                          <h5 className="font-bold text-xs text-white truncate">{item.name}</h5>
-                          <p className="text-[9px] text-zinc-500 capitalize">{item.rarity}</p>
+                          <h5 className="font-bold text-sm text-zinc-100 truncate">{prettyName}</h5>
+                          <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1 leading-normal">{prettyDesc}</p>
                         </div>
                       </div>
-                      <Badge className="bg-zinc-950 text-zinc-300 font-extrabold text-xs">
-                        {availableQty}
-                      </Badge>
+                      <div className="shrink-0 pl-3">
+                        <Badge className="bg-zinc-950 text-purple-300 font-extrabold text-xs px-3 py-1.5 shadow-inner border border-purple-900/20">
+                          {availableQty} available
+                        </Badge>
+                      </div>
                     </div>
                   )
                 })}
                 {inventory.filter(i => i.id.startsWith('material-')).length === 0 && (
-                  <div className="col-span-full py-6 text-center text-zinc-600 text-xs italic font-serif">
+                  <div className="col-span-full py-8 text-center text-zinc-600 text-xs italic font-serif">
                     Your bag is currently empty. Complete daily habits to gather reagents!
                   </div>
                 )}
@@ -554,30 +563,30 @@ export function AlchemyLab() {
           {/* 3. RECIPES CARD */}
           <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
             <CardHeader className="border-b border-white/5 pb-4">
-              <CardTitle className="font-serif text-sm text-white">Known Recipes</CardTitle>
+              <CardTitle className="font-serif text-base text-white">Known Recipes</CardTitle>
               <CardDescription className="text-zinc-400 text-xs">Formulas to brew active temporary buffs (Click recipe to auto-load slots)</CardDescription>
             </CardHeader>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <CardContent className="p-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {RECIPES.map(recipe => {
                   return (
                     <div
                       key={recipe.id}
                       onClick={() => selectRecipe(recipe)}
-                      className="p-3.5 bg-zinc-900/40 border border-white/5 hover:border-purple-500/30 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between"
+                      className="p-4 bg-zinc-900/50 border border-white/5 hover:border-purple-500/30 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between hover:scale-[1.01]"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2.5 rounded-xl bg-gradient-to-br ${recipe.color} text-white text-xl shadow-md shrink-0`}>
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-2xl bg-gradient-to-br ${recipe.color} text-white text-2xl shadow-md shrink-0`}>
                           {recipe.emoji}
                         </div>
-                        <div>
-                          <h5 className="font-bold text-xs text-white group-hover:text-purple-400 transition-colors">{recipe.name}</h5>
-                          <p className="text-[10px] text-zinc-400 leading-normal mt-0.5">{recipe.description}</p>
+                        <div className="min-w-0">
+                          <h5 className="font-bold text-sm text-zinc-100 group-hover:text-purple-400 transition-colors">{recipe.name}</h5>
+                          <p className="text-xs text-zinc-400 leading-normal mt-1">{recipe.description}</p>
                         </div>
                       </div>
 
                       {/* Ingredients Requirements list */}
-                      <div className="flex gap-1.5 flex-wrap mt-3 border-t border-white/5 pt-2.5">
+                      <div className="flex gap-2 flex-wrap mt-4 border-t border-white/5 pt-3">
                         {recipe.ingredients.map(req => {
                           const invItem = inventory.find(i => i.id === req.id)
                           const currentQty = invItem ? invItem.quantity : 0
@@ -587,12 +596,12 @@ export function AlchemyLab() {
                             <Badge
                               key={req.id}
                               variant="outline"
-                              className={`text-[9px] font-bold py-0.5 px-2 rounded-full flex items-center gap-1 border ${
-                                isMet ? "border-emerald-900/20 bg-emerald-500/10 text-emerald-400" : "border-red-900/20 bg-red-500/10 text-red-400"
+                              className={`text-[10px] font-bold py-1 px-3 rounded-full flex items-center gap-1.5 border transition-all ${
+                                isMet ? "border-emerald-950/20 bg-emerald-500/10 text-emerald-400" : "border-red-950/20 bg-red-500/10 text-red-400"
                               }`}
                             >
                               <span>{req.emoji}</span>
-                              <span>{req.name} {currentQty}/{req.qty}</span>
+                              <span>{req.name} ({currentQty}/{req.qty})</span>
                             </Badge>
                           )
                         })}
@@ -607,29 +616,29 @@ export function AlchemyLab() {
           {/* 4. ACTIVE POTIONS CARD */}
           <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
             <CardHeader className="border-b border-white/5 pb-4">
-              <CardTitle className="font-serif text-sm text-white">Active Modifiers</CardTitle>
+              <CardTitle className="font-serif text-base text-white">Active Modifiers</CardTitle>
               <CardDescription className="text-zinc-400 text-xs">Potions currently granting multipliers</CardDescription>
             </CardHeader>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <CardContent className="p-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {activeModifiers.map((mod, idx) => (
-                  <div key={idx} className="p-3 bg-zinc-900/40 border border-white/5 rounded-2xl flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {mod.name.includes("Focus") ? <Zap className="w-4 h-4 text-cyan-400" /> :
-                       mod.name.includes("Shield") || mod.name.includes("Aegis") ? <Shield className="w-4 h-4 text-amber-500" /> :
-                       <Sparkles className="w-4 h-4 text-purple-400" />}
+                  <div key={idx} className="p-4 bg-zinc-900/50 border border-white/5 rounded-2xl flex items-center justify-between">
+                    <div className="flex items-center gap-3.5">
+                      {mod.name.includes("Focus") ? <Zap className="w-5 h-5 text-cyan-400 shrink-0" /> :
+                       mod.name.includes("Shield") || mod.name.includes("Aegis") ? <Shield className="w-5 h-5 text-amber-500 shrink-0" /> :
+                       <Sparkles className="w-5 h-5 text-purple-400 shrink-0" />}
                       <div>
-                        <h5 className="font-bold text-xs text-white">{mod.name}</h5>
-                        <p className="text-[10px] text-zinc-400">{mod.effect}</p>
+                        <h5 className="font-bold text-sm text-white">{mod.name}</h5>
+                        <p className="text-xs text-zinc-400 mt-0.5 leading-normal">{mod.effect}</p>
                       </div>
                     </div>
-                    <Badge className="bg-zinc-950 text-zinc-500 text-[10px] border border-white/5">
+                    <Badge className="bg-zinc-950 text-zinc-500 text-[10px] border border-white/5 shrink-0 px-2 py-1 ml-2">
                       Expires: {new Date(mod.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </Badge>
                   </div>
                 ))}
                 {activeModifiers.length === 0 && (
-                  <div className="col-span-full py-4 text-center text-zinc-600 text-xs italic font-serif">
+                  <div className="col-span-full py-6 text-center text-zinc-600 text-xs italic font-serif">
                     No active elixirs or tonics. Stir the cauldron to brew!
                   </div>
                 )}
