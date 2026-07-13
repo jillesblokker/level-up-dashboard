@@ -389,15 +389,26 @@ export function DailyHubClient() {
                 className="h-[300px] md:h-[400px]"
                 shouldRevealImage={true}
                 ctaButton={
-                    <Link href="/kingdom">
-                        <Button
-                            size="lg"
-                            className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-6 text-lg shadow-2xl hover:shadow-amber-500/50 transition-all hover:scale-105"
-                        >
-                            <span className="text-2xl mr-2">👑</span>
-                            {TEXT_CONTENT.dailyHub.header.cta}
-                        </Button>
-                    </Link>
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
+                        <Link href="/kingdom">
+                            <Button
+                                size="lg"
+                                className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-6 text-lg shadow-2xl hover:shadow-amber-500/50 transition-all hover:scale-105"
+                            >
+                                <span className="text-2xl mr-2">👑</span>
+                                {TEXT_CONTENT.dailyHub.header.cta}
+                            </Button>
+                        </Link>
+                        <Link href="/crafting">
+                            <Button
+                                size="lg"
+                                className="bg-purple-800 hover:bg-purple-900 text-white font-bold px-8 py-6 text-lg shadow-2xl hover:shadow-purple-500/50 transition-all hover:scale-105 border border-purple-600/30"
+                            >
+                                <span className="text-2xl mr-2">🧪</span>
+                                Alchemy Lab
+                            </Button>
+                        </Link>
+                    </div>
                 }
             />
 

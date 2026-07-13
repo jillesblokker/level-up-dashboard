@@ -158,7 +158,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { challengeId, completed } = body;
+    const { challengeId, completed, milestoneCompleted } = body;
 
     if (!challengeId || completed === undefined) {
       return NextResponse.json({ error: 'Missing challengeId or completed status' }, { status: 400 });
@@ -171,7 +171,7 @@ export async function PUT(request: Request) {
 
       if (completed) {
         // Mark challenge as completed for TODAY
-        apiLogger.debug(`Upserting completion: userId=${userId}, challengeId=${challengeId}, today=${today}`);
+        apiLogger.debug(`Upserting completion: userId=${userId}, challengeId=${challengeId}, today=${today}, milestoneCompleted=${milestoneCompleted}`);
 
         const { data, error } = await supabase
           .from('challenge_completion')
@@ -179,6 +179,7 @@ export async function PUT(request: Request) {
             user_id: userId,
             challenge_id: challengeId,
             completed: true,
+            milestone_completed: milestoneCompleted || false,
             date: today, // Use today's date in Netherlands timezone
           }, { onConflict: 'user_id,challenge_id,date' })
           .select()

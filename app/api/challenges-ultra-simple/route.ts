@@ -59,10 +59,11 @@ export async function GET(request: Request) {
       { auth: { persistSession: false } }
     );
 
-    // 3. Fetch Challenges (Global)
+    // 3. Fetch Challenges (Global or User Accepted Custom Friend Challenges)
     const { data: allChallenges, error: challengesError } = await serviceClient
       .from('challenges')
-      .select('*');
+      .select('*')
+      .or(`user_id.is.null,and(user_id.eq.${userId},status.eq.accepted)`);
 
     if (challengesError) throw challengesError;
 
@@ -94,6 +95,7 @@ export async function GET(request: Request) {
         if (completion.completed === true) {
           completedChallenges.set(completion.challenge_id, {
             completed: true,
+            milestoneCompleted: completion.milestone_completed === true,
             date: String(completion.date).split('T')[0],
             completionId: completion.id
           });
@@ -107,6 +109,7 @@ export async function GET(request: Request) {
       return {
         ...c,
         completed: completion ? completion.completed : false,
+        milestoneCompleted: completion ? completion.milestoneCompleted : false,
         completionId: completion?.completionId,
         date: completion ? completion.date : null,
         completion_debug: {

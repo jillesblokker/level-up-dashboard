@@ -32,11 +32,17 @@ interface Quest {
   completionId?: string
   isFriendQuest?: boolean
   senderName?: string
+  is_friend_challenge?: boolean
+  base_goal?: string
+  milestone_goal?: string
+  milestoneCompleted?: boolean
+  sender_id?: string
+  recipient_id?: string
 }
 
 interface QuestOrganizationProps {
   quests: Quest[]
-  onQuestToggle: (questId: string, completed: boolean) => void
+  onQuestToggle: (questId: string, completed: boolean, milestoneCompleted?: boolean) => void
   onQuestFavorite: (questId: string) => void
   onQuestEdit: (quest: Quest) => void
   onQuestDelete: (questId: string) => void
@@ -687,20 +693,22 @@ export function QuestOrganization({
                             </Button>
                           )}
                           {quest.favorited && <Star className="h-4 w-4 text-amber-400 fill-current" />}
-                          <QuestToggleButton
-                            questId={quest.id}
-                            questName={quest.name}
-                            completed={quest.completed}
-                            xp={quest.xp || 50}
-                            gold={quest.gold || 25}
-                            useCustomToggle={context === 'challenges' || context === 'milestones'}
-                            category={quest.category}
-                            onToggle={(questId, completed) => {
-                              logger.debug('[QuestOrganization] Toggle called:', { questId, completed, context });
-                              onQuestToggle(questId, completed);
-                            }}
-                            variant="checkbox"
-                          />
+                          {!quest.is_friend_challenge && (
+                            <QuestToggleButton
+                              questId={quest.id}
+                              questName={quest.name}
+                              completed={quest.completed}
+                              xp={quest.xp || 50}
+                              gold={quest.gold || 25}
+                              useCustomToggle={context === 'challenges' || context === 'milestones'}
+                              category={quest.category}
+                              onToggle={(questId, completed) => {
+                                logger.debug('[QuestOrganization] Toggle called:', { questId, completed, context });
+                                onQuestToggle(questId, completed);
+                              }}
+                              variant="checkbox"
+                            />
+                          )}
                           {/* Edit, Copy, and Delete buttons */}
                           <div className="flex items-center gap-1 ml-2">
                             {onQuestDuplicate && (
@@ -749,6 +757,41 @@ export function QuestOrganization({
                       <p className="text-sm text-zinc-400 mb-3 line-clamp-2">
                         {quest.description}
                       </p>
+
+                      {quest.is_friend_challenge && (
+                        <div className="space-y-2.5 my-3 p-3 bg-zinc-950/60 rounded-xl border border-amber-900/10">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id={`base-${quest.id}`}
+                              checked={quest.completed || false}
+                              onChange={(e) => {
+                                onQuestToggle(quest.id, e.target.checked, quest.milestoneCompleted);
+                              }}
+                              className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            />
+                            <label htmlFor={`base-${quest.id}`} className={`text-xs cursor-pointer select-none ${quest.completed ? "text-zinc-500 line-through" : "text-zinc-200"}`}>
+                              🎯 <strong>Base Goal:</strong> {quest.base_goal}
+                            </label>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id={`milestone-${quest.id}`}
+                              disabled={!quest.completed}
+                              checked={quest.milestoneCompleted || false}
+                              onChange={(e) => {
+                                onQuestToggle(quest.id, quest.completed, e.target.checked);
+                              }}
+                              className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0 focus:ring-offset-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                            />
+                            <label htmlFor={`milestone-${quest.id}`} className={`text-xs cursor-pointer select-none ${!quest.completed ? "text-zinc-500/60 cursor-not-allowed" : (quest.milestoneCompleted ? "text-zinc-500 line-through" : "text-zinc-200")}`}>
+                              ⭐ <strong>Milestone (Stretch):</strong> {quest.milestone_goal}
+                            </label>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">

@@ -274,6 +274,7 @@ export default function QuestsPage() {
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
   const [milestones, setMilestones] = useState<any[]>([]);
   const [challenges, setChallenges] = useState<any[]>([]);
+  const [activeModifiers, setActiveModifiers] = useState<any[]>([]);
   const [addMilestoneModalOpen, setAddMilestoneModalOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -456,6 +457,41 @@ export default function QuestsPage() {
 
     fetchStats();
   }, [userId]);
+
+  // Fetch Active Modifiers for XP/Gold bonuses
+  useEffect(() => {
+    const fetchActiveModifiers = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch('/api/active-modifiers', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setActiveModifiers(data.modifiers || []);
+        }
+      } catch (err) {
+        logger.error('Error fetching active modifiers:', err);
+      }
+    };
+    fetchActiveModifiers();
+  }, [token]);
+
+  useEffect(() => {
+    const handleModifiersUpdate = () => {
+      if (token) {
+        fetch('/api/active-modifiers', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(data => setActiveModifiers(data.modifiers || []))
+          .catch(err => logger.error('Error refreshing active modifiers:', err));
+      }
+    };
+
+    window.addEventListener('character-modifiers-update', handleModifiersUpdate);
+    return () => window.removeEventListener('character-modifiers-update', handleModifiersUpdate);
+  }, [token]);
 
   // Fetch gamification preferences
   useEffect(() => {
@@ -1105,8 +1141,10 @@ export default function QuestsPage() {
     );
 
     const isBossHabit = questId === bossQuestId;
-    const goldReward = (questObj.gold || 50) * (isBossHabit ? 3 : 1);
-    const xpReward = (questObj.xp || 25) * (isBossHabit ? 3 : 1);
+    const isFocusActive = activeModifiers.some(m => m.name === 'Elixir of Focus');
+    const isDreadActive = activeModifiers.some(m => m.name === 'Dread Tonic');
+    const goldReward = Math.floor((questObj.gold || 50) * (isBossHabit ? 3 : 1) * (isDreadActive ? 1.50 : 1.0));
+    const xpReward = Math.floor((questObj.xp || 25) * (isBossHabit ? 3 : 1) * (isFocusActive ? 1.25 : 1.0));
 
     if (newCompleted) {
       logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
@@ -1391,7 +1429,7 @@ export default function QuestsPage() {
     }
   };
 
-  const handleChallengeToggle = async (challengeId: string, newCompleted: boolean) => {
+  const handleChallengeToggle = async (challengeId: string, newCompleted: boolean, milestoneCompleted?: boolean) => {
     if (!token || !userId) return;
 
     // Find the challenge object
@@ -1401,21 +1439,31 @@ export default function QuestsPage() {
       return;
     }
 
-    logger.debug('[CHALLENGE-TOGGLE] Updating challenge state:', { challengeId, newCompleted, challengeName: challengeObj.name });
+    const isMilestone = milestoneCompleted !== undefined ? milestoneCompleted : (challengeObj.milestoneCompleted || false);
+
+    logger.debug('[CHALLENGE-TOGGLE] Updating challenge state:', { challengeId, newCompleted, isMilestone, challengeName: challengeObj.name });
 
     // Update local state (optimistic update)
     setChallenges(prevChallenges =>
       prevChallenges.map(challenge =>
         challenge.id === challengeId
-          ? { ...challenge, completed: newCompleted }
+          ? { 
+              ...challenge, 
+              completed: newCompleted, 
+              milestoneCompleted: newCompleted ? isMilestone : false 
+            }
           : challenge
       )
     );
 
     // 🎯 CRITICAL FIX: Apply rewards when completing challenge
     if (newCompleted) {
-      const goldReward = challengeObj.gold || 50;
-      const xpReward = challengeObj.xp || 25;
+      const baseGold = challengeObj.gold || 50;
+      const baseXP = challengeObj.xp || 25;
+      const isFocusActive = activeModifiers.some(m => m.name === 'Elixir of Focus');
+      const isDreadActive = activeModifiers.some(m => m.name === 'Dread Tonic');
+      const goldReward = Math.floor((isMilestone ? Math.floor(baseGold * 1.5) : baseGold) * (isDreadActive ? 1.50 : 1.0));
+      const xpReward = Math.floor((isMilestone ? Math.floor(baseXP * 1.5) : baseXP) * (isFocusActive ? 1.25 : 1.0));
 
       logger.debug('[CHALLENGE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
@@ -1438,9 +1486,11 @@ export default function QuestsPage() {
 
       // Show success toast with rewards
       toast({
-        title: TEXT_CONTENT.questBoard.toasts.completion.challenge.title,
-        description: TEXT_CONTENT.questBoard.toasts.completion.challenge.desc
-          .replace('{name}', challengeObj.name)
+        title: isMilestone ? "Milestone Achieved! 🏆⭐" : TEXT_CONTENT.questBoard.toasts.completion.challenge.title,
+        description: (isMilestone 
+          ? `Incredible! You completed the milestone for "${challengeObj.name}" and earned ${goldReward} Gold & ${xpReward} XP!`
+          : TEXT_CONTENT.questBoard.toasts.completion.challenge.desc.replace('{name}', challengeObj.name)
+        )
           .replace('{gold}', String(goldReward))
           .replace('{xp}', String(xpReward)),
         duration: 4000,
@@ -1464,7 +1514,8 @@ export default function QuestsPage() {
         },
         body: JSON.stringify({
           challengeId: challengeId,
-          completed: newCompleted
+          completed: newCompleted,
+          milestoneCompleted: newCompleted ? isMilestone : false
         })
       });
 

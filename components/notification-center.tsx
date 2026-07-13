@@ -177,15 +177,35 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     }
   };
 
+  const handleChallengeAction = async (notification: any, action: 'accept' | 'reject') => {
+    try {
+      const res = await fetch('/api/challenges/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId: notification.id, action })
+      });
+
+      if (res.ok) {
+        handleMarkAsRead(notification.id, true);
+        fetchServerNotifications();
+        window.dispatchEvent(new Event('challenge-update'));
+      }
+    } catch (error) {
+      logger.error("Error responding to challenge:", error);
+    }
+  };
+
   // Merge local and server notifications for display
   const allNotifications: any[] = [
     ...serverNotifications.map(n => ({
       id: n.id,
       title: n.type === 'friend_request' ? 'New Friend Request' :
         n.type === 'friend_quest_received' ? 'New Quest Received' :
+        n.type === 'friend_challenge_received' ? 'New Duel Challenge! ⚔️' :
           n.type === 'friend_request_accepted' ? 'Friend Request Accepted' : 'Notification',
       message: n.type === 'friend_request' ? `${n.data.senderName} wants to be your ally!` :
         n.type === 'friend_quest_received' ? `${n.data.senderName} sent you a quest: "${n.data.questTitle}"` :
+        n.type === 'friend_challenge_received' ? `${n.data.senderName} challenged you: "${n.data.challengeName}" (Base: ${n.data.baseGoal})` :
           n.type === 'friend_request_accepted' ? `${n.data.accepterName} is now your ally!` : '',
       type: 'social',
       timestamp: n.created_at,
@@ -520,6 +540,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                       handleDelete={handleDelete}
                       handleFriendAction={handleFriendAction}
                       handleQuestAction={handleQuestAction}
+                      handleChallengeAction={handleChallengeAction}
                     />
                   );
                 })
@@ -843,13 +864,15 @@ function NotificationItem({
   handleMarkAsRead,
   handleDelete,
   handleFriendAction,
-  handleQuestAction
+  handleQuestAction,
+  handleChallengeAction
 }: {
   notification: any,
   handleMarkAsRead: (id: string, isServer?: boolean) => void,
   handleDelete: (id: string) => void,
   handleFriendAction: (notification: any, action: 'accept' | 'reject') => void,
-  handleQuestAction: (notification: any, action: 'accept' | 'reject') => void
+  handleQuestAction: (notification: any, action: 'accept' | 'reject') => void,
+  handleChallengeAction: (notification: any, action: 'accept' | 'reject') => void
 }) {
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -913,6 +936,14 @@ function NotificationItem({
             <div className="flex gap-2 mt-3">
               <Button size="sm" onClick={() => handleQuestAction(notification.original, 'accept')} className="bg-amber-600 hover:bg-amber-700 text-white border-none">Accept Quest</Button>
               <Button size="sm" variant="outline" onClick={() => handleQuestAction(notification.original, 'reject')} className="border-amber-600/50 text-amber-200 hover:bg-amber-900/30">Decline</Button>
+            </div>
+          )}
+
+          {/* Action Buttons for Challenge Requests */}
+          {notification.isServer && notification.original.type === 'friend_challenge_received' && !notification.read && (
+            <div className="flex gap-2 mt-3">
+              <Button size="sm" onClick={() => handleChallengeAction(notification.original, 'accept')} className="bg-red-600 hover:bg-red-700 text-white border-none">Accept Challenge</Button>
+              <Button size="sm" variant="outline" onClick={() => handleChallengeAction(notification.original, 'reject')} className="border-red-600/50 text-red-200 hover:bg-red-900/30">Decline</Button>
             </div>
           )}
 

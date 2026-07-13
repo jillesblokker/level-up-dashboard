@@ -136,6 +136,17 @@ export default function AlliesPage() {
         gold: 10
     });
 
+    // Challenge Modal state
+    const [challengeModalOpen, setChallengeModalOpen] = useState(false);
+    const [challengeForm, setChallengeForm] = useState({
+        name: "",
+        description: "",
+        difficulty: "medium",
+        category: "Push/Legs/Core",
+        baseGoal: "",
+        milestoneGoal: ""
+    });
+
     // Comparison Modal state
     const [compareModalOpen, setCompareModalOpen] = useState(false);
     const [compareStats, setCompareStats] = useState<any>(null);
@@ -308,6 +319,47 @@ export default function AlliesPage() {
     const openQuestModal = (friend: Friend) => {
         setSelectedFriend(friend);
         setQuestModalOpen(true);
+    };
+
+    const openChallengeModal = (friend: Friend) => {
+        setSelectedFriend(friend);
+        setChallengeModalOpen(true);
+    };
+
+    const sendChallenge = async () => {
+        if (!selectedFriend) return;
+        try {
+            const res = await fetch('/api/challenges/friend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    friendId: selectedFriend.friendId,
+                    name: challengeForm.name,
+                    description: challengeForm.description,
+                    difficulty: challengeForm.difficulty,
+                    category: challengeForm.category,
+                    baseGoal: challengeForm.baseGoal,
+                    milestoneGoal: challengeForm.milestoneGoal
+                })
+            });
+
+            if (res.ok) {
+                toast({ title: "Challenge Sent! ⚔️", description: `You have challenged ${selectedFriend.username} to a duel.` });
+                setChallengeModalOpen(false);
+                setChallengeForm({
+                    name: "",
+                    description: "",
+                    difficulty: "medium",
+                    category: "Push/Legs/Core",
+                    baseGoal: "",
+                    milestoneGoal: ""
+                });
+            } else {
+                toast({ title: "Failed to send challenge", description: "Something went wrong.", variant: "destructive" });
+            }
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to send challenge.", variant: "destructive" });
+        }
     };
 
     const sendQuest = async () => {
@@ -630,6 +682,16 @@ export default function AlliesPage() {
                                                             variant="ghost"
                                                             size="sm"
                                                             className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
+                                                            onClick={() => openChallengeModal(friend)}
+                                                        >
+                                                            <Sword className="w-3 h-3 text-red-500" />
+                                                            Challenge
+                                                        </Button>
+                                                        <div className="w-px h-4 bg-border my-auto" />
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => handleHire(friend)}
                                                         >
                                                             <UserPlus className="w-3 h-3" />
@@ -869,6 +931,96 @@ export default function AlliesPage() {
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setQuestModalOpen(false)}>{TEXT_CONTENT.social.modals.quest.form.cancel}</Button>
                         <Button onClick={sendQuest}>{TEXT_CONTENT.social.modals.quest.form.submit}</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* SEND CHALLENGE MODAL */}
+            <Dialog open={challengeModalOpen} onOpenChange={setChallengeModalOpen}>
+                <DialogContent className="max-w-md bg-zinc-950 border border-amber-950/20 text-white rounded-3xl p-6 shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-serif text-lg text-white">Challenge {selectedFriend?.username || ''}</DialogTitle>
+                        <DialogDescription className="text-zinc-400 text-xs mt-1">Send a fitness or habit challenge with a stretch milestone goal!</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-1.5">
+                            <Label className="text-zinc-300 text-xs">Challenge Name</Label>
+                            <Input
+                                placeholder="e.g. Wall Sit Challenge"
+                                className="bg-zinc-900 border-white/5 text-white"
+                                value={challengeForm.name}
+                                onChange={(e) => setChallengeForm({ ...challengeForm, name: e.target.value })}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-zinc-300 text-xs">Description / Instructions</Label>
+                            <Textarea
+                                placeholder="e.g. Hold a wall sit daily."
+                                className="bg-zinc-900 border-white/5 text-white min-h-[60px]"
+                                value={challengeForm.description}
+                                onChange={(e) => setChallengeForm({ ...challengeForm, description: e.target.value })}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-zinc-300 text-xs">Base Goal</Label>
+                                <Input
+                                    placeholder="e.g. do a 2 minute wallsit"
+                                    className="bg-zinc-900 border-white/5 text-white"
+                                    value={challengeForm.baseGoal}
+                                    onChange={(e) => setChallengeForm({ ...challengeForm, baseGoal: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-zinc-300 text-xs">Milestone Goal (Stretch)</Label>
+                                <Input
+                                    placeholder="e.g. do one for 5 minutes"
+                                    className="bg-zinc-900 border-white/5 text-white"
+                                    value={challengeForm.milestoneGoal}
+                                    onChange={(e) => setChallengeForm({ ...challengeForm, milestoneGoal: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-zinc-300 text-xs">Difficulty</Label>
+                                <Select
+                                    value={challengeForm.difficulty}
+                                    onValueChange={(val) => setChallengeForm({ ...challengeForm, difficulty: val })}
+                                >
+                                    <SelectTrigger className="bg-zinc-900 border-white/5 text-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-zinc-950 border-amber-900/30 text-white">
+                                        <SelectItem value="easy">Easy</SelectItem>
+                                        <SelectItem value="medium">Medium</SelectItem>
+                                        <SelectItem value="hard">Hard</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-zinc-300 text-xs">Category</Label>
+                                <Select
+                                    value={challengeForm.category}
+                                    onValueChange={(val) => setChallengeForm({ ...challengeForm, category: val })}
+                                >
+                                    <SelectTrigger className="bg-zinc-900 border-white/5 text-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-zinc-950 border-amber-900/30 text-white">
+                                        <SelectItem value="Push/Legs/Core">Push/Legs/Core</SelectItem>
+                                        <SelectItem value="Pull/Shoulder/Core">Pull/Shoulder/Core</SelectItem>
+                                        <SelectItem value="Legs/Arms/Core">Legs/Arms/Core</SelectItem>
+                                        <SelectItem value="Core & Flexibility">Core & Flexibility</SelectItem>
+                                        <SelectItem value="HIIT & Full Body">HIIT & Full Body</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter className="gap-2">
+                        <Button variant="outline" className="border-white/5 text-zinc-400 hover:text-white" onClick={() => setChallengeModalOpen(false)}>Cancel</Button>
+                        <Button className="bg-amber-600 hover:bg-amber-700 text-black font-extrabold" onClick={sendChallenge}>Send Challenge</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -715,6 +715,21 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isEquippable: false,
     isConsumable: true,
   },
+  {
+    id: 'material-stone',
+    name: 'Cobblestone',
+    description: 'A smooth, heavy stone. Good for building and brewing structures.',
+    type: 'material',
+    category: 'material',
+    rarity: 'common',
+    stats: {},
+    emoji: '🪨',
+    image: '/images/items/materials/material-stone.webp',
+    cost: 5,
+    isDefault: false,
+    isEquippable: false,
+    isConsumable: true,
+  },
 
   // ==========================================
   // FOOD
