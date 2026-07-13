@@ -77,8 +77,38 @@ export async function POST(req: NextRequest) {
                         hard: { xp: 100, gold: 100 }
                     };
                     const baseRewards = difficultyRewards[challenge.difficulty || 'medium'] || { xp: 50, gold: 50 };
+
+                    // Guardian Pet Perk Multiplier (+1% XP per pet level on matching category challenges)
+                    let guardianPerkMultiplier = 1;
+                    try {
+                        const { data: petPref } = await supabase
+                            .from('user_preferences')
+                            .select('preference_value')
+                            .eq('user_id', userId)
+                            .eq('preference_key', 'habit_guardian_state')
+                            .maybeSingle();
+
+                        const petState = (petPref?.preference_value as any);
+                        if (petState && petState.selectedId && petState.level > 1) {
+                            const challengeCat = (challenge.category || '').toLowerCase();
+                            const GUARDIAN_FOCUS_MAP: Record<string, string[]> = {
+                                'ember-drake': ['might', 'agility'],
+                                'sage-owl': ['knowledge', 'intelligence'],
+                                'spirit-sprite': ['vitality', 'spiritual', 'wellness']
+                            };
+                            const focusCategories = GUARDIAN_FOCUS_MAP[petState.selectedId] || [];
+                            const isMatch = focusCategories.some(fc => challengeCat.includes(fc));
+                            if (isMatch) {
+                                guardianPerkMultiplier = 1 + (petState.level * 0.01);
+                                logger.debug(`[Guardian Perk] +${petState.level}% XP bonus on challenge (${petState.selectedId} lvl ${petState.level}, cat: ${challengeCat})`);
+                            }
+                        }
+                    } catch (err) {
+                        logger.error('[Guardian Perk] Failed to apply pet perk on challenge:', err);
+                    }
+
                     const rewards = {
-                        xp: Math.floor(baseRewards.xp * streakMultiplier),
+                        xp: Math.floor(baseRewards.xp * streakMultiplier * guardianPerkMultiplier),
                         gold: Math.floor(baseRewards.gold * streakMultiplier)
                     };
 

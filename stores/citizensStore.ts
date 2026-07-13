@@ -62,7 +62,7 @@ interface CitizensStore {
   harvestCitizen: (userId: string, citizenId: string, multiplier?: number) => Promise<boolean>;
   increaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
   decreaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
-  trainCitizen: (userId: string, citizenId: string, foodItemId: string, scrollItemId: string) => Promise<{ success: boolean; error?: string; leveledUp?: boolean }>;
+  trainCitizen: (userId: string, citizenId: string, foodItemId: string, scrollItemId: string, foodQty?: number, scrollQty?: number) => Promise<{ success: boolean; error?: string; leveledUp?: boolean }>;
   toggleSupporter: (userId: string, citizenId: string) => Promise<void>;
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
 }
@@ -734,7 +734,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     await setUserPreference('citizens_state', { ...currentPrefs, [citizen.id]: citizenState });
   },
 
-  trainCitizen: async (userId: string, citizenId: string, foodItemId: string, scrollItemId: string) => {
+  trainCitizen: async (userId: string, citizenId: string, foodItemId: string, scrollItemId: string, foodQty: number = 1, scrollQty: number = 1) => {
     if (!userId || !citizenId) return { success: false, error: 'User or Citizen ID missing' };
     const { citizens } = get();
     const citizen = citizens.find(c => c.id === citizenId);
@@ -758,17 +758,17 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       const foodMat = inventory.find(i => i.id === foodItemId);
       const scrollMat = inventory.find(i => i.id === scrollItemId);
 
-      if (!foodMat || foodMat.quantity < 1) {
-        return { success: false, error: 'Not enough food' };
+      if (!foodMat || foodMat.quantity < foodQty) {
+        return { success: false, error: `Not enough food (need ${foodQty})` };
       }
-      if (!scrollMat || scrollMat.quantity < 1) {
-        return { success: false, error: 'Not enough scrolls' };
+      if (!scrollMat || scrollMat.quantity < scrollQty) {
+        return { success: false, error: `Not enough scrolls (need ${scrollQty})` };
       }
 
       // Deduct gold & resources
       await gainGold(-goldCost, 'barracks-training');
-      await removeFromInventory(userId, foodItemId, 1);
-      await removeFromInventory(userId, scrollItemId, 1);
+      await removeFromInventory(userId, foodItemId, foodQty);
+      await removeFromInventory(userId, scrollItemId, scrollQty);
 
       // Check City Guild Blessing for Double Citizen Training XP
       let xpMultiplier = 1;

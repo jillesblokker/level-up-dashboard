@@ -99,8 +99,37 @@ export async function POST(request: NextRequest) {
             logger.error('[Quest Complete API] Failed to load alchemy spell blessings:', err);
         }
 
+        // Guardian Pet Perk Multiplier (+1% XP per pet level on matching category quests)
+        let guardianPerkMultiplier = 1;
+        try {
+            const { data: petPref } = await supabase
+                .from('user_preferences')
+                .select('preference_value')
+                .eq('user_id', userId)
+                .eq('preference_key', 'habit_guardian_state')
+                .maybeSingle();
+
+            const petState = (petPref?.preference_value as any);
+            if (petState && petState.selectedId && petState.level > 1) {
+                const questCat = (quest.category || '').toLowerCase();
+                const GUARDIAN_FOCUS_MAP: Record<string, string[]> = {
+                    'ember-drake': ['might', 'agility'],
+                    'sage-owl': ['knowledge', 'intelligence'],
+                    'spirit-sprite': ['vitality', 'spiritual', 'wellness']
+                };
+                const focusCategories = GUARDIAN_FOCUS_MAP[petState.selectedId] || [];
+                const isMatch = focusCategories.some(fc => questCat.includes(fc));
+                if (isMatch) {
+                    guardianPerkMultiplier = 1 + (petState.level * 0.01);
+                    logger.debug(`[Guardian Perk] +${petState.level}% XP bonus applied (${petState.selectedId} lvl ${petState.level}, quest cat: ${questCat})`);
+                }
+            }
+        } catch (err) {
+            logger.error('[Guardian Perk] Failed to apply pet perk:', err);
+        }
+
         const rewards = {
-            xp: Math.floor(baseRewards.xp * streakMultiplier * xpMultiplier),
+            xp: Math.floor(baseRewards.xp * streakMultiplier * xpMultiplier * guardianPerkMultiplier),
             gold: Math.floor(baseRewards.gold * streakMultiplier * goldMultiplier)
         }
 

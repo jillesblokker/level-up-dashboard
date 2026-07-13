@@ -113,6 +113,13 @@ export function BarracksTab() {
     } catch {}
   };
 
+  // Get tiered material requirements based on citizen level
+  const getTrainingTier = (level: number) => {
+    if (level >= 8) return { foodQty: 3, scrollQty: 3, tierLabel: 'Elite' };
+    if (level >= 5) return { foodQty: 2, scrollQty: 2, tierLabel: 'Advanced' };
+    return { foodQty: 1, scrollQty: 1, tierLabel: 'Basic' };
+  };
+
   const handleTrain = async () => {
     if (!user?.id || !selectedCitizen || isTraining) return;
 
@@ -136,21 +143,22 @@ export function BarracksTab() {
       return;
     }
 
-    const chosenFood = inventoryFood.find(f => f.quantity >= 1);
-    const chosenScroll = inventoryScrolls.find(s => s.quantity >= 1);
+    const tier = getTrainingTier(level);
+    const totalFoodAvailable = inventoryFood.reduce((sum, f) => sum + f.quantity, 0);
+    const totalScrollsAvailable = inventoryScrolls.reduce((sum, s) => sum + s.quantity, 0);
 
-    if (!chosenFood) {
+    if (totalFoodAvailable < tier.foodQty) {
       toast({
         title: "Missing Food",
-        description: "You need at least 1 food item to nourish your citizen during training.",
+        description: `${tier.tierLabel} training requires ${tier.foodQty} food item${tier.foodQty > 1 ? 's' : ''}. You only have ${totalFoodAvailable}.`,
         variant: "destructive"
       });
       return;
     }
-    if (!chosenScroll) {
+    if (totalScrollsAvailable < tier.scrollQty) {
       toast({
         title: "Missing Scrolls",
-        description: "You need at least 1 scroll to teach combat tactics to your citizen.",
+        description: `${tier.tierLabel} training requires ${tier.scrollQty} scroll${tier.scrollQty > 1 ? 's' : ''}. You only have ${totalScrollsAvailable}.`,
         variant: "destructive"
       });
       return;
@@ -167,7 +175,15 @@ export function BarracksTab() {
         setTimeout(() => barracksContainer.classList.remove('animate-forge-shake'), 300);
       }
 
-      const res = await trainCitizen(user.id, selectedCitizen.id, chosenFood.id, chosenScroll.id);
+      const chosenFood = inventoryFood.find(f => f.quantity >= tier.foodQty);
+      const chosenScroll = inventoryScrolls.find(s => s.quantity >= tier.scrollQty);
+      if (!chosenFood || !chosenScroll) {
+        toast({ title: "Insufficient materials", description: "Not enough food or scrolls for this training tier.", variant: "destructive" });
+        setIsTraining(false);
+        return;
+      }
+
+      const res = await trainCitizen(user.id, selectedCitizen.id, chosenFood.id, chosenScroll.id, tier.foodQty, tier.scrollQty);
 
       if (res.success) {
         if (res.leveledUp) {
@@ -322,10 +338,13 @@ export function BarracksTab() {
             const isSlotted = combatSupporters.includes(c.id);
             const isLocked = c.lockedReason === 'expedition';
 
+            const tier = getTrainingTier(lvl);
             const hasGold = playerGold >= goldCost;
-            const chosenFood = inventoryFood.find(f => f.quantity >= 1);
-            const chosenScroll = inventoryScrolls.find(s => s.quantity >= 1);
-            const canTrain = hasGold && chosenFood && chosenScroll && lvl < 10 && !isLocked;
+            const totalFood = inventoryFood.reduce((sum, f) => sum + f.quantity, 0);
+            const totalScrolls = inventoryScrolls.reduce((sum, s) => sum + s.quantity, 0);
+            const hasFood = totalFood >= tier.foodQty;
+            const hasScrolls = totalScrolls >= tier.scrollQty;
+            const canTrain = hasGold && hasFood && hasScrolls && lvl < 10 && !isLocked;
 
             return (
               <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[480px]">
@@ -404,7 +423,12 @@ export function BarracksTab() {
 
                   {/* Training checklist */}
                   <div className="space-y-2">
-                    <h5 className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Required Resources:</h5>
+                    <h5 className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider flex items-center gap-2">
+                      Required Resources:
+                      <Badge variant="outline" className="text-[8px] text-amber-500 border-amber-500/20 font-bold uppercase px-1.5 py-0">
+                        {tier.tierLabel} Tier
+                      </Badge>
+                    </h5>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {/* Gold cost */}
                       <div className={cn(
@@ -418,19 +442,19 @@ export function BarracksTab() {
                       {/* Food cost */}
                       <div className={cn(
                         "p-2.5 rounded-xl border text-xs flex justify-between items-center",
-                        chosenFood ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
+                        hasFood ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
                       )}>
-                        <span className="font-semibold truncate">🍎 {chosenFood ? chosenFood.name : 'Nourishment'}</span>
-                        <span className="font-bold">{chosenFood ? '1/1' : '0/1'}</span>
+                        <span className="font-semibold truncate">🍎 Nourishment</span>
+                        <span className="font-bold">{Math.min(totalFood, tier.foodQty)}/{tier.foodQty}</span>
                       </div>
 
                       {/* Scroll cost */}
                       <div className={cn(
                         "p-2.5 rounded-xl border text-xs flex justify-between items-center",
-                        chosenScroll ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
+                        hasScrolls ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
                       )}>
-                        <span className="font-semibold truncate">📜 {chosenScroll ? chosenScroll.name : 'Tactical Scroll'}</span>
-                        <span className="font-bold">{chosenScroll ? '1/1' : '0/1'}</span>
+                        <span className="font-semibold truncate">📜 Tactical Scroll</span>
+                        <span className="font-bold">{Math.min(totalScrolls, tier.scrollQty)}/{tier.scrollQty}</span>
                       </div>
                     </div>
                   </div>

@@ -36,7 +36,9 @@ const GUARDIANS = [
     emoji: '🐉',
     description: 'A fierce baby dragon that feeds on the fire of your might and craft habits.',
     focus: 'Might & Craft',
+    focusCategories: ['might', 'agility'],
     themeColor: 'from-orange-500/20 to-red-500/25 border-orange-500/30 text-orange-400',
+    perkIcon: '🔥',
     lines: [
       "Rrarr! Let's burn through those tasks today!",
       "I want to see some fire in your might habits!",
@@ -51,7 +53,9 @@ const GUARDIANS = [
     emoji: '🦉',
     description: 'A wise scholar owl that thrives on reading, studying, and honoring others.',
     focus: 'Knowledge & Honor',
+    focusCategories: ['knowledge', 'intelligence'],
     themeColor: 'from-cyan-500/20 to-blue-500/25 border-cyan-500/30 text-cyan-400',
+    perkIcon: '📖',
     lines: [
       "Hoot! Knowledge is the ultimate power in Valoreth.",
       "A disciplined mind achieves the greatest victories.",
@@ -66,7 +70,9 @@ const GUARDIANS = [
     emoji: '🧚',
     description: 'A playful forest sprite fueled by nature, castle building, and vitality.',
     focus: 'Vitality & Castle',
+    focusCategories: ['vitality', 'spiritual', 'wellness'],
     themeColor: 'from-emerald-500/20 to-green-500/25 border-emerald-500/30 text-emerald-400',
+    perkIcon: '🌿',
     lines: [
       "Sparkle sparkle! Nature smiles on your healthy habits.",
       "Take a deep breath. A strong body builds a strong castle!",
@@ -153,22 +159,27 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
 
     try {
       setIsCollecting(true);
+      const petLevel = guardianState.level || 1;
       
-      // Award 50 gold
+      // Scale bounty gold with pet level: 50 base + 10 per level
+      const bountyGold = 50 + (petLevel * 10);
       await fetch('/api/character-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gold: 50 })
+        body: JSON.stringify({ gold: bountyGold })
       });
 
-      // Award a random material reagent
-      const reagents = ['material-steel', 'material-crystal', 'material-planks', 'material-water', 'material-stone'];
-      const reward = reagents[Math.floor(Math.random() * reagents.length)]!;
-      await fetch('/api/inventory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item: { id: reward, quantity: 1 } })
-      });
+      // Scale reagent count: 1 base, +1 at level 5, +1 at level 10
+      const reagentCount = 1 + (petLevel >= 5 ? 1 : 0) + (petLevel >= 10 ? 1 : 0);
+      const reagents = ['material-steel', 'material-crystal', 'material-planks', 'material-water', 'material-stone', 'material-gold', 'material-silver'];
+      for (let i = 0; i < reagentCount; i++) {
+        const reward = reagents[Math.floor(Math.random() * reagents.length)]!;
+        await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: { id: reward, quantity: 1 } })
+        });
+      }
 
       // Update state in database
       const updatedState = {
@@ -180,7 +191,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
 
       toast({
         title: "Guardian Bounty Claimed! 🪙🎁",
-        description: `Your Guardian rewarded your dedication with 50 Gold and 1 crafting reagent.`
+        description: `Your Lvl ${petLevel} Guardian rewarded ${bountyGold} Gold and ${reagentCount} crafting reagent${reagentCount > 1 ? 's' : ''}!`
       });
 
       window.dispatchEvent(new Event('character-stats-update'));
@@ -300,6 +311,24 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               </div>
               <Progress value={(guardianState.experience / (guardianState.level * 100)) * 100} className="h-2 bg-zinc-950 border border-white/5" indicatorClassName="bg-gradient-to-r from-amber-600 to-amber-400" />
             </div>
+
+            {/* Guardian Level Perk */}
+            {activeGuardian && guardianState.level >= 1 && (
+              <div className="p-3 bg-gradient-to-r from-amber-950/20 to-transparent border border-amber-500/10 rounded-xl flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-lg">
+                  {activeGuardian.perkIcon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h5 className="font-bold text-[10px] uppercase tracking-wider text-amber-500">Guardian Perk — Level {guardianState.level}</h5>
+                  <p className="text-xs text-zinc-300 mt-0.5">
+                    +{guardianState.level}% XP on <span className="font-bold text-white">{activeGuardian.focus}</span> quests
+                  </p>
+                  <p className="text-[10px] text-zinc-500 mt-0.5">
+                    Bounty: {50 + (guardianState.level * 10)}g + {1 + (guardianState.level >= 5 ? 1 : 0) + (guardianState.level >= 10 ? 1 : 0)} reagent{(1 + (guardianState.level >= 5 ? 1 : 0) + (guardianState.level >= 10 ? 1 : 0)) > 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Daily bounty chest */}
             <div className="flex items-center justify-between bg-zinc-950/60 p-3.5 rounded-2xl border border-white/5">
