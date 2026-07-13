@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 import { comprehensiveItems } from "@/app/lib/comprehensive-items"
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 
 interface InventoryItem {
   id: string
@@ -355,7 +356,8 @@ export function AlchemyLab() {
   }
 
   return (
-    <div className="w-full text-white bg-transparent">
+    <TooltipProvider>
+      <div className="w-full text-white bg-transparent">
       {isLoading ? (
         <div className="flex flex-col items-center justify-center h-96 space-y-4">
           <RefreshCw className="w-10 h-10 text-purple-500 animate-spin" />
@@ -527,28 +529,38 @@ export function AlchemyLab() {
                   const prettyDesc = compItem ? compItem.description : item.description
 
                   return (
-                    <div
-                      key={item.id}
-                      onClick={() => availableQty > 0 && addIngredient(item.id)}
-                      className={`p-4 bg-zinc-900/50 border rounded-2xl flex items-center justify-between cursor-pointer transition-all duration-200 ${
-                        availableQty > 0
-                          ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80 hover:scale-[1.01]"
-                          : "border-zinc-900 opacity-40 cursor-not-allowed"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <span className="text-3xl shrink-0 select-none">{prettyEmoji}</span>
-                        <div className="min-w-0">
-                          <h5 className="font-bold text-sm text-zinc-100 truncate">{prettyName}</h5>
-                          <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1 leading-normal">{prettyDesc}</p>
+                    <Tooltip key={item.id}>
+                      <TooltipTrigger asChild>
+                        <div
+                          onClick={() => availableQty > 0 && addIngredient(item.id)}
+                          className={`p-4 bg-zinc-900/50 border rounded-2xl flex items-center justify-between cursor-pointer transition-all duration-200 ${
+                            availableQty > 0
+                              ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80 hover:scale-[1.01]"
+                              : "border-zinc-900 opacity-40 cursor-not-allowed"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <span className="text-3xl shrink-0 select-none">{prettyEmoji}</span>
+                            <div className="min-w-0">
+                              <h5 className="font-bold text-sm text-zinc-100 truncate">{prettyName}</h5>
+                              <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1 leading-normal">{prettyDesc}</p>
+                            </div>
+                          </div>
+                          <div className="shrink-0 pl-3">
+                            <Badge className="bg-zinc-950 text-purple-300 font-extrabold text-xs px-3 py-1.5 shadow-inner border border-purple-900/20">
+                              {availableQty}
+                            </Badge>
+                          </div>
                         </div>
-                      </div>
-                      <div className="shrink-0 pl-3">
-                        <Badge className="bg-zinc-950 text-purple-300 font-extrabold text-xs px-3 py-1.5 shadow-inner border border-purple-900/20">
-                          {availableQty} available
-                        </Badge>
-                      </div>
-                    </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-zinc-900 border-zinc-800 text-white p-3 rounded-xl max-w-xs shadow-xl z-[9999]">
+                        <div className="space-y-1">
+                          <p className="font-bold text-sm text-amber-400">{prettyName}</p>
+                          <p className="text-xs text-zinc-300 leading-normal">{prettyDesc}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{compItem?.rarity || item.rarity} Reagent</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   )
                 })}
                 {inventory.filter(i => i.id.startsWith('material-')).length === 0 && (
@@ -649,5 +661,6 @@ export function AlchemyLab() {
         </div>
       )}
     </div>
+    </TooltipProvider>
   )
 }
