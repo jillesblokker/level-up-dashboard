@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { AddMilestoneForm } from "@/components/add-milestone-form"
 import { AddChallengeForm } from "@/components/add-challenge-form"
 import { MasteryLedger } from "@/components/mastery-ledger"
-import { AlchemyLab } from "@/components/quests/alchemy-lab"
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
@@ -212,7 +211,7 @@ export default function QuestsPage() {
     }
     return [];
   });
-  const [activeView, setActiveView] = useState<'forge' | 'alchemy' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
+  const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
   const [forgeTab, setForgeTab] = useState<'quests' | 'challenges'>('quests'); // New toggle for Forge
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -222,7 +221,7 @@ export default function QuestsPage() {
   // Sync tab with URL query param
   useEffect(() => {
     const tab = searchParams?.get('tab');
-    if (tab && ['forge', 'alchemy', 'ledger', 'sanctuary', 'recovery'].includes(tab)) {
+    if (tab && ['forge', 'ledger', 'sanctuary', 'recovery'].includes(tab)) {
       setActiveView(tab as any);
     }
   }, [searchParams]);
@@ -2619,10 +2618,6 @@ export default function QuestsPage() {
                   <Sword className="w-4 h-4" />
                   <span>The Forge</span>
                 </TabsTrigger>
-                <TabsTrigger value="alchemy">
-                  <Zap className="w-4 h-4 text-purple-400" />
-                  <span>Alchemy Lab</span>
-                </TabsTrigger>
                 <TabsTrigger value="ledger" disabled={stats.level < 10}>
                   <Flame className="w-4 h-4" />
                   <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
@@ -2637,11 +2632,6 @@ export default function QuestsPage() {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-
-            {/* ALCHEMY LAB */}
-            <div className={activeView === 'alchemy' ? 'block' : 'hidden'}>
-              <AlchemyLab />
-            </div>
 
             {/* THE LEDGER - Mastery Tracking (Preserves scroll position) */}
             <div className={activeView === 'ledger' ? 'block' : 'hidden'}>

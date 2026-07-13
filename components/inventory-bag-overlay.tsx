@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Hammer, Coins, Sword, Shield, ArrowRight } from "lucide-react";
+import { Hammer, Coins, Sword, Shield, ArrowRight, Zap } from "lucide-react";
+import { AlchemyLab } from "@/components/quests/alchemy-lab";
 import { Progress } from "@/components/ui/progress";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 import { useUser } from "@clerk/nextjs";
@@ -795,11 +796,14 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         {/* Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col h-full overflow-hidden">
           <div className="px-6 py-4 border-b border-white/5 bg-[#1a1d24]">
-            <TabsList className="grid grid-cols-3 bg-[#0f1115] border border-white/5 p-1 rounded-xl shadow-inner">
-              <TabsTrigger value="equipped" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-xs font-bold tracking-wide uppercase">Equipped</TabsTrigger>
-              <TabsTrigger value="stored" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-xs font-bold tracking-wide uppercase">Stored</TabsTrigger>
-              <TabsTrigger value="forge" className="rounded-lg data-[state=active]:bg-orange-600 data-[state=active]:text-white transition-all text-xs font-bold tracking-wide uppercase flex items-center gap-2">
+            <TabsList className="grid grid-cols-4 bg-[#0f1115] border border-white/5 p-1 rounded-xl shadow-inner">
+              <TabsTrigger value="equipped" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-[10px] sm:text-xs font-bold tracking-wide uppercase">Equipped</TabsTrigger>
+              <TabsTrigger value="stored" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-all text-[10px] sm:text-xs font-bold tracking-wide uppercase">Stored</TabsTrigger>
+              <TabsTrigger value="forge" className="rounded-lg data-[state=active]:bg-orange-600 data-[state=active]:text-white transition-all text-[10px] sm:text-xs font-bold tracking-wide uppercase flex items-center gap-1 sm:gap-2 justify-center">
                 <Hammer className="w-3 h-3" /> Forge
+              </TabsTrigger>
+              <TabsTrigger value="alchemy" className="rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all text-[10px] sm:text-xs font-bold tracking-wide uppercase flex items-center gap-1 sm:gap-2 justify-center">
+                <Zap className="w-3 h-3 text-purple-200" /> Alchemy
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1172,6 +1176,11 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                   )}
                 </div>
               )}
+            </TabsContent>
+
+            {/* ── ALCHEMY tab ───────────────────────────────────────────── */}
+            <TabsContent value="alchemy" className="mt-4 pb-8">
+              <AlchemyLab />
             </TabsContent>
 
           </ScrollArea>
