@@ -114,7 +114,8 @@ export function AlchemyLab() {
       })
       if (invRes.ok) {
         const invData = await invRes.json()
-        setInventory(invData || [])
+        const items = (invData && invData.success && Array.isArray(invData.data)) ? invData.data : (Array.isArray(invData) ? invData : []);
+        setInventory(items)
       }
 
       // Fetch Active Modifiers
@@ -123,7 +124,8 @@ export function AlchemyLab() {
       })
       if (modRes.ok) {
         const modData = await modRes.json()
-        setActiveModifiers(modData.modifiers || [])
+        const mods = (modData && Array.isArray(modData.modifiers)) ? modData.modifiers : (Array.isArray(modData) ? modData : []);
+        setActiveModifiers(mods)
       }
 
       // Fetch Guardian state
