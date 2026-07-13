@@ -81,6 +81,69 @@ const RECIPES: Recipe[] = [
     buffName: "Aegis Shield",
     buffEffect: "Streak protector active for all daily checkmarks",
     successSpeech: "Sturdy! The Aegis Draught will shield your progress."
+  },
+  {
+    id: "potion-midas",
+    name: "Midas Draught",
+    description: "Shimmering gold dust solution that doubles all gold rewards.",
+    emoji: "🍯",
+    color: "from-yellow-400 to-amber-500",
+    ingredients: [
+      { id: "material-gold", name: "Gold Nuggets", emoji: "🪙", qty: 2 },
+      { id: "material-crystal", name: "Essence Crystal", emoji: "💎", qty: 1 },
+      { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
+    ],
+    durationHours: 12,
+    buffName: "Midas Draught",
+    buffEffect: "+100% Gold from all habits, quests, and challenges",
+    successSpeech: "Astonishing! Everything you touch turns to wealth."
+  },
+  {
+    id: "potion-sage",
+    name: "Sage Brew",
+    description: "Sharpens wisdom to grant an immense experience boost.",
+    emoji: "🍵",
+    color: "from-teal-500 to-emerald-600",
+    ingredients: [
+      { id: "material-logs", name: "Wooden Logs", emoji: "🪵", qty: 2 },
+      { id: "material-crystal", name: "Essence Crystal", emoji: "💎", qty: 1 },
+      { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
+    ],
+    durationHours: 12,
+    buffName: "Sage Brew",
+    buffEffect: "+50% Experience from all habits and challenges",
+    successSpeech: "Inspiring! The Sage Brew expands your mind's horizon."
+  },
+  {
+    id: "potion-ironheart",
+    name: "Ironheart Tonic",
+    description: "Infuses blood with iron to boost maximum health.",
+    emoji: "🧪",
+    color: "from-blue-600 to-slate-700",
+    ingredients: [
+      { id: "material-steel", name: "Steel Ingots", emoji: "⚔️", qty: 2 },
+      { id: "material-stone", name: "Cobblestone", emoji: "🪨", qty: 2 },
+      { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
+    ],
+    durationHours: 24,
+    buffName: "Ironheart Buff",
+    buffEffect: "+50 Max HP boost applied for 24 hours",
+    successSpeech: "Indestructible! Your body now resists maximum pain."
+  },
+  {
+    id: "potion-mercury",
+    name: "Mercury Elixir",
+    description: "Liquid silver mixture to speed up focus and coordination.",
+    emoji: "🔮",
+    color: "from-slate-400 to-zinc-600",
+    ingredients: [
+      { id: "material-silver", name: "Silver Ore", emoji: "✨", qty: 2 },
+      { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
+    ],
+    durationHours: 24,
+    buffName: "Mercury Agility",
+    buffEffect: "+20% Quest speed reduction (12 hour cooldowns reduced)",
+    successSpeech: "Speedy! Liquid silver coordinates your reactions."
   }
 ]
 
@@ -250,7 +313,7 @@ export function AlchemyLab() {
 
     // Match cauldron items with recipes
     const matched = RECIPES.find(recipe => {
-      if (Object.keys(recipe.ingredients).length !== Object.keys(cauldron).length) return false
+      if (recipe.ingredients.length !== Object.keys(cauldron).length) return false
       return recipe.ingredients.every(req => cauldron[req.id] === req.qty)
     })
 
@@ -261,7 +324,6 @@ export function AlchemyLab() {
         setBrewState("error")
         setPetSpeech("KABOOM! 💥 That was a volatile mixture. Be careful!")
         setCauldron({})
-        setTimeout(() => setBrewState("idle"), 4000)
       }, 2500)
       return
     }
@@ -465,7 +527,7 @@ export function AlchemyLab() {
                 </Button>
               </div>
 
-              {/* Success Potion Overlay Popup */}
+              {/* Brewing Overlay Popups */}
               <AnimatePresence>
                 {brewState === "success" && brewedPotion && (
                   <motion.div
@@ -484,9 +546,32 @@ export function AlchemyLab() {
                         setBrewState("idle")
                         setBrewedPotion(null)
                       }}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg"
                     >
                       Collect Potion
+                    </Button>
+                  </motion.div>
+                )}
+
+                {brewState === "error" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute inset-0 bg-black/95 flex flex-col items-center justify-center p-6 z-20 text-center"
+                  >
+                    <div className="p-6 rounded-full bg-red-500/10 border-2 border-red-500 text-red-400 text-5xl mb-4 animate-bounce">
+                      💥
+                    </div>
+                    <h3 className="font-serif text-xl font-bold text-white mb-1">Brewing Failed!</h3>
+                    <p className="text-xs text-zinc-400 mb-6 max-w-xs leading-normal">
+                      The combination of reagents was unstable. The reaction collapsed into ash. Please check the Known Recipes ledger for correct element counts!
+                    </p>
+                    <Button
+                      onClick={() => setBrewState("idle")}
+                      className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/5 shadow-lg"
+                    >
+                      Clear Cauldron Ash
                     </Button>
                   </motion.div>
                 )}

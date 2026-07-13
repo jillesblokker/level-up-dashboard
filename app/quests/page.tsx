@@ -1143,8 +1143,14 @@ export default function QuestsPage() {
     const isBossHabit = questId === bossQuestId;
     const isFocusActive = activeModifiers.some(m => m.name === 'Elixir of Focus');
     const isDreadActive = activeModifiers.some(m => m.name === 'Dread Tonic');
-    const goldReward = Math.floor((questObj.gold || 50) * (isBossHabit ? 3 : 1) * (isDreadActive ? 1.50 : 1.0));
-    const xpReward = Math.floor((questObj.xp || 25) * (isBossHabit ? 3 : 1) * (isFocusActive ? 1.25 : 1.0));
+    const isMidasActive = activeModifiers.some(m => m.name === 'Midas Draught');
+    const isSageActive = activeModifiers.some(m => m.name === 'Sage Brew');
+    
+    const goldMultiplier = isMidasActive ? 2.0 : (isDreadActive ? 1.50 : 1.0);
+    const xpMultiplier = isSageActive ? 1.50 : (isFocusActive ? 1.25 : 1.0);
+
+    const goldReward = Math.floor((questObj.gold || 50) * (isBossHabit ? 3 : 1) * goldMultiplier);
+    const xpReward = Math.floor((questObj.xp || 25) * (isBossHabit ? 3 : 1) * xpMultiplier);
 
     if (newCompleted) {
       logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
@@ -1462,8 +1468,14 @@ export default function QuestsPage() {
       const baseXP = challengeObj.xp || 25;
       const isFocusActive = activeModifiers.some(m => m.name === 'Elixir of Focus');
       const isDreadActive = activeModifiers.some(m => m.name === 'Dread Tonic');
-      const goldReward = Math.floor((isMilestone ? Math.floor(baseGold * 1.5) : baseGold) * (isDreadActive ? 1.50 : 1.0));
-      const xpReward = Math.floor((isMilestone ? Math.floor(baseXP * 1.5) : baseXP) * (isFocusActive ? 1.25 : 1.0));
+      const isMidasActive = activeModifiers.some(m => m.name === 'Midas Draught');
+      const isSageActive = activeModifiers.some(m => m.name === 'Sage Brew');
+      
+      const goldMultiplier = isMidasActive ? 2.0 : (isDreadActive ? 1.50 : 1.0);
+      const xpMultiplier = isSageActive ? 1.50 : (isFocusActive ? 1.25 : 1.0);
+
+      const goldReward = Math.floor((isMilestone ? Math.floor(baseGold * 1.5) : baseGold) * goldMultiplier);
+      const xpReward = Math.floor((isMilestone ? Math.floor(baseXP * 1.5) : baseXP) * xpMultiplier);
 
       logger.debug('[CHALLENGE-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
