@@ -361,231 +361,223 @@ export function AlchemyLab() {
           <p className="text-zinc-500 font-serif text-sm">Entering the Laboratory...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="flex flex-col space-y-6 w-full pb-8">
           
-          {/* LEFT COLUMN: Cauldron and Companion (7 cols on desktop) */}
-          <div className="lg:col-span-7 flex flex-col space-y-6">
-            
-            {/* CAULDRON CARD */}
-            <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl relative overflow-hidden rounded-3xl">
-              <CardHeader className="border-b border-white/5 pb-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="font-serif text-lg text-white">Alchemist&apos;s Cauldron</CardTitle>
-                    <CardDescription className="text-zinc-400 text-xs">Drop reagents inside to brew booster elixirs</CardDescription>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearCauldron}
-                    disabled={brewState === "brewing" || Object.keys(cauldron).length === 0}
-                    className="text-zinc-500 hover:text-red-400 text-xs font-bold flex items-center gap-1.5"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" /> Reset Pot
-                  </Button>
+          {/* 1. CAULDRON CARD */}
+          <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl relative overflow-hidden rounded-3xl w-full">
+            <CardHeader className="border-b border-white/5 pb-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="font-serif text-lg text-white">Alchemist&apos;s Cauldron</CardTitle>
+                  <CardDescription className="text-zinc-400 text-xs">Drop reagents inside to brew booster elixirs</CardDescription>
                 </div>
-              </CardHeader>
-              <CardContent className="p-8 flex flex-col items-center relative min-h-[380px]">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearCauldron}
+                  disabled={brewState === "brewing" || Object.keys(cauldron).length === 0}
+                  className="text-zinc-500 hover:text-red-400 text-xs font-bold flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Reset Pot
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-8 flex flex-col items-center relative min-h-[380px]">
+              
+              {/* Cauldron Liquid area */}
+              <div className="relative w-64 h-64 flex items-center justify-center select-none">
                 
-                {/* Cauldron Liquid area */}
-                <div className="relative w-64 h-64 flex items-center justify-center select-none">
-                  
-                  {/* Glowing cauldron backdrop */}
-                  <div className={`absolute inset-0 rounded-full blur-2xl opacity-20 transition-colors duration-1000 ${
-                    brewState === "idle" ? "bg-purple-600" :
-                    brewState === "brewing" ? "bg-amber-500 animate-pulse" :
-                    brewState === "success" ? "bg-emerald-500" : "bg-red-800"
+                {/* Glowing cauldron backdrop */}
+                <div className={`absolute inset-0 rounded-full blur-2xl opacity-20 transition-colors duration-1000 ${
+                  brewState === "idle" ? "bg-purple-600" :
+                  brewState === "brewing" ? "bg-amber-500 animate-pulse" :
+                  brewState === "success" ? "bg-emerald-500" : "bg-red-800"
+                }`} />
+
+                {/* Animated Steam particles */}
+                <AnimatePresence>
+                  {brewState !== "error" && renderCauldronBubbles()}
+                </AnimatePresence>
+
+                {/* Cauldron Pot Graphic (HTML styled) */}
+                <motion.div
+                  animate={brewState === "brewing" ? {
+                    x: [0, -4, 4, -4, 4, 0],
+                    y: [0, 2, -2, 2, -2, 0]
+                  } : {}}
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                  className="absolute bottom-2 w-52 h-44 bg-zinc-950 border-4 border-zinc-800 rounded-b-[80px] rounded-t-[20px] shadow-2xl flex flex-col items-center justify-start overflow-hidden pt-4"
+                >
+                  {/* Boiling Liquid surface */}
+                  <div className={`w-full h-8 absolute top-0 left-0 transition-colors duration-1000 ${
+                    brewState === "idle" ? "bg-purple-950/80 border-b border-purple-500/30" :
+                    brewState === "brewing" ? "bg-yellow-950/90 border-b border-yellow-500/40" :
+                    brewState === "success" ? "bg-emerald-950/90 border-b border-emerald-500/40" :
+                    "bg-red-950/90 border-b border-red-500/40"
                   }`} />
 
-                  {/* Animated Steam particles */}
-                  <AnimatePresence>
-                    {brewState !== "error" && renderCauldronBubbles()}
-                  </AnimatePresence>
-
-                  {/* Cauldron Pot Graphic (HTML styled) */}
-                  <motion.div
-                    animate={brewState === "brewing" ? {
-                      x: [0, -4, 4, -4, 4, 0],
-                      y: [0, 2, -2, 2, -2, 0]
-                    } : {}}
-                    transition={{ duration: 0.5, repeat: Infinity }}
-                    className="absolute bottom-2 w-52 h-44 bg-zinc-950 border-4 border-zinc-800 rounded-b-[80px] rounded-t-[20px] shadow-2xl flex flex-col items-center justify-start overflow-hidden pt-4"
-                  >
-                    {/* Boiling Liquid surface */}
-                    <div className={`w-full h-8 absolute top-0 left-0 transition-colors duration-1000 ${
-                      brewState === "idle" ? "bg-purple-950/80 border-b border-purple-500/30" :
-                      brewState === "brewing" ? "bg-yellow-950/90 border-b border-yellow-500/40" :
-                      brewState === "success" ? "bg-emerald-950/90 border-b border-emerald-500/40" :
-                      "bg-red-950/90 border-b border-red-500/40"
-                    }`} />
-
-                    {/* Display floating ingredients loaded in cauldron */}
-                    <div className="flex gap-2 flex-wrap max-w-[80%] justify-center z-10 mt-6 select-none">
-                      {Object.entries(cauldron).map(([id, qty]) => {
-                        const item = inventory.find(i => i.id === id)
-                        return (
-                          <motion.button
-                            key={id}
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            onClick={() => removeIngredient(id)}
-                            className="px-2 py-1 bg-zinc-900 border border-white/5 rounded-lg flex items-center gap-1 hover:border-red-500/30 group"
-                          >
-                            <span className="text-sm">{item?.emoji || "📦"}</span>
-                            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-red-400">x{qty}</span>
-                          </motion.button>
-                        )
-                      })}
-                      {Object.keys(cauldron).length === 0 && brewState === "idle" && (
-                        <span className="text-zinc-600 text-xs italic font-serif mt-4">Cauldron is empty...</span>
-                      )}
-                    </div>
-                  </motion.div>
-
-                  {/* Cauldron base flame */}
-                  <div className="absolute -bottom-4 flex justify-center w-full">
-                    <Flame className="w-10 h-10 text-orange-600 animate-pulse" />
-                    <Flame className="w-8 h-8 text-yellow-500 animate-bounce -ml-2" />
+                  {/* Display floating ingredients loaded in cauldron */}
+                  <div className="flex gap-2 flex-wrap max-w-[80%] justify-center z-10 mt-6 select-none">
+                    {Object.entries(cauldron).map(([id, qty]) => {
+                      const item = inventory.find(i => i.id === id)
+                      return (
+                        <motion.button
+                          key={id}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          onClick={() => removeIngredient(id)}
+                          className="px-2 py-1 bg-zinc-900 border border-white/5 rounded-lg flex items-center gap-1 hover:border-red-500/30 group"
+                        >
+                          <span className="text-sm">{item?.emoji || "📦"}</span>
+                          <span className="text-[10px] font-bold text-zinc-400 group-hover:text-red-400">x{qty}</span>
+                        </motion.button>
+                      )
+                    })}
+                    {Object.keys(cauldron).length === 0 && brewState === "idle" && (
+                      <span className="text-zinc-600 text-xs italic font-serif mt-4">Cauldron is empty...</span>
+                    )}
                   </div>
-                </div>
+                </motion.div>
 
-                {/* Brew Trigger Action */}
-                <div className="mt-8 z-10">
-                  <Button
-                    onClick={brewCauldron}
-                    disabled={brewState === "brewing" || Object.keys(cauldron).length === 0}
-                    className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
-                      Object.keys(cauldron).length === 0
-                        ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
-                        : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-500/20 hover:scale-105"
-                    }`}
-                  >
-                    {brewState === "brewing" ? "Brewing..." : "Brew Cauldron"}
-                  </Button>
-                </div>
-
-                {/* Success Potion Overlay Popup */}
-                <AnimatePresence>
-                  {brewState === "success" && brewedPotion && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="absolute inset-0 bg-black/95 flex flex-col items-center justify-center p-6 z-20"
-                    >
-                      <div className="p-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-400 text-5xl mb-4 animate-bounce">
-                        {brewedPotion.emoji}
-                      </div>
-                      <h3 className="font-serif text-xl font-bold text-white mb-1">{brewedPotion.name} Successfully Brewed!</h3>
-                      <p className="text-xs text-zinc-400 mb-4">{brewedPotion.buffEffect}</p>
-                      <Button
-                        onClick={() => {
-                          setBrewState("idle")
-                          setBrewedPotion(null)
-                        }}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        Collect Potion
-                      </Button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-
-            {/* COMPANION PET PANEL */}
-            {guardian && (
-              <div className="p-4 bg-zinc-950/70 border border-amber-900/30 rounded-3xl flex items-center gap-4 relative">
-                <div className="text-5xl select-none animate-bounce flex-shrink-0" style={{ animationDuration: '3s' }}>
-                  {guardian.emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[9px] uppercase tracking-wider font-extrabold text-zinc-500">{guardian.name} (Lvl {guardian.level})</span>
-                  <div className="relative mt-1 bg-zinc-900/50 border border-white/5 p-3 rounded-2xl text-xs font-serif italic text-zinc-300">
-                    <div className="absolute left-4 -top-1.5 w-3 h-3 bg-zinc-900/50 border-l border-t border-white/5 transform rotate-45" />
-                    &ldquo;{petSpeech}&rdquo;
-                  </div>
+                {/* Cauldron base flame */}
+                <div className="absolute -bottom-4 flex justify-center w-full">
+                  <Flame className="w-10 h-10 text-orange-600 animate-pulse" />
+                  <Flame className="w-8 h-8 text-yellow-500 animate-bounce -ml-2" />
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* RIGHT COLUMN: Recipes & Inventory (5 cols on desktop) */}
-          <div className="lg:col-span-5 flex flex-col space-y-6">
-            
-            {/* REAGENTS INVENTORY CARD */}
-            <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl">
-              <CardHeader className="border-b border-white/5 pb-4">
-                <CardTitle className="font-serif text-sm text-white">Your Reagent Bag</CardTitle>
-                <CardDescription className="text-zinc-400 text-xs">Ingredients collected from daily checkmarks</CardDescription>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-2 gap-3">
-                  {inventory.filter(i => i.id.startsWith('material-')).map(item => {
-                    const qtyInCauldron = cauldron[item.id] || 0
-                    const availableQty = item.quantity - qtyInCauldron
+              {/* Brew Trigger Action */}
+              <div className="mt-8 z-10">
+                <Button
+                  onClick={brewCauldron}
+                  disabled={brewState === "brewing" || Object.keys(cauldron).length === 0}
+                  className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
+                    Object.keys(cauldron).length === 0
+                      ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
+                      : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-500/20 hover:scale-105"
+                  }`}
+                >
+                  {brewState === "brewing" ? "Brewing..." : "Brew Cauldron"}
+                </Button>
+              </div>
 
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => availableQty > 0 && addIngredient(item.id)}
-                        className={`p-3 bg-zinc-900/40 border rounded-2xl flex items-center justify-between cursor-pointer transition-all ${
-                          availableQty > 0
-                            ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80"
-                            : "border-zinc-900 opacity-40 cursor-not-allowed"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-2xl">{item.emoji}</span>
-                          <div className="min-w-0">
-                            <h5 className="font-bold text-xs text-white truncate">{item.name}</h5>
-                            <p className="text-[9px] text-zinc-500 capitalize">{item.rarity}</p>
-                          </div>
-                        </div>
-                        <Badge className="bg-zinc-950 text-zinc-300 font-extrabold text-xs">
-                          {availableQty}
-                        </Badge>
-                      </div>
-                    )
-                  })}
-                  {inventory.filter(i => i.id.startsWith('material-')).length === 0 && (
-                    <div className="col-span-2 py-6 text-center text-zinc-600 text-xs italic font-serif">
-                      Your bag is currently empty. Complete daily habits to gather reagents!
+              {/* Success Potion Overlay Popup */}
+              <AnimatePresence>
+                {brewState === "success" && brewedPotion && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute inset-0 bg-black/95 flex flex-col items-center justify-center p-6 z-20"
+                  >
+                    <div className="p-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-400 text-5xl mb-4 animate-bounce">
+                      {brewedPotion.emoji}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    <h3 className="font-serif text-xl font-bold text-white mb-1">{brewedPotion.name} Successfully Brewed!</h3>
+                    <p className="text-xs text-zinc-400 mb-4">{brewedPotion.buffEffect}</p>
+                    <Button
+                      onClick={() => {
+                        setBrewState("idle")
+                        setBrewedPotion(null)
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      Collect Potion
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
 
-            {/* RECIPES CARD */}
-            <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl">
-              <CardHeader className="border-b border-white/5 pb-4">
-                <CardTitle className="font-serif text-sm text-white">Known Recipes</CardTitle>
-                <CardDescription className="text-zinc-400 text-xs">Formulas to brew active temporary buffs</CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
+          {/* COMPANION PET PANEL */}
+          {guardian && (
+            <div className="p-4 bg-zinc-950/70 border border-amber-900/30 rounded-3xl flex items-center gap-4 relative w-full">
+              <div className="text-5xl select-none animate-bounce flex-shrink-0" style={{ animationDuration: '3s' }}>
+                {guardian.emoji}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[9px] uppercase tracking-wider font-extrabold text-zinc-500">{guardian.name} (Lvl {guardian.level})</span>
+                <div className="relative mt-1 bg-zinc-900/50 border border-white/5 p-3 rounded-2xl text-xs font-serif italic text-zinc-300">
+                  <div className="absolute left-4 -top-1.5 w-3 h-3 bg-zinc-900/50 border-l border-t border-white/5 transform rotate-45" />
+                  &ldquo;{petSpeech}&rdquo;
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2. REAGENTS INVENTORY CARD */}
+          <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
+            <CardHeader className="border-b border-white/5 pb-4">
+              <CardTitle className="font-serif text-sm text-white">Your Reagent Bag</CardTitle>
+              <CardDescription className="text-zinc-400 text-xs">Ingredients collected from daily checkmarks (Click to add to cauldron)</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {inventory.filter(i => i.id.startsWith('material-')).map(item => {
+                  const qtyInCauldron = cauldron[item.id] || 0
+                  const availableQty = item.quantity - qtyInCauldron
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => availableQty > 0 && addIngredient(item.id)}
+                      className={`p-3 bg-zinc-900/40 border rounded-2xl flex items-center justify-between cursor-pointer transition-all ${
+                        availableQty > 0
+                          ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80"
+                          : "border-zinc-900 opacity-40 cursor-not-allowed"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-2xl">{item.emoji}</span>
+                        <div className="min-w-0">
+                          <h5 className="font-bold text-xs text-white truncate">{item.name}</h5>
+                          <p className="text-[9px] text-zinc-500 capitalize">{item.rarity}</p>
+                        </div>
+                      </div>
+                      <Badge className="bg-zinc-950 text-zinc-300 font-extrabold text-xs">
+                        {availableQty}
+                      </Badge>
+                    </div>
+                  )
+                })}
+                {inventory.filter(i => i.id.startsWith('material-')).length === 0 && (
+                  <div className="col-span-full py-6 text-center text-zinc-600 text-xs italic font-serif">
+                    Your bag is currently empty. Complete daily habits to gather reagents!
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 3. RECIPES CARD */}
+          <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
+            <CardHeader className="border-b border-white/5 pb-4">
+              <CardTitle className="font-serif text-sm text-white">Known Recipes</CardTitle>
+              <CardDescription className="text-zinc-400 text-xs">Formulas to brew active temporary buffs (Click recipe to auto-load slots)</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {RECIPES.map(recipe => {
                   return (
                     <div
                       key={recipe.id}
                       onClick={() => selectRecipe(recipe)}
-                      className="p-3.5 bg-zinc-900/40 border border-white/5 hover:border-purple-500/30 rounded-2xl transition-all cursor-pointer group"
+                      className="p-3.5 bg-zinc-900/40 border border-white/5 hover:border-purple-500/30 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${recipe.color} text-white text-xl shadow-md`}>
-                            {recipe.emoji}
-                          </div>
-                          <div>
-                            <h5 className="font-bold text-xs text-white group-hover:text-purple-400 transition-colors">{recipe.name}</h5>
-                            <p className="text-[10px] text-zinc-400 leading-normal mt-0.5">{recipe.description}</p>
-                          </div>
+                      <div className="flex items-start gap-3">
+                        <div className={`p-2.5 rounded-xl bg-gradient-to-br ${recipe.color} text-white text-xl shadow-md shrink-0`}>
+                          {recipe.emoji}
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-xs text-white group-hover:text-purple-400 transition-colors">{recipe.name}</h5>
+                          <p className="text-[10px] text-zinc-400 leading-normal mt-0.5">{recipe.description}</p>
                         </div>
                       </div>
 
                       {/* Ingredients Requirements list */}
-                      <div className="flex gap-2 flex-wrap mt-3 border-t border-white/5 pt-2.5">
+                      <div className="flex gap-1.5 flex-wrap mt-3 border-t border-white/5 pt-2.5">
                         {recipe.ingredients.map(req => {
                           const invItem = inventory.find(i => i.id === req.id)
                           const currentQty = invItem ? invItem.quantity : 0
@@ -595,7 +587,7 @@ export function AlchemyLab() {
                             <Badge
                               key={req.id}
                               variant="outline"
-                              className={`text-[10px] font-bold py-0.5 px-2 rounded-full flex items-center gap-1 border ${
+                              className={`text-[9px] font-bold py-0.5 px-2 rounded-full flex items-center gap-1 border ${
                                 isMet ? "border-emerald-900/20 bg-emerald-500/10 text-emerald-400" : "border-red-900/20 bg-red-500/10 text-red-400"
                               }`}
                             >
@@ -608,16 +600,18 @@ export function AlchemyLab() {
                     </div>
                   )
                 })}
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* ACTIVE POTIONS CARD */}
-            <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl">
-              <CardHeader className="border-b border-white/5 pb-4">
-                <CardTitle className="font-serif text-sm text-white">Active Modifiers</CardTitle>
-                <CardDescription className="text-zinc-400 text-xs">Potions currently granting multipliers</CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 space-y-2.5">
+          {/* 4. ACTIVE POTIONS CARD */}
+          <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
+            <CardHeader className="border-b border-white/5 pb-4">
+              <CardTitle className="font-serif text-sm text-white">Active Modifiers</CardTitle>
+              <CardDescription className="text-zinc-400 text-xs">Potions currently granting multipliers</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {activeModifiers.map((mod, idx) => (
                   <div key={idx} className="p-3 bg-zinc-900/40 border border-white/5 rounded-2xl flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -635,14 +629,13 @@ export function AlchemyLab() {
                   </div>
                 ))}
                 {activeModifiers.length === 0 && (
-                  <div className="py-4 text-center text-zinc-600 text-xs italic font-serif">
+                  <div className="col-span-full py-4 text-center text-zinc-600 text-xs italic font-serif">
                     No active elixirs or tonics. Stir the cauldron to brew!
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
         </div>
       )}
