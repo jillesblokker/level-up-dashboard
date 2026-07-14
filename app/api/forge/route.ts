@@ -102,16 +102,6 @@ const FORGE_RECIPES: Recipe[] = [
     materials: [
       { itemId: 'armor-darko', quantity: 1 },
       { itemId: 'material-silver', quantity: 8 },
-      { itemId: 'material-crystal', quantity: 4 }
-    ]
-  },
-  {
-    id: 'craft-potion-exp',
-    targetItemId: 'potion-exp',
-    goldCost: 50,
-    materials: [
-      { itemId: 'material-crystal', quantity: 3 },
-      { itemId: 'food-red', quantity: 1 }
     ]
   }
 ];

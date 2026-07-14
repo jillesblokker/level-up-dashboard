@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from '@/lib/utils';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Hammer, Coins, Sword, Shield, ArrowRight, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Hammer, Coins, Sword, Shield, ArrowRight, Zap, Sparkles, RefreshCw, Flame, Check } from "lucide-react";
 import { AlchemyLab } from "@/components/quests/alchemy-lab";
 import { Progress } from "@/components/ui/progress";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
@@ -90,7 +92,6 @@ const FORGE_RECIPES: Recipe[] = [
       { itemId: 'material-silver', quantity: 8 },
       { itemId: 'material-crystal', quantity: 4 }
     ] },
-  { id: 'craft-potion-exp',       targetItemId: 'potion-exp',       goldCost: 50,  materials: [{ itemId: 'material-crystal', quantity: 3 }, { itemId: 'food-red', quantity: 1 }] },
 ];
 
 const ITEM_CATEGORIES = [
@@ -127,6 +128,12 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   const [selectedUpgradeItem, setSelectedUpgradeItem] = useState<KingdomInventoryItem | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [floatingCosts, setFloatingCosts] = useState<{ id: number, x: number, y: number, text: string }[]>([]);
+
+  // Anvil Forge State
+  const [unlockedForgeRecipes, setUnlockedForgeRecipes] = useState<string[]>(['craft-sword-irony', 'craft-shield-defecto', 'craft-armor-darko']);
+  const [anvil, setAnvil] = useState<Record<string, number>>({});
+  const [forgeState, setForgeState] = useState<'idle' | 'crafting' | 'success' | 'error'>('idle');
+  const [forgedItem, setForgedItem] = useState<{ name: string; emoji: string; rarity: string } | null>(null);
 
   const isInventoryLoadingRef = useRef(false);
 
@@ -261,20 +268,36 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     }
   }, [user?.id]);
 
+  const loadForgeData = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const prefUnlocked = await getUserPreference('unlocked_forge_recipes');
+      if (Array.isArray(prefUnlocked)) {
+        setUnlockedForgeRecipes(Array.from(new Set(['craft-sword-irony', 'craft-shield-defecto', 'craft-armor-darko', ...prefUnlocked])));
+      } else {
+        setUnlockedForgeRecipes(['craft-sword-irony', 'craft-shield-defecto', 'craft-armor-darko']);
+      }
+    } catch (e) {
+      logger.error('Error loading unlocked forge recipes:', e);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
     if (open) {
       loadInventory();
+      loadForgeData();
     }
-  }, [open, loadInventory]);
+  }, [open, loadInventory, loadForgeData]);
 
   useEffect(() => {
     const handleUpdate = () => {
       // Re-fetch when the inventory updates
       loadInventory();
+      loadForgeData();
     };
     window.addEventListener('character-inventory-update', handleUpdate);
     return () => window.removeEventListener('character-inventory-update', handleUpdate);
-  }, [loadInventory]);
+  }, [loadInventory, loadForgeData]);
 
   // --- Actions ---
 
@@ -411,33 +434,175 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     }
   };
 
-  const handleCraft = async (recipe: Recipe) => {
-    if (!user?.id || isCrafting) return;
+  const addMaterialToAnvil = (id: string) => {
+    if (forgeState === 'crafting') return;
+    // Find item/material in stored items
+    const item = storedItems.find(i => i.id === id || i.dbId === id);
+    if (!item) return;
+    const totalQty = item.quantity;
+    const currentQtyOnAnvil = anvil[id] || 0;
+    if (currentQtyOnAnvil >= totalQty) {
+      toast({
+        title: "Limit Reached",
+        description: `You only have ${totalQty}x ${item.name} in your bag.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    setAnvil(prev => ({
+      ...prev,
+      [id]: currentQtyOnAnvil + 1
+    }));
+  };
+
+  const removeMaterialFromAnvil = (id: string) => {
+    if (forgeState === 'crafting') return;
+    setAnvil(prev => {
+      const copy = { ...prev };
+      const val = copy[id] || 0;
+      if (val <= 1) {
+        delete copy[id];
+      } else {
+        copy[id] = val - 1;
+      }
+      return copy;
+    });
+  };
+
+  const clearAnvil = () => {
+    if (forgeState === 'crafting') return;
+    setAnvil({});
+  };
+
+  const selectForgeRecipe = (recipe: Recipe) => {
+    if (forgeState === 'crafting') return;
+
+    // Verify ingredients and base items are in inventory
+    const missing: string[] = [];
+    recipe.materials.forEach(req => {
+      // Find item in stored items
+      const item = storedItems.find(i => i.id === req.itemId);
+      const currentQty = anvil[req.itemId] || 0;
+      if (!item || item.quantity < (currentQty + req.quantity)) {
+        const itemComp = comprehensiveItems.find(c => c.id === req.itemId);
+        const name = itemComp ? itemComp.name : req.itemId;
+        missing.push(`${req.quantity}x ${name} (have ${item ? item.quantity - currentQty : 0} available)`);
+      }
+    });
+
+    if (missing.length > 0) {
+      toast({
+        title: "Materials Limit Reached",
+        description: `Cannot load ingredients. Missing: ${missing.join(", ")}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add recipe materials to anvil
+    setAnvil(prev => {
+      const copy = { ...prev };
+      recipe.materials.forEach(req => {
+        copy[req.itemId] = (copy[req.itemId] || 0) + req.quantity;
+      });
+      return copy;
+    });
+
+    toast({
+      title: "Materials Loaded",
+      description: `Loaded ingredients for ${comprehensiveItems.find(i => i.id === recipe.targetItemId)?.name || 'item'} onto the anvil.`
+    });
+  };
+
+  const forgeAnvilItem = async () => {
+    if (forgeState === 'crafting' || Object.keys(anvil).length === 0) return;
+
+    // Find matching recipe
+    let matched: Recipe | null = null;
+    for (const recipe of FORGE_RECIPES) {
+      if (recipe.materials.length !== Object.keys(anvil).length) continue;
+      const isMatch = recipe.materials.every(req => (anvil[req.itemId] || 0) === req.quantity);
+      if (isMatch) {
+        matched = recipe;
+        break;
+      }
+    }
+
+    if (!matched) {
+      setForgeState('crafting');
+      setTimeout(() => {
+        setForgeState('error');
+        setAnvil({});
+        toast({
+          title: "Forging Failed!",
+          description: "The combination of materials on the anvil does not match any blueprints.",
+          variant: "destructive"
+        });
+      }, 2000);
+      return;
+    }
+
+    // Check gold cost
+    if (playerGold < matched.goldCost) {
+      toast({
+        title: "Insufficient Gold",
+        description: `You need ${matched.goldCost}g to forge this item, but you only have ${playerGold}g.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      setIsCrafting(recipe.id);
+      setForgeState('crafting');
       const response = await fetch('/api/forge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipeId: recipe.id })
+        body: JSON.stringify({ recipeId: matched.id })
       });
 
-      if (!response.ok) throw new Error('Failed to forge item');
+      if (!response.ok) {
+        const errorJson = await response.json();
+        throw new Error(errorJson.error || 'Failed to forge item');
+      }
 
-      toast({
-        title: "Forging Successful!",
-        description: "Your new item has been crafted.",
-      });
+      const result = await response.json();
+      const targetItem = comprehensiveItems.find(i => i.id === matched?.targetItemId);
 
-      window.dispatchEvent(new Event('character-inventory-update'));
+      setTimeout(async () => {
+        setForgeState('success');
+        setForgedItem({
+          name: targetItem?.name || matched?.targetItemId || 'Forged Item',
+          emoji: targetItem?.emoji || '🔨',
+          rarity: targetItem?.rarity || 'common'
+        });
+        setAnvil({});
+
+        // Unlock recipe if not already unlocked
+        if (matched && !unlockedForgeRecipes.includes(matched.id)) {
+          const nextUnlocked = [...unlockedForgeRecipes, matched.id];
+          setUnlockedForgeRecipes(nextUnlocked);
+          try {
+            await setUserPreference('unlocked_forge_recipes', nextUnlocked);
+          } catch (e) {
+            logger.error('Error saving unlocked forge recipes preference:', e);
+          }
+        }
+
+        // Re-load inventory/gold
+        loadInventory();
+        window.dispatchEvent(new Event('character-inventory-update'));
+      }, 2500);
+
     } catch (error: any) {
-      logger.error('[Bag] Forge Error:', error);
-      toast({
-        title: "Forging Failed",
-        description: error.message || "Could not craft this item.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCrafting(null);
+      logger.error('[Forge] Forge error:', error);
+      setTimeout(() => {
+        setForgeState('error');
+        toast({
+          title: "Forging Error",
+          description: error.message || "Failed to forge item.",
+          variant: "destructive"
+        });
+      }, 2500);
     }
   };
 
@@ -769,6 +934,42 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     );
   };
 
+  const renderAnvilSparks = () => {
+    const sparkColors = {
+      idle: "bg-orange-500/30 shadow-[0_0_4px_rgba(249,115,22,0.3)]",
+      crafting: "bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse",
+      success: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]",
+      error: "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+    };
+
+    return Array.from({ length: 15 }).map((_, i) => (
+      <motion.div
+        key={i}
+        className={cn("absolute rounded-full", sparkColors[forgeState])}
+        style={{
+          width: Math.random() * 4 + 2,
+          height: Math.random() * 4 + 2,
+          left: `${Math.random() * 60 + 20}%`,
+          bottom: `55%`
+        }}
+        animate={forgeState === "crafting" ? {
+          x: [0, (Math.random() - 0.5) * 160],
+          y: [0, -Math.random() * 100 - 50],
+          opacity: [0, 1, 0],
+          scale: [1, 1.5, 0.2]
+        } : {
+          y: [0, -10],
+          opacity: [0, 0.4, 0]
+        }}
+        transition={{
+          duration: Math.random() * 0.8 + 0.5,
+          repeat: Infinity,
+          delay: Math.random() * 0.5
+        }}
+      />
+    ));
+  };
+
   if (!open) return null;
 
   return (
@@ -904,76 +1105,344 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               </div>
 
               {forgeSubTab === 'craft' ? (
-                <div className="space-y-3 pb-8">
-                  {FORGE_RECIPES.map(recipe => {
-                    const item = comprehensiveItems.find(i => i.id === recipe.targetItemId);
-                    if (!item) return null;
-                    const canCraft = playerGold >= recipe.goldCost &&
-                      recipe.materials.every(req => getOwnedQty(req.itemId) >= req.quantity);
+                <div className="flex flex-col space-y-6 w-full pb-8">
+                  {/* 1. ANVIL CARD */}
+                  <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl relative overflow-hidden rounded-3xl w-full">
+                    <CardHeader className="border-b border-white/5 pb-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <CardTitle className="font-serif text-lg text-white">Anvil Station</CardTitle>
+                          <CardDescription className="text-zinc-400 text-xs">Place materials on the anvil to craft equipment</CardDescription>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearAnvil}
+                          disabled={forgeState === "crafting" || Object.keys(anvil).length === 0}
+                          className="text-zinc-500 hover:text-red-400 text-xs font-bold flex items-center gap-1.5"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" /> Clear Anvil
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-8 flex flex-col items-center relative min-h-[380px]">
+                      
+                      {/* Anvil Area */}
+                      <div className="relative w-64 h-64 flex items-center justify-center select-none">
+                        
+                        {/* Glowing backdrop */}
+                        <div className={`absolute inset-0 rounded-full blur-2xl opacity-20 transition-colors duration-1000 ${
+                          forgeState === "idle" ? "bg-orange-600" :
+                          forgeState === "crafting" ? "bg-yellow-500 animate-pulse" :
+                          forgeState === "success" ? "bg-emerald-500" : "bg-red-800"
+                        }`} />
 
-                    return (
-                      <div
-                        key={recipe.id}
-                        className={cn(
-                          'p-4 rounded-xl border transition-all',
-                          canCraft
-                            ? 'bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-400/50'
-                            : 'bg-[#0f1115] border-white/5'
-                        )}
-                      >
-                        <div className="flex gap-3 items-start">
-                          <div className="w-12 h-12 shrink-0 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center text-2xl">
-                            {item.emoji}
+                        {/* Animated Sparks */}
+                        <AnimatePresence>
+                          {forgeState !== "error" && renderAnvilSparks()}
+                        </AnimatePresence>
+
+                        {/* Anvil Graphic (HTML/CSS styled) */}
+                        <motion.div
+                          animate={forgeState === "crafting" ? {
+                            x: [0, -2, 2, -2, 2, 0],
+                            y: [0, 1, -1, 1, -1, 0],
+                            rotate: [0, -1, 1, -1, 1, 0]
+                          } : {}}
+                          transition={{ duration: 0.25, repeat: Infinity }}
+                          className="absolute bottom-6 w-48 h-28 flex flex-col items-center justify-end select-none"
+                        >
+                          {/* Anvil top horn left & body */}
+                          <div className="relative w-full h-14 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-t-xl border-t border-zinc-500 shadow-xl flex items-center justify-center">
+                            {/* Left horn of anvil */}
+                            <div className="absolute top-0 -left-6 w-8 h-8 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-bl-[20px] rounded-tl-sm border-t border-l border-zinc-500 transform skew-y-12" />
+                            {/* Right flat face */}
+                            <div className="absolute top-0 -right-4 w-6 h-10 bg-gradient-to-bl from-zinc-700 to-zinc-900 border-t border-r border-zinc-500 rounded-tr-sm" />
+                            
+                            {/* Glowing hot metal center */}
+                            <div className={`w-20 h-1 rounded-full blur-[2px] transition-colors duration-1000 ${
+                              forgeState === "idle" ? "bg-orange-500/40" :
+                              forgeState === "crafting" ? "bg-yellow-400 animate-pulse shadow-[0_0_8px_#fbbf24]" :
+                              forgeState === "success" ? "bg-emerald-400 shadow-[0_0_8px_#34d399]" :
+                              "bg-red-500"
+                            }`} />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-bold text-white text-sm truncate">{item.name}</h4>
-                              {item.rarity && (
-                                <Badge variant="outline" className={cn('text-[9px] capitalize shrink-0',
-                                  item.rarity === 'legendary' ? 'border-orange-500 text-orange-400' :
-                                  item.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
-                                  item.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
-                                  item.rarity === 'uncommon' ? 'border-green-500 text-green-400' :
-                                  'border-zinc-500 text-zinc-400'
-                                )}>
-                                  {item.rarity}
-                                </Badge>
-                              )}
-                            </div>
+                          {/* Anvil pillar/waist */}
+                          <div className="w-24 h-6 bg-gradient-to-b from-zinc-800 to-zinc-950 border-x border-zinc-900" />
+                          {/* Anvil base feet */}
+                          <div className="w-40 h-8 bg-gradient-to-b from-zinc-900 to-black rounded-b-xl border-b border-zinc-950 shadow-2xl" />
+                        </motion.div>
 
-                            <div className="flex flex-wrap gap-x-3 gap-y-1">
-                              {recipe.materials.map(req => {
-                                const owned = getOwnedQty(req.itemId);
-                                const met = owned >= req.quantity;
-                                return (
-                                  <span key={req.itemId} className={cn('text-xs flex items-center gap-1', met ? 'text-emerald-400' : 'text-red-400')}>
-                                    {getMaterialEmoji(req.itemId)} {getMaterialName(req.itemId)}: {owned}/{req.quantity}
-                                  </span>
-                                );
-                              })}
-                              <span className={cn('text-xs flex items-center gap-1', playerGold >= recipe.goldCost ? 'text-amber-400' : 'text-red-400')}>
-                                🪙 {recipe.goldCost}g
-                              </span>
-                            </div>
-                          </div>
+                        {/* Display floating ingredients loaded in anvil */}
+                        <div className="absolute -top-12 left-0 right-0 flex gap-2 flex-wrap justify-center z-10 select-none px-4">
+                          {Object.entries(anvil).map(([id, qty]) => {
+                            const isRawMat = id.startsWith('material-');
+                            const item = isRawMat 
+                              ? comprehensiveItems.find(i => i.id === id) 
+                              : storedItems.find(i => i.id === id || i.dbId === id);
+                            return (
+                              <motion.button
+                                key={id}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                exit={{ scale: 0 }}
+                                onClick={() => removeMaterialFromAnvil(id)}
+                                className="px-2 py-1 bg-zinc-900/90 border border-orange-500/20 rounded-lg flex items-center gap-1 hover:border-red-500/40 group shadow-lg"
+                              >
+                                <span className="text-sm">{item?.emoji || "📦"}</span>
+                                <span className="text-[10px] font-bold text-zinc-400 group-hover:text-red-400">x{qty}</span>
+                              </motion.button>
+                            )
+                          })}
+                          {Object.keys(anvil).length === 0 && forgeState === "idle" && (
+                            <span className="text-zinc-500 text-xs italic font-serif">Place materials on the anvil...</span>
+                          )}
+                        </div>
 
-                          <Button
-                            size="sm"
-                            disabled={!canCraft || isCrafting !== null}
-                            onClick={() => handleCraft(recipe)}
-                            className={cn(
-                              'shrink-0 h-9 text-xs font-bold w-20',
-                              canCraft
-                                ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-lg'
-                                : 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
-                            )}
-                          >
-                            {isCrafting === recipe.id ? '⏳' : '🔨 Forge'}
-                          </Button>
+                        {/* Anvil base flame */}
+                        <div className="absolute -bottom-4 flex justify-center w-full">
+                          <Flame className="w-10 h-10 text-orange-600 animate-pulse" />
+                          <Flame className="w-8 h-8 text-yellow-500 animate-bounce -ml-2" />
                         </div>
                       </div>
-                    );
-                  })}
+
+                      {/* Forge Trigger Action */}
+                      <div className="mt-8 z-10">
+                        <Button
+                          onClick={forgeAnvilItem}
+                          disabled={forgeState === "crafting" || Object.keys(anvil).length === 0}
+                          className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
+                            Object.keys(anvil).length === 0
+                              ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
+                              : "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20 hover:scale-105"
+                          }`}
+                        >
+                          {forgeState === "crafting" ? "🔨 Hammering..." : "🔨 Forge Item"}
+                        </Button>
+                      </div>
+
+                      {/* Success & Error Overlays */}
+                      <AnimatePresence>
+                        {forgeState === "success" && forgedItem && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="absolute inset-0 bg-black/95 flex flex-col items-center justify-center p-6 z-20 rounded-3xl"
+                          >
+                            <div className="p-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-400 text-5xl mb-4 animate-bounce">
+                              {forgedItem.emoji}
+                            </div>
+                            <h3 className="font-serif text-xl font-bold text-white mb-1">
+                              {forgedItem.name} Successfully Forged!
+                            </h3>
+                            <Badge className={cn('text-[10px] capitalize font-bold px-3 py-1 mt-1 border',
+                              forgedItem.rarity === 'legendary' ? 'bg-orange-950/20 text-orange-400 border-orange-500/30' :
+                              forgedItem.rarity === 'epic' ? 'bg-purple-950/20 text-purple-400 border-purple-500/30' :
+                              forgedItem.rarity === 'rare' ? 'bg-blue-950/20 text-blue-400 border-blue-500/30' :
+                              forgedItem.rarity === 'uncommon' ? 'bg-green-950/20 text-green-400 border-green-500/30' :
+                              'bg-zinc-950/20 text-zinc-400 border-zinc-500/30'
+                            )}>
+                              {forgedItem.rarity}
+                            </Badge>
+                            <p className="text-xs text-zinc-400 mt-3 mb-6 max-w-xs text-center">
+                              Your forged equipment has been placed in your stored inventory. Go equip it!
+                            </p>
+                            <Button
+                              onClick={() => {
+                                setForgeState("idle")
+                                setForgedItem(null)
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg font-bold"
+                            >
+                              Collect Equipment
+                            </Button>
+                          </motion.div>
+                        )}
+
+                        {forgeState === "error" && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="absolute inset-0 bg-black/95 flex flex-col items-center justify-center p-6 z-20 text-center rounded-3xl"
+                          >
+                            <div className="p-6 rounded-full bg-red-500/10 border-2 border-red-500 text-red-400 text-5xl mb-4 animate-bounce">
+                              💥
+                            </div>
+                            <h3 className="font-serif text-xl font-bold text-white mb-1">Forging Failed!</h3>
+                            <p className="text-xs text-zinc-400 mb-6 max-w-xs leading-normal">
+                              The combination of elements shivered under the hammer strokes and shattered into ash. Check the Known Blueprints ledger for correct quantities!
+                            </p>
+                            <Button
+                              onClick={() => setForgeState("idle")}
+                              className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/5 shadow-lg"
+                            >
+                              Clear Anvil Ash
+                            </Button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </CardContent>
+                  </Card>
+
+                  {/* 2. REAGENTS & EQUIPMENT BAG CARD */}
+                  <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
+                    <CardHeader className="border-b border-white/5 pb-4">
+                      <CardTitle className="font-serif text-base text-white">Your Forge Materials & Stored Gear</CardTitle>
+                      <CardDescription className="text-zinc-400 text-xs">Materials and weapons in your stored inventory (Click to add to anvil)</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {storedItems
+                          .filter(i => i.id.startsWith('material-') || ['weapon', 'shield', 'armor'].includes(i.type))
+                          .map(item => {
+                            const qtyOnAnvil = anvil[item.id] || 0;
+                            const availableQty = item.quantity - qtyOnAnvil;
+
+                            return (
+                              <div
+                                key={item.id}
+                                onClick={() => availableQty > 0 && addMaterialToAnvil(item.id)}
+                                className={cn(
+                                  'p-4 bg-zinc-900/50 border rounded-2xl flex items-center justify-between transition-all duration-200',
+                                  availableQty > 0
+                                    ? "border-white/5 cursor-pointer hover:border-orange-500/40 hover:bg-zinc-900/80 hover:scale-[1.01]"
+                                    : "border-zinc-900 opacity-40 cursor-not-allowed"
+                                )}
+                              >
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  <span className="text-3xl shrink-0 select-none">{item.emoji || "📦"}</span>
+                                  <div className="min-w-0">
+                                    <h5 className="font-bold text-sm text-zinc-100 truncate">{item.name}</h5>
+                                    <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1 leading-normal">{item.description}</p>
+                                  </div>
+                                </div>
+                                <div className="shrink-0 pl-3">
+                                  <Badge className="bg-zinc-950 text-orange-400 font-extrabold text-xs px-3 py-1.5 shadow-inner border border-orange-900/20">
+                                    {availableQty}
+                                  </Badge>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        {storedItems.filter(i => i.id.startsWith('material-') || ['weapon', 'shield', 'armor'].includes(i.type)).length === 0 && (
+                          <div className="col-span-full py-8 text-center text-zinc-600 text-xs italic font-serif">
+                            Your bag contains no forging materials or stored equipment. Complete habits and quests to gather them!
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* 3. RECIPES LEDGER CARD */}
+                  <Card className="bg-zinc-950/70 border-amber-900/30 shadow-2xl rounded-3xl w-full">
+                    <CardHeader className="border-b border-white/5 pb-4">
+                      <CardTitle className="font-serif text-base text-white">Known Blueprints</CardTitle>
+                      <CardDescription className="text-zinc-400 text-xs">Formulas to forge weapons, armor, and shields (Click to auto-load anvil)</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {FORGE_RECIPES.map(recipe => {
+                          const isUnlocked = unlockedForgeRecipes.includes(recipe.id);
+                          const item = comprehensiveItems.find(i => i.id === recipe.targetItemId);
+                          if (!item) return null;
+
+                          if (!isUnlocked) {
+                            return (
+                              <div
+                                key={recipe.id}
+                                className="p-4 bg-zinc-900/30 border border-white/5 rounded-2xl relative overflow-hidden group flex flex-col justify-between select-none min-h-[140px]"
+                              >
+                                {/* Blurred content */}
+                                <div className="filter blur-[5px] opacity-40 pointer-events-none flex flex-col justify-between h-full w-full">
+                                  <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-2xl bg-zinc-800 text-white text-2xl shadow-md shrink-0">
+                                      ❓
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h5 className="font-bold text-sm text-zinc-400">Locked Blueprint</h5>
+                                      <p className="text-xs text-zinc-500 leading-normal mt-1">Discover this blueprint by experimenting with anvil materials!</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Lock Overlay */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                                  <span className="text-xl">🔒</span>
+                                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 mt-1">Undiscovered Blueprint</span>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div
+                              key={recipe.id}
+                              onClick={() => selectForgeRecipe(recipe)}
+                              className="p-4 bg-zinc-900/50 border border-white/5 hover:border-orange-500/30 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between hover:scale-[1.01]"
+                            >
+                              <div className="flex items-start gap-4">
+                                <div className="p-3 rounded-2xl bg-zinc-800 text-white text-2xl shadow-md shrink-0">
+                                  {item.emoji}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <h5 className="font-bold text-sm text-zinc-100 group-hover:text-orange-400 transition-colors">{item.name}</h5>
+                                    {item.rarity && (
+                                      <Badge variant="outline" className={cn('text-[9px] capitalize shrink-0',
+                                        item.rarity === 'legendary' ? 'border-orange-500 text-orange-400' :
+                                        item.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
+                                        item.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
+                                        item.rarity === 'uncommon' ? 'border-green-500 text-green-400' :
+                                        'border-zinc-500 text-zinc-400'
+                                      )}>
+                                        {item.rarity}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-zinc-400 leading-normal mt-1">{item.description}</p>
+                                </div>
+                              </div>
+
+                              {/* Material Requirements list */}
+                              <div className="flex gap-2 flex-wrap mt-4 border-t border-white/5 pt-3">
+                                {recipe.materials.map(req => {
+                                  const materialItem = comprehensiveItems.find(c => c.id === req.itemId);
+                                  const owned = getOwnedQty(req.itemId);
+                                  const isMet = owned >= req.quantity;
+
+                                  return (
+                                    <Badge
+                                      key={req.itemId}
+                                      variant="outline"
+                                      className={cn(
+                                        'text-[10px] font-bold py-1 px-3 rounded-full flex items-center gap-1.5 border transition-all',
+                                        isMet ? "border-emerald-950/20 bg-emerald-500/10 text-emerald-400" : "border-red-950/20 bg-red-500/10 text-red-400"
+                                      )}
+                                    >
+                                      <span>{materialItem?.emoji || "📦"}</span>
+                                      <span>{materialItem?.name || req.itemId} ({owned}/{req.quantity})</span>
+                                    </Badge>
+                                  );
+                                })}
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    'text-[10px] font-bold py-1 px-3 rounded-full flex items-center gap-1.5 border transition-all',
+                                    playerGold >= recipe.goldCost ? "border-amber-950/20 bg-amber-500/10 text-amber-400" : "border-red-950/20 bg-red-500/10 text-red-400"
+                                  )}
+                                >
+                                  <span>🪙</span>
+                                  <span>Cost: {recipe.goldCost}g</span>
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               ) : (
                 <div className="space-y-4 pb-8">
