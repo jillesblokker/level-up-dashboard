@@ -64,6 +64,11 @@ interface GameResult {
     xp: number;
     items: number;
     gems?: number;
+    discoveredRecipe?: {
+      id: string;
+      name: string;
+      emoji: string;
+    };
   };
   loot?: Loot[];
 }
