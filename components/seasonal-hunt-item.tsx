@@ -73,8 +73,8 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
       <div
         className="fixed z-50 cursor-pointer transition-all duration-300 hover:scale-110 animate-bounce"
         style={{
-          left: `${item.position.x}px`,
-          top: `${item.position.y}px`,
+          left: `clamp(12px, ${item.position.x}px, calc(100vw - 64px))`,
+          top: `clamp(80px, ${item.position.y}px, calc(100vh - 120px))`,
         }}
         onClick={handleItemClick}
         onKeyDown={(e) => {

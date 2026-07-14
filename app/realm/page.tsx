@@ -16,7 +16,7 @@ import React from "react"
 import { createTileFromNumeric, numericToTileType, tileTypeToNumeric } from "@/lib/grid-loader"
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X, Hammer, Move, Package, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown, Loader2 } from 'lucide-react'
+import { X, Hammer, Move, Package, Trash2, RotateCcw, PlusCircle, MoreVertical, Users, Compass, Tent, ShieldCheck, Crown, Loader2, Map } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -1893,6 +1893,17 @@ function RealmPageContent() {
                                 >
                                     <Compass className="w-4 h-4 text-emerald-400" />
                                     <span>Expeditions</span>
+                                </Button>
+
+                                {/* World Map Button */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => router.push('/worldmap')}
+                                    className="flex items-center gap-2 min-w-[44px] min-h-[44px] bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
+                                >
+                                    <Map className="w-4 h-4 text-amber-400" />
+                                    <span>World Map</span>
                                 </Button>
 
                                 {/* Inventory Button */}

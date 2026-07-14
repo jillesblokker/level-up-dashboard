@@ -81,7 +81,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     
                     if (meditationQuest) {
                         logger.debug('[ZenMeditate] Auto-completing meditation quest:', meditationQuest.id);
-                        await fetch('/api/smart-completion', {
+                        await fetch('/api/quests/smart-completion', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({

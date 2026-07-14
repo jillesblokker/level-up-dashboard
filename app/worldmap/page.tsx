@@ -3,13 +3,22 @@
 import '../globals.css'
 import { ImagePaths } from "@/config/image-paths"
 import { Button } from "@/components/ui/button"
-import { MapPin, Compass, Mountain, Trees, Waves, ShoppingBag } from "lucide-react"
+import { MapPin, Compass, Mountain, Trees, Waves, ShoppingBag, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { TEXT_CONTENT } from "@/lib/text-content"
 
 export default function WorldMapPage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black relative">
+      {/* Floating Back Button */}
+      <div className="fixed top-4 left-4 z-50">
+        <Link href="/realm">
+          <Button variant="outline" className="bg-zinc-950/80 hover:bg-zinc-900 border-amber-800/30 text-amber-400 gap-2 font-bold backdrop-blur-sm shadow-lg">
+            <ArrowLeft className="h-4 w-4" /> Back to Realm
+          </Button>
+        </Link>
+      </div>
+
       <main className="relative">
         <section className="section castle">
           <div className="content-container transform hover:scale-105 transition-transform duration-300">

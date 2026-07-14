@@ -47,6 +47,10 @@ const ActivityFeed = dynamic(() => import("@/components/activity-feed"), {
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Activity Record...</div>
 })
+const RiddleChallenge = dynamic(() => import("@/components/riddle-challenge").then(m => m.RiddleChallenge), { 
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Preparing Riddle Chamber...</div>
+})
 import { GiftModal } from "@/components/gift-modal"
 import { TEXT_CONTENT } from '@/lib/text-content'
 import SocialLoading from './loading';
@@ -506,7 +510,16 @@ export default function AlliesPage() {
                             {TEXT_CONTENT.social.tabs.requests}
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}
                         </TabsTrigger>
+                        <TabsTrigger value="riddles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                            <HelpCircle className="w-4 h-4" />
+                            Riddles
+                        </TabsTrigger>
                     </TabsList>
+
+                    {/* RIDDLES TAB */}
+                    <TabsContent value="riddles" className="space-y-4 max-w-4xl mx-auto">
+                        <RiddleChallenge />
+                    </TabsContent>
 
                     {/* CHRONICLES TAB */}
                     <TabsContent value="chronicles" className="space-y-4">
