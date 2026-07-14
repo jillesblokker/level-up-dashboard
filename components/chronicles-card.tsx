@@ -14,7 +14,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { getUserPreference } from "@/lib/user-preferences-manager"
+import { Switch } from "@/components/ui/switch"
+import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
 
 interface ChroniclesCardProps {
     currentLevel: number
@@ -27,6 +28,26 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     // State for the currently viewed chapter (default to the latest unlocked)
     const [viewedChapterId, setViewedChapterId] = useState<string>(latestUnlockedChapter.id.toString())
     const [allFillerEpisodes, setAllFillerEpisodes] = useState<any[]>([])
+    const [showFiller, setShowFiller] = useState<boolean>(true)
+
+    useEffect(() => {
+        const loadPreferences = async () => {
+            try {
+                const setting = await getUserPreference('enable_chronicle_filler')
+                if (setting !== null) {
+                    setShowFiller(setting as boolean)
+                }
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        loadPreferences()
+    }, [])
+
+    const handleToggleFiller = async (checked: boolean) => {
+        setShowFiller(checked)
+        await setUserPreference('enable_chronicle_filler', checked)
+    }
 
     useEffect(() => {
         const loadFillerEpisodes = async () => {
@@ -98,30 +119,43 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <Select value={viewedChapterId} onValueChange={setViewedChapterId}>
-                        <SelectTrigger className="w-full bg-zinc-950 border-amber-800/30 text-amber-100 font-serif text-lg h-auto py-2 focus:ring-amber-500/20">
-                            <SelectValue placeholder="Select Chapter" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#1a1614] border-amber-800 text-amber-100 max-h-[300px]">
-                            {CHRONICLES_DATA.map((chapter) => {
-                                const isLocked = currentLevel < chapter.levelRequirement
-                                return (
-                                    <SelectItem
-                                        key={chapter.id}
-                                        value={chapter.id.toString()}
-                                        disabled={isLocked}
-                                        className={cn(isLocked && "opacity-50 cursor-not-allowed")}
-                                    >
-                                        <div className="flex items-center justify-between w-full gap-4">
-                                            <span>Chapter {chapter.id}: {chapter.title}</span>
-                                            {isLocked && <Lock className="w-3 h-3 ml-2" />}
-                                        </div>
-                                    </SelectItem>
-                                )
-                            })}
-                        </SelectContent>
-                    </Select>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
+                    <div className="flex-1">
+                        <Select value={viewedChapterId} onValueChange={setViewedChapterId}>
+                            <SelectTrigger className="w-full bg-zinc-950 border-amber-800/30 text-amber-100 font-serif text-lg h-auto py-2 focus:ring-amber-500/20">
+                                <SelectValue placeholder="Select Chapter" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-[#1a1614] border-amber-800 text-amber-100 max-h-[300px]">
+                                {CHRONICLES_DATA.map((chapter) => {
+                                    const isLocked = currentLevel < chapter.levelRequirement
+                                    return (
+                                        <SelectItem
+                                            key={chapter.id}
+                                            value={chapter.id.toString()}
+                                            disabled={isLocked}
+                                            className={cn(isLocked && "opacity-50 cursor-not-allowed")}
+                                        >
+                                            <div className="flex items-center justify-between w-full gap-4">
+                                                <span>Chapter {chapter.id}: {chapter.title}</span>
+                                                {isLocked && <Lock className="w-3 h-3 ml-2" />}
+                                            </div>
+                                        </SelectItem>
+                                    )
+                                })}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center gap-2 bg-zinc-950/40 border border-amber-800/20 px-3 py-2 rounded-xl h-[42px] shrink-0 self-end sm:self-auto">
+                        <Switch 
+                            id="show-filler-switch" 
+                            checked={showFiller} 
+                            onCheckedChange={handleToggleFiller} 
+                            className="data-[state=checked]:bg-amber-600"
+                        />
+                        <label htmlFor="show-filler-switch" className="text-[10px] font-bold text-amber-500/70 cursor-pointer select-none uppercase tracking-wider">
+                            Daily Deeds
+                        </label>
+                    </div>
                 </div>
             </CardHeader>
 
@@ -212,7 +246,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                 })}
                             </div>
 
-                            {fillerEpisodes.length > 0 && (
+                            {showFiller && fillerEpisodes.length > 0 && (
                                 <div className="mt-6 border-t border-[#b58b4c]/30 pt-4 space-y-4 max-h-[300px] overflow-y-auto">
                                     <h4 className="font-serif font-black text-xs uppercase tracking-widest text-[#7c2d12] flex items-center gap-1.5">
                                         ✨ Filler Episodes (Daily Deeds)
