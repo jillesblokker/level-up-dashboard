@@ -29,6 +29,7 @@ import { FortuneTellerModal } from './fortune-teller-modal'
 import { useGameStore } from '@/stores/game-store'
 import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
+import { getActiveEvent } from '@/lib/seasonal-events'
 
 
 // Game managers will be loaded dynamically to keep the initial bundle light
@@ -148,6 +149,10 @@ export function KingdomGridWithTimers({
   // Seasonal event flags (hoisted for property filtering)
   const [winterFestivalActive, setWinterFestivalActive] = useState(false)
   const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
+
+  const activeEvent = useMemo(() => {
+    return getActiveEvent(winterFestivalActive, harvestFestivalActive)
+  }, [winterFestivalActive, harvestFestivalActive])
 
   const [propertyInventory, setPropertyInventory] = useState(() => {
     // Metadata for UI categorization and locking
@@ -1440,21 +1445,15 @@ export function KingdomGridWithTimers({
       let goldEarned = wasLucky ? kingdomTile.luckyGoldAmount : getRandomGold(...kingdomTile.normalGoldRange)
       const currentTier = (tile as any).level || 1;
       goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
-      // Apply winter event bonus where applicable
-      if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
-        goldEarned = Math.floor(goldEarned * 1.2)
+      const isTileAffectedByEvent = activeEvent && activeEvent.activeTileIds.includes(kingdomTile.id)
+      if (isTileAffectedByEvent) {
+        goldEarned = Math.floor(goldEarned * activeEvent.goldMultiplier)
       }
-      // Apply harvest event bonus where applicable
-      if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
-        goldEarned = Math.floor(goldEarned * 1.2)
-      }
-      // Grant experience proportional to gold; apply winter +10% EXP on winter tiles
+      // Grant experience proportional to gold; apply seasonal +10% EXP on event tiles
       const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
-      const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
-        ? Math.ceil(baseExperience * 1.1)
-        : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
-          ? Math.ceil(baseExperience * 1.1)
-          : baseExperience
+      const experienceAwarded = isTileAffectedByEvent
+        ? Math.ceil(baseExperience * activeEvent.xpMultiplier)
+        : baseExperience
 
         // Award gold and experience
         ; (async () => {
@@ -1621,14 +1620,15 @@ export function KingdomGridWithTimers({
     goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
     // Apply adjacency bonus
     const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
-    if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
-      goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier)
+    const isTileAffectedByEvent = activeEvent && activeEvent.activeTileIds.includes(kingdomTile.id)
+    if (isTileAffectedByEvent) {
+      goldEarned = Math.floor(goldEarned * activeEvent.goldMultiplier * adjacencyMultiplier)
     } else {
       goldEarned = Math.floor(goldEarned * adjacencyMultiplier)
     }
     const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
-    const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
-      ? Math.ceil(baseExperience * 1.1)
+    const experienceAwarded = isTileAffectedByEvent
+      ? Math.ceil(baseExperience * activeEvent.xpMultiplier)
       : baseExperience
       // Award gold and experience
       ; (async () => {
@@ -1741,19 +1741,15 @@ export function KingdomGridWithTimers({
     const currentTier = (tile as any).level || 1;
     goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
     
-    if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
-      goldEarned = Math.floor(goldEarned * 1.2)
-    }
-    if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
-      goldEarned = Math.floor(goldEarned * 1.2)
+    const isTileAffectedByEvent = activeEvent && activeEvent.activeTileIds.includes(kingdomTile.id)
+    if (isTileAffectedByEvent) {
+      goldEarned = Math.floor(goldEarned * activeEvent.goldMultiplier)
     }
     
     const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
-    const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
-      ? Math.ceil(baseExperience * 1.1)
-      : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
-        ? Math.ceil(baseExperience * 1.1)
-        : baseExperience
+    const experienceAwarded = isTileAffectedByEvent
+      ? Math.ceil(baseExperience * activeEvent.xpMultiplier)
+      : baseExperience
 
     // Roll for items
     let itemFound: string | null = null
@@ -2014,20 +2010,17 @@ export function KingdomGridWithTimers({
       goldEarned = Math.floor(goldEarned * (1 + ((currentTier - 1) * 0.5)));
       const adjacencyMultiplier = calculateAdjacencyBonus(x, y, kingdomTile.id);
       
-      if (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id)) {
-        goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier);
-      } else if (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id)) {
-        goldEarned = Math.floor(goldEarned * 1.2 * adjacencyMultiplier);
+      const isTileAffectedByEvent = activeEvent && activeEvent.activeTileIds.includes(kingdomTile.id);
+      if (isTileAffectedByEvent) {
+        goldEarned = Math.floor(goldEarned * activeEvent.goldMultiplier * adjacencyMultiplier);
       } else {
         goldEarned = Math.floor(goldEarned * adjacencyMultiplier);
       }
 
       const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3);
-      const experienceAwarded = (winterFestivalActive && WINTER_EVENT_TILE_IDS.has(kingdomTile.id))
-        ? Math.ceil(baseExperience * 1.1)
-        : (harvestFestivalActive && HARVEST_EVENT_TILE_IDS.has(kingdomTile.id))
-          ? Math.ceil(baseExperience * 1.1)
-          : baseExperience;
+      const experienceAwarded = isTileAffectedByEvent
+        ? Math.ceil(baseExperience * activeEvent.xpMultiplier)
+        : baseExperience;
 
       // Award gold and experience
       const { goldManager } = await loadManagers();
@@ -2389,6 +2382,48 @@ export function KingdomGridWithTimers({
             </TooltipContent>
           </Tooltip>
 
+          {/* Active Seasonal Event Pill */}
+          {activeEvent && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-950/20 border border-amber-800/30 rounded-lg cursor-help transition-all hover:bg-amber-950/30 hover:border-amber-700/50">
+                  <span className="text-base select-none">
+                    {activeEvent.id === 'winter_festival' ? '❄️' :
+                     activeEvent.id === 'festival_of_hearts' ? '💖' :
+                     activeEvent.id === 'spring_vernal' ? '🌸' :
+                     activeEvent.id === 'rain_gala' ? '🌧️' :
+                     activeEvent.id === 'shield_joust' ? '🛡️' :
+                     activeEvent.id === 'solstice_fair' ? '☀️' :
+                     activeEvent.id === 'firefly_revelry' ? '✨' :
+                     activeEvent.id === 'forge_fire' ? '🔥' :
+                     activeEvent.id === 'harvest_festival' ? '🌾' :
+                     activeEvent.id === 'shadow_festival' ? '👻' :
+                     activeEvent.id === 'remembrance_feast' ? '🕯️' : '🎄'}
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest font-serif">{activeEvent.name}</span>
+                    <span className="text-[9px] text-zinc-400">Seasonal Boost Active</span>
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs bg-zinc-950 border-amber-900/40 text-zinc-100 p-3 rounded-lg shadow-2xl">
+                <div className="space-y-2">
+                  <h4 className="font-serif font-semibold text-amber-400 text-sm">{activeEvent.name}</h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed">{activeEvent.theme}</p>
+                  <div className="h-px bg-zinc-800 my-1" />
+                  <p className="text-[10px] text-amber-500 font-bold">Affected properties gain +20% Gold and +10% XP:</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {activeEvent.activeTileIds.map(tileId => (
+                      <span key={tileId} className="text-[9px] px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded text-zinc-300 capitalize">
+                        {tileId.replace(/-/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           {/* 3. Category Focus Mode Toggles */}
           <div className="hidden lg:flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-white/5">
             {[
@@ -2690,7 +2725,7 @@ export function KingdomGridWithTimers({
                 x: fortuneTileData.x,
                 y: fortuneTileData.y,
                 tileId: 'fortune_teller',
-                endTime: Date.now() + 48 * 60 * 60 * 1000,
+                endTime: Date.now() + 24 * 60 * 60 * 1000,
                 isReady: false
               }
             ])
