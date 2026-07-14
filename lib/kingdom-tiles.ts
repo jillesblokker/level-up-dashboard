@@ -842,7 +842,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'fortune_teller',
     name: 'Fortune Teller',
-    timerMinutes: 2880, // 48 hours
+    timerMinutes: 1440, // 24 hours
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,

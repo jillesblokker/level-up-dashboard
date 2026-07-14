@@ -24,39 +24,71 @@ interface PlankPuzzleModalProps {
   onComplete: (success: boolean, goldEarned: number, xpEarned: number) => void
 }
 
-const INITIAL_PLANKS: Plank[] = [
-  // Target plank — slide right to exit (Row 2, Col 1, length 2, horizontal)
-  {
-    id: "target",
-    row: 2,
-    col: 1,
-    length: 2,
-    orientation: "horizontal",
-    isTarget: true,
-    color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
-    label: "Ancient Keystone"
-  },
-  // Verified solvable layout — no overlapping cells
-  // Grid visualization:
-  //   Col0  Col1  Col2  Col3  Col4  Col5
-  // R0: [a]   .     .    [b    b]    .
-  // R1: [a]  [c    c]     .   [d]    .
-  // R2: [a]  [T    T]    [h]  [d]    .   → EXIT
-  // R3:  .    .    [e]   [h]   .    [f]
-  // R4:  .    .    [e]   [g    g]   [f]
-  // R5:  .    .     .     .     .    .
-  { id: "a", row: 0, col: 0, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
-  { id: "b", row: 0, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
-  { id: "c", row: 1, col: 1, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
-  { id: "d", row: 1, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
-  { id: "e", row: 3, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
-  { id: "f", row: 3, col: 5, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
-  { id: "g", row: 4, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "G" },
-  { id: "h", row: 2, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "H" }
+const PUZZLE_VARIATIONS: Plank[][] = [
+  // Variation 1
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 1,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "a", row: 0, col: 0, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "b", row: 0, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "c", row: 1, col: 1, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "d", row: 1, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "e", row: 3, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "f", row: 3, col: 5, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
+    { id: "g", row: 4, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "G" },
+    { id: "h", row: 2, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "H" }
+  ],
+  // Variation 2
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 0,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "v1", row: 0, col: 2, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "V1" },
+    { id: "v2", row: 2, col: 3, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "V2" },
+    { id: "h1", row: 0, col: 0, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "H1" },
+    { id: "h2", row: 5, col: 0, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "H2" },
+    { id: "v3", row: 3, col: 1, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "V3" },
+    { id: "h3", row: 1, col: 4, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "H3" },
+    { id: "v4", row: 3, col: 5, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "V4" }
+  ],
+  // Variation 3
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 1,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "a", row: 0, col: 3, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "b", row: 3, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "c", row: 1, col: 4, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "d", row: 0, col: 0, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "e", row: 4, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "f", row: 5, col: 2, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "F" }
+  ]
 ]
 
 export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleModalProps) {
-  const [planks, setPlanks] = useState<Plank[]>(INITIAL_PLANKS)
+  const [planks, setPlanks] = useState<Plank[]>(PUZZLE_VARIATIONS[0]!)
   const [selectedId, setSelectedId] = useState<string | null>("target")
   const [moves, setMoves] = useState(0)
   const [hasWon, setHasWon] = useState(false)
@@ -74,7 +106,9 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
   // Reset when opening
   useEffect(() => {
     if (isOpen) {
-      setPlanks(JSON.parse(JSON.stringify(INITIAL_PLANKS)))
+      const randomIndex = Math.floor(Math.random() * PUZZLE_VARIATIONS.length)
+      const selectedVariation = PUZZLE_VARIATIONS[randomIndex]!
+      setPlanks(JSON.parse(JSON.stringify(selectedVariation)))
       setSelectedId("target")
       setMoves(0)
       setHasWon(false)

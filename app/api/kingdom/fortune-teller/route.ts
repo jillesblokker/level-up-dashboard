@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
       return new NextResponse(JSON.stringify({ error: 'Invalid card choice' }), { status: 400 });
     }
 
-    // Set 48 hour cooldown
-    const cooldownMs = 48 * 60 * 60 * 1000;
+    // Set 24 hour cooldown
+    const cooldownMs = 24 * 60 * 60 * 1000;
     const endTimeIso = new Date(Date.now() + cooldownMs).toISOString();
 
     await supabaseServer
