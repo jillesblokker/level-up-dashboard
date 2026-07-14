@@ -436,15 +436,14 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
   const addMaterialToAnvil = (id: string) => {
     if (forgeState === 'crafting') return;
-    // Find item/material in stored items
-    const item = storedItems.find(i => i.id === id || i.dbId === id);
-    if (!item) return;
-    const totalQty = item.quantity;
+    const totalQty = getOwnedQty(id);
+    if (totalQty === 0) return;
+    const itemComp = comprehensiveItems.find(c => c.id === id);
     const currentQtyOnAnvil = anvil[id] || 0;
     if (currentQtyOnAnvil >= totalQty) {
       toast({
         title: "Limit Reached",
-        description: `You only have ${totalQty}x ${item.name} in your bag.`,
+        description: `You only have ${totalQty}x ${itemComp?.name || id} in your bag.`,
         variant: "destructive"
       });
       return;
@@ -477,36 +476,32 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   const selectForgeRecipe = (recipe: Recipe) => {
     if (forgeState === 'crafting') return;
 
-    // Verify ingredients and base items are in inventory
+    // Verify ingredients using getOwnedQty (same source as displayed badges)
     const missing: string[] = [];
     recipe.materials.forEach(req => {
-      // Find item in stored items
-      const item = storedItems.find(i => i.id === req.itemId);
-      const currentQty = anvil[req.itemId] || 0;
-      if (!item || item.quantity < (currentQty + req.quantity)) {
+      const owned = getOwnedQty(req.itemId);
+      if (owned < req.quantity) {
         const itemComp = comprehensiveItems.find(c => c.id === req.itemId);
         const name = itemComp ? itemComp.name : req.itemId;
-        missing.push(`${req.quantity}x ${name} (have ${item ? item.quantity - currentQty : 0} available)`);
+        missing.push(`${req.quantity}x ${name} (have ${owned} available)`);
       }
     });
 
     if (missing.length > 0) {
       toast({
-        title: "Materials Limit Reached",
-        description: `Cannot load ingredients. Missing: ${missing.join(", ")}`,
+        title: "Not Enough Materials",
+        description: `Missing: ${missing.join(", ")}`,
         variant: "destructive"
       });
       return;
     }
 
-    // Add recipe materials to anvil
-    setAnvil(prev => {
-      const copy = { ...prev };
-      recipe.materials.forEach(req => {
-        copy[req.itemId] = (copy[req.itemId] || 0) + req.quantity;
-      });
-      return copy;
+    // Replace anvil contents with exactly this recipe's materials (forge = 1 item per craft)
+    const nextAnvil: Record<string, number> = {};
+    recipe.materials.forEach(req => {
+      nextAnvil[req.itemId] = req.quantity;
     });
+    setAnvil(nextAnvil);
 
     toast({
       title: "Materials Loaded",
