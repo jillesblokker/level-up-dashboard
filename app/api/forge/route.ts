@@ -102,6 +102,7 @@ const FORGE_RECIPES: Recipe[] = [
     materials: [
       { itemId: 'armor-darko', quantity: 1 },
       { itemId: 'material-silver', quantity: 8 },
+      { itemId: 'material-crystal', quantity: 4 }
     ]
   }
 ];

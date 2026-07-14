@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from '@/lib/utils';
@@ -123,7 +123,6 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
   
   const [playerGold, setPlayerGold] = useState(0);
-  const [isCrafting, setIsCrafting] = useState<string | null>(null);
   const [forgeSubTab, setForgeSubTab] = useState<'craft' | 'upgrade'>('craft');
   const [selectedUpgradeItem, setSelectedUpgradeItem] = useState<KingdomInventoryItem | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
@@ -133,7 +132,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   const [unlockedForgeRecipes, setUnlockedForgeRecipes] = useState<string[]>(['craft-sword-irony', 'craft-shield-defecto', 'craft-armor-darko']);
   const [anvil, setAnvil] = useState<Record<string, number>>({});
   const [forgeState, setForgeState] = useState<'idle' | 'crafting' | 'success' | 'error'>('idle');
-  const [forgedItem, setForgedItem] = useState<{ name: string; emoji: string; rarity: string } | null>(null);
+  const [forgedItem, setForgedItem] = useState<{ name: string; emoji: string; rarity: string; newlyDiscovered?: boolean } | null>(null);
 
   const isInventoryLoadingRef = useRef(false);
 
@@ -560,15 +559,17 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         throw new Error(errorJson.error || 'Failed to forge item');
       }
 
-      const result = await response.json();
+      await response.json();
       const targetItem = comprehensiveItems.find(i => i.id === matched?.targetItemId);
+      const isNewDiscovery = matched ? !unlockedForgeRecipes.includes(matched.id) : false;
 
       setTimeout(async () => {
         setForgeState('success');
         setForgedItem({
           name: targetItem?.name || matched?.targetItemId || 'Forged Item',
           emoji: targetItem?.emoji || '🔨',
-          rarity: targetItem?.rarity || 'common'
+          rarity: targetItem?.rarity || 'common',
+          newlyDiscovered: isNewDiscovery
         });
         setAnvil({});
 
@@ -929,6 +930,17 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     );
   };
 
+  // Stable random values for sparks — generated once, not on every render
+  const sparkSeeds = useMemo(() => Array.from({ length: 15 }).map(() => ({
+    w: Math.random() * 4 + 2,
+    h: Math.random() * 4 + 2,
+    left: Math.random() * 60 + 20,
+    xDrift: (Math.random() - 0.5) * 160,
+    yDrift: -Math.random() * 100 - 50,
+    dur: Math.random() * 0.8 + 0.5,
+    delay: Math.random() * 0.5
+  })), []);
+
   const renderAnvilSparks = () => {
     const sparkColors = {
       idle: "bg-orange-500/30 shadow-[0_0_4px_rgba(249,115,22,0.3)]",
@@ -937,19 +949,19 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
       error: "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
     };
 
-    return Array.from({ length: 15 }).map((_, i) => (
+    return sparkSeeds.map((seed, i) => (
       <motion.div
         key={i}
         className={cn("absolute rounded-full", sparkColors[forgeState])}
         style={{
-          width: Math.random() * 4 + 2,
-          height: Math.random() * 4 + 2,
-          left: `${Math.random() * 60 + 20}%`,
+          width: seed.w,
+          height: seed.h,
+          left: `${seed.left}%`,
           bottom: `55%`
         }}
         animate={forgeState === "crafting" ? {
-          x: [0, (Math.random() - 0.5) * 160],
-          y: [0, -Math.random() * 100 - 50],
+          x: [0, seed.xDrift],
+          y: [0, seed.yDrift],
           opacity: [0, 1, 0],
           scale: [1, 1.5, 0.2]
         } : {
@@ -957,9 +969,9 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
           opacity: [0, 0.4, 0]
         }}
         transition={{
-          duration: Math.random() * 0.8 + 0.5,
+          duration: seed.dur,
           repeat: Infinity,
-          delay: Math.random() * 0.5
+          delay: seed.delay
         }}
       />
     ));
@@ -1202,19 +1214,32 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                       </div>
 
                       {/* Forge Trigger Action */}
-                      <div className="mt-8 z-10">
-                        <Button
-                          onClick={forgeAnvilItem}
-                          disabled={forgeState === "crafting" || Object.keys(anvil).length === 0}
-                          className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
-                            Object.keys(anvil).length === 0
-                              ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
-                              : "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20 hover:scale-105"
-                          }`}
-                        >
-                          {forgeState === "crafting" ? "🔨 Hammering..." : "🔨 Forge Item"}
-                        </Button>
-                      </div>
+                      {(() => {
+                        const matchedAnvilRecipe = FORGE_RECIPES.find(recipe =>
+                          recipe.materials.length === Object.keys(anvil).length &&
+                          recipe.materials.every(req => (anvil[req.itemId] || 0) === req.quantity)
+                        );
+                        return (
+                          <div className="mt-8 z-10 flex flex-col items-center gap-2">
+                            {matchedAnvilRecipe && (
+                              <span className="text-[11px] font-bold text-amber-400">
+                                <Coins className="w-3 h-3 inline mr-1" />{matchedAnvilRecipe.goldCost}g required
+                              </span>
+                            )}
+                            <Button
+                              onClick={forgeAnvilItem}
+                              disabled={forgeState === "crafting" || Object.keys(anvil).length === 0}
+                              className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
+                                Object.keys(anvil).length === 0
+                                  ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
+                                  : "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20 hover:scale-105"
+                              }`}
+                            >
+                              {forgeState === "crafting" ? "🔨 Hammering..." : matchedAnvilRecipe ? `🔨 Forge Item (${matchedAnvilRecipe.goldCost}g)` : "🔨 Forge Item"}
+                            </Button>
+                          </div>
+                        );
+                      })()}
 
                       {/* Success & Error Overlays */}
                       <AnimatePresence>
@@ -1240,6 +1265,9 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                             )}>
                               {forgedItem.rarity}
                             </Badge>
+                            {forgedItem.newlyDiscovered && (
+                              <p className="text-xs font-bold text-amber-400 mt-3 animate-pulse">🎉 New Blueprint Discovered!</p>
+                            )}
                             <p className="text-xs text-zinc-400 mt-3 mb-6 max-w-xs text-center">
                               Your forged equipment has been placed in your stored inventory. Go equip it!
                             </p>

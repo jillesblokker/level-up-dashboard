@@ -165,7 +165,7 @@ export function AlchemyLab() {
   // Cauldron state
   const [cauldron, setCauldron] = useState<Record<string, number>>({}) // id -> quantity
   const [brewState, setBrewState] = useState<"idle" | "brewing" | "success" | "error">("idle")
-  const [brewedPotion, setBrewedPotion] = useState<Recipe | null>(null)
+  const [brewedPotion, setBrewedPotion] = useState<(Recipe & { newlyDiscovered?: boolean }) | null>(null)
   const [brewMultiplier, setBrewMultiplier] = useState<number>(1)
   const [unlockedRecipes, setUnlockedRecipes] = useState<string[]>(["potion-focus", "potion-dread"])
   const [isLoading, setIsLoading] = useState(true)
@@ -364,6 +364,10 @@ export function AlchemyLab() {
         setBrewState("error")
         setPetSpeech("KABOOM! 💥 That was a volatile mixture. Be careful!")
         setCauldron({})
+        // Auto-recover from error state after 8 seconds
+        setTimeout(() => {
+          setBrewState(prev => prev === "error" ? "idle" : prev)
+        }, 8000)
       }, 2500)
       return
     }
@@ -377,7 +381,7 @@ export function AlchemyLab() {
 
       // 1. Deduct ingredients from inventory
       for (const ingredient of matched.ingredients) {
-        await fetch("/api/inventory", {
+        const delRes = await fetch("/api/inventory", {
           method: "DELETE",
           headers: { 
             "Content-Type": "application/json",
@@ -385,10 +389,13 @@ export function AlchemyLab() {
           },
           body: JSON.stringify({ itemId: ingredient.id, quantity: ingredient.qty * multiplier })
         })
+        if (!delRes.ok) {
+          throw new Error(`Failed to deduct ${ingredient.name} from inventory`)
+        }
       }
 
       // 2. Grant Active Modifier buff
-      await fetch("/api/active-modifiers", {
+      const modRes = await fetch("/api/active-modifiers", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -401,11 +408,15 @@ export function AlchemyLab() {
           source: "potion"
         })
       })
+      if (!modRes.ok) {
+        throw new Error("Failed to grant modifier buff")
+      }
 
       // Success animation timing
+      const isNewDiscovery = matched ? !unlockedRecipes.includes(matched.id) : false
       setTimeout(async () => {
         setBrewState("success")
-        setBrewedPotion(matched)
+        setBrewedPotion({ ...matched, newlyDiscovered: isNewDiscovery } as any)
         setCauldron({})
         setPetSpeech(matched.successSpeech)
         
@@ -573,19 +584,41 @@ export function AlchemyLab() {
               </div>
 
               {/* Brew Trigger Action */}
-              <div className="mt-8 z-10">
-                <Button
-                  onClick={brewCauldron}
-                  disabled={brewState === "brewing" || Object.keys(cauldron).length === 0}
-                  className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
-                    Object.keys(cauldron).length === 0
-                      ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
-                      : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-500/20 hover:scale-105"
-                  }`}
-                >
-                  {brewState === "brewing" ? "Brewing..." : "Brew Cauldron"}
-                </Button>
-              </div>
+              {(() => {
+                // Compute current batch multiplier from cauldron contents
+                let currentMultiplier = 0
+                for (const recipe of RECIPES) {
+                  if (recipe.ingredients.length !== Object.keys(cauldron).length) continue
+                  const firstReq = recipe.ingredients[0]
+                  if (!firstReq) continue
+                  const cauldronQty = cauldron[firstReq.id] || 0
+                  if (cauldronQty % firstReq.qty !== 0) continue
+                  const candidate = cauldronQty / firstReq.qty
+                  if (candidate < 1) continue
+                  const isMatch = recipe.ingredients.every(req => (cauldron[req.id] || 0) === req.qty * candidate)
+                  if (isMatch) { currentMultiplier = candidate; break }
+                }
+                return (
+                  <div className="mt-8 z-10 flex flex-col items-center gap-2">
+                    {currentMultiplier > 1 && (
+                      <span className="text-[11px] font-bold text-purple-400">
+                        Batch x{currentMultiplier} loaded
+                      </span>
+                    )}
+                    <Button
+                      onClick={brewCauldron}
+                      disabled={brewState === "brewing" || Object.keys(cauldron).length === 0}
+                      className={`px-8 py-3.5 rounded-2xl font-extrabold shadow-lg transition-all ${
+                        Object.keys(cauldron).length === 0
+                          ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
+                          : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-500/20 hover:scale-105"
+                      }`}
+                    >
+                      {brewState === "brewing" ? "Brewing..." : currentMultiplier > 1 ? `Brew Cauldron (x${currentMultiplier})` : "Brew Cauldron"}
+                    </Button>
+                  </div>
+                )
+              })()}
 
               {/* Brewing Overlay Popups */}
               <AnimatePresence>
@@ -602,6 +635,9 @@ export function AlchemyLab() {
                     <h3 className="font-serif text-xl font-bold text-white mb-1">
                       {brewMultiplier > 1 ? `${brewMultiplier}x ` : ""}{brewedPotion.name} Successfully Brewed!
                     </h3>
+                    {brewedPotion.newlyDiscovered && (
+                      <p className="text-xs font-bold text-amber-400 mb-2 animate-pulse">🎉 New Recipe Discovered!</p>
+                    )}
                     <p className="text-xs text-zinc-400 mb-4">
                       {brewedPotion.buffEffect} {brewMultiplier > 1 ? `(stacked ${brewedPotion.durationHours * brewMultiplier} hours)` : `(${brewedPotion.durationHours} hours)`}
                     </p>
@@ -637,6 +673,7 @@ export function AlchemyLab() {
                     >
                       Clear Cauldron Ash
                     </Button>
+                    <p className="text-[10px] text-zinc-600 mt-3">Auto-clears in 8 seconds</p>
                   </motion.div>
                 )}
               </AnimatePresence>
