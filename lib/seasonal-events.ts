@@ -11,10 +11,10 @@ export interface SeasonalEvent {
 export const MONTHLY_EVENTS: SeasonalEvent[] = [
   {
     month: 0, // Jan
-    id: "winter_festival",
-    name: "Winter Festival",
-    theme: "Frozen peaks and warm hearths. Hot, nourishing stews are served in inns across the land to ward off the chill.",
-    activeTileIds: ["winter-fountain", "snowy-inn", "ice-sculpture", "fireworks-stand", "frostfire-obelisk"],
+    id: "new_years_day",
+    name: "New Year's Celebration",
+    theme: "Ring in the New Year with festive fireworks and winter feasts. May your year be filled with prosperity!",
+    activeTileIds: ["fireworks-stand", "snowy-inn", "winter-fountain", "tavern"],
     goldMultiplier: 1.2,
     xpMultiplier: 1.1
   },
@@ -38,10 +38,10 @@ export const MONTHLY_EVENTS: SeasonalEvent[] = [
   },
   {
     month: 3, // Apr
-    id: "rain_gala",
-    name: "Rain Dancer's Gala",
-    theme: "Spring showers nourish the soil. The water mills and fishing nets hum with active life.",
-    activeTileIds: ["windmill", "fountain", "fisherman"],
+    id: "easter",
+    name: "Easter Egg Hunt",
+    theme: "Find hidden Easter Eggs scattered around the realm! Spring meadows and mills hum with life.",
+    activeTileIds: ["windmill", "fountain", "fisherman", "bakery"],
     goldMultiplier: 1.2,
     xpMultiplier: 1.1
   },
@@ -92,9 +92,9 @@ export const MONTHLY_EVENTS: SeasonalEvent[] = [
   },
   {
     month: 9, // Oct
-    id: "shadow_festival",
-    name: "Shadow Festival",
-    theme: "Eerie whispers echo through the town. Dungeons open their gates to bold adventurers seeking treasure.",
+    id: "halloween",
+    name: "Halloween Pumpkin Hunt",
+    theme: "Spooky lanterns glow in the shadows. Search for hidden pumpkins and brave the dark dungeons!",
     activeTileIds: ["dungeon", "portal-entrance", "portal-exit"],
     goldMultiplier: 1.2,
     xpMultiplier: 1.1
@@ -110,10 +110,10 @@ export const MONTHLY_EVENTS: SeasonalEvent[] = [
   },
   {
     month: 11, // Dec
-    id: "yule_tide",
-    name: "Yule Tide Celebration",
-    theme: "Heated fires, holiday songs, and warm taverns filled with hearty cheer to end the year.",
-    activeTileIds: ["tavern", "blacksmith", "grocery"],
+    id: "christmas",
+    name: "Christmas Present Hunt",
+    theme: "Find festive holiday presents hidden around the kingdom! Holiday cheer fills the taverns.",
+    activeTileIds: ["tavern", "blacksmith", "grocery", "winter-fountain", "snowy-inn", "ice-sculpture", "fireworks-stand"],
     goldMultiplier: 1.2,
     xpMultiplier: 1.1
   }
@@ -125,7 +125,7 @@ export function getActiveEvent(
 ): SeasonalEvent {
   // Manual overrides for testing/admin purposes
   if (winterManual) {
-    return MONTHLY_EVENTS[0]!; // Jan (Winter Festival)
+    return MONTHLY_EVENTS[11]!; // Dec (Christmas Present Hunt)
   }
   if (harvestManual) {
     return MONTHLY_EVENTS[8]!; // Sep (Harvest Festival)
