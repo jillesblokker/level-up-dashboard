@@ -136,6 +136,7 @@ export function KingdomGridWithTimers({
   const router = useRouter()
   const { weather, getWeatherName, getWeatherDescription } = useWeather()
   const [tileTimers, setTileTimers] = useState<TileTimer[]>([])
+  const [clientSkew, setClientSkew] = useState<number>(0)
   const [hoveredTile, setHoveredTile] = useState<{ x: number, y: number } | null>(null)
   const [movingTileSource, setMovingTileSource] = useState<{ x: number, y: number } | null>(null)
   const [focusCategory, setFocusCategory] = useState<string | null>(null)
@@ -1182,13 +1183,20 @@ export function KingdomGridWithTimers({
         if (res.ok) {
           const json = await res.json()
           if (json) {
-            loadedTimers = (json.data || []).map((t: any) => ({
-              x: t.x,
-              y: t.y,
-              tileId: t.tile_id,
-              endTime: typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time,
-              isReady: Date.now() >= (typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time),
-            }))
+            const serverTime = json.serverTime ? new Date(json.serverTime).getTime() : Date.now()
+            const skew = serverTime - Date.now()
+            setClientSkew(skew)
+
+            loadedTimers = (json.data || []).map((t: any) => {
+              const endTime = typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time
+              return {
+                x: t.x,
+                y: t.y,
+                tileId: t.tile_id,
+                endTime,
+                isReady: (Date.now() + skew) >= endTime,
+              }
+            })
             success = true;
           }
         }
@@ -1217,13 +1225,14 @@ export function KingdomGridWithTimers({
             if (kingdomTile && kingdomTile.timerMinutes > 0) {
               const hasExisting = finalTimers.some(t => t.x === x && t.y === y);
               if (!hasExisting) {
-                const endTime = Date.now() + (kingdomTile.timerMinutes * 60 * 1000)
+                // Initialize default timers as already ready (in the past) so they aren't locked immediately on mount
+                const endTime = Date.now() - 1000
                 const defaultTimer = {
                   x,
                   y,
                   tileId: kingdomTile.id,
                   endTime,
-                  isReady: false
+                  isReady: true
                 };
                 finalTimers.push(defaultTimer);
                 initialNewTimers.push(defaultTimer);
@@ -1271,7 +1280,7 @@ export function KingdomGridWithTimers({
     let interval: NodeJS.Timeout | null = null;
 
     const tick = () => setTileTimers(prev =>
-      prev.map(timer => ({ ...timer, isReady: Date.now() >= timer.endTime }))
+      prev.map(timer => ({ ...timer, isReady: (Date.now() + clientSkew) >= timer.endTime }))
     );
 
     const start = () => { if (interval) clearInterval(interval); interval = setInterval(tick, 10000); };
@@ -1284,7 +1293,7 @@ export function KingdomGridWithTimers({
       stop();
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [])
+  }, [clientSkew])
 
 
   // Update tile click handler to support property placement
@@ -2256,7 +2265,7 @@ export function KingdomGridWithTimers({
   };
 
   const formatTimeRemaining = (endTime: number) => {
-    const now = Date.now()
+    const now = Date.now() + clientSkew
     const timeLeft = endTime - now
 
     if (timeLeft <= 0) return 'Ready!'

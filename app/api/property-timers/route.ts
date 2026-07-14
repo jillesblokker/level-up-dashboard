@@ -25,7 +25,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result.data
+      data: result.data,
+      serverTime: new Date().toISOString()
     }, {
       headers: {
         'Cache-Control': 'private, s-maxage=0, max-age=10, must-revalidate',

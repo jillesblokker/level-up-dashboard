@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Wind, Sparkles, ScrollText } from 'lucide-react'
+import { Wind, Sparkles, ScrollText, Loader2 } from 'lucide-react'
 import { updateCharacterStats } from '@/lib/character-stats-service'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -20,6 +20,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
     const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale')
     const [canClaim, setCanClaim] = useState(false)
     const [seconds, setSeconds] = useState(0)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Reset state and init special quest on open
     useEffect(() => {
@@ -27,6 +28,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             setPhase('inhale')
             setCanClaim(false)
             setSeconds(0)
+            setIsSubmitting(false)
 
             // Auto-initialize meditation quest if it doesn't exist
             fetch('/api/quests/init-special', {
@@ -66,6 +68,8 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
     }, [seconds])
 
     const handleMeditate = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             // 1. Record meditation in database for Journey stats
             await fetch('/api/meditations', { method: 'POST' });
@@ -113,6 +117,8 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
         } catch (error) {
             logger.error("Failed to record meditation:", error);
             onClose();
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -191,7 +197,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
 
                     <Button
                         onClick={handleMeditate}
-                        disabled={!canClaim}
+                        disabled={!canClaim || isSubmitting}
                         className={cn(
                             "w-full py-6 transition-all duration-500 font-serif text-lg",
                             canClaim
@@ -199,10 +205,15 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                                 : "bg-zinc-900 text-zinc-600 border-zinc-800 grayscale"
                         )}
                     >
-                        {canClaim ? (
+                        {isSubmitting ? (
+                            <span className="flex items-center gap-2">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Centering Spirit...
+                            </span>
+                        ) : canClaim ? (
                             <span className="flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-teal-300" />
-                                Claim Serenity (+10 XP)
+                                Claim Serenity (+30 XP)
                             </span>
                         ) : (
                             "Still Centering..."
