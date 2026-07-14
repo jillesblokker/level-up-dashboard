@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award, Heart } from "lucide-react"
+import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award } from "lucide-react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -325,6 +325,10 @@ export function AlchemyLabTab() {
     return `${hours}h ${mins}m`;
   };
 
+  const handleOpenBagOverlay = () => {
+    window.dispatchEvent(new Event('open-inventory-bag'));
+  };
+
   const renderParticles = (colorClass: string) => {
     return Array.from({ length: 8 }).map((_, i) => (
       <motion.div
@@ -356,7 +360,7 @@ export function AlchemyLabTab() {
   }, [citizens]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 w-full">
       
       {/* Enhanced Header Hero */}
       <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
@@ -378,81 +382,81 @@ export function AlchemyLabTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Guardians Dashboard (Left columns) */}
-        <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-            <FlaskConical className="w-5 h-5 text-purple-400" /> Guardian Enhancements
-          </h3>
+      {/* 1. Full-Width Guardians Row */}
+      <div className="space-y-4 w-full">
+        <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
+          <FlaskConical className="w-5 h-5 text-purple-400" /> Guardian Enhancements
+        </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {GUARDIAN_DETAILS.map(g => {
-              const isActiveGuardian = guardianState?.selectedId === g.id;
-              const gLevel = isActiveGuardian ? (guardianState?.level || 1) : 1;
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+          {GUARDIAN_DETAILS.map(g => {
+            const isActiveGuardian = guardianState?.selectedId === g.id;
+            const gLevel = isActiveGuardian ? (guardianState?.level || 1) : 1;
 
-              // Check active status for enhancements
-              const activeEnhancementsList: { name: string; benefit: string; statusText: string; icon: any }[] = [];
-              
-              g.enhancements.forEach(enh => {
-                if (enh.key === 'forgeLuck' && activeBuffs.forgeLuckCharges > 0) {
-                  activeEnhancementsList.push({
-                    name: enh.name,
-                    benefit: enh.benefit,
-                    statusText: `${activeBuffs.forgeLuckCharges} charges left`,
-                    icon: enh.icon
-                  });
-                }
-                if (enh.key === 'blessingGreed' && isSpellActive && activeSpell === 'greed') {
-                  activeEnhancementsList.push({
-                    name: enh.name,
-                    benefit: enh.benefit,
-                    statusText: formatExpires(spellExpiresAt),
-                    icon: enh.icon
-                  });
-                }
-                if (enh.key === 'blessingSwiftness' && isSpellActive && activeSpell === 'swiftness') {
-                  activeEnhancementsList.push({
-                    name: enh.name,
-                    benefit: enh.benefit,
-                    statusText: formatExpires(spellExpiresAt),
-                    icon: enh.icon
-                  });
-                }
-                if (enh.key === 'doubleHarvest' && isDoubleHarvestActive) {
-                  activeEnhancementsList.push({
-                    name: enh.name,
-                    benefit: enh.benefit,
-                    statusText: formatExpires(activeBuffs.doubleHarvestUntil),
-                    icon: enh.icon
-                  });
-                }
-                if (enh.key === 'combatProtection' && activeBuffs.combatProtectionCharges > 0) {
-                  activeEnhancementsList.push({
-                    name: enh.name,
-                    benefit: enh.benefit,
-                    statusText: `${activeBuffs.combatProtectionCharges} charges left`,
-                    icon: enh.icon
-                  });
-                }
-              });
+            // Check active status for enhancements
+            const activeEnhancementsList: { name: string; benefit: string; statusText: string; icon: any }[] = [];
+            
+            g.enhancements.forEach(enh => {
+              if (enh.key === 'forgeLuck' && activeBuffs.forgeLuckCharges > 0) {
+                activeEnhancementsList.push({
+                  name: enh.name,
+                  benefit: enh.benefit,
+                  statusText: `${activeBuffs.forgeLuckCharges} charges left`,
+                  icon: enh.icon
+                });
+              }
+              if (enh.key === 'blessingGreed' && isSpellActive && activeSpell === 'greed') {
+                activeEnhancementsList.push({
+                  name: enh.name,
+                  benefit: enh.benefit,
+                  statusText: formatExpires(spellExpiresAt),
+                  icon: enh.icon
+                });
+              }
+              if (enh.key === 'blessingSwiftness' && isSpellActive && activeSpell === 'swiftness') {
+                activeEnhancementsList.push({
+                  name: enh.name,
+                  benefit: enh.benefit,
+                  statusText: formatExpires(spellExpiresAt),
+                  icon: enh.icon
+                });
+              }
+              if (enh.key === 'doubleHarvest' && isDoubleHarvestActive) {
+                activeEnhancementsList.push({
+                  name: enh.name,
+                  benefit: enh.benefit,
+                  statusText: formatExpires(activeBuffs.doubleHarvestUntil),
+                  icon: enh.icon
+                });
+              }
+              if (enh.key === 'combatProtection' && activeBuffs.combatProtectionCharges > 0) {
+                activeEnhancementsList.push({
+                  name: enh.name,
+                  benefit: enh.benefit,
+                  statusText: `${activeBuffs.combatProtectionCharges} charges left`,
+                  icon: enh.icon
+                });
+              }
+            });
 
-              const isEnhanced = activeEnhancementsList.length > 0;
+            const isEnhanced = activeEnhancementsList.length > 0;
 
-              return (
-                <Card
-                  key={g.id}
-                  className={cn(
-                    "bg-[#0f1115] border rounded-2xl relative overflow-hidden transition-all duration-300 flex flex-col justify-between min-h-[460px]",
-                    isEnhanced ? g.glowColor : "border-white/5 opacity-70"
-                  )}
-                >
-                  {/* Aura Particles */}
-                  <AnimatePresence>
-                    {isEnhanced && renderParticles(g.particleBg)}
-                  </AnimatePresence>
+            return (
+              <Card
+                key={g.id}
+                className={cn(
+                  "bg-[#0f1115] border rounded-2xl relative overflow-hidden transition-all duration-300 flex flex-col min-h-[480px] h-full justify-between w-full",
+                  isEnhanced ? g.glowColor : "border-white/5 opacity-70"
+                )}
+              >
+                {/* Aura Particles */}
+                <AnimatePresence>
+                  {isEnhanced && renderParticles(g.particleBg)}
+                </AnimatePresence>
 
-                  <CardContent className="p-5 flex flex-col h-full justify-between relative z-10 space-y-4">
+                <CardContent className="p-5 flex flex-col h-full flex-grow relative z-10 justify-between">
+                  {/* Top content wrapper - grows to take available space */}
+                  <div className="flex-grow flex flex-col justify-between space-y-4">
                     <div className="space-y-4">
                       {/* Guardian Header */}
                       <div className="flex justify-between items-start">
@@ -506,11 +510,11 @@ export function AlchemyLabTab() {
                                 return (
                                   <div key={i} className="p-2 bg-zinc-950/80 border border-white/5 rounded-xl text-[10px] space-y-0.5">
                                     <div className="flex justify-between items-center font-bold text-white">
-                                      <span className="flex items-center gap-1">
-                                        <IconComponent className="w-3 h-3 text-amber-500" />
+                                      <span className="flex items-center gap-1 truncate mr-2">
+                                        <IconComponent className="w-3 h-3 text-amber-500 shrink-0" />
                                         {act.name}
                                       </span>
-                                      <span className="text-amber-400 font-mono text-[9px]">{act.statusText}</span>
+                                      <span className="text-amber-400 font-mono text-[9px] shrink-0">{act.statusText}</span>
                                     </div>
                                     <p className="text-zinc-400 text-[9px] leading-relaxed">{act.benefit}</p>
                                   </div>
@@ -531,93 +535,194 @@ export function AlchemyLabTab() {
                       </div>
                     </div>
 
-                    {/* Integrated Interactive Actions Container */}
-                    <div className="space-y-2 pt-2 border-t border-white/5 mt-auto">
-                      {/* 1. Summon Button */}
-                      {!isActiveGuardian ? (
+                    <p className="text-[10px] text-zinc-400 leading-normal bg-zinc-950/40 p-2.5 rounded-lg border border-white/5 mt-auto">
+                      {g.description}
+                    </p>
+                  </div>
+
+                  {/* Actions Block - Locked at exact bottom height baseline */}
+                  <div className="space-y-2 pt-4 border-t border-white/5 mt-4 w-full">
+                    {/* 1. Summon Button */}
+                    {!isActiveGuardian ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSelectGuardian(g.id)}
+                        className="w-full text-[10px] h-8 font-bold border-amber-950/30 text-amber-500 hover:bg-amber-950/20"
+                      >
+                        Summon Companion
+                      </Button>
+                    ) : (
+                      <div className="w-full text-center text-[9px] font-bold text-emerald-400 py-1 bg-emerald-950/20 rounded border border-emerald-900/30 flex items-center justify-center gap-1 select-none h-8">
+                        <Check className="w-3 h-3" /> Active Companion
+                      </div>
+                    )}
+
+                    {/* 2. Spell Altar Cast Blessings */}
+                    {g.enhancements.map(enh => {
+                      if (!enh.spellName) return null;
+                      const cooldownText = getSpellCooldownText(enh.spellName);
+                      const isSpellActiveThisPet = isSpellActive && activeSpell === enh.spellName;
+                      
+                      return (
                         <Button
+                          key={enh.key}
                           size="sm"
-                          variant="outline"
-                          onClick={() => handleSelectGuardian(g.id)}
-                          className="w-full text-[10px] h-8 font-bold border-amber-950/30 text-amber-500 hover:bg-amber-950/20"
+                          disabled={isSpellActive || !!cooldownText}
+                          onClick={() => handleSpellCast(enh.spellName!)}
+                          className={cn(
+                            "w-full text-[10px] h-8 font-bold flex justify-between px-2.5",
+                            isSpellActiveThisPet
+                              ? "bg-indigo-900/40 text-indigo-200 border border-indigo-500/20 cursor-not-allowed"
+                              : "bg-zinc-950 hover:bg-zinc-900 border border-white/5 text-white"
+                          )}
                         >
-                          Summon Companion
+                          <span className="flex items-center gap-1">
+                            <Flame className="w-3.5 h-3.5 text-amber-500" />
+                            {enh.spellName === 'swiftness' ? 'Cast Swiftness' : 'Cast Greed'}
+                          </span>
+                          <span className="text-[8px] font-mono">
+                            {cooldownText ? `CD: ${cooldownText}` : isSpellActiveThisPet ? 'Active' : '+100%'}
+                          </span>
                         </Button>
-                      ) : (
-                        <div className="w-full text-center text-[9px] font-bold text-emerald-400 py-1 bg-emerald-950/20 rounded border border-emerald-900/30 flex items-center justify-center gap-1 select-none">
-                          <Check className="w-3 h-3" /> Active Companion
+                      );
+                    })}
+
+                    {/* 3. Consume Potions */}
+                    {g.enhancements.map(enh => {
+                      if (!enh.potionId) return null;
+                      const ownedQty = inventoryCounts[enh.potionId] || 0;
+                      
+                      return (
+                        <Button
+                          key={enh.key}
+                          size="sm"
+                          disabled={ownedQty === 0}
+                          onClick={() => handleDrinkPotion(enh.potionId!, enh.name)}
+                          className={cn(
+                            "w-full text-[10px] h-8 font-bold flex justify-between px-2.5",
+                            ownedQty > 0
+                              ? "bg-purple-950 hover:bg-purple-900 border border-purple-500/30 text-purple-300"
+                              : "bg-zinc-950/40 text-zinc-600 border border-zinc-900 cursor-not-allowed"
+                          )}
+                        >
+                          <span className="flex items-center gap-1">
+                            <FlaskConical className="w-3.5 h-3.5 text-purple-400" />
+                            Drink {enh.key === 'forgeLuck' ? 'Forge Luck' : enh.key === 'doubleHarvest' ? 'Double Harvest' : 'Shield Potion'}
+                          </span>
+                          <span className="font-mono text-[9px] bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-400">
+                            {ownedQty} owned
+                          </span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. Lower Dashboard Grid (Citizens Ledger next to Buff Overview) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+        
+        {/* Nourished Citizens Panel (Left 2/3) */}
+        <div className="lg:col-span-2 w-full">
+          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl w-full h-full flex flex-col justify-between">
+            <div>
+              <CardHeader className="p-0 pb-4 border-b border-white/5">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div>
+                    <CardTitle className="font-cardo text-base text-white flex items-center gap-2">
+                      <Users className="w-5 h-5 text-amber-500" /> Nourished Citizens Ledger
+                    </CardTitle>
+                    <CardDescription className="text-zinc-500 text-xs mt-0.5">
+                      Active citizens wandering your realm that are affected by Double Harvest elixirs
+                    </CardDescription>
+                  </div>
+                  <AnimatePresence>
+                    {isDoubleHarvestActive && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                      >
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] flex items-center gap-1.5 px-3 py-1.5 shadow-lg border border-emerald-500/20">
+                          <Hourglass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '3s' }} /> Double Harvest Active: {formatExpires(activeBuffs.doubleHarvestUntil)}
+                        </Badge>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-0 pt-6">
+                {isDoubleHarvestActive ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                    {activeCitizens.map(citizen => (
+                      <div
+                        key={citizen.id}
+                        className="p-3 bg-zinc-950/80 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)] rounded-xl flex flex-col items-center justify-between min-h-[140px] text-center relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-300"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+                        
+                        <div className="space-y-2 mt-1">
+                          <div className="relative w-12 h-12 flex items-center justify-center animate-bounce mb-1" style={{ animationDuration: '2s' }}>
+                            <Image
+                              src={citizen.isMythic ? `/images/Mythics/${citizen.filename}?v=2` : `/images/creatures/${citizen.filename}`}
+                              alt={citizen.name}
+                              fill
+                              className="object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] select-none pointer-events-none"
+                            />
+                          </div>
+                          <h5 className="font-bold text-white text-xs truncate max-w-[90px]">{citizen.name}</h5>
+                          <Badge className="bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5">
+                            x2 Yields
+                          </Badge>
                         </div>
-                      )}
 
-                      {/* 2. Spell Altar Cast Blessings */}
-                      {g.enhancements.map(enh => {
-                        if (!enh.spellName) return null;
-                        const cooldownText = getSpellCooldownText(enh.spellName);
-                        const isSpellActiveThisPet = isSpellActive && activeSpell === enh.spellName;
-                        
-                        return (
-                          <Button
-                            key={enh.key}
-                            size="sm"
-                            disabled={isSpellActive || !!cooldownText}
-                            onClick={() => handleSpellCast(enh.spellName!)}
-                            className={cn(
-                              "w-full text-[10px] h-8 font-bold flex justify-between px-2.5",
-                              isSpellActiveThisPet
-                                ? "bg-indigo-900/40 text-indigo-200 border border-indigo-500/20 cursor-not-allowed"
-                                : "bg-zinc-950 hover:bg-zinc-900 border border-white/5 text-white"
-                            )}
-                          >
-                            <span className="flex items-center gap-1">
-                              <Flame className="w-3.5 h-3.5 text-amber-500" />
-                              {enh.spellName === 'swiftness' ? 'Cast Swiftness' : 'Cast Greed'}
-                            </span>
-                            <span className="text-[8px] font-mono">
-                              {cooldownText ? `CD: ${cooldownText}` : isSpellActiveThisPet ? 'Active' : '+100%'}
-                            </span>
-                          </Button>
-                        );
-                      })}
-
-                      {/* 3. Consume Potions */}
-                      {g.enhancements.map(enh => {
-                        if (!enh.potionId) return null;
-                        const ownedQty = inventoryCounts[enh.potionId] || 0;
-                        
-                        return (
-                          <Button
-                            key={enh.key}
-                            size="sm"
-                            disabled={ownedQty === 0}
-                            onClick={() => handleDrinkPotion(enh.potionId!, enh.name)}
-                            className={cn(
-                              "w-full text-[10px] h-8 font-bold flex justify-between px-2.5",
-                              ownedQty > 0
-                                ? "bg-purple-950 hover:bg-purple-900 border border-purple-500/30 text-purple-300"
-                                : "bg-zinc-950/40 text-zinc-600 border border-zinc-900 cursor-not-allowed"
-                            )}
-                          >
-                            <span className="flex items-center gap-1">
-                              <FlaskConical className="w-3.5 h-3.5" />
-                              Drink {enh.key === 'forgeLuck' ? 'Forge Luck' : enh.key === 'doubleHarvest' ? 'Double Harvest' : 'Shield Potion'}
-                            </span>
-                            <span className="font-mono text-[9px] bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-400">
-                              {ownedQty} owned
-                            </span>
-                          </Button>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                        <div className="w-full mt-2">
+                          <div className="w-full h-1 bg-zinc-900 border border-white/5 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-emerald-500"
+                              animate={{ width: ["0%", "100%"] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            />
+                          </div>
+                          <span className="text-[8px] font-bold text-zinc-500 block mt-1 uppercase">Harvesting...</span>
+                        </div>
+                      </div>
+                    ))}
+                    {activeCitizens.length === 0 && (
+                      <div className="col-span-full py-8 text-center text-zinc-500 text-xs italic font-serif">
+                        Double Harvest is active, but you have no active Citizens wandering the Realm. Activate them in the Citizens tab!
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 px-4 text-center border border-zinc-900 rounded-xl bg-zinc-950/20 max-w-md mx-auto">
+                    <FlaskConical className="w-8 h-8 text-zinc-600 mb-2" />
+                    <h5 className="font-cardo font-bold text-sm text-zinc-300">No Citizen Multipliers Active</h5>
+                    <p className="text-[11px] text-zinc-500 mt-1 max-w-xs leading-normal">
+                      Drink a **Double Harvest Draught** directly from Spirit Sprite above or from your Inventory Bag to nourish active citizens and gain double yields!
+                    </p>
+                    <Button
+                      onClick={handleOpenBagOverlay}
+                      className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2 h-9 rounded-xl shadow-lg flex items-center gap-1.5 transition-all active:scale-[0.98]"
+                    >
+                      <FlaskConical className="w-4 h-4 shrink-0" /> Open Bag to Use Potion
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </div>
+          </Card>
         </div>
 
-        {/* Side Panel: Buff Status Overview */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between min-h-[300px]">
+        {/* Buff Status Overview (Right 1/3) */}
+        <div className="lg:col-span-1 w-full">
+          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between h-full min-h-[280px]">
             <div>
               <h4 className="font-cardo font-bold text-xs text-amber-500 flex items-center gap-1.5 uppercase tracking-wider mb-3">
                 <Activity className="w-4 h-4 text-amber-500" /> Buff Status Overview
@@ -664,9 +769,17 @@ export function AlchemyLabTab() {
                  !activeBuffs.combatProtectionCharges &&
                  !isDoubleHarvestActive &&
                  !isSpellActive && (
-                  <p className="text-[10px] text-zinc-500 leading-normal">
-                    No active potion elixirs or altar blessings. Drink elixirs directly from the Guardian cards above or from your inventory bag to activate modifiers!
-                  </p>
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <p className="text-[10px] text-zinc-500 leading-normal">
+                      No active potion elixirs or altar blessings. Open the cauldron inside your inventory bag to brew modifiers!
+                    </p>
+                    <Button
+                      onClick={handleOpenBagOverlay}
+                      className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 h-9 rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
+                    >
+                      <Sparkles className="w-4 h-4 shrink-0" /> Open Cauldron in Bag
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -678,89 +791,6 @@ export function AlchemyLabTab() {
         </div>
 
       </div>
-
-      {/* Nourished Citizens Panel */}
-      <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl w-full">
-        <CardHeader className="p-0 pb-4 border-b border-white/5">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <CardTitle className="font-cardo text-base text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-amber-500" /> Nourished Citizens Ledger
-              </CardTitle>
-              <CardDescription className="text-zinc-500 text-xs mt-0.5">
-                Active citizens wandering your realm that are affected by Double Harvest elixirs
-              </CardDescription>
-            </div>
-            <AnimatePresence>
-              {isDoubleHarvestActive && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] flex items-center gap-1.5 px-3 py-1.5 shadow-lg border border-emerald-500/20">
-                    <Hourglass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '3s' }} /> Double Harvest Active: {formatExpires(activeBuffs.doubleHarvestUntil)}
-                  </Badge>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-0 pt-6">
-          {isDoubleHarvestActive ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-              {activeCitizens.map(citizen => (
-                <div
-                  key={citizen.id}
-                  className="p-3 bg-zinc-950/80 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)] rounded-xl flex flex-col items-center justify-between min-h-[140px] text-center relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-300"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
-                  
-                  <div className="space-y-2 mt-1">
-                    <div className="relative w-12 h-12 flex items-center justify-center animate-bounce mb-1" style={{ animationDuration: '2s' }}>
-                      <Image
-                        src={citizen.isMythic ? `/images/Mythics/${citizen.filename}?v=2` : `/images/creatures/${citizen.filename}`}
-                        alt={citizen.name}
-                        fill
-                        className="object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] select-none pointer-events-none"
-                      />
-                    </div>
-                    <h5 className="font-bold text-white text-xs truncate max-w-[90px]">{citizen.name}</h5>
-                    <Badge className="bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5">
-                      x2 Yields
-                    </Badge>
-                  </div>
-
-                  <div className="w-full mt-2">
-                    <div className="w-full h-1 bg-zinc-900 border border-white/5 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-emerald-500"
-                        animate={{ width: ["0%", "100%"] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      />
-                    </div>
-                    <span className="text-[8px] font-bold text-zinc-500 block mt-1 uppercase">Harvesting...</span>
-                  </div>
-                </div>
-              ))}
-              {activeCitizens.length === 0 && (
-                <div className="col-span-full py-8 text-center text-zinc-500 text-xs italic font-serif">
-                  Double Harvest is active, but you have no active Citizens wandering the Realm. Activate them in the Citizens tab!
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 px-4 text-center border border-zinc-900 rounded-xl bg-zinc-950/20 max-w-lg mx-auto">
-              <FlaskConical className="w-8 h-8 text-zinc-600 mb-3" />
-              <h5 className="font-cardo font-bold text-sm text-zinc-300">No Citizen Multipliers Active</h5>
-              <p className="text-[11px] text-zinc-500 mt-1 max-w-sm leading-normal">
-                Drink a **Double Harvest Draught** directly from Spirit Sprite above or from your Inventory Bag to nourish active citizens. They will produce double items when harvesting materials!
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
     </div>
   );

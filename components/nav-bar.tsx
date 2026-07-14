@@ -65,6 +65,12 @@ export function NavBar({ session }: NavBarProps) {
   }, [])
 
   useEffect(() => {
+    const handleOpenBag = () => setIsBagOpen(true);
+    window.addEventListener('open-inventory-bag', handleOpenBag);
+    return () => window.removeEventListener('open-inventory-bag', handleOpenBag);
+  }, []);
+
+  useEffect(() => {
     // Only load stats if user is authenticated and Clerk is loaded
     if (!isLoaded || !isSignedIn) {
       return
