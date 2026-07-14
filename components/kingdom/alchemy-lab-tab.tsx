@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award } from "lucide-react"
+import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award, Heart } from "lucide-react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -15,6 +15,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { useCitizensStore } from '@/stores/citizensStore';
 
+import { getInventory } from '@/lib/inventory-manager';
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 
 interface GuardianDetails {
@@ -31,6 +32,8 @@ interface GuardianDetails {
     name: string;
     benefit: string;
     icon: any;
+    potionId?: string;
+    spellName?: 'swiftness' | 'greed';
   }[];
 }
 
@@ -49,13 +52,15 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
         key: 'forgeLuck',
         name: 'Forge Luck Elixir',
         benefit: '+10% Blacksmith tempering success rate',
-        icon: Sparkles
+        icon: Sparkles,
+        potionId: 'potion-forge-luck'
       },
       {
         key: 'blessingGreed',
         name: 'Blessing of Greed',
         benefit: '+100% Gold rewards from all habits and challenges',
-        icon: Coins
+        icon: Coins,
+        spellName: 'greed'
       }
     ]
   },
@@ -73,7 +78,8 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
         key: 'blessingSwiftness',
         name: 'Blessing of Swiftness',
         benefit: '+100% Experience from habits and challenges',
-        icon: Award
+        icon: Award,
+        spellName: 'swiftness'
       }
     ]
   },
@@ -91,13 +97,15 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
         key: 'doubleHarvest',
         name: 'Double Harvest Draught',
         benefit: '+100% Citizen harvesting yields',
-        icon: Hourglass
+        icon: Hourglass,
+        potionId: 'potion-double-harvest'
       },
       {
         key: 'combatProtection',
         name: 'Combat Protection Potion',
         benefit: 'Prevents gold loss on Monster Battle failures',
-        icon: Shield
+        icon: Shield,
+        potionId: 'potion-combat-protection'
       }
     ]
   }
@@ -107,6 +115,7 @@ export function AlchemyLabTab() {
   const { user } = useUser();
   const [activeBuffs, setActiveBuffs] = useState<any>({});
   const [guardianState, setGuardianState] = useState<any>(null);
+  const [inventoryCounts, setInventoryCounts] = useState<Record<string, number>>({});
   const [timeState, setTimeState] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
 
@@ -125,7 +134,15 @@ export function AlchemyLabTab() {
       const gState = await getUserPreference('habit_guardian_state') || null;
       setGuardianState(gState);
 
-      // 3. Load citizens
+      // 3. Fetch inventory counts for potions
+      const items = await getInventory(user.id);
+      const counts: Record<string, number> = {};
+      items.forEach((i: any) => {
+        counts[i.id] = (counts[i.id] || 0) + i.quantity;
+      });
+      setInventoryCounts(counts);
+
+      // 4. Load citizens
       await loadCitizens(user.id);
     } catch (err) {
       logger.error('[Enhanced] Failed to load data:', err);
@@ -168,6 +185,83 @@ export function AlchemyLabTab() {
       return `${Math.floor(mins / 60)}h ${mins % 60}m`;
     }
     return `${mins}m ${secs}s`;
+  };
+
+  const handleSelectGuardian = async (id: string) => {
+    if (!user?.id) return;
+    try {
+      const newState = {
+        selectedId: id,
+        level: guardianState?.level || 1,
+        experience: guardianState?.experience || 0,
+        lastBountyClaimedAt: guardianState?.lastBountyClaimedAt || null
+      };
+      await setUserPreference('habit_guardian_state', newState);
+      setGuardianState(newState);
+      toast({
+        title: "Companion Summoned! ✨",
+        description: `${GUARDIAN_DETAILS.find(g => g.id === id)?.name} has been set as your active companion.`
+      });
+      window.dispatchEvent(new Event('character-inventory-update'));
+      window.dispatchEvent(new Event('alchemy-buffs-update'));
+    } catch (err) {
+      toast({
+        title: "Summon failed",
+        description: "Failed to switch companion.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDrinkPotion = async (potionId: string, name: string) => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch('/api/inventory', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: potionId, quantity: 1 })
+      });
+      if (!res.ok) {
+        throw new Error("Failed to consume potion");
+      }
+
+      const current: any = await getUserPreference('active_alchemy_buffs') || {};
+      const updated: any = { ...current };
+
+      if (potionId === 'potion-forge-luck') {
+        updated.forgeLuckCharges = (current.forgeLuckCharges || 0) + 1;
+        toast({
+          title: "Forge Luck Activated! 🧪✨",
+          description: "Tempering success rate increased by +10% for your next upgrade attempt."
+        });
+      } else if (potionId === 'potion-combat-protection') {
+        updated.combatProtectionCharges = (current.combatProtectionCharges || 0) + 1;
+        toast({
+          title: "Shield Barrier Activated! 🧪🛡️",
+          description: "Your gold is safe from losses on the next Monster Battle."
+        });
+      } else if (potionId === 'potion-double-harvest') {
+        const next24h = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        updated.doubleHarvestUntil = next24h;
+        toast({
+          title: "Nourishing Draught Consumed! 🧪🐟",
+          description: "Citizen harvesting yields are doubled for the next 24 hours."
+        });
+      }
+
+      await setUserPreference('active_alchemy_buffs', updated);
+      await loadEnhancedData();
+
+      window.dispatchEvent(new Event('character-inventory-update'));
+      window.dispatchEvent(new Event('alchemy-buffs-update'));
+      window.dispatchEvent(new Event('character-modifiers-update'));
+    } catch (err: any) {
+      toast({
+        title: "Failed to drink potion",
+        description: err.message || "Failed to drink elixir.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSpellCast = async (spellName: 'swiftness' | 'greed') => {
@@ -218,6 +312,19 @@ export function AlchemyLabTab() {
     }
   };
 
+  const getSpellCooldownText = (spellName: 'swiftness' | 'greed') => {
+    const cooldownKey = `lastCastAt_${spellName}`;
+    const lastCast = activeBuffs[cooldownKey];
+    if (!lastCast) return null;
+    const msPassed = Date.now() - new Date(lastCast).getTime();
+    const cooling = 24 * 60 * 60 * 1000 - msPassed;
+    if (cooling <= 0) return null;
+
+    const hours = Math.floor(cooling / 3600000);
+    const mins = Math.floor((cooling % 3600000) / 60000);
+    return `${hours}h ${mins}m`;
+  };
+
   const renderParticles = (colorClass: string) => {
     return Array.from({ length: 8 }).map((_, i) => (
       <motion.div
@@ -266,7 +373,7 @@ export function AlchemyLabTab() {
           </Badge>
           <h2 className="font-cardo font-bold text-2xl text-white">Enhanced Citizens & Guardians</h2>
           <p className="text-xs text-zinc-300 max-w-xl">
-            Monitor companions and citizens empowered by your alchemy elixirs and spell blessings. Drink elixirs from your inventory bag to trigger enhancements.
+            Monitor companions and citizens empowered by your alchemy elixirs and spell blessings. Switch active companions, drink brewed elixirs, or channel daily altar magic.
           </p>
         </div>
       </div>
@@ -336,7 +443,7 @@ export function AlchemyLabTab() {
                 <Card
                   key={g.id}
                   className={cn(
-                    "bg-[#0f1115] border rounded-2xl relative overflow-hidden transition-all duration-300 flex flex-col justify-between min-h-[360px]",
+                    "bg-[#0f1115] border rounded-2xl relative overflow-hidden transition-all duration-300 flex flex-col justify-between min-h-[460px]",
                     isEnhanced ? g.glowColor : "border-white/5 opacity-70"
                   )}
                 >
@@ -345,7 +452,7 @@ export function AlchemyLabTab() {
                     {isEnhanced && renderParticles(g.particleBg)}
                   </AnimatePresence>
 
-                  <CardContent className="p-5 flex flex-col h-full justify-between relative z-10">
+                  <CardContent className="p-5 flex flex-col h-full justify-between relative z-10 space-y-4">
                     <div className="space-y-4">
                       {/* Guardian Header */}
                       <div className="flex justify-between items-start">
@@ -359,7 +466,7 @@ export function AlchemyLabTab() {
                           variant="outline"
                           className={cn(
                             "text-[8px] uppercase font-bold",
-                            isEnhanced ? "bg-purple-950/20 text-purple-300 border-purple-500/30" : "text-zinc-600 border-zinc-900"
+                            isEnhanced ? "bg-purple-950/20 text-purple-300 border-purple-500/30 animate-pulse" : "text-zinc-600 border-zinc-900"
                           )}
                         >
                           {isEnhanced ? "Enhanced" : "Resting"}
@@ -367,7 +474,7 @@ export function AlchemyLabTab() {
                       </div>
 
                       {/* Companion Avatar */}
-                      <div className="flex flex-col items-center py-4 select-none relative">
+                      <div className="flex flex-col items-center py-2 select-none relative">
                         <motion.div
                           animate={isEnhanced ? {
                             y: [0, -8, 0],
@@ -388,16 +495,16 @@ export function AlchemyLabTab() {
                         </Badge>
                       </div>
 
-                      {/* Enhancements / Potential Enhancements */}
+                      {/* Enhancements List */}
                       <div className="space-y-2">
                         {isEnhanced ? (
                           <>
                             <h5 className="text-[8px] uppercase tracking-wider font-extrabold text-purple-400">Active Effects:</h5>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                               {activeEnhancementsList.map((act, i) => {
                                 const IconComponent = act.icon;
                                 return (
-                                  <div key={i} className="p-2.5 bg-zinc-950/80 border border-white/5 rounded-xl text-[10px] space-y-1">
+                                  <div key={i} className="p-2 bg-zinc-950/80 border border-white/5 rounded-xl text-[10px] space-y-0.5">
                                     <div className="flex justify-between items-center font-bold text-white">
                                       <span className="flex items-center gap-1">
                                         <IconComponent className="w-3 h-3 text-amber-500" />
@@ -412,9 +519,9 @@ export function AlchemyLabTab() {
                             </div>
                           </>
                         ) : (
-                          <div className="text-[10px] text-zinc-500 italic bg-zinc-950/20 border border-zinc-900 p-3 rounded-xl space-y-1.5">
-                            <p className="font-semibold text-zinc-400 not-italic">Enhance with:</p>
-                            <ul className="list-disc list-inside space-y-1 text-[9px] text-zinc-500 font-medium">
+                          <div className="text-[10px] text-zinc-500 italic bg-zinc-950/20 border border-zinc-900 p-2.5 rounded-xl space-y-1">
+                            <p className="font-semibold text-zinc-400 not-italic">Can be enhanced by:</p>
+                            <ul className="list-disc list-inside space-y-0.5 text-[9px] text-zinc-500 font-medium">
                               {g.enhancements.map((e, idx) => (
                                 <li key={idx} className="truncate">{e.name}</li>
                               ))}
@@ -424,9 +531,83 @@ export function AlchemyLabTab() {
                       </div>
                     </div>
 
-                    <p className="text-[10px] text-zinc-400 leading-normal mt-3 bg-zinc-950/40 p-2.5 rounded-lg border border-white/5">
-                      {g.description}
-                    </p>
+                    {/* Integrated Interactive Actions Container */}
+                    <div className="space-y-2 pt-2 border-t border-white/5 mt-auto">
+                      {/* 1. Summon Button */}
+                      {!isActiveGuardian ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSelectGuardian(g.id)}
+                          className="w-full text-[10px] h-8 font-bold border-amber-950/30 text-amber-500 hover:bg-amber-950/20"
+                        >
+                          Summon Companion
+                        </Button>
+                      ) : (
+                        <div className="w-full text-center text-[9px] font-bold text-emerald-400 py-1 bg-emerald-950/20 rounded border border-emerald-900/30 flex items-center justify-center gap-1 select-none">
+                          <Check className="w-3 h-3" /> Active Companion
+                        </div>
+                      )}
+
+                      {/* 2. Spell Altar Cast Blessings */}
+                      {g.enhancements.map(enh => {
+                        if (!enh.spellName) return null;
+                        const cooldownText = getSpellCooldownText(enh.spellName);
+                        const isSpellActiveThisPet = isSpellActive && activeSpell === enh.spellName;
+                        
+                        return (
+                          <Button
+                            key={enh.key}
+                            size="sm"
+                            disabled={isSpellActive || !!cooldownText}
+                            onClick={() => handleSpellCast(enh.spellName!)}
+                            className={cn(
+                              "w-full text-[10px] h-8 font-bold flex justify-between px-2.5",
+                              isSpellActiveThisPet
+                                ? "bg-indigo-900/40 text-indigo-200 border border-indigo-500/20 cursor-not-allowed"
+                                : "bg-zinc-950 hover:bg-zinc-900 border border-white/5 text-white"
+                            )}
+                          >
+                            <span className="flex items-center gap-1">
+                              <Flame className="w-3.5 h-3.5 text-amber-500" />
+                              {enh.spellName === 'swiftness' ? 'Cast Swiftness' : 'Cast Greed'}
+                            </span>
+                            <span className="text-[8px] font-mono">
+                              {cooldownText ? `CD: ${cooldownText}` : isSpellActiveThisPet ? 'Active' : '+100%'}
+                            </span>
+                          </Button>
+                        );
+                      })}
+
+                      {/* 3. Consume Potions */}
+                      {g.enhancements.map(enh => {
+                        if (!enh.potionId) return null;
+                        const ownedQty = inventoryCounts[enh.potionId] || 0;
+                        
+                        return (
+                          <Button
+                            key={enh.key}
+                            size="sm"
+                            disabled={ownedQty === 0}
+                            onClick={() => handleDrinkPotion(enh.potionId!, enh.name)}
+                            className={cn(
+                              "w-full text-[10px] h-8 font-bold flex justify-between px-2.5",
+                              ownedQty > 0
+                                ? "bg-purple-950 hover:bg-purple-900 border border-purple-500/30 text-purple-300"
+                                : "bg-zinc-950/40 text-zinc-600 border border-zinc-900 cursor-not-allowed"
+                            )}
+                          >
+                            <span className="flex items-center gap-1">
+                              <FlaskConical className="w-3.5 h-3.5" />
+                              Drink {enh.key === 'forgeLuck' ? 'Forge Luck' : enh.key === 'doubleHarvest' ? 'Double Harvest' : 'Shield Potion'}
+                            </span>
+                            <span className="font-mono text-[9px] bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-400">
+                              {ownedQty} owned
+                            </span>
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -434,50 +615,9 @@ export function AlchemyLabTab() {
           </div>
         </div>
 
-        {/* Side Panel: Spell Altar & Buff Status */}
+        {/* Side Panel: Buff Status Overview */}
         <div className="lg:col-span-1 space-y-6">
-          
-          {/* Daily Spell Altar */}
-          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl">
-            <h4 className="font-cardo font-bold text-xs text-amber-500 flex items-center gap-1.5 uppercase tracking-wider mb-3.5">
-              <Flame className="w-4 h-4 text-amber-500" /> Mage Spell Altar
-            </h4>
-            
-            <p className="text-[10px] text-zinc-500 mb-3.5 leading-relaxed font-semibold">
-              Channel daily altar magic for a global quest bonus (1-hour active, 24h cooldown).
-            </p>
-
-            <div className="space-y-2">
-              <Button
-                disabled={isSpellActive}
-                onClick={() => handleSpellCast('swiftness')}
-                className="w-full text-xs font-bold justify-between bg-zinc-950 hover:bg-zinc-900 border border-white/5 rounded-xl p-3 h-auto"
-              >
-                <span className="flex items-center gap-2 text-white">
-                  <Sparkles className="w-4 h-4 text-amber-500" /> Blessing of Swiftness
-                </span>
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-                  +100% XP
-                </span>
-              </Button>
-
-              <Button
-                disabled={isSpellActive}
-                onClick={() => handleSpellCast('greed')}
-                className="w-full text-xs font-bold justify-between bg-zinc-950 hover:bg-zinc-900 border border-white/5 rounded-xl p-3 h-auto"
-              >
-                <span className="flex items-center gap-2 text-white">
-                  <Zap className="w-4 h-4 text-amber-500" /> Blessing of Greed
-                </span>
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-                  +100% Gold
-                </span>
-              </Button>
-            </div>
-          </Card>
-
-          {/* Active Buff Status Summary */}
-          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between min-h-[195px]">
+          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between min-h-[300px]">
             <div>
               <h4 className="font-cardo font-bold text-xs text-amber-500 flex items-center gap-1.5 uppercase tracking-wider mb-3">
                 <Activity className="w-4 h-4 text-amber-500" /> Buff Status Overview
@@ -525,18 +665,18 @@ export function AlchemyLabTab() {
                  !isDoubleHarvestActive &&
                  !isSpellActive && (
                   <p className="text-[10px] text-zinc-500 leading-normal">
-                    No active potion elixirs or altar blessings. Drink elixirs from your inventory bag to activate modifiers!
+                    No active potion elixirs or altar blessings. Drink elixirs directly from the Guardian cards above or from your inventory bag to activate modifiers!
                   </p>
                 )}
               </div>
             </div>
             
             <div className="pt-4 text-[9px] text-zinc-600 text-center font-semibold border-t border-white/5 mt-4">
-              Open your Inventory Bag to drink elixirs.
+              Tip: Brew elixirs using the Alchemist Cauldron inside your Inventory Bag overlay.
             </div>
           </Card>
-
         </div>
+
       </div>
 
       {/* Nourished Citizens Panel */}
@@ -575,7 +715,6 @@ export function AlchemyLabTab() {
                   key={citizen.id}
                   className="p-3 bg-zinc-950/80 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)] rounded-xl flex flex-col items-center justify-between min-h-[140px] text-center relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-300"
                 >
-                  {/* citizen glow particles */}
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
                   
                   <div className="space-y-2 mt-1">
@@ -616,7 +755,7 @@ export function AlchemyLabTab() {
               <FlaskConical className="w-8 h-8 text-zinc-600 mb-3" />
               <h5 className="font-cardo font-bold text-sm text-zinc-300">No Citizen Multipliers Active</h5>
               <p className="text-[11px] text-zinc-500 mt-1 max-w-sm leading-normal">
-                Drink a **Double Harvest Draught** from your Inventory Bag to nourish your active citizens. They will produce 100% extra items when harvesting materials!
+                Drink a **Double Harvest Draught** directly from Spirit Sprite above or from your Inventory Bag to nourish active citizens. They will produce double items when harvesting materials!
               </p>
             </div>
           )}
