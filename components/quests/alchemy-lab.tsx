@@ -166,6 +166,8 @@ export function AlchemyLab() {
   const [cauldron, setCauldron] = useState<Record<string, number>>({}) // id -> quantity
   const [brewState, setBrewState] = useState<"idle" | "brewing" | "success" | "error">("idle")
   const [brewedPotion, setBrewedPotion] = useState<Recipe | null>(null)
+  const [brewMultiplier, setBrewMultiplier] = useState<number>(1)
+  const [unlockedRecipes, setUnlockedRecipes] = useState<string[]>(["potion-focus", "potion-dread"])
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchLabData = async () => {
@@ -193,12 +195,22 @@ export function AlchemyLab() {
         setActiveModifiers(mods)
       }
 
-      // Fetch Guardian state
+      // Fetch Guardian and Unlocked Recipes state
       const prefRes = await fetch("/api/user-preferences", {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (prefRes.ok) {
         const prefData = await prefRes.json()
+        
+        // 1. Unlocked recipes list
+        const prefUnlocked = prefData.preferences?.unlocked_recipes
+        if (Array.isArray(prefUnlocked)) {
+          setUnlockedRecipes(Array.from(new Set(["potion-focus", "potion-dread", ...prefUnlocked])))
+        } else {
+          setUnlockedRecipes(["potion-focus", "potion-dread"])
+        }
+
+        // 2. Companion state
         const petState = prefData.preferences?.habit_guardian_state
         if (petState && petState.companionId) {
           const matched = GUARDIAN_DATA[petState.companionId as keyof typeof GUARDIAN_DATA]
@@ -278,44 +290,72 @@ export function AlchemyLab() {
   const selectRecipe = (recipe: Recipe) => {
     if (brewState === "brewing") return
 
-    // Verify ingredients are in inventory
+    // Verify ingredients are in inventory for another batch addition
     const missing: string[] = []
     recipe.ingredients.forEach(req => {
       const invItem = inventory.find(i => i.id === req.id)
-      if (!invItem || invItem.quantity < req.qty) {
-        missing.push(`${req.qty}x ${req.name}`)
+      const currentQty = cauldron[req.id] || 0
+      if (!invItem || invItem.quantity < (currentQty + req.qty)) {
+        missing.push(`${req.qty}x ${req.name} (have ${invItem ? invItem.quantity - currentQty : 0} available)`)
       }
     })
 
     if (missing.length > 0) {
       toast({
-        title: "Missing Reagents",
-        description: `You need: ${missing.join(", ")}`,
+        title: "Reagents Limit Reached",
+        description: `Cannot add another batch of ${recipe.name}. Missing: ${missing.join(", ")}`,
         variant: "destructive"
       })
       if (guardian) {
-        setPetSpeech(`Hoot! We don't have enough ingredients to brew ${recipe.name}. Check daily tasks!`)
+        setPetSpeech(`Hoot! We don't have enough ingredients to add another batch of ${recipe.name}.`)
       }
       return
     }
 
-    // Set cauldron slots
-    const newCauldron: Record<string, number> = {}
-    recipe.ingredients.forEach(req => {
-      newCauldron[req.id] = req.qty
+    // Add another batch to cauldron
+    setCauldron(prev => {
+      const copy = { ...prev }
+      recipe.ingredients.forEach(req => {
+        copy[req.id] = (copy[req.id] || 0) + req.qty
+      })
+      return copy
     })
-    setCauldron(newCauldron)
-    setPetSpeech(`Perfect! Ready to brew ${recipe.name}?`)
+
+    if (guardian) {
+      setPetSpeech(`Added ingredients for ${recipe.name} to the cauldron. You can click again to add more!`)
+    }
   }
 
   const brewCauldron = async () => {
     if (brewState === "brewing") return
 
-    // Match cauldron items with recipes
-    const matched = RECIPES.find(recipe => {
-      if (recipe.ingredients.length !== Object.keys(cauldron).length) return false
-      return recipe.ingredients.every(req => cauldron[req.id] === req.qty)
-    })
+    // Find matched recipe and multiplier
+    let matched: Recipe | null = null
+    let multiplier = 1
+
+    for (const recipe of RECIPES) {
+      // Must have exact same set of ingredients
+      if (recipe.ingredients.length !== Object.keys(cauldron).length) continue
+      
+      // Calculate possible multiplier from the first ingredient
+      const firstReq = recipe.ingredients[0]
+      if (!firstReq) continue
+      const cauldronQty = cauldron[firstReq.id] || 0
+      if (cauldronQty % firstReq.qty !== 0) continue
+      const candidateMultiplier = cauldronQty / firstReq.qty
+      if (candidateMultiplier < 1) continue
+
+      // Verify all other ingredients match this candidate multiplier
+      const isMatch = recipe.ingredients.every(req => {
+        return (cauldron[req.id] || 0) === req.qty * candidateMultiplier
+      })
+
+      if (isMatch) {
+        matched = recipe
+        multiplier = candidateMultiplier
+        break
+      }
+    }
 
     if (!matched) {
       setBrewState("brewing")
@@ -330,6 +370,7 @@ export function AlchemyLab() {
 
     try {
       setBrewState("brewing")
+      setBrewMultiplier(multiplier)
       setPetSpeech("Chanting the magical formulas... Cauldron is bubbling!")
       const token = await getToken({ template: 'supabase' })
       if (!token) return
@@ -342,7 +383,7 @@ export function AlchemyLab() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}` 
           },
-          body: JSON.stringify({ itemId: ingredient.id, quantity: ingredient.qty })
+          body: JSON.stringify({ itemId: ingredient.id, quantity: ingredient.qty * multiplier })
         })
       }
 
@@ -354,19 +395,38 @@ export function AlchemyLab() {
           Authorization: `Bearer ${token}` 
         },
         body: JSON.stringify({
-          name: matched.buffName,
-          effect: matched.buffEffect,
-          durationHours: matched.durationHours,
+          name: multiplier > 1 ? `${matched.buffName} x${multiplier}` : matched.buffName,
+          effect: multiplier > 1 ? `${matched.buffEffect} (Brewed x${multiplier})` : matched.buffEffect,
+          durationHours: matched.durationHours * multiplier,
           source: "potion"
         })
       })
 
       // Success animation timing
-      setTimeout(() => {
+      setTimeout(async () => {
         setBrewState("success")
         setBrewedPotion(matched)
         setCauldron({})
         setPetSpeech(matched.successSpeech)
+        
+        // If this recipe was locked, unlock it and save to DB
+        if (matched && !unlockedRecipes.includes(matched.id)) {
+          const nextUnlocked = [...unlockedRecipes, matched.id]
+          setUnlockedRecipes(nextUnlocked)
+          try {
+            await fetch("/api/user-preferences", {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}` 
+              },
+              body: JSON.stringify({ key: "unlocked_recipes", value: nextUnlocked })
+            })
+          } catch (e) {
+            logger.error("Error saving unlocked recipes preference:", e)
+          }
+        }
+
         fetchLabData() // Reload inventory/modifiers
         
         // Dispatch event to update quests page and profile page cache immediately
@@ -375,7 +435,7 @@ export function AlchemyLab() {
         
         toast({
           title: `${matched.name} Brewed! 🧪✨`,
-          description: `Active buff: ${matched.buffEffect}`
+          description: `Active buff: ${matched.buffEffect}${multiplier > 1 ? ` (Duration stacked x${multiplier})` : ""}`
         })
       }, 3000)
 
@@ -539,8 +599,12 @@ export function AlchemyLab() {
                     <div className="p-6 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-400 text-5xl mb-4 animate-bounce">
                       {brewedPotion.emoji}
                     </div>
-                    <h3 className="font-serif text-xl font-bold text-white mb-1">{brewedPotion.name} Successfully Brewed!</h3>
-                    <p className="text-xs text-zinc-400 mb-4">{brewedPotion.buffEffect}</p>
+                    <h3 className="font-serif text-xl font-bold text-white mb-1">
+                      {brewMultiplier > 1 ? `${brewMultiplier}x ` : ""}{brewedPotion.name} Successfully Brewed!
+                    </h3>
+                    <p className="text-xs text-zinc-400 mb-4">
+                      {brewedPotion.buffEffect} {brewMultiplier > 1 ? `(stacked ${brewedPotion.durationHours * brewMultiplier} hours)` : `(${brewedPotion.durationHours} hours)`}
+                    </p>
                     <Button
                       onClick={() => {
                         setBrewState("idle")
@@ -617,7 +681,7 @@ export function AlchemyLab() {
                     <Tooltip key={item.id}>
                       <TooltipTrigger asChild>
                         <div
-                          onClick={() => availableQty > 0 && addIngredient(item.id)}
+                           onClick={() => availableQty > 0 && addIngredient(item.id)}
                           className={`p-4 bg-zinc-900/50 border rounded-2xl flex items-center justify-between cursor-pointer transition-all duration-200 ${
                             availableQty > 0
                               ? "border-white/5 hover:border-purple-500/40 hover:bg-zinc-900/80 hover:scale-[1.01]"
@@ -666,6 +730,40 @@ export function AlchemyLab() {
             <CardContent className="p-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {RECIPES.map(recipe => {
+                  const isUnlocked = unlockedRecipes.includes(recipe.id)
+
+                  if (!isUnlocked) {
+                    return (
+                      <div
+                        key={recipe.id}
+                        className="p-4 bg-zinc-900/30 border border-white/5 rounded-2xl relative overflow-hidden group flex flex-col justify-between select-none min-h-[140px]"
+                      >
+                        {/* Blurred content */}
+                        <div className="filter blur-[5px] opacity-40 pointer-events-none flex flex-col justify-between h-full w-full">
+                          <div className="flex items-start gap-4">
+                            <div className="p-3 rounded-2xl bg-zinc-800 text-white text-2xl shadow-md shrink-0">
+                              ❓
+                            </div>
+                            <div className="min-w-0">
+                              <h5 className="font-bold text-sm text-zinc-400">Locked Elixir</h5>
+                              <p className="text-xs text-zinc-500 leading-normal mt-1">Discover this recipe by experimenting with cauldron ingredients!</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 flex-wrap mt-4 border-t border-white/5 pt-3">
+                            <Badge variant="outline" className="text-[10px] border-zinc-800 bg-zinc-950/20 text-zinc-600">??/??</Badge>
+                            <Badge variant="outline" className="text-[10px] border-zinc-800 bg-zinc-950/20 text-zinc-600">??/??</Badge>
+                          </div>
+                        </div>
+
+                        {/* Lock Overlay */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                          <span className="text-xl">🔒</span>
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 mt-1">Undiscovered Recipe</span>
+                        </div>
+                      </div>
+                    )
+                  }
+
                   return (
                     <div
                       key={recipe.id}
