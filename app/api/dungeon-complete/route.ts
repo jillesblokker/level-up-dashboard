@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
                 const undiscovered = allRecipes.filter((id: string) => !currentUnlocked.includes(id));
 
                 if (undiscovered.length > 0) {
-                    const newRecipeId = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+                    const newRecipeId = undiscovered[Math.floor(Math.random() * undiscovered.length)] as string;
                     const nextUnlocked = [...currentUnlocked, newRecipeId];
 
                     await supabaseServer
@@ -217,7 +217,7 @@ export async function POST(req: NextRequest) {
                         "potion-ironheart": { name: "Ironheart Tonic", emoji: "🧪" },
                         "potion-mercury": { name: "Mercury Elixir", emoji: "🔮" }
                     };
-                    const info = recipeNames[newRecipeId] || { name: "Unknown Potion", emoji: "🧪" };
+                    const info = recipeNames[newRecipeId as keyof typeof recipeNames] || { name: "Unknown Potion", emoji: "🧪" };
                     discoveredRecipe = { id: newRecipeId, name: info.name, emoji: info.emoji };
                     apiLogger.info(`User ${userId} discovered recipe ${newRecipeId} in dungeon`);
                 }
