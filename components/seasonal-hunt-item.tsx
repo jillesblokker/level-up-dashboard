@@ -8,7 +8,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { toast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Gift, Egg, Circle } from 'lucide-react';
+import { Gift, Egg, Circle, Heart, Clover, Shield, Sun, Sparkles, Hammer, Wheat, Scroll } from 'lucide-react';
 
 interface SeasonalHuntItemProps {
   item: SeasonalItem;
@@ -23,6 +23,24 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
 
   const currentEvent = SeasonalHuntManager.getCurrentEvent();
   const eventConfig = currentEvent ? SEASONAL_EVENTS[currentEvent] : null;
+
+  const getEventItemName = (eventKey: string | null) => {
+    switch (eventKey) {
+      case 'easter': return 'egg';
+      case 'christmas': return 'present';
+      case 'halloween': return 'pumpkin';
+      case 'newyear': return 'firework sparkler';
+      case 'valentine': return 'heart charm';
+      case 'spring': return 'lucky clover';
+      case 'shield_joust': return 'shield';
+      case 'solstice': return 'sun crest';
+      case 'firefly': return 'firefly lantern';
+      case 'forge_fire': return 'iron ingot';
+      case 'harvest': return 'wheat sheaf';
+      case 'remembrance': return 'heritage scroll';
+      default: return 'seasonal item';
+    }
+  };
 
   const handleItemClick = async () => {
     if (!user?.id || isFound || !eventConfig) return;
@@ -40,7 +58,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
         // Show success toast
         toast({
           title: `🎉 ${eventConfig.name}!`,
-          description: `You found a ${currentEvent === 'easter' ? 'egg' : currentEvent === 'christmas' ? 'present' : 'pumpkin'} and earned ${eventConfig.goldReward} gold! ${currentProgress.remaining} remaining.`,
+          description: `You found a ${getEventItemName(currentEvent)} and earned ${eventConfig.goldReward} gold! ${currentProgress.remaining} remaining.`,
         });
 
         setIsFound(true);
@@ -64,6 +82,15 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
       case 'easter': return <Egg className="h-5 w-5" />;
       case 'christmas': return <Gift className="h-5 w-5" />;
       case 'halloween': return <Circle className="h-5 w-5" />;
+      case 'valentine': return <Heart className="h-5 w-5" />;
+      case 'spring': return <Clover className="h-5 w-5" />;
+      case 'shield_joust': return <Shield className="h-5 w-5" />;
+      case 'solstice': return <Sun className="h-5 w-5" />;
+      case 'firefly': return <Sparkles className="h-5 w-5" />;
+      case 'forge_fire': return <Hammer className="h-5 w-5" />;
+      case 'harvest': return <Wheat className="h-5 w-5" />;
+      case 'remembrance': return <Scroll className="h-5 w-5" />;
+      case 'newyear': return <Sparkles className="h-5 w-5" />;
       default: return <Gift className="h-5 w-5" />;
     }
   };
@@ -117,7 +144,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
                 🎉 Item Found!
               </div>
               <p className="text-zinc-300 mb-4">
-                You found a {currentEvent === 'easter' ? 'egg' : currentEvent === 'christmas' ? 'present' : 'pumpkin'} and earned {eventConfig.goldReward} gold!
+                You found a {getEventItemName(currentEvent)} and earned {eventConfig.goldReward} gold!
               </p>
             </div>
 

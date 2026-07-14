@@ -26,29 +26,101 @@ export interface SeasonalEvent {
 
 // Seasonal events configuration
 export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
+  newyear: {
+    name: "New Year's Hunt",
+    image: "/images/firework.webp",
+    startDate: { month: 1, day: 1 },
+    endDate: { month: 1, day: 31 },
+    goldReward: 100,
+    description: "Find hidden fireworks around the app!"
+  },
+  valentine: {
+    name: "Valentine Heart Hunt",
+    image: "/images/heart.webp",
+    startDate: { month: 2, day: 1 },
+    endDate: { month: 2, day: 28 },
+    goldReward: 100,
+    description: "Find hidden hearts around the app!"
+  },
+  spring: {
+    name: "Spring Clover Hunt",
+    image: "/images/clover.webp",
+    startDate: { month: 3, day: 1 },
+    endDate: { month: 3, day: 19 },
+    goldReward: 100,
+    description: "Find hidden clovers around the app!"
+  },
   easter: {
     name: "Easter Egg Hunt",
     image: "/images/egg.webp",
-    startDate: { month: 3, day: 20 }, // March 20
-    endDate: { month: 4, day: 30 },   // April 30
+    startDate: { month: 3, day: 20 },
+    endDate: { month: 4, day: 30 },
     goldReward: 100,
     description: "Find hidden eggs around the app!"
   },
-  christmas: {
-    name: "Christmas Present Hunt",
-    image: "/images/present.webp",
-    startDate: { month: 12, day: 20 }, // December 20
-    endDate: { month: 12, day: 27 },   // December 27
-    goldReward: 150,
-    description: "Find hidden presents around the app!"
+  shield_joust: {
+    name: "Shield-Maiden's Hunt",
+    image: "/images/shield.webp",
+    startDate: { month: 5, day: 1 },
+    endDate: { month: 5, day: 31 },
+    goldReward: 100,
+    description: "Find hidden shields around the app!"
+  },
+  solstice: {
+    name: "Solstice Sun Hunt",
+    image: "/images/sun.webp",
+    startDate: { month: 6, day: 1 },
+    endDate: { month: 6, day: 30 },
+    goldReward: 100,
+    description: "Find hidden sun crests around the app!"
+  },
+  firefly: {
+    name: "Firefly Lantern Hunt",
+    image: "/images/firefly.webp",
+    startDate: { month: 7, day: 1 },
+    endDate: { month: 7, day: 31 },
+    goldReward: 100,
+    description: "Find hidden fireflies around the app!"
+  },
+  forge_fire: {
+    name: "Forge Ingot Hunt",
+    image: "/images/ingot.webp",
+    startDate: { month: 8, day: 1 },
+    endDate: { month: 8, day: 31 },
+    goldReward: 100,
+    description: "Find hidden iron ingots around the app!"
+  },
+  harvest: {
+    name: "Harvest Wheat Hunt",
+    image: "/images/wheat.webp",
+    startDate: { month: 9, day: 1 },
+    endDate: { month: 9, day: 30 },
+    goldReward: 100,
+    description: "Find hidden wheat sheaves around the app!"
   },
   halloween: {
     name: "Halloween Pumpkin Hunt",
     image: "/images/pumpkin.webp",
-    startDate: { month: 10, day: 20 }, // October 20
-    endDate: { month: 10, day: 31 },   // October 31
+    startDate: { month: 10, day: 1 },
+    endDate: { month: 10, day: 31 },
     goldReward: 120,
     description: "Find hidden pumpkins around the app!"
+  },
+  remembrance: {
+    name: "Heritage Scroll Hunt",
+    image: "/images/scroll.webp",
+    startDate: { month: 11, day: 1 },
+    endDate: { month: 11, day: 30 },
+    goldReward: 100,
+    description: "Find hidden scrolls around the app!"
+  },
+  christmas: {
+    name: "Christmas Present Hunt",
+    image: "/images/present.webp",
+    startDate: { month: 12, day: 1 },
+    endDate: { month: 12, day: 31 },
+    goldReward: 150,
+    description: "Find hidden presents around the app!"
   }
 };
 
