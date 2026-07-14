@@ -656,9 +656,21 @@ export default function DungeonPage() {
         }
       );
 
+      if (data.discoveredRecipe) {
+        notificationService.addNotification(
+          "📖 Recipe Discovered!",
+          `You discovered the formula for the ${data.discoveredRecipe.emoji} ${data.discoveredRecipe.name}! It is now available in your Alchemist Cauldron.`,
+          "monster",
+          "high"
+        );
+      }
+
       setGameResult({
         success: finalRun.status === 'completed',
-        rewards: data.rewards,
+        rewards: {
+          ...data.rewards,
+          discoveredRecipe: data.discoveredRecipe
+        },
         loot: finalRun.lootCollected
       });
       setRun(null); // Clear active run to show result
@@ -716,6 +728,18 @@ export default function DungeonPage() {
                   <div className="text-xs text-purple-600 font-bold uppercase">Items</div>
                 </div>
               </div>
+
+              {gameResult.rewards.discoveredRecipe && (
+                <div className="mt-4 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-center gap-3.5 text-left">
+                  <span className="text-4xl select-none animate-bounce">{gameResult.rewards.discoveredRecipe.emoji}</span>
+                  <div>
+                    <h4 className="text-sm font-extrabold text-purple-400">Recipe Discovered!</h4>
+                    <p className="text-xs text-zinc-300 leading-normal mt-0.5">
+                      You discovered the formula for the <strong>{gameResult.rewards.discoveredRecipe.name}</strong>! It has been added to your Alchemist Cauldron ledger.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {gameResult.loot && gameResult.loot.length > 0 && (
                 <div className="pt-4 border-t border-white/5">

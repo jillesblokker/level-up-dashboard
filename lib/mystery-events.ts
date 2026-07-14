@@ -257,6 +257,56 @@ export function generateMysteryEvent(): MysteryEvent {
   return (event ? event : possibleEvents[0]) as MysteryEvent;
 }
 
+async function triggerRecipeDiscovery(userId: string) {
+  try {
+    const prefRes = await fetch("/api/user-preferences");
+    if (!prefRes.ok) return;
+    const prefData = await prefRes.json();
+    if (!prefData || !prefData.success) return;
+    
+    const prefUnlocked = prefData.preferences?.unlocked_recipes;
+    const currentUnlocked: string[] = Array.isArray(prefUnlocked) 
+      ? prefUnlocked 
+      : ["potion-focus", "potion-dread"];
+      
+    const allRecipes = ["potion-aegis", "potion-midas", "potion-sage", "potion-ironheart", "potion-mercury"];
+    const undiscovered = allRecipes.filter(id => !currentUnlocked.includes(id));
+    if (undiscovered.length === 0) return;
+    
+    const newRecipeId = undiscovered[Math.floor(Math.random() * undiscovered.length)]!;
+    const nextUnlocked = [...currentUnlocked, newRecipeId];
+    
+    await fetch("/api/user-preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: "unlocked_recipes", value: nextUnlocked })
+    });
+    
+    const recipeNames: Record<string, { name: string; emoji: string }> = {
+      "potion-aegis": { name: "Aegis Draught", emoji: "🛡️" },
+      "potion-midas": { name: "Midas Draught", emoji: "🍯" },
+      "potion-sage": { name: "Sage Brew", emoji: "🍵" },
+      "potion-ironheart": { name: "Ironheart Tonic", emoji: "🧪" },
+      "potion-mercury": { name: "Mercury Elixir", emoji: "🔮" }
+    };
+    
+    const recipeInfo = recipeNames[newRecipeId] || { name: "Unknown Elixir", emoji: "🧪" };
+    
+    toast({
+      title: "📖 Recipe Discovered!",
+      description: `You discovered the formula for the ${recipeInfo.emoji} ${recipeInfo.name}! Check your Alchemist Cauldron ledger.`,
+      duration: 5000
+    });
+    
+    createEventNotification(
+      "📖 Recipe Discovered!", 
+      `While exploring, you discovered the formula for the ${recipeInfo.emoji} ${recipeInfo.name}! It is now available in your Alchemist Cauldron.`
+    );
+  } catch (err) {
+    console.error("Error triggering recipe discovery:", err);
+  }
+}
+
 export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?: string) => {
   const outcome = event.outcomes[choice];
   if (!outcome) {
@@ -271,6 +321,13 @@ export const handleEventOutcome = (event: MysteryEvent, choice: string, userId?:
 
   const reward = outcome.reward;
   if (!reward) return;
+
+  // 10% chance to discover a new recipe on successful outcome
+  if (reward.type !== 'nothing' && userId) {
+    if (Math.random() < 0.1) {
+      triggerRecipeDiscovery(userId);
+    }
+  }
 
   // Show outcome message if present
   if (outcome.message) {

@@ -173,10 +173,57 @@ export async function POST(req: NextRequest) {
                     milestoneMessage = await getMilestoneMessage('dungeon_victory');
                 }
             } else if (status === 'defeated') {
-                milestoneMessage = await getMilestoneMessage('dungeon_defeat');
+                milestoneMessage = await getMilestoneMessage('dungeon-defeat');
             }
         } catch (mErr) {
             apiLogger.warn('Milestone check error:', mErr);
+        }
+
+        // 10% chance to discover a potion recipe in a victory dungeon run
+        let discoveredRecipe = null;
+        if ((status === 'completed' || status === 'victory') && Math.random() < 0.1) {
+            try {
+                const { data: prefRow } = await supabaseServer
+                    .from('user_preferences')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('preference_key', 'unlocked_recipes')
+                    .maybeSingle();
+
+                const currentUnlocked = prefRow && Array.isArray(prefRow.preference_value)
+                    ? prefRow.preference_value
+                    : ["potion-focus", "potion-dread"];
+
+                const allRecipes = ["potion-aegis", "potion-midas", "potion-sage", "potion-ironheart", "potion-mercury"];
+                const undiscovered = allRecipes.filter((id: string) => !currentUnlocked.includes(id));
+
+                if (undiscovered.length > 0) {
+                    const newRecipeId = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+                    const nextUnlocked = [...currentUnlocked, newRecipeId];
+
+                    await supabaseServer
+                        .from('user_preferences')
+                        .upsert({
+                            user_id: userId,
+                            preference_key: 'unlocked_recipes',
+                            preference_value: nextUnlocked,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: 'user_id,preference_key' });
+
+                    const recipeNames: Record<string, { name: string; emoji: string }> = {
+                        "potion-aegis": { name: "Aegis Draught", emoji: "🛡️" },
+                        "potion-midas": { name: "Midas Draught", emoji: "🍯" },
+                        "potion-sage": { name: "Sage Brew", emoji: "🍵" },
+                        "potion-ironheart": { name: "Ironheart Tonic", emoji: "🧪" },
+                        "potion-mercury": { name: "Mercury Elixir", emoji: "🔮" }
+                    };
+                    const info = recipeNames[newRecipeId] || { name: "Unknown Potion", emoji: "🧪" };
+                    discoveredRecipe = { id: newRecipeId, name: info.name, emoji: info.emoji };
+                    apiLogger.info(`User ${userId} discovered recipe ${newRecipeId} in dungeon`);
+                }
+            } catch (err) {
+                apiLogger.error("Failed to process dungeon recipe unlock:", err);
+            }
         }
 
         return NextResponse.json({
@@ -187,6 +234,7 @@ export async function POST(req: NextRequest) {
                 gems: totalGems,
                 items: itemDrops.length
             },
+            discoveredRecipe,
             milestoneMessage
         });
 
