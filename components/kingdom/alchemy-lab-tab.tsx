@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award } from "lucide-react"
+import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award, Heart } from "lucide-react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -114,6 +114,7 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
 export function AlchemyLabTab() {
   const { user } = useUser();
   const [activeBuffs, setActiveBuffs] = useState<any>({});
+  const [activeModifiers, setActiveModifiers] = useState<any[]>([]);
   const [guardianState, setGuardianState] = useState<any>(null);
   const [inventoryCounts, setInventoryCounts] = useState<Record<string, number>>({});
   const [timeState, setTimeState] = useState(Date.now());
@@ -142,7 +143,14 @@ export function AlchemyLabTab() {
       });
       setInventoryCounts(counts);
 
-      // 4. Load citizens
+      // 4. Fetch active modifiers from cauldron
+      const modRes = await fetch('/api/active-modifiers');
+      if (modRes.ok) {
+        const modData = await modRes.json();
+        setActiveModifiers(modData.modifiers || []);
+      }
+
+      // 5. Load citizens
       await loadCitizens(user.id);
     } catch (err) {
       logger.error('[Enhanced] Failed to load data:', err);
@@ -436,6 +444,77 @@ export function AlchemyLabTab() {
                   statusText: `${activeBuffs.combatProtectionCharges} charges left`,
                   icon: enh.icon
                 });
+              }
+            });
+
+            // Map active cauldron modifiers from database
+            activeModifiers.forEach((mod: any) => {
+              const modName = mod.name.toLowerCase();
+              const expiresAt = mod.expires_at;
+              const isExpired = new Date(expiresAt).getTime() <= timeState;
+              if (isExpired) return;
+
+              if (g.id === 'ember-drake') {
+                if (modName.includes('midas')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Coins
+                  });
+                }
+                if (modName.includes('dread')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Coins
+                  });
+                }
+              }
+              if (g.id === 'sage-owl') {
+                if (modName.includes('focus')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Sparkles
+                  });
+                }
+                if (modName.includes('sage')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Award
+                  });
+                }
+              }
+              if (g.id === 'spirit-sprite') {
+                if (modName.includes('aegis') || modName.includes('shield')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Shield
+                  });
+                }
+                if (modName.includes('ironheart')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Heart
+                  });
+                }
+                if (modName.includes('mercury')) {
+                  activeEnhancementsList.push({
+                    name: mod.name,
+                    benefit: mod.effect,
+                    statusText: formatExpires(expiresAt),
+                    icon: Hourglass
+                  });
+                }
               }
             });
 
@@ -765,10 +844,46 @@ export function AlchemyLabTab() {
                   </div>
                 )}
 
+                {/* Display active cauldron modifiers from database */}
+                {activeModifiers.map((mod: any) => {
+                  const isExpired = new Date(mod.expires_at).getTime() <= timeState;
+                  if (isExpired) return null;
+
+                  const modName = mod.name.toLowerCase();
+                  let IconComponent = Sparkles;
+                  let colorClass = "text-purple-400 bg-purple-950/15 border-purple-500/20";
+                  if (modName.includes('midas') || modName.includes('dread')) {
+                    IconComponent = Coins;
+                    colorClass = "text-amber-400 bg-amber-950/15 border-amber-500/20";
+                  } else if (modName.includes('focus') || modName.includes('sage')) {
+                    IconComponent = Award;
+                    colorClass = "text-cyan-400 bg-cyan-950/15 border-cyan-500/20";
+                  } else if (modName.includes('aegis') || modName.includes('shield')) {
+                    IconComponent = Shield;
+                    colorClass = "text-emerald-400 bg-emerald-950/15 border-emerald-500/20";
+                  } else if (modName.includes('ironheart')) {
+                    IconComponent = Heart;
+                    colorClass = "text-red-400 bg-red-950/15 border-red-500/20";
+                  } else if (modName.includes('mercury')) {
+                    IconComponent = Hourglass;
+                    colorClass = "text-purple-400 bg-purple-950/15 border-purple-500/20";
+                  }
+
+                  return (
+                    <div key={mod.id} className={cn("flex justify-between items-center text-xs p-2 rounded-xl border", colorClass)}>
+                      <span className="font-bold flex items-center gap-1.5">
+                        <IconComponent className="w-3.5 h-3.5" /> {mod.name}
+                      </span>
+                      <span className="font-mono font-bold text-[9px]">{formatExpires(mod.expires_at)}</span>
+                    </div>
+                  );
+                })}
+
                 {!activeBuffs.forgeLuckCharges &&
                  !activeBuffs.combatProtectionCharges &&
                  !isDoubleHarvestActive &&
-                 !isSpellActive && (
+                 !isSpellActive &&
+                 activeModifiers.filter(m => new Date(m.expires_at).getTime() > timeState).length === 0 && (
                   <div className="flex flex-col items-center py-4 text-center">
                     <p className="text-[10px] text-zinc-500 leading-normal">
                       No active potion elixirs or altar blessings. Open the cauldron inside your inventory bag to brew modifiers!

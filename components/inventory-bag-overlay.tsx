@@ -378,6 +378,95 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               title: "Nourishing Draught Consumed! 🧪🐟",
               description: "Citizen harvesting yields are doubled for the next 24 hours!"
             });
+          } else if (item.id === 'potion-health') {
+            let maxHealth = 100;
+            let currentHealth = 100;
+            try {
+              const statsRes = await fetch('/api/character-stats');
+              if (statsRes.ok) {
+                const statsData = await statsRes.json();
+                maxHealth = statsData.maxHealth || statsData.max_health || 100;
+                currentHealth = statsData.health || 100;
+              }
+            } catch (e) {
+              logger.warn('[Bag] Failed to fetch stats for health potion', e);
+            }
+            const nextHealth = Math.min(currentHealth + 50, maxHealth);
+            await fetch('/api/character-stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ stats: { health: nextHealth } })
+            });
+            toast({
+              title: "Health Restored! ❤️",
+              description: `Restored 50 HP. Health: ${nextHealth}/${maxHealth}`
+            });
+          } else if (item.id === 'potion-mana') {
+            let maxMana = 100;
+            let currentMana = 100;
+            try {
+              const statsRes = await fetch('/api/character-stats');
+              if (statsRes.ok) {
+                const statsData = await statsRes.json();
+                maxMana = statsData.maxMana || 100;
+                currentMana = statsData.mana || 100;
+              }
+            } catch (e) {
+              logger.warn('[Bag] Failed to fetch stats for mana potion', e);
+            }
+            const nextMana = Math.min(currentMana + 50, maxMana);
+            await fetch('/api/character-stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ stats: { mana: nextMana } })
+            });
+            toast({
+              title: "Mana Restored! 🌀",
+              description: `Restored 50 Mana. Current: ${nextMana}/${maxMana}`
+            });
+          } else if (item.id === 'potion-stamina') {
+            let maxStamina = 100;
+            let currentStamina = 100;
+            try {
+              const statsRes = await fetch('/api/character-stats');
+              if (statsRes.ok) {
+                const statsData = await statsRes.json();
+                maxStamina = statsData.maxStamina || 100;
+                currentStamina = statsData.stamina || 100;
+              }
+            } catch (e) {
+              logger.warn('[Bag] Failed to fetch stats for stamina potion', e);
+            }
+            const nextStamina = Math.min(currentStamina + 75, maxStamina);
+            await fetch('/api/character-stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ stats: { stamina: nextStamina } })
+            });
+            toast({
+              title: "Stamina Restored! 💪",
+              description: `Restored 75 Stamina. Current: ${nextStamina}/${maxStamina}`
+            });
+          } else if (item.id === 'potion-exp') {
+            await fetch('/api/character-stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ deltas: [{ stat: 'experience', delta: 100 }] })
+            });
+            toast({
+              title: "Experience Gained! ⭐",
+              description: "Consumed Experience Potion. Gained +100 XP!"
+            });
+          } else if (item.id === 'potion-gold') {
+            await fetch('/api/character-stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ deltas: [{ stat: 'gold', delta: 200 }] })
+            });
+            toast({
+              title: "Gold Potion Consumed! 🪙",
+              description: "Added +200 Gold to your character stats."
+            });
           } else {
             toast({
               title: "Used Item",
