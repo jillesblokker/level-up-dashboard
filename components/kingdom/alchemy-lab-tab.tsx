@@ -1,220 +1,173 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-import { useState, useEffect, useCallback } from "react"
-import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass } from "lucide-react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { FlaskConical, Sparkles, Check, Flame, Zap, Shield, HelpCircle, Activity, Hourglass, Coins, Users, Award } from "lucide-react"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
+import { useCitizensStore } from '@/stores/citizensStore';
 
-import { getInventory } from '@/lib/inventory-manager';
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 
-interface RecipeIngredient {
-  itemId: string;
-  name: string;
-  emoji: string;
-  required: number;
-}
-
-interface Recipe {
+interface GuardianDetails {
   id: string;
   name: string;
+  emoji: string;
   description: string;
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-  ingredients: RecipeIngredient[];
-  outputItem: {
-    id: string;
+  focus: string;
+  themeColor: string;
+  glowColor: string;
+  particleBg: string;
+  enhancements: {
+    key: 'forgeLuck' | 'blessingGreed' | 'blessingSwiftness' | 'doubleHarvest' | 'combatProtection';
     name: string;
-    emoji: string;
-  };
+    benefit: string;
+    icon: any;
+  }[];
 }
 
-const ALCHEMY_RECIPES: Recipe[] = [
+const GUARDIAN_DETAILS: GuardianDetails[] = [
   {
-    id: 'recipe-forge-luck',
-    name: 'Forge Luck Elixir',
-    description: 'Increases Blacksmith Tempering success rate by +10% for your next upgrade attempt.',
-    rarity: 'rare',
-    ingredients: [
-      { itemId: 'material-crystal', name: 'Essence Crystals', emoji: '💎', required: 2 },
-      { itemId: 'fish-golden', name: 'Golden Fish', emoji: '🐟', required: 1 },
-      { itemId: 'material-water', name: 'Water', emoji: '💧', required: 2 }
-    ],
-    outputItem: { id: 'potion-forge-luck', name: 'Forge Luck Elixir', emoji: '🧪' }
+    id: 'ember-drake',
+    name: 'Ember Drake',
+    emoji: '🐉',
+    description: 'A fierce baby dragon that feeds on the fire of your might and craft habits.',
+    focus: 'Might & Craft',
+    themeColor: 'from-orange-500/10 to-red-500/15 border-orange-500/20 text-orange-400',
+    glowColor: 'shadow-[0_0_20px_rgba(249,115,22,0.35)] border-orange-500/40',
+    particleBg: 'bg-orange-500',
+    enhancements: [
+      {
+        key: 'forgeLuck',
+        name: 'Forge Luck Elixir',
+        benefit: '+10% Blacksmith tempering success rate',
+        icon: Sparkles
+      },
+      {
+        key: 'blessingGreed',
+        name: 'Blessing of Greed',
+        benefit: '+100% Gold rewards from all habits and challenges',
+        icon: Coins
+      }
+    ]
   },
   {
-    id: 'recipe-combat-protection',
-    name: 'Combat Protection Potion',
-    description: 'Prevents gold loss on round failures in your next Monster Battle.',
-    rarity: 'epic',
-    ingredients: [
-      { itemId: 'material-steel', name: 'Steel Ingots', emoji: '⚔️', required: 2 },
-      { itemId: 'fish-rainbow', name: 'Rainbow Fish', emoji: '🐟', required: 1 },
-      { itemId: 'material-water', name: 'Water', emoji: '💧', required: 3 }
-    ],
-    outputItem: { id: 'potion-combat-protection', name: 'Combat Protection Potion', emoji: '🧪' }
+    id: 'sage-owl',
+    name: 'Sage Owl',
+    emoji: '🦉',
+    description: 'A wise scholar owl that thrives on reading, studying, and honoring others.',
+    focus: 'Knowledge & Honor',
+    themeColor: 'from-cyan-500/10 to-blue-500/15 border-cyan-500/20 text-cyan-400',
+    glowColor: 'shadow-[0_0_20px_rgba(6,182,212,0.35)] border-cyan-500/40',
+    particleBg: 'bg-cyan-500',
+    enhancements: [
+      {
+        key: 'blessingSwiftness',
+        name: 'Blessing of Swiftness',
+        benefit: '+100% Experience from habits and challenges',
+        icon: Award
+      }
+    ]
   },
   {
-    id: 'recipe-double-harvest',
-    name: 'Double Harvest Draught',
-    description: 'Nourishes citizens, giving them +100% harvesting item yields on their next collection (expires in 24 hours).',
-    rarity: 'uncommon',
-    ingredients: [
-      { itemId: 'material-logs', name: 'Wooden Logs', emoji: '🪵', required: 3 },
-      { itemId: 'fish-silver', name: 'Silver Fish', emoji: '🐟', required: 2 },
-      { itemId: 'material-water', name: 'Water', emoji: '💧', required: 2 }
-    ],
-    outputItem: { id: 'potion-double-harvest', name: 'Double Harvest Draught', emoji: '🧪' }
+    id: 'spirit-sprite',
+    name: 'Spirit Sprite',
+    emoji: '🧚',
+    description: 'A playful forest sprite fueled by nature, castle building, and vitality.',
+    focus: 'Vitality & Castle',
+    themeColor: 'from-emerald-500/10 to-green-500/15 border-emerald-500/20 text-emerald-400',
+    glowColor: 'shadow-[0_0_20px_rgba(16,185,129,0.35)] border-emerald-500/40',
+    particleBg: 'bg-emerald-500',
+    enhancements: [
+      {
+        key: 'doubleHarvest',
+        name: 'Double Harvest Draught',
+        benefit: '+100% Citizen harvesting yields',
+        icon: Hourglass
+      },
+      {
+        key: 'combatProtection',
+        name: 'Combat Protection Potion',
+        benefit: 'Prevents gold loss on Monster Battle failures',
+        icon: Shield
+      }
+    ]
   }
 ];
 
 export function AlchemyLabTab() {
   const { user } = useUser();
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string>('recipe-forge-luck');
-  const [inventoryCounts, setInventoryCounts] = useState<Record<string, number>>({});
   const [activeBuffs, setActiveBuffs] = useState<any>({});
-  const [isBrewing, setIsBrewing] = useState(false);
+  const [guardianState, setGuardianState] = useState<any>(null);
   const [timeState, setTimeState] = useState(Date.now());
+  const [isLoading, setIsLoading] = useState(true);
 
-  const loadAlchemyData = useCallback(async () => {
+  // Connect to Citizens store
+  const loadCitizens = useCitizensStore(state => state.loadCitizens);
+  const citizens = useCitizensStore(state => state.citizens);
+
+  const loadEnhancedData = useCallback(async () => {
     if (!user?.id) return;
     try {
-      // 1. Load Inventory
-      const items = await getInventory(user.id);
-      const counts: Record<string, number> = {};
-      items.forEach((i: any) => {
-        counts[i.id] = (counts[i.id] || 0) + i.quantity;
-      });
-      setInventoryCounts(counts);
-
-      // 2. Load Active Buffs
+      // 1. Fetch active alchemy buffs
       const buffs = await getUserPreference('active_alchemy_buffs') || {};
       setActiveBuffs(buffs);
+
+      // 2. Fetch habit guardian state
+      const gState = await getUserPreference('habit_guardian_state') || null;
+      setGuardianState(gState);
+
+      // 3. Load citizens
+      await loadCitizens(user.id);
     } catch (err) {
-      logger.error('[Alchemy] Failed to load alchemy data:', err);
+      logger.error('[Enhanced] Failed to load data:', err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, loadCitizens]);
 
   useEffect(() => {
     if (user?.id) {
-      loadAlchemyData();
+      loadEnhancedData();
     }
 
-    // Refresh every second for active spell timers
     const timer = setInterval(() => {
       setTimeState(Date.now());
     }, 1000);
 
-    // Listen for custom alchemy updates
-    window.addEventListener('alchemy-buffs-update', loadAlchemyData);
+    window.addEventListener('alchemy-buffs-update', loadEnhancedData);
+    window.addEventListener('character-inventory-update', loadEnhancedData);
 
     return () => {
       clearInterval(timer);
-      window.removeEventListener('alchemy-buffs-update', loadAlchemyData);
+      window.removeEventListener('alchemy-buffs-update', loadEnhancedData);
+      window.removeEventListener('character-inventory-update', loadEnhancedData);
     };
-  }, [user?.id, loadAlchemyData]);
+  }, [user?.id, loadEnhancedData]);
 
-  const selectedRecipe = ALCHEMY_RECIPES.find(r => r.id === selectedRecipeId)!;
+  const activeSpell = activeBuffs.activeSpell;
+  const spellExpiresAt = activeBuffs.spellExpiresAt;
+  const isSpellActive = activeSpell && spellExpiresAt && new Date(spellExpiresAt).getTime() > timeState;
 
-  const playBrewSound = () => {
-    if (typeof window === 'undefined') return;
-    try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
-      for (let i = 0; i < 8; i++) {
-        const time = ctx.currentTime + i * 0.12;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(150 + Math.random() * 80, time);
-        osc.frequency.exponentialRampToValueAtTime(300, time + 0.08);
-        gain.gain.setValueAtTime(0.15, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.08);
-        osc.start(time);
-        osc.stop(time + 0.08);
-      }
-    } catch {}
-  };
+  const isDoubleHarvestActive = activeBuffs.doubleHarvestUntil && new Date(activeBuffs.doubleHarvestUntil).getTime() > timeState;
 
-  const handleBrew = async () => {
-    if (!user?.id || isBrewing) return;
-
-    // Verify materials
-    const missingIngredient = selectedRecipe.ingredients.some(ing => 
-      (inventoryCounts[ing.itemId] || 0) < ing.required
-    );
-
-    if (missingIngredient) {
-      toast({
-        title: "Missing Ingredients",
-        description: "You do not have all required materials in your inventory to brew this elixir.",
-        variant: "destructive"
-      });
-      return;
+  const formatExpires = (expiryStr: string) => {
+    const remaining = new Date(expiryStr).getTime() - timeState;
+    if (remaining <= 0) return "Expired";
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    if (mins > 60) {
+      return `${Math.floor(mins / 60)}h ${mins % 60}m`;
     }
-
-    try {
-      setIsBrewing(true);
-      playBrewSound();
-
-      // Trigger cauldron shake
-      const cauldronEl = document.querySelector('.cauldron-container');
-      if (cauldronEl) {
-        cauldronEl.classList.add('animate-forge-shake');
-        setTimeout(() => cauldronEl.classList.remove('animate-forge-shake'), 400);
-      }
-
-      // Deduct ingredients sequentially
-      for (const ing of selectedRecipe.ingredients) {
-        await fetch('/api/inventory', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ itemId: ing.itemId, quantity: ing.required })
-        });
-      }
-
-      // Add output item
-      const postRes = await fetch('/api/inventory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          item: {
-            id: selectedRecipe.outputItem.id,
-            quantity: 1
-          }
-        })
-      });
-
-      if (postRes.ok) {
-        toast({
-          title: "Potion Brewed! 🧪✨",
-          description: `Successfully brewed 1x ${selectedRecipe.outputItem.name}. Checked into your inventory bag.`
-        });
-        await loadAlchemyData();
-        window.dispatchEvent(new Event('character-inventory-update'));
-      } else {
-        throw new Error("Failed to receive output elixir.");
-      }
-    } catch (err: any) {
-      toast({
-        title: "Brewing failed",
-        description: err.message || "Failed to brew potion.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsBrewing(false);
-    }
+    return `${mins}m ${secs}s`;
   };
 
   const handleSpellCast = async (spellName: 'swiftness' | 'greed') => {
@@ -223,7 +176,7 @@ export function AlchemyLabTab() {
     const cooldownKey = `lastCastAt_${spellName}`;
     const lastCast = activeBuffs[cooldownKey];
     
-    // Spell cooldown check (24h)
+    // Altar spell cooldown check (24h)
     if (lastCast) {
       const msPassed = Date.now() - new Date(lastCast).getTime();
       const cooling = 24 * 60 * 60 * 1000 - msPassed;
@@ -232,7 +185,7 @@ export function AlchemyLabTab() {
         const mins = Math.floor((cooling % 3600000) / 60000);
         toast({
           title: "Spell Cooldown Active",
-          description: `This spell can be cast again in ${hours}h ${mins}m.`,
+          description: `Altar Blessing can be channeled again in ${hours}h ${mins}m.`,
           variant: "destructive"
         });
         return;
@@ -250,190 +203,239 @@ export function AlchemyLabTab() {
 
       await setUserPreference('active_alchemy_buffs', updated);
       setActiveBuffs(updated);
-
       toast({
-        title: `${spellName === 'swiftness' ? '✨ Swiftness Blessing Cast!' : '🪙 Wealth Blessing Cast!'}`,
-        description: `Active global bonus +100% ${spellName === 'swiftness' ? 'XP' : 'Gold'} from completed quests for 1 hour.`
+        title: "Blessing Channeled! ✨🔮",
+        description: `Your ${spellName === 'swiftness' ? 'Blessing of Swiftness' : 'Blessing of Greed'} is active for 1 hour.`
       });
-    } catch (err: any) {
+      window.dispatchEvent(new Event('alchemy-buffs-update'));
+      window.dispatchEvent(new Event('character-modifiers-update'));
+    } catch (err) {
       toast({
-        title: "Blessing Failed",
-        description: "Altar magic channeling failed.",
+        title: "Spell cast failed",
+        description: "Failed to channel altar blessing.",
         variant: "destructive"
       });
     }
   };
 
-  const formatExpires = (isoString: string) => {
-    const remaining = new Date(isoString).getTime() - timeState;
-    if (remaining <= 0) return "Expired";
-    const mins = Math.floor(remaining / 60000);
-    const secs = Math.floor((remaining % 60000) / 1000);
-    if (mins > 60) {
-      return `${Math.floor(mins / 60)}h ${mins % 60}m`;
-    }
-    return `${mins}m ${secs}s`;
+  const renderParticles = (colorClass: string) => {
+    return Array.from({ length: 8 }).map((_, i) => (
+      <motion.div
+        key={i}
+        className={cn("absolute rounded-full pointer-events-none opacity-40", colorClass)}
+        style={{
+          width: Math.random() * 5 + 2,
+          height: Math.random() * 5 + 2,
+          left: `${Math.random() * 80 + 10}%`,
+          bottom: "15%"
+        }}
+        animate={{
+          y: [0, -110],
+          opacity: [0, 0.7, 0],
+          scale: [0.8, 1.2, 0.5]
+        }}
+        transition={{
+          duration: Math.random() * 1.5 + 2,
+          repeat: Infinity,
+          delay: Math.random() * 1.2
+        }}
+      />
+    ));
   };
 
-  const spellActive = activeBuffs.activeSpell && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > timeState;
+  // Get active citizens from store
+  const activeCitizens = useMemo(() => {
+    return citizens.filter(c => c.active);
+  }, [citizens]);
 
   return (
     <div className="space-y-6">
       
-      {/* Alchemy Lab Header */}
+      {/* Enhanced Header Hero */}
       <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
         <Image
           src="/images/alchemy-hero.png"
-          alt="Alchemy Lab"
+          alt="Arcane Enhancements"
           fill
           className="object-cover brightness-75 select-none pointer-events-none"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         <div className="p-6 relative z-10 space-y-1">
-          <Badge className="bg-amber-600 text-black font-extrabold text-[9px] uppercase tracking-wider mb-2">
-            Arcane Sanctuary
+          <Badge className="bg-purple-600 text-white font-extrabold text-[9px] uppercase tracking-wider mb-2 px-2.5 py-1">
+            Enhanced State
           </Badge>
-          <h2 className="font-cardo font-bold text-2xl text-white">Alchemy Laboratory</h2>
+          <h2 className="font-cardo font-bold text-2xl text-white">Enhanced Citizens & Guardians</h2>
           <p className="text-xs text-zinc-300 max-w-xl">
-            Brew powerful elixirs and channel blessings at the Spell Altar. Utilize materials harvested by your citizens to gain game-changing boosts.
+            Monitor companions and citizens empowered by your alchemy elixirs and spell blessings. Drink elixirs from your inventory bag to trigger enhancements.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      {/* Selection Column */}
-      <div className="lg:col-span-1 space-y-4">
-        <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-          <FlaskConical className="w-5 h-5 text-amber-500" /> Recipes Ledger
-        </h3>
         
-        <div className="space-y-2.5 max-h-[550px] overflow-y-auto pr-1">
-          {ALCHEMY_RECIPES.map(r => {
-            const isSelected = selectedRecipeId === r.id;
-            
-            // Check if user has all materials
-            const hasAll = r.ingredients.every(ing => 
-              (inventoryCounts[ing.itemId] || 0) >= ing.required
-            );
+        {/* Guardians Dashboard (Left columns) */}
+        <div className="lg:col-span-2 space-y-6">
+          <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
+            <FlaskConical className="w-5 h-5 text-purple-400" /> Guardian Enhancements
+          </h3>
 
-            return (
-              <div
-                key={r.id}
-                onClick={() => setSelectedRecipeId(r.id)}
-                className={cn(
-                  "p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between",
-                  isSelected
-                    ? "bg-amber-950/20 border-amber-500/50 shadow-inner"
-                    : "bg-[#0f1115] border-white/5 hover:border-amber-900/30"
-                )}
-              >
-                <div>
-                  <h4 className="font-bold text-white text-xs">{r.name}</h4>
-                  <p className="text-[10px] text-zinc-500 mt-1 capitalize">
-                    {r.rarity} Potion
-                  </p>
-                </div>
-                
-                <div className="shrink-0 flex items-center gap-2">
-                  {hasAll ? (
-                    <Badge className="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-[8px] uppercase">
-                      Ready
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-zinc-500 text-[8px] uppercase">
-                      Missing
-                    </Badge>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {GUARDIAN_DETAILS.map(g => {
+              const isActiveGuardian = guardianState?.selectedId === g.id;
+              const gLevel = isActiveGuardian ? (guardianState?.level || 1) : 1;
+
+              // Check active status for enhancements
+              const activeEnhancementsList: { name: string; benefit: string; statusText: string; icon: any }[] = [];
+              
+              g.enhancements.forEach(enh => {
+                if (enh.key === 'forgeLuck' && activeBuffs.forgeLuckCharges > 0) {
+                  activeEnhancementsList.push({
+                    name: enh.name,
+                    benefit: enh.benefit,
+                    statusText: `${activeBuffs.forgeLuckCharges} charges left`,
+                    icon: enh.icon
+                  });
+                }
+                if (enh.key === 'blessingGreed' && isSpellActive && activeSpell === 'greed') {
+                  activeEnhancementsList.push({
+                    name: enh.name,
+                    benefit: enh.benefit,
+                    statusText: formatExpires(spellExpiresAt),
+                    icon: enh.icon
+                  });
+                }
+                if (enh.key === 'blessingSwiftness' && isSpellActive && activeSpell === 'swiftness') {
+                  activeEnhancementsList.push({
+                    name: enh.name,
+                    benefit: enh.benefit,
+                    statusText: formatExpires(spellExpiresAt),
+                    icon: enh.icon
+                  });
+                }
+                if (enh.key === 'doubleHarvest' && isDoubleHarvestActive) {
+                  activeEnhancementsList.push({
+                    name: enh.name,
+                    benefit: enh.benefit,
+                    statusText: formatExpires(activeBuffs.doubleHarvestUntil),
+                    icon: enh.icon
+                  });
+                }
+                if (enh.key === 'combatProtection' && activeBuffs.combatProtectionCharges > 0) {
+                  activeEnhancementsList.push({
+                    name: enh.name,
+                    benefit: enh.benefit,
+                    statusText: `${activeBuffs.combatProtectionCharges} charges left`,
+                    icon: enh.icon
+                  });
+                }
+              });
+
+              const isEnhanced = activeEnhancementsList.length > 0;
+
+              return (
+                <Card
+                  key={g.id}
+                  className={cn(
+                    "bg-[#0f1115] border rounded-2xl relative overflow-hidden transition-all duration-300 flex flex-col justify-between min-h-[360px]",
+                    isEnhanced ? g.glowColor : "border-white/5 opacity-70"
                   )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                >
+                  {/* Aura Particles */}
+                  <AnimatePresence>
+                    {isEnhanced && renderParticles(g.particleBg)}
+                  </AnimatePresence>
 
-      {/* Cauldron Crafting Center */}
-      <div className="lg:col-span-2 space-y-6 cauldron-container transition-all">
-        
-        <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[460px]">
-          
-          <div className="space-y-5">
-            {/* banner */}
-            <div className="flex items-start justify-between pb-4 border-b border-white/5">
-              <div className="flex items-center gap-3.5">
-                <div className="w-14 h-14 bg-zinc-900 border border-zinc-700/50 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 relative">
-                  <span className="text-3xl">{selectedRecipe.outputItem.emoji}</span>
-                </div>
-                <div>
-                  <h4 className="font-cardo font-bold text-white text-sm">{selectedRecipe.name}</h4>
-                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider mt-1 capitalize">
-                    {selectedRecipe.rarity} Craft Recipe
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="text-xs text-zinc-400 leading-relaxed font-medium bg-zinc-950/60 p-3.5 rounded-xl border border-white/5">
-              {selectedRecipe.description}
-            </p>
-
-            {/* Ingredients Checklist */}
-            <div className="space-y-2.5">
-              <h5 className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Required Alchemy Reagents:</h5>
-              <div className="space-y-2">
-                {selectedRecipe.ingredients.map(ing => {
-                  const owned = inventoryCounts[ing.itemId] || 0;
-                  const satisfied = owned >= ing.required;
-
-                  return (
-                    <div
-                      key={ing.itemId}
-                      className={cn(
-                        "p-3 rounded-xl border text-xs flex justify-between items-center transition-all",
-                        satisfied 
-                          ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" 
-                          : "bg-red-950/10 border-red-500/20 text-red-400"
-                      )}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg leading-none">{ing.emoji}</span>
-                        <span className="font-bold">{ing.name}</span>
+                  <CardContent className="p-5 flex flex-col h-full justify-between relative z-10">
+                    <div className="space-y-4">
+                      {/* Guardian Header */}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-white text-sm">{g.name}</h4>
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+                            Focus: {g.focus}
+                          </span>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-[8px] uppercase font-bold",
+                            isEnhanced ? "bg-purple-950/20 text-purple-300 border-purple-500/30" : "text-zinc-600 border-zinc-900"
+                          )}
+                        >
+                          {isEnhanced ? "Enhanced" : "Resting"}
+                        </Badge>
                       </div>
-                      <span className="font-mono font-bold">
-                        {owned} / {ing.required}
-                      </span>
+
+                      {/* Companion Avatar */}
+                      <div className="flex flex-col items-center py-4 select-none relative">
+                        <motion.div
+                          animate={isEnhanced ? {
+                            y: [0, -8, 0],
+                            scale: [1, 1.05, 1],
+                            rotate: [0, 2, -2, 0]
+                          } : {}}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          className="text-6xl"
+                        >
+                          {g.emoji}
+                        </motion.div>
+                        <Badge className="bg-zinc-950 text-zinc-400 border border-white/5 text-[9px] mt-3 font-extrabold">
+                          Lvl {gLevel} {isActiveGuardian && "(Active)"}
+                        </Badge>
+                      </div>
+
+                      {/* Enhancements / Potential Enhancements */}
+                      <div className="space-y-2">
+                        {isEnhanced ? (
+                          <>
+                            <h5 className="text-[8px] uppercase tracking-wider font-extrabold text-purple-400">Active Effects:</h5>
+                            <div className="space-y-2">
+                              {activeEnhancementsList.map((act, i) => {
+                                const IconComponent = act.icon;
+                                return (
+                                  <div key={i} className="p-2.5 bg-zinc-950/80 border border-white/5 rounded-xl text-[10px] space-y-1">
+                                    <div className="flex justify-between items-center font-bold text-white">
+                                      <span className="flex items-center gap-1">
+                                        <IconComponent className="w-3 h-3 text-amber-500" />
+                                        {act.name}
+                                      </span>
+                                      <span className="text-amber-400 font-mono text-[9px]">{act.statusText}</span>
+                                    </div>
+                                    <p className="text-zinc-400 text-[9px] leading-relaxed">{act.benefit}</p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-[10px] text-zinc-500 italic bg-zinc-950/20 border border-zinc-900 p-3 rounded-xl space-y-1.5">
+                            <p className="font-semibold text-zinc-400 not-italic">Enhance with:</p>
+                            <ul className="list-disc list-inside space-y-1 text-[9px] text-zinc-500 font-medium">
+                              {g.enhancements.map((e, idx) => (
+                                <li key={idx} className="truncate">{e.name}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+
+                    <p className="text-[10px] text-zinc-400 leading-normal mt-3 bg-zinc-950/40 p-2.5 rounded-lg border border-white/5">
+                      {g.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Action */}
-          <div className="pt-4 border-t border-white/5 mt-4">
-            <Button
-              disabled={isBrewing || selectedRecipe.ingredients.some(ing => (inventoryCounts[ing.itemId] || 0) < ing.required)}
-              onClick={handleBrew}
-              className={cn(
-                "w-full text-xs font-bold py-5 rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2",
-                !isBrewing && selectedRecipe.ingredients.every(ing => (inventoryCounts[ing.itemId] || 0) >= ing.required)
-                  ? "bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold shadow-lg hover:brightness-110 active:scale-[0.98]" 
-                  : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
-              )}
-            >
-              {isBrewing ? (
-                <>⏳ Boiling Cauldron Brew...</>
-              ) : (
-                <>🧪 Brew {selectedRecipe.outputItem.name}</>
-              )}
-            </Button>
-          </div>
-
-        </Card>
-
-        {/* Altar Daily Spells & Buff Indicators */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Side Panel: Spell Altar & Buff Status */}
+        <div className="lg:col-span-1 space-y-6">
           
           {/* Daily Spell Altar */}
           <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl">
@@ -447,7 +449,7 @@ export function AlchemyLabTab() {
 
             <div className="space-y-2">
               <Button
-                disabled={spellActive}
+                disabled={isSpellActive}
                 onClick={() => handleSpellCast('swiftness')}
                 className="w-full text-xs font-bold justify-between bg-zinc-950 hover:bg-zinc-900 border border-white/5 rounded-xl p-3 h-auto"
               >
@@ -460,7 +462,7 @@ export function AlchemyLabTab() {
               </Button>
 
               <Button
-                disabled={spellActive}
+                disabled={isSpellActive}
                 onClick={() => handleSpellCast('greed')}
                 className="w-full text-xs font-bold justify-between bg-zinc-950 hover:bg-zinc-900 border border-white/5 rounded-xl p-3 h-auto"
               >
@@ -474,76 +476,153 @@ export function AlchemyLabTab() {
             </div>
           </Card>
 
-          {/* Active Buff Indicators */}
-          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+          {/* Active Buff Status Summary */}
+          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between min-h-[195px]">
             <div>
               <h4 className="font-cardo font-bold text-xs text-amber-500 flex items-center gap-1.5 uppercase tracking-wider mb-3">
-                <Activity className="w-4 h-4 text-amber-500" /> Active Buff Status
+                <Activity className="w-4 h-4 text-amber-500" /> Buff Status Overview
               </h4>
 
               <div className="space-y-2.5 mt-2">
-                {/* Forge Luck charges */}
-                {activeBuffs.forgeLuckCharges > 0 ? (
+                {activeBuffs.forgeLuckCharges > 0 && (
                   <div className="flex justify-between items-center text-xs bg-amber-950/15 border border-amber-500/20 p-2 rounded-xl text-amber-400">
                     <span className="font-bold flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" /> Forge Luck Elixir
                     </span>
                     <span className="font-mono font-bold text-[10px]">{activeBuffs.forgeLuckCharges} charges</span>
                   </div>
-                ) : null}
+                )}
 
-                {/* Combat Protection charges */}
-                {activeBuffs.combatProtectionCharges > 0 ? (
+                {activeBuffs.combatProtectionCharges > 0 && (
                   <div className="flex justify-between items-center text-xs bg-emerald-950/15 border border-emerald-500/20 p-2 rounded-xl text-emerald-400">
                     <span className="font-bold flex items-center gap-1.5">
                       <Shield className="w-3.5 h-3.5" /> Combat Shielding
                     </span>
                     <span className="font-mono font-bold text-[10px]">{activeBuffs.combatProtectionCharges} charges</span>
                   </div>
-                ) : null}
+                )}
 
-                {/* Double Harvest draught */}
-                {activeBuffs.doubleHarvestUntil && new Date(activeBuffs.doubleHarvestUntil).getTime() > timeState ? (
+                {isDoubleHarvestActive && (
                   <div className="flex justify-between items-center text-xs bg-blue-950/15 border border-blue-500/20 p-2 rounded-xl text-blue-400">
                     <span className="font-bold flex items-center gap-1.5">
                       <Hourglass className="w-3.5 h-3.5" /> Double Harvest
                     </span>
                     <span className="font-mono font-bold text-[9px]">{formatExpires(activeBuffs.doubleHarvestUntil)}</span>
                   </div>
-                ) : null}
+                )}
 
-                {/* Active Spell Altar Blessing */}
-                {spellActive ? (
+                {isSpellActive && (
                   <div className="flex justify-between items-center text-xs bg-indigo-950/15 border border-indigo-500/20 p-2 rounded-xl text-indigo-400">
                     <span className="font-bold flex items-center gap-1.5">
-                      <Flame className="w-3.5 h-3.5" /> Blessing of {activeBuffs.activeSpell}
+                      <Flame className="w-3.5 h-3.5" /> Blessing of {activeSpell}
                     </span>
-                    <span className="font-mono font-bold text-[9px]">{formatExpires(activeBuffs.spellExpiresAt)}</span>
+                    <span className="font-mono font-bold text-[9px]">{formatExpires(spellExpiresAt)}</span>
                   </div>
-                ) : null}
+                )}
 
-                {/* Fallback empty message */}
-                {!(activeBuffs.forgeLuckCharges > 0) &&
-                 !(activeBuffs.combatProtectionCharges > 0) &&
-                 !(activeBuffs.doubleHarvestUntil && new Date(activeBuffs.doubleHarvestUntil).getTime() > timeState) &&
-                 !spellActive ? (
+                {!activeBuffs.forgeLuckCharges &&
+                 !activeBuffs.combatProtectionCharges &&
+                 !isDoubleHarvestActive &&
+                 !isSpellActive && (
                   <p className="text-[10px] text-zinc-500 leading-normal">
-                    No active potion elixirs or blessings. Drink elixirs from your inventory bag to activate modifiers!
+                    No active potion elixirs or altar blessings. Drink elixirs from your inventory bag to activate modifiers!
                   </p>
-                ) : null}
+                )}
               </div>
             </div>
-
-            <div className="pt-2 text-[9px] text-zinc-500 text-center font-medium">
-              Check your Inventory Bag to drink brewed potions.
+            
+            <div className="pt-4 text-[9px] text-zinc-600 text-center font-semibold border-t border-white/5 mt-4">
+              Open your Inventory Bag to drink elixirs.
             </div>
           </Card>
 
         </div>
-
       </div>
 
+      {/* Nourished Citizens Panel */}
+      <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl w-full">
+        <CardHeader className="p-0 pb-4 border-b border-white/5">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <CardTitle className="font-cardo text-base text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-amber-500" /> Nourished Citizens Ledger
+              </CardTitle>
+              <CardDescription className="text-zinc-500 text-xs mt-0.5">
+                Active citizens wandering your realm that are affected by Double Harvest elixirs
+              </CardDescription>
+            </div>
+            <AnimatePresence>
+              {isDoubleHarvestActive && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                >
+                  <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] flex items-center gap-1.5 px-3 py-1.5 shadow-lg border border-emerald-500/20">
+                    <Hourglass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '3s' }} /> Double Harvest Active: {formatExpires(activeBuffs.doubleHarvestUntil)}
+                  </Badge>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0 pt-6">
+          {isDoubleHarvestActive ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+              {activeCitizens.map(citizen => (
+                <div
+                  key={citizen.id}
+                  className="p-3 bg-zinc-950/80 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)] rounded-xl flex flex-col items-center justify-between min-h-[140px] text-center relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-300"
+                >
+                  {/* citizen glow particles */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+                  
+                  <div className="space-y-2 mt-1">
+                    <div className="relative w-12 h-12 flex items-center justify-center animate-bounce mb-1" style={{ animationDuration: '2s' }}>
+                      <Image
+                        src={citizen.isMythic ? `/images/Mythics/${citizen.filename}?v=2` : `/images/creatures/${citizen.filename}`}
+                        alt={citizen.name}
+                        fill
+                        className="object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] select-none pointer-events-none"
+                      />
+                    </div>
+                    <h5 className="font-bold text-white text-xs truncate max-w-[90px]">{citizen.name}</h5>
+                    <Badge className="bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5">
+                      x2 Yields
+                    </Badge>
+                  </div>
+
+                  <div className="w-full mt-2">
+                    <div className="w-full h-1 bg-zinc-900 border border-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-emerald-500"
+                        animate={{ width: ["0%", "100%"] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      />
+                    </div>
+                    <span className="text-[8px] font-bold text-zinc-500 block mt-1 uppercase">Harvesting...</span>
+                  </div>
+                </div>
+              ))}
+              {activeCitizens.length === 0 && (
+                <div className="col-span-full py-8 text-center text-zinc-500 text-xs italic font-serif">
+                  Double Harvest is active, but you have no active Citizens wandering the Realm. Activate them in the Citizens tab!
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 px-4 text-center border border-zinc-900 rounded-xl bg-zinc-950/20 max-w-lg mx-auto">
+              <FlaskConical className="w-8 h-8 text-zinc-600 mb-3" />
+              <h5 className="font-cardo font-bold text-sm text-zinc-300">No Citizen Multipliers Active</h5>
+              <p className="text-[11px] text-zinc-500 mt-1 max-w-sm leading-normal">
+                Drink a **Double Harvest Draught** from your Inventory Bag to nourish your active citizens. They will produce 100% extra items when harvesting materials!
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
     </div>
-  </div>
   );
 }

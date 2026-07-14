@@ -1760,7 +1760,7 @@ export function KingdomClient() {
               </TabsTrigger>
               <TabsTrigger value="alchemy">
                 <FlaskConical className="w-4 h-4" />
-                <span>Alchemy Lab</span>
+                <span>Enhanced</span>
               </TabsTrigger>
               <TabsTrigger value="airship">
                 <Plane className="w-4 h-4" />
