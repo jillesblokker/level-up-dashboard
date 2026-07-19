@@ -819,6 +819,14 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
       playHammerCling(data.upgraded);
 
+      // Trigger random encounter check for forge
+      try {
+        const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');
+        checkAndTriggerEncounter('forge');
+      } catch (e) {
+        logger.warn('Forge encounter check error:', e);
+      }
+
       if (data.upgraded) {
         toast({
           title: "Tempering Success! 🔨✨",

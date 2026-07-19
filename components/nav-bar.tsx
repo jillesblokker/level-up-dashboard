@@ -21,6 +21,7 @@ import { useQuickAdd } from "@/components/quick-add-provider"
 import { formatGold } from "@/lib/utils"
 import { audioManager } from "@/lib/audio-manager"
 import { InventoryBagOverlay } from "@/components/inventory-bag-overlay"
+import { RandomEncounterModal } from "@/components/kingdom/random-encounter-modal"
 
 interface CustomSession {
   user?: {
@@ -260,6 +261,7 @@ export function NavBar({ session }: NavBarProps) {
       </div>
     </div>
       <InventoryBagOverlay open={isBagOpen} onClose={() => setIsBagOpen(false)} />
+      <RandomEncounterModal />
     </>
   )
 }

@@ -208,6 +208,14 @@ export function DailyHubClient() {
                     gold: data.gold || 0,
                     streakDays: data.streakDays || 0
                 })
+
+                // Trigger random encounter check for daily login
+                try {
+                  const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');
+                  checkAndTriggerEncounter('login');
+                } catch (e) {
+                  logger.warn('Login encounter check error:', e);
+                }
             }
         } catch (error) {
             logger.error('Failed to load character stats:', error)

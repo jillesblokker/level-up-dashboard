@@ -513,6 +513,15 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     set({ citizens: updated });
     await setUserPreference('citizens_state', citizenPrefs);
+
+    // Trigger random encounter check for feed
+    try {
+      const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');
+      checkAndTriggerEncounter('feed');
+    } catch (e) {
+      console.warn('Feed encounter check error:', e);
+    }
+
     return true;
   },
 
@@ -586,6 +595,15 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     set({ citizens: updated });
     await setUserPreference('citizens_state', citizenPrefs);
+
+    // Trigger random encounter check for harvest
+    try {
+      const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');
+      checkAndTriggerEncounter('harvest');
+    } catch (e) {
+      console.warn('Harvest encounter check error:', e);
+    }
+
     return true;
   },
 

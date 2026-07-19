@@ -114,6 +114,14 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             );
 
             onClose()
+
+            // Trigger random encounter check for meditation
+            try {
+              const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');
+              checkAndTriggerEncounter('meditation');
+            } catch (e) {
+              logger.warn('Meditation encounter check error:', e);
+            }
         } catch (error) {
             logger.error("Failed to record meditation:", error);
             onClose();

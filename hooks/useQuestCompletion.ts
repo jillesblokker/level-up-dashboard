@@ -199,6 +199,14 @@ export function useQuestCompletion() {
           if (xpReward) addToCharacterStat('experience', xpReward, 'quest:complete');
           if (goldReward) addToCharacterStat('gold', goldReward, 'quest:complete');
           console.log('[Quest Completion] Optimistically updated stats');
+
+          // Trigger random encounter check for quest completion
+          try {
+            const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');
+            checkAndTriggerEncounter('quest_completion');
+          } catch (e) {
+            console.warn('Quest completion encounter check error:', e);
+          }
         } catch (statsError) {
           console.error('[Quest Completion] Failed to update local stats:', statsError);
         }
