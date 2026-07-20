@@ -804,7 +804,7 @@ export function AlchemyLab() {
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[3px] p-3 text-center">
                           <span className="text-xl">🔒</span>
                           <p className="text-xs font-serif italic text-amber-200/90 mt-1.5 leading-snug max-w-[92%] drop-shadow">
-                            "{recipe.hint}"
+                            &ldquo;{recipe.hint}&rdquo;
                           </p>
                         </div>
                       </div>
