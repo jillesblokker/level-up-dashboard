@@ -295,38 +295,38 @@ export async function POST(req: NextRequest) {
                             if (newCount % 3 === 0) {
                                 const category = (challenge.category || 'might').toLowerCase();
                                 
-                                const templates: Record<string, string[]> = {
-                                    might: [
-                                        "The hero spent hours swinging a heavy iron broadsword against training dummies, perfecting their double-strike form as sweat gleamed in the firelight.",
-                                        "Under the tutelage of the Citadel's weapon master, the hero ran a grueling physical obstacle course, sharpening their combat reflexes and stamina.",
-                                        "A long march through the rugged outskirts of Valoreth tested the hero's endurance, preparing their muscles for the battles ahead."
-                                    ],
-                                    knowledge: [
-                                        "Enveloped in the quiet scent of parchment, the hero deciphered ancient texts in the Citadel archives, unlocking secrets of the realm's ancestors.",
-                                        "The hero spent the evening observing the celestial alignment from the high tower, drawing cosmic maps to aid future navigators.",
-                                        "A deep study of local flora and herbalism expanded the hero's intellect, adding new recipes to their brewing journal."
-                                    ],
-                                    honor: [
-                                        "The hero spent the afternoon assisting local villagers with repairing the town shrine, earning the respect and blessings of the elder.",
-                                        "Standing guard at the outer gates, the hero upheld the strict code of the realm, protecting travelers from passing bandits.",
-                                        "By mediating a heated dispute between two blacksmith apprentices, the hero restored peace and honor to the trade guild."
-                                    ],
-                                    castle: [
-                                        "With stone and mortar, the hero helped reinforce the southern ramparts, securing the Citadel's foundations against winter storms.",
-                                        "The hero organized the granary storage chambers, ensuring the kingdom's winter supplies were locked and preserved.",
-                                        "A detailed inspection of the castle masonry revealed secret pathways, expanding the hero's layout knowledge of the fortress."
-                                    ],
-                                    craft: [
-                                        "The forge fires roared as the hero spent the day tempering steel, shaping raw ingots into intricate mechanical gears.",
-                                        "With seasoned oak planks and leather cords, the hero crafted sturdy supply chests to aid the Airship crew's voyages.",
-                                        "The hero worked on a detailed blueprints scroll for a new watermill, applying advanced carpentry math to the wheels."
-                                    ],
-                                    vitality: [
-                                        "A peaceful walk through the whispering forests allowed the hero to clear their mind, breathing in the fresh mountain air to restore vitality.",
-                                        "The hero prepared a nourishing soup of wild herbs and roots, restoring their strength and centering their inner essence.",
-                                        "A long, deep rest by the roaring hearth restored the hero's energy, soothing their tired muscles after days of adventure."
-                                    ]
-                                };
+                                 const templates: Record<string, string[]> = {
+                                     might: [
+                                         "Working at the Blacksmith anvil alongside Ignisio, the leader forged iron wall braces for the north tower.",
+                                         "The leader completed a grueling obstacle course around Castle Valoreth, sharpening their combat reflexes and stamina.",
+                                         "A patrol through the wild outskirts of Thrivehaven tested the leader's endurance, keeping Necrion's beasts at bay."
+                                     ],
+                                     knowledge: [
+                                         "By helping Archmage Silvo organize ancient scrolls in the citadel library, the leader restored order to the archives.",
+                                         "The leader spent the evening observing stars from the high watchtower, drawing cosmic maps for the Airship crew.",
+                                         "A deep study of local flora expanded the leader's knowledge, discovering new elixir ingredients for the Alchemist Cauldron."
+                                     ],
+                                     honor: [
+                                         "Standing guard at the outer gates of Castle Valoreth, the leader protected wandering merchants arriving from Sunspire.",
+                                         "The leader assisted returning citizens with repairing the town fountain, earning the respect of the elders.",
+                                         "By helping town guards secure the gates of Castle Valoreth, the leader earned the respect of Queen Valandriel's envoys."
+                                     ],
+                                     castle: [
+                                         "With stone and mortar, the leader cleared the rubble of the north tower, reinforcing Castle Valoreth against winter storms.",
+                                         "The leader organized the granary storage chambers, ensuring the town's food supplies were locked and preserved.",
+                                         "The leader inspected the dungeon masonry, dusting off old floors and securing secret passages under the fortress."
+                                     ],
+                                     craft: [
+                                         "Sweeping away the ash from the blacksmith forge, the leader shaped raw ingots into sturdy tools for town craftsmen.",
+                                         "With seasoned oak planks and leather straps, the leader built cargo chests for the Airship Harbor's next expedition.",
+                                         "The leader drafted detailed blueprints for a new watermill, preparing wood planks for Flippur's waterway project."
+                                     ],
+                                     vitality: [
+                                         "Tending the herbal gardens alongside Seqoio, the leader gathered fresh roots to nourish the town's citizens.",
+                                         "A peaceful walk through the Whispering Canopy allowed the leader to center their mind and regain strength.",
+                                         "The leader prepared a warm soup of wild herbs by the hearth, soothing tired muscles after days of hard work."
+                                     ]
+                                 };
 
                                 const list = templates[category] || templates['might']!;
                                 const content = list[Math.floor(Math.random() * list.length)]!;
@@ -671,38 +671,38 @@ export async function POST(req: NextRequest) {
                         if (newCount % 3 === 0) {
                             const category = (quest.category || 'might').toLowerCase();
                             
-                            const templates: Record<string, string[]> = {
-                                might: [
-                                    "The hero spent hours swinging a heavy iron broadsword against training dummies, perfecting their double-strike form as sweat gleamed in the firelight.",
-                                    "Under the tutelage of the Citadel's weapon master, the hero ran a grueling physical obstacle course, sharpening their combat reflexes and stamina.",
-                                    "A long march through the rugged outskirts of Valoreth tested the hero's endurance, preparing their muscles for the battles ahead."
-                                ],
-                                knowledge: [
-                                    "Enveloped in the quiet scent of parchment, the hero deciphered ancient texts in the Citadel archives, unlocking secrets of the realm's ancestors.",
-                                    "The hero spent the evening observing the celestial alignment from the high tower, drawing cosmic maps to aid future navigators.",
-                                    "A deep study of local flora and herbalism expanded the hero's intellect, adding new recipes to their brewing journal."
-                                ],
-                                honor: [
-                                    "The hero spent the afternoon assisting local villagers with repairing the town shrine, earning the respect and blessings of the elder.",
-                                    "Standing guard at the outer gates, the hero upheld the strict code of the realm, protecting travelers from passing bandits.",
-                                    "By mediating a heated dispute between two blacksmith apprentices, the hero restored peace and honor to the trade guild."
-                                ],
-                                castle: [
-                                    "With stone and mortar, the hero helped reinforce the southern ramparts, securing the Citadel's foundations against winter storms.",
-                                    "The hero organized the granary storage chambers, ensuring the kingdom's winter supplies were locked and preserved.",
-                                    "A detailed inspection of the castle masonry revealed secret pathways, expanding the hero's layout knowledge of the fortress."
-                                ],
-                                craft: [
-                                    "The forge fires roared as the hero spent the day tempering steel, shaping raw ingots into intricate mechanical gears.",
-                                    "With seasoned oak planks and leather cords, the hero crafted sturdy supply chests to aid the Airship crew's voyages.",
-                                    "The hero worked on a detailed blueprints scroll for a new watermill, applying advanced carpentry math to the wheels."
-                                ],
-                                vitality: [
-                                    "A peaceful walk through the whispering forests allowed the hero to clear their mind, breathing in the fresh mountain air to restore vitality.",
-                                    "The hero prepared a nourishing soup of wild herbs and roots, restoring their strength and centering their inner essence.",
-                                    "A long, deep rest by the roaring hearth restored the hero's energy, soothing their tired muscles after days of adventure."
-                                ]
-                            };
+                             const templates: Record<string, string[]> = {
+                                 might: [
+                                     "Working at the Blacksmith anvil alongside Ignisio, the leader forged iron wall braces for the north tower.",
+                                     "The leader completed a grueling obstacle course around Castle Valoreth, sharpening their combat reflexes and stamina.",
+                                     "A patrol through the wild outskirts of Thrivehaven tested the leader's endurance, keeping Necrion's beasts at bay."
+                                 ],
+                                 knowledge: [
+                                     "By helping Archmage Silvo organize ancient scrolls in the citadel library, the leader restored order to the archives.",
+                                     "The leader spent the evening observing stars from the high watchtower, drawing cosmic maps for the Airship crew.",
+                                     "A deep study of local flora expanded the leader's knowledge, discovering new elixir ingredients for the Alchemist Cauldron."
+                                 ],
+                                 honor: [
+                                     "Standing guard at the outer gates of Castle Valoreth, the leader protected wandering merchants arriving from Sunspire.",
+                                     "The leader assisted returning citizens with repairing the town fountain, earning the respect of the elders.",
+                                     "By helping town guards secure the gates of Castle Valoreth, the leader earned the respect of Queen Valandriel's envoys."
+                                 ],
+                                 castle: [
+                                     "With stone and mortar, the leader cleared the rubble of the north tower, reinforcing Castle Valoreth against winter storms.",
+                                     "The leader organized the granary storage chambers, ensuring the town's food supplies were locked and preserved.",
+                                     "The leader inspected the dungeon masonry, dusting off old floors and securing secret passages under the fortress."
+                                 ],
+                                 craft: [
+                                     "Sweeping away the ash from the blacksmith forge, the leader shaped raw ingots into sturdy tools for town craftsmen.",
+                                     "With seasoned oak planks and leather straps, the leader built cargo chests for the Airship Harbor's next expedition.",
+                                     "The leader drafted detailed blueprints for a new watermill, preparing wood planks for Flippur's waterway project."
+                                 ],
+                                 vitality: [
+                                     "Tending the herbal gardens alongside Seqoio, the leader gathered fresh roots to nourish the town's citizens.",
+                                     "A peaceful walk through the Whispering Canopy allowed the leader to center their mind and regain strength.",
+                                     "The leader prepared a warm soup of wild herbs by the hearth, soothing tired muscles after days of hard work."
+                                 ]
+                             };
 
                             const list = templates[category] || templates['might']!;
                             const content = list[Math.floor(Math.random() * list.length)]!;

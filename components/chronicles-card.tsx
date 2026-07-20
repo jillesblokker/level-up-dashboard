@@ -248,17 +248,17 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             </div>
 
                             {showFiller && fillerEpisodes.length > 0 && (
-                                <div className="mt-6 border-t border-[#b58b4c]/30 pt-4 space-y-4 max-h-[300px] overflow-y-auto">
-                                    <h4 className="font-serif font-black text-xs uppercase tracking-widest text-[#7c2d12] flex items-center gap-1.5">
-                                        ✨ Filler Episodes (Daily Deeds)
+                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-4 max-h-[300px] overflow-y-auto">
+                                    <h4 className="font-serif font-black text-xs uppercase tracking-widest text-[#4a1d0f] flex items-center gap-1.5">
+                                        📜 Daily Feats & Town Records
                                     </h4>
                                     {fillerEpisodes.map((ep: any, index: number) => (
-                                        <div key={ep.id || index} className="space-y-1 bg-[#fffdfb]/60 p-3.5 rounded-xl border border-[#b58b4c]/20 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                                            <div className="flex justify-between items-center text-[10px] font-mono text-[#7c2d12] uppercase tracking-wider font-bold">
-                                                <span>Episode {index + 1}: {ep.category}</span>
-                                                <span>{ep.date}</span>
+                                        <div key={ep.id || index} className="space-y-1.5 bg-[#fffdfb]/80 p-3.5 rounded-xl border border-[#b58b4c]/30 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                                            <div className="flex justify-between items-center text-xs font-sans text-[#3b170c] uppercase tracking-wider font-extrabold border-b border-[#b58b4c]/15 pb-1">
+                                                <span className="flex items-center gap-1">Feat {index + 1}: <span className="text-[#854d0e]">{ep.category}</span></span>
+                                                <span className="text-[11px] font-mono text-[#582914]">{ep.date}</span>
                                             </div>
-                                            <p className="font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify">{ep.content}</p>
+                                            <p className="font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify pt-0.5">{ep.content}</p>
                                         </div>
                                     ))}
                                 </div>
