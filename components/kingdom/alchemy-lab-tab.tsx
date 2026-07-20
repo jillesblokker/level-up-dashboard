@@ -782,9 +782,9 @@ export function AlchemyLabTab() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 px-4 text-center border border-zinc-900 rounded-xl bg-zinc-950/20 max-w-md mx-auto">
                     <FlaskConical className="w-8 h-8 text-zinc-600 mb-2" />
-                    <h5 className="font-cardo font-bold text-sm text-zinc-300">No Citizen Multipliers Active</h5>
+                    <h5 className="font-cardo font-bold text-sm text-zinc-300">Citizens Await Your Spark</h5>
                     <p className="text-[11px] text-zinc-500 mt-1 max-w-xs leading-normal">
-                      Drink a **Double Harvest Draught** directly from Spirit Sprite above or from your Inventory Bag to nourish active citizens and gain double yields!
+                      Drink a **Double Harvest Draught** to invigorate returning citizens and double all kingdom crop yields!
                     </p>
                     <Button
                       onClick={handleOpenBagOverlay}

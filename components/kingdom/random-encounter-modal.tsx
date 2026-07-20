@@ -36,7 +36,7 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     heroImg: '/images/realm-header.webp',
     themeColor: 'from-emerald-900/80 via-zinc-950 to-zinc-950 border-emerald-500/40',
     badgeText: 'Zen Encounter',
-    description: 'To construct a great kingdom, one must first find stillness within. Lay down, close your eyes, and let the wind pass through for 10 seconds.',
+    description: 'To rebuild Castle Valoreth, one must first master the storm within. Close your eyes, breathe deeply, and let your spirit center for 10 seconds.',
     actionType: 'meditate_timer',
   },
   quest_completion: {
@@ -48,7 +48,7 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     heroImg: '/images/quests-header.webp',
     themeColor: 'from-amber-900/80 via-zinc-950 to-zinc-950 border-amber-500/40',
     badgeText: 'Royal Invitation',
-    description: 'Impressed by your realm’s steadfast quest completions, Queen Beatrice has arrived with her royal court to host a grand ball in your honor!',
+    description: 'Word of Thrivehaven’s rebirth has reached the Sunspire Empire! Queen Beatrice arrives at your citadel gates to celebrate your unwavering discipline.',
     actionType: 'claim_direct',
   },
   forge: {
@@ -60,7 +60,7 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     heroImg: '/images/daily-hub-hero.webp',
     themeColor: 'from-red-900/80 via-zinc-950 to-zinc-950 border-red-500/40',
     badgeText: 'Forge Encounter',
-    description: 'Your continuous hammering woke up Ignis from the furnace! While grumbling about the noise, the sprite offers to inspect your gear.',
+    description: 'Your continuous hammering woke up Ignis from the furnace! Noticing your dedication to restoring the city armor, the sprite offers a blacksmith blessing.',
     actionType: 'choice_forge',
   },
   harvest: {
@@ -72,7 +72,7 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     heroImg: '/images/kingdom-header.webp',
     themeColor: 'from-green-900/80 via-zinc-950 to-zinc-950 border-green-500/40',
     badgeText: 'Harvest Wonder',
-    description: 'A magnificent glowing Harvest Elk wanders into your farmland. Your wandering citizens bow in reverence as the soil surges with ancient energy!',
+    description: 'A glowing Harvest Elk steps into your restored farmland. Your returning citizens bow in reverence as Ether energy surges through the soil!',
     actionType: 'claim_direct',
   },
   login: {
@@ -84,7 +84,7 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     heroImg: '/images/daily-hub-hero.webp',
     themeColor: 'from-purple-900/80 via-zinc-950 to-zinc-950 border-purple-500/40',
     badgeText: 'Caravan Encounter',
-    description: 'Relieved to reach your safe kingdom borders after a long expedition, Barnaby offers you a mystery crate from his trade wagon!',
+    description: 'Safe inside Thrivehaven’s reconstructed trade road, Barnaby unloads a chest of ancient citadel blueprints to aid your daily expansion.',
     actionType: 'cards_reveal',
   },
   feed: {
@@ -96,7 +96,7 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     heroImg: '/images/character-header.webp',
     themeColor: 'from-blue-900/80 via-zinc-950 to-zinc-950 border-blue-500/40',
     badgeText: 'Gluttonous Encounter',
-    description: 'A gigantic slime drops from above and snatches the food! After gulping it down, it burps up a glowing treasure swallowed from deep in the dungeons.',
+    description: 'A giant dungeon slime drops from above and gobble up the food! Burping loudly, it spits out an ancient key swallowed during the Void Drift.',
     actionType: 'claim_direct',
   },
 };

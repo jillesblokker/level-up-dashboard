@@ -3,32 +3,32 @@ export const TEXT_CONTENT = {
         loading: "User authenticated, redirecting to kingdom...",
     },
     loading: {
-        title: "Loading Your Adventure",
+        title: "Rebuilding Thrivehaven...",
         tips: [
-            "Every quest begins with a single step.",
-            "Rest is as important as the battle.",
-            "Check your inventory before venturing out.",
-            "Allies can help you conquer the toughest challenges.",
-            "Completing daily habits strengthens your character.",
-            "Build your kingdom to unlock new possibilities.",
-            "Consistency is the key to mastery.",
-            "A sharp mind is better than a sharp sword.",
+            "Every daily habit mastered emits Ether Sparks that clear the mist from ruined land tiles.",
+            "Archmage Silvo synthesizes rare Ether Essence into legendary dragon-tempered armor.",
+            "Restoring your daily streak shield keeps the fires of Castle Valoreth burning brightly.",
+            "Queen Beatrice of Sunspire observes your realm's revival with keen interest.",
+            "Completing routines extends citizen fed time and boosts passive crop harvesting.",
+            "Zenith teaches that a quiet mind is the foundation for building a magnificent settlement.",
+            "Consistency is the true magic that reconstructs the shattered Ether Crystal.",
+            "A disciplined Sovereign strengthens both their hero stats and their entire kingdom.",
         ]
     },
     errorPage: {
         notFound: {
-            title: "Quest Failed",
-            description: "The path you seek lies shrouded in mist. The ancient scroll speaks of error 404 - a location beyond the known realm.",
-            subtext: "The page you are looking for may have been moved, deleted, or perhaps never existed in this kingdom.",
-            return: "Return to Kingdom",
+            title: "Path Shrouded in Mist",
+            description: "The location you seek lies beyond the borders of restored Thrivehaven. Error 404.",
+            subtext: "This ancient building tile or scroll has not yet been reconstructed by royal mages.",
+            return: "Return to Castle Valoreth",
             retrace: "Retrace Your Steps"
         },
         generic: {
-            title: "Quest Failed",
-            description: "A mysterious error has occurred in your adventure.",
-            investigate: "The Royal Mages are investigating this issue. You can try again or return to the kingdom.",
-            tryAgain: "Try Again",
-            return: "Return to Kingdom"
+            title: "Ether Interruption",
+            description: "The Void Drift has temporarily disrupted the spell matrix.",
+            investigate: "Archmage Silvo's mages are restoring the Ether Crystal connection. You may try again shortly.",
+            tryAgain: "Channel Ether Again",
+            return: "Return to Castle Valoreth"
         }
     },
     social: {
