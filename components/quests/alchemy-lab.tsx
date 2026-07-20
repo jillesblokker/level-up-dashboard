@@ -28,6 +28,7 @@ interface Recipe {
   emoji: string
   color: string
   ingredients: { id: string; name: string; emoji: string; qty: number }[]
+  hint: string
   durationHours: number
   buffName: string
   buffEffect: string
@@ -45,6 +46,7 @@ const RECIPES: Recipe[] = [
       { id: "material-crystal", name: "Essence Crystal", emoji: "💎", qty: 2 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "A hint of a shimmering gem and a bucket full of droplets",
     durationHours: 24,
     buffName: "Elixir of Focus",
     buffEffect: "+25% Experience from all daily habits and challenges",
@@ -61,6 +63,7 @@ const RECIPES: Recipe[] = [
       { id: "material-stone", name: "Cobblestone", emoji: "🪨", qty: 1 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "Tempered metal forged with heavy stone, cooled in fresh water",
     durationHours: 12,
     buffName: "Dread Tonic",
     buffEffect: "+50% Gold from all quests and completed duels",
@@ -77,6 +80,7 @@ const RECIPES: Recipe[] = [
       { id: "material-planks", name: "Wooden Planks", emoji: "🪵", qty: 1 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "Solid cobblestones bound with sturdy timber and a splash of pure liquid",
     durationHours: 24,
     buffName: "Aegis Shield",
     buffEffect: "Streak protector active for all daily checkmarks",
@@ -93,6 +97,7 @@ const RECIPES: Recipe[] = [
       { id: "material-crystal", name: "Essence Crystal", emoji: "💎", qty: 1 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "Pure golden nuggets mixed with a radiant crystal and clear spring water",
     durationHours: 12,
     buffName: "Midas Draught",
     buffEffect: "+100% Gold from all habits, quests, and challenges",
@@ -109,6 +114,7 @@ const RECIPES: Recipe[] = [
       { id: "material-crystal", name: "Essence Crystal", emoji: "💎", qty: 1 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "Ancient forest logs combined with a glowing crystal in boiling water",
     durationHours: 12,
     buffName: "Sage Brew",
     buffEffect: "+50% Experience from all habits and challenges",
@@ -125,6 +131,7 @@ const RECIPES: Recipe[] = [
       { id: "material-stone", name: "Cobblestone", emoji: "🪨", qty: 2 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "Hardened steel ingots and crushing stone steeped in clear water",
     durationHours: 24,
     buffName: "Ironheart Buff",
     buffEffect: "+50 Max HP boost applied for 24 hours",
@@ -140,6 +147,7 @@ const RECIPES: Recipe[] = [
       { id: "material-silver", name: "Silver Ore", emoji: "✨", qty: 2 },
       { id: "material-water", name: "Water", emoji: "💧", qty: 1 }
     ],
+    hint: "Shimmering silver ore dissolved within a vial of pure water",
     durationHours: 24,
     buffName: "Mercury Agility",
     buffEffect: "+20% Quest speed reduction (12 hour cooldowns reduced)",
@@ -792,10 +800,12 @@ export function AlchemyLab() {
                           </div>
                         </div>
 
-                        {/* Lock Overlay */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                        {/* Lock Overlay with Recipe Hint */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[3px] p-3 text-center">
                           <span className="text-xl">🔒</span>
-                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 mt-1">Undiscovered Recipe</span>
+                          <p className="text-xs font-serif italic text-amber-200/90 mt-1.5 leading-snug max-w-[92%] drop-shadow">
+                            "{recipe.hint}"
+                          </p>
                         </div>
                       </div>
                     )
@@ -804,21 +814,30 @@ export function AlchemyLab() {
                   return (
                     <div
                       key={recipe.id}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Select recipe ${recipe.name} to load cauldron ingredients`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          selectRecipe(recipe);
+                        }
+                      }}
                       onClick={() => selectRecipe(recipe)}
-                      className="p-4 bg-zinc-900/50 border border-white/5 hover:border-purple-500/30 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between hover:scale-[1.01]"
+                      className="p-4 bg-gradient-to-br from-zinc-900 via-zinc-950 to-amber-950/30 border border-amber-800/30 hover:border-purple-400/60 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between hover:scale-[1.01] active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
                     >
                       <div className="flex items-start gap-4">
                         <div className={`p-3 rounded-2xl bg-gradient-to-br ${recipe.color} text-white text-2xl shadow-md shrink-0`}>
                           {recipe.emoji}
                         </div>
                         <div className="min-w-0">
-                          <h5 className="font-bold text-sm text-zinc-100 group-hover:text-purple-400 transition-colors">{recipe.name}</h5>
-                          <p className="text-xs text-zinc-400 leading-normal mt-1">{recipe.description}</p>
+                          <h5 className="font-bold text-sm text-zinc-100 group-hover:text-purple-300 transition-colors font-serif">{recipe.name}</h5>
+                          <p className="text-xs text-zinc-300 leading-normal mt-1">{recipe.description}</p>
                         </div>
                       </div>
 
                       {/* Ingredients Requirements list */}
-                      <div className="flex gap-2 flex-wrap mt-4 border-t border-white/5 pt-3">
+                      <div className="flex gap-2 flex-wrap mt-4 border-t border-amber-900/30 pt-3">
                         {recipe.ingredients.map(req => {
                           const invItem = inventory.find(i => i.id === req.id)
                           const currentQty = invItem ? invItem.quantity : 0
@@ -829,7 +848,7 @@ export function AlchemyLab() {
                               key={req.id}
                               variant="outline"
                               className={`text-[10px] font-bold py-1 px-3 rounded-full flex items-center gap-1.5 border transition-all ${
-                                isMet ? "border-emerald-950/20 bg-emerald-500/10 text-emerald-400" : "border-red-950/20 bg-red-500/10 text-red-400"
+                                isMet ? "border-emerald-500/40 bg-emerald-950/80 text-emerald-300 shadow-sm" : "border-red-500/40 bg-red-950/80 text-red-300 opacity-90"
                               }`}
                             >
                               <span>{req.emoji}</span>

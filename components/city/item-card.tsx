@@ -57,24 +57,24 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
   }
 
   return (
-    <Card className={`border-amber-800/20 ${getBorderColor()} transition-all duration-300 bg-gradient-to-b ${getCardBackground()} hover:shadow-md hover:shadow-amber-900/20`}>
+    <Card className={`border-2 border-amber-800/40 ${getBorderColor()} transition-all duration-300 bg-gradient-to-b ${getCardBackground()} hover:shadow-xl hover:shadow-amber-950/40 rounded-2xl overflow-hidden flex flex-col justify-between`}>
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{item.name}</CardTitle>
-          <span className="text-xs px-2 py-0.5 rounded bg-amber-900/30 text-amber-400">{getItemType()}</span>
+        <div className="flex justify-between items-start gap-2">
+          <CardTitle className="text-lg font-serif font-bold text-amber-100">{item.name}</CardTitle>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-950 border border-amber-500/50 text-amber-200 shadow-sm shrink-0">{getItemType()}</span>
         </div>
-        <CardDescription>{item.description}</CardDescription>
+        <CardDescription className="text-zinc-300 text-xs leading-relaxed">{item.description}</CardDescription>
       </CardHeader>
       
       <CardContent className="pb-2">
-        {/* Image area - show item image if available, else fallback */}
-        <div className="w-full h-32 mb-3 rounded-md overflow-hidden border border-amber-800/30 relative group">
+        {/* Image area - radial pedestal background */}
+        <div className="w-full h-32 mb-3 rounded-xl overflow-hidden border border-amber-800/40 relative group bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/40">
           {item.image ? (
             <Image
               src={item.image}
               alt={item.name + ' ' + getItemType()}
               fill
-              className="object-contain w-full h-full bg-black"
+              className="object-contain w-full h-full p-2"
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
               aria-label={`${item.name}-image`}
               onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = "/images/placeholders/item-placeholder.svg"; }}
@@ -84,29 +84,29 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
               src="/images/placeholders/item-placeholder.svg"
               alt={item.name + ' placeholder'}
               fill
-              className="object-contain w-full h-full bg-black"
+              className="object-contain w-full h-full p-2"
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
               aria-label={`${item.name}-fallback-image`}
             />
           )}
         </div>
 
-        {/* Stats/Effects */}
-        <div className="bg-zinc-950 p-2 rounded-md mb-2">
+        {/* Stats/Effects - High Contrast */}
+        <div className="bg-zinc-950/90 border border-amber-900/30 p-2.5 rounded-xl mb-2 text-xs">
           {isWeapon(item) && (
             <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>Attack</span>
-                <span className="text-red-500">+{item.stats.attack}</span>
+              <div className="flex justify-between font-medium">
+                <span className="text-zinc-300">Attack</span>
+                <span className="text-red-400 font-bold">+{item.stats.attack}</span>
               </div>
             </div>
           )}
 
           {isArmor(item) && (
             <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>Defense</span>
-                <span className="text-blue-500">+{item.stats.defense}</span>
+              <div className="flex justify-between font-medium">
+                <span className="text-zinc-300">Defense</span>
+                <span className="text-blue-400 font-bold">+{item.stats.defense}</span>
               </div>
             </div>
           )}
@@ -114,21 +114,21 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
           {isPotion(item) && (
             <div className="space-y-1">
               {item.stats.health && (
-                <div className="flex justify-between text-sm">
-                  <span>Health</span>
-                  <span className="text-green-500">+{item.stats.health}</span>
+                <div className="flex justify-between font-medium">
+                  <span className="text-zinc-300">Health</span>
+                  <span className="text-emerald-400 font-bold">+{item.stats.health}</span>
                 </div>
               )}
               {item.stats.mana && (
-                <div className="flex justify-between text-sm">
-                  <span>Mana</span>
-                  <span className="text-blue-500">+{item.stats.mana}</span>
+                <div className="flex justify-between font-medium">
+                  <span className="text-zinc-300">Mana</span>
+                  <span className="text-cyan-400 font-bold">+{item.stats.mana}</span>
                 </div>
               )}
               {item.stats.stamina && (
-                <div className="flex justify-between text-sm">
-                  <span>Stamina</span>
-                  <span className="text-yellow-500">+{item.stats.stamina}</span>
+                <div className="flex justify-between font-medium">
+                  <span className="text-zinc-300">Stamina</span>
+                  <span className="text-yellow-400 font-bold">+{item.stats.stamina}</span>
                 </div>
               )}
             </div>
@@ -136,53 +136,57 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
 
           {isFood(item) && (
             <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>Effect</span>
-                <span className="text-amber-400">{item.effect}</span>
+              <div className="flex justify-between font-medium">
+                <span className="text-zinc-300">Effect</span>
+                <span className="text-amber-300 font-semibold">{item.effect}</span>
               </div>
             </div>
           )}
 
           {isMount(item) && (
             <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>Speed</span>
-                <span className="text-blue-500">+{item.speed}</span>
+              <div className="flex justify-between font-medium">
+                <span className="text-zinc-300">Speed</span>
+                <span className="text-cyan-400 font-bold">+{item.speed}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Stamina</span>
-                <span className="text-yellow-500">+{item.stamina}</span>
+              <div className="flex justify-between font-medium">
+                <span className="text-zinc-300">Stamina</span>
+                <span className="text-yellow-400 font-bold">+{item.stamina}</span>
               </div>
             </div>
           )}
 
           {isMagic(item) && (
             <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>Power</span>
-                <span className="text-purple-500">+{item.power}</span>
+              <div className="flex justify-between font-medium">
+                <span className="text-zinc-300">Power</span>
+                <span className="text-purple-400 font-bold">+{item.power}</span>
               </div>
               {item.element && (
-                <div className="flex justify-between text-sm">
-                  <span>Element</span>
-                  <span className="text-amber-400">{item.element}</span>
+                <div className="flex justify-between font-medium">
+                  <span className="text-zinc-300">Element</span>
+                  <span className="text-amber-300 font-semibold">{item.element}</span>
                 </div>
               )}
             </div>
           )}
 
           {/* Price */}
-          <div className="flex items-center mt-2 pt-2 border-t border-zinc-700/50">
-            <Coins className="h-4 w-4 text-amber-500 mr-1" />
-            <span className="font-medium text-amber-500">{item.price} Gold</span>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-amber-900/30">
+            <span className="text-zinc-400 font-medium">Price</span>
+            <span className="flex items-center gap-1 font-bold font-mono text-amber-300">
+              <Coins className="h-4 w-4 text-amber-400" />
+              {item.price} Gold
+            </span>
           </div>
         </div>
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="pt-1">
         <Button
-          className="w-full bg-amber-500 hover:bg-amber-600 text-black transition-all duration-300"
+          className="min-h-[44px] w-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold rounded-xl shadow-lg border border-yellow-300/40 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
           onClick={() => onPurchase(item)}
+          aria-label={`Purchase ${item.name} for ${item.price} gold`}
         >
           Purchase
         </Button>

@@ -121,12 +121,12 @@ export default function QuestCard({
       )}
       <Card
         className={cn(
-          "relative overflow-hidden transition-all duration-300 cursor-pointer group",
-          "bg-black border border-amber-800/20",
-          "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/20",
-          "transform hover:-translate-y-1 hover:scale-[1.02]",
+          "relative overflow-hidden transition-all duration-300 cursor-pointer group rounded-2xl",
+          "bg-gradient-to-br from-zinc-900 via-zinc-950 to-amber-950/30 border-2 border-amber-800/40",
+          "hover:border-amber-400/60 hover:shadow-xl hover:shadow-amber-500/10",
+          "transform hover:-translate-y-0.5 hover:scale-[1.01] active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none",
           isFeatured && "ring-2 ring-amber-500/50",
-          isNew && "ring-2 ring-green-500/50",
+          isNew && "ring-2 ring-emerald-500/50",
           status === 'completed' && "opacity-75"
         )}
         onMouseEnter={() => setIsHovered(true)}
@@ -134,28 +134,38 @@ export default function QuestCard({
         onMouseDown={() => setIsPressed(true)}
         onMouseUp={() => setIsPressed(false)}
         onClick={onClick}
+        tabIndex={0}
         aria-label={`Quest card: ${title}`}
       >
         {/* Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-        {/* Interactive Checkbox */}
+        {/* Interactive Checkbox - Accessible 44x44px Touch Target */}
         <div
-          className="absolute top-3 right-3 z-10 cursor-pointer"
+          className="absolute top-2 right-2 z-10 cursor-pointer min-w-[44px] min-h-[44px] p-2 flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
           onClick={handleComplete}
-          aria-label={`Toggle quest completion: ${title}`}
+          aria-label={`Mark quest "${title}" as completed`}
+          role="checkbox"
+          aria-checked={status === 'completed'}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleComplete(e as unknown as React.MouseEvent);
+            }
+          }}
         >
           <div className={cn(
-            "w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 relative",
-            "hover:scale-110 hover:shadow-lg",
+            "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 relative shadow-md",
+            "hover:scale-110",
             status === 'completed'
-              ? "bg-green-500 border-green-500 text-white"
-              : "bg-transparent border-zinc-400 text-transparent hover:border-amber-400"
+              ? "bg-emerald-500 border-emerald-400 text-zinc-950 font-bold"
+              : "bg-zinc-950/80 border-amber-500/50 text-transparent hover:border-amber-300"
           )}>
             {status === 'completed' ? (
-              <CheckCircle className="h-4 w-4" />
+              <CheckCircle className="h-4 w-4 stroke-[3]" />
             ) : (
-              <div className="w-3 h-3 rounded border border-zinc-400" />
+              <div className="w-2.5 h-2.5 rounded-sm border border-amber-500/40" />
             )}
             
             {/* Particle Burst Spans */}

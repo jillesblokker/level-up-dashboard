@@ -47,6 +47,7 @@ interface Recipe {
   targetItemId: string;
   goldCost: number;
   materials: { itemId: string; quantity: number }[];
+  hint: string;
 }
 
 const FORGE_RECIPES: Recipe[] = [
@@ -54,44 +55,60 @@ const FORGE_RECIPES: Recipe[] = [
       { itemId: 'sword-twig', quantity: 1 },
       { itemId: 'material-steel', quantity: 5 },
       { itemId: 'material-planks', quantity: 2 }
-    ] },
+    ],
+    hint: 'A wooden training sword reinforced with refined steel ingots and sturdy timber'
+  },
   { id: 'craft-sword-morningstar', targetItemId: 'sword-morningstar', goldCost: 120,    materials: [
       { itemId: 'sword-irony', quantity: 1 },
       { itemId: 'material-steel', quantity: 8 },
       { itemId: 'material-planks', quantity: 3 },
       { itemId: 'material-crystal', quantity: 1 }
-    ] },
+    ],
+    hint: 'An iron blade honed with dense steel, timber supports, and a glowing crystal'
+  },
   { id: 'craft-sword-sunblade',   targetItemId: 'sword-sunblade',   goldCost: 250,    materials: [
       { itemId: 'sword-morningstar', quantity: 1 },
       { itemId: 'material-silver', quantity: 10 },
       { itemId: 'material-crystal', quantity: 5 }
-    ] },
+    ],
+    hint: 'A morningstar blade fused with gleaming silver bars and radiant essence crystals'
+  },
   { id: 'craft-sword-solaraxe',   targetItemId: 'sword-solaraxe',   goldCost: 500,    materials: [
       { itemId: 'sword-sunblade', quantity: 1 },
       { itemId: 'material-gold', quantity: 15 },
       { itemId: 'material-crystal', quantity: 10 }
-    ] },
+    ],
+    hint: 'A sunblade forged with pure gold bars and a heavy payload of essence crystals'
+  },
   { id: 'craft-shield-defecto',   targetItemId: 'shield-defecto',   goldCost: 40,    materials: [
       { itemId: 'shield-reflecto', quantity: 1 },
       { itemId: 'material-logs', quantity: 5 },
       { itemId: 'material-steel', quantity: 3 }
-    ] },
+    ],
+    hint: 'A simple wooden shield bound with heavy forest logs and solid steel ingots'
+  },
   { id: 'craft-shield-blockado',  targetItemId: 'shield-blockado',  goldCost: 100,    materials: [
       { itemId: 'shield-defecto', quantity: 1 },
       { itemId: 'material-steel', quantity: 8 },
       { itemId: 'material-planks', quantity: 2 },
       { itemId: 'material-crystal', quantity: 1 }
-    ] },
+    ],
+    hint: 'A defecto shield plated with steel ingots, wooden planks, and a protective crystal'
+  },
   { id: 'craft-armor-darko',      targetItemId: 'armor-darko',      goldCost: 60,    materials: [
       { itemId: 'armor-normalo', quantity: 1 },
       { itemId: 'material-logs', quantity: 4 },
       { itemId: 'material-steel', quantity: 2 }
-    ] },
+    ],
+    hint: 'Basic tunic armor reinforced with sturdy timber logs and protective steel ingots'
+  },
   { id: 'craft-armor-silvo',      targetItemId: 'armor-silvo',      goldCost: 300,    materials: [
       { itemId: 'armor-darko', quantity: 1 },
       { itemId: 'material-silver', quantity: 8 },
       { itemId: 'material-crystal', quantity: 4 }
-    ] },
+    ],
+    hint: 'Darkened armor woven with gleaming silver bars and protective essence crystals'
+  },
 ];
 
 const ITEM_CATEGORIES = [
@@ -1083,7 +1100,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
           <div className="flex items-center gap-6">
-            <h2 className="text-2xl font-bold font-cardo text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 flex items-center gap-3 drop-shadow-sm">
+            <h2 className="text-2xl font-bold font-serif text-amber-300 flex items-center gap-3 drop-shadow-sm">
               <span className="text-3xl filter drop-shadow-md">🎒</span>
               Your Bag
             </h2>
@@ -1487,10 +1504,12 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                                   </div>
                                 </div>
 
-                                {/* Lock Overlay */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                                {/* Lock Overlay with Blueprint Hint */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[3px] p-3 text-center">
                                   <span className="text-xl">🔒</span>
-                                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 mt-1">Undiscovered Blueprint</span>
+                                  <p className="text-xs font-serif italic text-amber-200/90 mt-1.5 leading-snug max-w-[92%] drop-shadow">
+                                    "{recipe.hint}"
+                                  </p>
                                 </div>
                               </div>
                             );
@@ -1499,8 +1518,17 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                           return (
                             <div
                               key={recipe.id}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Select blueprint ${item.name} to load anvil materials`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  selectForgeRecipe(recipe);
+                                }
+                              }}
                               onClick={() => selectForgeRecipe(recipe)}
-                              className="p-4 bg-zinc-900/50 border border-white/5 hover:border-orange-500/30 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between hover:scale-[1.01]"
+                              className="p-4 bg-gradient-to-br from-zinc-900 via-zinc-950 to-amber-950/30 border border-amber-800/30 hover:border-orange-400/60 rounded-2xl transition-all cursor-pointer group flex flex-col justify-between hover:scale-[1.01] active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
                             >
                               <div className="flex items-start gap-4">
                                 <div className="p-3 rounded-2xl bg-zinc-800 text-white text-2xl shadow-md shrink-0">
@@ -1508,25 +1536,25 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                                 </div>
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <h5 className="font-bold text-sm text-zinc-100 group-hover:text-orange-400 transition-colors">{item.name}</h5>
+                                    <h5 className="font-bold text-sm text-zinc-100 group-hover:text-orange-300 transition-colors font-serif">{item.name}</h5>
                                     {item.rarity && (
-                                      <Badge variant="outline" className={cn('text-[9px] capitalize shrink-0',
-                                        item.rarity === 'legendary' ? 'border-orange-500 text-orange-400' :
-                                        item.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
-                                        item.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
-                                        item.rarity === 'uncommon' ? 'border-green-500 text-green-400' :
-                                        'border-zinc-500 text-zinc-400'
+                                      <Badge variant="outline" className={cn('text-[9px] capitalize shrink-0 font-bold',
+                                        item.rarity === 'legendary' ? 'border-orange-500/50 bg-orange-950/80 text-orange-300' :
+                                        item.rarity === 'epic' ? 'border-purple-500/50 bg-purple-950/80 text-purple-300' :
+                                        item.rarity === 'rare' ? 'border-blue-500/50 bg-blue-950/80 text-blue-300' :
+                                        item.rarity === 'uncommon' ? 'border-green-500/50 bg-green-950/80 text-green-300' :
+                                        'border-zinc-500/50 bg-zinc-900/80 text-zinc-300'
                                       )}>
                                         {item.rarity}
                                       </Badge>
                                     )}
                                   </div>
-                                  <p className="text-xs text-zinc-400 leading-normal mt-1">{item.description}</p>
+                                  <p className="text-xs text-zinc-300 leading-normal mt-1">{item.description}</p>
                                 </div>
                               </div>
 
                               {/* Material Requirements list */}
-                              <div className="flex gap-2 flex-wrap mt-4 border-t border-white/5 pt-3">
+                              <div className="flex gap-2 flex-wrap mt-4 border-t border-amber-900/30 pt-3">
                                 {recipe.materials.map(req => {
                                   const materialItem = comprehensiveItems.find(c => c.id === req.itemId);
                                   const owned = getOwnedQty(req.itemId);
@@ -1538,7 +1566,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                                       variant="outline"
                                       className={cn(
                                         'text-[10px] font-bold py-1 px-3 rounded-full flex items-center gap-1.5 border transition-all',
-                                        isMet ? "border-emerald-950/20 bg-emerald-500/10 text-emerald-400" : "border-red-950/20 bg-red-500/10 text-red-400"
+                                        isMet ? "border-emerald-500/40 bg-emerald-950/80 text-emerald-300 shadow-sm" : "border-red-500/40 bg-red-950/80 text-red-300 opacity-90"
                                       )}
                                     >
                                       <span>{materialItem?.emoji || "📦"}</span>

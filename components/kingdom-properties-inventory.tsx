@@ -153,7 +153,7 @@ export function KingdomPropertiesInventory({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
           <div className="flex items-center gap-6">
-            <h2 className="text-2xl font-bold font-cardo text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 flex items-center gap-3 drop-shadow-sm">
+            <h2 className="text-2xl font-bold font-serif text-amber-300 flex items-center gap-3 drop-shadow-sm">
               <span className="text-3xl filter drop-shadow-md">🏢</span>
               Kingdom Properties
             </h2>

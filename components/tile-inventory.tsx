@@ -700,30 +700,35 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-4 bg-background/95  flex-1 flex flex-col">
-                                  <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
-                                  <div className="text-xs text-muted-foreground text-center mb-3">
-                                    <span className="text-amber-500 font-medium">{tile.cost ?? 0} gold</span>
+                                <div className="p-4 bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/20 border-t border-amber-900/30 flex-1 flex flex-col justify-between">
+                                  <div>
+                                    <div className="capitalize font-serif font-bold text-sm text-zinc-100 mb-1">{tile.name}</div>
+                                    <div className="text-xs text-center mb-3">
+                                      <span className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full bg-zinc-950 border border-amber-500/40 text-amber-300 font-bold font-mono text-xs shadow-sm">
+                                        🪙 {tile.cost ?? 0} Gold
+                                      </span>
+                                    </div>
                                   </div>
-                                  <div className="flex gap-2 items-center justify-center mt-auto">
+                                  <div className="flex gap-2 items-center justify-center mt-auto pt-2">
                                     <Input
                                       type="number"
                                       min="1"
                                       value={buyQuantities[tile.type] || 1}
                                       onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                                      className="w-16 h-10 text-sm text-center px-2 py-1 border border-zinc-700 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-zinc-800"
+                                      className="w-16 min-h-[44px] text-sm font-bold text-center px-2 py-1 border border-amber-800/40 rounded-xl focus:ring-amber-400 focus:border-amber-400 bg-zinc-950 text-amber-200"
                                       id={`buy-quantity-${tile.type}`}
                                       name={`buy-quantity-${tile.type}`}
                                       disabled={userLevelValue < category.minLevel}
+                                      aria-label={`Quantity for ${tile.name}`}
                                     />
                                     <Button
                                       variant="outline"
                                       size="sm"
                                       className={cn(
-                                        "flex-1 min-h-[40px] h-10",
+                                        "flex-1 min-h-[44px] rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none",
                                         userLevelValue >= category.minLevel
-                                          ? "bg-amber-600 border-amber-500 hover:bg-amber-500 text-white font-semibold"
-                                          : "bg-zinc-600/50 border-zinc-600 text-zinc-400 cursor-not-allowed"
+                                          ? "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold border border-yellow-300/40 shadow-lg active:scale-95"
+                                          : "bg-zinc-800/60 border-zinc-700 text-zinc-400 cursor-not-allowed"
                                       )}
                                       onClick={(e) => userLevelValue >= category.minLevel && handleBuyTile(tile, e)}
                                       disabled={userLevelValue < category.minLevel}

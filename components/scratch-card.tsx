@@ -239,42 +239,45 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
   return (
     <article 
       ref={containerRef}
+      role="region"
+      aria-label={`Scratch card #${cardData.number}: ${cardData.variantLabel} (${cardData.rarity}). ${revealed ? 'Revealed reward' : 'Scratch to reveal'}`}
       className={cn(
-        "relative w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] rounded-xl overflow-hidden shadow-xl select-none touch-none transition-all duration-500",
+        "relative w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] rounded-2xl overflow-hidden shadow-2xl select-none touch-none transition-all duration-500 border-2 border-amber-800/40 hover:scale-[1.02] active:scale-95",
         getRarityGlowClass()
       )}
     >
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
-        <div className="absolute inset-0 w-full h-full overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 w-full h-full overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/40">
           <Image
             src={imagePath}
             alt={`Mythic Card #${cardData.number}`}
             fill
-            className="object-contain p-1 sm:p-2"
+            className="object-contain p-1.5 sm:p-2"
           />
           {/* Overlay info */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-1.5 sm:p-3 flex flex-col justify-end h-2/3">
-            <span className="text-[7px] sm:text-[10px] font-bold text-amber-200 tracking-wider mb-0.5 truncate">{cardData.variantLabel}</span>
-            <span className="text-[6px] sm:text-[9px] font-bold text-purple-300 uppercase tracking-widest truncate">{cardData.rarity}</span>
-            <div className="flex justify-between items-center mt-1 pt-1 sm:mt-1.5 sm:pt-1.5 border-t border-white/10">
-              <span className="text-[8px] sm:text-xs font-bold text-white flex items-center gap-0.5 truncate">#{cardData.number}</span>
-              <span className="text-[8px] sm:text-xs font-bold text-yellow-400 flex items-center gap-0.5 truncate">{cardData.price}🪙</span>
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent p-2 sm:p-3 flex flex-col justify-end h-2/3 border-t border-amber-500/20">
+            <span className="text-[8px] sm:text-[11px] font-serif font-bold text-amber-200 tracking-wider mb-0.5 truncate drop-shadow">{cardData.variantLabel}</span>
+            <span className="text-[7px] sm:text-[10px] font-bold text-purple-300 uppercase tracking-widest truncate">{cardData.rarity}</span>
+            <div className="flex justify-between items-center mt-1 pt-1 sm:mt-1.5 sm:pt-1.5 border-t border-amber-900/30">
+              <span className="text-[9px] sm:text-xs font-bold font-mono text-zinc-200 truncate">#{cardData.number}</span>
+              <span className="text-[9px] sm:text-xs font-bold font-mono text-amber-300 flex items-center gap-0.5 truncate">{cardData.price}🪙</span>
             </div>
           </div>
         </div>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-4 bg-zinc-950 text-white">
-          <span className="text-xl sm:text-3xl md:text-4xl font-black opacity-80">{cardData.number}</span>
-          <span className="text-[8px] sm:text-sm font-bold tracking-wider sm:tracking-widest mt-1 sm:mt-2 truncate w-full text-center">{cardData.variantLabel}</span>
-          <span className="text-[7px] sm:text-xs font-bold mt-0.5 opacity-60 uppercase truncate">{cardData.rarity}</span>
-          <span className="mt-auto text-[10px] sm:text-lg font-bold">{cardData.price} 🪙</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-2.5 sm:p-4 bg-gradient-to-b from-amber-950/50 via-zinc-950 to-zinc-950 text-white">
+          <span className="text-xl sm:text-3xl md:text-4xl font-serif font-bold text-amber-300 drop-shadow">{cardData.number}</span>
+          <span className="text-[9px] sm:text-sm font-bold text-amber-100 tracking-wider sm:tracking-widest mt-1 sm:mt-2 truncate w-full text-center">{cardData.variantLabel}</span>
+          <span className="text-[8px] sm:text-xs font-bold mt-0.5 text-purple-300 uppercase truncate">{cardData.rarity}</span>
+          <span className="mt-auto text-[11px] sm:text-lg font-bold font-mono text-amber-300">{cardData.price} 🪙</span>
         </div>
       )}
 
       {/* Canvas Layer */}
       <canvas 
         ref={canvasRef}
+        aria-hidden="true"
         className={cn(
           "absolute inset-0 w-full h-full z-10 transition-opacity duration-500",
           revealed ? "opacity-0 pointer-events-none" : "opacity-100 cursor-crosshair"
