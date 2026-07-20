@@ -40,11 +40,11 @@ const GUARDIANS = [
     themeColor: 'from-orange-500/20 to-red-500/25 border-orange-500/30 text-orange-400',
     perkIcon: '🔥',
     lines: [
-      "Rrarr! Let's burn through those tasks today!",
-      "I want to see some fire in your might habits!",
-      "Temple fire burns bright when you complete your daily chores!",
-      "Mmm, smells like victory and charcoal!",
-      "Rawr! Keep going, my flame grows stronger!"
+      "Rrarr! Your discipline stokes the furnace of our realm. The settlement grows stronger!",
+      "I want to see the fire of your might habits restore our city walls!",
+      "Temple fires burn bright when you master your daily duties!",
+      "Mmm, victory smells like fresh iron and charcoal in Thrivehaven!",
+      "Rawr! Keep going, our kingdom's flame grows stronger!"
     ]
   },
   {
@@ -57,11 +57,11 @@ const GUARDIANS = [
     themeColor: 'from-cyan-500/20 to-blue-500/25 border-cyan-500/30 text-cyan-400',
     perkIcon: '📖',
     lines: [
-      "Hoot! Knowledge is the ultimate power in Valoreth.",
-      "A disciplined mind achieves the greatest victories.",
-      "Have you read your scrolls and completed your studies today?",
-      "Wisdom lies not in knowing, but in doing.",
-      "I shall record your grand deeds in the archives!"
+      "Hoot! Knowledge is the foundation of our kingdom. The archives shine anew!",
+      "A disciplined mind restores what was lost. I record your grand deeds!",
+      "Have you studied your scrolls and mastered your routines today?",
+      "Wisdom lies not in intent, but in persistent action.",
+      "With every habit completed, ancient wisdom returns to Thrivehaven!"
     ]
   },
   {
@@ -74,11 +74,11 @@ const GUARDIANS = [
     themeColor: 'from-emerald-500/20 to-green-500/25 border-emerald-500/30 text-emerald-400',
     perkIcon: '🌿',
     lines: [
-      "Sparkle sparkle! Nature smiles on your healthy habits.",
-      "Take a deep breath. A strong body builds a strong castle!",
-      "Let's make today magical and full of energy!",
-      "Every step you take brings life back to the woodlands!",
-      "Wheee! Your habits keep my sparkles shining!"
+      "Sparkle sparkle! Nature blooms as you master your habits!",
+      "Take a deep breath. A strong body rebuilds a glorious castle!",
+      "Let's make today full of life and restorative energy!",
+      "Every step you take brings life back to our enchanted woodlands!",
+      "Wheee! Your habits keep Thrivehaven sparkling with vitality!"
     ]
   }
 ];

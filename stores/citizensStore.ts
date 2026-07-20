@@ -64,6 +64,7 @@ interface CitizensStore {
   decreaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
   trainCitizen: (userId: string, citizenId: string, foodItemId: string, scrollItemId: string, foodQty?: number, scrollQty?: number) => Promise<{ success: boolean; error?: string; leveledUp?: boolean }>;
   toggleSupporter: (userId: string, citizenId: string) => Promise<void>;
+  boostActiveCitizensNourishment: (userId: string, hoursToAdd?: number) => Promise<void>;
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
 }
 
@@ -523,6 +524,39 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     }
 
     return true;
+  },
+
+  boostActiveCitizensNourishment: async (userId: string, hoursToAdd: number = 4) => {
+    const { citizens } = get();
+    if (!citizens || citizens.length === 0) return;
+
+    const now = new Date().toISOString();
+    const updated = citizens.map((c) => {
+      if (c.active) {
+        return {
+          ...c,
+          lastFedAt: now,
+          activeDays: Math.min((c.activeDays || 1) + 1, 7),
+          affection: Math.min((c.affection || 0) + 1, 100),
+        };
+      }
+      return c;
+    });
+
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updated.forEach((c) => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
+      };
+    });
+
+    set({ citizens: updated });
+    await setUserPreference('citizens_state', citizenPrefs);
   },
 
   harvestCitizen: async (userId: string, citizenId: string, multiplier?: number) => {

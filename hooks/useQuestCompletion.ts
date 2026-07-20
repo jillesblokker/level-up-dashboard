@@ -159,11 +159,11 @@ export function useQuestCompletion() {
           gold: finalGold,
         });
 
-        // Show Quest Completed Toast with UNDO action
+        // Show Quest Completed Toast with UNDO action (Thematic Lore Copy)
         const toastId = questToasts.addToast({
           type: 'success',
-          title: 'Quest Completed! 🎉',
-          description: `${questData.name} completed! +${finalXP} XP, +${finalGold} Gold`,
+          title: 'Habit Mastered! ✨',
+          description: `${questData.name} completed! +${finalXP} XP, +${finalGold} Gold • Kingdom Vitality Restored`,
           duration: 5000,
           action: {
             label: 'Undo',
@@ -186,19 +186,37 @@ export function useQuestCompletion() {
         });
       } else {
         toast({
-          title: "Quest Uncompleted",
-          description: `${questData.name} has been marked as incomplete.`,
+          title: "Habit Unchecked",
+          description: `${questData.name} marked as incomplete.`,
           duration: 2000,
         });
       }
 
-      // Optimistically update character stats
+      // Optimistically update character stats and Kingdom systems
       if (newCompleted) {
         try {
           const { addToCharacterStat } = await import('@/lib/character-stats-service');
           if (xpReward) addToCharacterStat('experience', xpReward, 'quest:complete');
           if (goldReward) addToCharacterStat('gold', goldReward, 'quest:complete');
-          console.log('[Quest Completion] Optimistically updated stats');
+
+          // Auto-nourish active citizens
+          try {
+            const { useCitizensStore } = await import('@/stores/citizensStore');
+            useCitizensStore.getState().boostActiveCitizensNourishment('user', 4);
+          } catch (citErr) {
+            console.warn('[Quest Completion] Failed to nourish citizens:', citErr);
+          }
+
+          // Accelerate property timers by 15m
+          try {
+            fetch('/api/property-timers', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'rush', minutes: 15 })
+            }).catch(() => null);
+          } catch (tErr) {
+            console.warn('[Quest Completion] Failed to rush timers:', tErr);
+          }
 
           // Trigger random encounter check for quest completion
           try {

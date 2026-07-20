@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
 import { Castle, Coins, Star } from "lucide-react"
@@ -65,11 +65,45 @@ export function NavBar({ session }: NavBarProps) {
     setIsClient(true)
   }, [])
 
+  const [hasActiveBuffs, setHasActiveBuffs] = useState(false);
+
+  const checkBuffs = useCallback(async () => {
+    try {
+      const { getUserPreference } = await import("@/lib/user-preferences-manager");
+      const prefs: any = await getUserPreference('active_alchemy_buffs') || {};
+      const now = Date.now();
+      let active = false;
+
+      if (prefs.forgeLuckCharges > 0 || prefs.combatProtectionCharges > 0) active = true;
+      if (prefs.doubleHarvestUntil && new Date(prefs.doubleHarvestUntil).getTime() > now) active = true;
+      if (prefs.spellExpiresAt && new Date(prefs.spellExpiresAt).getTime() > now) active = true;
+
+      if (!active) {
+        const modRes = await fetch('/api/active-modifiers');
+        if (modRes.ok) {
+          const modData = await modRes.json();
+          const mods = modData.modifiers || [];
+          if (mods.some((m: any) => new Date(m.expires_at).getTime() > now)) {
+            active = true;
+          }
+        }
+      }
+      setHasActiveBuffs(active);
+    } catch (e) {
+      // Ignore background check errors
+    }
+  }, []);
+
   useEffect(() => {
     const handleOpenBag = () => setIsBagOpen(true);
     window.addEventListener('open-inventory-bag', handleOpenBag);
-    return () => window.removeEventListener('open-inventory-bag', handleOpenBag);
-  }, []);
+    window.addEventListener('alchemy-buffs-update', checkBuffs);
+    checkBuffs();
+    return () => {
+      window.removeEventListener('open-inventory-bag', handleOpenBag);
+      window.removeEventListener('alchemy-buffs-update', checkBuffs);
+    };
+  }, [checkBuffs]);
 
   useEffect(() => {
     // Only load stats if user is authenticated and Clerk is loaded
@@ -242,14 +276,20 @@ export function NavBar({ session }: NavBarProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full text-xl"
+              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full text-xl relative"
               onClick={() => {
                 audioManager.playClick();
                 setIsBagOpen(true);
               }}
-              title="Open Bag"
+              title={hasActiveBuffs ? "Open Bag (Active Multipliers Active! ✨)" : "Open Bag"}
             >
               🎒
+              {hasActiveBuffs && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-purple-500 text-[8px] font-bold text-white items-center justify-center shadow-lg">✨</span>
+                </span>
+              )}
             </Button>
 
           </div>
