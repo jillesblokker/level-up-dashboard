@@ -212,12 +212,12 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             </Button>
                         </div>
 
-                        {/* Lore Text Area - Weathered Parchment Layout (Point 6) */}
+                        {/* Lore Text Area - Weathered Parchment Layout */}
                         <div className="relative bg-gradient-to-br from-[#fdfbf7] via-[#f7f0e3] to-[#ebdcb9] text-[#2c1d11] rounded-2xl p-5 md:p-8 shadow-[inset_0_0_20px_rgba(92,59,20,0.2),0_4px_12px_rgba(0,0,0,0.25)] border-2 border-[#b58b4c]/30 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
                             {/* Burned edge shadow layer */}
                             <div className="absolute inset-0 pointer-events-none border border-amber-950/10 rounded-2xl" />
                             
-                            <div className="md:columns-2 md:gap-8 pr-1 max-h-[200px] sm:max-h-none overflow-y-auto" style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)' }}>
+                            <div className="md:columns-2 md:gap-8 pr-1">
                                 {paragraphs.map((p, i) => {
                                     if (i === 0 && p.length > 0) {
                                         const firstChar = p.charAt(0);
@@ -248,19 +248,41 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             </div>
 
                             {showFiller && fillerEpisodes.length > 0 && (
-                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-4 max-h-[300px] overflow-y-auto">
-                                    <h4 className="font-serif font-black text-xs uppercase tracking-widest text-[#4a1d0f] flex items-center gap-1.5">
-                                        📜 Daily Feats & Town Records
+                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-4">
+                                    <h4 className="font-serif font-black text-xs md:text-sm uppercase tracking-widest text-[#2c1507] flex items-center gap-1.5">
+                                        📜 Thrivehaven Records
                                     </h4>
-                                    {fillerEpisodes.map((ep: any, index: number) => (
-                                        <div key={ep.id || index} className="space-y-1.5 bg-[#fffdfb]/80 p-3.5 rounded-xl border border-[#b58b4c]/30 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-                                            <div className="flex justify-between items-center text-xs font-sans text-[#3b170c] uppercase tracking-wider font-extrabold border-b border-[#b58b4c]/15 pb-1">
-                                                <span className="flex items-center gap-1">Feat {index + 1}: <span className="text-[#854d0e]">{ep.category}</span></span>
-                                                <span className="text-[11px] font-mono text-[#582914]">{ep.date}</span>
-                                            </div>
-                                            <p className="font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify pt-0.5">{ep.content}</p>
-                                        </div>
-                                    ))}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                        {fillerEpisodes.map((ep: any, index: number) => {
+                                            const formatMedievalDate = (dateStr: string) => {
+                                                if (!dateStr) return '';
+                                                const date = new Date(dateStr);
+                                                if (isNaN(date.getTime())) return dateStr;
+                                                const day = date.getDate();
+                                                const daySuffix = (d: number) => {
+                                                    if (d > 3 && d < 21) return 'th';
+                                                    switch (d % 10) {
+                                                        case 1: return 'st';
+                                                        case 2: return 'nd';
+                                                        case 3: return 'rd';
+                                                        default: return 'th';
+                                                    }
+                                                };
+                                                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                                                return `On the ${day}${daySuffix(day)} of ${months[date.getMonth()]} in the year ${date.getFullYear()}`;
+                                            };
+
+                                            return (
+                                                <div key={ep.id || index} className="space-y-2 bg-[#fffdfb] p-4 rounded-xl border border-[#b58b4c]/40 shadow-[0_2px_5px_rgba(0,0,0,0.06)] flex flex-col justify-between">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs font-serif text-[#1c120c] font-black border-b border-[#b58b4c]/20 pb-1.5">
+                                                        <span className="uppercase tracking-wide text-[#2c1507]">FEAT {index + 1}: <span className="text-[#854d0e] font-extrabold">{ep.category}</span></span>
+                                                        <span className="text-[11px] font-sans italic text-[#582914] font-medium">{formatMedievalDate(ep.date)}</span>
+                                                    </div>
+                                                    <p className="font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify pt-0.5">{ep.content}</p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             )}
                         </div>
