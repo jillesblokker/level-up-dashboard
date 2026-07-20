@@ -99,7 +99,7 @@ export default function ChroniclePage() {
             {/* Background elements */}
             <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-amber-900/10 to-transparent pointer-events-none" />
 
-            <div className="max-w-4xl mx-auto relative z-10">
+            <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
                     <div className="flex items-center gap-4">

@@ -1088,7 +1088,7 @@ export default function CharacterPage() {
                 <TabsTrigger value="strengths" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
               </TabsList>
               <TabsContent value="titles" className="mt-6">
-                <div className="max-w-6xl mx-auto w-full">
+                <div className="max-w-7xl mx-auto w-full">
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {titlesList.length > 0 ? (
                       titlesList.map((title) => {
@@ -1190,7 +1190,7 @@ export default function CharacterPage() {
                 </div>
               </TabsContent>
               <TabsContent value="perks" className="mt-6">
-                <div className="max-w-6xl mx-auto w-full">
+                <div className="max-w-7xl mx-auto w-full">
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {perks.map((perk) => (
                       <Card
@@ -1303,7 +1303,7 @@ export default function CharacterPage() {
                 </div>
               </TabsContent>
               <TabsContent value="strengths" className="mt-6">
-                <div className="max-w-6xl mx-auto w-full">
+                <div className="max-w-7xl mx-auto w-full">
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {strengths.map((strength) => (
                       <Card

@@ -477,7 +477,7 @@ export default function AlliesPage() {
                 }
             />
 
-            <div className="container mx-auto p-4 max-w-5xl space-y-8">
+            <div className="container mx-auto p-4 max-w-7xl space-y-8">
                 {/* Top Section Layout */}
                 {/* Top Section Layout: Stacked */}
                 <div className="flex flex-col gap-8">

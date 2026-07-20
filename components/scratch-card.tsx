@@ -256,7 +256,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
             className="object-contain p-1.5 sm:p-2"
           />
           {/* Overlay info */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent p-2 sm:p-3 flex flex-col justify-end h-2/3 border-t border-amber-500/20">
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent p-2 sm:p-3 flex flex-col justify-end h-2/3">
             <span className="text-[8px] sm:text-[11px] font-serif font-bold text-amber-200 tracking-wider mb-0.5 truncate drop-shadow">{cardData.variantLabel}</span>
             <span className="text-[7px] sm:text-[10px] font-bold text-purple-300 uppercase tracking-widest truncate">{cardData.rarity}</span>
             <div className="flex justify-between items-center mt-1 pt-1 sm:mt-1.5 sm:pt-1.5 border-t border-amber-900/30">

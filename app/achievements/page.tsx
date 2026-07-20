@@ -995,18 +995,19 @@ export default function Page() {
                           </div>
                         </div>
                       ) : (
-                        <div className="absolute inset-0 border-2 border-dashed border-zinc-800 rounded-xl overflow-hidden bg-zinc-900">
+                        <div className="absolute inset-0 border-2 border-dashed border-zinc-800 rounded-xl overflow-hidden bg-zinc-950 grayscale opacity-80 flex flex-col justify-between">
                           <Image
-                            src={imagePath}
-                            alt={`${cardDef.rarity} Card #${cardDef.number} - Locked`}
+                            src="/images/undiscovered.webp"
+                            alt={`Undiscovered ${cardDef.rarity} Card (${colorName})`}
                             fill
-                            className="object-contain p-4 grayscale opacity-15 blur-[2px]"
+                            className="object-cover opacity-20 blur-sm scale-90"
                             priority={overallIdx < 8}
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
                           />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950">
-                            <div className="text-3xl opacity-30">🔒</div>
-                            <span className="text-[9px] font-bold mt-2 opacity-40 uppercase text-zinc-400 tracking-widest">{colorName}</span>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-zinc-950/70">
+                            <div className="mb-2 p-2.5 rounded-full bg-white/5 border border-white/10 text-xl text-zinc-500">🔒</div>
+                            <span className="text-[10px] font-bold text-amber-200/60 uppercase tracking-widest">{variantLabel}</span>
+                            <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-[0.2em] mt-0.5">UNDISCOVERED</p>
                           </div>
                         </div>
                       )}
