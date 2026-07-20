@@ -2843,15 +2843,11 @@ export default function QuestsPage() {
                       totalCategories={8}
                     />
 
-                    {/* Daily Faith & Journey Cards Section (Left: Tarot Card, Right: Chronicles Card on desktop) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start my-6">
-                      <div className="w-full h-full">
-                        <TarotCardDisplay />
-                      </div>
-                      <div className="w-full h-full">
-                        <ChroniclesCard currentLevel={stats.level} />
-                      </div>
-                    </div>
+                    {/* Daily Fate Section */}
+                    <TarotCardDisplay />
+
+                    {/* Chronicles Section (Full Width) */}
+                    <ChroniclesCard currentLevel={stats.level} />
                   </div>
                 </div>
               )

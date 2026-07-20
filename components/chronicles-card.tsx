@@ -248,11 +248,14 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             </div>
 
                             {showFiller && fillerEpisodes.length > 0 && (
-                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-4">
-                                    <h4 className="font-serif font-black text-xs md:text-sm uppercase tracking-widest text-[#2c1507] flex items-center gap-1.5">
+                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-4" style={{ textShadow: 'none' }}>
+                                    <h4 
+                                        className="font-serif font-black text-xs md:text-sm uppercase tracking-widest text-[#2c1507] flex items-center gap-1.5"
+                                        style={{ textShadow: 'none' }}
+                                    >
                                         📜 Thrivehaven Records
                                     </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                    <div className="space-y-4" style={{ textShadow: 'none' }}>
                                         {fillerEpisodes.map((ep: any, index: number) => {
                                             const formatMedievalDate = (dateStr: string) => {
                                                 if (!dateStr) return '';
@@ -273,12 +276,30 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                             };
 
                                             return (
-                                                <div key={ep.id || index} className="space-y-2 bg-[#fffdfb] p-4 rounded-xl border border-[#b58b4c]/40 shadow-[0_2px_5px_rgba(0,0,0,0.06)] flex flex-col justify-between">
-                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs font-serif text-[#1c120c] font-black border-b border-[#b58b4c]/20 pb-1.5">
-                                                        <span className="uppercase tracking-wide text-[#2c1507]">FEAT {index + 1}: <span className="text-[#854d0e] font-extrabold">{ep.category}</span></span>
-                                                        <span className="text-[11px] font-sans italic text-[#582914] font-medium">{formatMedievalDate(ep.date)}</span>
+                                                <div 
+                                                    key={ep.id || index} 
+                                                    className="space-y-3 bg-[#fffdfb] p-4 md:p-5 rounded-2xl border border-[#b58b4c]/40 shadow-[0_2px_6px_rgba(0,0,0,0.06)]"
+                                                    style={{ textShadow: 'none' }}
+                                                >
+                                                    <div 
+                                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs md:text-sm font-serif text-[#1c120c] font-black border-b border-[#b58b4c]/25 pb-2"
+                                                        style={{ textShadow: 'none' }}
+                                                    >
+                                                        <span className="uppercase tracking-wide text-[#1c120c] font-black" style={{ textShadow: 'none' }}>
+                                                            FEAT {index + 1}: <span className="text-[#7c2d12] font-black" style={{ textShadow: 'none' }}>{ep.category}</span>
+                                                        </span>
+                                                        <span className="text-xs font-serif italic text-[#3b170c] font-bold" style={{ textShadow: 'none' }}>
+                                                            {formatMedievalDate(ep.date)}
+                                                        </span>
                                                     </div>
-                                                    <p className="font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify pt-0.5">{ep.content}</p>
+
+                                                    {/* 2-Column Paragraph Layout */}
+                                                    <div 
+                                                        className="md:columns-2 md:gap-8 font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify pt-1"
+                                                        style={{ textShadow: 'none' }}
+                                                    >
+                                                        <p style={{ textShadow: 'none' }}>{ep.content}</p>
+                                                    </div>
                                                 </div>
                                             );
                                         })}
