@@ -403,7 +403,7 @@ export function CitizensTab() {
                           <span className="text-zinc-500">Requires Feed</span>
                         ) : isReadyToHarvest ? (
                           <span className="text-amber-400 font-semibold flex items-center gap-1 animate-pulse">
-                            Ready! ✨
+                            Collect Taxes ✨
                           </span>
                         ) : (
                           <span className="text-zinc-500 flex items-center gap-1">
