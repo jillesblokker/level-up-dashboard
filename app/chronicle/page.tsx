@@ -110,9 +110,9 @@ export default function ChroniclePage() {
                         </Link>
                         <div>
                             <h1 className="text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-600">
-                                My Chronicle
+                                Sovereign&apos;s Logbook
                             </h1>
-                            <p className="text-amber-500/60 text-sm mt-1">Reflections of a hero</p>
+                            <p className="text-amber-500/60 text-sm mt-1">Record your personal daily thoughts, mood, and reflections as you rebuild the realm.</p>
                         </div>
                     </div>
 

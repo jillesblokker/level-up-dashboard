@@ -112,6 +112,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                     <div className="flex items-center gap-2 text-amber-500">
                         <BookOpen className="w-5 h-5" />
                         <span className="text-sm font-bold tracking-widest uppercase">The Chronicles</span>
+                        <span className="text-[10px] text-amber-400/60 font-serif italic hidden sm:inline">• Rebuilding Thrivehaven Story Arc</span>
                     </div>
                     <div className="flex items-center gap-1 text-amber-400/60 text-xs font-mono">
                         <Map className="w-3 h-3" />

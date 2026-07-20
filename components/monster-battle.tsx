@@ -43,14 +43,14 @@ const monsterData = {
   dragon: {
     name: 'Dragoni',
     image: '/images/achievements/201.webp',
-    description: 'A fearsome dragon with scales as hard as steel',
+    description: 'A shadow beast of Necrion with scales forged in the Void Drift.',
     difficulty: 'Hard',
     achievementId: '201'
   },
   goblin: {
-    name: 'Orci',
+    name: 'Goblino',
     image: '/images/achievements/202.webp',
-    description: 'A sneaky goblin with sharp daggers',
+    description: 'A mischievous shadow creature feeding on broken streaks.',
     difficulty: 'Easy',
     achievementId: '202'
   },

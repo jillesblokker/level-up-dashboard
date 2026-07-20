@@ -431,9 +431,9 @@ export default function ProfilePage() {
             <Settings className="w-4 h-4 md:" />
             <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
-          <Link href="/quests" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+          <Link href="/chronicle" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
             <BookOpen className="w-4 h-4" />
-            <span>Chronicles</span>
+            <span>Logbook</span>
           </Link>
           <Link href="/market" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
             <Coins className="w-4 h-4" />

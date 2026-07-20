@@ -48,7 +48,7 @@ export const TEXT_CONTENT = {
         },
         tabs: {
             allies: "My Allies",
-            chronicles: "Chronicles",
+            chronicles: "Logbook",
             addFriend: "Add Friend",
             requests: "Requests"
         },
