@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Trophy, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ── Ring math helpers ─────────────────────────────────────────────────────────
@@ -191,8 +192,20 @@ export function ActivityRingsCard({
   ]
 
   return (
-    <Card className="bg-gradient-to-br from-zinc-900/80 to-black border-amber-900/20 shadow-xl">
-      <CardContent className="p-5">
+    <Card className="h-full flex flex-col bg-gradient-to-br from-zinc-900 to-zinc-950 border-amber-800/40 shadow-xl overflow-hidden">
+      <CardHeader className="pb-3 border-b border-amber-900/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-500">
+            <Activity className="w-5 h-5" />
+            <CardTitle className="text-lg font-bold tracking-wide font-serif">Daily Momentum</CardTitle>
+          </div>
+          <div className="text-xs text-amber-400/60 font-mono">
+            {completedCount} / {dailyGoal} Completed
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-1 flex flex-col justify-center p-5 md:p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
 
           {/* ── SVG rings ── */}

@@ -50,12 +50,12 @@ export function TarotCardDisplay() {
     };
 
     return (
-        <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-amber-800/40 shadow-xl overflow-hidden">
-            <CardHeader className="pb-3">
+        <Card className="h-full flex flex-col bg-gradient-to-br from-zinc-900 to-zinc-950 border-amber-800/40 shadow-xl overflow-hidden">
+            <CardHeader className="pb-3 border-b border-amber-900/20">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-amber-500">
                         <Sparkles className="w-5 h-5" />
-                        <CardTitle className="text-lg font-bold tracking-wide">Daily Fate</CardTitle>
+                        <CardTitle className="text-lg font-bold tracking-wide font-serif">Daily Fate</CardTitle>
                     </div>
                     {hasDrawn && (
                         <div className="text-xs text-amber-400/60 font-mono">
@@ -65,7 +65,7 @@ export function TarotCardDisplay() {
                 </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="flex-1 flex flex-col justify-between space-y-4 pt-4">
                 {!hasDrawn ? (
                     <div className="text-center space-y-4">
                         <div className="relative w-32 h-48 mx-auto">
