@@ -38,6 +38,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'mystic-obelisk') image = '/images/tiles/mystic-obelisk-tile.webp';
     if (type === 'golden-pantheon') image = '/images/tiles/golden-pantheon-tile.webp';
     if (type === 'plank-labyrinth') image = '/images/tiles/plank-labyrinth-tile.webp';
+    if (type === 'prison') image = '/images/tiles/prison-tile.webp';
+    if (type === 'apotheca') image = '/images/tiles/apotheca-tile.webp';
+    if (type === 'abbey') image = '/images/tiles/abbey-tile.webp';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -56,6 +59,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'mystic-obelisk') name = 'Mystic Obelisk';
     if (type === 'golden-pantheon') name = 'Golden Pantheon';
     if (type === 'plank-labyrinth') name = 'Plank Labyrinth';
+    if (type === 'prison') name = 'Iron Citadel Prison';
+    if (type === 'apotheca') name = 'Grand Apotheca';
+    if (type === 'abbey') name = 'Silent Abbey';
 
     return {
         id: type,
@@ -155,6 +161,9 @@ export const initialInventory: Record<TileType, Tile> = {
     'mystic-obelisk': { ...defaultTile('mystic-obelisk'), cost: 1500, owned: 0 },
     'golden-pantheon': { ...defaultTile('golden-pantheon'), cost: 100000, owned: 0 },
     'plank-labyrinth': { ...defaultTile('plank-labyrinth'), cost: 10000, owned: 0 },
+    prison: { ...defaultTile('prison'), cost: 500, owned: 0 },
+    apotheca: { ...defaultTile('apotheca'), cost: 500, owned: 0 },
+    abbey: { ...defaultTile('abbey'), cost: 600, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {

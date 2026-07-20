@@ -168,6 +168,9 @@ export function getDefaultConnections(type: TileType): string[] {
     'mystic-obelisk': ['grass', 'forest', 'mountain'],
     'golden-pantheon': ['grass', 'city', 'town', 'castle'],
     'plank-labyrinth': ['grass', 'forest', 'swamp'],
+    prison: ['grass', 'city', 'town', 'castle'],
+    apotheca: ['grass', 'forest', 'city', 'town'],
+    abbey: ['grass', 'forest', 'mountain'],
   };
   return defaultConnections[type] || [];
-} 
+}

@@ -397,7 +397,10 @@ export class MapGenerator {
       'megapolis': '/images/tiles/megapolis-tile.webp',
       'mystic-obelisk': '/images/tiles/mystic-obelisk-tile.webp',
       'golden-pantheon': '/images/tiles/golden-pantheon-tile.webp',
-      'plank-labyrinth': '/images/tiles/plank-labyrinth-tile.webp'
+      'plank-labyrinth': '/images/tiles/plank-labyrinth-tile.webp',
+      prison: '/images/tiles/prison-tile.webp',
+      apotheca: '/images/tiles/apotheca-tile.webp',
+      abbey: '/images/tiles/abbey-tile.webp'
     };
 
     return {

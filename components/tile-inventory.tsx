@@ -389,6 +389,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         return '/images/tiles/golden-pantheon-tile.webp'
       case 'plank-labyrinth':
         return '/images/tiles/plank-labyrinth-tile.webp'
+      case 'prison':
+        return '/images/tiles/prison-tile.webp'
+      case 'apotheca':
+        return '/images/tiles/apotheca-tile.webp'
+      case 'abbey':
+        return '/images/tiles/abbey-tile.webp'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

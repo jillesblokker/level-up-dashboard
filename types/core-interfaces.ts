@@ -80,7 +80,10 @@ export type TileType =
   | 'megapolis'
   | 'mystic-obelisk'
   | 'golden-pantheon'
-  | 'plank-labyrinth';
+  | 'plank-labyrinth'
+  | 'prison'
+  | 'apotheca'
+  | 'abbey';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

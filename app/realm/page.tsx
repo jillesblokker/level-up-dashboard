@@ -31,6 +31,7 @@ import { useCitizensStore } from '@/stores/citizensStore'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { cn } from "@/lib/utils"
 import Image from 'next/image'
+import { AbbeyModal } from '@/components/kingdom/abbey-modal';
 import { setUserPreference } from "@/lib/user-preferences-manager"
 
 import dynamic from 'next/dynamic';
@@ -569,6 +570,7 @@ function RealmPageContent() {
 
     const [activeEvent, setActiveEvent] = useState<string | null>(null);
     const [pyramidEvent, setPyramidEvent] = useState<{ open: boolean; success: boolean } | null>(null);
+    const [abbeyEventOpen, setAbbeyEventOpen] = useState(false);
     const [wellEvent, setWellEvent] = useState<{ open: boolean; pact: any; availableHabits: any[]; loading: boolean } | null>(null);
     const [sphinxEvent, setSphinxEvent] = useState<{ open: boolean; blocked: boolean; completedCount: number } | null>(null);
     const prevPositionRef = useRef({ x: INITIAL_POS.x, y: INITIAL_POS.y });
@@ -1387,6 +1389,10 @@ function RealmPageContent() {
                         }
                     };
                     checkPyramid();
+                    break;
+                }
+                case 'abbey': {
+                    setAbbeyEventOpen(true);
                     break;
                 }
                 case 'whispering-well': {
@@ -2347,6 +2353,13 @@ function RealmPageContent() {
                         }
                     }}
                 />
+
+                {abbeyEventOpen && (
+                    <AbbeyModal
+                        open={abbeyEventOpen}
+                        onOpenChange={setAbbeyEventOpen}
+                    />
+                )}
 
                 {/* Monolith of Devotion (Pyramid) Modal */}
                 {pyramidEvent?.open && (

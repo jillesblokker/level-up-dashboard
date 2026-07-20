@@ -85,6 +85,9 @@ const tileTypeToNumeric: Record<TileType, number> = {
   'mystic-obelisk': 76,
   'golden-pantheon': 77,
   'plank-labyrinth': 78,
+  prison: 79,
+  apotheca: 80,
+  abbey: 81,
 };
 
 // Convert numeric value back to tile type

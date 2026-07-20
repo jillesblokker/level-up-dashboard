@@ -26,6 +26,9 @@ import { LuckyCelebration } from '@/components/lucky-celebration'
 import { TileActionSheet } from '@/components/tile-action-sheet'
 import { KingdomSummaryModal } from './kingdom-summary-modal'
 import { FortuneTellerModal } from './fortune-teller-modal'
+import { PrisonModal } from '@/components/kingdom/prison-modal'
+import { ApothecaModal } from '@/components/kingdom/apotheca-modal'
+import { AbbeyModal } from '@/components/kingdom/abbey-modal'
 import { useGameStore } from '@/stores/game-store'
 import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
@@ -432,6 +435,9 @@ export function KingdomGridWithTimers({
 
   const [fortuneModalOpen, setFortuneModalOpen] = useState(false);
   const [fortuneTileData, setFortuneTileData] = useState<{x: number, y: number, tileId: string} | null>(null);
+  const [prisonModalOpen, setPrisonModalOpen] = useState(false);
+  const [apothecaModalOpen, setApothecaModalOpen] = useState(false);
+  const [abbeyModalOpen, setAbbeyModalOpen] = useState(false);
   const [plankModalOpen, setPlankModalOpen] = useState(false);
   const [plankTileData, setPlankTileData] = useState<{ x: number, y: number } | null>(null);
   const [specialModalOpen, setSpecialModalOpen] = useState(false);
@@ -1347,6 +1353,18 @@ export function KingdomGridWithTimers({
         setFortuneTileData({ x, y, tileId: tile.type });
         setFortuneModalOpen(true);
       }
+      return;
+    }
+    if (tile.type === 'prison') {
+      setPrisonModalOpen(true);
+      return;
+    }
+    if (tile.type === 'apotheca') {
+      setApothecaModalOpen(true);
+      return;
+    }
+    if (tile.type === 'abbey') {
+      setAbbeyModalOpen(true);
       return;
     }
     if (tile.type === 'plank-labyrinth') {
@@ -2711,6 +2729,24 @@ export function KingdomGridWithTimers({
           setZenModalOpen(true);
         } : undefined}
       />
+      {prisonModalOpen && (
+        <PrisonModal
+          open={prisonModalOpen}
+          onOpenChange={setPrisonModalOpen}
+        />
+      )}
+      {apothecaModalOpen && (
+        <ApothecaModal
+          open={apothecaModalOpen}
+          onOpenChange={setApothecaModalOpen}
+        />
+      )}
+      {abbeyModalOpen && (
+        <AbbeyModal
+          open={abbeyModalOpen}
+          onOpenChange={setAbbeyModalOpen}
+        />
+      )}
       {fortuneModalOpen && fortuneTileData && (
         <FortuneTellerModal
           open={fortuneModalOpen}
