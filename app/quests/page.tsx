@@ -2833,20 +2833,24 @@ export default function QuestsPage() {
                       <GameplayLoopIndicator />
                     </div>
 
-                    {/* Activity Rings Card */}
-                    <ActivityRingsCard
-                      completedCount={quests.filter(q => q.completed).length}
-                      dailyGoal={dailyGoal}
-                      xpEarnedToday={quests.filter(q => q.completed).reduce((sum, q) => sum + (q.xp || 25), 0)}
-                      xpDailyTarget={dailyGoal * 25}
-                      categoriesTouched={new Set(quests.filter(q => q.completed).map(q => q.category)).size}
-                      totalCategories={8}
-                    />
+                    {/* 2-Column Row: Activity Rings (Graph) on Left, Daily Fate (Tarot Card) on Right */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                      <div className="w-full h-full">
+                        <ActivityRingsCard
+                          completedCount={quests.filter(q => q.completed).length}
+                          dailyGoal={dailyGoal}
+                          xpEarnedToday={quests.filter(q => q.completed).reduce((sum, q) => sum + (q.xp || 25), 0)}
+                          xpDailyTarget={dailyGoal * 25}
+                          categoriesTouched={new Set(quests.filter(q => q.completed).map(q => q.category)).size}
+                          totalCategories={8}
+                        />
+                      </div>
+                      <div className="w-full h-full">
+                        <TarotCardDisplay />
+                      </div>
+                    </div>
 
-                    {/* Daily Fate Section */}
-                    <TarotCardDisplay />
-
-                    {/* Chronicles Section (Full Width) */}
+                    {/* Chronicles Section (Full Width Below) */}
                     <ChroniclesCard currentLevel={stats.level} />
                   </div>
                 </div>

@@ -282,23 +282,23 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                                     style={{ textShadow: 'none' }}
                                                 >
                                                     <div 
-                                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs md:text-sm font-serif text-[#1c120c] font-black border-b border-[#b58b4c]/25 pb-2"
-                                                        style={{ textShadow: 'none' }}
+                                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs md:text-sm font-serif border-b border-[#b58b4c]/30 pb-2"
+                                                        style={{ textShadow: 'none', opacity: 1 }}
                                                     >
-                                                        <span className="uppercase tracking-wide text-[#1c120c] font-black" style={{ textShadow: 'none' }}>
-                                                            FEAT {index + 1}: <span className="text-[#7c2d12] font-black" style={{ textShadow: 'none' }}>{ep.category}</span>
+                                                        <span className="uppercase tracking-wide font-black" style={{ color: '#050302', textShadow: 'none', opacity: 1 }}>
+                                                            FEAT {index + 1}: <span className="font-extrabold" style={{ color: '#541c08', textShadow: 'none', opacity: 1 }}>{ep.category}</span>
                                                         </span>
-                                                        <span className="text-xs font-serif italic text-[#3b170c] font-bold" style={{ textShadow: 'none' }}>
+                                                        <span className="text-xs font-serif italic font-bold" style={{ color: '#261005', textShadow: 'none', opacity: 1 }}>
                                                             {formatMedievalDate(ep.date)}
                                                         </span>
                                                     </div>
 
                                                     {/* 2-Column Paragraph Layout */}
                                                     <div 
-                                                        className="md:columns-2 md:gap-8 font-serif text-xs md:text-sm leading-relaxed text-[#1c120c] text-justify pt-1"
-                                                        style={{ textShadow: 'none' }}
+                                                        className="md:columns-2 md:gap-8 font-serif text-xs md:text-sm leading-relaxed text-justify pt-1"
+                                                        style={{ color: '#090503', textShadow: 'none', opacity: 1 }}
                                                     >
-                                                        <p style={{ textShadow: 'none' }}>{ep.content}</p>
+                                                        <p style={{ color: '#090503', textShadow: 'none', opacity: 1 }}>{ep.content}</p>
                                                     </div>
                                                 </div>
                                             );
