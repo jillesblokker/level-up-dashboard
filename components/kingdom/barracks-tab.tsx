@@ -253,14 +253,14 @@ export function BarracksTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
       
       {/* Left panel: Citizen Selection List */}
       <div className="lg:col-span-1 space-y-4 flex flex-col h-full">
         <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
           <Users className="w-5 h-5 text-amber-500" /> Unlock Hall
         </h3>
-        <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
+        <div className="space-y-2.5 max-h-[620px] overflow-y-auto pr-1 flex-1">
           {citizens.map(c => {
             const isSlotted = combatSupporters.includes(c.id);
             const isSelected = selectedId === c.id;
@@ -325,7 +325,7 @@ export function BarracksTab() {
           <Sword className="w-5 h-5 text-amber-500" /> Training Arena
         </h3>
         {selectedCitizen === null ? (
-          <div className="h-[400px] flex flex-col items-center justify-center text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20">
+          <div className="flex-1 min-h-[500px] flex flex-col items-center justify-center text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20">
             <Sword className="w-12 h-12 text-zinc-600 mb-3 animate-pulse" />
             <h4 className="font-cardo font-bold text-sm text-amber-500/70 mb-1">Barracks Dormitory</h4>
             <p className="text-xs max-w-xs px-6">Select one of your unlocked citizens from the sidebar to train them in the Barracks or assign them to support you in battles!</p>
@@ -350,7 +350,7 @@ export function BarracksTab() {
             const canTrain = hasGold && hasFood && hasScrolls && lvl < 10 && !isLocked;
 
             return (
-              <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[480px]">
+              <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between flex-1 min-h-[500px]">
                 
                 {/* Background lighting flare */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full pointer-events-none" />
