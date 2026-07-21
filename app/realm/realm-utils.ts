@@ -38,9 +38,9 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'mystic-obelisk') image = '/images/tiles/mystic-obelisk-tile.webp';
     if (type === 'golden-pantheon') image = '/images/tiles/golden-pantheon-tile.webp';
     if (type === 'plank-labyrinth') image = '/images/tiles/plank-labyrinth-tile.webp';
-    if (type === 'prison') image = '/images/tiles/prison-tile.webp';
-    if (type === 'apotheca') image = '/images/tiles/apotheca-tile.webp';
-    if (type === 'abbey') image = '/images/tiles/abbey-tile.webp';
+    if (type === 'prison') image = '/images/tiles/prison-tile.png';
+    if (type === 'apotheca') image = '/images/tiles/apotheca-tile.png';
+    if (type === 'abbey') image = '/images/tiles/abbey-tile.png';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';

@@ -907,7 +907,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/tiles/prison-tile.webp',
+    image: '/images/tiles/prison-tile.png',
     cost: 500,
     gemCost: 15
   },
@@ -922,7 +922,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/tiles/apotheca-tile.webp',
+    image: '/images/tiles/apotheca-tile.png',
     cost: 500,
     gemCost: 15
   }

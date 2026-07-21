@@ -173,6 +173,12 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
         return '/images/tiles/golden-pantheon-tile.webp'
       case 'plank-labyrinth':
         return '/images/tiles/plank-labyrinth-tile.webp'
+      case 'prison':
+        return '/images/tiles/prison-tile.png'
+      case 'apotheca':
+        return '/images/tiles/apotheca-tile.png'
+      case 'abbey':
+        return '/images/tiles/abbey-tile.png'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

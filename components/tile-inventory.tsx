@@ -43,7 +43,7 @@ const allPossibleTiles: Tile[] = [
   { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.webp' },
   { id: 'settlement', name: 'Settlement', type: 'settlement', quantity: 0, cost: 600, connections: [], description: 'A growing community of adventurous pioneers', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Settlement tile', image: '/images/tiles/settlement-tile.webp' },
   { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city with six unique trade districts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
-  { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery offering daily vows of focus & benedictions', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.webp' },
+  { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery offering daily vows of focus & benedictions', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.png' },
 
   // Development Tiles (Level 40-60)
   { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.webp' },
@@ -391,11 +391,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       case 'plank-labyrinth':
         return '/images/tiles/plank-labyrinth-tile.webp'
       case 'prison':
-        return '/images/tiles/prison-tile.webp'
+        return '/images/tiles/prison-tile.png'
       case 'apotheca':
-        return '/images/tiles/apotheca-tile.webp'
+        return '/images/tiles/apotheca-tile.png'
       case 'abbey':
-        return '/images/tiles/abbey-tile.webp'
+        return '/images/tiles/abbey-tile.png'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

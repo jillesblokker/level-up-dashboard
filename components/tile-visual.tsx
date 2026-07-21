@@ -85,11 +85,11 @@ export function TileVisual({
       case 'plank-labyrinth':
         return '/images/tiles/plank-labyrinth-tile.webp'
       case 'prison':
-        return '/images/tiles/prison-tile.webp'
+        return '/images/tiles/prison-tile.png'
       case 'apotheca':
-        return '/images/tiles/apotheca-tile.webp'
+        return '/images/tiles/apotheca-tile.png'
       case 'abbey':
-        return '/images/tiles/abbey-tile.webp'
+        return '/images/tiles/abbey-tile.png'
       default:
         return `/images/tiles/${tile.type}-tile.webp`
     }
