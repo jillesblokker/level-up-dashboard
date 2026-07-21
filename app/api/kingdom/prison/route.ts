@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const { action } = body; // 'get_inmate' | 'recruit' | 'interrogate' | 'labor'
 
     // Get today's date string YYYY-MM-DD
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().slice(0, 10);
 
     // Pick deterministic inmate for the day based on date hash
     const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);

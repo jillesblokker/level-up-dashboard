@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action } = body; // 'get_vow' | 'claim_benediction' | 'give_alms'
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().slice(0, 10);
 
     // Check user's completed quests or habits for today
     const { data: userQuests } = await supabaseServer
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       .eq('completed', true);
 
     const todayCompletedCount = userQuests?.filter(q => {
-      const dateStr = new Date(q.updated_at).toISOString().split('T')[0];
+      const dateStr = new Date(q.updated_at).toISOString().slice(0, 10);
       return dateStr === today;
     }).length || 0;
 

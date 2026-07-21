@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, tradeItem } = body; // 'get_status' | 'drink_brew' | 'botanical_trade'
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().slice(0, 10);
 
     if (action === 'get_status') {
       const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
