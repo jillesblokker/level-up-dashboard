@@ -1,19 +1,13 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 import { supabaseServer } from '../../../../lib/supabase/server-client';
 
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
-  try {
-    const { userId } = await getAuth(request as NextRequest);
-    logger.debug('[Challenges Completion API] getUserIdFromRequest - Clerk userId:', userId);
-    return userId || null;
-  } catch (e) {
-    logger.error('[Clerk] JWT verification failed:', e);
-    return null;
-  }
+  const result = await verifyClerkJWT(request);
+  return result.success ? result.userId || null : null;
 }
 
 // Create or update challenge completion

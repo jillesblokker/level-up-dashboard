@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Button } from "@/components/ui/button"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useAuth } from '@clerk/nextjs'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 const categoryIcons: Record<string, any> = {
     might: Sword,
@@ -108,28 +109,14 @@ export function MasteryLedger() {
 
     const fetchData = useCallback(async () => {
         try {
-            // Get authentication token
-            const token = await getToken({ template: 'supabase' })
-
-            if (!token) {
-                logger.warn('[MasteryLedger] No auth token available, skipping fetch')
-                setLoading(false)
-                return
-            }
-
-            const authHeaders = {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-
             // Use the selected date to determine the month context for history
             const dateStr = selectedDate.toISOString().split('T')[0];
 
             // Fetch both History (for list/categories) and Raw Completions (for accurate graph)
             const [historyRes, questsRes, challengesRes] = await Promise.all([
-                fetch(`/api/mastery/history?date=${dateStr}`, { headers: authHeaders }),
-                fetch('/api/quests/completion', { headers: authHeaders }),
-                fetch('/api/challenges/completion', { headers: authHeaders })
+                fetchWithAuth(`/api/mastery/history?date=${dateStr}`),
+                fetchWithAuth('/api/quests/completion'),
+                fetchWithAuth('/api/challenges/completion')
             ])
 
             const historyData = historyRes.ok ? await historyRes.json() : {}

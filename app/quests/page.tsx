@@ -689,9 +689,8 @@ export default function QuestsPage() {
         dailyResetInitiated.current = true;
 
         // Call backend to reset quests and challenges
-        fetch('/api/quests/reset-daily-ui-only', {
+        fetchWithAuth('/api/quests/reset-daily-ui-only', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         })
           .then(async res => {
             if (!res.ok) {
@@ -1115,7 +1114,7 @@ export default function QuestsPage() {
   };
 
   const handleQuestToggle = async (questId: string, newCompleted: boolean) => {
-    if (!token || !userId) return;
+    if (!user) return;
 
     // Find the quest object
     const questObj = quests.find(q => q.id === questId);
@@ -1226,12 +1225,8 @@ export default function QuestsPage() {
 
     // Persist quest completion to backend using the smart-completion API
     try {
-      const response = await fetch('/api/quests/smart-completion', {
+      const response = await fetchWithAuth('/api/quests/smart-completion', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({
           questId,
           completed: newCompleted,
@@ -1290,7 +1285,7 @@ export default function QuestsPage() {
 
 
   const handleQuestFavorite = async (questId: string) => {
-    if (!token || !userId) return;
+    if (!user) return;
 
     const isCurrentlyFavorited = favoritedQuests.has(questId);
 
@@ -1307,12 +1302,8 @@ export default function QuestsPage() {
 
     try {
       // Persist to API so favorites survive reload and work with bulk complete
-      const response = await fetch('/api/quests/favorites', {
+      const response = await fetchWithAuth('/api/quests/favorites', {
         method: isCurrentlyFavorited ? 'DELETE' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({ questId }),
       });
 
@@ -1431,7 +1422,7 @@ export default function QuestsPage() {
   };
 
   const handleChallengeToggle = async (challengeId: string, newCompleted: boolean, milestoneCompleted?: boolean) => {
-    if (!token || !userId) return;
+    if (!user) return;
 
     // Find the challenge object
     const challengeObj = challenges.find(c => c.id === challengeId);
@@ -1513,12 +1504,8 @@ export default function QuestsPage() {
 
     // Persist challenge completion to backend using the standardized challenges API
     try {
-      const response = await fetch('/api/challenges', {
+      const response = await fetchWithAuth('/api/challenges', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({
           challengeId: challengeId,
           completed: newCompleted,
@@ -1629,12 +1616,8 @@ export default function QuestsPage() {
               });
             }
 
-            const response = await fetch('/api/quests/smart-completion', {
+            const response = await fetchWithAuth('/api/quests/smart-completion', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
               body: JSON.stringify({
                 questId: quest.id,
                 completed: true,
@@ -1796,12 +1779,8 @@ export default function QuestsPage() {
         // Complete each favorited quest across all categories
         for (const quest of allFavoritedQuests) {
           try {
-            const response = await fetch('/api/quests/smart-completion', {
+            const response = await fetchWithAuth('/api/quests/smart-completion', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
               body: JSON.stringify({
                 questId: quest.id,
                 completed: true,
@@ -1848,11 +1827,7 @@ export default function QuestsPage() {
         setTimeout(async () => {
           try {
             logger.debug('[Bulk Complete All] Refreshing quest data after completion...');
-            const response = await fetch(`/api/quests?t=${Date.now()}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-              },
-            });
+            const response = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
 
             if (response.ok) {
               const data = await response.json();
@@ -1956,15 +1931,14 @@ export default function QuestsPage() {
 
   // Manual reset function for immediate control
   const handleManualReset = async () => {
-    if (!token) return;
+    if (!user) return;
 
     setManualResetLoading(true);
     logger.debug('[Manual Reset] Starting manual reset...');
 
     try {
-      const res = await fetch('/api/quests/reset-daily-ui-only', {
+      const res = await fetchWithAuth('/api/quests/reset-daily-ui-only', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {

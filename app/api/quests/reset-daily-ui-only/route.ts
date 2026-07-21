@@ -1,11 +1,12 @@
 import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 
 export async function POST(req: NextRequest) {
   logger.debug('[UI-Only Daily Reset] 🚀 API ROUTE CALLED - Starting POST request');
   try {
-    const { userId } = await getAuth(req);
+    const authResult = await verifyClerkJWT(req);
+    const userId = authResult.userId;
     logger.debug('[UI-Only Daily Reset] 🚀 User ID from auth:', userId);
     if (!userId) {
       logger.debug('[UI-Only Daily Reset] 🚀 No user ID found, returning 401');

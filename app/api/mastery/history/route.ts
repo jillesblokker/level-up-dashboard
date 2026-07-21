@@ -1,13 +1,14 @@
 import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
     try {
-        const { userId } = await getAuth(request as NextRequest);
+        const authResult = await verifyClerkJWT(request);
+        const userId = authResult.userId;
 
         // Parse date param
         const url = new URL(request.url);
