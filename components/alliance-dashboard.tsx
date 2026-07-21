@@ -15,6 +15,7 @@ import { useUser } from "@clerk/nextjs"
 import { getUserAlliances, checkInToAlliance, createAlliance, inviteToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
 import { useSound, SOUNDS } from "@/lib/sound-manager"
+import { TitanRaidCard } from '@/components/titan-raid-card'
 import dynamic from 'next/dynamic'
 
 const PackOpeningModal = dynamic(
@@ -349,7 +350,9 @@ export function AllianceDashboard() {
     };
 
     return (
-        <div className="space-y-4 h-full flex flex-col">
+        <div className="space-y-6 h-full flex flex-col">
+            <TitanRaidCard />
+
             {alliances.length === 0 ? (
                 <Card className="border-amber-900/40 bg-zinc-950 h-full flex flex-col justify-center min-h-[500px] relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-900/5 to-black pointer-events-none" />

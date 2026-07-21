@@ -33,6 +33,7 @@ export interface CharacterStats {
     sanctuary_mode?: boolean;
     active_partner_id?: string | undefined;
     gems?: number;
+    focus_points?: number;
     ember_essence?: number;
     frost_essence?: number;
     tide_essence?: number;

@@ -438,6 +438,7 @@ export async function POST(request: NextRequest) {
                 experience: remainingXP,
                 experience_to_next_level: newXPToNextLevel,
                 gold: newGold,
+                focus_points: (currentStats?.focus_points || 0) + 1,
                 updated_at: new Date().toISOString()
             })
 
