@@ -1763,7 +1763,6 @@ function RealmPageContent() {
                 imageSrc="/images/realm-header.webp"
                 defaultBgColor="bg-blue-900"
                 shouldRevealImage={true}
-                shouldRevealTitle={true}
                 guideComponent={
                     <PageGuide
                         title={TEXT_CONTENT.realm.guide.title}
