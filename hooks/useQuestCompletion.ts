@@ -5,6 +5,8 @@ import { useQuestToasts } from '@/components/enhanced-toast-system';
 import { getTodaysCard } from '@/lib/tarot-data';
 import { recordCompletion } from '@/lib/daily-activity-summary-service';
 
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+
 interface QuestCompletionState {
   isLoading: boolean;
   error: string | null;
@@ -109,12 +111,9 @@ export function useQuestCompletion() {
         return { success: true, data: { offline: true } };
       }
 
-      // Make API call (online)
-      const response = await fetch('/api/quests/smart-completion', {
+      // Make API call (online) with Clerk auth token
+      const response = await fetchWithAuth('/api/quests/smart-completion', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           questId,
           completed: newCompleted,

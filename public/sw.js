@@ -8,7 +8,7 @@ const PREV_CACHE = 'level-up-prev-stable' // Rollback pane
 // Only cache static assets - NOT app routes (they are SSR/authenticated and will always fail)
 const STATIC_FILES = [
   '/manifest.webmanifest',
-  '/icons/thrivehaven_fav.png',
+  '/icons/thrivehaven_fav_optimized.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
 ]

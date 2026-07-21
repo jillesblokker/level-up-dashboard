@@ -1,4 +1,6 @@
 import { logger } from "@/lib/logger";
+import { fetchWithAuth } from './fetchWithAuth';
+
 /**
  * Smart Quest Completion System
  * 
@@ -42,12 +44,8 @@ export async function smartQuestCompletion(
       throw new Error('No authentication token available');
     }
 
-    const response = await fetch('/api/quests/smart-completion', {
+    const response = await fetchWithAuth('/api/quests/smart-completion', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
       body: JSON.stringify({
         questId,
         completed: true, // Always send true - the smart system handles the rest
