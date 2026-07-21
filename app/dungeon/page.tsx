@@ -81,30 +81,37 @@ const DEFAULT_CREATURE: CreatureDef = {
   description: 'A brave adventurer.'
 };
 
-function generateEncounter(roomLevel: number): Encounter {
+function generateEncounter(roomLevel: number, playerLevel: number = 1): Encounter {
   const isTreasure = false;
   if (isTreasure) {
     return {
       type: 'treasure',
-      loot: [generateLoot(roomLevel)].filter(Boolean) as Loot[]
+      loot: [generateLoot(roomLevel, playerLevel)].filter(Boolean) as Loot[]
     };
   }
 
   // Pick random creature
   const randomId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)] || '001';
 
+  // Dynamic Monster Scaling formula based on room depth and player level
+  const baseHp = 25 + (roomLevel * 12);
+  const playerScaleHp = 1 + (Math.max(1, playerLevel) - 1) * 0.08;
+  const scaledHp = Math.round(baseHp * playerScaleHp);
+
   return {
     type: 'monster',
-    hp: 20 + (roomLevel * 8),
-    maxHp: 20 + (roomLevel * 8),
+    hp: scaledHp,
+    maxHp: scaledHp,
     difficulty: roomLevel,
     creatureId: randomId
   };
 }
 
-function generateLoot(roomLevel: number): Loot | null {
-  if (Math.random() > 0.5) {
-    return { type: 'gold', amount: 50 + (roomLevel * 10), name: 'Gold Coins' };
+function generateLoot(roomLevel: number, playerLevel: number = 1): Loot | null {
+  const levelBonus = 1 + (Math.max(1, playerLevel) - 1) * 0.12;
+  if (Math.random() > 0.4) {
+    const goldAmount = Math.round((50 + (roomLevel * 15)) * levelBonus);
+    return { type: 'gold', amount: goldAmount, name: 'Gold Coins' };
   }
 
   if (roomLevel >= 3 && Math.random() < 0.25) {

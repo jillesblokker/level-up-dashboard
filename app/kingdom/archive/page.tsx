@@ -5,6 +5,7 @@ import { ArrowLeft, Trophy, Crown, Star, Award, Shield } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { cn } from "@/lib/utils"
@@ -112,8 +113,13 @@ export default function ArchiveOfTriumphsPage() {
                         />
                       </div>
                       
-                      <h3 className="text-xl font-bold font-serif text-amber-100 mb-1">{citizen.name}</h3>
-                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider">{citizen.type}</p>
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <h3 className="text-xl font-bold font-serif text-amber-100">{citizen.name}</h3>
+                        <Badge variant="outline" className="bg-amber-950/80 border-amber-500/40 text-amber-400 font-mono text-xs px-2 py-0.5">
+                          Lvl {citizen.level || 1}
+                        </Badge>
+                      </div>
+                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider">{citizen.type} • Lvl {citizen.level || 1}</p>
                     </CardContent>
                   </Card>
                 </div>

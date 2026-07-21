@@ -306,6 +306,9 @@ export function CitizensTab() {
                       <div className="min-w-0 flex-grow">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <CardTitle className="font-serif text-base text-white line-clamp-1">{citizen.name}</CardTitle>
+                          <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold px-1.5 py-0">
+                            Lvl {citizen.level || 1}
+                          </Badge>
                           {activePartnerId === citizen.id && (
                             (() => {
                               const isEvolved = playerLevel >= 50;
