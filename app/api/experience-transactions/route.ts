@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { amount, totalAfter, transactionType, source, metadata } = body;
 
-    if (!amount || !totalAfter || !transactionType || !source) {
+    if (amount === undefined || amount === null || totalAfter === undefined || totalAfter === null || !transactionType || !source) {
       return NextResponse.json({ 
         error: 'Missing required fields: amount, totalAfter, transactionType, source' 
       }, { status: 400 });

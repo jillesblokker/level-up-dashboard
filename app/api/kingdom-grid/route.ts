@@ -9,35 +9,25 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const visitUserId = searchParams.get('userId');
+    const { userId: authUserId } = await auth();
 
-    const result = await (visitUserId
-      ? authenticatedFriendQuery(request, visitUserId, async (supabase, userId) => {
-        const { data, error } = await supabase
-          .from('kingdom_grid')
-          .select('*')
-          .eq('user_id', userId)
-          .single();
-
-        if (error && error.code !== 'PGRST116') throw error;
-        return { grid: data?.grid_data || null };
-      })
-      : authenticatedSupabaseQuery(request, async (supabase, userId) => {
-        const { data, error } = await supabase
-          .from('kingdom_grid')
-          .select('*')
-          .eq('user_id', userId)
-          .single();
-
-        if (error && error.code !== 'PGRST116') throw error;
-        return { grid: data?.grid_data || null };
-      })
-    );
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: result.error?.includes('Forbidden') ? 403 : 401 });
+    const targetUserId = visitUserId || authUserId;
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    return NextResponse.json(result.data);
+    const { data, error } = await supabaseServer
+      .from('kingdom_grid')
+      .select('*')
+      .eq('user_id', targetUserId)
+      .maybeSingle();
+
+    if (error && error.code !== 'PGRST116') {
+      logger.error('[Kingdom Grid GET] DB error:', error);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    return NextResponse.json({ grid: data?.grid_data || null });
   } catch (error) {
     logger.error('[Kingdom Grid GET] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
