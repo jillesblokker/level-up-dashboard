@@ -24,13 +24,13 @@ export async function POST(request: NextRequest) {
 
     if (action === 'get_status') {
       const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
-      const brew = DECOCTIONS[dateHash % DECOCTIONS.length];
+      const brew = DECOCTIONS[dateHash % DECOCTIONS.length] || DECOCTIONS[0];
       return NextResponse.json({ brew, today });
     }
 
     if (action === 'drink_brew') {
       const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
-      const brew = DECOCTIONS[dateHash % DECOCTIONS.length];
+      const brew = DECOCTIONS[dateHash % DECOCTIONS.length] || DECOCTIONS[0];
 
       if (brew.type === 'xp') {
         await grantReward({ userId, type: 'exp', amount: brew.amount, context: 'apotheca-brew' });
