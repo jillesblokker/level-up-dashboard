@@ -433,7 +433,7 @@ export async function POST(req: NextRequest) {
 
             const { data: userCompletions } = await supabase
                 .from('quest_completion')
-                .select('id, completed_at')
+                .select('*')
                 .eq('quest_id', questId)
                 .eq('user_id', userId);
 
@@ -860,9 +860,7 @@ export async function POST(req: NextRequest) {
                     await supabase
                         .from('quest_completion')
                         .delete()
-                        .eq('user_id', userId)
-                        .eq('quest_id', questId)
-                        .gte('completed_at', today);
+                        .eq('id', existing.id);
 
                     // Revoke stats
                     const { data: currentStats } = await supabase
