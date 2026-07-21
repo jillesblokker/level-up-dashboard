@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       const brew = DECOCTIONS[dateHash % DECOCTIONS.length];
 
       if (brew.type === 'xp') {
-        await grantReward({ userId, type: 'experience', amount: brew.amount, context: 'apotheca-brew' });
+        await grantReward({ userId, type: 'exp', amount: brew.amount, context: 'apotheca-brew' });
       } else if (brew.type === 'gold') {
         await grantReward({ userId, type: 'gold', amount: brew.amount, context: 'apotheca-brew' });
       } else if (brew.type === 'gems') {

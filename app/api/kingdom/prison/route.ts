@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'recruit') {
       // Deduct 25 gold, grant +100 XP
-      await grantReward({ userId, type: 'experience', amount: 100, context: 'prison-recruit' });
+      await grantReward({ userId, type: 'exp', amount: 100, context: 'prison-recruit' });
       rewardMessage = `Recruited ${inmate.name}! Granted +100 XP to your kingdom.`;
     } else if (action === 'interrogate') {
       rewardMessage = `Inmate Secret Revealed: "${inmate.hint}"`;

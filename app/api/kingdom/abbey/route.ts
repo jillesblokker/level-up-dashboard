@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         return new NextResponse(JSON.stringify({ error: 'Vow of Focus not yet fulfilled today. Complete at least 1 quest!' }), { status: 400 });
       }
 
-      await grantReward({ userId, type: 'experience', amount: 200, context: 'abbey-benediction' });
+      await grantReward({ userId, type: 'exp', amount: 200, context: 'abbey-benediction' });
       await grantReward({ userId, type: 'gems', amount: 10, context: 'abbey-benediction' });
 
       return NextResponse.json({
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         message: "The Abbot bestows his Holy Benediction! Received +200 XP and +10 Gems."
       });
     } else if (action === 'give_alms') {
-      await grantReward({ userId, type: 'experience', amount: 75, context: 'abbey-alms' });
+      await grantReward({ userId, type: 'exp', amount: 75, context: 'abbey-alms' });
 
       return NextResponse.json({
         success: true,
