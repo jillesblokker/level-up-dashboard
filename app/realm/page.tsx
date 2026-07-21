@@ -1792,11 +1792,6 @@ function RealmPageContent() {
                     />
                 }
             />
-
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs font-semibold tracking-wide w-fit mx-auto my-3 shadow-sm">
-                <Compass className="w-4 h-4 text-emerald-400" />
-                <span>Wild Frontiers — Landmark Stepping, Active Exploration & World Events</span>
-            </div>
             <RealmAnimationWrapper
                 isAnimating={false}
                 onImageReveal={setShouldRevealImage}

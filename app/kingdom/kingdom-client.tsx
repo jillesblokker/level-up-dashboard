@@ -1708,7 +1708,7 @@ export function KingdomClient() {
 
       <HeaderSection
         title={isVisiting ? `${allyProfile?.display_name || 'Ally'}'s Kingdom` : "Kingdom"}
-        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}`}
+        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel} — Construct properties, manage passive production timers, and build your capital infrastructure`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
         onImageUpload={async (file) => {
@@ -1726,11 +1726,6 @@ export function KingdomClient() {
         shouldRevealImage={true}
         guideComponent={<KingdomGuide />}
       />
-
-      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wide w-fit mx-auto my-3 shadow-sm">
-        <Crown className="w-4 h-4 text-amber-400" />
-        <span>Capital Settlement — Property Development, Passive Production & Infrastructure</span>
-      </div>
 
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>

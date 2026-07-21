@@ -1727,7 +1727,7 @@ export const TEXT_CONTENT = {
         },
         header: {
             title: "Realm",
-            subtitle: "Explore and build your mystical realm",
+            subtitle: "Wild Frontiers — Step across landmark map tiles, trigger daily encounters, and explore world events",
             envoyTitle: "Ally Realm",
             envoySubtitle: "Observing a fellow pioneer's journey",
             envoyMode: "ENVOY MODE",
