@@ -36,7 +36,7 @@ export function ActiveTimersLedger() {
             if (t.endTime && t.endTime > Date.now()) {
               items.push({
                 id: `kingdom-${t.x}-${t.y}`,
-                name: (t.tileId || 'Property').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+                name: (t.tileId || 'Property').replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
                 category: 'kingdom',
                 icon: '🏰',
                 endTime: t.endTime,
