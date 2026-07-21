@@ -201,6 +201,8 @@ export function KingdomGridWithTimers({
       floating_island: { category: 'mystic', levelRequired: 10 },
       'zen-garden': { category: 'mystic', levelRequired: 1 },
       'daily-hub': { category: 'advanced', levelRequired: 1 },
+      prison: { category: 'advanced', levelRequired: 5 },
+      apotheca: { category: 'advanced', levelRequired: 5 },
     };
 
     return KINGDOM_TILES.map(tile => {

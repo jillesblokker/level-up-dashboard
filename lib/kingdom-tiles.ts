@@ -895,6 +895,36 @@ export const KINGDOM_TILES: KingdomTile[] = [
     rarity: 'epic',
     image: '/images/tiles/plank-labyrinth-tile.webp',
     cost: 10000
+  },
+  {
+    id: 'prison',
+    name: 'Iron Citadel Prison',
+    timerMinutes: 1440,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Dungeon inmate trials & daily outlaw dilemmas.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'rare',
+    image: '/images/tiles/prison-tile.webp',
+    cost: 500,
+    gemCost: 15
+  },
+  {
+    id: 'apotheca',
+    name: 'Grand Apotheca',
+    timerMinutes: 1440,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Botanical glasshouse & daily decoction sanctuary.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'rare',
+    image: '/images/tiles/apotheca-tile.webp',
+    cost: 500,
+    gemCost: 15
   }
 ]
 

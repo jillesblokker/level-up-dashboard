@@ -41,8 +41,9 @@ const allPossibleTiles: Tile[] = [
   // Settlement Tiles (Level 20-40)
   { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.webp' },
   { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.webp' },
-  { id: 'settlement', name: 'Settlement', type: 'settlement', quantity: 0, cost: 300, connections: [], description: 'A small village with a local marketplace', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Settlement tile', image: '/images/tiles/settlement-tile.webp' },
+  { id: 'settlement', name: 'Settlement', type: 'settlement', quantity: 0, cost: 600, connections: [], description: 'A growing community of adventurous pioneers', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Settlement tile', image: '/images/tiles/settlement-tile.webp' },
   { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city with six unique trade districts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
+  { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery offering daily vows of focus & benedictions', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.webp' },
 
   // Development Tiles (Level 40-60)
   { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.webp' },
@@ -95,7 +96,7 @@ const tileCategories = [
     minLevel: 20,
     maxLevel: 40,
     description: 'Human settlements and communities',
-    tiles: ['town', 'city', 'settlement', 'megapolis']
+    tiles: ['town', 'city', 'settlement', 'megapolis', 'abbey']
   },
   {
     id: 'development',
