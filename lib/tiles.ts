@@ -82,6 +82,9 @@ export function getTileName(type: TileType): string {
     'mystic-obelisk': 'Mystic Obelisk',
     'golden-pantheon': 'Golden Pantheon',
     'plank-labyrinth': 'Plank Labyrinth',
+    prison: 'Iron Citadel Prison',
+    apotheca: 'Grand Apotheca',
+    abbey: 'Silent Abbey',
   };
   return tileNames[type] || 'Unknown';
 }
