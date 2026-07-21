@@ -56,10 +56,8 @@ export default clerkMiddleware(async (auth, request) => {
   // Redirect unauthorized non-public routes to local sign-in, except for prefetches and API routes
   if (!isPublicRoute(request) && !userId) {
     if (pathname.startsWith('/api/')) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      // Allow API route handlers to perform multi-tier authentication (cookies + Bearer tokens)
+      return NextResponse.next();
     }
     if (isPrefetch) {
       return new NextResponse(null, {

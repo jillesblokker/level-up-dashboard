@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
                 if (completed) {
                     if (existing) {
-                        return { success: true, alreadyCompleted: true, message: 'Already completed today' };
+                        return { success: true, completed: true, alreadyCompleted: true, message: 'Already completed today' };
                     }
 
                     // 3. Insert completion
@@ -423,20 +423,34 @@ export async function POST(req: NextRequest) {
             }
 
             // Quest found in 'quests' table
-            // 2. Check if already completed TODAY
-            const today = new Date().toISOString().split('T')[0];
+            // 2. Check if already completed TODAY in Netherlands timezone
+            const todayStr = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Europe/Amsterdam',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(new Date());
 
-            const { data: existing } = await supabase
+            const { data: userCompletions } = await supabase
                 .from('quest_completion')
-                .select('*')
+                .select('id, completed_at')
                 .eq('quest_id', questId)
-                .eq('user_id', userId)
-                .gte('completed_at', today)
-                .maybeSingle();
+                .eq('user_id', userId);
+
+            const existing = (userCompletions || []).find(c => {
+                if (!c.completed_at) return false;
+                const cDate = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'Europe/Amsterdam',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).format(new Date(c.completed_at));
+                return cDate === todayStr;
+            });
 
             if (completed) {
                 if (existing) {
-                    return { success: true, alreadyCompleted: true, message: 'Already completed today' };
+                    return { success: true, completed: true, alreadyCompleted: true, message: 'Already completed today' };
                 }
 
                 // 3. Mark as complete
