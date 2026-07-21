@@ -2,8 +2,8 @@ export interface ComprehensiveItem {
   id: string;
   name: string;
   description: string;
-  type: 'weapon' | 'shield' | 'armor' | 'mount' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'consumable';
-  category: 'weapon' | 'shield' | 'armor' | 'mount' | 'consumable' | 'scroll' | 'artifact' | 'material';
+  type: 'weapon' | 'shield' | 'armor' | 'mount' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'consumable' | 'building';
+  category: 'weapon' | 'shield' | 'armor' | 'mount' | 'consumable' | 'scroll' | 'artifact' | 'material' | 'building';
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   stats: {
     attack?: number;
