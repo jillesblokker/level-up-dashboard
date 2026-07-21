@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       const materialId = tradeItem || 'material-water';
       
       const { data: currentMat } = await supabaseServer
-        .from('inventory')
+        .from('inventory_items')
         .select('quantity')
         .eq('user_id', userId)
         .eq('item_id', materialId)
@@ -57,18 +57,18 @@ export async function POST(request: NextRequest) {
 
       const currentQty = currentMat?.quantity || 0;
       if (currentQty < 1) {
-        return new NextResponse(JSON.stringify({ error: `Insufficient ${materialId}` }), { status: 400 });
+        return new NextResponse(JSON.stringify({ error: `Insufficient ${materialId.replace('material-', '')}` }), { status: 400 });
       }
 
       // Deduct 1 material, grant 1 crystal
       await supabaseServer
-        .from('inventory')
+        .from('inventory_items')
         .update({ quantity: currentQty - 1, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
         .eq('item_id', materialId);
 
       const { data: crystalMat } = await supabaseServer
-        .from('inventory')
+        .from('inventory_items')
         .select('quantity')
         .eq('user_id', userId)
         .eq('item_id', 'material-crystal')
@@ -76,11 +76,15 @@ export async function POST(request: NextRequest) {
 
       const crystalQty = (crystalMat?.quantity || 0) + 1;
       await supabaseServer
-        .from('inventory')
+        .from('inventory_items')
         .upsert({
           user_id: userId,
           item_id: 'material-crystal',
+          name: 'Essence Crystal',
           type: 'material',
+          category: 'material',
+          emoji: '💎',
+          image: '/images/items/materials/material-crystal.webp',
           quantity: crystalQty,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id,item_id' });

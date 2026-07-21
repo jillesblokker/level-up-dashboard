@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     } else if (action === 'labor') {
       // Grant stone material
       const { data: currentStone } = await supabaseServer
-        .from('inventory')
+        .from('inventory_items')
         .select('quantity')
         .eq('user_id', userId)
         .eq('item_id', 'material-stone')
@@ -52,11 +52,15 @@ export async function POST(request: NextRequest) {
 
       const stoneQty = (currentStone?.quantity || 0) + 10;
       await supabaseServer
-        .from('inventory')
+        .from('inventory_items')
         .upsert({
           user_id: userId,
           item_id: 'material-stone',
+          name: 'Cobblestone',
           type: 'material',
+          category: 'material',
+          emoji: '🪨',
+          image: '/images/items/materials/material-stone.webp',
           quantity: stoneQty,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id,item_id' });
