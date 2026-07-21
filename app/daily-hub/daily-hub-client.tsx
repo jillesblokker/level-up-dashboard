@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
+import { fetchWithAuth } from "@/lib/fetchWithAuth"
 import QuestCard from "@/components/quest-card"
 import { HeaderSection } from "@/components/HeaderSection"
 import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind, Star } from "lucide-react"
@@ -251,14 +252,14 @@ export function DailyHubClient() {
         try {
             logger.debug(`[Daily Hub] ${TEXT_CONTENT.dailyHub.log.loading}`)
 
-            const favoritesResponse = await fetch('/api/quests/favorites')
+            const favoritesResponse = await fetchWithAuth('/api/quests/favorites')
             if (!favoritesResponse.ok) {
                 throw new Error('Failed to fetch favorite ids')
             }
             const favoritesData = await favoritesResponse.json()
             const favoriteIds = favoritesData.favorites || []
 
-            const questsResponse = await fetch(`/api/quests?t=${Date.now()}`)
+            const questsResponse = await fetchWithAuth(`/api/quests?t=${Date.now()}`)
             if (questsResponse.ok) {
                 const questsData = await questsResponse.json()
                 const allQuests = Array.isArray(questsData) ? questsData : (questsData.quests || [])
@@ -294,10 +295,9 @@ export function DailyHubClient() {
         if (completedQuestIds.has(quest.id)) return
 
         try {
-            const response = await fetch('/api/quests/complete', {
+            const response = await fetchWithAuth('/api/quests/smart-completion', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questId: quest.id })
+                body: JSON.stringify({ questId: quest.id, completed: true })
             })
 
             if (response.ok) {

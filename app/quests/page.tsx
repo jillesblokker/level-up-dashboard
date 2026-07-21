@@ -17,6 +17,7 @@ import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, 
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { useCharacterStats } from '@/hooks/use-character-stats'
@@ -421,14 +422,16 @@ export default function QuestsPage() {
         return;
       }
       // Removed debugging log
-      let t = await getToken({ template: 'supabase' });
+      let t = await getToken();
+      if (!t) {
+        try { t = await getToken({ template: 'supabase' }); } catch {}
+      }
       let attempts = 0;
       while (!t && attempts < 2) {
         await new Promise(res => setTimeout(res, 200));
-        t = await getToken({ template: 'supabase' });
+        t = await getToken();
         attempts++;
       }
-      // Removed debugging log
       if (!cancelled) setToken(t || null);
     }
     getClerkToken();
@@ -547,22 +550,14 @@ export default function QuestsPage() {
   }, []);
 
   useEffect(() => {
-    // Removed debugging log
-    if (!token || !user) {
-      // Removed debugging log
+    if (!user) {
       return;
     }
-    // Removed debugging log
     setLoading(true);
     async function fetchQuests(retryCount = 0) {
       try {
-        if (!token) return; // Guard for linter
-        logger.debug('[Quests Debug] Fetching /api/quests with token:', token.slice(0, 10), '... (attempt', retryCount + 1, ')');
-        const res = await fetch(`/api/quests?t=${Date.now()}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        logger.debug('[Quests Debug] Fetching /api/quests... (attempt', retryCount + 1, ')');
+        const res = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
         logger.debug('[Quests Debug] Response status:', res.status, 'ok:', res.ok);
         if (!res.ok) {
           const errorText = await res.text();
