@@ -45,7 +45,41 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { tileId, x, y, tileType, endTime, isReady } = body;
+    const { action, minutes, tileId, x, y, tileType, endTime, isReady } = body;
+
+    if (action === 'rush') {
+      const rushMinutes = minutes || 15;
+      const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+        const { data: timers, error: fetchErr } = await supabase
+          .from('property_timers')
+          .select('*')
+          .eq('user_id', userId);
+
+        if (fetchErr) throw fetchErr;
+
+        if (timers && timers.length > 0) {
+          for (const t of timers) {
+            const currentEnd = new Date(t.end_time).getTime();
+            const newEnd = Math.max(Date.now(), currentEnd - (rushMinutes * 60 * 1000));
+            await supabase
+              .from('property_timers')
+              .update({
+                end_time: new Date(newEnd).toISOString(),
+                is_ready: newEnd <= Date.now(),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', t.id);
+          }
+        }
+        return { rushed: true, minutes: rushMinutes };
+      });
+
+      if (!result.success) {
+        return NextResponse.json({ error: result.error }, { status: 401 });
+      }
+
+      return NextResponse.json({ success: true, message: `Accelerated timers by ${rushMinutes} minutes` });
+    }
 
     if (!tileId || x === undefined || y === undefined || !tileType || !endTime) {
       return NextResponse.json({

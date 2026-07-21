@@ -38,20 +38,32 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Quest not found' }, { status: 404 })
         }
 
-        // Check if already completed today
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const todayStr = today.toISOString().split('T')[0]
+        // Check if already completed TODAY in Netherlands timezone
+        const todayStr = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Europe/Amsterdam',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(new Date());
 
-        const { data: existingCompletion } = await supabase
+        const { data: userCompletions } = await supabase
             .from('quest_completion')
-            .select('id')
+            .select('id, completed_at')
             .eq('quest_id', questId)
-            .eq('user_id', userId)
-            .gte('completed_at', todayStr)
-            .single()
+            .eq('user_id', userId);
 
-        if (existingCompletion) {
+        const alreadyCompletedToday = (userCompletions || []).some(c => {
+            if (!c.completed_at) return false;
+            const cDate = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Europe/Amsterdam',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(new Date(c.completed_at));
+            return cDate === todayStr;
+        });
+
+        if (alreadyCompletedToday) {
             return NextResponse.json({
                 message: 'Quest already completed today',
                 alreadyCompleted: true
