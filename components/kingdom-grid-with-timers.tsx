@@ -1471,20 +1471,9 @@ export function KingdomGridWithTimers({
       }
       // Grant experience proportional to gold; apply seasonal +10% EXP on event tiles
       const baseExperience = wasLucky ? Math.ceil(goldEarned * 0.5) : Math.ceil(goldEarned * 0.3)
-      let experienceAwarded = isTileAffectedByEvent
+      const experienceAwarded = isTileAffectedByEvent
         ? Math.ceil(baseExperience * activeEvent.xpMultiplier)
         : baseExperience
-
-      // 5% Lucky Jackpot Harvest Roll
-      const isJackpot = Math.random() < 0.05;
-      if (isJackpot) {
-        goldEarned = goldEarned * 3;
-        experienceAwarded = experienceAwarded * 2;
-        toast({
-          title: "🎉 LUCKY JACKPOT HARVEST!",
-          description: `Your ${kingdomTile.name} yielded 3x Gold (+${goldEarned} Gold) and 2x XP (+${experienceAwarded} XP)!`,
-        });
-      }
 
         // Award gold and experience
         ; (async () => {

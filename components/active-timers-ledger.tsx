@@ -101,7 +101,7 @@ export function ActiveTimersLedger() {
             <Clock className="w-5 h-5 text-amber-400" /> Active Timers & Production Ledger
           </CardTitle>
           <CardDescription className="text-zinc-400 text-xs">
-            Monitor all active background building production, voyages, and active timers
+            Monitor all active property timers, airship voyages, and production ledgers
           </CardDescription>
         </div>
         <Link href="/kingdom">
