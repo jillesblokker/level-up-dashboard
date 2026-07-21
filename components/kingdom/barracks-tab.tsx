@@ -239,9 +239,9 @@ export function BarracksTab() {
           src="/images/barracks-hero.png"
           alt="Barracks"
           fill
-          className="object-cover brightness-75 select-none pointer-events-none"
+          className="object-cover brightness-90 contrast-105 select-none pointer-events-none"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
         <div className="p-6 relative z-10 space-y-1">
           <Badge className="bg-amber-600 text-black font-extrabold text-[9px] uppercase tracking-wider mb-2">
             Kingdom Training Ground
@@ -253,10 +253,10 @@ export function BarracksTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       
       {/* Left panel: Citizen Selection List */}
-      <div className="lg:col-span-1 space-y-4">
+      <div className="lg:col-span-1 space-y-4 flex flex-col h-full">
         <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
           <Users className="w-5 h-5 text-amber-500" /> Unlock Hall
         </h3>
@@ -320,7 +320,10 @@ export function BarracksTab() {
       </div>
 
       {/* Right panel: Barracks training center */}
-      <div className="lg:col-span-2 barracks-card-container transition-all">
+      <div className="lg:col-span-2 space-y-4 flex flex-col h-full barracks-card-container transition-all">
+        <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
+          <Sword className="w-5 h-5 text-amber-500" /> Training Arena
+        </h3>
         {selectedCitizen === null ? (
           <div className="h-[400px] flex flex-col items-center justify-center text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20">
             <Sword className="w-12 h-12 text-zinc-600 mb-3 animate-pulse" />
