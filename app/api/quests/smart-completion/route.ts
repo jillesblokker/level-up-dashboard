@@ -469,7 +469,7 @@ export async function POST(req: NextRequest) {
                     .from('quest_completion')
                     .select('*', { count: 'exact', head: true })
                     .eq('user_id', userId)
-                    .gte('completed_at', today);
+                    .gte('completed_at', todayStr);
 
                 const isFirstAction = questsCompletedToday === 0;
                 const firstActionMultiplier = isFirstAction ? 1.5 : 1.0;
