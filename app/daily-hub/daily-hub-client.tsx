@@ -34,6 +34,7 @@ import NextImage from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { HabitGuardian } from "@/components/kingdom/habit-guardian"
+import { ActiveTimersLedger } from "@/components/active-timers-ledger"
 
 interface Quest {
     id: string
@@ -918,6 +919,10 @@ export function DailyHubClient() {
                             </span>
                         </div>
                     )}
+
+                    <div className="mb-6">
+                        <ActiveTimersLedger />
+                    </div>
 
                     {favoritedQuests.length === 0 ? (
                         <Card className="bg-zinc-950 border-amber-900/30 border-dashed">
