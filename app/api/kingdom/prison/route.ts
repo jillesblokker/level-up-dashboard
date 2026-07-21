@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Pick deterministic inmate for the day based on date hash
     const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
     const inmateIndex = dateHash % INMATES.length;
-    const inmate = INMATES[inmateIndex] || INMATES[0];
+    const inmate = INMATES[inmateIndex]!;
 
     if (action === 'get_inmate') {
       return NextResponse.json({ inmate, today });
