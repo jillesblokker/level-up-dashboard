@@ -37,12 +37,30 @@ const questUpdateSchema = z.object({
   questId: z.string().optional() // Optional for backward compatibility
 });
 
+import { auth, getAuth, clerkClient } from '@clerk/nextjs/server';
+
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
-    const { userId } = await getAuth(request as NextRequest);
-    logger.debug('[Quests API] getUserIdFromRequest - Clerk userId:', userId);
-    return userId || null;
+    const { userId: authUserId } = await auth();
+    if (authUserId) return authUserId;
+
+    const { userId: getAuthUserId } = await getAuth(request as NextRequest);
+    if (getAuthUserId) return getAuthUserId;
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      if (token) {
+        const parts = token.split('.');
+        if (parts.length === 3 && parts[1]) {
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+          if (payload.sub) return payload.sub;
+        }
+      }
+    }
+
+    return null;
   } catch (e) {
     logger.error('[Clerk] JWT verification failed:', e);
     return null;
@@ -311,8 +329,8 @@ export async function GET(request: Request) {
           } : null
         });
 
-        // Show as completed ONLY if there's a completion record for today with completed=true
-        if (todayCompletion && todayCompletion.completed === true) {
+        // Show as completed if there's a completion record for today
+        if (todayCompletion && todayCompletion.completed !== false) {
           completedQuests.set(questId, {
             completed: true,
             completedAt: todayCompletion.completed_at,
@@ -330,8 +348,8 @@ export async function GET(request: Request) {
 
     // Convert quests to quest format with completion status
     const questsWithCompletions = (quests || []).map((quest: any) => {
-      // Find completion by quest ID (since smart quest completion stores by ID)
-      const completion = completedQuests.get(quest.id);
+      // Find completion by quest ID or quest name
+      const completion = completedQuests.get(quest.id) || completedQuests.get(quest.name);
       const isCompleted = completion ? completion.completed : false;
       const completionDate = completion ? completion.completedAt : null;
 
