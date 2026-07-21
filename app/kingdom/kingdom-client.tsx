@@ -1708,7 +1708,7 @@ export function KingdomClient() {
 
       <HeaderSection
         title={isVisiting ? `${allyProfile?.display_name || 'Ally'}'s Kingdom` : "Kingdom"}
-        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel} — Construct properties, manage passive production timers, and build your capital infrastructure`}
+        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel} — Build your capital estate. Construct properties, harvest passive timers, and expand your kingdom!`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
         onImageUpload={async (file) => {
