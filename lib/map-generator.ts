@@ -229,7 +229,10 @@ export class MapGenerator {
       'megapolis': 'Megapolis',
       'mystic-obelisk': 'Mystic Obelisk',
       'golden-pantheon': 'Golden Pantheon',
-      'plank-labyrinth': 'Plank Labyrinth'
+      'plank-labyrinth': 'Plank Labyrinth',
+      prison: 'Iron Citadel Prison',
+      apotheca: 'Grand Apotheca',
+      abbey: 'Silent Abbey'
     };
 
     const tileDescriptions = {
@@ -313,7 +316,10 @@ export class MapGenerator {
       'megapolis': 'A grand megapolis protected by concentric walls containing six unique trade districts',
       'mystic-obelisk': 'A celestial spire that grants the Astral Fortune perk (+15% unowned scratch card chance)',
       'golden-pantheon': 'A magnificent golden temple yielding massive wealth and rare Crown card packs daily',
-      'plank-labyrinth': 'A complex puzzle maze of wooden planks. Solve it to retrieve legendary treasures!'
+      'plank-labyrinth': 'A complex puzzle maze of wooden planks. Solve it to retrieve legendary treasures!',
+      prison: 'A fortified dungeon for daily inmate trials and outlaw dilemmas',
+      apotheca: 'A botanical glasshouse for daily mystery decoctions and botanical trades',
+      abbey: 'A silent gothic monastery offering daily vows of focus and benedictions'
     };
 
     const tileImages = {
