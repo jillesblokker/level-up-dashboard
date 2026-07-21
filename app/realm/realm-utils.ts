@@ -198,6 +198,9 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'mystic-obelisk') return '/images/tiles/mystic-obelisk-tile.webp';
     if (type === 'golden-pantheon') return '/images/tiles/golden-pantheon-tile.webp';
     if (type === 'plank-labyrinth') return '/images/tiles/plank-labyrinth-tile.webp';
+    if (type === 'prison') return '/images/tiles/prison-tile.png';
+    if (type === 'apotheca') return '/images/tiles/apotheca-tile.png';
+    if (type === 'abbey') return '/images/tiles/abbey-tile.png';
     return `/images/tiles/${type}-tile.webp`;
 };
 

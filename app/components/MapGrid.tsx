@@ -58,6 +58,9 @@ const getTileImage = (tileType: string) => {
     case 'fairy-ring': return '/images/tiles/fairy-ring-tile.png';
     case 'settlement': return '/images/tiles/settlement-tile.webp';
     case 'megapolis': return '/images/tiles/megapolis-tile.webp';
+    case 'prison': return '/images/tiles/prison-tile.png';
+    case 'apotheca': return '/images/tiles/apotheca-tile.png';
+    case 'abbey': return '/images/tiles/abbey-tile.png';
     default: return '/images/tiles/empty-tile.webp';
   }
 };

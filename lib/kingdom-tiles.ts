@@ -836,7 +836,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'epic',
-    image: '/images/kingdom-tiles/Dungeon.webp',
+    image: '/images/tiles/dungeon-tile.webp',
     cost: 1000
   },
   {
