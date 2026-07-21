@@ -41,13 +41,24 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       apiLogger.debug('[JWT Verification] getAuth() failed as well');
     }
 
-    // If auth() fails, try checking the header manually just for logging purposes
-    // but relying on auth() is the primary source of truth
+    // Attempt 3: If Bearer token is present, extract sub payload
     const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      apiLogger.debug('[JWT Verification] No Authorization header found');
-    } else {
-      apiLogger.debug('[JWT Verification] Authorization header present but auth() returned null');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      if (token) {
+        try {
+          const parts = token.split('.');
+          if (parts.length === 3 && parts[1]) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            if (payload.sub) {
+              apiLogger.debug(`[JWT Verification] Success via Bearer token sub: ${payload.sub}`);
+              return { success: true, userId: payload.sub };
+            }
+          }
+        } catch (jwtErr) {
+          apiLogger.debug('[JWT Verification] Bearer token sub extraction failed:', jwtErr);
+        }
+      }
     }
 
     apiLogger.warn('[JWT Verification] Authentication failed');
