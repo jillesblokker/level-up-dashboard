@@ -12,7 +12,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
 import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
-import { getAuth, clerkClient } from '@clerk/nextjs/server';
+import { auth, getAuth, clerkClient } from '@clerk/nextjs/server';
 import { defaultQuests } from '@/lib/quest-sample-data';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
@@ -36,8 +36,6 @@ const questUpdateSchema = z.object({
   completed: z.boolean(),
   questId: z.string().optional() // Optional for backward compatibility
 });
-
-import { auth, getAuth, clerkClient } from '@clerk/nextjs/server';
 
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
