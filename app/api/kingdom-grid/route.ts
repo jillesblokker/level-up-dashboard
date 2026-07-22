@@ -36,7 +36,8 @@ export async function GET(request: Request) {
 // POST: Save the kingdom grid for the user
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
+    const authResult = await verifyClerkJWT(request);
+    const userId = authResult.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
