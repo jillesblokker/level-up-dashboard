@@ -1,6 +1,6 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v1.3.0 - Self-healing dual-pane cache with automatic rollback
-const CACHE_VERSION = 'v1.3.0'
+// v1.4.0 - Direct-pass SW for API & App Pages; Cache-First for static media assets
+const CACHE_VERSION = 'v1.4.0'
 const STATIC_CACHE = `level-up-static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `level-up-dynamic-${CACHE_VERSION}`
 const PREV_CACHE = 'level-up-prev-stable' // Rollback pane
@@ -98,7 +98,7 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - serve from cache for static media, bypass native browser network for pages & API
 self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
@@ -106,73 +106,36 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return
 
-  // Skip external requests except for fonts/images from trusted sources
-  if (url.origin !== location.origin) {
-    if (url.origin.includes('fonts.googleapis.com') || url.origin.includes('fonts.gstatic.com')) {
-      // Font caching logic could go here
-    }
-    return
-  }
+  // Skip external requests
+  if (url.origin !== location.origin) return
 
-  // Completely bypass page navigations and Next.js data/RSC requests
-  // Let the browser handle pages natively to allow Clerk redirects to work correctly
-  if (request.mode === 'navigate' || url.searchParams.has('_rsc') || request.headers.get('rsc') === '1') {
+  // Completely bypass ALL API routes, page navigations, Next.js App Router RSC data, and HTML requests
+  // Let the browser handle them 100% natively without Service Worker interception or 503 synthesis
+  if (
+    url.pathname.startsWith('/api/') ||
+    request.mode === 'navigate' ||
+    url.searchParams.has('_rsc') ||
+    request.headers.get('rsc') === '1' ||
+    request.headers.get('accept')?.includes('text/html') ||
+    !url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|mp3|wav|ogg|ico|css|js|woff2?|json|webmanifest)$/)
+  ) {
     return;
   }
 
-  // Completely bypass ALL API requests - let the browser handle them natively
-  // This ensures cookies and auth headers are handled correctly by Clerk
-  if (url.pathname.startsWith('/api/')) {
-    return;
-  }
-
-  // Strategy: Cache First for Images and Audio, Network First for everything else
-  const isMedia = url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|mp3|wav|ogg)$/)
-
-  if (isMedia) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse
-        return fetch(request).then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200) return networkResponse
-          const responseToCache = networkResponse.clone()
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(request, responseToCache)
-          })
-          return networkResponse
+  // Strategy: Cache First for Images, Audio, and Static Assets
+  event.respondWith(
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse
+      return fetch(request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200) return networkResponse
+        const responseToCache = networkResponse.clone()
+        caches.open(DYNAMIC_CACHE).then((cache) => {
+          cache.put(request, responseToCache)
         })
-        .catch(() => {
-           return new Response('Network error and no cache available', { status: 503, statusText: 'Service Unavailable' });
-        })
+        return networkResponse
       })
-    )
-  } else {
-    // Network first for pages and other assets
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') return response
-          const responseToCache = response.clone()
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(request, responseToCache)
-          })
-          return response
-        })
-        .catch(async () => {
-          const cachedResponse = await caches.match(request);
-          if (cachedResponse) return cachedResponse;
-          
-          // Return a fallback response instead of undefined
-          return new Response(
-            JSON.stringify({ error: 'Network failure or CORS block', offline: true }), 
-            {
-              status: 503,
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-        })
-    )
-  }
+    })
+  )
 })
 
 // Background sync for quest completions
