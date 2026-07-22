@@ -198,14 +198,18 @@ export default function QuestsPage() {
   logger.debug('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
   const [quests, setQuests] = useState<Quest[]>(() => {
-    // Instant Optimistic UI: hydrate from last cached state immediately
+    // Instant Optimistic UI: hydrate from last cached state if from TODAY
     if (typeof window !== 'undefined') {
       try {
-        const cached = localStorage.getItem('quests-cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+        const cacheDate = localStorage.getItem('quests-cache-date');
+        const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+        if (cacheDate === todayStr) {
+          const cached = localStorage.getItem('quests-cache');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed;
+            }
           }
         }
       } catch {}
@@ -599,7 +603,9 @@ export default function QuestsPage() {
         setQuests(data || []);
         // Persist to localStorage for instant optimistic loading on next visit
         try {
+          const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
           localStorage.setItem('quests-cache', JSON.stringify(data || []));
+          localStorage.setItem('quests-cache-date', todayStr);
         } catch {}
       } catch (err: any) {
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
@@ -1126,13 +1132,19 @@ export default function QuestsPage() {
     logger.debug('[QUEST-TOGGLE] Updating quest state:', { questId, newCompleted, questName: questObj.name });
 
     // Update the quest in the local state (optimistic update)
-    setQuests(prevQuests =>
-      prevQuests.map(q =>
+    setQuests(prevQuests => {
+      const nextQuests = prevQuests.map(q =>
         q.id === questId
           ? { ...q, completed: newCompleted }
           : q
-      )
-    );
+      );
+      try {
+        const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+        localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
+        localStorage.setItem('quests-cache-date', todayStr);
+      } catch {}
+      return nextQuests;
+    });
 
     const isBossHabit = questId === bossQuestId;
     const isFocusActive = activeModifiers.some(m => m.name === 'Elixir of Focus');

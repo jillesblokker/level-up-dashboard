@@ -393,20 +393,7 @@ export async function GET(request: Request) {
       return mappedQuest;
     });
 
-    // Filter out hidden one-time quests if desired (optional step, for now returning all)
-    // const visibleQuests = questsWithCompletions.filter(q => !q.isOneTime || !q.completed);
-
-    return NextResponse.json(questsWithCompletions);
-
-    // Debug: Check final results
-    const finalCompletedCount = questsWithCompletions.filter(q => q.completed).length;
-    const finalIncompleteCount = questsWithCompletions.filter(q => !q.completed).length;
-    const completedQuestsList = questsWithCompletions.filter(q => q.completed).map(q => ({ id: q.id, name: q.name }));
-    logger.debug('[Quests API] Final counts:', { completed: finalCompletedCount, incomplete: finalIncompleteCount });
-    logger.debug('[Quests API] Completed quests:', completedQuestsList);
-    logger.debug('[Quests API] Final quests with completions (proven method):', questsWithCompletions.slice(0, 3));
-
-    // Add cache-busting headers to prevent Next.js from caching the response
+    // Add cache-busting headers to prevent Next.js and browser from caching response
     const response = NextResponse.json(questsWithCompletions);
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     response.headers.set('Pragma', 'no-cache');
