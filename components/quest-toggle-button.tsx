@@ -87,35 +87,11 @@ export function QuestToggleButton({
       questId,
       questName,
       useCustomToggle,
-      context: useCustomToggle ? 'custom' : 'quest-completion'
+      context: 'direct-onToggle'
     });
 
-    if (useCustomToggle) {
-      // Use the custom toggle function (for challenges, milestones, etc.)
-      logger.debug('[QuestToggleButton] Using custom toggle for:', questName);
-      onToggle(questId, !completed);
-    } else {
-      // Use the quest completion system (for regular quests)
-      const result = await toggleQuestCompletion(
-        questId,
-        completed,
-        { name: questName, xp, gold, category: category || 'general' },
-        (newCompleted) => {
-          // Success callback - update parent state
-          onToggle(questId, newCompleted);
-        },
-        (error) => {
-          // Error callback - parent can handle if needed
-          logger.error('[Quest Toggle Button] Error:', error);
-        }
-      );
-
-      // If the API call failed, don't update the parent state
-      // The optimistic update will be reverted by the hook
-      if (!result.success) {
-        logger.error('[Quest Toggle Button] Failed to toggle quest:', result.error);
-      }
-    }
+    // Delegate to parent onToggle callback to prevent duplicate API requests
+    onToggle(questId, !completed);
   };
 
   if (variant === 'checkbox') {

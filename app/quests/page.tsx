@@ -1281,6 +1281,16 @@ export default function QuestsPage() {
         });
       }
 
+      // Record into daily activity snapshot for history graphs
+      if (newCompleted) {
+        recordCompletion({
+          questId,
+          category: questObj.category || 'General',
+          xp: xpReward,
+          gold: goldReward,
+        });
+      }
+
       // 🎯 Display character-based milestone message if received
       if (responseData.milestoneMessage) {
         toast({
@@ -1291,8 +1301,6 @@ export default function QuestsPage() {
       }
     } catch (error) {
       logger.error('[QUEST-TOGGLE] Error persisting quest:', error);
-      // Don't show error toast as rewards were already applied
-      // Just log for debugging
     }
   };
 
