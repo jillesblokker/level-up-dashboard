@@ -613,8 +613,8 @@ export default function QuestsPage() {
       } catch (err: any) {
         logger.error('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS ERROR] Failed to fetch:', err);
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
-        setQuests([]);
-        logger.error('[Quests Debug] Error fetching quests:', err);
+        // Retain local state & localStorage cache on network error so checked quests are never lost
+        logger.warn('[Quests Debug] Network error during fetchQuests - retaining local quest state & cache.');
     } finally {
         setLoading(false);
       }
