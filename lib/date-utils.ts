@@ -38,28 +38,42 @@ const relativeTimeFormatter = new Intl.RelativeTimeFormat('en', {
 });
 
 /**
- * Format a date to YYYY-MM-DD in the app's timezone
+ * Parse an ISO date or timestamp string cleanly as UTC Date
+ */
+export function parseAsUTCDate(dateStr?: string | Date | null): Date | null {
+    if (!dateStr) return null;
+    if (dateStr instanceof Date) return dateStr;
+    let s = String(dateStr).trim();
+    if (!s) return null;
+    if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}/.test(s)) {
+        s = s.replace(' ', 'T');
+    }
+    if (!s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s) && s.includes('T')) {
+        s += 'Z';
+    }
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Format a date to YYYY-MM-DD in the app's timezone (Europe/Amsterdam)
  */
 export function formatDate(input?: Date | string | null): string | null {
     if (!input) return null;
 
     if (typeof input === 'string') {
-        // If already in YYYY-MM-DD format, return as is
-        const normalized = input.includes('T') ? (input.split('T')[0] ?? input) : input;
-        if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
-            return normalized;
+        const trimmed = input.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+            return trimmed;
         }
-
-        // Try to parse and format
-        const parsed = new Date(input);
-        if (!Number.isNaN(parsed.getTime())) {
-            return dateFormatter.format(parsed);
-        }
-
-        return normalized;
     }
 
-    return dateFormatter.format(input);
+    const parsed = parseAsUTCDate(input);
+    if (parsed) {
+        return dateFormatter.format(parsed);
+    }
+
+    return null;
 }
 
 /**

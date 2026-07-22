@@ -14,6 +14,7 @@ import { QuestResponse } from '@/types/quest';
 import { env } from '@/lib/env';
 import { auth, getAuth, clerkClient } from '@clerk/nextjs/server';
 import { defaultQuests } from '@/lib/quest-sample-data';
+import { formatDate, getToday } from '@/lib/date-utils';
 import { logKingdomEvent } from '../kingdom/logKingdomEvent';
 import { grantReward } from '../kingdom/grantReward';
 import { supabaseServer } from '../../../lib/supabase/server-client';
@@ -262,18 +263,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    // DAILY HABIT TRACKING APPROACH: Show quests as completed only if completed=true for TODAY
+    // DAILY HABIT TRACKING APPROACH: Show quests as completed only if completed=true for TODAY in Europe/Amsterdam timezone
     const completedQuests = new Map();
-    // Use Netherlands timezone (Europe/Amsterdam) for quest display
-    const now = new Date();
-    // Use Intl.DateTimeFormat for reliable timezone conversion
-    const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/Amsterdam',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).format(now);
-    const today = netherlandsDate; // Format: YYYY-MM-DD
+    const today = getToday(); // Format: YYYY-MM-DD in Europe/Amsterdam
 
     if (questCompletions) {
       logger.debug('[Quests API] Processing quest completions for daily habit tracking:', {
@@ -305,15 +297,8 @@ export async function GET(request: Request) {
           if (allTime) {
             return c.completed === true;
           }
-          // Convert UTC completed_at to Netherlands timezone date
-          const utcDate = new Date(c.completed_at);
-          const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Europe/Amsterdam',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          }).format(utcDate);
-          return netherlandsDate === today;
+          const cDate = formatDate(c.completed_at || c.created_at);
+          return cDate === today;
         });
 
         logger.debug('[Quests API] Processing quest for today:', {

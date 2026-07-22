@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { formatDate, getToday } from '@/lib/date-utils';
 import { grantReward } from '@/app/api/kingdom/grantReward';
 import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 
@@ -423,13 +424,8 @@ export async function POST(req: NextRequest) {
             }
 
             // Quest found in 'quests' table
-            // 2. Check if already completed TODAY in Netherlands timezone
-            const todayStr = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'Europe/Amsterdam',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).format(new Date());
+            // 2. Check if already completed TODAY in Europe/Amsterdam timezone
+            const todayStr = getToday();
 
             const { data: userCompletions } = await supabase
                 .from('quest_completion')
@@ -438,13 +434,8 @@ export async function POST(req: NextRequest) {
                 .eq('user_id', userId);
 
             const existing = (userCompletions || []).find(c => {
-                if (!c.completed_at) return false;
-                const cDate = new Intl.DateTimeFormat('en-CA', {
-                    timeZone: 'Europe/Amsterdam',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                }).format(new Date(c.completed_at));
+                if (!c.completed_at && !c.created_at) return false;
+                const cDate = formatDate(c.completed_at || c.created_at);
                 return cDate === todayStr;
             });
 

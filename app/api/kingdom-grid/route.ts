@@ -1,17 +1,15 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '@/lib/supabase/server-client';
-import { authenticatedSupabaseQuery, authenticatedFriendQuery } from '@/lib/supabase/jwt-verification';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 
 // GET: Return the kingdom grid for the user
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const visitUserId = searchParams.get('userId');
-    const { userId: authUserId } = await auth();
+    const authResult = await verifyClerkJWT(request);
 
-    const targetUserId = visitUserId || authUserId;
+    const targetUserId = visitUserId || authResult.userId;
     if (!targetUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
