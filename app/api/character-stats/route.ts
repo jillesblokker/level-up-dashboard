@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 import { apiLogger } from '@/lib/logger';
+import { calculateLevelFromExperience } from '@/lib/level-utils';
 
 // GET: Return character stats for the user
 export async function GET() {
@@ -193,19 +194,8 @@ export async function POST(request: Request) {
         serverBuildTokens = ensureNumber(stats.build_tokens ?? existingData?.build_tokens, 0);
       }
 
-      // Re-calculate level from XP
-      const calculateLevelFromExp = (exp: number): number => {
-        if (exp < 100) return 1;
-        let lvl = 1;
-        let needed = 0;
-        while (true) {
-          needed += Math.round(100 * Math.pow(1.15, lvl - 1));
-          if (exp < needed) return lvl;
-          lvl++;
-          if (lvl > 100) return 100; // safety ceiling
-        }
-      };
-      const serverLevel = calculateLevelFromExp(serverXP);
+      // Re-calculate level from XP using canonical level utility
+      const serverLevel = calculateLevelFromExperience(serverXP);
 
       // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
       // For volatile stats (Gold, Health), use the new value

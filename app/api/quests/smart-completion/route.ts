@@ -475,10 +475,26 @@ export async function POST(req: NextRequest) {
                 const isFirstAction = questsCompletedToday === 0;
                 const firstActionMultiplier = isFirstAction ? 1.5 : 1.0;
 
-                // Apply Spell blessings from Alchemy Lab
+                // Apply active potion modifiers and Alchemy Lab spell blessings
                 let xpMultiplier = 1;
                 let goldMultiplier = 1;
                 try {
+                    const nowIso = new Date().toISOString();
+                    const { data: activeMods } = await supabase
+                        .from('active_modifiers')
+                        .select('name')
+                        .eq('user_id', userId)
+                        .gt('expires_at', nowIso);
+
+                    const modList = activeMods || [];
+                    const isFocusActive = modList.some(m => m.name === 'Elixir of Focus');
+                    const isDreadActive = modList.some(m => m.name === 'Dread Tonic');
+                    const isMidasActive = modList.some(m => m.name === 'Midas Draught');
+                    const isSageActive = modList.some(m => m.name === 'Sage Brew');
+
+                    const modGoldMult = isMidasActive ? 2.0 : (isDreadActive ? 1.50 : 1.0);
+                    const modXpMult = isSageActive ? 1.50 : (isFocusActive ? 1.25 : 1.0);
+
                     const { data: prefData } = await supabase
                         .from('user_preferences')
                         .select('preference_value')
@@ -487,14 +503,19 @@ export async function POST(req: NextRequest) {
                         .maybeSingle();
 
                     const activeBuffs = (prefData?.preference_value as any) || {};
+                    let spellXpMult = 1;
+                    let spellGoldMult = 1;
                     if (activeBuffs.activeSpell === 'swiftness' && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > Date.now()) {
-                        xpMultiplier = 2;
+                        spellXpMult = 2;
                     }
                     if (activeBuffs.activeSpell === 'greed' && activeBuffs.spellExpiresAt && new Date(activeBuffs.spellExpiresAt).getTime() > Date.now()) {
-                        goldMultiplier = 2;
+                        spellGoldMult = 2;
                     }
+
+                    goldMultiplier = modGoldMult * spellGoldMult;
+                    xpMultiplier = modXpMult * spellXpMult;
                 } catch (err) {
-                    logger.error('[Smart Completion] Failed to load alchemy spell blessings:', err);
+                    logger.error('[Smart Completion] Failed to load alchemy buffs & modifiers:', err);
                 }
 
                 // Apply Time-of-Day, Streak, Altar spell, and First Action Bonuses
