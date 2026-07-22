@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
@@ -13,9 +13,10 @@ function getSupabaseAdmin() {
   );
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const { userId } = await auth();
+    const authResult = await verifyClerkJWT(req);
+    const userId = authResult.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -47,7 +48,8 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const { userId } = await auth();
+    const authResult = await verifyClerkJWT(req);
+    const userId = authResult.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -84,7 +86,8 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const { userId } = await auth();
+    const authResult = await verifyClerkJWT(req);
+    const userId = authResult.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
