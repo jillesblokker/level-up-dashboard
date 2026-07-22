@@ -264,6 +264,7 @@ export async function GET(request: Request) {
     }
 
     const today = getToday(); // Format: YYYY-MM-DD in Europe/Amsterdam
+    const completedQuests = new Map();
 
     logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Request received', {
       userId,
