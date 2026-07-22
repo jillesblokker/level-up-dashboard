@@ -357,7 +357,7 @@ export function QuestOrganization({
   }
 
   const activeQuests = sortedQuests.filter(q => !q.completed);
-  const conqueredQuests = sortedQuests.filter(q => q.completed);
+  const conqueredQuests = quests.filter(q => q.completed);
 
   return (
     <div className="space-y-6">
