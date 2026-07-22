@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 import { NextResponse } from 'next/server';
 import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
+import { supabaseServer } from '@/lib/supabase/server-client';
 
 // GET: Return the kingdom grid for the user
 export async function GET(request: Request) {
