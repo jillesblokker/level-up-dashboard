@@ -1783,7 +1783,7 @@ export default function QuestsPage() {
         for (const challenge of favoritedChallengesInCategory) {
           try {
             const goldReward = challenge.gold || 50;
-            const xpReward = challenge.xp || 25;
+            const xpReward = challenge.xp || 50;
 
             // Apply rewards locally
             addToCharacterStat('gold', goldReward, `challenge-completion:${challenge.id}`);
@@ -1969,7 +1969,7 @@ export default function QuestsPage() {
         for (const challenge of allFavoritedChallenges) {
           try {
             const goldReward = challenge.gold || 50;
-            const xpReward = challenge.xp || 25;
+            const xpReward = challenge.xp || 50;
 
             // Apply rewards locally
             addToCharacterStat('gold', goldReward, `challenge-completion:${challenge.id}`);
@@ -2258,7 +2258,8 @@ export default function QuestsPage() {
           essenceType = 'verdant_essence';
           break;
       }
-      addToCharacterStat(essenceType, 1, `milestone-completion:${milestoneId}`);
+      const essenceAmount = Math.max(5, Math.floor(xpReward / 2));
+      addToCharacterStat(essenceType, essenceAmount, `milestone-completion:${milestoneId}`);
 
       // Show success toast with rewards
       toast({

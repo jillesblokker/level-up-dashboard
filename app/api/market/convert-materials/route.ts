@@ -37,10 +37,11 @@ export async function POST(request: NextRequest) {
       return new NextResponse(JSON.stringify({ error: `Insufficient Gold. Required: ${option.cost} Gold` }), { status: 400 });
     }
 
-    // 2. Deduct Gold
+    // 2. Deduct Gold (with non-negative floor bound)
+    const newGold = Math.max(0, currentGold - option.cost);
     await supabaseServer
       .from('character_stats')
-      .update({ gold: currentGold - option.cost, updated_at: new Date().toISOString() })
+      .update({ gold: newGold, updated_at: new Date().toISOString() })
       .eq('user_id', userId);
 
     // 3. Upsert material inventory

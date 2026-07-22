@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { getToday, formatDate } from '@/lib/date-utils';
 
 export async function GET(req: NextRequest) {
     try {
@@ -25,8 +26,8 @@ export async function GET(req: NextRequest) {
                 .eq('user_id', currentUserId)
                 .in('alliance_id', alliances.map(a => a.id));
 
-            // Merge streak info
-            const today = new Date().toISOString().split('T')[0];
+            // Merge streak info using Amsterdam timezone
+            const today = getToday();
 
             // Fetch member stats for "Alliance Weekly Goals"
             const allMemberIds = Array.from(new Set(alliances.flatMap(a => a.members)));
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
 
             return alliances.map(alliance => {
                 const streakData = streaks?.find(s => s.alliance_id === alliance.id);
-                const lastCheckIn = streakData?.last_check_in ? new Date(streakData.last_check_in).toISOString().split('T')[0] : null;
+                const lastCheckIn = streakData?.last_check_in ? formatDate(streakData.last_check_in) : null;
                 const isCheckedInToday = lastCheckIn === today;
 
                 // Calculate Alliance Aggregates

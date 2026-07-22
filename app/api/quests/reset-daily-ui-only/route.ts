@@ -2,6 +2,8 @@ import { logger } from "@/lib/logger";
 import { NextResponse, NextRequest } from 'next/server';
 import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 
+import { getToday } from '@/lib/date-utils';
+
 export async function POST(req: NextRequest) {
   logger.debug('[UI-Only Daily Reset] 🚀 API ROUTE CALLED - Starting POST request');
   try {
@@ -15,8 +17,8 @@ export async function POST(req: NextRequest) {
 
     logger.debug('[UI-Only Daily Reset] Starting UI-ONLY daily reset for user:', userId);
     
-    // Get TODAY's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
+    // Get TODAY's date in YYYY-MM-DD format (Europe/Amsterdam timezone)
+    const today = getToday();
     logger.debug('[UI-Only Daily Reset] 🔍 Today\'s date:', today);
     
     // UI-ONLY RESET: No database operations!

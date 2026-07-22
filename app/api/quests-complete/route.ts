@@ -4,6 +4,7 @@ import { supabaseServer } from '../../../lib/supabase/server-client';
 import { apiLogger } from '@/lib/logger';
 import type { DbQuestRow, DbQuestCompletionRow } from '@/types/api';
 import { getMilestoneMessage } from '@/lib/milestone-manager';
+import { getToday } from '@/lib/date-utils';
 import { clerkClient } from '@clerk/nextjs/server';
 const supabase = supabaseServer;
 
@@ -141,7 +142,7 @@ export async function PUT(request: Request) {
     let milestoneMessage = null;
     if (completed) {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getToday();
 
         // 1. Check Today's Quest Count
         const { count: questsToday } = await supabase

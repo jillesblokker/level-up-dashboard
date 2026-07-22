@@ -555,11 +555,11 @@ export async function POST(req: NextRequest) {
                     const categoryName = (quest.category || 'might').toLowerCase();
                     
                     const isCategoryMatch = (qc: string, jc: string): boolean => {
-                        if (jc === 'knowledge') return qc.includes('knowledge') || qc.includes('intelligence');
-                        if (jc === 'might') return qc.includes('might') || qc.includes('agility');
-                        if (jc === 'wellness') return qc.includes('wellness') || qc.includes('vitality') || qc.includes('spiritual');
+                        if (jc === 'knowledge') return qc.includes('knowledge') || qc.includes('intelligence') || qc.includes('honor');
+                        if (jc === 'might') return qc.includes('might') || qc.includes('agility') || qc.includes('craft');
+                        if (jc === 'wellness') return qc.includes('wellness') || qc.includes('vitality') || qc.includes('spiritual') || qc.includes('castle') || qc.includes('exploration');
                         if (jc === 'social') return qc.includes('social') || qc.includes('creative');
-                        return qc.includes(jc);
+                        return qc.includes(jc) || jc.includes(qc);
                     };
 
                     if (activeExp && activeExp.active && isCategoryMatch(categoryName, activeExp.category) && activeExp.progress < 100) {
