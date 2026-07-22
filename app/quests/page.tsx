@@ -602,13 +602,51 @@ export default function QuestsPage() {
           completedList: completedQuests.map((q: any) => ({ id: q.id, name: q.name, date: q.date }))
         });
 
-        setQuests(data || []);
-        // Persist to localStorage for instant optimistic loading on next visit
+        // CRITICAL FIX: Merge server data with local optimistic state.
+        // If a quest is completed in our current local state (e.g. user just checked it off)
+        // but the server returns completed: false (stale data / write not replicated yet),
+        // we KEEP the local completed: true to prevent the "undo" visual bug.
+        setQuests(prevQuests => {
+          const localCompletedIds = new Set(
+            prevQuests.filter(q => q.completed).map(q => q.id)
+          );
+
+          const merged = (data || []).map((serverQuest: any) => {
+            if (!serverQuest.completed && localCompletedIds.has(serverQuest.id)) {
+              // Local state says completed, server says not — trust local (optimistic)
+              logger.info('[QUEST-BOARD-DIAGNOSTIC][MERGE] Preserving local completed state for quest', {
+                id: serverQuest.id,
+                name: serverQuest.name,
+                serverCompleted: serverQuest.completed,
+                localCompleted: true
+              });
+              return { ...serverQuest, completed: true };
+            }
+            return serverQuest;
+          });
+
+          return merged;
+        });
+
+        // Persist merged result to localStorage for instant optimistic loading on next visit
+        // We need to read back the merged state since setQuests is async
         try {
           const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-          localStorage.setItem('quests-cache', JSON.stringify(data || []));
+          // Build the merged cache: start from server data, overlay local completions
+          const cachedRaw = localStorage.getItem('quests-cache');
+          const localCache = cachedRaw ? JSON.parse(cachedRaw) : [];
+          const localCompletedIds = new Set(
+            (Array.isArray(localCache) ? localCache : []).filter((q: any) => q.completed).map((q: any) => q.id)
+          );
+          const mergedForCache = (data || []).map((sq: any) => {
+            if (!sq.completed && localCompletedIds.has(sq.id)) {
+              return { ...sq, completed: true };
+            }
+            return sq;
+          });
+          localStorage.setItem('quests-cache', JSON.stringify(mergedForCache));
           localStorage.setItem('quests-cache-date', todayStr);
-          logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated localStorage cache', { todayStr, count: (data || []).length });
+          logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated localStorage cache (merged)', { todayStr, count: mergedForCache.length });
         } catch {}
       } catch (err: any) {
         logger.error('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS ERROR] Failed to fetch:', err);
@@ -1896,26 +1934,9 @@ export default function QuestsPage() {
           });
         }
 
-        // Wait a moment for database to update, then refresh quest data
-        setTimeout(async () => {
-          try {
-            logger.debug('[Bulk Complete All] Refreshing quest data after completion...');
-            const response = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
-
-            if (response.ok) {
-              const data = await response.json();
-              logger.debug('[Bulk Complete All] Refreshed quest data:', data);
-              setQuests(data);
-              try {
-                const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-                localStorage.setItem('quests-cache', JSON.stringify(data));
-                localStorage.setItem('quests-cache-date', todayStr);
-              } catch {}
-            }
-          } catch (error) {
-            logger.error('[Bulk Complete All] Error refreshing quest data:', error);
-          }
-        }, 1000);
+        // NOTE: Do NOT re-fetch quests from server here. The optimistic state above is the
+        // source of truth. Re-fetching can return stale data (before DB write replicates)
+        // which would overwrite the completed state and cause the "undo" bug.
 
         toast({
           title: TEXT_CONTENT.questBoard.toasts.completion.bulkAllFavorites.title,
