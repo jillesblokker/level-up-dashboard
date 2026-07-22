@@ -204,16 +204,24 @@ export default function QuestsPage() {
       try {
         const cacheDate = localStorage.getItem('quests-cache-date');
         const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-        if (cacheDate === todayStr) {
-          const cached = localStorage.getItem('quests-cache');
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              return parsed;
-            }
+        const cached = localStorage.getItem('quests-cache');
+        logger.info('[QUEST-BOARD-DIAGNOSTIC][PAGE ENTER] Hydrating initial state from localStorage', {
+          cacheDate,
+          todayStr,
+          isDateMatch: cacheDate === todayStr,
+          hasCachedData: !!cached,
+          cachedCount: cached ? (JSON.parse(cached) || []).length : 0,
+          cachedCompleted: cached ? (JSON.parse(cached) || []).filter((q: any) => q.completed).map((q: any) => q.name || q.id) : []
+        });
+        if (cacheDate === todayStr && cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
           }
         }
-      } catch {}
+      } catch (err) {
+        console.error('[QUEST-BOARD-DIAGNOSTIC][PAGE ENTER] Hydration error:', err);
+      }
     }
     return [];
   });
@@ -586,20 +594,13 @@ export default function QuestsPage() {
         }
 
         const data = await res.json();
-        logger.debug('[Quests Debug] Data received:', {
-          dataType: typeof data,
-          isArray: Array.isArray(data),
-          length: Array.isArray(data) ? data.length : 'N/A',
-          sample: Array.isArray(data) ? data.slice(0, 2) : data,
-          categories: Array.isArray(data) ? [...new Set(data.map(q => q.category))] : 'N/A',
-          currentFilter: questCategory
-        });
+        const completedQuests = (data || []).filter((q: any) => q.completed);
 
-        // Debug: Check for quests that are completed
-        const completedQuests = data?.filter((q: any) => q.completed) || [];
-        if (completedQuests.length > 0) {
-          logger.debug('[Quests Debug] Found completed quests:', completedQuests.map((q: any) => ({ id: q.id, name: q.name, completed: q.completed })));
-        }
+        logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Received data from server', {
+          total: (data || []).length,
+          completedCount: completedQuests.length,
+          completedList: completedQuests.map((q: any) => ({ id: q.id, name: q.name, date: q.date }))
+        });
 
         setQuests(data || []);
         // Persist to localStorage for instant optimistic loading on next visit
@@ -607,8 +608,10 @@ export default function QuestsPage() {
           const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
           localStorage.setItem('quests-cache', JSON.stringify(data || []));
           localStorage.setItem('quests-cache-date', todayStr);
+          logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated localStorage cache', { todayStr, count: (data || []).length });
         } catch {}
       } catch (err: any) {
+        logger.error('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS ERROR] Failed to fetch:', err);
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));
         setQuests([]);
         logger.error('[Quests Debug] Error fetching quests:', err);
@@ -1130,7 +1133,13 @@ export default function QuestsPage() {
       return;
     }
 
-    logger.debug('[QUEST-TOGGLE] Updating quest state:', { questId, newCompleted, questName: questObj.name });
+    logger.info('[QUEST-BOARD-DIAGNOSTIC][CHECK CLICKED] User toggled quest checkmark', {
+      questId,
+      questName: questObj.name,
+      currentCompleted: questObj.completed,
+      newCompleted,
+      timestamp: new Date().toISOString()
+    });
 
     // Update the quest in the local state (optimistic update)
     setQuests(prevQuests => {
@@ -1143,6 +1152,7 @@ export default function QuestsPage() {
         const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
         localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
         localStorage.setItem('quests-cache-date', todayStr);
+        logger.info('[QUEST-BOARD-DIAGNOSTIC][CHECK CLICKED] Updated local state & localStorage cache', { questId, newCompleted, todayStr });
       } catch {}
       return nextQuests;
     });

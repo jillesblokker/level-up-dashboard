@@ -439,8 +439,18 @@ export async function POST(req: NextRequest) {
                 return cDate === todayStr;
             });
 
+            logger.info('[QUEST-BOARD-DIAGNOSTIC][POST /api/quests/smart-completion] Database lookup result', {
+                questId,
+                userId,
+                todayAmsterdam: todayStr,
+                totalCompletionsInDB: userCompletions?.length || 0,
+                existingRecordFoundForToday: !!existing,
+                existingRecord: existing ? { id: existing.id, completed_at: existing.completed_at, parsedDate: formatDate(existing.completed_at || existing.created_at) } : null
+            });
+
             if (completed) {
                 if (existing) {
+                    logger.info('[QUEST-BOARD-DIAGNOSTIC][POST /api/quests/smart-completion] Returning alreadyCompleted: true', { questId });
                     return { success: true, completed: true, alreadyCompleted: true, message: 'Already completed today' };
                 }
 

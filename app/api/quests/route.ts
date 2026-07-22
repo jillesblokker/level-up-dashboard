@@ -263,23 +263,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    // DAILY HABIT TRACKING APPROACH: Show quests as completed only if completed=true for TODAY in Europe/Amsterdam timezone
-    const completedQuests = new Map();
     const today = getToday(); // Format: YYYY-MM-DD in Europe/Amsterdam
 
-    if (questCompletions) {
-      logger.debug('[Quests API] Processing quest completions for daily habit tracking:', {
-        totalRecords: questCompletions.length,
-        today: today,
-        sampleRecords: questCompletions.slice(0, 3).map(c => ({
-          quest_id: c.quest_id,
-          completed: c.completed,
-          completed_at: c.completed_at,
-          xp_earned: c.xp_earned,
-          gold_earned: c.gold_earned
-        }))
-      });
+    logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Request received', {
+      userId,
+      todayAmsterdam: today,
+      totalCompletionsInDB: questCompletions?.length || 0,
+      completions: questCompletions?.map((c: any) => ({
+        quest_id: c.quest_id,
+        completed: c.completed,
+        completed_at: c.completed_at,
+        parsedAmsterdamDate: formatDate(c.completed_at || c.created_at),
+        matchesToday: formatDate(c.completed_at || c.created_at) === today
+      }))
+    });
 
+    if (questCompletions) {
       // Group completions by quest_id to handle multiple completions of the same quest
       const questCompletionGroups = new Map();
 
@@ -301,17 +300,6 @@ export async function GET(request: Request) {
           return cDate === today;
         });
 
-        logger.debug('[Quests API] Processing quest for today:', {
-          quest_id: questId,
-          total_completions: completions.length,
-          today_completion: todayCompletion ? {
-            completed: todayCompletion.completed,
-            completed_at: todayCompletion.completed_at,
-            xp_earned: todayCompletion.xp_earned,
-            gold_earned: todayCompletion.gold_earned
-          } : null
-        });
-
         // Show as completed if there's a completion record for today
         if (todayCompletion && todayCompletion.completed !== false) {
           completedQuests.set(questId, {
@@ -319,15 +307,11 @@ export async function GET(request: Request) {
             completedAt: todayCompletion.completed_at,
             xpEarned: todayCompletion.xp_earned,
             goldEarned: todayCompletion.gold_earned,
-            completionId: todayCompletion.id // Store the completion record ID for manual uncheck
+            completionId: todayCompletion.id
           });
         }
       });
     }
-
-    logger.debug('[Quests API] Completed quests map:', Array.from(completedQuests.entries()));
-    logger.debug('[Quests API] Sample quest completion keys:', Array.from(completedQuests.keys()).slice(0, 5));
-    logger.debug('[Quests API] Sample quest names:', quests?.slice(0, 5).map(q => q.name));
 
     // Convert quests to quest format with completion status
     const questsWithCompletions = (quests || []).map((quest: any) => {
@@ -391,6 +375,12 @@ export async function GET(request: Request) {
       }
 
       return mappedQuest;
+    });
+
+    logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Sending response to client', {
+      totalQuests: questsWithCompletions.length,
+      completedCount: questsWithCompletions.filter((q: any) => q.completed).length,
+      completedQuests: questsWithCompletions.filter((q: any) => q.completed).map((q: any) => ({ id: q.id, name: q.name, date: q.date }))
     });
 
     // Add cache-busting headers to prevent Next.js and browser from caching response
