@@ -20,6 +20,7 @@ import { useUser, useAuth } from '@clerk/nextjs'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
+import { recordCompletion } from '@/lib/daily-activity-summary-service'
 import { useCharacterStats } from '@/hooks/use-character-stats'
 import { toast, useToast } from '@/components/ui/use-toast'
 import { ToastAction } from "@/components/ui/toast";
@@ -1599,13 +1600,19 @@ export default function QuestsPage() {
 
         // Optimistic update all at once
         const questIdsToComplete = new Set(favoritedQuestsInCategory.map(q => q.id));
-        setQuests(prevQuests =>
-          prevQuests.map(q =>
+        setQuests(prevQuests => {
+          const nextQuests = prevQuests.map(q =>
             questIdsToComplete.has(q.id)
               ? { ...q, completed: true }
               : q
-          )
-        );
+          );
+          try {
+            const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+            localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
+            localStorage.setItem('quests-cache-date', todayStr);
+          } catch {}
+          return nextQuests;
+        });
 
         const failedIds: string[] = [];
 
@@ -1643,6 +1650,15 @@ export default function QuestsPage() {
               failedIds.push(quest.id);
             } else {
               const responseData = await response.json();
+              recordCompletion({
+                questId: quest.id,
+                category: quest.category || 'General',
+                xp: buffedRewards.xp,
+                gold: buffedRewards.gold,
+              });
+              addToCharacterStat('gold', buffedRewards.gold, `quest-completion:${quest.id}`);
+              addToCharacterStat('experience', buffedRewards.xp, `quest-completion:${quest.id}`);
+
               if (responseData.isFirstAction) {
                 setPartnerSpeech("First action of the day! 1.5x Bonus!");
                 setIsPartnerAnimating(true);
@@ -1662,13 +1678,19 @@ export default function QuestsPage() {
         // Revert failed ones if any
         if (failedIds.length > 0) {
           const failedSet = new Set(failedIds);
-          setQuests(prevQuests =>
-            prevQuests.map(q =>
+          setQuests(prevQuests => {
+            const nextQuests = prevQuests.map(q =>
               failedSet.has(q.id)
                 ? { ...q, completed: false }
                 : q
-            )
-          );
+            );
+            try {
+              const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+              localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
+              localStorage.setItem('quests-cache-date', todayStr);
+            } catch {}
+            return nextQuests;
+          });
         }
 
         toast({
@@ -1765,7 +1787,7 @@ export default function QuestsPage() {
   };
 
   const handleBulkCompleteAllFavorites = async () => {
-    if (!token) return;
+    if (!user) return;
 
     try {
       if (forgeTab === 'quests') {
@@ -1778,13 +1800,19 @@ export default function QuestsPage() {
 
         // Optimistic update all at once
         const questIdsToComplete = new Set(allFavoritedQuests.map(q => q.id));
-        setQuests(prevQuests =>
-          prevQuests.map(q =>
+        setQuests(prevQuests => {
+          const nextQuests = prevQuests.map(q =>
             questIdsToComplete.has(q.id)
               ? { ...q, completed: true }
               : q
-          )
-        );
+          );
+          try {
+            const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+            localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
+            localStorage.setItem('quests-cache-date', todayStr);
+          } catch {}
+          return nextQuests;
+        });
 
         const failedIds: string[] = [];
 
@@ -1807,6 +1835,15 @@ export default function QuestsPage() {
               failedIds.push(quest.id);
             } else {
               const responseData = await response.json();
+              recordCompletion({
+                questId: quest.id,
+                category: quest.category || 'General',
+                xp: quest.xp || 50,
+                gold: quest.gold || 25,
+              });
+              addToCharacterStat('gold', quest.gold || 25, `quest-completion:${quest.id}`);
+              addToCharacterStat('experience', quest.xp || 50, `quest-completion:${quest.id}`);
+
               if (responseData.isFirstAction) {
                 setPartnerSpeech("First action of the day! 1.5x Bonus!");
                 setIsPartnerAnimating(true);
@@ -1826,13 +1863,19 @@ export default function QuestsPage() {
         // Revert failed ones if any
         if (failedIds.length > 0) {
           const failedSet = new Set(failedIds);
-          setQuests(prevQuests =>
-            prevQuests.map(q =>
+          setQuests(prevQuests => {
+            const nextQuests = prevQuests.map(q =>
               failedSet.has(q.id)
                 ? { ...q, completed: false }
                 : q
-            )
-          );
+            );
+            try {
+              const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+              localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
+              localStorage.setItem('quests-cache-date', todayStr);
+            } catch {}
+            return nextQuests;
+          });
         }
 
         // Wait a moment for database to update, then refresh quest data
@@ -1845,6 +1888,11 @@ export default function QuestsPage() {
               const data = await response.json();
               logger.debug('[Bulk Complete All] Refreshed quest data:', data);
               setQuests(data);
+              try {
+                const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+                localStorage.setItem('quests-cache', JSON.stringify(data));
+                localStorage.setItem('quests-cache-date', todayStr);
+              } catch {}
             }
           } catch (error) {
             logger.error('[Bulk Complete All] Error refreshing quest data:', error);

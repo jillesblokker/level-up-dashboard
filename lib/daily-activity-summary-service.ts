@@ -13,6 +13,7 @@
  */
 
 import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
+import { getToday } from './date-utils';
 
 export interface DailySnapshot {
   date: string;         // ISO date string (YYYY-MM-DD)
@@ -31,10 +32,10 @@ const MAX_RAW_DAYS = 30;
 const MAX_SNAPSHOT_DAYS = 365;
 
 /**
- * Get today's date as YYYY-MM-DD
+ * Get today's date as YYYY-MM-DD in Europe/Amsterdam timezone
  */
 function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
+  return getToday();
 }
 
 /**
