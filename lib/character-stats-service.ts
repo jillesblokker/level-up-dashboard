@@ -17,6 +17,7 @@ import { logger } from "@/lib/logger";
  */
 
 import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
+import { calculateLevelFromExperience } from '@/lib/level-utils';
 
 export interface CharacterStats {
     gold: number;
@@ -86,10 +87,11 @@ class CharacterStatsService {
             const stored = getUserScopedItem('character-stats');
             if (stored) {
                 const stats = JSON.parse(stored);
+                const experience = stats.experience || 0;
                 return {
                     gold: stats.gold || 0,
-                    experience: stats.experience || 0,
-                    level: stats.level || 1,
+                    experience,
+                    level: calculateLevelFromExperience(experience),
                     health: stats.health || 100,
                     max_health: stats.max_health || 100,
                     build_tokens: stats.build_tokens || stats.buildTokens || 0,
@@ -145,8 +147,12 @@ class CharacterStatsService {
             newStats.experience = Math.max(currentStats.experience, updates.experience);
         }
 
+        // ALWAYS recalculate level from experience (never trust a stale level field)
+        newStats.level = calculateLevelFromExperience(newStats.experience);
+
         // Handle other stats (can change freely)
-        if (updates.level !== undefined) newStats.level = updates.level;
+        // Note: explicit level updates are ignored — level is always derived from XP
+        // if (updates.level !== undefined) newStats.level = updates.level;
         if (updates.health !== undefined) newStats.health = updates.health;
         if (updates.max_health !== undefined) newStats.max_health = updates.max_health;
         if (updates.build_tokens !== undefined) {
@@ -221,10 +227,11 @@ class CharacterStatsService {
                     const localStats = this.getStats();
 
                     // Merge: local wins for progressive stats, server wins for others
+                    const mergedExperience = Math.max(serverStats.experience || 0, localStats.experience || 0);
                     const mergedStats: CharacterStats = {
                         gold: Math.max(serverStats.gold || 0, localStats.gold || 0),
-                        experience: Math.max(serverStats.experience || 0, localStats.experience || 0),
-                        level: Math.max(serverStats.level || 1, localStats.level || 1),
+                        experience: mergedExperience,
+                        level: calculateLevelFromExperience(mergedExperience),
                         health: serverStats.health || 100,
                         max_health: serverStats.max_health || 100,
                         build_tokens: Math.max(serverStats.build_tokens || 0, localStats.build_tokens || 0),
