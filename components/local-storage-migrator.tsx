@@ -42,6 +42,12 @@ export default function LocalStorageMigrator() {
         setMigrationProgress('Migrating kingdom data...');
         await migrateKingdomDataToSupabase();
         
+        // Phase 5: Cleanup legacy/outdated localStorage keys
+        const legacyKeys = ['temp_quest_state', 'old_character_level', 'draft_habit_list', 'legacy_inventory_cache'];
+        legacyKeys.forEach(k => {
+          try { localStorage.removeItem(k); } catch {}
+        });
+
         localStorage.setItem('supabase-migration-complete', 'true');
         setMigrationComplete(true);
         setMigrationProgress('Migration completed successfully!');

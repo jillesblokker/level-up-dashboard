@@ -43,6 +43,15 @@ export function MedievalParticles({
     high: { count: 50, speed: 3, size: 4 }
   }
 
+  // Throttle particle count on lower-power devices or low-fx settings
+  const isLowEndDevice = typeof window !== 'undefined' && (
+    (typeof navigator !== 'undefined' && navigator.hardwareConcurrency ? navigator.hardwareConcurrency <= 4 : false) ||
+    document.body.classList.contains('fx-low')
+  );
+
+  const baseConfig = intensityConfig[intensity];
+  const particleCount = isLowEndDevice ? Math.max(5, Math.floor(baseConfig.count / 2)) : baseConfig.count;
+
   const typeConfig: Record<string, { 
     types: ('gold' | 'xp' | 'sparkle' | 'magic' | 'fire')[], 
     colors: string[], 
@@ -100,9 +109,9 @@ export function MedievalParticles({
       const centerX = canvas.width / 2
       const centerY = canvas.height / 2
 
-      for (let i = 0; i < intensitySettings.count; i++) {
+      for (let i = 0; i < particleCount; i++) {
         const particleType = config.types[Math.floor(Math.random() * config.types.length)] as 'gold' | 'xp' | 'sparkle' | 'magic' | 'fire'
-        const angle = (Math.PI * 2 * i) / intensitySettings.count + Math.random() * 0.5
+        const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5
         const speed = intensitySettings.speed + Math.random() * intensitySettings.speed
 
         particles.push({

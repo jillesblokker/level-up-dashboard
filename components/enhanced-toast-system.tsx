@@ -180,12 +180,19 @@ export function useToast() {
   const [toasts, setToasts] = React.useState<ToastMessage[]>([]);
 
   const addToast = React.useCallback((message: Omit<ToastMessage, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const newToast: ToastMessage = { ...message, id };
+    // Deduplicate: check if a toast with identical title was added recently
+    let isDuplicate = false;
+    setToasts(prev => {
+      if (prev.some(t => t.title === message.title)) {
+        isDuplicate = true;
+        return prev;
+      }
+      const id = Math.random().toString(36).substr(2, 9);
+      const newToast: ToastMessage = { ...message, id };
+      return [...prev.slice(-4), newToast]; // Max 5 toasts visible at once
+    });
     
-    setToasts(prev => [...prev, newToast]);
-    
-    return id;
+    return isDuplicate ? '' : message.title;
   }, []);
 
   const dismissToast = React.useCallback((id: string) => {
