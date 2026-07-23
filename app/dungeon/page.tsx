@@ -12,6 +12,7 @@ import {
   CREATURE_DATA,
   CREATURE_IDS,
   CreatureDef,
+  CreatureType,
   getMatchupMultiplier,
   getTypeEmoji,
   getTypeColor,
@@ -435,7 +436,18 @@ export default function DungeonPage() {
     }
   };
 
-  const fight = () => {
+  const getElementalSpell = (type: CreatureType) => {
+    switch (type) {
+      case 'Fire': return { name: 'Inferno Surge', emoji: '🔥', desc: '1.4x Dmg, +25% Crit' };
+      case 'Water': return { name: 'Tidal Crash', emoji: '🌊', desc: '1.4x Dmg, +25% Crit' };
+      case 'Grass': return { name: 'Leaf Storm', emoji: '🍃', desc: '1.4x Dmg, +25% Crit' };
+      case 'Rock': return { name: 'Tremor Smash', emoji: '🪨', desc: '1.4x Dmg, +25% Crit' };
+      case 'Ice': return { name: 'Frostbite Blast', emoji: '❄️', desc: '1.4x Dmg, +25% Crit' };
+      default: return { name: 'Elemental Arc', emoji: '✨', desc: '1.4x Dmg, +25% Crit' };
+    }
+  };
+
+  const fight = (actionType: 'strike' | 'elemental' | 'counter' = 'strike') => {
     if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
 
     const enemyId = run.currentEncounter.creatureId || '001';
@@ -448,17 +460,18 @@ export default function DungeonPage() {
 
     const logEntries: string[] = [];
 
-    // 1. Calculate Stats
+    // 1. Calculate Base Stats
     const elementalHabitBuff = (elementBuffs[activeFighter.type] || 0) * 2; // +2 atk per habit
     const buildingAtkBuff = buildingBuffs.atkBuff;
 
     const playerSpd = activeFighter.stats.spd;
     const playerDef = activeFighter.stats.def;
-    const playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff;
-    // Enemy
+    let playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff;
+
+    // Enemy stats
     const enemySpd = enemyDef.stats.spd;
-    const enemyDefStat = enemyDef.stats.def;
-    const enemyAtk = enemyDef.stats.atk + (Math.floor(Math.random() * 5));
+    let enemyDefStat = enemyDef.stats.def;
+    let enemyAtk = enemyDef.stats.atk + (Math.floor(Math.random() * 5));
 
     if (elementalHabitBuff > 0) logEntries.push(`✨ Daily habits empower ${activeFighter.name}! (+${elementalHabitBuff} ATK)`);
     if (buildingAtkBuff > 0) logEntries.push(`⚔️ Blacksmith sharpens your attack! (+${buildingAtkBuff} ATK)`);
@@ -467,31 +480,64 @@ export default function DungeonPage() {
     const playerTypeMult = getMatchupMultiplier(activeFighter.type, enemyDef.type);
     const enemyTypeMult = getMatchupMultiplier(enemyDef.type, activeFighter.type);
 
-    // 3. Crit & Dodge Checks
-    const playerCritChance = Math.max(0, Math.min(0.5, (playerSpd - enemySpd) * 0.03));
-    const isPlayerCrit = Math.random() < playerCritChance;
-
-    const playerDodgeChance = Math.max(0, Math.min(0.4, (playerSpd - enemySpd) * 0.02));
-    const isPlayerDodge = Math.random() < playerDodgeChance;
-
+    // 3. Tactical Action Resolution (Hogwarts Legacy style 3 choices)
+    let playerCritChance = Math.max(0, Math.min(0.5, (playerSpd - enemySpd) * 0.03));
+    let isPlayerCrit = false;
+    let playerFinalDmg = 0;
+    let enemyFinalDmg = 0;
+    const isPlayerDodge = Math.random() < Math.max(0, Math.min(0.4, (playerSpd - enemySpd) * 0.02));
     const isEnemyCrit = Math.random() < 0.05;
 
-    // 4. Damage Calculation
-    let playerFinalDmg = 0;
-    const playerCritMult = isPlayerCrit ? 1.5 : 1.0;
-    playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * playerCritMult) - (enemyDefStat * 0.4)));
+    if (actionType === 'elemental') {
+      const spell = getElementalSpell(activeFighter.type);
+      playerCritChance += 0.25; // +25% Crit bonus
+      isPlayerCrit = Math.random() < playerCritChance;
+      enemyDefStat = Math.floor(enemyDefStat * 0.7); // Ignores 30% enemy armor
+      playerAtk = Math.floor(playerAtk * 1.4); // 1.4x base atk
+      const critMult = isPlayerCrit ? 1.6 : 1.0;
+      playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.4)));
 
-    let enemyFinalDmg = 0;
-    if (!isPlayerDodge) {
-      const enemyCritMult = isEnemyCrit ? 1.5 : 1.0;
-      enemyFinalDmg = Math.max(1, Math.floor((enemyAtk * enemyTypeMult * enemyCritMult) - (playerDef * 0.4)));
+      logEntries.push(`✨ ${activeFighter.name} unleashes ${spell.emoji} ${spell.name}! ${isPlayerCrit ? '💥 CRITICAL OVERLOAD!' : ''}`);
+      logEntries.push(`You dealt ${playerFinalDmg} ${activeFighter.type} elemental damage to ${enemyDef.name}! ${playerTypeMult > 1 ? '🔥 Super Effective!' : ''}`);
+    } else if (actionType === 'counter') {
+      // Counter Guard stance: reduces incoming damage by 60% and ripostes!
+      logEntries.push(`🛡️ ${activeFighter.name} adopts a Counter Guard stance!`);
+      playerFinalDmg = Math.max(1, Math.floor((playerAtk * 0.85 * playerTypeMult) - (enemyDefStat * 0.4)));
+      logEntries.push(`You strike ${enemyDef.name} for ${playerFinalDmg} damage while maintaining shield defense.`);
+    } else {
+      // Basic Heavy Strike
+      isPlayerCrit = Math.random() < playerCritChance;
+      const critMult = isPlayerCrit ? 1.5 : 1.0;
+      playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.4)));
+      if (isPlayerCrit) logEntries.push(`🎯 CRITICAL STRIKE! You hit ${enemyDef.name} for ${playerFinalDmg} damage!`);
+      else logEntries.push(`⚔️ ${activeFighter.name} hits ${enemyDef.name} for ${playerFinalDmg} damage.`);
     }
 
-    // 5. Apply Results
-    if (isPlayerCrit) logEntries.push(`🎯 CRITICAL HIT! You hit for ${playerFinalDmg}!`);
-    else logEntries.push(`You hit ${enemyDef.name} for ${playerFinalDmg} damage. ${playerTypeMult > 1 ? '🔥' : ''}`);
-
     const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - playerFinalDmg);
+
+    // Enemy Retaliation
+    if (newMonsterHp > 0) {
+      if (isPlayerDodge) {
+        logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
+      } else {
+        const enemyCritMult = isEnemyCrit ? 1.5 : 1.0;
+        let rawEnemyDmg = Math.max(1, Math.floor((enemyAtk * enemyTypeMult * enemyCritMult) - (playerDef * 0.4)));
+        
+        if (actionType === 'counter') {
+          // Counter Guard mitigates 60% incoming damage and ripostes 120% back!
+          enemyFinalDmg = Math.max(1, Math.floor(rawEnemyDmg * 0.4));
+          const riposteDmg = Math.max(1, Math.floor(enemyAtk * 1.2));
+          logEntries.push(`🛡️ Counter Guard absorbed 60% damage! Taking only ${enemyFinalDmg} damage.`);
+          logEntries.push(`⚡ RIPOSTE COUNTER! You hit ${enemyDef.name} back for ${riposteDmg} counter damage!`);
+        } else {
+          enemyFinalDmg = rawEnemyDmg;
+          if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT for ${enemyFinalDmg}!`);
+          else logEntries.push(`${enemyDef.name} hit you for ${enemyFinalDmg} damage. ${enemyTypeMult > 1 ? '💔' : ''}`);
+        }
+      }
+    } else {
+      logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
+    }
 
     // Apply damage to active fighter in party
     let updatedParty = run.party.map(c => {
@@ -507,17 +553,6 @@ export default function DungeonPage() {
 
     const activeFighterAfterDamage = updatedParty.find(c => c.id === selectedCreature.id)!;
     const isFighterFainted = activeFighterAfterDamage.hp <= 0;
-
-    if (newMonsterHp > 0) {
-      if (isPlayerDodge) {
-        logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
-      } else {
-        if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT for ${enemyFinalDmg}!`);
-        else logEntries.push(`${enemyDef.name} hit you for ${enemyFinalDmg} damage. ${enemyTypeMult > 1 ? '💔' : ''}`);
-      }
-    } else {
-      logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
-    }
 
     if (!isFighterFainted && buildingBuffs.healingBuff > 0) {
       logEntries.push(`🍞 Bakery heals ${selectedCreature.name} for ${buildingBuffs.healingBuff} HP!`);
@@ -564,13 +599,14 @@ export default function DungeonPage() {
         });
       } else {
         setTimeout(() => {
+          const nextEncounter = generateEncounter(run.currentRoom + 1);
           setRun({
             ...run,
             party: updatedParty,
             currentHp: totalTeamHpAfterDamage,
             currentRoom: run.currentRoom + 1,
             lootCollected: newLoot,
-            currentEncounter: generateEncounter(run.currentRoom + 1)
+            currentEncounter: nextEncounter
           });
           
           if (isFighterFainted) {
@@ -578,7 +614,15 @@ export default function DungeonPage() {
             setBattlePhase('select');
             setMessage(`Victorious, but ${selectedCreature.name} fainted! Deploy a new fighter!`);
           } else {
-            setMessage('Victorious! Continue or swap team member?');
+            const nextEnemyId = nextEncounter.creatureId || '001';
+            const nextEnemyDef = CREATURE_DATA[nextEnemyId];
+            let advMessage = 'Victorious! Keep your active fighter or swap squad member?';
+            if (nextEnemyDef) {
+              const nextMult = getMatchupMultiplier(selectedCreature.type, nextEnemyDef.type);
+              if (nextMult > 1) advMessage = `Victorious! ${selectedCreature.name} (${selectedCreature.type}) has STRONG ADVANTAGE vs ${nextEnemyDef.name} (${nextEnemyDef.type})!`;
+              else if (nextMult < 1) advMessage = `Victorious! Warning: ${selectedCreature.name} (${selectedCreature.type}) is WEAK vs ${nextEnemyDef.name} (${nextEnemyDef.type})! Consider swapping!`;
+            }
+            setMessage(advMessage);
           }
         }, 1500);
       }
@@ -639,7 +683,26 @@ export default function DungeonPage() {
 
   const flee = () => {
     if (!run) return;
-    completeRun({ ...run, status: 'defeated' });
+    // Fleeing is a safe retreat that does NOT consume a daily attempt!
+    const today = new Date().toISOString().split('T')[0];
+    const storageKey = 'dungeon_daily_limit';
+    const storage = localStorage.getItem(storageKey);
+    if (storage) {
+      const data = JSON.parse(storage);
+      if (data.date === today && data.count > 0) {
+        data.count--;
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        setDailyCount(data.count);
+      }
+    }
+    notificationService.addNotification(
+      "🏃 Safe Retreat!",
+      "You safely fled the dungeon. Your daily entry attempt was not consumed!",
+      "monster",
+      "medium"
+    );
+    setRun(null);
+    setGameResult(null);
   };
 
   const completeRun = async (finalRun: DungeonRun) => {
@@ -1028,61 +1091,135 @@ export default function DungeonPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-6 flex flex-col items-center my-auto w-full py-4">
-                    <div className="flex flex-col items-center justify-center space-y-4 py-2 w-full">
-                      {/* Active Fighter Mini Card */}
-                      <div className="relative group w-full max-w-[220px] animate-in zoom-in-95 duration-300">
-                        <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl`}>
-                          
-                          <div className="relative w-full overflow-hidden bg-zinc-950">
-                            {/* Level Badge Overlay */}
-                            <div className="absolute top-2 left-2 z-10">
-                              <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
-                                Lv.{selectedCreature?.level || 1}
-                              </span>
-                            </div>
-                            <div className="absolute top-2 right-2 z-10">
-                              <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                  <div className="space-y-4 flex flex-col items-center my-auto w-full py-2">
+                    {(() => {
+                      const activeSpell = getElementalSpell(selectedCreature!.type);
+                      const mult = enemyDef ? getMatchupMultiplier(selectedCreature!.type, enemyDef.type) : 1;
+                      let matchupLabel = "NEUTRAL (1.0x DMG)";
+                      let matchupBadgeColor = "text-zinc-300 border-zinc-700 bg-zinc-900/90";
+                      if (mult > 1) {
+                        matchupLabel = `STRONG 🟢 (x${mult} DMG)`;
+                        matchupBadgeColor = "text-emerald-300 border-emerald-500/50 bg-emerald-950/95 font-extrabold shadow-lg shadow-emerald-950/50";
+                      } else if (mult < 1) {
+                        matchupLabel = `WEAK 🔴 (x${mult} DMG)`;
+                        matchupBadgeColor = "text-red-300 border-red-500/50 bg-red-950/95 font-extrabold shadow-lg shadow-red-950/50";
+                      }
+
+                      return (
+                        <>
+                          {/* Active Fighter Mini Card with Prominent Matchup Overlay */}
+                          <div className="flex flex-col items-center justify-center space-y-3 w-full">
+                            <div className="relative group w-full max-w-[210px] animate-in zoom-in-95 duration-300">
+                              <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl`}>
+                                
+                                <div className="relative w-full overflow-hidden bg-zinc-950">
+                                  {/* Level Badge Overlay */}
+                                  <div className="absolute top-2 left-2 z-10">
+                                    <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
+                                      Lv.{selectedCreature?.level || 1}
+                                    </span>
+                                  </div>
+                                  <div className="absolute top-2 right-2 z-10">
+                                    <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                                  </div>
+
+                                  {/* Prominent Matchup Badge Overlay */}
+                                  <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+                                    <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-md ${matchupBadgeColor}`}>
+                                      {matchupLabel.split(' ')[0]}
+                                    </span>
+                                  </div>
+
+                                  <Image
+                                    src={`/images/creatures/${selectedCreature!.id}.png`}
+                                    alt={selectedCreature!.name}
+                                    width={768}
+                                    height={1106}
+                                    className="w-full h-auto object-contain block drop-shadow-lg"
+                                    unoptimized
+                                  />
+                                </div>
+
+                                <div className="bg-zinc-950 border-t border-white/10 p-3 space-y-1.5 z-10 w-full">
+                                  <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
+                                    <span>HP</span>
+                                    <span className="font-mono">{activeFighterHp} / {activeFighterMaxHp}</span>
+                                  </div>
+                                  <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-emerald-500 transition-all duration-300"
+                                      style={{ width: `${(activeFighterHp / activeFighterMaxHp) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
 
-                            <Image
-                              src={`/images/creatures/${selectedCreature!.id}.png`}
-                              alt={selectedCreature!.name}
-                              width={768}
-                              height={1106}
-                              className="w-full h-auto object-contain block drop-shadow-lg"
-                              unoptimized
-                            />
+                            {/* Matchup Summary Bar */}
+                            <div className="flex items-center justify-between w-full max-w-md bg-zinc-950/80 px-3.5 py-1.5 rounded-xl border border-white/10 text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="text-zinc-400 font-medium">Element Matchup:</span>
+                                <Badge className={`text-[10px] px-2 py-0.5 border ${matchupBadgeColor}`}>
+                                  {matchupLabel}
+                                </Badge>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 h-6 px-2">
+                                🔄 Swap Fighter
+                              </Button>
+                            </div>
                           </div>
 
-                          <div className="bg-zinc-950 border-t border-white/10 p-3 space-y-1.5 z-10 w-full">
-                            <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
-                              <span>HP</span>
-                              <span className="font-mono">{activeFighterHp} / {activeFighterMaxHp}</span>
+                          {/* Hogwarts Legacy 3 Tactical Combat Choices */}
+                          <div className="space-y-2 w-full pt-1">
+                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">
+                              Choose Combat Action
                             </div>
-                            <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-emerald-500 transition-all duration-300"
-                                style={{ width: `${(activeFighterHp / activeFighterMaxHp) * 100}%` }}
-                              />
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full">
+                              
+                              {/* Choice 1: Heavy Strike */}
+                              <Button
+                                onClick={() => fight('strike')}
+                                className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 border border-red-500/40 rounded-xl shadow-lg transition-all active:scale-95"
+                              >
+                                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">⚔️ Heavy Strike</span>
+                                <span className="text-[9px] text-red-200 opacity-80">Physical Dmg</span>
+                              </Button>
+
+                              {/* Choice 2: Elemental Burst */}
+                              <Button
+                                onClick={() => fight('elemental')}
+                                className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 border border-amber-400/40 rounded-xl shadow-lg transition-all active:scale-95"
+                              >
+                                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                                  {activeSpell.emoji} {activeSpell.name}
+                                </span>
+                                <span className="text-[9px] text-amber-200 opacity-80">{activeSpell.desc}</span>
+                              </Button>
+
+                              {/* Choice 3: Counter Guard */}
+                              <Button
+                                onClick={() => fight('counter')}
+                                className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 border border-blue-400/40 rounded-xl shadow-lg transition-all active:scale-95"
+                              >
+                                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">🛡️ Counter Guard</span>
+                                <span className="text-[9px] text-blue-200 opacity-80">-60% Dmg + Riposte</span>
+                              </Button>
+                            </div>
+
+                            {/* Safe Flee Action Button (Does not burn entry attempt) */}
+                            <div className="flex justify-center pt-1">
+                              <Button
+                                onClick={flee}
+                                variant="ghost"
+                                className="text-[11px] text-zinc-400 hover:text-amber-300 hover:bg-zinc-900/60 h-7 px-3 rounded-lg"
+                              >
+                                🏃 Safe Retreat (Preserves Daily Entry Attempt)
+                              </Button>
                             </div>
                           </div>
-                        </div>
-                      </div>
-
-                      <Button variant="outline" size="sm" onClick={() => setBattlePhase('select')} className="text-xs border-amber-900/40 hover:bg-amber-950/20 text-amber-400 font-bold px-4 py-2 rounded-xl transition-all shadow-md">
-                        🔄 Change Fighter
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3 w-full">
-                      <Button onClick={fight} className="col-span-2 h-14 text-xl bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400 rounded-xl">
-                        ⚔️ Attack
-                      </Button>
-                      <Button onClick={flee} variant="secondary" className="col-span-1 h-14 bg-zinc-800 hover:bg-zinc-700 font-bold border-t border-zinc-600 text-zinc-200 rounded-xl">
-                        🏃 Flee
-                      </Button>
-                    </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
