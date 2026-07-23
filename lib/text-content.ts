@@ -1121,8 +1121,8 @@ export const TEXT_CONTENT = {
     },
     questBoard: {
         header: {
-            title: "Message Board",
-            subtitle: "Complete daily quests to earn gold and experience. Build your legend!",
+            title: "Realm Mandates & Trials",
+            subtitle: "Execute daily mandates to earn gold, experience, and realm essence. Shape your legend!",
             guide: {
                 title: "Quests",
                 subtitle: "The foundation of your progression",

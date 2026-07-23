@@ -301,7 +301,7 @@ export function BarracksTab() {
                 Kingdom Military Training Grounds
               </Badge>
               <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
-                ⚔️ Squad Active: {combatSupporters.length}/2
+                🛡️ Round Table: {combatSupporters.length}/2 Knights Pledged
               </Badge>
             </div>
             <h2 className="font-cardo font-bold text-2xl md:text-3xl text-white flex items-center gap-2">
@@ -357,7 +357,7 @@ export function BarracksTab() {
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
                   )}
                 >
-                  {f === 'squad' ? '🗡️ Squad' : f === 'mythic' ? '✨ Mythics' : f}
+                  {f === 'squad' ? '🛡️ Round Table' : f === 'mythic' ? '✨ Mythics' : f}
                 </Button>
               ))}
             </div>
@@ -387,7 +387,7 @@ export function BarracksTab() {
                         : "bg-[#0b0d10] border-white/5 hover:border-amber-500/30 hover:bg-zinc-900/60"
                     )}
                   >
-                    {/* Active Squad indicator stripe */}
+                    {/* Active Round Table indicator stripe */}
                     {isSlotted && (
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
                     )}
@@ -429,7 +429,7 @@ export function BarracksTab() {
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       {isSlotted ? (
                         <Badge className="bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 text-[8px] px-1.5 py-0.5 font-bold">
-                          🗡️ Squad
+                          🛡️ Pledged
                         </Badge>
                       ) : c.active ? (
                         <Badge variant="outline" className="text-zinc-400 border-zinc-700 text-[8px] px-1 py-0">
@@ -454,7 +454,7 @@ export function BarracksTab() {
             <div className="min-h-[450px] flex flex-col items-center justify-center text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/40 p-8">
               <Sword className="w-12 h-12 text-zinc-600 mb-3 animate-pulse" />
               <h4 className="font-cardo font-bold text-base text-amber-400 mb-1">Barracks Dormitory</h4>
-              <p className="text-xs max-w-sm">Select one of your unlocked citizens from the Unlock Hall sidebar to begin training and view their combat buffs!</p>
+              <p className="text-xs max-w-sm">Select one of your unlocked citizens from the Hall of Champions sidebar to begin training and view their knightly blessings!</p>
             </div>
           ) : (
             (() => {
@@ -534,7 +534,7 @@ export function BarracksTab() {
                             !isSlotted && !isLocked && "bg-emerald-600 hover:bg-emerald-500 text-white"
                           )}
                         >
-                          {isLocked ? "Away 🚀" : isSlotted ? "❌ Remove from Squad" : "🗡️ Slot as Supporter"}
+                          {isLocked ? "Away 🚀" : isSlotted ? "❌ Dismiss from Round Table" : "⚔️ Pledge to Round Table"}
                         </Button>
                       </div>
                     </div>
@@ -560,7 +560,7 @@ export function BarracksTab() {
                         </div>
                         <div className="flex-1">
                           <h5 className="font-bold text-amber-300 text-xs flex items-center gap-1.5 uppercase tracking-wider">
-                            <Award className="w-3.5 h-3.5 text-amber-500" /> Active Combat Skill:
+                            <Award className="w-3.5 h-3.5 text-amber-500" /> Honorary Boon:
                           </h5>
                           <p className="text-xs text-white font-medium mt-0.5">{getPassiveDescription(c)}</p>
                         </div>
@@ -692,12 +692,12 @@ export function BarracksTab() {
                     )}
                     {!isLocked && isSlotted && (
                       <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400 font-bold bg-emerald-950/20 p-2 rounded-lg border border-emerald-500/20">
-                        <Check className="w-3.5 h-3.5" /> Ready for Combat: This citizen is currently in your 2-man support squad!
+                        <Check className="w-3.5 h-3.5" /> Pledged Knight: This citizen is currently at your Round Table!
                       </div>
                     )}
                     {!isLocked && !isSlotted && combatSupporters.length >= 2 && (
                       <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-400 font-bold bg-amber-950/20 p-2 rounded-lg border border-amber-500/20">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Support Squad Full (2/2): Slotting this citizen will replace your oldest squad member.
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Round Table Full (2/2): Pledging this knight will replace your oldest supporter.
                       </div>
                     )}
                   </div>

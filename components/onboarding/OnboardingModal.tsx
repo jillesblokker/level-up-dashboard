@@ -304,15 +304,15 @@ export function OnboardingModal({ isOpen, onClose, onComplete, onSkip }: Onboard
                   className="bg-amber-600 hover:bg-amber-500 text-white border border-amber-500/50 shadow-[0_0_10px_rgba(217,119,6,0.2)]"
                   aria-label="Next step"
                 >
-                  Next Quest
+                  Advance Mandate
                 </Button>
               ) : (
                 <Button
                   onClick={handleComplete}
-                  className="bg-green-700 hover:bg-green-600 text-white border border-green-500/50 shadow-[0_0_10px_rgba(21,128,61,0.3)] animate-pulse"
+                  className="bg-green-700 hover:bg-green-600 text-white border border-green-500/50 shadow-[0_0_10px_rgba(21,128,61,0.3)] animate-pulse font-bold"
                   aria-label="Complete onboarding"
                 >
-                  Enter Kingdom
+                  Enter Your Realm
                 </Button>
               )}
             </div>
