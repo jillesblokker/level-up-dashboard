@@ -144,8 +144,8 @@ export function AirshipHarborTab() {
     if (!user?.id || isLaunching) return;
     if (selectedCrew.length === 0) {
       toast({
-        title: "No Vanguard Appointed",
-        description: "Appoint at least 1 Vanguard Knight to lead your airship voyage.",
+        title: "No Crew Assigned",
+        description: "Please select at least 1 citizen for your airship crew.",
         variant: "destructive"
       });
       return;
@@ -535,7 +535,7 @@ export function AirshipHarborTab() {
 
                 {/* Crew Selection checklists */}
                 <div className="space-y-2.5">
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Appoint Expedition Vanguard (Max 2):</h4>
+                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Assign Voyage Crew (Max 2):</h4>
                   {idleCitizens.length === 0 ? (
                     <p className="text-xs text-zinc-600 leading-normal">
                       No idle citizens in dormitory. Unlock citizens or wait for active airship crews to return!
@@ -584,7 +584,7 @@ export function AirshipHarborTab() {
                       <span className={cn("w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-black font-extrabold", selectedCrew.length > 0 ? "bg-emerald-500" : "bg-red-500")}>
                         {selectedCrew.length > 0 ? "✓" : "✗"}
                       </span>
-                      <span>Appoint Vanguard (Appointed: <strong className="text-amber-500">{selectedCrew.length} / 2</strong> — Select knights from the list above)</span>
+                      <span>Assign Crew (Assigned: <strong className="text-amber-500">{selectedCrew.length} / 2</strong> — Select citizens from the list above)</span>
                     </div>
                   </div>
                 </div>
@@ -602,7 +602,7 @@ export function AirshipHarborTab() {
                       : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                   )}
                 >
-                  {isLaunching ? <>⏳ Prepping Airship Voyage...</> : <>⛵ Unfurl Sails & Launch Expedition</>}
+                  {isLaunching ? <>⏳ Prepping Airship Voyage...</> : <>🚀 Launch Airship Voyage</>}
                 </Button>
               </div>
 

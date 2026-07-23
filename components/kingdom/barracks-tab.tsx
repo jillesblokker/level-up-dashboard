@@ -301,7 +301,7 @@ export function BarracksTab() {
                 Kingdom Military Training Grounds
               </Badge>
               <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
-                🛡️ Round Table: {combatSupporters.length}/2 Knights Pledged
+                🛡️ Round Table: {combatSupporters.length}/2 Members
               </Badge>
             </div>
             <h2 className="font-cardo font-bold text-2xl md:text-3xl text-white flex items-center gap-2">
@@ -534,7 +534,7 @@ export function BarracksTab() {
                             !isSlotted && !isLocked && "bg-emerald-600 hover:bg-emerald-500 text-white"
                           )}
                         >
-                          {isLocked ? "Away 🚀" : isSlotted ? "❌ Dismiss from Round Table" : "⚔️ Pledge to Round Table"}
+                          {isLocked ? "Away 🚀" : isSlotted ? "❌ Remove from Round Table" : "⚔️ Add to Round Table"}
                         </Button>
                       </div>
                     </div>
@@ -560,7 +560,7 @@ export function BarracksTab() {
                         </div>
                         <div className="flex-1">
                           <h5 className="font-bold text-amber-300 text-xs flex items-center gap-1.5 uppercase tracking-wider">
-                            <Award className="w-3.5 h-3.5 text-amber-500" /> Honorary Boon:
+                            <Award className="w-3.5 h-3.5 text-amber-500" /> Combat Support Skill:
                           </h5>
                           <p className="text-xs text-white font-medium mt-0.5">{getPassiveDescription(c)}</p>
                         </div>
@@ -692,12 +692,12 @@ export function BarracksTab() {
                     )}
                     {!isLocked && isSlotted && (
                       <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400 font-bold bg-emerald-950/20 p-2 rounded-lg border border-emerald-500/20">
-                        <Check className="w-3.5 h-3.5" /> Pledged Knight: This citizen is currently at your Round Table!
+                        <Check className="w-3.5 h-3.5" /> Added: This citizen is in your Round Table!
                       </div>
                     )}
                     {!isLocked && !isSlotted && combatSupporters.length >= 2 && (
                       <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-400 font-bold bg-amber-950/20 p-2 rounded-lg border border-amber-500/20">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Round Table Full (2/2): Pledging this knight will replace your oldest supporter.
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Round Table Full (2/2): Adding this citizen will replace your oldest member.
                       </div>
                     )}
                   </div>
