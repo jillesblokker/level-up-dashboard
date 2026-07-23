@@ -3,26 +3,28 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Shield, Play, Palette, Bell, HeartPulse, Gamepad2 } from "lucide-react"
+import { ArrowLeft, Save, User, Shield, Play, Palette, Bell, HeartPulse, Gamepad2, LogOut, KeyRound, Trash2, AlertTriangle, ShieldCheck } from "lucide-react"
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager"
 import Link from "next/link"
-// import { useSession, signIn, signOut } from "next-auth/react"
+import { useClerk, useUser } from "@clerk/nextjs"
 import { Switch } from "@/components/ui/switch"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { NavBar } from "@/components/nav-bar"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
-import { useOnboarding } from "@/hooks/use-onboarding"
 
 
 export default function SettingsPage() {
-  // const { data: session } = useSession()
+  const { user } = useUser()
+  const { signOut, openUserProfile } = useClerk()
+  const [deleteConfirmText, setDeleteConfirmText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
     experience: 0,
@@ -69,7 +71,6 @@ export default function SettingsPage() {
         setEmail(savedEmail)
       }
 
-      // Check if user is connected to GitHub (placeholder for now)
       setIsGithubConnected(false)
 
       // Load Day/Night preference
@@ -139,11 +140,8 @@ export default function SettingsPage() {
     }
   }, [])
 
-  // Removed aggressive polling that reloaded the page every 5 seconds and disrupted typing/editing settings.
-
   const handleSaveProfile = () => {
     try {
-      // Save to localStorage
       localStorage.setItem("character-name", userName)
       localStorage.setItem("user-email", email)
 
@@ -161,15 +159,72 @@ export default function SettingsPage() {
     }
   }
 
-
-
   const handleGithubToggle = async (checked: boolean) => {
     if (checked) {
       // Connect to GitHub
-      // await signIn("github", { callbackUrl: "/settings" })
     } else {
       // Disconnect from GitHub
-      // await signOut({ callbackUrl: "/settings" })
+    }
+  }
+
+  const handleSignOut = async () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("skip-auth")
+    }
+    if (typeof document !== "undefined") {
+      document.cookie = "skip-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    }
+    try {
+      await signOut()
+    } catch (e) {
+      logger.error("Signout error:", e)
+    }
+    window.location.href = "/auth/signin"
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") {
+      toast({
+        title: "Confirmation Required",
+        description: "Please type DELETE to confirm account deletion.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      setIsDeleting(true)
+      const response = await fetch('/api/user/delete-account', {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete account')
+      }
+
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+      }
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account and all associated kingdom data have been permanently removed.",
+      })
+
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 1500)
+
+    } catch (error) {
+      logger.error("Error deleting account:", error)
+      toast({
+        title: "Deletion Failed",
+        description: error instanceof Error ? error.message : "Failed to delete account.",
+        variant: "destructive"
+      })
+      setIsDeleting(false)
     }
   }
 
@@ -286,7 +341,7 @@ export default function SettingsPage() {
                       Sanctuary Mode
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
-                      Activate this when you are sick, on vacation, or need a break. It freezes all your streaks and prevents negative consequences (like Chaos Rifts) for missing habits.
+                      Activate this when you are sick, on vacation, or need a break. It freezes all your streaks and prevents negative consequences for missing habits.
                     </p>
                   </div>
                   <Switch
@@ -331,7 +386,6 @@ export default function SettingsPage() {
                       localStorage.setItem("day-night-cycle-enabled", checked.toString())
                       setUserPreference("day-night-cycle-enabled", checked)
 
-                      // Dispatch event for components to react
                       window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }))
 
                       toast({
@@ -349,7 +403,7 @@ export default function SettingsPage() {
                       Mute Gold Collection Alerts
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
-                      Mute toast alerts for minor gold collections (harvesting tiles, citizen gathering, and animals) to reduce notifications clutter. Milestone alerts will still show.
+                      Mute toast alerts for minor gold collections (harvesting tiles, citizen gathering, and animals).
                     </p>
                   </div>
                   <Switch
@@ -376,7 +430,7 @@ export default function SettingsPage() {
                       Mute XP Collection Alerts
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
-                      Mute toast alerts for minor experience gains (building activities, event actions, etc.) to reduce screen clutter. Milestone level-ups will still display.
+                      Mute toast alerts for minor experience gains (building activities, event actions, etc.).
                     </p>
                   </div>
                   <Switch
@@ -403,7 +457,7 @@ export default function SettingsPage() {
                       Mute Quest/Task Actions Alerts
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
-                      Mute toast alerts for quest steps or minor task completions. Major achievements and tier transitions will still notify.
+                      Mute toast alerts for quest steps or minor task completions.
                     </p>
                   </div>
                   <Switch
@@ -427,35 +481,123 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="account" className="space-y-6">
+            {/* Account Details Card */}
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-white flex items-center gap-2">
+                  <User className="w-5 h-5 text-amber-500" />
+                  Account Information
+                </CardTitle>
+                <CardDescription className="text-zinc-400">View and manage your login security settings.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="p-3.5 bg-zinc-900/90 rounded-lg border border-amber-800/10 space-y-1">
+                    <span className="text-xs text-zinc-400 font-medium">Email Address</span>
+                    <p className="font-mono text-white text-base">{user?.primaryEmailAddress?.emailAddress || email || "Guest User"}</p>
+                  </div>
+                  <div className="p-3.5 bg-zinc-900/90 rounded-lg border border-amber-800/10 space-y-1">
+                    <span className="text-xs text-zinc-400 font-medium">User ID / Username</span>
+                    <p className="font-mono text-white text-base">{user?.username || user?.id || "N/A"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
+            {/* Security & Password Reset Card */}
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-white flex items-center gap-2">
+                  <KeyRound className="w-5 h-5 text-amber-500" />
+                  Password & Security
+                </CardTitle>
+                <CardDescription className="text-zinc-400">Change your password or manage multi-factor authentication.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-zinc-300">
+                  You can change your password, update security questions, or manage your email subscriptions directly through your account security portal.
+                </p>
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <Button
+                    onClick={() => openUserProfile ? openUserProfile() : (window.location.href = "/sign-in")}
+                    className="bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-600/40 font-bold"
+                  >
+                    <ShieldCheck className="w-4 h-4 mr-2" />
+                    Manage Password & Security
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Session & Logout Card */}
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-white flex items-center gap-2">
+                  <LogOut className="w-5 h-5 text-amber-500" />
+                  Account Session
+                </CardTitle>
+                <CardDescription className="text-zinc-400">Sign out of your active session on this device.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm text-zinc-300">Logged in as <span className="font-bold text-amber-400">{user?.primaryEmailAddress?.emailAddress || userName || "Adventurer"}</span></p>
+                  <p className="text-xs text-zinc-400">Signing out will require you to log back in to access your kingdom.</p>
+                </div>
+                <Button
+                  onClick={handleSignOut}
+                  variant="destructive"
+                  className="bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-500/40 font-bold"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Danger Zone: Delete Account */}
+            <Card className="bg-gradient-to-b from-red-950/20 via-black to-zinc-950 border-red-900/50 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-red-400 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                  Danger Zone: Permanent Account Deletion
+                </CardTitle>
+                <CardDescription className="text-red-300/80">
+                  Permanently wipe your account, hero stats, inventory, tiles, and kingdom data.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-lg bg-red-950/40 border border-red-800/40 text-xs text-red-200 space-y-2">
+                  <p className="font-bold text-sm">⚠️ Warning: This action cannot be undone!</p>
+                  <p>Deleting your account will permanently purge all your character levels, custom quests, kingdom tiles, resources, items, and streak records from our databases.</p>
+                </div>
+
+                <div className="space-y-2 max-w-md pt-2">
+                  <Label htmlFor="delete-confirm" className="text-xs text-zinc-300">
+                    Type <span className="font-bold text-red-400">DELETE</span> to confirm:
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="delete-confirm"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="DELETE"
+                      className="bg-zinc-950 border-red-900/50 text-red-200 uppercase font-mono"
+                    />
+                    <Button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteConfirmText !== "DELETE" || isDeleting}
+                      variant="destructive"
+                      className="bg-red-700 hover:bg-red-600 text-white font-bold shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1.5" />
+                      {isDeleting ? "Deleting..." : "Delete Account"}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
-
-        <Card className="p-6 mt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold">{TEXT_CONTENT.settings.account.github.title}</h2>
-              <p className="text-zinc-500">
-                {isGithubConnected
-                  ? TEXT_CONTENT.settings.account.github.connected
-                  : TEXT_CONTENT.settings.account.github.disconnected}
-              </p>
-            </div>
-
-            <Switch
-              checked={isGithubConnected}
-              onCheckedChange={handleGithubToggle}
-              className="ml-4"
-            />
-          </div>
-
-          {isGithubConnected && (
-            <div className="mt-4 p-4 bg-zinc-100 rounded-lg">
-              <p className="font-medium">{TEXT_CONTENT.settings.account.github.userInfo}</p>
-              <p className="text-sm text-zinc-600">user@example.com</p>
-            </div>
-          )}
-        </Card>
       </main>
     </div>
   )
