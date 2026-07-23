@@ -18,7 +18,9 @@ import {
   getTypeColor,
   getHabitElementMapping,
   getEnemyTelegraphAction,
-  getElementalComboBuff
+  getElementalComboBuff,
+  getSignatureMoveForLevel,
+  calculateSmartEnemyAction
 } from './game-logic';
 import { useAuth } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
@@ -451,7 +453,7 @@ export default function DungeonPage() {
     }
   };
 
-  const fight = (actionType: 'strike' | 'elemental' | 'counter' = 'strike') => {
+  const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' = 'strike') => {
     if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
 
     const enemyId = run.currentEncounter.creatureId || '001';
@@ -492,7 +494,18 @@ export default function DungeonPage() {
     const isPlayerDodge = Math.random() < Math.max(0, Math.min(0.4, (playerSpd - enemySpd) * 0.02));
     const isEnemyCrit = Math.random() < 0.05;
 
-    if (actionType === 'elemental') {
+    if (actionType === 'signature') {
+      const sigMove = getSignatureMoveForLevel(activeFighter.type, activeFighter.level || Math.max(1, run.currentRoom * 2));
+      playerCritChance += 0.35; // +35% Crit bonus for signature move
+      isPlayerCrit = Math.random() < playerCritChance;
+      enemyDefStat = Math.floor(enemyDefStat * 0.6); // Ignores 40% enemy armor
+      playerAtk = Math.floor(playerAtk * sigMove.multiplier);
+      const critMult = isPlayerCrit ? 1.8 : 1.0;
+      playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.3)));
+
+      logEntries.push(`🔱 ${activeFighter.name} unleashes Tier Skill ${sigMove.emoji} ${sigMove.name}! ${isPlayerCrit ? '💥 CRITICAL OVERLORD!' : ''}`);
+      logEntries.push(`Dealt ${playerFinalDmg} ${activeFighter.type} signature damage to ${enemyDef.name}! ${playerTypeMult > 1 ? '🔥 Super Effective!' : ''}`);
+    } else if (actionType === 'elemental') {
       const spell = getElementalSpell(activeFighter.type);
       playerCritChance += 0.25; // +25% Crit bonus
       isPlayerCrit = Math.random() < playerCritChance;
@@ -519,24 +532,32 @@ export default function DungeonPage() {
 
     const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - playerFinalDmg);
 
-    // Enemy Retaliation
+    // Smart Enemy Retaliation
     if (newMonsterHp > 0) {
       if (isPlayerDodge) {
         logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
       } else {
+        const smartAI = calculateSmartEnemyAction(
+          enemyLevel,
+          enemyDef.type,
+          activeFighter.hp,
+          activeFighter.maxHp,
+          battleLog.length + 1,
+          activeFighter.type
+        );
         const enemyCritMult = isEnemyCrit ? 1.5 : 1.0;
-        let rawEnemyDmg = Math.max(1, Math.floor((enemyAtk * enemyTypeMult * enemyCritMult) - (playerDef * 0.4)));
+        let rawEnemyDmg = Math.max(1, Math.floor((enemyAtk * smartAI.multiplier * enemyTypeMult * enemyCritMult) - (playerDef * 0.4)));
         
         if (actionType === 'counter') {
           // Counter Guard mitigates 60% incoming damage and ripostes 120% back!
           enemyFinalDmg = Math.max(1, Math.floor(rawEnemyDmg * 0.4));
           const riposteDmg = Math.max(1, Math.floor(enemyAtk * 1.2));
-          logEntries.push(`🛡️ Counter Guard absorbed 60% damage! Taking only ${enemyFinalDmg} damage.`);
+          logEntries.push(`🛡️ Counter Guard absorbed 60% damage from ${smartAI.moveName}! Taking only ${enemyFinalDmg} damage.`);
           logEntries.push(`⚡ RIPOSTE COUNTER! You hit ${enemyDef.name} back for ${riposteDmg} counter damage!`);
         } else {
           enemyFinalDmg = rawEnemyDmg;
-          if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT for ${enemyFinalDmg}!`);
-          else logEntries.push(`${enemyDef.name} hit you for ${enemyFinalDmg} damage. ${enemyTypeMult > 1 ? '💔' : ''}`);
+          if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT with ${smartAI.moveName} for ${enemyFinalDmg}!`);
+          else logEntries.push(`${enemyDef.name} executed ${smartAI.moveName} for ${enemyFinalDmg} damage. ${enemyTypeMult > 1 ? '💔' : ''}`);
         }
       }
     } else {
@@ -1246,7 +1267,7 @@ export default function DungeonPage() {
                             <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">
                               Choose Combat Action
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
                               
                               {/* Choice 1: Heavy Strike */}
                               <Button
@@ -1268,7 +1289,23 @@ export default function DungeonPage() {
                                 <span className="text-[9px] text-amber-200 opacity-80">{activeSpell.desc}</span>
                               </Button>
 
-                              {/* Choice 3: Counter Guard */}
+                              {/* Choice 3: Signature Tier Move (Every 10 levels) */}
+                              {(() => {
+                                const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2));
+                                return (
+                                  <Button
+                                    onClick={() => fight('signature')}
+                                    className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 hover:from-purple-600 hover:to-purple-800 border border-purple-400/40 rounded-xl shadow-lg transition-all active:scale-95"
+                                  >
+                                    <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                                      {sigMove.emoji} {sigMove.name}
+                                    </span>
+                                    <span className="text-[9px] text-purple-200 opacity-90">{sigMove.multiplier}x Dmg (Lvl {sigMove.unlockedAtLevel}+)</span>
+                                  </Button>
+                                );
+                              })()}
+
+                              {/* Choice 4: Counter Guard */}
                               <Button
                                 onClick={() => fight('counter')}
                                 className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 border border-blue-400/40 rounded-xl shadow-lg transition-all active:scale-95"

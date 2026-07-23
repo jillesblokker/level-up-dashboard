@@ -168,3 +168,123 @@ export function getElementalComboBuff(activeType: CreatureType, benchTypes: Crea
     }
     return null;
 }
+
+export interface SignatureMove {
+    name: string;
+    emoji: string;
+    multiplier: number;
+    unlockedAtLevel: number;
+    description: string;
+}
+
+export function getSignatureMoveForLevel(type: CreatureType, level: number = 1): SignatureMove {
+    if (level >= 100) {
+        switch (type) {
+            case 'Fire': return { name: 'God-King Pyre', emoji: '🔱🔥', multiplier: 3.2, unlockedAtLevel: 100, description: 'Unleashes divine cataclysmic fire.' };
+            case 'Water': return { name: 'Oceanic Overlord Strike', emoji: '🔱💧', multiplier: 3.2, unlockedAtLevel: 100, description: 'Summons tidal obliteration.' };
+            case 'Grass': return { name: 'Primordial Gaia Wrath', emoji: '🔱🍃', multiplier: 3.2, unlockedAtLevel: 100, description: 'Crushes with primordial nature energy.' };
+            case 'Rock': return { name: 'Titan Core Rupture', emoji: '🔱🪨', multiplier: 3.2, unlockedAtLevel: 100, description: 'Shatters tectonic core for heavy damage.' };
+            case 'Ice': return { name: 'Ragnarok Frost Realm', emoji: '🔱❄️', multiplier: 3.2, unlockedAtLevel: 100, description: 'Freezes spacetime into absolute zero.' };
+        }
+    }
+    if (level >= 50) {
+        switch (type) {
+            case 'Fire': return { name: 'Solar Flare Nova', emoji: '☀️', multiplier: 2.5, unlockedAtLevel: 50, description: 'Blasts enemy with concentrated solar beam.' };
+            case 'Water': return { name: 'Leviathan Torrent', emoji: '🐋', multiplier: 2.5, unlockedAtLevel: 50, description: 'Crushes target in abyssal whirlpool.' };
+            case 'Grass': return { name: 'Yggdrasil Bloom', emoji: '🌺', multiplier: 2.5, unlockedAtLevel: 50, description: 'Bursts with world-tree essence.' };
+            case 'Rock': return { name: 'Adamantine Rupture', emoji: '💎', multiplier: 2.5, unlockedAtLevel: 50, description: 'Pierces through all defenses.' };
+            case 'Ice': return { name: 'Absolute Zero Shatter', emoji: '🌌', multiplier: 2.5, unlockedAtLevel: 50, description: 'Deep freezes target armor.' };
+        }
+    }
+    if (level >= 30) {
+        switch (type) {
+            case 'Fire': return { name: 'Inferno Cataclysm', emoji: '☄️', multiplier: 2.0, unlockedAtLevel: 30, description: 'Rain of molten meteors.' };
+            case 'Water': return { name: 'Abyssal Maelstrom', emoji: '🌀', multiplier: 2.0, unlockedAtLevel: 30, description: 'Vortex of deep sea currents.' };
+            case 'Grass': return { name: 'Ancient Timber Smash', emoji: '🌲', multiplier: 2.0, unlockedAtLevel: 30, description: 'Crushes with ancient trunk strikes.' };
+            case 'Rock': return { name: 'Tectonic Avalanche', emoji: '🌋', multiplier: 2.0, unlockedAtLevel: 30, description: 'Quake that causes rockslides.' };
+            case 'Ice': return { name: 'Glacial Avalanche', emoji: '🌨️', multiplier: 2.0, unlockedAtLevel: 30, description: 'Piercing ice spears.' };
+        }
+    }
+    if (level >= 20) {
+        switch (type) {
+            case 'Fire': return { name: 'Ember Blast', emoji: '🌋', multiplier: 1.6, unlockedAtLevel: 20, description: 'Explosive ember wave.' };
+            case 'Water': return { name: 'Tidal Surge', emoji: '🌊', multiplier: 1.6, unlockedAtLevel: 20, description: 'Crashing tidal wave.' };
+            case 'Grass': return { name: 'Thorn Barrage', emoji: '🌿', multiplier: 1.6, unlockedAtLevel: 20, description: 'Volley of razor thorns.' };
+            case 'Rock': return { name: 'Seismic Fracture', emoji: '⛰️', multiplier: 1.6, unlockedAtLevel: 20, description: 'Ground splitting shockwave.' };
+            case 'Ice': return { name: 'Blizzard Nova', emoji: '🧊', multiplier: 1.6, unlockedAtLevel: 20, description: 'Swirling freezing blizzard.' };
+        }
+    }
+    if (level >= 10) {
+        switch (type) {
+            case 'Fire': return { name: 'Flame Lash', emoji: '🔥', multiplier: 1.3, unlockedAtLevel: 10, description: 'Whip of scorching flames.' };
+            case 'Water': return { name: 'Aqua Spike', emoji: '💧', multiplier: 1.3, unlockedAtLevel: 10, description: 'Pressurized water needle.' };
+            case 'Grass': return { name: 'Vine Whip', emoji: '🍃', multiplier: 1.3, unlockedAtLevel: 10, description: 'Swift whip attack.' };
+            case 'Rock': return { name: 'Boulderdash', emoji: '🪨', multiplier: 1.3, unlockedAtLevel: 10, description: 'Heavy rolling stone impact.' };
+            case 'Ice': return { name: 'Frost Shard', emoji: '❄️', multiplier: 1.3, unlockedAtLevel: 10, description: 'Sharp icicle burst.' };
+        }
+    }
+
+    // Default Level 1-9 Move
+    switch (type) {
+        case 'Fire': return { name: 'Spark Touch', emoji: '🔥', multiplier: 1.1, unlockedAtLevel: 1, description: 'Basic fire ember strike.' };
+        case 'Water': return { name: 'Splash Impact', emoji: '💧', multiplier: 1.1, unlockedAtLevel: 1, description: 'Basic water burst.' };
+        case 'Grass': return { name: 'Leaf Flick', emoji: '🍃', multiplier: 1.1, unlockedAtLevel: 1, description: 'Basic leaf strike.' };
+        case 'Rock': return { name: 'Pebble Toss', emoji: '🪨', multiplier: 1.1, unlockedAtLevel: 1, description: 'Basic rock throwing.' };
+        case 'Ice': return { name: 'Chilling Gust', emoji: '❄️', multiplier: 1.1, unlockedAtLevel: 1, description: 'Basic cold gust.' };
+    }
+}
+
+export function calculateSmartEnemyAction(
+    enemyLevel: number,
+    enemyType: CreatureType,
+    playerHp: number,
+    playerMaxHp: number,
+    turnCount: number,
+    playerElement: CreatureType
+): { actionType: 'strike' | 'elemental' | 'signature' | 'guard'; moveName: string; multiplier: number } {
+    const signatureMove = getSignatureMoveForLevel(enemyType, enemyLevel);
+    const matchup = getMatchupMultiplier(enemyType, playerElement);
+
+    // 1. Low Level AI (Levels 1 - 15): Simple & predictable
+    if (enemyLevel < 16) {
+        if (turnCount % 3 === 0 && enemyLevel >= 10) {
+            return { actionType: 'signature', moveName: signatureMove.name, multiplier: signatureMove.multiplier };
+        }
+        if (Math.random() < 0.25) {
+            return { actionType: 'elemental', moveName: `${enemyType} Blast`, multiplier: 1.4 };
+        }
+        return { actionType: 'strike', moveName: 'Heavy Strike', multiplier: 1.0 };
+    }
+
+    // 2. Mid Level AI (Levels 16 - 49): Tactical awareness
+    if (enemyLevel < 50) {
+        if (turnCount % 2 === 0) {
+            return { actionType: 'signature', moveName: signatureMove.name, multiplier: signatureMove.multiplier };
+        }
+        const playerAdvantage = getMatchupMultiplier(playerElement, enemyType) > 1;
+        if (playerAdvantage && Math.random() < 0.4) {
+            return { actionType: 'guard', moveName: 'Counter Guard Stance', multiplier: 0.8 };
+        }
+        if (matchup > 1) {
+            return { actionType: 'elemental', moveName: `Super Effective ${enemyType} Burst`, multiplier: 1.8 };
+        }
+        return { actionType: 'strike', moveName: 'Heavy Strike', multiplier: 1.2 };
+    }
+
+    // 3. High Level & Boss AI (Levels 50 - 100+): Master Class
+    const playerLowHp = (playerHp / playerMaxHp) < 0.35;
+    if (playerLowHp) {
+        return { actionType: 'signature', moveName: `🔥 EXECUTION: ${signatureMove.name}`, multiplier: signatureMove.multiplier * 1.2 };
+    }
+
+    if (turnCount % 2 === 1) {
+        return { actionType: 'signature', moveName: signatureMove.name, multiplier: signatureMove.multiplier };
+    }
+
+    const playerAdvantage = getMatchupMultiplier(playerElement, enemyType) > 1;
+    if (playerAdvantage && Math.random() < 0.6) {
+        return { actionType: 'guard', moveName: '🛡️ Master Counter Guard', multiplier: 0.6 };
+    }
+
+    return { actionType: 'elemental', moveName: `🌌 Master ${enemyType} Surge`, multiplier: 2.0 };
+}
