@@ -20,7 +20,9 @@ import {
   getEnemyTelegraphAction,
   getElementalComboBuff,
   getSignatureMoveForLevel,
-  calculateSmartEnemyAction
+  calculateSmartEnemyAction,
+  getDailyDungeonBounties,
+  DungeonBounty
 } from './game-logic';
 import { useAuth } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
@@ -963,6 +965,38 @@ export default function DungeonPage() {
             <span className="font-bold text-emerald-400">
               {Object.entries(elementBuffs).filter(([, count]) => count > 0).map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`).join(' ') || '0 Completed Today'}
             </span>
+          </div>
+        </div>
+
+        {/* Daily Dungeon Bounty Board */}
+        <div className="bg-gradient-to-r from-purple-950/40 via-zinc-950/90 to-purple-950/40 border border-purple-500/30 p-4 rounded-2xl shadow-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🎯</span>
+              <h3 className="text-sm font-serif font-bold text-purple-300 uppercase tracking-wider">Daily Dungeon Bounty Board</h3>
+            </div>
+            <Badge variant="outline" className="border-purple-500/40 text-purple-200 text-[10px] font-bold">
+              3 Active Bounties
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {getDailyDungeonBounties().map(bounty => (
+              <div key={bounty.id} className="bg-zinc-950/80 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
+                <div>
+                  <div className="flex items-center justify-between font-bold text-amber-300">
+                    <span>{bounty.title}</span>
+                    <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono">
+                      {getTypeEmoji(bounty.targetType)} {bounty.targetType}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 mt-1 leading-snug">{bounty.description}</p>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
+                  <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} Gems</span>
+                  <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} Gold</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

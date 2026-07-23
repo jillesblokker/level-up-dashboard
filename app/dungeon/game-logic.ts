@@ -288,3 +288,45 @@ export function calculateSmartEnemyAction(
 
     return { actionType: 'elemental', moveName: `🌌 Master ${enemyType} Surge`, multiplier: 2.0 };
 }
+
+export interface DungeonBounty {
+    id: string;
+    title: string;
+    targetType: CreatureType;
+    requiredKills: number;
+    rewardGems: number;
+    rewardGold: number;
+    description: string;
+}
+
+export function getDailyDungeonBounties(): DungeonBounty[] {
+    return [
+        {
+            id: 'bounty-fire',
+            title: 'Flame Fiend Hunt',
+            targetType: 'Fire',
+            requiredKills: 2,
+            rewardGems: 25,
+            rewardGold: 300,
+            description: 'Vanquish 2 Fire Element monsters in the Dungeon Keep.'
+        },
+        {
+            id: 'bounty-water',
+            title: 'Tidal Beast Extraction',
+            targetType: 'Water',
+            requiredKills: 2,
+            rewardGems: 25,
+            rewardGold: 300,
+            description: 'Defeat 2 Water Element monsters to restore coastal trade routes.'
+        },
+        {
+            id: 'bounty-rock',
+            title: 'Tectonic Titan Suppression',
+            targetType: 'Rock',
+            requiredKills: 2,
+            rewardGems: 30,
+            rewardGold: 400,
+            description: 'Quell 2 Rock Guardians to clear the deep mine caverns.'
+        }
+    ];
+}
