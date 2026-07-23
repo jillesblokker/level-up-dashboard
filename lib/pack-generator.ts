@@ -95,6 +95,26 @@ export const CARD_TYPES = [
 export const VARIANTS_PER_CARD = 5;
 export const CARD_BY_NUMBER = new Map(CARD_TYPES.map((card) => [card.number, card]));
 
+export const MYTHIC_CREATURE_NAMES: Record<number, string> = {
+  1: 'Minotaur',
+  2: 'Cyclops',
+  3: 'Gryphon',
+  4: 'Kraken',
+  5: 'Wyvern',
+  6: 'Chimera',
+  7: 'Behemoth',
+  8: 'Hydra',
+  9: 'Phoenix',
+  10: 'Leviathan',
+};
+
+export function getMythicName(cardId: number, variantIndex: number = 0): string {
+  const colors = ['Red', 'Green', 'Blue', 'White', 'Black'];
+  const color = colors[variantIndex] || 'Red';
+  const creatureName = MYTHIC_CREATURE_NAMES[cardId] || 'Beast';
+  return `[${color}] ${creatureName}`;
+}
+
 export function variantLabel(number: number, variantIndex: number) {
     const colors = ['Red', 'Green', 'Blue', 'White', 'Black'];
     return colors[variantIndex] ? `${colors[variantIndex]} Edition` : 'Unknown Variant';

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { CREATURE_DEFINITIONS, CreatureDefinition } from '@/lib/creature-mapping';
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
-import { CARD_TYPES, variantLabel } from '@/lib/pack-generator';
+import { CARD_TYPES, variantLabel, getMythicName } from '@/lib/pack-generator';
 import { getInventory, removeFromInventory, addToInventory } from '@/lib/inventory-manager';
 import { gainGold } from '@/lib/gold-manager';
 import { loadTileInventory, saveTileInventory } from '@/lib/data-loaders';
@@ -306,7 +306,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
         updatedCitizens.push({
           id: citizenId,
-          name: `${cardDef.rarity} #${cardId} (${colorName})`,
+          name: getMythicName(cardId, variantId),
           filename: `Mythic${cardId}${colorName}.png`,
           type: getMythicType(cardId),
           greetings: [
