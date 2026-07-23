@@ -11,6 +11,7 @@ const SOUNDS = {
 class AudioManager {
   private isMuted: boolean = false;
   private audioContext: AudioContext | null = null;
+  private isUnlocked: boolean = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -18,7 +19,27 @@ class AudioManager {
       if (saved !== null) {
         this.isMuted = saved === 'true';
       }
+      this.attachUnlockListeners();
     }
+  }
+
+  private attachUnlockListeners() {
+    if (typeof window === 'undefined') return;
+    const unlock = () => {
+      if (this.isUnlocked) return;
+      this.initContext();
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          this.isUnlocked = true;
+        }).catch(() => {});
+      } else {
+        this.isUnlocked = true;
+      }
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('click', unlock);
+    };
+    window.addEventListener('touchstart', unlock, { passive: true });
+    window.addEventListener('click', unlock, { passive: true });
   }
 
   private initContext() {
@@ -27,6 +48,9 @@ class AudioManager {
       if (AudioContextClass) {
         this.audioContext = new AudioContextClass();
       }
+    }
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      this.audioContext.resume().catch(() => {});
     }
   }
 
@@ -94,6 +118,20 @@ class AudioManager {
     setTimeout(() => {
       this.playTone(1800, 'sine', 0.15, 0.1);
     }, 50);
+  }
+
+  public playLevelUp() {
+    // An ascending arpeggio fanfare
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.audioContext) return;
+
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, idx) => {
+      setTimeout(() => {
+        this.playTone(freq, 'triangle', 0.25, 0.12);
+      }, idx * 90);
+    });
   }
 }
 
