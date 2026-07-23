@@ -825,63 +825,58 @@ export default function DungeonPage() {
   // 3. MAIN GAME SCREEN
   const enemyId = run.currentEncounter.creatureId || '001';
   const enemyDef = CREATURE_DATA[enemyId];
+  const enemyLevel = Math.max(1, run.currentRoom * 2);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-950 p-4 text-white font-sans">
-      <div className="max-w-4xl mx-auto space-y-6">
-
-        {/* Header Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Room Info */}
-          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-700 ">
-            <div className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-1">Location</div>
-            <div className="text-2xl font-black flex items-center gap-2">
-              <span>Room {run.currentRoom}</span>
-              <span className="text-zinc-600">/</span>
-              <span className="text-zinc-500">{run.maxRooms}</span>
-            </div>
-            <div className="mt-2 text-sm text-yellow-500 font-medium">
-              💰 Loot Found: {run.lootCollected.length}
-            </div>
-          </div>
-
-          {/* Team HP (Summed health of all survivors) */}
-          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-700 ">
-            <div className="flex justify-between items-end mb-2">
-              <div className="text-zinc-400 text-xs font-bold uppercase tracking-wider">Team Health</div>
-              <div className={`font-mono font-bold ${totalTeamHp < (totalTeamMaxHp * 0.3) ? 'text-red-500' : 'text-green-400'}`}>
-                {totalTeamHp} / {totalTeamMaxHp}
-              </div>
-            </div>
-            <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-3 bg-zinc-700" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-green-500'} />
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-[#0b0d10] to-black p-4 sm:p-6 lg:p-8 text-white font-sans">
+      <div className="max-w-6xl mx-auto space-y-6">
 
         {/* Status Message */}
         {message && (
-          <div className="bg-gradient-to-r from-blue-900/40 to-zinc-900/40 border border-blue-500/30 p-3 rounded-lg text-center text-blue-200 text-sm font-medium animate-in fade-in slide-in-from-top-2">
+          <div className="bg-gradient-to-r from-blue-900/40 via-amber-950/40 to-zinc-900/40 border border-amber-500/30 p-3.5 rounded-xl text-center text-amber-200 text-xs font-bold animate-in fade-in slide-in-from-top-2 shadow-lg">
             {message}
           </div>
         )}
 
-        {/* Main Encounter Area */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[400px]">
+        {/* TOP SECTION: BATTLE ARENA (Enemy Showcase & Deploy Fighter Side-by-Side) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-          {/* LEFT: Enemy / Target */}
-          <div className="flex flex-col items-center justify-center p-6 bg-zinc-900/30 rounded-2xl border border-zinc-800/50">
+          {/* LEFT: ENEMY SHOWCASE */}
+          <div className="lg:col-span-5 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between items-center relative overflow-hidden min-h-[420px]">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
+
             {run.currentEncounter.type === 'monster' && enemyDef ? (
-              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full max-w-sm">
-                <div className="relative group w-full flex justify-center">
+              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-4">
+                
+                {/* Header Badge Row */}
+                <div className="flex items-center justify-between w-full border-b border-white/5 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-red-950/80 text-red-400 border border-red-500/40 text-[10px] font-extrabold uppercase px-2.5 py-0.5">
+                      Lv. {enemyLevel} Monster
+                    </Badge>
+                    <span className="text-xs font-bold text-zinc-300">{enemyDef.name}</span>
+                  </div>
+                  <span className="text-lg">{getTypeEmoji(enemyDef.type)}</span>
+                </div>
+
+                {/* Creature Card Frame */}
+                <div className="relative group w-full flex justify-center pt-2">
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
-                  <div className={`relative w-full max-w-[285px] aspect-[3/4] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col p-5 justify-between`}>
-                    <div className="absolute top-0 right-0 p-3 bg-zinc-950 rounded-bl-2xl text-2xl filter drop-shadow-lg z-20">
+                  <div className={`relative w-full max-w-[260px] aspect-[3/4] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col p-4 justify-between`}>
+                    
+                    {/* Level badge overlay */}
+                    <div className="absolute top-2 left-2 z-20">
+                      <span className="text-[10px] text-red-300 font-extrabold bg-red-950/90 px-2 py-0.5 rounded border border-red-500/40 shadow">
+                        Lv.{enemyLevel}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-2 right-2 p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg z-20">
                       {getTypeEmoji(enemyDef.type)}
                     </div>
 
-
-
-                    {/* Creature Image (Achievement-card style) */}
-                    <div className="relative w-full flex-1 my-3 flex items-center justify-center">
+                    {/* Creature Image */}
+                    <div className="relative w-full flex-1 my-2 flex items-center justify-center">
                       <Image
                         src={`/images/creatures/${enemyId}.png`}
                         alt={enemyDef.name}
@@ -891,7 +886,7 @@ export default function DungeonPage() {
                       />
                     </div>
 
-                    <div className="space-y-2.5 z-10 w-full">
+                    <div className="space-y-2 z-10 w-full">
                       <div className="space-y-1">
                         <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
                           <span>HP</span>
@@ -914,69 +909,47 @@ export default function DungeonPage() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-6 text-zinc-500 font-bold text-lg tracking-widest">ENEMY</div>
+
+                <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest pt-1">
+                  ⚔️ TARGET ENEMY (Room {run.currentRoom})
+                </div>
               </div>
             ) : (
-              <div className="text-center">
-                <div className="text-8xl mb-4 animate-bounce">📦</div>
-                <h3 className="text-2xl font-bold text-amber-400 mb-2">Treasure Room!</h3>
-                <p className="text-zinc-400 mb-6">A reward for your bravery.</p>
-                <Button onClick={openTreasure} size="lg" className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-8">
+              <div className="text-center my-auto space-y-4">
+                <div className="text-7xl animate-bounce">📦</div>
+                <h3 className="text-2xl font-bold text-amber-400">Treasure Vault Room!</h3>
+                <p className="text-xs text-zinc-400 max-w-xs">A chest filled with gold and rare dungeon materials!</p>
+                <Button onClick={openTreasure} size="lg" className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-8 py-5 rounded-xl shadow-lg">
                   Open Chest
                 </Button>
               </div>
             )}
           </div>
 
-          <div className="flex flex-col gap-6 order-1 md:order-2 w-full">
-            {/* Combat Log */}
-            <div className="flex-none bg-zinc-950 rounded-xl border border-zinc-800 p-4 h-[220px] flex flex-col shadow-inner relative z-10 w-full">
-              <div className="flex justify-between items-center mb-2 flex-none">
-                <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Battle Log</h4>
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500/20"></span>
-                  <span className="w-2 h-2 rounded-full bg-red-500/20"></span>
-                  <span className="w-2 h-2 rounded-full bg-blue-500/20"></span>
-                </div>
-              </div>
+          {/* RIGHT: DEPLOY FIGHTER & CONTROLS */}
+          <div className="lg:col-span-7 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[420px]">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
 
-              <ScrollArea className="flex-1 w-full rounded-md bg-zinc-950 border border-white/5 mx-[-4px] sm:mx-0">
-                <div className="p-3 space-y-2 text-sm font-mono">
-                  {battleLog.length === 0 && (
-                    <div className="text-zinc-600 italic text-center text-xs py-8 opacity-50">
-                      Waiting for combat to begin...
-                    </div>
-                  )}
-                  {battleLog.map((log, i) => (
-                    <div key={i} className={`p-2 rounded text-xs md:text-sm border-l-2 shadow-sm animate-in slide-in-from-left-2 duration-300 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/20 text-yellow-200' : log.includes('hit you') ? 'border-red-500 bg-red-900/20 text-red-200' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/20 text-cyan-200' : 'border-blue-500 bg-blue-900/10 text-zinc-300'} border-opacity-60`}>
-                      {log}
-                    </div>
-                  ))}
-                  <div ref={logEndRef} className="h-2" />
-                </div>
-              </ScrollArea>
-            </div>
-
-            {/* Controls / Fighter Deployment */}
             {run.currentEncounter.type === 'monster' && (
-              <div className="bg-zinc-800/40 p-5 rounded-xl border border-zinc-700/50  shadow-xl flex-1 flex flex-col justify-center w-full min-h-[300px]">
+              <div className="w-full flex-1 flex flex-col justify-between space-y-4">
                 {battlePhase === 'select' ? (
                   <div className="w-full space-y-4">
-                    <div className="flex justify-between items-end">
-                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                      <h4 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wider">
                         <span>🛡️ Deploy Fighter</span>
                       </h4>
-                      <Badge variant="outline" className="text-xs font-mono bg-zinc-900">
-                        {run.party ? run.party.filter(c => c.hp > 0).length : 0}/6 Ready
+                      <Badge variant="outline" className="text-xs font-mono text-emerald-400 border-emerald-500/30 bg-emerald-950/30 font-bold px-2.5 py-0.5">
+                        {run.party ? run.party.filter(c => c.hp > 0).length : 0} / 6 Ready
                       </Badge>
                     </div>
 
-                    {/* Responsive Horizontal Deck Carousel */}
-                    <div className="flex overflow-x-auto gap-4 pb-4 pt-1 no-scrollbar snap-x snap-mandatory w-full scroll-smooth">
+                    {/* Responsive Deck Carousel */}
+                    <div className="flex overflow-x-auto gap-3.5 pb-4 pt-1 no-scrollbar snap-x snap-mandatory w-full scroll-smooth">
                       {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
                         const memberHp = creature.hp;
                         const memberMaxHp = creature.maxHp;
                         const isFainted = memberHp <= 0;
+                        const fighterLevel = creature.level || 1;
 
                         // Calculate matchup for improved UX
                         let matchupText = "";
@@ -992,25 +965,29 @@ export default function DungeonPage() {
                             key={`${creature.id}-${idx}`}
                             onClick={() => selectFighter(creature)}
                             disabled={isFainted}
-                            className={`flex-none w-[145px] sm:w-[155px] aspect-[3/4] snap-center snap-always group relative rounded-2xl border-2 flex flex-col justify-between p-3.5 text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
+                            className={`flex-none w-[140px] sm:w-[150px] aspect-[3/4] snap-center snap-always group relative rounded-2xl border-2 flex flex-col justify-between p-3 text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
                               isFainted 
-                                ? 'border-zinc-800 bg-zinc-950 text-zinc-600 opacity-50 cursor-not-allowed shadow-none' 
+                                ? 'border-zinc-800 bg-zinc-950 text-zinc-600 opacity-40 cursor-not-allowed shadow-none' 
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
-                            } ${selectedCreature?.id === creature.id ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
+                            } ${selectedCreature?.id === creature.id ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
-                            <div className="flex justify-end items-start z-10 w-full">
-                              <span className="text-sm filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                            {/* Top Level Badge & Element Emoji */}
+                            <div className="flex justify-between items-start z-10 w-full">
+                              <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
+                                Lv.{fighterLevel}
+                              </span>
+                              <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
                             </div>
 
                             {/* Centered Matchup text overlay inside cards */}
                             {matchupText && !isFainted && (
-                              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2.5 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110  ${matchupColor}`}>
+                              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
                                 {matchupText}
                               </div>
                             )}
 
                             {/* Creature Image inside deploy buttons */}
-                            <div className="relative w-full flex-1 my-2 flex items-center justify-center">
+                            <div className="relative w-full flex-1 my-1.5 flex items-center justify-center">
                               <Image
                                 src={`/images/creatures/${creature.id}.png`}
                                 alt={creature.name}
@@ -1034,29 +1011,32 @@ export default function DungeonPage() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-0.5 text-[9px] opacity-90 font-mono mt-1.5 z-10 text-center w-full">
+                            <div className="grid grid-cols-3 gap-0.5 text-[9px] opacity-90 font-mono mt-1 z-10 text-center w-full">
                               <span>⚔️{creature.stats.atk}</span>
                               <span>🛡️{creature.stats.def}</span>
                               <span>💨{creature.stats.spd}</span>
                             </div>
-
-                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl pointer-events-none" />
                           </button>
                         );
                       })}
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-6 flex flex-col items-center">
-                    <div className="flex flex-col items-center justify-center space-y-4 py-2 w-full">
+                  <div className="space-y-5 flex flex-col items-center my-auto w-full">
+                    <div className="flex flex-col items-center justify-center space-y-3 py-1 w-full">
                       {/* Active Fighter Mini Card */}
-                      <div className="relative group w-full max-w-[190px] aspect-[3/4] animate-in zoom-in-95 duration-300">
-                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950/95  relative overflow-hidden shadow-2xl flex flex-col p-4 justify-between rounded-2xl`}>
-                          <div className="flex justify-end items-start z-10 w-full">
-                            <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                      <div className="relative group w-full max-w-[170px] aspect-[3/4] animate-in zoom-in-95 duration-300">
+                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950/95 relative overflow-hidden shadow-2xl flex flex-col p-3.5 justify-between rounded-2xl`}>
+                          
+                          {/* Level Badge Overlay */}
+                          <div className="flex justify-between items-start z-10 w-full">
+                            <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30">
+                              Lv.{selectedCreature?.level || 1}
+                            </span>
+                            <span className="text-xs filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
                           </div>
 
-                          <div className="relative w-full flex-1 my-3 flex items-center justify-center">
+                          <div className="relative w-full flex-1 my-2 flex items-center justify-center">
                             <Image
                               src={`/images/creatures/${selectedCreature!.id}.png`}
                               alt={selectedCreature!.name}
@@ -1066,7 +1046,7 @@ export default function DungeonPage() {
                             />
                           </div>
 
-                          <div className="space-y-1.5 z-10 w-full">
+                          <div className="space-y-1 z-10 w-full">
                             <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
                               <span>HP</span>
                               <span>{activeFighterHp} / {activeFighterMaxHp}</span>
@@ -1086,11 +1066,11 @@ export default function DungeonPage() {
                       </Button>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3">
-                      <Button onClick={fight} className="col-span-2 h-14 text-xl bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400">
+                    <div className="grid grid-cols-3 gap-3 w-full">
+                      <Button onClick={fight} className="col-span-2 h-13 text-lg bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400 rounded-xl">
                         ⚔️ Attack
                       </Button>
-                      <Button onClick={flee} variant="secondary" className="col-span-1 h-14 bg-zinc-700 hover:bg-zinc-600 font-bold border-t border-zinc-500 text-zinc-200">
+                      <Button onClick={flee} variant="secondary" className="col-span-1 h-13 bg-zinc-800 hover:bg-zinc-700 font-bold border-t border-zinc-600 text-zinc-200 rounded-xl">
                         🏃 Flee
                       </Button>
                     </div>
@@ -1100,6 +1080,83 @@ export default function DungeonPage() {
             )}
           </div>
         </div>
+
+        {/* BOTTOM SECTION: DUNGEON LEDGER & LOGS (Location, Team Health, Battle Log) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-2">
+          
+          {/* CARD 1: LOCATION & DUNGEON STATS */}
+          <div className="bg-[#0b0d10] p-5 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col justify-between space-y-3">
+            <div className="space-y-1">
+              <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Location</div>
+              <div className="text-2xl font-black text-white flex items-center gap-2 font-cardo">
+                <span>Room {run.currentRoom}</span>
+                <span className="text-zinc-600">/</span>
+                <span className="text-zinc-500">{run.maxRooms}</span>
+              </div>
+            </div>
+            <div className="space-y-1.5 border-t border-white/5 pt-3 text-xs">
+              <div className="flex justify-between text-yellow-400 font-bold">
+                <span>💰 Loot Found:</span>
+                <span>{run.lootCollected.length} items</span>
+              </div>
+              <div className="flex justify-between text-zinc-400 font-bold text-[11px]">
+                <span>⚔️ Daily Entry Limit:</span>
+                <span className="text-amber-500">{dailyCount} / 3</span>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 2: TEAM HEALTH STATUS */}
+          <div className="bg-[#0b0d10] p-5 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col justify-between space-y-3">
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Team Health</div>
+                <div className={`font-mono font-bold text-xs ${totalTeamHp < (totalTeamMaxHp * 0.3) ? 'text-red-500' : 'text-emerald-400'}`}>
+                  {totalTeamHp} / {totalTeamMaxHp}
+                </div>
+              </div>
+              <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-2.5 bg-zinc-950 border border-white/10" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-emerald-500'} />
+            </div>
+            <div className="border-t border-white/5 pt-3 flex justify-between items-center text-xs text-zinc-400 font-semibold">
+              <span>Squad Status:</span>
+              <Badge variant="outline" className="text-[10px] text-emerald-400 border-emerald-500/30 font-bold">
+                {run.party ? run.party.filter(c => c.hp > 0).length : 0} / 6 Fighters Active
+              </Badge>
+            </div>
+          </div>
+
+          {/* CARD 3: BATTLE LOG */}
+          <div className="bg-[#0b0d10] p-5 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col h-[180px]">
+            <div className="flex justify-between items-center mb-2 shrink-0">
+              <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                📜 Battle Log
+              </h4>
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/40"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500/40"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500/40"></span>
+              </div>
+            </div>
+
+            <ScrollArea className="flex-1 w-full rounded-xl bg-zinc-950/80 border border-white/5 p-2">
+              <div className="space-y-1.5 font-mono text-[11px]">
+                {battleLog.length === 0 && (
+                  <div className="text-zinc-600 italic text-center text-xs py-6 opacity-60">
+                    Waiting for combat to begin...
+                  </div>
+                )}
+                {battleLog.map((log, i) => (
+                  <div key={i} className={`p-1.5 rounded text-[11px] border-l-2 shadow-sm animate-in slide-in-from-left-2 duration-300 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/20 text-yellow-200' : log.includes('hit you') ? 'border-red-500 bg-red-900/20 text-red-200' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/20 text-cyan-200' : 'border-blue-500 bg-blue-900/10 text-zinc-300'} border-opacity-60`}>
+                    {log}
+                  </div>
+                ))}
+                <div ref={logEndRef} className="h-1" />
+              </div>
+            </ScrollArea>
+          </div>
+
+        </div>
+
       </div>
     </div>
   );

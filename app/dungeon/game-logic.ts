@@ -4,6 +4,7 @@ export interface CreatureDef {
     id: string;
     name: string;
     type: CreatureType;
+    level?: number;
     stats: {
         atk: number;
         def: number;
