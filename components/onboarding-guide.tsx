@@ -22,7 +22,7 @@ interface OnboardingGuideProps {
 }
 
 export function OnboardingGuide({ open, onClose, disableAllOption = false }: OnboardingGuideProps) {
-  const { showGateway, hideGateway, openOnboarding } = useOnboarding()
+  const { showGateway, hideGateway, openOnboarding, skipOnboarding } = useOnboarding()
   const [dontShowAgain, setDontShowAgain] = useState(false)
   const [disableAll, setDisableAll] = useState(false)
   const [isGatewayVisible, setIsGatewayVisible] = useState(false)
@@ -37,6 +37,10 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
   }, [open, showGateway])
 
   const handleClose = () => {
+    if (dontShowAgain) {
+      hideGateway()
+      skipOnboarding()
+    }
     onClose(dontShowAgain, disableAll)
     setDontShowAgain(false)
     setDisableAll(false)
@@ -45,6 +49,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
   const handleStartOnboarding = () => {
     if (dontShowAgain) {
       hideGateway()
+      skipOnboarding()
     }
     setIsGatewayVisible(false)
     // The hook will handle opening the guide now
@@ -54,6 +59,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
   const handleSkipGateway = () => {
     if (dontShowAgain) {
       hideGateway()
+      skipOnboarding()
     }
     handleClose()
   }

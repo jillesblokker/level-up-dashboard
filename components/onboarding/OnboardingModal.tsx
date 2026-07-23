@@ -24,6 +24,7 @@ interface OnboardingModalProps {
   isOpen: boolean
   onClose: () => void
   onComplete: () => void
+  onSkip?: () => void
 }
 
 export type OnboardingStep = {
@@ -84,11 +85,11 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   }
 ]
 
-export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModalProps) {
+export function OnboardingModal({ isOpen, onClose, onComplete, onSkip }: OnboardingModalProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isSkipping, setIsSkipping] = useState(false)
-  const [canClose, setCanClose] = useState(false)
+  const [canClose, setCanClose] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
 
   // Ensure component is mounted before using portal
@@ -110,7 +111,7 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
       setCurrentStep(0)
       setCompletedSteps(new Set())
       setIsSkipping(false)
-      setCanClose(false)
+      setCanClose(true)
     }
   }, [isOpen])
 
@@ -142,10 +143,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
 
   // Track onClose calls
   const handleClose = () => {
-    if (!canClose) {
-      return
-    }
-
     onClose()
   }
 
@@ -181,7 +178,11 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
   }
 
   const handleSkipConfirm = () => {
-    handleClose()
+    if (onSkip) {
+      onSkip()
+    } else {
+      handleClose()
+    }
   }
 
   const handleSkipCancel = () => {

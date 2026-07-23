@@ -88,15 +88,15 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         setOnboardingState(updatedState)
         setUserScopedItem('onboarding-state', JSON.stringify(updatedState))
 
-        if (user) {
-            setUserPreference('onboarding-state', updatedState)
-        }
+        // Always attempt saving preference to Supabase (setUserPreference manages auth session check)
+        setUserPreference('onboarding-state', updatedState).catch(err => {
+            smartLogger.error('useOnboarding', 'DB_SAVE_ERROR', err)
+        })
 
         smartLogger.info('useOnboarding', 'STATE_SAVED', {
             previousState: onboardingState,
             newState: updatedState,
-            changes: newState,
-            persistedInDB: !!user
+            changes: newState
         })
     }
 
@@ -198,6 +198,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                     isOpen={isOnboardingOpen}
                     onClose={closeOnboarding}
                     onComplete={completeOnboarding}
+                    onSkip={skipOnboarding}
                 />
             )}
         </OnboardingContext.Provider>
