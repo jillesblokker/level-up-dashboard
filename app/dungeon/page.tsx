@@ -842,76 +842,77 @@ export default function DungeonPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
           {/* LEFT: ENEMY SHOWCASE */}
-          <div className="lg:col-span-5 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between items-center relative overflow-hidden min-h-[420px]">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="lg:col-span-5 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between items-center relative overflow-hidden min-h-[500px]">
+            <div className="absolute -top-12 -left-12 w-48 h-48 bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
 
             {run.currentEncounter.type === 'monster' && enemyDef ? (
-              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-4">
+              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-4 my-auto">
                 
                 {/* Header Badge Row */}
                 <div className="flex items-center justify-between w-full border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-red-950/80 text-red-400 border border-red-500/40 text-[10px] font-extrabold uppercase px-2.5 py-0.5">
+                    <Badge className="bg-red-950/90 text-red-300 border border-red-500/40 text-xs font-extrabold px-3 py-1 uppercase tracking-wider">
                       Lv. {enemyLevel} Monster
                     </Badge>
-                    <span className="text-xs font-bold text-zinc-300">{enemyDef.name}</span>
+                    <span className="text-sm font-bold text-zinc-200">{enemyDef.name}</span>
                   </div>
-                  <span className="text-lg">{getTypeEmoji(enemyDef.type)}</span>
+                  <span className="text-xl filter drop-shadow-md">{getTypeEmoji(enemyDef.type)}</span>
                 </div>
 
                 {/* Creature Card Frame */}
-                <div className="relative group w-full flex justify-center pt-2">
-                  <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/20 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-75 transition-opacity`}></div>
-                  <div className={`relative w-full max-w-[260px] aspect-[3/4] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col p-4 justify-between`}>
+                <div className="relative group w-full flex justify-center py-1">
+                  <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/25 to-transparent blur-2xl rounded-full opacity-60 group-hover:opacity-85 transition-opacity`}></div>
+                  
+                  <div className={`relative w-full max-w-[280px] aspect-[3/4.2] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col justify-between`}>
                     
-                    {/* Level badge overlay */}
-                    <div className="absolute top-2 left-2 z-20">
-                      <span className="text-[10px] text-red-300 font-extrabold bg-red-950/90 px-2 py-0.5 rounded border border-red-500/40 shadow">
+                    {/* Top Badges Row */}
+                    <div className="flex justify-between items-center p-3 z-20">
+                      <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
                         Lv.{enemyLevel}
+                      </span>
+                      <span className="p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg">
+                        {getTypeEmoji(enemyDef.type)}
                       </span>
                     </div>
 
-                    <div className="absolute top-2 right-2 p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg z-20">
-                      {getTypeEmoji(enemyDef.type)}
-                    </div>
-
-                    {/* Creature Image */}
-                    <div className="relative w-full flex-1 my-2 flex items-center justify-center">
+                    {/* Creature Image (Scaled cleanly without clipping or text overlap) */}
+                    <div className="relative w-full flex-1 my-1 p-2 flex items-center justify-center overflow-hidden">
                       <Image
                         src={`/images/creatures/${enemyId}.png`}
                         alt={enemyDef.name}
                         fill
-                        className="object-contain scale-[1.25] drop-shadow-lg"
+                        className="object-contain scale-[1.05] drop-shadow-2xl transition-transform duration-300 group-hover:scale-110"
                         unoptimized
                       />
                     </div>
 
-                    <div className="space-y-2 z-10 w-full">
+                    {/* Bottom Stats Banner (Solid panel so stats text never clips or overlaps image) */}
+                    <div className="bg-zinc-950/95 border-t border-white/10 p-3 space-y-2 z-10 w-full">
                       <div className="space-y-1">
                         <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
                           <span>HP</span>
-                          <span>{run.currentEncounter.hp} / {run.currentEncounter.maxHp}</span>
+                          <span className="font-mono">{run.currentEncounter.hp} / {run.currentEncounter.maxHp}</span>
                         </div>
-                        <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-white/5">
                           <div
-                            className="h-full bg-red-500 transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-red-600 to-red-500 transition-all duration-500"
                             style={{ width: `${((run.currentEncounter.hp || 0) / (run.currentEncounter.maxHp || 1)) * 100}%` }}
                           />
                         </div>
                       </div>
 
                       {/* Stats Row */}
-                      <div className="grid grid-cols-3 gap-0.5 text-[10px] opacity-90 font-mono text-center">
-                        <span className="flex items-center justify-center gap-0.5"><span className="text-red-300">⚔️</span>{enemyDef.stats.atk}</span>
-                        <span className="flex items-center justify-center gap-0.5"><span className="text-blue-300">🛡️</span>{enemyDef.stats.def}</span>
-                        <span className="flex items-center justify-center gap-0.5"><span className="text-green-300">💨</span>{enemyDef.stats.spd}</span>
+                      <div className="grid grid-cols-3 gap-1 text-[10px] font-mono text-center pt-0.5">
+                        <span className="bg-white/5 py-0.5 rounded flex items-center justify-center gap-1 text-red-300 font-bold">⚔️ {enemyDef.stats.atk}</span>
+                        <span className="bg-white/5 py-0.5 rounded flex items-center justify-center gap-1 text-blue-300 font-bold">🛡️ {enemyDef.stats.def}</span>
+                        <span className="bg-white/5 py-0.5 rounded flex items-center justify-center gap-1 text-emerald-300 font-bold">💨 {enemyDef.stats.spd}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest pt-1">
-                  ⚔️ TARGET ENEMY (Room {run.currentRoom})
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest pt-1 flex items-center gap-1.5">
+                  <span>⚔️ TARGET ENEMY (Room {run.currentRoom})</span>
                 </div>
               </div>
             ) : (
@@ -927,8 +928,8 @@ export default function DungeonPage() {
           </div>
 
           {/* RIGHT: DEPLOY FIGHTER & CONTROLS */}
-          <div className="lg:col-span-7 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[420px]">
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="lg:col-span-7 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[500px]">
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
 
             {run.currentEncounter.type === 'monster' && (
               <div className="w-full flex-1 flex flex-col justify-between space-y-4">
@@ -943,8 +944,8 @@ export default function DungeonPage() {
                       </Badge>
                     </div>
 
-                    {/* Responsive Deck Carousel */}
-                    <div className="flex overflow-x-auto gap-3.5 pb-4 pt-1 no-scrollbar snap-x snap-mandatory w-full scroll-smooth">
+                    {/* 2 ROWS OF 3 FIGHTERS GRID LAYOUT (Clean desktop layout with zero scrollbars) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 w-full">
                       {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
                         const memberHp = creature.hp;
                         const memberMaxHp = creature.maxHp;
@@ -965,7 +966,7 @@ export default function DungeonPage() {
                             key={`${creature.id}-${idx}`}
                             onClick={() => selectFighter(creature)}
                             disabled={isFainted}
-                            className={`flex-none w-[140px] sm:w-[150px] aspect-[3/4] snap-center snap-always group relative rounded-2xl border-2 flex flex-col justify-between p-3 text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
+                            className={`w-full aspect-[3/4.1] group relative rounded-2xl border-2 flex flex-col justify-between p-3 text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
                               isFainted 
                                 ? 'border-zinc-800 bg-zinc-950 text-zinc-600 opacity-40 cursor-not-allowed shadow-none' 
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
@@ -987,34 +988,33 @@ export default function DungeonPage() {
                             )}
 
                             {/* Creature Image inside deploy buttons */}
-                            <div className="relative w-full flex-1 my-1.5 flex items-center justify-center">
+                            <div className="relative w-full flex-1 my-1 p-1 flex items-center justify-center overflow-hidden">
                               <Image
                                 src={`/images/creatures/${creature.id}.png`}
                                 alt={creature.name}
                                 fill
-                                className="object-contain scale-[1.25] drop-shadow-lg"
+                                className="object-contain scale-[1.05] drop-shadow-lg"
                                 unoptimized
                               />
                             </div>
 
-                            {/* Health Stats */}
-                            <div className="space-y-1 z-10 w-full">
+                            {/* Health Stats & Info */}
+                            <div className="space-y-1 z-10 w-full bg-zinc-950/80 p-1.5 rounded-lg border border-white/5">
                               <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
                                 <span>HP</span>
                                 <span>{memberHp}/{memberMaxHp}</span>
                               </div>
                               <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full ${isFainted ? 'bg-red-950' : 'bg-green-500'} transition-all duration-300`}
+                                  className={`h-full ${isFainted ? 'bg-red-950' : 'bg-emerald-500'} transition-all duration-300`}
                                   style={{ width: `${(memberHp / memberMaxHp) * 100}%` }}
                                 />
                               </div>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-0.5 text-[9px] opacity-90 font-mono mt-1 z-10 text-center w-full">
-                              <span>⚔️{creature.stats.atk}</span>
-                              <span>🛡️{creature.stats.def}</span>
-                              <span>💨{creature.stats.spd}</span>
+                              <div className="grid grid-cols-3 gap-0.5 text-[8px] font-mono text-center pt-0.5">
+                                <span>⚔️{creature.stats.atk}</span>
+                                <span>🛡️{creature.stats.def}</span>
+                                <span>💨{creature.stats.spd}</span>
+                              </div>
                             </div>
                           </button>
                         );
@@ -1022,38 +1022,38 @@ export default function DungeonPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-5 flex flex-col items-center my-auto w-full">
-                    <div className="flex flex-col items-center justify-center space-y-3 py-1 w-full">
+                  <div className="space-y-6 flex flex-col items-center my-auto w-full">
+                    <div className="flex flex-col items-center justify-center space-y-4 py-2 w-full">
                       {/* Active Fighter Mini Card */}
-                      <div className="relative group w-full max-w-[170px] aspect-[3/4] animate-in zoom-in-95 duration-300">
-                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950/95 relative overflow-hidden shadow-2xl flex flex-col p-3.5 justify-between rounded-2xl`}>
+                      <div className="relative group w-full max-w-[200px] aspect-[3/4.2] animate-in zoom-in-95 duration-300">
+                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl`}>
                           
                           {/* Level Badge Overlay */}
-                          <div className="flex justify-between items-start z-10 w-full">
-                            <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30">
+                          <div className="flex justify-between items-center p-3 z-10 w-full">
+                            <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
                               Lv.{selectedCreature?.level || 1}
                             </span>
-                            <span className="text-xs filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                            <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
                           </div>
 
-                          <div className="relative w-full flex-1 my-2 flex items-center justify-center">
+                          <div className="relative w-full flex-1 my-1 p-2 flex items-center justify-center">
                             <Image
                               src={`/images/creatures/${selectedCreature!.id}.png`}
                               alt={selectedCreature!.name}
                               fill
-                              className="object-contain scale-[1.25] drop-shadow-lg"
+                              className="object-contain scale-[1.05] drop-shadow-lg"
                               unoptimized
                             />
                           </div>
 
-                          <div className="space-y-1 z-10 w-full">
-                            <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
+                          <div className="bg-zinc-950/95 border-t border-white/10 p-3 space-y-1.5 z-10 w-full">
+                            <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
                               <span>HP</span>
                               <span>{activeFighterHp} / {activeFighterMaxHp}</span>
                             </div>
-                            <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
+                            <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-green-500 transition-all duration-300"
+                                className="h-full bg-emerald-500 transition-all duration-300"
                                 style={{ width: `${(activeFighterHp / activeFighterMaxHp) * 100}%` }}
                               />
                             </div>
@@ -1061,16 +1061,16 @@ export default function DungeonPage() {
                         </div>
                       </div>
 
-                      <Button variant="outline" size="sm" onClick={() => setBattlePhase('select')} className="text-xs border-amber-900/40 hover:bg-amber-950/20 text-amber-400 font-bold px-4 py-1.5 rounded-xl transition-all shadow-md">
+                      <Button variant="outline" size="sm" onClick={() => setBattlePhase('select')} className="text-xs border-amber-900/40 hover:bg-amber-950/20 text-amber-400 font-bold px-4 py-2 rounded-xl transition-all shadow-md">
                         🔄 Change Fighter
                       </Button>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3 w-full">
-                      <Button onClick={fight} className="col-span-2 h-13 text-lg bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400 rounded-xl">
+                      <Button onClick={fight} className="col-span-2 h-14 text-xl bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 font-black tracking-widest uppercase shadow-lg shadow-red-900/40 active:translate-y-1 transition-all border-t border-red-400 rounded-xl">
                         ⚔️ Attack
                       </Button>
-                      <Button onClick={flee} variant="secondary" className="col-span-1 h-13 bg-zinc-800 hover:bg-zinc-700 font-bold border-t border-zinc-600 text-zinc-200 rounded-xl">
+                      <Button onClick={flee} variant="secondary" className="col-span-1 h-14 bg-zinc-800 hover:bg-zinc-700 font-bold border-t border-zinc-600 text-zinc-200 rounded-xl">
                         🏃 Flee
                       </Button>
                     </div>
