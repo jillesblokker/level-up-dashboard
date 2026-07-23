@@ -197,6 +197,7 @@ export function useQuestCompletion() {
           const { addToCharacterStat } = await import('@/lib/character-stats-service');
           if (xpReward) addToCharacterStat('experience', xpReward, 'quest:complete');
           if (goldReward) addToCharacterStat('gold', goldReward, 'quest:complete');
+          addToCharacterStat('focus_points', 1, 'quest:complete');
 
           // Auto-nourish active citizens
           try {

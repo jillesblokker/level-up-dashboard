@@ -63,11 +63,12 @@ export async function grantReward({
             onConflict: 'user_id'
           });
         logger.debug('[grantReward] Gold updated:', { old: currentGold, new: newGold, added: amount });
-      } else if (type === 'exp' || type === 'quest') {
+      } else if (type === 'exp' || type === 'quest' || type === 'challenge') {
         // Update experience (and recalculate level if needed)
         const newXP = currentXP + amount;
-        // Simple level calculation: level = floor(sqrt(xp / 100)) + 1
         const newLevel = Math.max(currentLevel, Math.floor(Math.sqrt(newXP / 100)) + 1);
+        const currentFocus = currentStats?.focus_points || 0;
+        const newFocus = currentFocus + 1;
 
         await supabaseServer
           .from('character_stats')
@@ -76,11 +77,12 @@ export async function grantReward({
             gold: currentGold,
             experience: newXP,
             level: newLevel,
+            focus_points: newFocus,
             updated_at: new Date().toISOString()
           }, {
             onConflict: 'user_id'
           });
-        logger.debug('[grantReward] XP updated:', { old: currentXP, new: newXP, added: amount, level: newLevel });
+        logger.debug('[grantReward] XP & Focus Points updated:', { old: currentXP, new: newXP, added: amount, level: newLevel, focus_points: newFocus });
       } else if (type === 'gems') {
         const currentGems = currentStats?.gems || 0;
         const newGems = currentGems + amount;

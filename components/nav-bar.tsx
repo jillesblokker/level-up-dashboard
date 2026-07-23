@@ -292,19 +292,6 @@ export function NavBar({ session }: NavBarProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full"
-              onClick={() => {
-                logger.debug('[NavBar] Quick Add clicked')
-                audioManager.playClick();
-                openQuickAdd()
-              }}
-              title="Quick Add Quest (N)"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
               className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full text-xl relative"
               onClick={() => {
                 audioManager.playClick();

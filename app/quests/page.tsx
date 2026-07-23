@@ -1331,12 +1331,15 @@ export default function QuestsPage() {
 
       // Record into daily activity snapshot for history graphs
       if (newCompleted) {
+        addToCharacterStat('focus_points', 1, 'quest-toggle');
         recordCompletion({
           questId,
           category: questObj.category || 'General',
           xp: xpReward,
           gold: goldReward,
         });
+      } else {
+        addToCharacterStat('focus_points', -1, 'quest-toggle-uncomplete');
       }
 
       // 🎯 Display character-based milestone message if received
@@ -1714,6 +1717,7 @@ export default function QuestsPage() {
               });
               addToCharacterStat('gold', buffedRewards.gold, `quest-completion:${quest.id}`);
               addToCharacterStat('experience', buffedRewards.xp, `quest-completion:${quest.id}`);
+              addToCharacterStat('focus_points', 1, `quest-completion:${quest.id}`);
 
               if (responseData.isFirstAction) {
                 setPartnerSpeech("First action of the day! 1.5x Bonus!");
@@ -1788,6 +1792,7 @@ export default function QuestsPage() {
             // Apply rewards locally
             addToCharacterStat('gold', goldReward, `challenge-completion:${challenge.id}`);
             addToCharacterStat('experience', xpReward, `challenge-completion:${challenge.id}`);
+            addToCharacterStat('focus_points', 1, `challenge-completion:${challenge.id}`);
 
             const response = await fetch('/api/challenges', {
               method: 'PUT',
