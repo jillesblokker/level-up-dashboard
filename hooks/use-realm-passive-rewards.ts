@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { Tile } from '@/types/core-interfaces';
@@ -232,8 +233,13 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
             } else {
                 toast({
                     title: "⚠️ Insufficient Materials",
-                    description: "You don't have enough raw materials to maintain your buildings. Gather logs, stone, and steel from your citizens!",
-                    className: "bg-black bg-gradient-to-r from-red-900 via-red-800 to-orange-900 border-red-500 border-2 text-white shadow-2xl opacity-100"
+                    description: "You don't have enough raw materials to maintain your buildings. Gather logs, stone, and steel or trade in the market!",
+                    className: "bg-black bg-gradient-to-r from-red-900 via-red-800 to-orange-900 border-red-500 border-2 text-white shadow-2xl opacity-100",
+                    action: (
+                        <ToastAction altText="Market" onClick={() => window.location.href = "/market"}>
+                            Market
+                        </ToastAction>
+                    )
                 });
                 return { consumed: {}, success: false };
             }

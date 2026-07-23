@@ -1,8 +1,10 @@
 "use client"
 
+import React from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { useCallback } from 'react'
 import { toast } from '@/components/ui/use-toast'
+import { ToastAction } from '@/components/ui/toast'
 
 interface AchievementUnlockOptions {
     achievementId: string
@@ -65,10 +67,16 @@ export function useAchievementUnlock() {
                     const result = await response.json()
                     console.log(`[Achievement Unlock] ✅ Successfully unlocked achievement ${achievementId}:`, result)
 
-                    // Show toast notification
+                    // Show toast notification with short CTA button
                     toast({
-                        title: "New achievement",
-                        description: description || `${achievementName} - Achievement unlocked!`,
+                        title: "Achievement Unlocked! 🏆",
+                        description: description || `${achievementName} unlocked!`,
+                        variant: "achievement",
+                        action: (
+                            <ToastAction altText="Show" onClick={() => window.location.href = "/character"}>
+                                Show
+                            </ToastAction>
+                        ),
                     })
 
                     onSuccess?.()

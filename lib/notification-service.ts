@@ -1,5 +1,7 @@
+import React from "react";
 import { logger } from "@/lib/logger";
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 export interface NotificationData {
   id: string
@@ -118,9 +120,22 @@ class NotificationService {
     ) {
       const isMuted = type === 'quest' && typeof window !== 'undefined' && localStorage.getItem("mute-quest-toasts") === "true";
       if (!isMuted) {
+        let ctaText: string | null = null;
+        if (notification.action?.href) {
+          if (notification.action.href.includes("/quests")) ctaText = "Quests";
+          else if (notification.action.href.includes("/character")) ctaText = "Show";
+          else if (notification.action.href.includes("/kingdom")) ctaText = "Kingdom";
+          else if (notification.action.href.includes("/market")) ctaText = "Market";
+          else ctaText = "Go";
+        }
+
         toast({
           title: notification.title,
           description: notification.message,
+          action: notification.action && ctaText ? React.createElement(ToastAction, {
+            altText: ctaText,
+            onClick: () => { window.location.href = notification.action!.href; }
+          }, ctaText) : undefined,
         })
       }
     }

@@ -14,6 +14,7 @@ import { Users, Shield, Flame, CheckCircle, Plus, UserPlus, PlusCircle, Star, Cr
 import { useUser } from "@clerk/nextjs"
 import { getUserAlliances, checkInToAlliance, createAlliance, inviteToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 import { useSound, SOUNDS } from "@/lib/sound-manager"
 import { TitanRaidCard } from '@/components/titan-raid-card'
 import dynamic from 'next/dynamic'
@@ -580,7 +581,12 @@ export function AllianceDashboard() {
                     onClaimed={(isNew) => {
                         toast({
                             title: isNew ? "NEW Mythic Discovered! 🎉" : "Card Claimed!",
-                            description: isNew ? "A new creature has been unlocked in your collection." : "The reward has been added to your collection."
+                            description: isNew ? "A new creature has been unlocked in your collection." : "The reward has been added to your collection.",
+                            action: (
+                                <ToastAction altText="Show" onClick={() => window.location.href = "/kingdom"}>
+                                    Show
+                                </ToastAction>
+                            )
                         });
                     }} 
                 />
