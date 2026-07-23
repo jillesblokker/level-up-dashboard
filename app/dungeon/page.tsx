@@ -926,7 +926,12 @@ export default function DungeonPage() {
                 <div className="relative group w-full flex justify-center py-1">
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/25 to-transparent blur-2xl rounded-full opacity-60 group-hover:opacity-85 transition-opacity`}></div>
                   
-                  <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col`}>
+                  {/* Slash Beam Overlay on Defeat */}
+                  {(run.currentEncounter.hp || 0) <= 0 && (
+                    <div className="absolute top-1/2 left-[-30%] w-[160%] h-3 bg-gradient-to-r from-red-600 via-amber-300 to-red-600 animate-slash-beam z-40 pointer-events-none rounded-full shadow-[0_0_30px_#ef4444]" />
+                  )}
+
+                  <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${(run.currentEncounter.hp || 0) <= 0 ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
                     
                     {/* Natural Aspect Creature Image with Top Badges Overlay */}
                     <div className="relative w-full overflow-hidden bg-zinc-950">
@@ -1110,7 +1115,7 @@ export default function DungeonPage() {
                           {/* Active Fighter Mini Card with Prominent Matchup Overlay */}
                           <div className="flex flex-col items-center justify-center space-y-3 w-full">
                             <div className="relative group w-full max-w-[210px] animate-in zoom-in-95 duration-300">
-                              <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl`}>
+                              <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl ${activeFighterHp <= 0 ? 'animate-card-faint pointer-events-none' : ''}`}>
                                 
                                 <div className="relative w-full overflow-hidden bg-zinc-950">
                                   {/* Level Badge Overlay */}

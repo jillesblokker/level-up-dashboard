@@ -414,3 +414,101 @@
     opacity: 0;
   }
 }
+
+/* Defeated Enemy & Fighter Ripped Apart / Dissolve Animations */
+@keyframes card-slash-top {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1) contrast(1);
+  }
+  25% {
+    transform: translate(-6px, -6px) rotate(-3deg);
+    filter: brightness(2.2) contrast(1.5) drop-shadow(0 0 25px rgba(239, 68, 68, 0.9));
+  }
+  50% {
+    transform: translate(22px, -30px) rotate(10deg) scale(1.03);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(75px, -90px) rotate(30deg) scale(0.65);
+    opacity: 0;
+    filter: brightness(0.2) blur(10px);
+  }
+}
+
+@keyframes card-slash-bottom {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(6px, 6px) rotate(3deg);
+  }
+  50% {
+    transform: translate(-22px, 30px) rotate(-10deg) scale(0.97);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-75px, 90px) rotate(-30deg) scale(0.65);
+    opacity: 0;
+    filter: brightness(0.2) blur(10px);
+  }
+}
+
+@keyframes slash-beam {
+  0% {
+    width: 0%;
+    opacity: 0;
+    transform: translateY(-50%) rotate(-35deg) scaleY(0.5);
+  }
+  25% {
+    width: 160%;
+    opacity: 1;
+    transform: translateY(-50%) rotate(-35deg) scaleY(1.8);
+    box-shadow: 0 0 30px #ef4444, 0 0 60px #f59e0b;
+  }
+  100% {
+    width: 200%;
+    opacity: 0;
+    transform: translateY(-50%) rotate(-35deg) scaleY(0.2);
+  }
+}
+
+@keyframes card-faint-sink {
+  0% {
+    transform: translateY(0) scale(1);
+    filter: grayscale(0) brightness(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-10px) scale(1.04);
+    filter: grayscale(0.6) brightness(1.5) drop-shadow(0 0 25px rgba(220, 38, 38, 0.95));
+  }
+  60% {
+    transform: translateY(16px) scale(0.94);
+    filter: grayscale(1) brightness(0.4) blur(2px);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(50px) scale(0.8);
+    filter: grayscale(1) brightness(0.1) blur(8px);
+    opacity: 0;
+  }
+}
+
+.animate-card-shatter-top {
+  animation: card-slash-top 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-card-shatter-bottom {
+  animation: card-slash-bottom 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slash-beam {
+  animation: slash-beam 0.6s ease-out forwards;
+}
+
+.animate-card-faint {
+  animation: card-faint-sink 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
