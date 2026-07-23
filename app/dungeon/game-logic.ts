@@ -119,3 +119,52 @@ export function getHabitElementMapping(category: string): CreatureType {
             return 'Rock'; // fallback
     }
 }
+
+export interface BossTelegraph {
+    name: string;
+    multiplier: number;
+    type: 'heavy' | 'elemental' | 'guard';
+    warningText: string;
+}
+
+export function getEnemyTelegraphAction(turnCount: number, enemyType: CreatureType): BossTelegraph {
+    const cycle = turnCount % 3;
+    if (cycle === 1) {
+        return {
+            name: `${enemyType} Blast`,
+            multiplier: 1.5,
+            type: 'elemental',
+            warningText: `⚠️ Preparing ${enemyType} Surge (1.5x Dmg)! Use Counter Guard or swap fighter!`
+        };
+    } else if (cycle === 2) {
+        return {
+            name: 'Titan Slam',
+            multiplier: 1.8,
+            type: 'heavy',
+            warningText: `💥 Winding up Titan Slam (1.8x Physical Dmg)! Mitigate with Counter Guard!`
+        };
+    } else {
+        return {
+            name: 'Standard Strike',
+            multiplier: 1.0,
+            type: 'guard',
+            warningText: `⚔️ Preparing Basic Strike (1.0x Dmg).`
+        };
+    }
+}
+
+export function getElementalComboBuff(activeType: CreatureType, benchTypes: CreatureType[]): { name: string; bonusDmg: number; description: string } | null {
+    if (activeType === 'Fire' && benchTypes.includes('Grass')) {
+        return { name: '🔥🍃 Wildfire Combo', bonusDmg: 0.25, description: '+25% Burn Damage' };
+    }
+    if (activeType === 'Water' && benchTypes.includes('Ice')) {
+        return { name: '💧❄️ Deep Freeze Combo', bonusDmg: 0.30, description: '+30% Frost Damage & Armor Piercing' };
+    }
+    if (activeType === 'Rock' && benchTypes.includes('Fire')) {
+        return { name: '🪨🔥 Magma Smash Combo', bonusDmg: 0.25, description: '+25% Crushing Damage' };
+    }
+    if (activeType === 'Grass' && benchTypes.includes('Water')) {
+        return { name: '🍃💧 Overgrowth Combo', bonusDmg: 0.20, description: '+20% Synergy & +5 HP Surge' };
+    }
+    return null;
+}

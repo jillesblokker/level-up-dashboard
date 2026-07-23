@@ -16,7 +16,9 @@ import {
   getMatchupMultiplier,
   getTypeEmoji,
   getTypeColor,
-  getHabitElementMapping
+  getHabitElementMapping,
+  getEnemyTelegraphAction,
+  getElementalComboBuff
 } from './game-logic';
 import { useAuth } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
@@ -951,8 +953,18 @@ export default function DungeonPage() {
             <div className="absolute -top-12 -left-12 w-48 h-48 bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
 
             {run.currentEncounter.type === 'monster' && enemyDef ? (
-              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-4">
+              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-3">
                 
+                {/* Boss Attack Telegraph Warning Banner */}
+                {(() => {
+                  const telegraph = getEnemyTelegraphAction(battleLog.length + 1, enemyDef.type);
+                  return (
+                    <div className="w-full bg-gradient-to-r from-red-950/80 via-zinc-950 to-red-950/80 border border-red-500/40 p-2.5 rounded-xl text-xs text-red-200 shadow-lg text-center font-bold flex items-center justify-center gap-2 animate-pulse">
+                      <span>{telegraph.warningText}</span>
+                    </div>
+                  );
+                })()}
+
                 {/* Header Badge Row */}
                 <div className="flex items-center justify-between w-full border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
@@ -1214,6 +1226,19 @@ export default function DungeonPage() {
                                 🔄 Swap Fighter
                               </Button>
                             </div>
+
+                            {/* Round Table Elemental Combo Synergy */}
+                            {(() => {
+                              const benchTypes = unlockedCreatures.filter(f => f.id !== selectedCreature!.id).map(f => f.type);
+                              const combo = getElementalComboBuff(selectedCreature!.type, benchTypes);
+                              if (!combo) return null;
+                              return (
+                                <div className="flex items-center gap-2 bg-gradient-to-r from-purple-950/80 via-zinc-950 to-purple-950/80 px-3.5 py-1.5 rounded-xl border border-purple-500/30 text-xs text-purple-200 shadow-md">
+                                  <span className="font-bold text-purple-300">{combo.name}:</span>
+                                  <span className="text-[11px] text-purple-100">{combo.description}</span>
+                                </div>
+                              );
+                            })()}
                           </div>
 
                           {/* Hogwarts Legacy 3 Tactical Combat Choices */}

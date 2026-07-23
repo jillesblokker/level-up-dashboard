@@ -1748,6 +1748,30 @@ export function KingdomClient() {
           </p>
         </div>
 
+        {/* Live District Habit Multipliers Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs font-mono">
+          <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-orange-500/30 flex items-center justify-between text-orange-300">
+            <span className="flex items-center gap-1 font-bold">⚔️ Barracks</span>
+            <span className="text-[10px] bg-orange-950/60 px-1.5 py-0.5 rounded border border-orange-500/30 font-bold">+4 ATK</span>
+          </div>
+          <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-blue-500/30 flex items-center justify-between text-blue-300">
+            <span className="flex items-center gap-1 font-bold">🧪 Apotheca</span>
+            <span className="text-[10px] bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-500/30 font-bold">+5 HP/Rnd</span>
+          </div>
+          <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-amber-500/30 flex items-center justify-between text-amber-300">
+            <span className="flex items-center gap-1 font-bold">🔨 Forge</span>
+            <span className="text-[10px] bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold">+15% Ore</span>
+          </div>
+          <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-purple-500/30 flex items-center justify-between text-purple-300">
+            <span className="flex items-center gap-1 font-bold">📜 Library</span>
+            <span className="text-[10px] bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-500/30 font-bold">+15% XP</span>
+          </div>
+          <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-emerald-500/30 flex items-center justify-between text-emerald-300 col-span-2 sm:col-span-1">
+            <span className="flex items-center gap-1 font-bold">🛸 Airship</span>
+            <span className="text-[10px] bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/30 font-bold">+10% Maps</span>
+          </div>
+        </div>
+
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <div className="flex w-full mb-6 justify-between items-center gap-2">
             <TabsList className="w-full md:w-auto">
