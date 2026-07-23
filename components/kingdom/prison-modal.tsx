@@ -72,6 +72,36 @@ export function PrisonModal({ open, onOpenChange, onComplete }: PrisonModalProps
     }
   }
 
+  const handleFocusPardon = async () => {
+    try {
+      const { getCharacterStats, addToCharacterStat } = await import('@/lib/character-stats-service');
+      const stats = getCharacterStats();
+      if ((stats.focus_points || 0) < 5) {
+        toast({
+          title: "Insufficient Focus Points 🧠",
+          description: "You need 5 Focus Points for Royal Pardon!",
+          variant: "destructive"
+        });
+        return;
+      }
+      setLoading(true);
+      await addToCharacterStat('focus_points', -5, 'focus-royal-pardon');
+      await addToCharacterStat('experience', 250, 'focus-pardon-xp');
+      await addToCharacterStat('gold', 200, 'focus-pardon-gold');
+      setResultMessage("Royal Pardon granted! Inmate recruited as Elite Mercenary Guard (+250 XP, +200 Gold).");
+      toast({
+        title: "🧠 Royal Pardon Granted!",
+        description: "Spent 5 Focus Points. Recruited Elite Mercenary Guard!"
+      });
+      await fetchFreshCharacterStats();
+      if (onComplete) onComplete();
+    } catch (err: any) {
+      toast({ title: "Pardon Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-amber-800/50 text-white rounded-2xl p-6 shadow-2xl">
@@ -80,10 +110,10 @@ export function PrisonModal({ open, onOpenChange, onComplete }: PrisonModalProps
             <ShieldAlert className="w-8 h-8" />
           </div>
           <DialogTitle className="text-2xl font-serif font-bold text-amber-300 drop-shadow">
-            Iron Citadel Prison
+            Royal Dungeon & Barracks Guard
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-300">
-            Dungeon Inmate Trials & Daily Outlaw Dilemmas
+            Dungeon Citadel & Mercenary Recruitment Post
           </DialogDescription>
         </DialogHeader>
 
@@ -91,11 +121,11 @@ export function PrisonModal({ open, onOpenChange, onComplete }: PrisonModalProps
           <div className="space-y-4 my-2">
             <div className="p-4 bg-zinc-950/90 border border-amber-900/40 rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold font-mono text-amber-400 uppercase tracking-wider">Inmate of the Day</span>
-                <span className="text-[10px] bg-red-950 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-full font-bold">In Custody</span>
+                <span className="text-xs font-bold font-mono text-amber-400 uppercase tracking-wider">Detained Captive</span>
+                <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">In Custody</span>
               </div>
               <h4 className="text-lg font-serif font-bold text-zinc-100 mt-1">{inmate.name}</h4>
-              <p className="text-xs text-zinc-400 italic mt-0.5">Crime: &quot;{inmate.crime}&quot;</p>
+              <p className="text-xs text-zinc-300 italic mt-0.5">Offense: {inmate.crime}</p>
             </div>
 
             {resultMessage ? (
@@ -120,6 +150,21 @@ export function PrisonModal({ open, onOpenChange, onComplete }: PrisonModalProps
                     <div>
                       <div className="text-sm">Bail & Recruit</div>
                       <div className="text-[10px] text-zinc-900 font-normal">Recruit inmate (+100 XP to kingdom)</div>
+                    </div>
+                  </div>
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                </Button>
+
+                <Button
+                  onClick={handleFocusPardon}
+                  disabled={loading}
+                  className="h-auto py-3 bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl flex items-center justify-between px-4"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <span className="text-xl">🧠</span>
+                    <div>
+                      <div className="text-sm font-bold">Spend 5 Focus Points: Royal Pardon</div>
+                      <div className="text-[10px] text-purple-300 font-normal">Recruit Elite Mercenary (+250 XP & +200 Gold)</div>
                     </div>
                   </div>
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}

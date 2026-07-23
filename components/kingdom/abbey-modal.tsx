@@ -97,6 +97,36 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
     }
   }
 
+  const handleFocusDivineBlessing = async () => {
+    try {
+      const { getCharacterStats, addToCharacterStat } = await import('@/lib/character-stats-service');
+      const stats = getCharacterStats();
+      if ((stats.focus_points || 0) < 5) {
+        toast({
+          title: "Insufficient Focus Points 🧠",
+          description: "You need 5 Focus Points for Divine Blessing!",
+          variant: "destructive"
+        });
+        return;
+      }
+      setLoading(true);
+      await addToCharacterStat('focus_points', -5, 'focus-divine-blessing');
+      await addToCharacterStat('experience', 200, 'focus-blessing-xp');
+      await addToCharacterStat('gems', 10, 'focus-blessing-gems');
+      setResultMessage("Divine Blessing bestowed upon your kingdom (+200 XP, +10 Gems).");
+      toast({
+        title: "🧠 Divine Blessing Bestowed!",
+        description: "Spent 5 Focus Points. Granted +200 XP & +10 Gems!"
+      });
+      await fetchFreshCharacterStats();
+      if (onComplete) onComplete();
+    } catch (err: any) {
+      toast({ title: "Blessing Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-purple-800/50 text-white rounded-2xl p-6 shadow-2xl">
@@ -151,6 +181,21 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
                     <div>
                       <div className="text-sm">Claim Abbot&apos;s Benediction</div>
                       <div className="text-[10px] text-purple-100 font-normal">Receive +200 XP and +10 Gems</div>
+                    </div>
+                  </div>
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                </Button>
+
+                <Button
+                  onClick={handleFocusDivineBlessing}
+                  disabled={loading}
+                  className="h-auto py-3 bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl flex items-center justify-between px-4"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <span className="text-xl">🧠</span>
+                    <div>
+                      <div className="text-sm font-bold">Spend 5 Focus Points: Divine Blessing</div>
+                      <div className="text-[10px] text-purple-300 font-normal">Instant Divine Grace (+200 XP & +10 Gems)</div>
                     </div>
                   </div>
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}

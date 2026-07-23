@@ -66,10 +66,35 @@ export function TitanRaidCard() {
     }
   };
 
+  const handleFocusRaidSurge = async () => {
+    try {
+      const { getCharacterStats, addToCharacterStat } = await import('@/lib/character-stats-service');
+      const stats = getCharacterStats();
+      if ((stats.focus_points || 0) < 5) {
+        toast({
+          title: "Insufficient Focus Points 🧠",
+          description: "You need 5 Focus Points to trigger Titan Raid Surge!",
+          variant: "destructive"
+        });
+        return;
+      }
+      await addToCharacterStat('focus_points', -5, 'focus-titan-surge');
+      setDamageDealt(prev => prev + 500);
+      setRemainingHp(prev => Math.max(0, prev - 500));
+      if (remainingHp <= 500) setIsDefeated(true);
+      toast({
+        title: "🧠 Titan Raid Surge Unleashed!",
+        description: "Spent 5 Focus Points. Dealt +500 Massive Damage to Titan!"
+      });
+    } catch (err: any) {
+      toast({ title: "Surge Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const hpPercentage = Math.round(((titan.totalHp - remainingHp) / titan.totalHp) * 100);
 
   return (
-    <Card className="bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative">
+    <Card className={`bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative ${isDefeated ? 'animate-card-shatter-top opacity-90' : ''}`}>
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[90px] pointer-events-none" />
       <CardHeader className="p-5 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -80,6 +105,11 @@ export function TitanRaidCard() {
             <Badge variant="outline" className="border-amber-500/30 text-amber-400 text-[10px] font-bold">
               {titan.element} Element
             </Badge>
+            {remainingHp < titan.totalHp / 2 && !isDefeated && (
+              <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
+                ⚠️ Phase 2: Enraged (+30% ATK Dmg)
+              </Badge>
+            )}
           </div>
           {isDefeated && (
             <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold">
@@ -145,19 +175,30 @@ export function TitanRaidCard() {
             <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
           </div>
 
-          <Button
-            disabled={!isDefeated || claimed || claiming}
-            onClick={handleClaim}
-            className={claimed ? "bg-zinc-800 text-zinc-400 border border-zinc-700" : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold shadow-md"}
-          >
-            {claimed ? (
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Reward Claimed</span>
-            ) : isDefeated ? (
-              <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4" /> Claim Victory Rewards</span>
-            ) : (
-              <span className="flex items-center gap-1.5"><Sword className="w-4 h-4" /> Attack Titan via Quests ({damageDealt}/1000 HP)</span>
+          <div className="flex items-center gap-2">
+            {!isDefeated && (
+              <Button
+                onClick={handleFocusRaidSurge}
+                className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 text-xs font-bold px-3 py-1.5 rounded-lg"
+              >
+                🧠 Spend 5 Focus Points: +500 Dmg Surge
+              </Button>
             )}
-          </Button>
+
+            <Button
+              disabled={!isDefeated || claimed || claiming}
+              onClick={handleClaim}
+              className={claimed ? "bg-zinc-800 text-zinc-400 border border-zinc-700" : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold shadow-md"}
+            >
+              {claimed ? (
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Reward Claimed</span>
+              ) : isDefeated ? (
+                <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4" /> Claim Victory Rewards</span>
+              ) : (
+                <span className="flex items-center gap-1.5"><Sword className="w-4 h-4" /> Attack Titan ({damageDealt}/1000 HP)</span>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

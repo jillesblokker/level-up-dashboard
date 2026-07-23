@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button"
 import { FlaskConical, Sparkles, RefreshCw, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
-import { fetchFreshCharacterStats } from "@/lib/character-stats-service"
+import { fetchFreshCharacterStats, getCharacterStats } from "@/lib/character-stats-service"
 
 interface ApothecaModalProps {
   open: boolean
@@ -97,6 +97,35 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
     }
   }
 
+  const handleFocusDoubleBrew = async () => {
+    const stats = getCharacterStats();
+    if ((stats.focus_points || 0) < 5) {
+      toast({
+        title: "Insufficient Focus Points 🧠",
+        description: "You need 5 Focus Points. Complete daily habits to earn more!",
+        variant: "destructive"
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { addToCharacterStat } = await import('@/lib/character-stats-service');
+      await addToCharacterStat('focus_points', -5, 'focus-double-brew');
+      await addToCharacterStat('gold', 300, 'focus-double-brew-gold');
+      toast({
+        title: "🧠 Double Elixir Brew Distilled!",
+        description: "Spent 5 Focus Points. Granted +300 Gold & Double Apothecary Elixir Boost!"
+      });
+      await fetchFreshCharacterStats();
+      if (onComplete) onComplete();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Brew Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-emerald-800/50 text-white rounded-2xl p-6 shadow-2xl">
@@ -145,6 +174,21 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
                     <div>
                       <div className="text-sm">Drink Master Decoction</div>
                       <div className="text-[10px] text-zinc-900 font-normal">Claim free daily elixir potion effect</div>
+                    </div>
+                  </div>
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                </Button>
+
+                <Button
+                  onClick={handleFocusDoubleBrew}
+                  disabled={loading}
+                  className="h-auto py-3 bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl flex items-center justify-between px-4"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <span className="text-xl">🧠</span>
+                    <div>
+                      <div className="text-sm font-bold">Spend 5 Focus Points: Double Brew</div>
+                      <div className="text-[10px] text-purple-300 font-normal">Instant Double Elixir & +300 Gold Surge</div>
                     </div>
                   </div>
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
