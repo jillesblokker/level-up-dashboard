@@ -357,16 +357,18 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       let offlineCatchup = null;
       if (hadOfflineGathering) {
          const citizenPrefs: Record<string, CitizenState> = {};
-         updatedCitizens.forEach((c) => {
-           citizenPrefs[c.id] = {
-             active: c.active,
-             favorite: c.favorite,
-             lastFedAt: c.lastFedAt,
-             activeDays: c.activeDays,
-             lastHarvestedAt: c.lastHarvestedAt,
-             affection: c.affection || 0,
-           };
-         });
+          updatedCitizens.forEach((c) => {
+            citizenPrefs[c.id] = {
+              active: c.active,
+              favorite: c.favorite,
+              lastFedAt: c.lastFedAt,
+              activeDays: c.activeDays,
+              lastHarvestedAt: c.lastHarvestedAt,
+              affection: c.affection || 0,
+              level: c.level || 1,
+              experience: c.experience || 0,
+            };
+          });
          setUserPreference('citizens_state', citizenPrefs).catch(console.error);
 
          if (totalOfflineGold > 0) gainGold(totalOfflineGold, 'offline-catchup').catch(console.error);
@@ -403,6 +405,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 
@@ -426,6 +430,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 
@@ -450,6 +456,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 
@@ -509,6 +517,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 
@@ -552,6 +562,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 
@@ -624,6 +636,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 
@@ -711,6 +725,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         activeDays: c.activeDays,
         lastHarvestedAt: c.lastHarvestedAt,
         affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
       };
     });
 

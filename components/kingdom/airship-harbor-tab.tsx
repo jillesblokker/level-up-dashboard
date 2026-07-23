@@ -254,13 +254,25 @@ export function AirshipHarborTab() {
         });
       }
 
-      // Unlock citizens
+      // Unlock citizens & grant expedition XP + level up
       const savedPrefs: any = await getUserPreference('citizens_state') || {};
       activeVoyage.crew.forEach((cId: string) => {
         if (savedPrefs[cId]) {
           savedPrefs[cId].lockedReason = null;
           // Grant XP and affection to crew members for successfully completing expedition!
-          savedPrefs[cId].experience = (savedPrefs[cId].experience || 0) + 100;
+          const curExp = (savedPrefs[cId].experience || 0) + 150;
+          const curLvl = savedPrefs[cId].level || 1;
+          const reqExp = curLvl * 100;
+          let nextLvl = curLvl;
+          let nextExp = curExp;
+
+          if (nextExp >= reqExp && curLvl < 10) {
+            nextExp = nextExp - reqExp;
+            nextLvl = Math.min(10, curLvl + 1);
+          }
+
+          savedPrefs[cId].experience = nextExp;
+          savedPrefs[cId].level = nextLvl;
           savedPrefs[cId].affection = Math.min(100, (savedPrefs[cId].affection || 0) + 15);
         }
       });
@@ -271,7 +283,7 @@ export function AirshipHarborTab() {
 
       toast({
         title: "Chests Retrieved! 🪙📦",
-        description: `Your crew returned safely with materials! Crew gained +100 XP and +15 Affection.`
+        description: `Your crew returned safely with materials! Crew gained +150 XP and +15 Affection.`
       });
 
       window.dispatchEvent(new Event('character-inventory-update'));
