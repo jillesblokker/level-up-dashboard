@@ -752,10 +752,32 @@ function CityLocationPageInner() {
     addToCharacterStat('gold', -packType.price, `market-buy-${packType.id}`)
     setGoldBalance(prev => prev - packType.price)
     
-    // Generate and open pack
+  // Generate and open pack
     const pack = generatePack(packType.id)
     setOpeningPack(pack)
   }
+
+  const getRebuildingLoreBanner = (locId: string) => {
+    const loc = locId.toLowerCase();
+    if (loc.includes('barracks')) {
+      return "Train & rank up your Round Table champions here. Stronger fighters defend your realm and conquer deeper dungeon depths to secure rebuilding materials.";
+    }
+    if (loc.includes('apotheca') || loc.includes('alchemist')) {
+      return "Channel energy from your daily habit streaks into potent elixirs. Use them to heal fallen dungeon fighters or accelerate kingdom tile construction!";
+    }
+    if (loc.includes('blacksmith') || loc.includes('forge') || loc.includes('shop')) {
+      return "Smelt raw ores won in dungeon combat into sturdy building materials and equipment to restore your realm's prosperity.";
+    }
+    if (loc.includes('airship') || loc.includes('expedition')) {
+      return "Deploy your veteran Round Table champions on expedition voyages across distant realms to discover lost blueprints and rare building tiles.";
+    }
+    if (loc.includes('tavern')) {
+      return "Gather intelligence and review bounties posted by citizens as your daily habits restore peace and order to the realm.";
+    }
+    return null;
+  };
+
+  const loreBannerText = getRebuildingLoreBanner(locationId);
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
@@ -768,6 +790,14 @@ function CityLocationPageInner() {
       />
 
       <main className="flex-1 p-4 md:p-6 pb-24 lg:landscape:pb-8 max-w-6xl mx-auto w-full relative">
+        {/* Narrative Rebuilding Connection Banner */}
+        {loreBannerText && (
+          <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3 rounded-2xl flex items-center gap-2.5 text-xs text-amber-200 shadow-md mb-8">
+            <span className="text-base shrink-0">📜</span>
+            <p><span className="font-bold text-amber-400">Rebuilding Role:</span> {loreBannerText}</p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-8 relative z-10">
           <Link href={`/city/${cityName}`}>
             <Button variant="ghost" className="text-amber-500 hover:text-amber-400 font-medieval group">

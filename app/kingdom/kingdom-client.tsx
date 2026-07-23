@@ -1739,6 +1739,15 @@ export function KingdomClient() {
 
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-6 space-y-6" aria-label="kingdom-main-content">
+        
+        {/* Narrative Rebuilding Banner */}
+        <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3.5 rounded-2xl flex items-center gap-3 text-xs text-amber-200 shadow-lg">
+          <span className="text-xl shrink-0">🏰</span>
+          <p className="leading-relaxed">
+            <span className="font-bold text-amber-400">Rebuilding the Realm:</span> Complete daily habits to generate elemental power, conquer dungeons for raw materials, train your Round Table champions, and restore your kingdom tile by tile!
+          </p>
+        </div>
+
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <div className="flex w-full mb-6 justify-between items-center gap-2">
             <TabsList className="w-full md:w-auto">

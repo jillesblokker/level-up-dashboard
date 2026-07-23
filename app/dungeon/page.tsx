@@ -894,12 +894,21 @@ export default function DungeonPage() {
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-[#0b0d10] to-black p-4 sm:p-6 lg:p-8 text-white font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* Status Message */}
-        {message && (
-          <div className="bg-gradient-to-r from-blue-900/40 via-amber-950/40 to-zinc-900/40 border border-amber-500/30 p-3.5 rounded-xl text-center text-amber-200 text-xs font-bold animate-in fade-in slide-in-from-top-2 shadow-lg">
-            {message}
+        {/* Narrative Connection Banner */}
+        <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-lg">
+          <div className="flex items-center gap-2.5">
+            <span className="text-lg">📜</span>
+            <p className="text-zinc-300">
+              <span className="font-bold text-amber-300">Rebuilding Connection:</span> Expeditions yield raw ores & crystals to rebuild the kingdom. Daily habits completed today grant elemental combat power!
+            </p>
           </div>
-        )}
+          <div className="flex items-center gap-1.5 shrink-0 bg-zinc-900/90 px-3 py-1 rounded-xl border border-white/10 text-[11px]">
+            <span className="text-zinc-400">Habit Buffs:</span>
+            <span className="font-bold text-emerald-400">
+              {Object.entries(elementBuffs).filter(([, count]) => count > 0).map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`).join(' ') || '0 Completed Today'}
+            </span>
+          </div>
+        </div>
 
         {/* TOP SECTION: BATTLE ARENA (Enemy Showcase & Deploy Fighter Side-by-Side) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
