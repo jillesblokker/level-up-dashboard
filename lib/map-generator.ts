@@ -393,20 +393,20 @@ export class MapGenerator {
       temple: '/images/kingdom-tiles/Temple.webp',
       'market-stalls': '/images/kingdom-tiles/MarketStalls.webp',
       fortune_teller: '/images/kingdom-tiles/fortune_teller.png',
-      pyramid: '/images/tiles/pyramid-tile.png',
-      'whispering-well': '/images/tiles/whispering-well-tile.png',
-      'sphinx-gates': '/images/tiles/sphinx-gates-tile.png',
-      'whispering-canopy': '/images/tiles/whispering-canopy-tile.png',
-      'frostfire-obelisk': '/images/tiles/frostfire-obelisk-tile.png',
-      'fairy-ring': '/images/tiles/fairy-ring-tile.png',
+      pyramid: '/images/tiles/pyramid-tile.webp',
+      'whispering-well': '/images/tiles/whispering-well-tile.webp',
+      'sphinx-gates': '/images/tiles/sphinx-gates-tile.webp',
+      'whispering-canopy': '/images/tiles/whispering-canopy-tile.webp',
+      'frostfire-obelisk': '/images/tiles/frostfire-obelisk-tile.webp',
+      'fairy-ring': '/images/tiles/fairy-ring-tile.webp',
       'settlement': '/images/tiles/settlement-tile.webp',
       'megapolis': '/images/tiles/megapolis-tile.webp',
       'mystic-obelisk': '/images/tiles/mystic-obelisk-tile.webp',
       'golden-pantheon': '/images/tiles/golden-pantheon-tile.webp',
       'plank-labyrinth': '/images/tiles/plank-labyrinth-tile.webp',
-      prison: '/images/tiles/prison-tile.png',
-      apotheca: '/images/tiles/apotheca-tile.png',
-      abbey: '/images/tiles/abbey-tile.png'
+      prison: '/images/tiles/prison-tile.webp',
+      apotheca: '/images/tiles/apotheca-tile.webp',
+      abbey: '/images/tiles/abbey-tile.webp'
     };
 
     return {
