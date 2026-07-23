@@ -842,11 +842,11 @@ export default function DungeonPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
           {/* LEFT: ENEMY SHOWCASE */}
-          <div className="lg:col-span-5 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between items-center relative overflow-hidden min-h-[500px]">
+          <div className="lg:col-span-5 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-center items-center relative overflow-hidden">
             <div className="absolute -top-12 -left-12 w-48 h-48 bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
 
             {run.currentEncounter.type === 'monster' && enemyDef ? (
-              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-4 my-auto">
+              <div className="flex flex-col items-center animate-in zoom-in-95 duration-500 w-full space-y-4">
                 
                 {/* Header Badge Row */}
                 <div className="flex items-center justify-between w-full border-b border-white/5 pb-3">
@@ -859,37 +859,40 @@ export default function DungeonPage() {
                   <span className="text-xl filter drop-shadow-md">{getTypeEmoji(enemyDef.type)}</span>
                 </div>
 
-                {/* Creature Card Frame */}
+                {/* Creature Card Frame (Hugs content naturally, zero cropping, zero letterboxing) */}
                 <div className="relative group w-full flex justify-center py-1">
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/25 to-transparent blur-2xl rounded-full opacity-60 group-hover:opacity-85 transition-opacity`}></div>
                   
-                  <div className={`relative w-full max-w-[280px] aspect-[3/4.2] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col justify-between`}>
+                  <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col`}>
                     
-                    {/* Top Badges Row */}
-                    <div className="flex justify-between items-center p-3 z-20">
-                      <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
-                        Lv.{enemyLevel}
-                      </span>
-                      <span className="p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg">
-                        {getTypeEmoji(enemyDef.type)}
-                      </span>
-                    </div>
+                    {/* Natural Aspect Creature Image with Top Badges Overlay */}
+                    <div className="relative w-full overflow-hidden bg-zinc-950">
+                      <div className="absolute top-2.5 left-2.5 z-20">
+                        <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
+                          Lv.{enemyLevel}
+                        </span>
+                      </div>
 
-                    {/* Creature Image (Scaled cleanly without clipping or text overlap) */}
-                    <div className="relative w-full flex-1 my-1 p-2 flex items-center justify-center overflow-hidden">
+                      <div className="absolute top-2.5 right-2.5 z-20">
+                        <span className="p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg inline-block">
+                          {getTypeEmoji(enemyDef.type)}
+                        </span>
+                      </div>
+
                       <Image
                         src={`/images/creatures/${enemyId}.png`}
                         alt={enemyDef.name}
-                        fill
-                        className="object-contain scale-[1.05] drop-shadow-2xl transition-transform duration-300 group-hover:scale-110"
+                        width={768}
+                        height={1106}
+                        className="w-full h-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
                         unoptimized
                       />
                     </div>
 
-                    {/* Bottom Stats Banner (Solid panel so stats text never clips or overlaps image) */}
-                    <div className="bg-zinc-950/95 border-t border-white/10 p-3 space-y-2 z-10 w-full">
+                    {/* Bottom Stats Banner (Natural height panel below image) */}
+                    <div className="bg-zinc-950 border-t border-white/10 p-3.5 space-y-2.5 z-10 w-full">
                       <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
+                        <div className="flex justify-between text-[11px] text-zinc-400 font-bold">
                           <span>HP</span>
                           <span className="font-mono">{run.currentEncounter.hp} / {run.currentEncounter.maxHp}</span>
                         </div>
@@ -902,10 +905,10 @@ export default function DungeonPage() {
                       </div>
 
                       {/* Stats Row */}
-                      <div className="grid grid-cols-3 gap-1 text-[10px] font-mono text-center pt-0.5">
-                        <span className="bg-white/5 py-0.5 rounded flex items-center justify-center gap-1 text-red-300 font-bold">⚔️ {enemyDef.stats.atk}</span>
-                        <span className="bg-white/5 py-0.5 rounded flex items-center justify-center gap-1 text-blue-300 font-bold">🛡️ {enemyDef.stats.def}</span>
-                        <span className="bg-white/5 py-0.5 rounded flex items-center justify-center gap-1 text-emerald-300 font-bold">💨 {enemyDef.stats.spd}</span>
+                      <div className="grid grid-cols-3 gap-1.5 text-xs font-mono text-center pt-0.5">
+                        <span className="bg-white/5 py-1 rounded-md flex items-center justify-center gap-1 text-red-300 font-bold">⚔️ {enemyDef.stats.atk}</span>
+                        <span className="bg-white/5 py-1 rounded-md flex items-center justify-center gap-1 text-blue-300 font-bold">🛡️ {enemyDef.stats.def}</span>
+                        <span className="bg-white/5 py-1 rounded-md flex items-center justify-center gap-1 text-emerald-300 font-bold">💨 {enemyDef.stats.spd}</span>
                       </div>
                     </div>
                   </div>
@@ -916,7 +919,7 @@ export default function DungeonPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center my-auto space-y-4">
+              <div className="text-center my-auto space-y-4 py-8">
                 <div className="text-7xl animate-bounce">📦</div>
                 <h3 className="text-2xl font-bold text-amber-400">Treasure Vault Room!</h3>
                 <p className="text-xs text-zinc-400 max-w-xs">A chest filled with gold and rare dungeon materials!</p>
@@ -928,7 +931,7 @@ export default function DungeonPage() {
           </div>
 
           {/* RIGHT: DEPLOY FIGHTER & CONTROLS */}
-          <div className="lg:col-span-7 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[500px]">
+          <div className="lg:col-span-7 bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
 
             {run.currentEncounter.type === 'monster' && (
@@ -944,7 +947,7 @@ export default function DungeonPage() {
                       </Badge>
                     </div>
 
-                    {/* 2 ROWS OF 3 FIGHTERS GRID LAYOUT (Clean desktop layout with zero scrollbars) */}
+                    {/* 2 ROWS OF 3 FIGHTERS GRID LAYOUT (Natural Aspect Ratio, Hugs Content, Zero Cropping) */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 w-full">
                       {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
                         const memberHp = creature.hp;
@@ -966,43 +969,46 @@ export default function DungeonPage() {
                             key={`${creature.id}-${idx}`}
                             onClick={() => selectFighter(creature)}
                             disabled={isFainted}
-                            className={`w-full aspect-[3/4.1] group relative rounded-2xl border-2 flex flex-col justify-between p-3 text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
+                            className={`w-full group relative rounded-2xl border-2 flex flex-col justify-between text-left transition-all duration-200 overflow-hidden bg-zinc-950 ${
                               isFainted 
                                 ? 'border-zinc-800 bg-zinc-950 text-zinc-600 opacity-40 cursor-not-allowed shadow-none' 
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
                             } ${selectedCreature?.id === creature.id ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
-                            {/* Top Level Badge & Element Emoji */}
-                            <div className="flex justify-between items-start z-10 w-full">
-                              <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
-                                Lv.{fighterLevel}
-                              </span>
-                              <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
-                            </div>
-
-                            {/* Centered Matchup text overlay inside cards */}
-                            {matchupText && !isFainted && (
-                              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
-                                {matchupText}
+                            <div className="relative w-full overflow-hidden bg-zinc-950">
+                              {/* Top Level Badge & Element Emoji */}
+                              <div className="absolute top-2 left-2 z-10">
+                                <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
+                                  Lv.{fighterLevel}
+                                </span>
                               </div>
-                            )}
+                              <div className="absolute top-2 right-2 z-10">
+                                <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                              </div>
 
-                            {/* Creature Image inside deploy buttons */}
-                            <div className="relative w-full flex-1 my-1 p-1 flex items-center justify-center overflow-hidden">
+                              {/* Centered Matchup text overlay inside cards */}
+                              {matchupText && !isFainted && (
+                                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
+                                  {matchupText}
+                                </div>
+                              )}
+
+                              {/* Natural Aspect Creature Image */}
                               <Image
                                 src={`/images/creatures/${creature.id}.png`}
                                 alt={creature.name}
-                                fill
-                                className="object-contain scale-[1.05] drop-shadow-lg"
+                                width={768}
+                                height={1106}
+                                className="w-full h-auto object-contain block drop-shadow-lg"
                                 unoptimized
                               />
                             </div>
 
-                            {/* Health Stats & Info */}
-                            <div className="space-y-1 z-10 w-full bg-zinc-950/80 p-1.5 rounded-lg border border-white/5">
+                            {/* Bottom Health Stats & Info Banner */}
+                            <div className="space-y-1 z-10 w-full bg-zinc-950 p-2 border-t border-white/10">
                               <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
                                 <span>HP</span>
-                                <span>{memberHp}/{memberMaxHp}</span>
+                                <span className="font-mono">{memberHp}/{memberMaxHp}</span>
                               </div>
                               <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
                                 <div
@@ -1022,34 +1028,37 @@ export default function DungeonPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-6 flex flex-col items-center my-auto w-full">
+                  <div className="space-y-6 flex flex-col items-center my-auto w-full py-4">
                     <div className="flex flex-col items-center justify-center space-y-4 py-2 w-full">
                       {/* Active Fighter Mini Card */}
-                      <div className="relative group w-full max-w-[200px] aspect-[3/4.2] animate-in zoom-in-95 duration-300">
-                        <div className={`w-full h-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl`}>
+                      <div className="relative group w-full max-w-[220px] animate-in zoom-in-95 duration-300">
+                        <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl`}>
                           
-                          {/* Level Badge Overlay */}
-                          <div className="flex justify-between items-center p-3 z-10 w-full">
-                            <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
-                              Lv.{selectedCreature?.level || 1}
-                            </span>
-                            <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
-                          </div>
+                          <div className="relative w-full overflow-hidden bg-zinc-950">
+                            {/* Level Badge Overlay */}
+                            <div className="absolute top-2 left-2 z-10">
+                              <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
+                                Lv.{selectedCreature?.level || 1}
+                              </span>
+                            </div>
+                            <div className="absolute top-2 right-2 z-10">
+                              <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                            </div>
 
-                          <div className="relative w-full flex-1 my-1 p-2 flex items-center justify-center">
                             <Image
                               src={`/images/creatures/${selectedCreature!.id}.png`}
                               alt={selectedCreature!.name}
-                              fill
-                              className="object-contain scale-[1.05] drop-shadow-lg"
+                              width={768}
+                              height={1106}
+                              className="w-full h-auto object-contain block drop-shadow-lg"
                               unoptimized
                             />
                           </div>
 
-                          <div className="bg-zinc-950/95 border-t border-white/10 p-3 space-y-1.5 z-10 w-full">
+                          <div className="bg-zinc-950 border-t border-white/10 p-3 space-y-1.5 z-10 w-full">
                             <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
                               <span>HP</span>
-                              <span>{activeFighterHp} / {activeFighterMaxHp}</span>
+                              <span className="font-mono">{activeFighterHp} / {activeFighterMaxHp}</span>
                             </div>
                             <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
                               <div
