@@ -129,14 +129,20 @@ class NotificationService {
           else ctaText = "Go";
         }
 
-        toast({
+        const toastPayload: any = {
           title: notification.title,
           description: notification.message,
-          action: notification.action && ctaText ? React.createElement(ToastAction, {
-            altText: ctaText,
-            onClick: () => { window.location.href = notification.action!.href; }
-          }, ctaText) : undefined,
-        })
+        };
+
+        if (notification.action && ctaText) {
+          toastPayload.action = (
+            <ToastAction altText={ctaText} onClick={() => { window.location.href = notification.action!.href; }}>
+              {ctaText}
+            </ToastAction>
+          );
+        }
+
+        toast(toastPayload);
       }
     }
   }

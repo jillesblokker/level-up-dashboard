@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { toast } from '@/components/ui/use-toast';
+import { useToast, toast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
