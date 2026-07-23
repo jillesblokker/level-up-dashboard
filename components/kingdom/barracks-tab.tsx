@@ -1,17 +1,18 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-import { useState, useEffect, useCallback } from "react"
-import { Sword, Sparkles, Star, Check, Shield, Award, Users, AlertTriangle } from "lucide-react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { Sword, Sparkles, Star, Check, Shield, Award, Users, AlertTriangle, Search, Zap, Flame, Droplets, Mountain, Snowflake, Leaf } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
+import { Input } from "@/components/ui/input"
 
 import { useCitizensStore, Citizen } from '@/stores/citizensStore';
 import { getInventory } from '@/lib/inventory-manager';
@@ -30,6 +31,9 @@ export function BarracksTab() {
   const [inventoryFood, setInventoryFood] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
   const [inventoryScrolls, setInventoryScrolls] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
   const [isTraining, setIsTraining] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   const loadResources = useCallback(async () => {
     if (!user?.id) return;
@@ -46,7 +50,8 @@ export function BarracksTab() {
         i.type === 'food' || 
         i.type === 'consumable' || 
         i.id.startsWith('food-') ||
-        i.id.startsWith('item-food-')
+        i.id.startsWith('item-food-') ||
+        i.id.startsWith('fish-')
       ).map((i: any) => ({
         id: i.id,
         name: i.name,
@@ -58,7 +63,8 @@ export function BarracksTab() {
       // Filter scrolls
       const scrolls = items.filter((i: any) => 
         i.type === 'scroll' || 
-        i.id.startsWith('scroll-')
+        i.id.startsWith('scroll-') ||
+        i.id.includes('scroll')
       ).map((i: any) => ({
         id: i.id,
         name: i.name,
@@ -78,7 +84,60 @@ export function BarracksTab() {
     }
   }, [user?.id, loadCitizens, loadResources]);
 
-  const selectedCitizen = citizens.find(c => c.id === selectedId) || null;
+  // Set default selection when citizens load
+  useEffect(() => {
+    if (citizens.length > 0 && !selectedId) {
+      setSelectedId(citizens[0]?.id || null);
+    }
+  }, [citizens, selectedId]);
+
+  const selectedCitizen = useMemo(() => {
+    return citizens.find(c => c.id === selectedId) || null;
+  }, [citizens, selectedId]);
+
+  // Filtered citizens list
+  const filteredCitizens = useMemo(() => {
+    return citizens.filter(c => {
+      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            c.type.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFilter = filterType === 'all' || 
+                            (filterType === 'mythic' && c.isMythic) || 
+                            (filterType === 'squad' && combatSupporters.includes(c.id)) ||
+                            c.type === filterType;
+      return matchesSearch && matchesFilter;
+    });
+  }, [citizens, searchQuery, filterType, combatSupporters]);
+
+  const getCitizenImageSrc = (c: Citizen) => {
+    if (imgErrors[c.id]) {
+      return '/images/placeholders/creature.webp';
+    }
+    if (c.isMythic || c.id?.startsWith('mythic-') || c.filename?.startsWith('Mythic')) {
+      return `/images/Mythics/${c.filename}?v=2`;
+    }
+    return c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp';
+  };
+
+  const handleImageError = (citizenId: string) => {
+    setImgErrors(prev => ({ ...prev, [citizenId]: true }));
+  };
+
+  const getElementBadge = (type: string) => {
+    switch (type) {
+      case 'fire':
+        return { icon: <Flame className="w-3 h-3 text-red-400" />, bg: "bg-red-950/40 text-red-300 border-red-500/30", label: "Fire" };
+      case 'water':
+        return { icon: <Droplets className="w-3 h-3 text-blue-400" />, bg: "bg-blue-950/40 text-blue-300 border-blue-500/30", label: "Water" };
+      case 'earth':
+        return { icon: <Mountain className="w-3 h-3 text-amber-500" />, bg: "bg-amber-950/40 text-amber-300 border-amber-500/30", label: "Earth" };
+      case 'ice':
+        return { icon: <Snowflake className="w-3 h-3 text-cyan-300" />, bg: "bg-cyan-950/40 text-cyan-200 border-cyan-500/30", label: "Ice" };
+      case 'nature':
+        return { icon: <Leaf className="w-3 h-3 text-emerald-400" />, bg: "bg-emerald-950/40 text-emerald-300 border-emerald-500/30", label: "Nature" };
+      default:
+        return { icon: <Sparkles className="w-3 h-3 text-purple-400" />, bg: "bg-purple-950/40 text-purple-300 border-purple-500/30", label: "Special" };
+    }
+  };
 
   const playTrainingSound = () => {
     if (typeof window === 'undefined') return;
@@ -113,7 +172,6 @@ export function BarracksTab() {
     } catch {}
   };
 
-  // Get tiered material requirements based on citizen level
   const getTrainingTier = (level: number) => {
     if (level >= 8) return { foodQty: 3, scrollQty: 3, tierLabel: 'Elite' };
     if (level >= 5) return { foodQty: 2, scrollQty: 2, tierLabel: 'Advanced' };
@@ -126,7 +184,7 @@ export function BarracksTab() {
     const level = selectedCitizen.level || 1;
     if (level >= 10) {
       toast({
-        title: "Max Level Reached",
+        title: "Max Level Reached 🏆",
         description: "This citizen has already achieved elite level 10!",
         variant: "destructive"
       });
@@ -136,8 +194,8 @@ export function BarracksTab() {
     const goldCost = 50 * level;
     if (playerGold < goldCost) {
       toast({
-        title: "Insufficient Gold",
-        description: `Training requires ${goldCost}g. You only have ${playerGold}g.`,
+        title: "Insufficient Gold 🪙",
+        description: `Training requires ${goldCost}g. You currently have ${playerGold}g.`,
         variant: "destructive"
       });
       return;
@@ -149,7 +207,7 @@ export function BarracksTab() {
 
     if (totalFoodAvailable < tier.foodQty) {
       toast({
-        title: "Missing Food",
+        title: "Missing Nourishment 🍎",
         description: `${tier.tierLabel} training requires ${tier.foodQty} food item${tier.foodQty > 1 ? 's' : ''}. You only have ${totalFoodAvailable}.`,
         variant: "destructive"
       });
@@ -157,7 +215,7 @@ export function BarracksTab() {
     }
     if (totalScrollsAvailable < tier.scrollQty) {
       toast({
-        title: "Missing Scrolls",
+        title: "Missing Tactical Scrolls 📜",
         description: `${tier.tierLabel} training requires ${tier.scrollQty} scroll${tier.scrollQty > 1 ? 's' : ''}. You only have ${totalScrollsAvailable}.`,
         variant: "destructive"
       });
@@ -168,15 +226,15 @@ export function BarracksTab() {
       setIsTraining(true);
       playTrainingSound();
 
-      // Trigger visual shake on barracks panel
+      // Visual shake on barracks panel
       const barracksContainer = document.querySelector('.barracks-card-container');
       if (barracksContainer) {
         barracksContainer.classList.add('animate-forge-shake');
         setTimeout(() => barracksContainer.classList.remove('animate-forge-shake'), 300);
       }
 
-      const chosenFood = inventoryFood.find(f => f.quantity >= tier.foodQty);
-      const chosenScroll = inventoryScrolls.find(s => s.quantity >= tier.scrollQty);
+      const chosenFood = inventoryFood.find(f => f.quantity >= tier.foodQty) || inventoryFood[0];
+      const chosenScroll = inventoryScrolls.find(s => s.quantity >= tier.scrollQty) || inventoryScrolls[0];
       if (!chosenFood || !chosenScroll) {
         toast({ title: "Insufficient materials", description: "Not enough food or scrolls for this training tier.", variant: "destructive" });
         setIsTraining(false);
@@ -189,7 +247,7 @@ export function BarracksTab() {
         if (res.leveledUp) {
           toast({
             title: "LEVEL UP! ⚔️🌟",
-            description: `${selectedCitizen.name} has reached Level ${level + 1}! Their support buffs are now stronger.`,
+            description: `${selectedCitizen.name} has reached Level ${level + 1}! Their support skill and gathering output are now stronger.`,
           });
         } else {
           toast({
@@ -212,8 +270,8 @@ export function BarracksTab() {
     }
   };
 
-  const getPassiveDescription = (citizen: Citizen) => {
-    const lvl = citizen.level || 1;
+  const getPassiveDescription = (citizen: Citizen, customLevel?: number) => {
+    const lvl = customLevel !== undefined ? customLevel : (citizen.level || 1);
     switch (citizen.type) {
       case 'nature':
         return `Adds +${(lvl * 0.5).toFixed(1)}s to the battle sequence memory timer.`;
@@ -233,288 +291,424 @@ export function BarracksTab() {
   return (
     <div className="space-y-6">
       
-      {/* Barracks Header */}
-      <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
-        <Image
-          src="/images/barracks-hero.png"
-          alt="Barracks"
-          fill
-          className="object-cover brightness-90 contrast-105 select-none pointer-events-none"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
-        <div className="p-6 relative z-10 space-y-1">
-          <Badge className="bg-amber-600 text-black font-extrabold text-[9px] uppercase tracking-wider mb-2">
-            Kingdom Training Ground
-          </Badge>
-          <h2 className="font-cardo font-bold text-2xl text-white">Citizen Barracks</h2>
-          <p className="text-xs text-zinc-300 max-w-xl">
-            Train your citizens using scrolls and food to power up their levels, enhancing their combat support skills and attributes.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-      
-      {/* Left panel: Citizen Selection List */}
-      <div className="lg:col-span-1 space-y-4 flex flex-col h-full">
-        <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-          <Users className="w-5 h-5 text-amber-500" /> Unlock Hall
-        </h3>
-        <div className="space-y-2.5 max-h-[620px] overflow-y-auto pr-1 flex-1">
-          {citizens.map(c => {
-            const isSlotted = combatSupporters.includes(c.id);
-            const isSelected = selectedId === c.id;
-
-            return (
-              <div
-                key={c.id}
-                onClick={() => setSelectedId(c.id)}
-                className={cn(
-                  "p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between",
-                  isSelected
-                    ? "bg-amber-950/20 border-amber-500/50 shadow-inner shadow-amber-900/10"
-                    : "bg-[#0f1115] border-white/5 hover:border-amber-900/30"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-zinc-900 border border-zinc-800 rounded-xl relative overflow-hidden flex items-center justify-center shrink-0">
-                    <Image
-                      src={c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp'}
-                      alt={c.name}
-                      width={48}
-                      height={48}
-                      className="object-contain"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-white text-xs truncate max-w-[110px]">{c.name}</h4>
-                      {c.isMythic && (
-                        <Badge className="bg-orange-600/20 text-orange-400 border border-orange-500/30 text-[8px] scale-90 px-1 py-0 uppercase shrink-0">
-                          Mythic
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-wider font-bold">
-                      Level {c.level || 1} • {c.type}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  {isSlotted && (
-                    <Badge className="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-[8px] px-1 py-0">
-                      🗡️ Squad
-                    </Badge>
-                  )}
-                  {c.active && (
-                    <Badge variant="outline" className="text-zinc-500 text-[8px] px-1 py-0">
-                      Active
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Right panel: Barracks training center */}
-      <div className="lg:col-span-2 space-y-4 flex flex-col h-full barracks-card-container transition-all">
-        <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-          <Sword className="w-5 h-5 text-amber-500" /> Training Arena
-        </h3>
-        {selectedCitizen === null ? (
-          <div className="flex-1 min-h-[500px] flex flex-col items-center justify-center text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/20">
-            <Sword className="w-12 h-12 text-zinc-600 mb-3 animate-pulse" />
-            <h4 className="font-cardo font-bold text-sm text-amber-500/70 mb-1">Barracks Dormitory</h4>
-            <p className="text-xs max-w-xs px-6">Select one of your unlocked citizens from the sidebar to train them in the Barracks or assign them to support you in battles!</p>
+      {/* Barracks Header Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-amber-800/30 bg-gradient-to-r from-amber-950/80 via-zinc-950 to-zinc-950 p-6 shadow-2xl">
+        <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-amber-600/30 text-amber-300 border border-amber-500/40 font-extrabold text-[10px] uppercase tracking-wider">
+                Kingdom Military Training Grounds
+              </Badge>
+              <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
+                ⚔️ Squad Active: {combatSupporters.length}/2
+              </Badge>
+            </div>
+            <h2 className="font-cardo font-bold text-2xl md:text-3xl text-white flex items-center gap-2">
+              Citizen Barracks <Zap className="w-6 h-6 text-amber-500 animate-pulse" />
+            </h2>
+            <p className="text-xs text-zinc-300 max-w-2xl leading-relaxed">
+              Train your unlocked citizens and mythic cards using scrolls and nourishment. Higher level citizens yield increased gold harvests, higher combat modifiers, and unlocked mastery perks.
+            </p>
           </div>
-        ) : (
-          (() => {
-            const c = selectedCitizen;
-            const lvl = c.level || 1;
-            const nextLvl = lvl + 1;
-            const goldCost = 50 * lvl;
-            const currentXP = c.experience || 0;
-            const targetXP = lvl * 100;
-            const isSlotted = combatSupporters.includes(c.id);
-            const isLocked = c.lockedReason === 'expedition';
 
-            const tier = getTrainingTier(lvl);
-            const hasGold = playerGold >= goldCost;
-            const totalFood = inventoryFood.reduce((sum, f) => sum + f.quantity, 0);
-            const totalScrolls = inventoryScrolls.reduce((sum, s) => sum + s.quantity, 0);
-            const hasFood = totalFood >= tier.foodQty;
-            const hasScrolls = totalScrolls >= tier.scrollQty;
-            const canTrain = hasGold && hasFood && hasScrolls && lvl < 10 && !isLocked;
+          <div className="flex items-center gap-3 bg-zinc-900/90 border border-amber-500/20 p-3 rounded-xl shrink-0">
+            <div className="text-right">
+              <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Available Treasury</p>
+              <p className="text-base font-extrabold text-amber-400">🪙 {playerGold.toLocaleString()}g</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            return (
-              <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between flex-1 min-h-[500px]">
-                
-                {/* Background lighting flare */}
-                <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      
+        {/* Left panel: Citizen Selection List */}
+        <div className="lg:col-span-1 space-y-3 flex flex-col">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-base font-cardo font-bold text-amber-100 flex items-center gap-2">
+              <Users className="w-4 h-4 text-amber-500" /> Unlock Hall ({filteredCitizens.length})
+            </h3>
+          </div>
 
-                <div className="space-y-6">
-                  {/* Citizen Header Banner */}
-                  <div className="flex items-start justify-between pb-4 border-b border-white/5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-zinc-900 border border-zinc-700/50 rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0 relative">
-                        <Image
-                          src={c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp'}
+          {/* Search and Filters */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <Input
+                placeholder="Search citizens & mythics..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-9 text-xs bg-[#0b0d10] border-zinc-800 text-zinc-200 placeholder:text-zinc-500 focus-visible:ring-amber-500/50"
+              />
+            </div>
+
+            <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar">
+              {['all', 'squad', 'mythic', 'fire', 'water', 'earth', 'ice', 'nature'].map((f) => (
+                <Button
+                  key={f}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setFilterType(f)}
+                  className={cn(
+                    "h-6 px-2 text-[10px] capitalize font-bold rounded-lg shrink-0",
+                    filterType === f 
+                      ? "bg-amber-600/30 text-amber-300 border border-amber-500/40" 
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
+                  )}
+                >
+                  {f === 'squad' ? '🗡️ Squad' : f === 'mythic' ? '✨ Mythics' : f}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Citizens Scroll List */}
+          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+            {filteredCitizens.length === 0 ? (
+              <div className="p-6 text-center text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
+                No citizens found matching filter.
+              </div>
+            ) : (
+              filteredCitizens.map(c => {
+                const isSlotted = combatSupporters.includes(c.id);
+                const isSelected = selectedId === c.id;
+                const elem = getElementBadge(c.type);
+                const imgSrc = getCitizenImageSrc(c);
+
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => setSelectedId(c.id)}
+                    className={cn(
+                      "p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 group relative overflow-hidden",
+                      isSelected
+                        ? "bg-amber-950/30 border-amber-500/60 shadow-lg shadow-amber-950/20"
+                        : "bg-[#0b0d10] border-white/5 hover:border-amber-500/30 hover:bg-zinc-900/60"
+                    )}
+                  >
+                    {/* Active Squad indicator stripe */}
+                    {isSlotted && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
+                    )}
+
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {/* Avatar box */}
+                      <div className="w-12 h-12 bg-zinc-950 border border-zinc-800 rounded-xl relative overflow-hidden flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+                        <img
+                          src={imgSrc}
                           alt={c.name}
-                          width={60}
-                          height={60}
-                          className="object-contain"
+                          onError={() => handleImageError(c.id)}
+                          className="w-full h-full object-contain p-1"
                         />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-cardo font-bold text-white text-base leading-none">{c.name}</h4>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-bold text-white text-xs truncate max-w-[130px] group-hover:text-amber-300 transition-colors">
+                            {c.name}
+                          </h4>
                           {c.isMythic && (
-                            <Badge className="bg-orange-600/20 text-orange-400 border border-orange-500/30 text-[8px] uppercase">
-                              Mythic Card
+                            <Badge className="bg-orange-600/20 text-orange-400 border border-orange-500/30 text-[8px] px-1 py-0 uppercase shrink-0">
+                              Mythic
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wider mt-1.5 font-bold flex items-center gap-1.5">
-                          <span>Level {lvl}</span>
-                          <span className="w-1 h-1 bg-zinc-700 rounded-full" />
-                          <span className="capitalize text-zinc-400">{c.type} Habitat</span>
-                        </p>
+
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="text-[10px] text-amber-400 font-extrabold uppercase">
+                            Lv.{c.level || 1}
+                          </span>
+                          <span className={cn("text-[9px] px-1.5 py-0.2 rounded border font-semibold flex items-center gap-1", elem.bg)}>
+                            {elem.icon} {elem.label}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      {isSlotted ? (
+                        <Badge className="bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 text-[8px] px-1.5 py-0.5 font-bold">
+                          🗡️ Squad
+                        </Badge>
+                      ) : c.active ? (
+                        <Badge variant="outline" className="text-zinc-400 border-zinc-700 text-[8px] px-1 py-0">
+                          Active
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Right panel: Barracks training center */}
+        <div className="lg:col-span-2 space-y-4 flex flex-col barracks-card-container transition-all">
+          <h3 className="text-base font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
+            <Sword className="w-4 h-4 text-amber-500" /> Training Arena
+          </h3>
+
+          {selectedCitizen === null ? (
+            <div className="min-h-[450px] flex flex-col items-center justify-center text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/40 p-8">
+              <Sword className="w-12 h-12 text-zinc-600 mb-3 animate-pulse" />
+              <h4 className="font-cardo font-bold text-base text-amber-400 mb-1">Barracks Dormitory</h4>
+              <p className="text-xs max-w-sm">Select one of your unlocked citizens from the Unlock Hall sidebar to begin training and view their combat buffs!</p>
+            </div>
+          ) : (
+            (() => {
+              const c = selectedCitizen;
+              const lvl = c.level || 1;
+              const nextLvl = Math.min(10, lvl + 1);
+              const goldCost = 50 * lvl;
+              const currentXP = c.experience || 0;
+              const targetXP = lvl * 100;
+              const isSlotted = combatSupporters.includes(c.id);
+              const isLocked = c.lockedReason === 'expedition';
+
+              const tier = getTrainingTier(lvl);
+              const hasGold = playerGold >= goldCost;
+              const totalFood = inventoryFood.reduce((sum, f) => sum + f.quantity, 0);
+              const totalScrolls = inventoryScrolls.reduce((sum, s) => sum + s.quantity, 0);
+              const hasFood = totalFood >= tier.foodQty;
+              const hasScrolls = totalScrolls >= tier.scrollQty;
+              const canTrain = hasGold && hasFood && hasScrolls && lvl < 10 && !isLocked;
+              const elem = getElementBadge(c.type);
+              const imgSrc = getCitizenImageSrc(c);
+
+              return (
+                <Card className="bg-[#0b0d10] border border-amber-900/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between space-y-6">
+                  
+                  {/* Background flare */}
+                  <div className="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/10 blur-3xl rounded-full pointer-events-none" />
+
+                  <div className="space-y-6 relative z-10">
+
+                    {/* Character Showcase Banner */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/5">
+                      <div className="flex items-center gap-4">
+                        {/* Large Avatar frame */}
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-zinc-950 border-2 border-amber-500/30 rounded-2xl relative overflow-hidden flex items-center justify-center shrink-0 shadow-2xl p-2 bg-gradient-to-b from-zinc-900 to-zinc-950">
+                          <img
+                            src={imgSrc}
+                            alt={c.name}
+                            onError={() => handleImageError(c.id)}
+                            className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-cardo font-bold text-white text-xl sm:text-2xl">{c.name}</h4>
+                            {c.isMythic && (
+                              <Badge className="bg-orange-600/20 text-orange-400 border border-orange-500/40 text-[9px] uppercase font-bold">
+                                ✨ Mythic Card
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                            <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 font-extrabold text-[10px] uppercase">
+                              Level {lvl} / 10
+                            </Badge>
+                            <span className={cn("text-[10px] px-2 py-0.5 rounded-md border font-bold flex items-center gap-1", elem.bg)}>
+                              {elem.icon} {elem.label} Habitat
+                            </span>
+                            <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-500/20">
+                              ❤️ Affection: {c.affection || 0}% (+{((c.affection || 0) * 0.5).toFixed(1)}% Gold Yield)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Supporter Slot Button */}
+                      <div className="shrink-0 pt-2 sm:pt-0">
+                        <Button
+                          size="sm"
+                          disabled={isLocked}
+                          variant={isSlotted ? "destructive" : "secondary"}
+                          onClick={() => toggleSupporter(user!.id, c.id)}
+                          className={cn(
+                            "h-9 text-xs font-bold transition-all px-4 shadow-md",
+                            !isSlotted && !isLocked && "bg-emerald-600 hover:bg-emerald-500 text-white"
+                          )}
+                        >
+                          {isLocked ? "Away 🚀" : isSlotted ? "❌ Remove from Squad" : "🗡️ Slot as Supporter"}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Level Progress bar */}
+                    <div className="space-y-2 bg-zinc-950/60 p-4 rounded-xl border border-white/5">
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-zinc-400">Experience Points:</span>
+                        <span className="text-amber-400 font-extrabold">{currentXP} / {targetXP} XP</span>
+                      </div>
+                      <Progress value={(currentXP / targetXP) * 100} className="h-2.5 bg-zinc-950 border border-white/10" indicatorClassName="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400" />
+                      <div className="flex justify-between items-center text-[10px] text-zinc-500 pt-0.5">
+                        <span>Training session: +50 XP</span>
+                        {lvl < 10 && <span className="text-amber-400/80 font-semibold">Next level: Level {nextLvl}</span>}
+                      </div>
+                    </div>
+
+                    {/* Combat support passive buff & Skill Scaling */}
+                    <div className="p-4 bg-amber-950/10 border border-amber-500/20 rounded-xl space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                          <Shield className="w-5 h-5 text-amber-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h5 className="font-bold text-amber-300 text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                            <Award className="w-3.5 h-3.5 text-amber-500" /> Active Combat Skill:
+                          </h5>
+                          <p className="text-xs text-white font-medium mt-0.5">{getPassiveDescription(c)}</p>
+                        </div>
+                      </div>
+
+                      {lvl < 10 && (
+                        <div className="border-t border-amber-500/10 pt-2.5 flex items-center justify-between text-[11px]">
+                          <span className="text-zinc-400 font-medium">Level {nextLvl} Upgrade Preview:</span>
+                          <span className="text-emerald-400 font-bold">{getPassiveDescription(c, nextLvl)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Level Mastery Perks Roadmap */}
+                    <div className="space-y-2">
+                      <h5 className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-1.5">
+                        <Star className="w-3 h-3 text-amber-500" /> Citizen Level Perks & Milestones:
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className={cn(
+                          "p-2.5 rounded-xl border text-[11px] space-y-0.5",
+                          lvl >= 5 ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300" : "bg-zinc-950/40 border-white/5 text-zinc-500"
+                        )}>
+                          <div className="font-bold flex items-center gap-1">
+                            {lvl >= 5 ? <Check className="w-3 h-3 text-emerald-400" /> : <Star className="w-3 h-3 text-zinc-600" />}
+                            Level 5 Perk
+                          </div>
+                          <p className="text-[10px] text-zinc-400">+15% Gold Gather Yield</p>
+                        </div>
+
+                        <div className={cn(
+                          "p-2.5 rounded-xl border text-[11px] space-y-0.5",
+                          lvl >= 8 ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300" : "bg-zinc-950/40 border-white/5 text-zinc-500"
+                        )}>
+                          <div className="font-bold flex items-center gap-1">
+                            {lvl >= 8 ? <Check className="w-3 h-3 text-emerald-400" /> : <Star className="w-3 h-3 text-zinc-600" />}
+                            Level 8 Perk
+                          </div>
+                          <p className="text-[10px] text-zinc-400">+25% Material Drop Chance</p>
+                        </div>
+
+                        <div className={cn(
+                          "p-2.5 rounded-xl border text-[11px] space-y-0.5",
+                          lvl >= 10 ? "bg-amber-950/30 border-amber-500/40 text-amber-300" : "bg-zinc-950/40 border-white/5 text-zinc-500"
+                        )}>
+                          <div className="font-bold flex items-center gap-1">
+                            {lvl >= 10 ? <Check className="w-3 h-3 text-amber-400" /> : <Star className="w-3 h-3 text-zinc-600" />}
+                            Level 10 Master
+                          </div>
+                          <p className="text-[10px] text-zinc-400">+50% Gold Yield & Title</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Training Requirements */}
+                    <div className="space-y-2 pt-1">
+                      <h5 className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-2">
+                        Required Resources:
+                        <Badge variant="outline" className="text-[9px] text-amber-400 border-amber-500/30 font-bold uppercase px-2 py-0">
+                          {tier.tierLabel} Tier
+                        </Badge>
+                      </h5>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* Gold cost */}
+                        <div className={cn(
+                          "p-3 rounded-xl border text-xs flex justify-between items-center",
+                          hasGold ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300" : "bg-red-950/20 border-red-500/30 text-red-400"
+                        )}>
+                          <span className="font-semibold flex items-center gap-1">🪙 Gold</span>
+                          <span className="font-bold">{goldCost}g</span>
+                        </div>
+
+                        {/* Food cost */}
+                        <div className={cn(
+                          "p-3 rounded-xl border text-xs flex justify-between items-center",
+                          hasFood ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300" : "bg-red-950/20 border-red-500/30 text-red-400"
+                        )}>
+                          <span className="font-semibold truncate flex items-center gap-1">🍎 Nourishment</span>
+                          <span className="font-bold">{Math.min(totalFood, tier.foodQty)}/{tier.foodQty}</span>
+                        </div>
+
+                        {/* Scroll cost */}
+                        <div className={cn(
+                          "p-3 rounded-xl border text-xs flex justify-between items-center",
+                          hasScrolls ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300" : "bg-red-950/20 border-red-500/30 text-red-400"
+                        )}>
+                          <span className="font-semibold truncate flex items-center gap-1">📜 Tactical Scroll</span>
+                          <span className="font-bold">{Math.min(totalScrolls, tier.scrollQty)}/{tier.scrollQty}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Training Actions */}
+                  <div className="pt-4 border-t border-white/5 mt-4 relative z-10">
+                    {isLocked ? (
+                      <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
+                        Locked: Away on Airship Expedition 🚀
+                      </Button>
+                    ) : lvl >= 10 ? (
+                      <Button disabled className="w-full bg-amber-950/20 border border-amber-500/30 text-amber-300 cursor-default text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
+                        🏆 Maximum Elite Level 10 Achieved!
+                      </Button>
+                    ) : (
                       <Button
-                        size="sm"
-                        disabled={isLocked}
-                        variant={isSlotted ? "destructive" : "secondary"}
-                        onClick={() => toggleSupporter(user!.id, c.id)}
+                        disabled={!canTrain || isTraining}
+                        onClick={handleTrain}
                         className={cn(
-                          "h-8 text-xs font-bold transition-all px-3",
-                          !isSlotted && !isLocked && "bg-emerald-600 hover:bg-emerald-700 text-white"
+                          "w-full text-xs font-bold py-6 rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl",
+                          canTrain 
+                            ? "bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black font-extrabold hover:brightness-110 active:scale-[0.98] shadow-amber-500/10" 
+                            : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                         )}
                       >
-                        {isLocked ? "Away 🚀" : isSlotted ? "Remove squad" : "⚔️ Slot Supporter"}
+                        {isTraining ? (
+                          <>⏳ Hammering Arena Forge...</>
+                        ) : (
+                          <>🏋️ Train Citizen (+50 XP)</>
+                        )}
                       </Button>
-                    </div>
-                  </div>
+                    )}
 
-                  {/* Level Progress bar */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-zinc-400">Experience Points:</span>
-                      <span className="text-amber-500">{currentXP} / {targetXP} XP</span>
-                    </div>
-                    <Progress value={(currentXP / targetXP) * 100} className="h-2 bg-zinc-950 border border-white/5" indicatorClassName="bg-gradient-to-r from-amber-600 to-amber-400" />
-                    <p className="text-[10px] text-zinc-500">Each training session provides +50 XP and requires resources.</p>
-                  </div>
-
-                  {/* Combat support passive buff */}
-                  <div className="p-4 bg-zinc-950/60 border border-white/5 rounded-xl flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-950/20 border border-amber-500/20 flex items-center justify-center shrink-0">
-                      <Shield className="w-5 h-5 text-amber-500" />
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-white text-xs flex items-center gap-1.5">
-                        <Award className="w-3.5 h-3.5 text-amber-500" /> Combat Support Skill:
-                      </h5>
-                      <p className="text-xs text-zinc-400 mt-1 font-medium">{getPassiveDescription(c)}</p>
-                    </div>
-                  </div>
-
-                  {/* Training checklist */}
-                  <div className="space-y-2">
-                    <h5 className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider flex items-center gap-2">
-                      Required Resources:
-                      <Badge variant="outline" className="text-[8px] text-amber-500 border-amber-500/20 font-bold uppercase px-1.5 py-0">
-                        {tier.tierLabel} Tier
-                      </Badge>
-                    </h5>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {/* Gold cost */}
-                      <div className={cn(
-                        "p-2.5 rounded-xl border text-xs flex justify-between items-center",
-                        hasGold ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
-                      )}>
-                        <span className="font-semibold">🪙 Gold</span>
-                        <span className="font-bold">{goldCost}g</span>
+                    {isLocked && (
+                      <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-zinc-400 font-bold bg-zinc-950/60 p-2 rounded-lg border border-white/5">
+                        🚀 Away on Voyage: This citizen is locked until they return from their Airship Journey.
                       </div>
-
-                      {/* Food cost */}
-                      <div className={cn(
-                        "p-2.5 rounded-xl border text-xs flex justify-between items-center",
-                        hasFood ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
-                      )}>
-                        <span className="font-semibold truncate">🍎 Nourishment</span>
-                        <span className="font-bold">{Math.min(totalFood, tier.foodQty)}/{tier.foodQty}</span>
+                    )}
+                    {!isLocked && isSlotted && (
+                      <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400 font-bold bg-emerald-950/20 p-2 rounded-lg border border-emerald-500/20">
+                        <Check className="w-3.5 h-3.5" /> Ready for Combat: This citizen is currently in your 2-man support squad!
                       </div>
-
-                      {/* Scroll cost */}
-                      <div className={cn(
-                        "p-2.5 rounded-xl border text-xs flex justify-between items-center",
-                        hasScrolls ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-400" : "bg-red-950/10 border-red-500/20 text-red-400"
-                      )}>
-                        <span className="font-semibold truncate">📜 Tactical Scroll</span>
-                        <span className="font-bold">{Math.min(totalScrolls, tier.scrollQty)}/{tier.scrollQty}</span>
+                    )}
+                    {!isLocked && !isSlotted && combatSupporters.length >= 2 && (
+                      <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-400 font-bold bg-amber-950/20 p-2 rounded-lg border border-amber-500/20">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Support Squad Full (2/2): Slotting this citizen will replace your oldest squad member.
                       </div>
-                    </div>
+                    )}
                   </div>
-                </div>
 
-                {/* Training Actions */}
-                <div className="pt-4 border-t border-white/5 mt-4">
-                  {isLocked ? (
-                    <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
-                      Locked: Away on Expedition 🚀
-                    </Button>
-                  ) : lvl >= 10 ? (
-                    <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
-                      Maximum Level (+10) reached
-                    </Button>
-                  ) : (
-                    <Button
-                      disabled={!canTrain || isTraining}
-                      onClick={handleTrain}
-                      className={cn(
-                        "w-full text-xs font-bold py-5 rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2",
-                        canTrain 
-                          ? "bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold shadow-lg hover:brightness-110 active:scale-[0.98]" 
-                          : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
-                      )}
-                    >
-                      {isTraining ? (
-                        <>⏳ Hammering Training Arena...</>
-                      ) : (
-                        <>🏋️ Train Citizen (+50 XP)</>
-                      )}
-                    </Button>
-                  )}
-                  {isLocked && (
-                    <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-zinc-400 font-bold bg-zinc-950/40 p-1.5 rounded-lg border border-white/5">
-                      🚀 Away on Voyage: This citizen is locked until they return from their Airship Journey.
-                    </div>
-                  )}
-                  {!isLocked && isSlotted && (
-                    <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-500 font-bold bg-emerald-950/10 p-1.5 rounded-lg border border-emerald-500/10">
-                      <Check className="w-3.5 h-3.5" /> Ready for Action: This citizen will support your next monster battle!
-                    </div>
-                  )}
-                  {!isLocked && !isSlotted && combatSupporters.length >= 2 && (
-                    <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-500 font-bold bg-amber-950/10 p-1.5 rounded-lg border border-amber-500/10">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Slot squad is full. Slotting this card rotates out the oldest supporter.
-                    </div>
-                  )}
-                </div>
+                </Card>
+              );
+            })()
+          )}
+        </div>
 
-              </Card>
-            );
-          })()
-        )}
       </div>
-
     </div>
-  </div>
   );
 }
