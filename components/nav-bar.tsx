@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef, useCallback } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
-import { Castle, Coins, Star } from "lucide-react"
+import { Castle, Coins, Star, Brain } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
 import { NotificationCenter } from "@/components/notification-center"
@@ -23,6 +23,7 @@ import { audioManager } from "@/lib/audio-manager"
 import { InventoryBagOverlay } from "@/components/inventory-bag-overlay"
 import { RandomEncounterModal } from "@/components/kingdom/random-encounter-modal"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { FocusPointsModal } from "@/components/focus-points-modal"
 
 interface CustomSession {
   user?: {
@@ -41,12 +42,14 @@ export function NavBar({ session }: NavBarProps) {
   const { openQuickAdd } = useQuickAdd()
   const [isClient, setIsClient] = useState(false)
   const [isBagOpen, setIsBagOpen] = useState(false);
+  const [showFocusModal, setShowFocusModal] = useState(false);
   const [characterStats, setCharacterStats] = useState({
     level: 1,
     experience: 0,
     experienceToNextLevel: 100,
     gold: 1000,
     ascension_level: 0,
+    focus_points: 0,
     titles: {
       equipped: "",
       unlocked: 0,
@@ -124,6 +127,7 @@ export function NavBar({ session }: NavBarProps) {
           experienceToNextLevel: calculateExperienceForLevel(currentLevel),
           gold: localStats.gold,
           ascension_level: localStats.ascension_level || 0,
+          focus_points: localStats.focus_points || 0,
           titles: { equipped: '', unlocked: 0, total: 0 },
           perks: { active: 0, total: 0 }
         })
@@ -141,11 +145,9 @@ export function NavBar({ session }: NavBarProps) {
                 level: currentLevel,
                 experience: freshStats.experience,
                 experienceToNextLevel: calculateExperienceForLevel(currentLevel),
-                // Only update gold if we are doing a full sync, but even then, 
-                // if local is ahead (due to recent action), we might want to keep local.
-                // But for now, let's assume periodic sync is safe.
                 gold: freshStats.gold,
-                ascension_level: freshStats.ascension_level || 0
+                ascension_level: freshStats.ascension_level || 0,
+                focus_points: freshStats.focus_points || 0
               }))
             }
           }
@@ -270,6 +272,21 @@ export function NavBar({ session }: NavBarProps) {
                 title={`${characterStats.gold} Gold`}
               />
             </div>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setShowFocusModal(true)}
+                  className="flex items-center space-x-1.5 bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer ml-2"
+                >
+                  <Brain className="h-3.5 w-3.5 text-purple-400 animate-pulse" />
+                  <span>{characterStats.focus_points || 0}</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-zinc-950 border-purple-900/50 text-purple-200 p-2 rounded-lg text-xs">
+                Click to spend Focus Points (XP Boost, Rush Timers, Astral Rewards)
+              </TooltipContent>
+            </Tooltip>
           </div>
           <div className="flex items-center space-x-1 pr-2 border-r border-zinc-800">
             <Button
@@ -314,6 +331,15 @@ export function NavBar({ session }: NavBarProps) {
     </div>
       <InventoryBagOverlay open={isBagOpen} onClose={() => setIsBagOpen(false)} />
       <RandomEncounterModal />
+      <FocusPointsModal
+        isOpen={showFocusModal}
+        onClose={() => setShowFocusModal(false)}
+        currentFocusPoints={characterStats.focus_points || 0}
+        onStatsUpdate={() => {
+          const stats = getCharacterStats();
+          setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
+        }}
+      />
     </>
   )
 }

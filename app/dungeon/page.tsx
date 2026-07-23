@@ -23,6 +23,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2 } from 'lucide-react';
+import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
+import { toast } from '@/components/ui/use-toast';
 
 interface Loot {
   type: string;
@@ -874,6 +876,37 @@ export default function DungeonPage() {
           >
             {dailyCount >= 3 ? '🔒 LOCKED UNTIL TOMORROW' : '⚔️ ENTER DUNGEON'}
           </Button>
+
+          {dailyCount >= 3 && (
+            <Button
+              onClick={async () => {
+                const stats = getCharacterStats();
+                if ((stats.focus_points || 0) < 5) {
+                  toast({
+                    title: "Insufficient Focus Points 🧠",
+                    description: "You need 5 Focus Points. Complete daily habits to earn more!",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+
+                await addToCharacterStat('focus_points', -5, 'buy-extra-dungeon-run');
+                const todayStr = new Date().toISOString().slice(0, 10);
+                const newCount = Math.max(0, dailyCount - 1);
+                setDailyCount(newCount);
+                localStorage.setItem(`dungeon_daily_runs_${todayStr}`, String(newCount));
+
+                toast({
+                  title: "🧠 Extra Attempt Unlocked!",
+                  description: "Spent 5 Focus Points. You gained +1 Dungeon Entry today!"
+                });
+              }}
+              size="lg"
+              className="w-full h-14 text-base font-bold bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 shadow-xl mt-3 animate-pulse"
+            >
+              🧠 Spend 5 Focus Points for +1 Extra Attempt
+            </Button>
+          )}
 
           <div className="text-zinc-500 text-sm">
             <Button variant="link" onClick={() => router.push('/kingdom')} className="text-zinc-500 hover:text-zinc-300">

@@ -28,6 +28,7 @@ import { KingdomSummaryModal } from './kingdom-summary-modal'
 import { FortuneTellerModal } from './fortune-teller-modal'
 import { PrisonModal } from '@/components/kingdom/prison-modal'
 import { ApothecaModal } from '@/components/kingdom/apotheca-modal'
+import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { AbbeyModal } from '@/components/kingdom/abbey-modal'
 import { useGameStore } from '@/stores/game-store'
 import { PlankPuzzleModal } from './plank-puzzle-modal'
@@ -1353,9 +1354,32 @@ export function KingdomGridWithTimers({
       return;
     }
     if (tile.type === 'fortune_teller') {
-      const activeTimer = tileTimers.find(t => t.x === x && t.y === y && t.tileId === tile.type);
+      const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       if (activeTimer && !activeTimer.isReady) {
-        toast({ title: "Resting", description: "The Fortune Teller is resting. Come back later." });
+        const stats = getCharacterStats();
+        const currentFocus = stats.focus_points || 0;
+        if (currentFocus >= 5) {
+          addToCharacterStat('focus_points', -5, 'unlock-fortune-teller');
+          setTileTimers(prev => prev.map(t => (t.x === x && t.y === y ? { ...t, isReady: true } : t)));
+          fetchAuthRetry('/api/property-timers', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x, y, isReady: true, endTime: new Date(Date.now() - 1000).toISOString() })
+          }).catch(() => {});
+
+          toast({
+            title: "🧠 Fortune Reading Unlocked!",
+            description: "Spent 5 Focus Points to instantly awaken the Fortune Teller!"
+          });
+          setFortuneTileData({ x, y, tileId: tile.type });
+          setFortuneModalOpen(true);
+        } else {
+          toast({
+            title: "Fortune Teller Resting 🧠",
+            description: `The Fortune Teller is resting. Earn ${5 - currentFocus} more Focus Points to awaken her immediately!`,
+            variant: "destructive"
+          });
+        }
       } else {
         setFortuneTileData({ x, y, tileId: tile.type });
         setFortuneModalOpen(true);
@@ -1375,9 +1399,32 @@ export function KingdomGridWithTimers({
       return;
     }
     if (tile.type === 'plank-labyrinth') {
-      const activeTimer = tileTimers.find(t => t.x === x && t.y === y && t.tileId === tile.type);
+      const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       if (activeTimer && !activeTimer.isReady) {
-        toast({ title: "Labyrinth Locked", description: "The Plank Labyrinth is resetting. Come back later." });
+        const stats = getCharacterStats();
+        const currentFocus = stats.focus_points || 0;
+        if (currentFocus >= 5) {
+          addToCharacterStat('focus_points', -5, 'unlock-plank-labyrinth');
+          setTileTimers(prev => prev.map(t => (t.x === x && t.y === y ? { ...t, isReady: true } : t)));
+          fetchAuthRetry('/api/property-timers', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x, y, isReady: true, endTime: new Date(Date.now() - 1000).toISOString() })
+          }).catch(() => {});
+
+          toast({
+            title: "🧠 Labyrinth Unlocked!",
+            description: "Spent 5 Focus Points to instantly reset the Plank Labyrinth!"
+          });
+          setPlankTileData({ x, y });
+          setPlankModalOpen(true);
+        } else {
+          toast({
+            title: "Labyrinth Resetting 🧠",
+            description: `The Labyrinth is resetting. Earn ${5 - currentFocus} more Focus Points to unlock immediately!`,
+            variant: "destructive"
+          });
+        }
       } else {
         setPlankTileData({ x, y });
         setPlankModalOpen(true);
