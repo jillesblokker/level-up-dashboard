@@ -8,13 +8,14 @@ interface RewardData {
   gold?: number
   xp?: number
   gems?: number | undefined
+  focus_points?: number
   source: string
   item?: string | undefined
   achievement?: string | undefined
 }
 
 export function showEnhancedRewardToast(reward: RewardData) {
-  const { gold = 0, xp = 0, gems = 0, source, item, achievement } = reward
+  const { gold = 0, xp = 0, gems = 0, focus_points = 0, source, item, achievement } = reward
   
   // Create visual toast
   toast({
@@ -38,6 +39,12 @@ export function showEnhancedRewardToast(reward: RewardData) {
             <div className="flex items-center gap-1 text-pink-400 font-bold">
               <Gem className="w-4 h-4" />
               <span>+{gems} Gems</span>
+            </div>
+          )}
+          {focus_points > 0 && (
+            <div className="flex items-center gap-1 text-purple-300 font-bold">
+              <span className="text-sm">🧠</span>
+              <span>+{focus_points} Focus Point</span>
             </div>
           )}
           {item && (
@@ -64,6 +71,7 @@ export function showEnhancedRewardToast(reward: RewardData) {
     gold > 0 && `Earned ${gold} gold`,
     xp > 0 && `Earned ${xp} experience`,
     gems > 0 && `Earned ${gems} gems`,
+    focus_points > 0 && `Earned ${focus_points} focus points`,
     item && `Found ${item}`,
     achievement && `Achievement unlocked: ${achievement}`,
     `from ${source}`
@@ -72,11 +80,12 @@ export function showEnhancedRewardToast(reward: RewardData) {
   announceToScreenReader(announcement)
 }
 
-export function showQuestCompletionToast(questName: string, gold: number, xp: number, item?: string, gems?: number) {
+export function showQuestCompletionToast(questName: string, gold: number, xp: number, item?: string, gems?: number, focusPoints: number = 1) {
   showEnhancedRewardToast({
     gold,
     xp,
     gems,
+    focus_points: focusPoints,
     source: `completing ${questName}`,
     item,
   })

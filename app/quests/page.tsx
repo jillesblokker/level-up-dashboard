@@ -1306,6 +1306,14 @@ export default function QuestsPage() {
 
       // 🎯 Display enhanced feedback if quest was completed
       if (newCompleted) {
+        addToCharacterStat('focus_points', 1, 'quest-toggle');
+        recordCompletion({
+          questId,
+          category: questObj.category || 'General',
+          xp: xpReward,
+          gold: goldReward,
+        });
+
         if (responseData.isFirstAction) {
           setPartnerSpeech("First action of the day! 1.5x Bonus!");
           setIsPartnerAnimating(true);
@@ -1319,27 +1327,16 @@ export default function QuestsPage() {
           responseData.rewards?.gold || goldReward, 
           responseData.rewards?.xp || xpReward,
           responseData.scavengedMaterial ? `${responseData.scavengedMaterial.emoji} ${responseData.scavengedMaterial.name}` : undefined,
-          responseData.droppedGems
+          responseData.droppedGems,
+          1
         );
       } else {
+        addToCharacterStat('focus_points', -1, 'quest-toggle-uncomplete');
         toast({
           title: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.title,
           description: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.desc.replace('{name}', questObj.name),
           duration: 2000,
         });
-      }
-
-      // Record into daily activity snapshot for history graphs
-      if (newCompleted) {
-        addToCharacterStat('focus_points', 1, 'quest-toggle');
-        recordCompletion({
-          questId,
-          category: questObj.category || 'General',
-          xp: xpReward,
-          gold: goldReward,
-        });
-      } else {
-        addToCharacterStat('focus_points', -1, 'quest-toggle-uncomplete');
       }
 
       // 🎯 Display character-based milestone message if received

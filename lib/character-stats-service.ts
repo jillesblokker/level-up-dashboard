@@ -105,7 +105,9 @@ class CharacterStatsService {
                     ember_essence: stats.ember_essence || 0,
                     frost_essence: stats.frost_essence || 0,
                     tide_essence: stats.tide_essence || 0,
-                    verdant_essence: stats.verdant_essence || 0
+                    verdant_essence: stats.verdant_essence || 0,
+                    gems: stats.gems || 0,
+                    focus_points: stats.focus_points || 0
                 };
             }
         } catch (error) {
@@ -170,11 +172,13 @@ class CharacterStatsService {
         if (updates.sanctuary_mode !== undefined) newStats.sanctuary_mode = updates.sanctuary_mode;
         if (updates.active_partner_id !== undefined) newStats.active_partner_id = updates.active_partner_id;
         
-        // Handle essence
+        // Handle essence, gems, and focus points
         if (updates.ember_essence !== undefined) newStats.ember_essence = updates.ember_essence;
         if (updates.frost_essence !== undefined) newStats.frost_essence = updates.frost_essence;
         if (updates.tide_essence !== undefined) newStats.tide_essence = updates.tide_essence;
         if (updates.verdant_essence !== undefined) newStats.verdant_essence = updates.verdant_essence;
+        if (updates.gems !== undefined) newStats.gems = updates.gems;
+        if (updates.focus_points !== undefined) newStats.focus_points = updates.focus_points;
 
         // Save to local storage immediately
         this.saveToLocalStorage(newStats);
@@ -425,7 +429,9 @@ class CharacterStatsService {
             ember_essence: stats.ember_essence,
             frost_essence: stats.frost_essence,
             tide_essence: stats.tide_essence,
-            verdant_essence: stats.verdant_essence
+            verdant_essence: stats.verdant_essence,
+            gems: stats.gems,
+            focus_points: stats.focus_points
         };
 
         setUserScopedItem('character-stats', JSON.stringify(localStorageStats));
@@ -458,7 +464,9 @@ class CharacterStatsService {
             ember_essence: 0,
             frost_essence: 0,
             tide_essence: 0,
-            verdant_essence: 0
+            verdant_essence: 0,
+            gems: 0,
+            focus_points: 0
         };
     }
 }
