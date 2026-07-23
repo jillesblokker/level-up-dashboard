@@ -67,6 +67,10 @@ export function ProgressionVisualization() {
     }
   }, [])
 
+  const dynamicGoldTarget = Math.max(1000, stats.level * 1000);
+  const dynamicQuestTarget = Math.max(10, stats.level * 5);
+  const dynamicTileTarget = Math.max(10, stats.level * 2);
+
   const progressionSteps: ProgressionStep[] = [
     {
       id: 'quests',
@@ -74,7 +78,7 @@ export function ProgressionVisualization() {
       description: 'Earn experience and gold through daily tasks',
       icon: <Sword className="h-5 w-5" />,
       value: stats.questsCompleted,
-      target: 10, // Example target
+      target: dynamicQuestTarget,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10'
     },
@@ -84,7 +88,7 @@ export function ProgressionVisualization() {
       description: 'Build your wealth to expand your kingdom',
       icon: <Coins className="h-5 w-5" />,
       value: stats.gold,
-      target: 1000, // Example target
+      target: dynamicGoldTarget,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10'
     },
@@ -94,7 +98,7 @@ export function ProgressionVisualization() {
       description: 'Transform your realm with new territories',
       icon: <Castle className="h-5 w-5" />,
       value: stats.tilesPlaced,
-      target: 20, // Example target
+      target: dynamicTileTarget,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10'
     }

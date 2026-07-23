@@ -2294,13 +2294,41 @@ export function KingdomGridWithTimers({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const lastCreatureInteractionRef = React.useRef<number>(0);
+
   const handleCreatureClick = (creature: any) => {
-    // Determine creature name from definition ID or similar
-    // For now, showing a generic message
-    toast({
-      title: "Creature Spotted! 👀",
-      description: "This creature seems friendly but shy. (Interactions coming soon!)",
-    })
+    const now = Date.now();
+    if (now - lastCreatureInteractionRef.current < 60000) {
+      toast({
+        title: "Creature Resting 🌿",
+        description: "The creature is resting. Interaction available again shortly!",
+      });
+      return;
+    }
+    lastCreatureInteractionRef.current = now;
+
+    // Grant interaction reward (+5 XP or +5 Gold)
+    import('@/lib/character-stats-service').then(({ addToCharacterStat }) => {
+      const isGold = Math.random() > 0.5;
+      if (isGold) {
+        addToCharacterStat('gold', 5, 'creature-interaction');
+        toast({
+          title: "Creature Petted! 🐾✨",
+          description: "You petted the wild creature and found 5 Gold tucked in the brush!",
+        });
+      } else {
+        addToCharacterStat('experience', 5, 'creature-interaction');
+        toast({
+          title: "Creature Petted! 🐾✨",
+          description: "The creature bonded with you! +5 XP earned.",
+        });
+      }
+    }).catch(() => {
+      toast({
+        title: "Creature Spotted! 👀",
+        description: "You spent a peaceful moment watching the wild creature.",
+      });
+    });
   }
 
   const renderGridWithBorder = () => {
@@ -2521,11 +2549,11 @@ export function KingdomGridWithTimers({
 
           {/* Construction Materials - Dynamic List */}
           {[
-            { id: 'material-logs', label: 'Logs', icon: '🪵' },
-            { id: 'material-stone', label: 'Stone', icon: '🪨' },
-            { id: 'material-water', label: 'Water', icon: '💧' },
-            { id: 'material-planks', label: 'Planks', icon: '🪚' },
-            { id: 'material-stone-block', label: 'Blocks', icon: '🧱' }
+            { id: 'material-logs', label: 'Logs', icon: '🪵', source: 'Harvested from Forest & Lumber Mill tiles' },
+            { id: 'material-stone', label: 'Stone', icon: '🪨', source: 'Gathered from Quarry & Mountain tiles' },
+            { id: 'material-water', label: 'Water', icon: '💧', source: 'Collected from Well & River tiles' },
+            { id: 'material-planks', label: 'Planks', icon: '🪚', source: 'Crafted in Sawmill or Scavenged' },
+            { id: 'material-stone-block', label: 'Blocks', icon: '🧱', source: 'Cut in Masonry Workshop' }
           ].map(mat => {
             // Find item by ID or Name
             const item = inventory?.find(i => i.id === mat.id || i.name?.toLowerCase() === mat.label.toLowerCase());
@@ -2541,7 +2569,7 @@ export function KingdomGridWithTimers({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="font-bold text-amber-400">{mat.label}</p>
-                  <p className="text-xs text-zinc-300">Start with 0? Collect from tiles!</p>
+                  <p className="text-xs text-zinc-300">{qty > 0 ? `Current inventory: ${qty}` : mat.source}</p>
                 </TooltipContent>
               </Tooltip>
             );

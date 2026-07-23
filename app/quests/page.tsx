@@ -3503,7 +3503,15 @@ export default function QuestsPage() {
                 variant="default"
                 className="px-8 py-2 text-md font-bold bg-amber-600 hover:bg-amber-500 text-white"
                 onClick={() => {
-                  // TODO: Implement save logic
+                  if (editCustomChallengeData) {
+                    const targetId = editCustomChallengeData.id;
+                    setChallenges(prev => prev.map(c => c.id === targetId ? { ...c, ...editCustomChallengeData } : c));
+                    setQuests(prev => prev.map(q => q.id === targetId ? { ...q, ...editCustomChallengeData } : q));
+                    toast({
+                      title: "Challenge Updated! ✏️",
+                      description: `Saved changes for "${editCustomChallengeData.name}".`,
+                    });
+                  }
                   setEditCustomChallengeIdx(null);
                   setEditCustomChallengeData(null);
                 }}

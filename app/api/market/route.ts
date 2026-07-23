@@ -52,9 +52,18 @@ export async function POST(req: NextRequest) {
         }
 
         const result = await authenticatedSupabaseQuery(req, async (supabase, userId) => {
-            // TODO: FUTURE STEP - Check if user actually owns the item here!
-            // This requires querying the 'inventory' or 'tiles' table.
-            // For now, we trust the frontend but ideally we add a check.
+            // Verify inventory ownership for inventory/material items
+            const requiredQty = quantity || 1;
+            const { data: invItem } = await supabase
+                .from('inventory_items')
+                .select('quantity')
+                .eq('user_id', userId)
+                .eq('item_id', item_id)
+                .maybeSingle();
+
+            if (invItem && (invItem.quantity || 0) < requiredQty) {
+                throw new Error(`Insufficient inventory: Required ${requiredQty}, available ${invItem.quantity || 0}`);
+            }
 
             const { data, error } = await supabase
                 .from('market_listings')

@@ -311,7 +311,7 @@ export function CitizensTab() {
                           </Badge>
                           {activePartnerId === citizen.id && (
                             (() => {
-                              const isEvolved = playerLevel >= 50;
+                              const isEvolved = (citizen.level || 1) >= 50 || playerLevel >= 50;
                               const elementIcons: Record<string, string> = {
                                 fire: '🔥',
                                 water: '💧',
@@ -323,8 +323,8 @@ export function CitizensTab() {
                               };
                               const elementIcon = elementIcons[citizen.type] || '🐾';
                               return (
-                                <Badge className={isEvolved ? "bg-amber-950/80 border-amber-500/30 text-amber-400 text-[9px] font-bold py-0" : "bg-zinc-900 border-zinc-700 text-zinc-400 text-[9px] font-medium py-0"}>
-                                  {elementIcon} {isEvolved ? "Evolved Form" : "Evolves at Lvl 50"}
+                                <Badge className={isEvolved ? "bg-amber-950/80 border-amber-500/40 text-amber-300 text-[9px] font-bold py-0 shadow-sm" : "bg-zinc-900 border-zinc-700 text-zinc-400 text-[9px] font-medium py-0"}>
+                                  {elementIcon} {isEvolved ? "Evolved Form (+20% Yield) ✨" : "Evolves at Lvl 50"}
                                 </Badge>
                               );
                             })()

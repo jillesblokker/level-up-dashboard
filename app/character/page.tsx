@@ -840,9 +840,16 @@ export default function CharacterPage() {
                     </div>
                     <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2" />
                     <div className="flex justify-between items-center text-sm text-muted-foreground">
-                      <p>
-                        <AnimatedCounter value={Math.floor(characterStats.experience)} duration={800} /> / {TEXT_CONTENT.character.ui.overview.xpProgress.replace("{current}", "").replace("{next}", String(characterStats.experienceToNextLevel)).replace("{nextLevel}", String(characterStats.level + 1))}
-                      </p>
+                      {(() => {
+                        const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
+                        const expInCurrentLevel = Math.max(0, Math.floor(characterStats.experience - expForPreviousLevels));
+                        const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
+                        return (
+                          <p>
+                            <AnimatedCounter value={expInCurrentLevel} duration={800} /> / {expForCurrentLevel.toLocaleString()} XP to Level {characterStats.level + 1}
+                          </p>
+                        );
+                      })()}
 
                       {characterStats.level >= 100 && (
                         <AlertDialog>

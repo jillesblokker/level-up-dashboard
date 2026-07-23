@@ -18,19 +18,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, tradeItem } = body; // 'get_status' | 'drink_brew' | 'botanical_trade'
+    const { action, tradeItem, brewId } = body; // 'get_status' | 'drink_brew' | 'botanical_trade'
 
     const today = new Date().toISOString().slice(0, 10);
 
     if (action === 'get_status') {
       const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
       const brew = DECOCTIONS[dateHash % DECOCTIONS.length]!;
-      return NextResponse.json({ brew, today });
+      return NextResponse.json({ brew, today, availableBrews: DECOCTIONS });
     }
 
     if (action === 'drink_brew') {
-      const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
-      const brew = DECOCTIONS[dateHash % DECOCTIONS.length]!;
+      let brew = DECOCTIONS.find(d => d.id === brewId);
+      if (!brew) {
+        const dateHash = today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
+        brew = DECOCTIONS[dateHash % DECOCTIONS.length]!;
+      }
 
       if (brew.type === 'xp') {
         await grantReward({ userId, type: 'exp', amount: brew.amount, context: 'apotheca-brew' });

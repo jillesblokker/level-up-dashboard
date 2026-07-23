@@ -22,6 +22,7 @@ import { formatGold } from "@/lib/utils"
 import { audioManager } from "@/lib/audio-manager"
 import { InventoryBagOverlay } from "@/components/inventory-bag-overlay"
 import { RandomEncounterModal } from "@/components/kingdom/random-encounter-modal"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface CustomSession {
   user?: {
@@ -220,29 +221,40 @@ export function NavBar({ session }: NavBarProps) {
         {/* Desktop right-side stats, notification, user nav */}
         <div className="ml-auto flex items-center space-x-4 hidden md:flex pr-6">
           <div className="flex items-center space-x-2">
-            <div
-              className={`text-sm font-medium transition-all duration-300 ${levelHighlight ? 'bg-amber-300/40 rounded px-2 py-1 shadow' : ''}`}
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {characterStats.ascension_level > 0 && (
-                <span className="flex items-center text-amber-500 mr-2 font-bold">
-                  <Star className="h-4 w-4 fill-amber-500 mr-1" />
-                  {characterStats.ascension_level}
-                </span>
-              )}
-              Lvl {characterStats.level}
-            </div>
             {(() => {
               const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
               const expInCurrentLevel = Math.max(0, characterStats.experience - expForPreviousLevels);
               const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
+              const totalNextLevelExp = expForPreviousLevels + expForCurrentLevel;
               return (
-                <Progress 
-                  value={levelProgress} 
-                  className="w-32 h-2 cursor-help" 
-                  title={`XP: ${expInCurrentLevel} / ${expForCurrentLevel} (${Math.round(levelProgress)}%)`}
-                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center space-x-2 cursor-help group transition-opacity hover:opacity-90">
+                      <div
+                        className={`text-sm font-medium transition-all duration-300 ${levelHighlight ? 'bg-amber-300/40 rounded px-2 py-1 shadow' : ''}`}
+                        aria-live="polite"
+                        aria-atomic="true"
+                      >
+                        {characterStats.ascension_level > 0 && (
+                          <span className="inline-flex items-center text-amber-500 mr-2 font-bold">
+                            <Star className="h-4 w-4 fill-amber-500 mr-1" />
+                            {characterStats.ascension_level}
+                          </span>
+                        )}
+                        Lvl {characterStats.level}
+                      </div>
+                      <Progress 
+                        value={levelProgress} 
+                        className="w-32 h-2" 
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-950 border-amber-900/50 text-zinc-100 p-3 rounded-lg shadow-xl text-xs space-y-1">
+                    <div className="font-bold text-amber-400 font-serif">Level {characterStats.level} Progress</div>
+                    <div>Level XP: <span className="font-mono font-semibold text-amber-200">{expInCurrentLevel.toLocaleString()} / {expForCurrentLevel.toLocaleString()} XP</span> ({Math.round(levelProgress)}%)</div>
+                    <div className="text-[11px] text-zinc-400">Total Experience: <span className="font-mono font-medium text-zinc-300">{Math.floor(characterStats.experience).toLocaleString()} / {totalNextLevelExp.toLocaleString()} XP</span></div>
+                  </TooltipContent>
+                </Tooltip>
               );
             })()}
             <div
