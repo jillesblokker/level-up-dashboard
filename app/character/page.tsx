@@ -38,6 +38,7 @@ import { AnimatedCounter } from '@/components/ui/animated-counter'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { FocusPointsModal } from '@/components/focus-points-modal'
 
 
 // Character progression types
@@ -129,6 +130,7 @@ export default function CharacterPage() {
   })
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showFocusModal, setShowFocusModal] = useState(false)
   const [activePotionPerks, setActivePotionPerks] = useState<{ name: string, effect: string, expiresAt: string }[]>([])
   const [activeTab, setActiveTab] = useState("titles")
 
@@ -181,6 +183,7 @@ export default function CharacterPage() {
           frost_essence: stats.frost_essence || 0,
           tide_essence: stats.tide_essence || 0,
           verdant_essence: stats.verdant_essence || 0,
+          focus_points: stats.focus_points || 0,
         })
       } catch (error) {
         logger.error('Error loading character stats:', error)
@@ -909,6 +912,37 @@ export default function CharacterPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Focus Points & Mind Clarity Card */}
+                    <div className="pt-4 mt-4 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
+                          <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider">Focus Points</h4>
+                        </div>
+                        <Button
+                          onClick={() => setShowFocusModal(true)}
+                          size="sm"
+                          className="h-7 text-xs bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-500/40 font-bold px-3"
+                        >
+                          🧠 Use Focus ({characterStats.focus_points || 0})
+                        </Button>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">
+                        Earned by completing daily habits. Spend points to activate XP boosts, rush kingdom timers, or claim rewards.
+                      </p>
+                    </div>
+
+                    {/* Focus Points Power Modal */}
+                    <FocusPointsModal
+                      isOpen={showFocusModal}
+                      onClose={() => setShowFocusModal(false)}
+                      currentFocusPoints={characterStats.focus_points || 0}
+                      onStatsUpdate={() => {
+                        const stats = getCharacterStats();
+                        setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
+                      }}
+                    />
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.titleHeader}</h3>

@@ -17,6 +17,7 @@ export interface CharacterStats {
   frost_essence?: number;
   tide_essence?: number;
   verdant_essence?: number;
+  focus_points?: number;
 }
 
 export interface ExperienceGain {

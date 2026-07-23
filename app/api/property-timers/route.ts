@@ -11,12 +11,13 @@ export async function GET(request: NextRequest) {
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        logger.error('[Property Timers API] Select error:', error);
-        throw error;
-      }
+      const now = Date.now();
+      const timers = (data || []).map(t => ({
+        ...t,
+        is_ready: Boolean(t.is_ready) || (new Date(t.end_time).getTime() <= now)
+      }));
 
-      return data || [];
+      return timers;
     });
 
     if (!result.success) {

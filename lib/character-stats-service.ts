@@ -246,6 +246,7 @@ class CharacterStatsService {
                         frost_essence: Math.max(serverStats.frost_essence || 0, localStats.frost_essence || 0),
                         tide_essence: Math.max(serverStats.tide_essence || 0, localStats.tide_essence || 0),
                         verdant_essence: Math.max(serverStats.verdant_essence || 0, localStats.verdant_essence || 0),
+                        focus_points: Math.max(serverStats.focus_points || 0, localStats.focus_points || 0),
                         updated_at: serverStats.updated_at
                     };
 

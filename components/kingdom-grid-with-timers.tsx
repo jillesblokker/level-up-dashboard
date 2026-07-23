@@ -1203,11 +1203,11 @@ export function KingdomGridWithTimers({
             loadedTimers = (json.data || []).map((t: any) => {
               const endTime = typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time
               return {
-                x: t.x,
-                y: t.y,
+                x: Number(t.x),
+                y: Number(t.y),
                 tileId: t.tile_id,
                 endTime,
-                isReady: (Date.now() + skew) >= endTime,
+                isReady: Boolean(t.is_ready) || (Date.now() + skew) >= endTime,
               }
             })
             success = true;
@@ -1220,7 +1220,12 @@ export function KingdomGridWithTimers({
         try {
           const savedTimers = localStorage.getItem('kingdom-tile-timers')
           if (savedTimers) {
-            loadedTimers = JSON.parse(savedTimers)
+            loadedTimers = JSON.parse(savedTimers).map((t: any) => ({
+              ...t,
+              x: Number(t.x),
+              y: Number(t.y),
+              isReady: Boolean(t.isReady) || Date.now() >= t.endTime
+            }))
           }
         } catch { }
       }
@@ -1236,13 +1241,13 @@ export function KingdomGridWithTimers({
           if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
             const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
             if (kingdomTile && kingdomTile.timerMinutes > 0) {
-              const hasExisting = finalTimers.some(t => t.x === x && t.y === y);
+              const hasExisting = finalTimers.some(t => Number(t.x) === Number(x) && Number(t.y) === Number(y));
               if (!hasExisting) {
                 // Initialize default timers as already ready (in the past) so they aren't locked immediately on mount
                 const endTime = Date.now() - 1000
                 const defaultTimer = {
-                  x,
-                  y,
+                  x: Number(x),
+                  y: Number(y),
                   tileId: kingdomTile.id,
                   endTime,
                   isReady: true
@@ -1272,7 +1277,7 @@ export function KingdomGridWithTimers({
                 y: timer.y,
                 tileType: timer.tileId,
                 endTime: endIso,
-                isReady: false
+                isReady: timer.isReady
               })
             })
           }
