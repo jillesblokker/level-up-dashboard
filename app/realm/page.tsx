@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import Image from 'next/image'
 import { AbbeyModal } from '@/components/kingdom/abbey-modal';
 import { setUserPreference } from "@/lib/user-preferences-manager"
+import { TravelingBardWidget } from "@/components/traveling-bard-modal"
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
@@ -1037,6 +1038,25 @@ function RealmPageContent() {
 
         // Placement Achievements
         if (action === 'place') {
+            // 🏺 Random hidden tile discovery (25% chance on unexplored tile placement)
+            if (Math.random() < 0.25) {
+                const discoveries = [
+                    { name: 'Ancient Dragon Skull', gold: 500, emoji: '🐉' },
+                    { name: 'Buried Crown Jewels', gold: 750, emoji: '👑' },
+                    { name: 'Forgotten Rune Pot', gems: 15, gold: 200, emoji: '🏺' }
+                ];
+                const item = discoveries[Math.floor(Math.random() * discoveries.length)];
+                if (item) {
+                    addToCharacterStat('gold', item.gold);
+                    if (item.gems) addToCharacterStat('gems', item.gems);
+
+                    toast({
+                        title: `${item.emoji} DISCOVERED HIDDEN RELIC!`,
+                        description: `Uncovered an ${item.name} while placing tile! Sold to treasury for +${item.gold} Gold${item.gems ? ' & +' + item.gems + ' Gems' : ''}!`,
+                    });
+                }
+            }
+
             // Water (Dolphio line)
             if (counterKey === 'water') {
                 if (newVal === 1) unlock('004', 'Dolphio', 'A playful water creature that appears when expanding water territories.');
@@ -1796,6 +1816,11 @@ function RealmPageContent() {
                 isAnimating={false}
                 onImageReveal={setShouldRevealImage}
             >
+                {/* Traveling Bard Visit Widget */}
+                <div className="mb-4">
+                  <TravelingBardWidget level={characterStats.level} displayName={(characterStats as any).display_name || 'Hero'} />
+                </div>
+
                 {/* Top Toolbar */}
                 {!isVisiting && (
                     <div className="flex items-center justify-between bg-zinc-800 z-30 overflow-visible">

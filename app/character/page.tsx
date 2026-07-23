@@ -39,6 +39,7 @@ import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { FocusPointsModal } from '@/components/focus-points-modal'
+import { SigilCrestEditor } from '@/components/character/sigil-crest'
 
 
 // Character progression types
@@ -833,7 +834,10 @@ export default function CharacterPage() {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}</h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}</h3>
+                        <SigilCrestEditor userId={user?.id} />
+                      </div>
                       {(characterStats.ascension_level || 0) > 0 && (
                         <Badge variant="outline" className="text-amber-400 border-amber-400 flex items-center gap-1">
                           <Sparkles className="w-3 h-3" />

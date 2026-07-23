@@ -67,6 +67,7 @@ import { ResponsiveModal } from "@/components/ui/responsive-modal"
 import { useQuickAdd } from "@/components/quick-add-provider"
 import { LoadingScreen } from "@/components/loading-screen"
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { PetitionsTab } from '@/components/quests/petitions-tab'
 
 import { useCitizensStore } from '@/stores/citizensStore'
 import { useGameStore } from '@/stores/game-store'
@@ -226,7 +227,7 @@ export default function QuestsPage() {
     return [];
   });
   const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
-  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges'>('quests'); // New toggle for Forge
+  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges' | 'petitions'>('quests'); // New toggle for Forge
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
@@ -2787,11 +2788,14 @@ export default function QuestsPage() {
                       <TabsList>
                         <TabsTrigger value="quests">Daily Quests</TabsTrigger>
                         <TabsTrigger value="challenges">Challenges</TabsTrigger>
+                        <TabsTrigger value="petitions">📜 Petitions</TabsTrigger>
                       </TabsList>
                     </Tabs>
 
                     {/* Conditional Content */}
-                    {forgeTab === 'quests' ? (
+                    {forgeTab === 'petitions' ? (
+                      <PetitionsTab />
+                    ) : forgeTab === 'quests' ? (
                       <QuestOrganization
                         quests={quests}
                         onQuestToggle={handleQuestToggle}
