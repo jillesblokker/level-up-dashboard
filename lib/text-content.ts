@@ -1088,22 +1088,22 @@ export const TEXT_CONTENT = {
             }
         },
         newPlayer: {
-            title: "Beginner's Journey",
+            title: "Beginner's journey",
             subtitle: "Complete these tasks to learn the ropes"
         },
         actions: {
-            questBoard: "Quest Board",
+            questBoard: "Quest board",
             kingdom: "Kingdom",
             realm: "Realm",
-            newQuest: "New Quest"
+            newQuest: "New quest"
         },
         favorites: {
-            title: "Your Favorite Quests",
-            viewAll: "View All",
+            title: "Your favorite quests",
+            viewAll: "View all",
             empty: {
-                title: "No Favorite Quests Yet",
-                description: "Star your favorite quests from the Quest Board to see them here for quick access.",
-                button: "Browse Quest Board"
+                title: "No favorite quests yet",
+                description: "Star your favorite quests from the quest board to see them here for quick access.",
+                button: "Browse quest board"
             }
         },
         log: {
@@ -1121,16 +1121,16 @@ export const TEXT_CONTENT = {
     },
     questBoard: {
         header: {
-            title: "Quest Board",
+            title: "Quest board",
             subtitle: "Complete your daily tasks to earn gold and level up your character!",
             guide: {
                 title: "Quests",
                 subtitle: "The foundation of your progression",
                 sections: {
-                    daily: { title: "Daily Tasks", content: "Short, repeatable tasks that maintain your discipline. Complete these to earn consistent gold and keep your 'Thrivehaven' buildings active." },
-                    epic: { title: "Epic Challenges", content: "Difficult feats with major rewards. These require focus and often grant rare items or large chunks of experience for your character." },
-                    milestones: { title: "Life Milestones", content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile." },
-                    habits: { title: "Habit Tracking", content: "Build streaks for daily habits to shield your kingdom from dark forces like Necrion. Good habits shape the weather and power up your Partner!" }
+                    daily: { title: "Daily tasks", content: "Short, repeatable tasks that maintain your discipline. Complete these to earn consistent gold and keep your 'Thrivehaven' buildings active." },
+                    epic: { title: "Epic challenges", content: "Difficult feats with major rewards. These require focus and often grant rare items or large chunks of experience for your character." },
+                    milestones: { title: "Life milestones", content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile." },
+                    habits: { title: "Habit tracking", content: "Build streaks for daily habits to shield your kingdom from dark forces like Necrion. Good habits shape the weather and power up your companion!" }
                 }
             }
         },
@@ -1145,19 +1145,19 @@ export const TEXT_CONTENT = {
             }
         },
         buttons: {
-            completeFavorites: "Complete {count} Favorites",
-            completeAllFavorites: "Complete {count} Total Favorites",
-            reset: "Reset Today's Quests",
+            completeFavorites: "Complete {count} favorites",
+            completeAllFavorites: "Complete {count} total favorites",
+            reset: "Reset today's quests",
             resetting: "Resetting...",
-            add: "Add Milestone",
+            add: "Add milestone",
             cancel: "Cancel",
             delete: "Delete",
             save: "Save"
         },
         journey: {
-            title: "Your Journey",
+            title: "Your journey",
             streakBonus: {
-                title: "Streak Bonus:",
+                title: "Streak bonus:",
                 value: "+{amount} gold/day",
                 max: "(Max 50 gold/day)"
             },

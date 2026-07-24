@@ -2639,7 +2639,7 @@ export default function QuestsPage() {
   if (loading) {
     return (
       <LoadingScreen
-        title="Seeking Your Quests"
+        title="Seeking your quests"
         icon={<Sword className="w-12 h-12" />}
         content={
           <div className="space-y-4">

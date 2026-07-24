@@ -4,7 +4,7 @@ import { Compass } from "lucide-react"
 export default function TasksLoading() {
   return (
     <LoadingScreen
-      title="Seeking Your Quests"
+      title="Seeking your quests"
       icon={<Compass className="w-12 h-12" />}
       variant="amber"
       content={

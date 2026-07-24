@@ -447,80 +447,89 @@ export default function ProfilePage() {
 
 
         <TabsContent value="avatar" className="space-y-6">
-          <Card className="bg-zinc-900 border-amber-800/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Camera className="w-5 h-5" />
-                {TEXT_CONTENT.profile.avatar.title}
+          <Card className="bg-zinc-900 border-amber-800/20 shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl text-amber-400 flex items-center gap-2.5 font-bold">
+                <Camera className="w-5 h-5 text-amber-400 shrink-0" />
+                <span>{TEXT_CONTENT.profile.avatar.title}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Avatar Selection */}
               <div>
-                <Label className="text-sm font-medium text-zinc-300 mb-3 block">Choose Avatar Type</Label>
-                <div className="flex gap-4">
+                <Label className="text-sm font-medium text-zinc-300 mb-3 block">Choose avatar type</Label>
+                <div className="flex flex-wrap sm:flex-nowrap gap-4 sm:gap-6 items-start py-1">
                   {/* Initial Avatar */}
                   <button
                     type="button"
-                    className={`relative group transition-all duration-200 ${avatarType === 'initial'
-                      ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900'
-                      : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
-                      }`}
+                    className="flex flex-col items-center gap-2 group transition-all duration-200 focus:outline-none"
                     onClick={() => setAvatarType('initial')}
                     aria-label="Use initial avatar"
                   >
                     <div
-                      className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50"
+                      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-2 transition-all duration-200 ${
+                        avatarType === 'initial'
+                          ? 'border-amber-500 ring-2 ring-amber-500/40 ring-offset-2 ring-offset-zinc-900 scale-105'
+                          : 'border-amber-800/30 group-hover:border-amber-500/50'
+                      }`}
                       style={{ backgroundColor: avatarBgColor }}
                     >
-                      <span style={{ color: avatarTextColor, fontSize: 28, fontWeight: 700 }}>
+                      <span style={{ color: avatarTextColor, fontSize: 24, fontWeight: 700 }}>
                         {displayName?.[0]?.toUpperCase() || '?'}
                       </span>
                     </div>
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-colors ${
+                      avatarType === 'initial' ? 'bg-amber-500 text-zinc-950 font-bold' : 'bg-zinc-800 text-zinc-400 group-hover:text-zinc-200'
+                    }`}>
                       Initial
-                    </div>
+                    </span>
                   </button>
 
                   {/* Default Avatar */}
                   <button
                     type="button"
-                    className={`relative group transition-all duration-200 ${avatarType === 'default'
-                      ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900'
-                      : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
-                      }`}
+                    className="flex flex-col items-center gap-2 group transition-all duration-200 focus:outline-none"
                     onClick={() => setAvatarType('default')}
                     aria-label="Use default avatar"
                   >
-                    <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-zinc-800">
-                      <Image src={placeholderSvg} alt="Default avatar" width={40} height={40} className="w-10 h-10 object-contain opacity-70" />
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-2 transition-all duration-200 bg-zinc-800 ${
+                      avatarType === 'default'
+                        ? 'border-amber-500 ring-2 ring-amber-500/40 ring-offset-2 ring-offset-zinc-900 scale-105'
+                        : 'border-amber-800/30 group-hover:border-amber-500/50'
+                    }`}>
+                      <Image src={placeholderSvg} alt="Default avatar" width={36} height={36} className="w-9 h-9 object-contain opacity-70" />
                     </div>
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-colors ${
+                      avatarType === 'default' ? 'bg-amber-500 text-zinc-950 font-bold' : 'bg-zinc-800 text-zinc-400 group-hover:text-zinc-200'
+                    }`}>
                       Default
-                    </div>
+                    </span>
                   </button>
 
                   {/* Uploaded Avatar */}
                   <button
                     type="button"
-                    className={`relative group transition-all duration-200 ${avatarType === 'uploaded'
-                      ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-900'
-                      : 'hover:ring-2 hover:ring-amber-500/50 ring-offset-2 ring-offset-gray-900'
-                      } ${!user?.imageUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`flex flex-col items-center gap-2 group transition-all duration-200 focus:outline-none ${!user?.imageUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={() => user?.imageUrl && setAvatarType('uploaded')}
                     aria-label="Use uploaded avatar"
                     disabled={!user?.imageUrl}
                   >
-                    <div className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-amber-800/30 transition-all duration-200 group-hover:border-amber-500/50 bg-zinc-900 overflow-hidden">
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-2 transition-all duration-200 bg-zinc-900 overflow-hidden ${
+                      avatarType === 'uploaded'
+                        ? 'border-amber-500 ring-2 ring-amber-500/40 ring-offset-2 ring-offset-zinc-900 scale-105'
+                        : 'border-amber-800/30 group-hover:border-amber-500/50'
+                    }`}>
                       {user?.imageUrl ? (
                         <Image src={user.imageUrl} alt="Uploaded avatar" width={80} height={80} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-zinc-500 text-sm">No image</span>
+                        <span className="text-zinc-500 text-xs">No image</span>
                       )}
                     </div>
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-amber-500 text-black text-xs px-2 py-1 rounded-full font-medium">
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-colors ${
+                      avatarType === 'uploaded' ? 'bg-amber-500 text-zinc-950 font-bold' : 'bg-zinc-800 text-zinc-400 group-hover:text-zinc-200'
+                    }`}>
                       {TEXT_CONTENT.profile.avatar.types.custom}
-                    </div>
+                    </span>
                   </button>
                 </div>
               </div>
@@ -594,11 +603,11 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">
-          <Card className="bg-zinc-900 border-amber-800/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Palette className="w-5 h-5" />
-                {TEXT_CONTENT.profile.appearance.title}
+          <Card className="bg-zinc-900 border-amber-800/20 shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl text-amber-400 flex items-center gap-2.5 font-bold">
+                <Palette className="w-5 h-5 text-amber-400 shrink-0" />
+                <span>{TEXT_CONTENT.profile.appearance.title}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
