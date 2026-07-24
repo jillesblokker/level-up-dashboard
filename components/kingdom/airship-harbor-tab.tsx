@@ -72,6 +72,14 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
   }
 ];
 
+const DEFAULT_CREW_FIGHTERS: any[] = [
+  { id: '001', name: 'Flamio', filename: '001.png', type: 'fire', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '004', name: 'Dolphio', filename: '004.png', type: 'water', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '007', name: 'Leaf', filename: '007.png', type: 'nature', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '010', name: 'Rockie', filename: '010.png', type: 'earth', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '013', name: 'IceCube', filename: '013.png', type: 'ice', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+];
+
 export function AirshipHarborTab() {
   const { user } = useUser();
   
@@ -84,7 +92,8 @@ export function AirshipHarborTab() {
 
   // Citizens store
   const loadCitizens = useCitizensStore(state => state.loadCitizens);
-  const citizens = useCitizensStore(state => state.citizens);
+  const rawCitizens = useCitizensStore(state => state.citizens);
+  const citizens = rawCitizens.length > 0 ? rawCitizens : DEFAULT_CREW_FIGHTERS;
 
   const loadVoyageData = useCallback(async () => {
     if (!user?.id) return;
@@ -308,6 +317,8 @@ export function AirshipHarborTab() {
           src="/images/airship-harbor.png"
           alt="Airship Harbor"
           fill
+          unoptimized
+          priority
           className="object-cover brightness-75 select-none pointer-events-none"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
@@ -535,34 +546,63 @@ export function AirshipHarborTab() {
 
                 {/* Crew Selection checklists */}
                 <div className="space-y-2.5">
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Assign Voyage Crew (Max 2):</h4>
+                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                    <span>Assign Voyage Crew (Max 2):</span>
+                    <span className="font-mono text-amber-400">{selectedCrew.length} / 2 Selected</span>
+                  </div>
+                  
                   {idleCitizens.length === 0 ? (
-                    <p className="text-xs text-zinc-600 leading-normal">
-                      No idle citizens in dormitory. Unlock citizens or wait for active airship crews to return!
+                    <p className="text-xs text-zinc-500 leading-normal bg-zinc-950/60 p-3 rounded-xl border border-white/5">
+                      No idle citizens in dormitory. Lock or unlock fighters from the dorm!
                     </p>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-56 overflow-y-auto pr-1">
                       {idleCitizens.map(c => {
                         const isSelected = selectedCrew.includes(c.id);
-                        const hasAffinity = selectedJourney.affinityElements.includes(c.type);
+                        const hasAffinity = selectedJourney.affinityElements.includes(c.type?.toLowerCase());
 
                         return (
                           <div
                             key={c.id}
                             onClick={() => handleToggleCrewSelection(c.id)}
                             className={cn(
-                              "p-2 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all select-none",
+                              "p-2.5 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all select-none min-h-[52px] active:scale-[0.98]",
                               isSelected 
-                                ? "bg-amber-950/15 border-amber-500/40 text-amber-400" 
-                                : "bg-zinc-950/60 border-white/5 hover:border-zinc-800 text-white"
+                                ? "bg-amber-950/40 border-amber-500 text-amber-300 shadow-md shadow-amber-950/50" 
+                                : "bg-zinc-950/80 border-white/10 hover:border-amber-500/40 text-white"
                             )}
                           >
-                            <span className="font-bold truncate shrink-0">{c.name}</span>
-                            {hasAffinity && (
-                              <Badge className="bg-amber-600/20 text-amber-400 text-[7px] uppercase font-black shrink-0 px-1 ml-1">
-                                Star ★
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden relative">
+                                <Image
+                                  src={`/images/creatures/${c.id}.png`}
+                                  alt={c.name}
+                                  width={32}
+                                  height={32}
+                                  unoptimized
+                                  className="object-contain"
+                                  onError={(e) => {
+                                    // Fallback image if specific ID image doesn't exist
+                                    (e.target as any).src = '/images/placeholders/creature.webp';
+                                  }}
+                                />
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-bold truncate text-xs">{c.name}</span>
+                                <span className="text-[9px] text-zinc-400 capitalize font-mono">{c.type || 'Fighter'}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              {hasAffinity && (
+                                <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[8px] uppercase font-black px-1">
+                                  +15% ★
+                                </Badge>
+                              )}
+                              <Badge className={cn("text-[9px] font-bold px-1.5 py-0.5", isSelected ? "bg-amber-500 text-black font-extrabold" : "bg-zinc-800 text-zinc-400")}>
+                                {isSelected ? "✓ Assigned" : "+ Select"}
                               </Badge>
-                            )}
+                            </div>
                           </div>
                         );
                       })}
