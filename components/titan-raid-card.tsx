@@ -97,47 +97,49 @@ export function TitanRaidCard() {
     <Card className={`bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative ${isDefeated ? 'animate-card-shatter-top opacity-90' : ''}`}>
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[90px] pointer-events-none" />
       <CardHeader className="p-5 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
             <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 uppercase text-[10px] tracking-widest font-bold">
-              ⚔️ Alliance Monthly Raid
+              ⚔️ Alliance monthly raid
             </Badge>
             <Badge variant="outline" className="border-amber-500/30 text-amber-400 text-[10px] font-bold">
-              {titan.element} Element
+              {titan.element} element
             </Badge>
             {remainingHp < titan.totalHp / 2 && !isDefeated && (
               <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
-                ⚠️ Phase 2: Enraged (+30% ATK Dmg)
+                ⚠️ Phase 2: Enraged (+30% attack damage)
               </Badge>
             )}
           </div>
           {isDefeated && (
             <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold">
-              <CheckCircle2 className="w-3.5 h-3.5" /> TITAN DEFEATED!
+              <CheckCircle2 className="w-3.5 h-3.5" /> Titan defeated!
             </Badge>
           )}
         </div>
-        <CardTitle className="text-2xl font-serif font-bold text-amber-300 mt-2 flex items-center gap-2">
+        <CardTitle className="text-2xl font-serif font-bold text-amber-300 flex items-center gap-2">
           {titan.name}
         </CardTitle>
         <CardDescription className="text-zinc-400 text-xs">
-          {titan.title} — {titan.description}
+          {titan.title}: {titan.description}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="p-5 pt-0 space-y-4">
-        {/* Boss Portrait & HP Progress */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80">
-          <div className="relative aspect-square w-full max-w-[140px] mx-auto rounded-lg overflow-hidden border-2 border-purple-500/40 shadow-md">
-            <Image
-              src={titan.image}
-              alt={titan.name}
-              fill
-              className="object-cover"
-            />
-          </div>
+        {/* Full-width Boss Banner Image */}
+        <div className="relative w-full h-48 sm:h-64 rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 group">
+          <Image
+            src={titan.image}
+            alt={titan.name}
+            fill
+            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
+        </div>
 
-          <div className="md:col-span-2 space-y-3">
+        {/* Boss HP Progress & Stats */}
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">
             <div className="flex justify-between items-center text-xs font-bold">
               <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-purple-400" /> Titan Health (1,000 HP)
@@ -164,7 +166,6 @@ export function TitanRaidCard() {
               </div>
             </div>
           </div>
-        </div>
 
         {/* Claim Rewards Footer */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-purple-950/30 border border-purple-800/40">

@@ -62,7 +62,7 @@ export function getUnifiedChatterPool(
     // Greetings: alternate names, titles, and player variables
     const base = (def.greetings || []).map((greet: string, index: number) => {
         if (index % 3 === 0) {
-            return `${greet} — Sincerely, the ${citizenTitle}.`;
+            return `${greet} - Sincerely, the ${citizenTitle}.`;
         } else if (index % 3 === 1) {
             return `"${greet}" says ${def.name}.`;
         } else {

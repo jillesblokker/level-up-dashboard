@@ -167,10 +167,10 @@ export function AllianceDashboard() {
         }`}>
             <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500/70 mb-2 flex items-center gap-1.5">
                 <Flame className="w-3.5 h-3.5 text-orange-500" />
-                The Oath of Brotherhood — Daily Reward
+                The oath of brotherhood: daily reward
             </p>
             <p className="text-sm text-amber-100/60 leading-relaxed mb-3 font-serif italic">
-                &ldquo;Each dawn, a true ally reaffirms their bond. Speak the oath daily and your treasury shall grow — miss a day and your fire dims.&rdquo;
+                &ldquo;Each dawn, a true ally reaffirms their bond. Speak the oath daily and your treasury shall grow - miss a day and your fire dims.&rdquo;
             </p>
             <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="bg-zinc-950 rounded-lg p-2.5 border border-amber-900/30">

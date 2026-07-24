@@ -85,7 +85,7 @@ export function AnimalInteractionModal({
       case 'horse':
         return "A magnificent wild horse grazes nearby. Its coat shimmers in the sunlight, and there's a spark of untamed spirit in its eyes.";
       case 'sheep':
-        return "A fluffy sheep looks up at you with curious, gentle eyes. Its wool is thick and pristine—a valuable find for any traveler.";
+        return "A fluffy sheep looks up at you with curious, gentle eyes. Its wool is thick and pristine - a valuable find for any traveler.";
       case 'penguin':
         return "An adorable penguin waddles across the ice with comical determination. It seems friendly and eager to play!";
       case 'eagle':
