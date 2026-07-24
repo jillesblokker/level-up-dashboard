@@ -322,7 +322,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                   {activeGuardian.perkIcon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h5 className="font-bold text-[10px] uppercase tracking-wider text-amber-500">Guardian Perk — Level {guardianState.level}</h5>
+                  <h5 className="font-bold text-[10px] uppercase tracking-wider text-amber-500">Guardian Perk • Level {guardianState.level}</h5>
                   <p className="text-xs text-zinc-300 mt-0.5">
                     +{guardianState.level}% XP on <span className="font-bold text-white">{activeGuardian.focus}</span> quests
                   </p>

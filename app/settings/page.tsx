@@ -458,7 +458,7 @@ export default function SettingsPage() {
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center gap-2">
                       <User className="w-4 h-4 text-emerald-400" />
-                      Show Realm Companion (Necrion)
+                      Show realm companion (Necrion)
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
                       Display Necrion standing at the bottom right corner as your realm mentor guide.
@@ -472,22 +472,22 @@ export default function SettingsPage() {
                       setUserPreference("show-companion-necrion", checked)
                       window.dispatchEvent(new CustomEvent('settings:companionVisibilityChanged'))
                       toast({
-                        title: checked ? "Companion Shown" : "Companion Hidden",
+                        title: checked ? "Companion shown" : "Companion hidden",
                         description: checked ? "Necrion is standing by on main pages." : "Necrion is resting in the realm shadows.",
                       })
                     }}
                   />
                 </div>
 
-                {/* Show Guardian / Partner Toggle */}
+                {/* Show Guardian / Companion Toggle */}
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center gap-2">
                       <Shield className="w-4 h-4 text-amber-400" />
-                      Show Active Guardian / Partner
+                      Show active guardian / companion
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
-                      Display your active Habit Guardian (e.g. Ember Drake, Sage Owl) or creature partner beside Necrion.
+                      Display your active habit guardian (e.g. Ember Drake, Sage Owl) or creature companion beside Necrion.
                     </p>
                   </div>
                   <Switch
@@ -498,8 +498,8 @@ export default function SettingsPage() {
                       setUserPreference("show-guardian-partner", checked)
                       window.dispatchEvent(new CustomEvent('settings:companionVisibilityChanged'))
                       toast({
-                        title: checked ? "Guardian Shown" : "Guardian Hidden",
-                        description: checked ? "Your active Guardian stands beside Necrion." : "Guardian is resting in the sanctuary.",
+                        title: checked ? "Guardian shown" : "Guardian hidden",
+                        description: checked ? "Your active guardian stands beside Necrion." : "Guardian is resting in the sanctuary.",
                       })
                     }}
                   />
@@ -510,7 +510,7 @@ export default function SettingsPage() {
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center gap-2">
                       <Bell className="w-4 h-4 text-purple-400" />
-                      Medieval Audio & Sound Effects
+                      Medieval audio & sound effects
                     </Label>
                     <p className="text-sm text-zinc-400 max-w-md">
                       Enable synthetic Web Audio sound effects for gold harvests, sword strikes, catapult launches, and bard ballads.

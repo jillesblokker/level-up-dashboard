@@ -640,11 +640,11 @@ export function AlchemyLabTab() {
                         onClick={() => handleSelectGuardian(g.id)}
                         className="w-full text-[10px] h-8 font-bold border-amber-950/30 text-amber-500 hover:bg-amber-950/20"
                       >
-                        Summon Companion
+                        Summon companion
                       </Button>
                     ) : (
                       <div className="w-full text-center text-[9px] font-bold text-emerald-400 py-1 bg-emerald-950/20 rounded border border-emerald-900/30 flex items-center justify-center gap-1 select-none h-8">
-                        <Check className="w-3 h-3" /> Active Companion
+                        <Check className="w-3 h-3" /> Active companion
                       </div>
                     )}
 

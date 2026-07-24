@@ -916,11 +916,11 @@ export const TEXT_CONTENT = {
         },
         "ice-sculpture": {
             name: "Ice Sculpture",
-            clickMessage: "An intricately carved sculpture hides a frosty cache - glimmering coins trapped within the ice."
+            clickMessage: "An intricately carved sculpture hides a frosty cache. Glimmering coins are trapped within the ice."
         },
         "fireworks-stand": {
             name: "Fireworks Stand",
-            clickMessage: "Crackling fuses and bright sparks - after the show, you find a tidy stack of celebration coins."
+            clickMessage: "Crackling fuses and bright sparks. After the show, you find a tidy stack of celebration coins."
         },
         "pumpkin-patch": {
             name: "Pumpkin Patch",
@@ -928,31 +928,31 @@ export const TEXT_CONTENT = {
         },
         "harvest-barn": {
             name: "Harvest Barn",
-            clickMessage: "Bales of hay and bustling workers - your share of the harvest includes a modest pouch of gold."
+            clickMessage: "Bales of hay and bustling workers. Your share of the harvest includes a modest pouch of gold."
         },
         bakery: {
             name: "Bakery",
-            clickMessage: "Fresh bread and warm pastries - tips and change accumulate into a tidy little treasure."
+            clickMessage: "Fresh bread and warm pastries. Tips and change accumulate into a tidy little treasure."
         },
         brewery: {
             name: "Brewery",
-            clickMessage: "Foamy mugs and clinking tankards - profits from the evening's patrons fill your purse."
+            clickMessage: "Foamy mugs and clinking tankards. Profits from the evening's patrons fill your purse."
         },
         "market-stalls": {
             name: "Market Stalls",
-            clickMessage: "Merchants haggle and shoppers browse - your cut of the stall fees comes in shiny coins."
+            clickMessage: "Merchants haggle and shoppers browse. Your cut of the stall fees comes in shiny coins."
         },
         library: {
             name: "Library",
-            clickMessage: "Quiet stacks, rare tomes - an appreciative patron donates handsomely to your efforts."
+            clickMessage: "Quiet stacks and rare tomes. An appreciative patron donates handsomely to your efforts."
         },
         "training-grounds": {
             name: "Training Grounds",
-            clickMessage: "Sparring warriors and clashing steel - your prowess earns coin and respect."
+            clickMessage: "Sparring warriors and clashing steel. Your prowess earns coin and respect."
         },
         stable: {
             name: "Stable",
-            clickMessage: "Fresh hay and polished tack - your stable services bring in steady coin."
+            clickMessage: "Fresh hay and polished tack. Your stable services bring in steady coin."
         },
         house: {
             name: "House",

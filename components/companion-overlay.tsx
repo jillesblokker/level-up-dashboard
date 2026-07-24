@@ -227,7 +227,7 @@ export function CompanionOverlay() {
             className="mb-2 bg-white text-zinc-950 border-2 border-zinc-200 p-3 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[240px] relative group"
           >
             <div className="flex items-start justify-between gap-1.5">
-              <p className="text-[11px] font-bold text-zinc-900 leading-snug">
+              <p className="text-[11px] font-medium text-zinc-900 leading-snug">
                 {currentHint}
               </p>
               <button
