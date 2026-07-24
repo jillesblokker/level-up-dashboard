@@ -115,7 +115,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
         )}
         aria-hidden="true"
       />
-      <div className="relative z-10 p-8 w-full flex flex-col items-center justify-center">
+      <div className="relative z-10 p-6 sm:p-8 pt-[env(safe-area-inset-top,1.5rem)] sm:pt-8 w-full flex flex-col items-center justify-center">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-wide drop-shadow-lg font-medieval text-amber-500 text-center text-balance">
           {title || 'Untitled'}
         </h1>
@@ -129,7 +129,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
         )}
       </div>
       {guideComponent && (
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20">
           {guideComponent}
         </div>
       )}

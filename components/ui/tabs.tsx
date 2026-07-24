@@ -14,16 +14,14 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "flex h-14 items-center justify-start rounded-2xl bg-zinc-950 border border-amber-900/20 p-1.5 text-white/50 overflow-x-auto overflow-y-hidden no-scrollbar w-full flex-nowrap gap-1",
+      "flex h-auto min-h-[52px] items-center justify-start rounded-2xl bg-zinc-950 border border-amber-900/20 p-1.5 text-white/50 overflow-x-auto overflow-y-hidden no-scrollbar w-full flex-nowrap gap-1.5",
       className
     )}
     style={{ 
       WebkitOverflowScrolling: 'touch', 
       scrollbarWidth: 'none', 
       msOverflowStyle: 'none', 
-      touchAction: 'pan-x',
-      WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent 100%)',
-      maskImage: 'linear-gradient(to right, black 90%, transparent 100%)'
+      touchAction: 'pan-x'
     }}
     {...props}
   />
@@ -37,7 +35,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center gap-2 [&_svg]:!mr-0 shrink-0 whitespace-nowrap rounded-xl px-5 py-3 text-xs font-bold uppercase tracking-widest transition-all min-h-[44px] disabled:pointer-events-none disabled:opacity-50 hover:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:!text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 data-[state=active]:opacity-100",
+      "inline-flex items-center justify-center gap-1.5 [&_svg]:!mr-0 shrink-0 whitespace-nowrap rounded-xl px-3.5 sm:px-5 py-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all min-h-[44px] leading-none disabled:pointer-events-none disabled:opacity-50 hover:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:!text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 data-[state=active]:opacity-100",
       className
     )}
     {...props}

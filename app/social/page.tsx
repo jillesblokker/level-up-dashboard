@@ -668,63 +668,54 @@ export default function AlliesPage() {
                                                     </Button>
 
                                                     {/* Secondary Row */}
-                                                    <div className="col-span-2 flex gap-1 pt-1">
+                                                    <div className="col-span-2 flex items-center justify-between gap-1 pt-1.5 border-t border-border/40">
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
+                                                            className="flex-1 text-[11px] px-1.5 h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => openCompareModal(friend)}
                                                         >
-                                                            <Target className="w-3 h-3" />
+                                                            <Target className="w-3 h-3 mr-1" />
                                                             Compare
                                                         </Button>
-                                                        <div className="w-px h-4 bg-border my-auto" />
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
+                                                            className="flex-1 text-[11px] px-1.5 h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => {
                                                                 setSelectedFriend(friend);
                                                                 setGiftModalOpen(true);
                                                             }}
                                                         >
-                                                            <Gift className="w-3 h-3" />
+                                                            <Gift className="w-3 h-3 mr-1" />
                                                             Gift
                                                         </Button>
-                                                        <div className="w-px h-4 bg-border my-auto" />
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
+                                                            className="flex-1 text-[11px] px-1.5 h-8 text-muted-foreground hover:text-foreground"
                                                             onClick={() => openChallengeModal(friend)}
                                                         >
-                                                            <Sword className="w-3 h-3 text-red-500" />
-                                                            Challenge
+                                                            <Sword className="w-3 h-3 mr-1 text-red-500" />
+                                                            Duel
                                                         </Button>
-                                                        <div className="w-px h-4 bg-border my-auto" />
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="flex-1 text-xs h-8 text-muted-foreground hover:text-foreground"
-                                                            onClick={() => handleHire(friend)}
-                                                        >
-                                                            <UserPlus className="w-3 h-3" />
-                                                            Hire
-                                                        </Button>
-                                                        <div className="w-px h-4 bg-border my-auto" />
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0">
                                                                     <MoreHorizontal className="w-4 h-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="w-48">
+                                                                <DropdownMenuItem onClick={() => handleHire(friend)}>
+                                                                    <UserPlus className="w-4 h-4 mr-2" />
+                                                                    Hire Companion
+                                                                </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
-                                                                    <Shield className="w-4 h-4" />
+                                                                    <Shield className="w-4 h-4 mr-2" />
                                                                     Visit Realm
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => removeFriend(friend.id)}>
-                                                                    <UserCheck className="w-4 h-4" />
+                                                                    <UserCheck className="w-4 h-4 mr-2" />
                                                                     Unfriend
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
