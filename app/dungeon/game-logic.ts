@@ -307,11 +307,11 @@ export interface MonsterStatusState {
 
 export function getStatusSpell(element: CreatureType) {
     switch (element) {
-        case 'Water': return { name: 'Restorative Tide', emoji: '💧', type: 'heal', desc: 'Restores +30% Max HP' };
-        case 'Grass': return { name: 'Spore Hypnosis', emoji: '💤', type: 'sleep', desc: 'Sleeps Enemy (1-2 Turns)' };
-        case 'Rock': return { name: 'Confusing Dust', emoji: '💫', type: 'confusion', desc: '50% Enemy Self-Hit (2 Turns)' };
-        case 'Ice': return { name: 'Blizzard Freeze', emoji: '❄️', type: 'sleep', desc: 'Freezes Enemy 1 Turn' };
-        case 'Fire': default: return { name: 'Cauterize Flame', emoji: '💚', type: 'heal', desc: 'Restores +30% Max HP' };
+        case 'Water': return { name: 'Heal', emoji: '💧', type: 'heal', desc: '+30% HP' };
+        case 'Grass': return { name: 'Hypnosis', emoji: '💤', type: 'sleep', desc: 'Sleeps Enemy' };
+        case 'Rock': return { name: 'Dust', emoji: '💫', type: 'confusion', desc: 'Confuses Enemy' };
+        case 'Ice': return { name: 'Freeze', emoji: '❄️', type: 'sleep', desc: 'Freezes Enemy' };
+        case 'Fire': default: return { name: 'Heal', emoji: '💚', type: 'heal', desc: '+30% HP' };
     }
 }
 

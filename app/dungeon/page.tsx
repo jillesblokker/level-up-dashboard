@@ -451,12 +451,12 @@ export default function DungeonPage() {
 
   const getElementalSpell = (type: CreatureType) => {
     switch (type) {
-      case 'Fire': return { name: 'Inferno Surge', emoji: '🔥', desc: '1.4x Dmg, +25% Crit' };
-      case 'Water': return { name: 'Tidal Crash', emoji: '🌊', desc: '1.4x Dmg, +25% Crit' };
-      case 'Grass': return { name: 'Leaf Storm', emoji: '🍃', desc: '1.4x Dmg, +25% Crit' };
-      case 'Rock': return { name: 'Tremor Smash', emoji: '🪨', desc: '1.4x Dmg, +25% Crit' };
-      case 'Ice': return { name: 'Frostbite Blast', emoji: '❄️', desc: '1.4x Dmg, +25% Crit' };
-      default: return { name: 'Elemental Arc', emoji: '✨', desc: '1.4x Dmg, +25% Crit' };
+      case 'Fire': return { name: 'Burst', emoji: '🔥', desc: '1.4x Dmg + Burn' };
+      case 'Water': return { name: 'Surge', emoji: '🌊', desc: '1.4x Dmg + Burn' };
+      case 'Grass': return { name: 'Slash', emoji: '🍃', desc: '1.4x Dmg + Burn' };
+      case 'Rock': return { name: 'Smash', emoji: '🪨', desc: '1.4x Dmg + Burn' };
+      case 'Ice': return { name: 'Blast', emoji: '❄️', desc: '1.4x Dmg + Burn' };
+      default: return { name: 'Arc', emoji: '✨', desc: '1.4x Dmg + Burn' };
     }
   };
 
@@ -1408,102 +1408,97 @@ export default function DungeonPage() {
                             })()}
                           </div>
 
-                          {/* Tactical Combat Action Grid with Cooldown Badges */}
-                          <div className="space-y-2 w-full pt-1">
-                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center flex items-center justify-center gap-2">
-                              <span>Choose Combat Action</span>
-                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold animate-pulse">⚠️ Enemy Preparing Heavy Attack! Use Guard or Swap!</span>}
+                          {/* Tactical Combat Action Grid (Strict 2x2 Grid Layout with 4 Choices) */}
+                          <div className="space-y-3 w-full max-w-md mx-auto pt-1">
+                            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                              <span>Choose Action</span>
+                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold animate-pulse">⚠️ Incoming Heavy Attack! Guard or Swap!</span>}
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 w-full">
+                            
+                            <div className="grid grid-cols-2 gap-3 w-full">
                               
-                              {/* Choice 1: Heavy Strike (Always Ready) */}
+                              {/* Choice 1: Strike (Basic Physical Attack - 0 Cooldown) */}
                               <Button
                                 onClick={() => fight('strike')}
-                                className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 border border-red-500/40 rounded-xl shadow-lg transition-all active:scale-95"
+                                className="h-16 px-3 flex flex-col items-center justify-center bg-gradient-to-b from-red-700 to-red-950 hover:from-red-600 hover:to-red-900 border border-red-500/50 rounded-xl shadow-lg transition-all active:scale-95 text-center overflow-hidden"
                               >
-                                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">⚔️ Heavy Strike</span>
-                                <span className="text-[9px] text-red-200 opacity-90 font-mono">1.0x Dmg (⚡ Ready)</span>
-                              </Button>
-
-                              {/* Choice 2: Elemental Burst (2 Turn Cooldown) */}
-                              <Button
-                                onClick={() => fight('elemental')}
-                                disabled={cooldowns.burst > 0}
-                                className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
-                                  cooldowns.burst > 0
-                                    ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                    : 'bg-gradient-to-b from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 border-amber-400/40 text-white active:scale-95'
-                                }`}
-                              >
-                                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
-                                  {activeSpell.emoji} {activeSpell.name}
+                                <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate text-white">
+                                  ⚔️ Strike
                                 </span>
-                                <span className="text-[9px] font-mono">
-                                  {cooldowns.burst > 0 ? `⏳ Cooldown (${cooldowns.burst}t)` : `1.4x + Burn (⚡ Ready)`}
+                                <span className="text-[10px] text-red-200 opacity-90 font-mono truncate">
+                                  1.0x Dmg (⚡ Ready)
                                 </span>
                               </Button>
 
-                              {/* Choice 3: Status / Recovery Spell (3 Turn Cooldown) */}
+                              {/* Choice 2: Burst / Elemental Attack (2 Turn Cooldown) */}
+                              {(() => {
+                                const isSigAvailable = (selectedCreature?.level || 1) >= 10 && cooldowns.signature === 0;
+                                const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2));
+                                const spellName = isSigAvailable ? sigMove.name.split(' ')[0] : activeSpell.name;
+                                const spellEmoji = isSigAvailable ? sigMove.emoji : activeSpell.emoji;
+                                const actionTarget = isSigAvailable ? 'signature' : 'elemental';
+                                const cdValue = isSigAvailable ? cooldowns.signature : cooldowns.burst;
+
+                                return (
+                                  <Button
+                                    onClick={() => fight(actionTarget as any)}
+                                    disabled={cdValue > 0}
+                                    className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden ${
+                                      cdValue > 0
+                                        ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
+                                        : 'bg-gradient-to-b from-amber-600 to-amber-900 hover:from-amber-500 hover:to-amber-800 border-amber-400/50 text-white active:scale-95'
+                                    }`}
+                                  >
+                                    <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate">
+                                      {spellEmoji} {spellName}
+                                    </span>
+                                    <span className="text-[10px] font-mono truncate">
+                                      {cdValue > 0 ? `⏳ Cooldown (${cdValue}t)` : `1.4x Dmg (⚡ Ready)`}
+                                    </span>
+                                  </Button>
+                                );
+                              })()}
+
+                              {/* Choice 3: Heal / Status Attack (3 Turn Cooldown) */}
                               {(() => {
                                 const statusSpell = getStatusSpell(selectedCreature!.type);
                                 return (
                                   <Button
                                     onClick={() => fight('status')}
                                     disabled={cooldowns.status > 0}
-                                    className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
+                                    className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden ${
                                       cooldowns.status > 0
                                         ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                        : 'bg-gradient-to-b from-emerald-700 to-emerald-900 hover:from-emerald-600 hover:to-emerald-800 border-emerald-400/40 text-white active:scale-95'
+                                        : 'bg-gradient-to-b from-emerald-700 to-emerald-950 hover:from-emerald-600 hover:to-emerald-900 border-emerald-400/50 text-white active:scale-95'
                                     }`}
                                   >
-                                    <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                                    <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate">
                                       {statusSpell.emoji} {statusSpell.name}
                                     </span>
-                                    <span className="text-[9px] font-mono">
+                                    <span className="text-[10px] font-mono truncate">
                                       {cooldowns.status > 0 ? `⏳ Cooldown (${cooldowns.status}t)` : `${statusSpell.desc} (⚡ Ready)`}
                                     </span>
                                   </Button>
                                 );
                               })()}
 
-                              {/* Choice 4: Signature Tier Move (3 Turn Cooldown) */}
-                              {(() => {
-                                const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2));
-                                return (
-                                  <Button
-                                    onClick={() => fight('signature')}
-                                    disabled={cooldowns.signature > 0}
-                                    className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
-                                      cooldowns.signature > 0
-                                        ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                        : 'bg-gradient-to-b from-purple-700 to-purple-900 hover:from-purple-600 hover:to-purple-800 border-purple-400/40 text-white active:scale-95'
-                                    }`}
-                                  >
-                                    <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
-                                      {sigMove.emoji} {sigMove.name}
-                                    </span>
-                                    <span className="text-[9px] font-mono">
-                                      {cooldowns.signature > 0 ? `⏳ Cooldown (${cooldowns.signature}t)` : `${sigMove.multiplier}x Dmg (⚡ Ready)`}
-                                    </span>
-                                  </Button>
-                                );
-                              })()}
-
-                              {/* Choice 5: Counter Guard (1 Turn Cooldown + Glowing Aura on Telegraph) */}
+                              {/* Choice 4: Guard (1 Turn Cooldown + Glowing Aura on Telegraph) */}
                               <Button
                                 onClick={() => fight('counter')}
                                 disabled={cooldowns.guard > 0}
-                                className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
+                                className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden ${
                                   cooldowns.guard > 0
                                     ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                    : `bg-gradient-to-b from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 border-blue-400/40 text-white active:scale-95 ${
+                                    : `bg-gradient-to-b from-blue-700 to-blue-950 hover:from-blue-600 hover:to-blue-900 border-blue-400/50 text-white active:scale-95 ${
                                         telegraphWarning ? 'ring-2 ring-amber-400 ring-offset-1 animate-pulse border-amber-400 font-bold' : ''
                                       }`
                                 }`}
                               >
-                                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">🛡️ Counter Guard</span>
-                                <span className="text-[9px] font-mono">
-                                  {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% Dmg + Riposte (⚡ Ready)`}
+                                <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate">
+                                  🛡️ Guard
+                                </span>
+                                <span className="text-[10px] font-mono truncate">
+                                  {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% Dmg (⚡ Ready)`}
                                 </span>
                               </Button>
                             </div>
