@@ -187,7 +187,7 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
   return (
     <>
       <Card
-        className={`group relative cursor-pointer transition-all duration-200 hover:scale-105 ${state.isReady
+        className={`group relative cursor-pointer transition-all duration-150 hover:scale-105 active:scale-95 active:brightness-125 touch-manipulation select-none ${state.isReady
             ? 'ring-2 ring-amber-400 shadow-lg'
             : 'opacity-75'
           }`}
@@ -209,8 +209,8 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
             {/* Tile Name */}
             <h3 className="font-semibold text-center text-sm mb-2">{tile.name}</h3>
 
-            {/* Timer or Ready Status - Only show on hover */}
-            <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 flex items-center justify-center gap-1">
+            {/* Timer or Ready Status - Only show on desktop hover */}
+            <div className="hidden md:flex group-hover:opacity-100 opacity-0 transition-opacity duration-200 items-center justify-center gap-1">
               {state.isReady ? (
                 <>
                   <Sparkles className="h-4 w-4 text-amber-500" />

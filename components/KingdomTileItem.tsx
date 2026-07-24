@@ -91,7 +91,7 @@ export const KingdomTileItem = React.memo(({
     <button
       onClick={() => onClick(x, y, tile)}
       className={cn(
-        "relative aspect-square border group transition-all duration-300 overflow-hidden shadow-sm hover:shadow-xl",
+        "relative aspect-square border group transition-all duration-150 overflow-hidden shadow-sm hover:shadow-xl touch-manipulation select-none active:scale-90 active:brightness-125 active:border-amber-400 active:ring-2 active:ring-amber-400/80",
         tile.type === 'vacant' 
           ? "bg-zinc-900 border-white/5 hover:bg-zinc-800/60" 
           : "bg-zinc-800 border-white/10 hover:border-amber-500/50",
@@ -119,9 +119,9 @@ export const KingdomTileItem = React.memo(({
         )}
       </div>
 
-      {/* Castle Story Overlay */}
+      {/* Castle Story Overlay (Desktop Only) */}
       {type === 'castle' && (
-        <div className="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
+        <div className="absolute inset-0 bg-zinc-950 hidden md:flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
           <p className="text-[10px] text-amber-200 text-center font-serif leading-tight">
             &quot;The world fell to ruin, but with Necrion&apos;s aid, the King&apos;s legacy shall be rebuilt.&quot;
           </p>
@@ -191,12 +191,12 @@ export const KingdomTileItem = React.memo(({
         </>
       )}
 
-      {/* Hover Info-Card */}
+      {/* Hover Info-Card (Desktop Only) */}
       {(tile.type === 'quest-board' || tile.type === 'market' ||
         tile.type === 'dungeon' ||
         tile.type === 'monument' || auraColor ||
         tile.type?.toLowerCase() === 'market-stalls') && (
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none flex flex-col items-center justify-center p-1 z-50">
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none hidden md:flex flex-col items-center justify-center p-1 z-50">
             <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
               <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{tile.name || tile.type}</p>
               <div className="h-px bg-white/10 my-1 w-full" />
