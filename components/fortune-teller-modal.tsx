@@ -8,6 +8,8 @@ import Image from "next/image"
 import { toast } from "@/components/ui/use-toast"
 import { fetchFreshCharacterStats } from "@/lib/character-stats-service"
 
+import { motion } from "framer-motion"
+
 interface FortuneTellerModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -139,17 +141,24 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center py-4 space-y-5 animate-in fade-in zoom-in duration-500 w-full max-w-full">
+          <div className="flex flex-col items-center py-4 space-y-5 w-full max-w-full">
             {selectedData && (
               <>
-                <div className="relative w-full max-w-[220px] sm:max-w-[260px] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(16,185,129,0.5)] border-2 border-emerald-400/60 mx-auto">
-                  <Image
-                    src={selectedData.image}
-                    alt={selectedData.name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                <div className="perspective-1000 w-full flex justify-center">
+                  <motion.div 
+                    initial={{ rotateY: 180, scale: 0.8, opacity: 0 }}
+                    animate={{ rotateY: 0, scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
+                    className="relative w-full max-w-[220px] sm:max-w-[260px] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(16,185,129,0.5)] border-2 border-emerald-400/60 mx-auto"
+                  >
+                    <Image
+                      src={selectedData.image}
+                      alt={selectedData.name}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </motion.div>
                 </div>
                 
                 <div className="text-center space-y-1.5 max-w-md px-2">

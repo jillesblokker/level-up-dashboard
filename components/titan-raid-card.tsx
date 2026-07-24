@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift } from "lucide-react";
 import { getCurrentMonthlyTitan, MonthlyTitan } from "@/lib/titan-bosses";
+import { motion } from "framer-motion";
 
 export function TitanRaidCard() {
   const { toast } = useToast();
@@ -99,7 +100,12 @@ export function TitanRaidCard() {
 
       <CardContent className="p-5 pt-0 space-y-4">
         {/* Full Uncropped Boss Image Banner with Victory Overlay */}
-        <div className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group">
+        <motion.div 
+          initial={{ scale: 0.98, opacity: 0.9 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group"
+        >
           <Image
             src={titan.image}
             alt={titan.name}
@@ -121,7 +127,7 @@ export function TitanRaidCard() {
               </p>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Habit Building Guidance Banner */}
         <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
