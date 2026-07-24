@@ -54,11 +54,13 @@ export function CompanionOverlay() {
   const citizens = useCitizensStore(s => s.citizens)
   
   const [hintIndex, setHintIndex] = useState(0)
-  const [showSpeech, setShowSpeech] = useState(true)
+  const [showSpeech, setShowSpeech] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
 
-  const activePartner = useMemo(() => {
-    return citizens.find(c => c.id === activePartnerId)
+  // Filter activePet so if activePartnerId is '000' (Necrion), we DO NOT duplicate Necrion!
+  const activePet = useMemo(() => {
+    if (!activePartnerId || activePartnerId === '000') return null
+    return citizens.find(c => c.id === activePartnerId && c.id !== '000') || null
   }, [citizens, activePartnerId])
 
   const hints = useMemo(() => {
@@ -66,10 +68,12 @@ export function CompanionOverlay() {
     return routeKey ? HINTS_BY_ROUTE[routeKey] : DEFAULT_HINTS
   }, [pathname])
 
-  // Reset hint index on route change
+  // Auto-show speech bubble briefly on route change or initial load
   useEffect(() => {
     setHintIndex(0)
     setShowSpeech(true)
+    const timer = setTimeout(() => setShowSpeech(false), 7000)
+    return () => clearTimeout(timer)
   }, [pathname])
 
   const activeHints = hints || DEFAULT_HINTS
@@ -88,8 +92,8 @@ export function CompanionOverlay() {
   }
 
   return (
-    <div className="fixed bottom-[72px] right-3 md:bottom-5 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
-      {/* Speech Bubble */}
+    <div className="fixed bottom-[68px] right-2 md:bottom-4 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
+      {/* Speech Bubble (Opens upward away from bottom nav) */}
       <AnimatePresence>
         {showSpeech && currentHint && (
           <motion.div
@@ -98,10 +102,10 @@ export function CompanionOverlay() {
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             onClick={handleNextHint}
-            className="mb-2 bg-zinc-950/95 border border-amber-500/40 text-amber-100 p-3 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[220px] sm:max-w-[260px] relative group"
+            className="mb-2 bg-zinc-950/95 border border-amber-500/50 text-amber-100 p-2.5 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[240px] relative group"
           >
             <div className="flex items-start justify-between gap-1.5">
-              <p className="text-[11px] font-medium leading-tight text-amber-100">
+              <p className="text-[10px] sm:text-[11px] font-medium leading-tight text-amber-100">
                 {currentHint}
               </p>
               <button
@@ -115,66 +119,78 @@ export function CompanionOverlay() {
                 <X className="w-3 h-3" />
               </button>
             </div>
-            <div className="text-[9px] text-amber-400/60 font-mono mt-1 text-right flex items-center justify-end gap-1">
-              <span>Tap for tip</span>
-              <span>👉</span>
+            <div className="text-[8px] text-amber-400/70 font-mono mt-1 text-right">
+              Tap for next tip 👉
             </div>
 
             {/* Speech Tail */}
-            <div className="absolute -bottom-2 right-6 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-zinc-950"></div>
+            <div className="absolute -bottom-2 right-5 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-zinc-950"></div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Characters Standing Side-by-Side */}
-      <div className="flex items-end gap-2 pointer-events-auto">
-        {/* 1. Necrion (Realm Mentor Companion) */}
+      <div className="flex items-end gap-1.5 pointer-events-auto">
+        {/* Toggle Speech Bubble Button */}
+        {!showSpeech && (
+          <button
+            onClick={() => setShowSpeech(true)}
+            className="mb-1 p-1.5 rounded-full bg-zinc-950/90 border border-amber-500/40 text-amber-400 shadow-md hover:scale-110 active:scale-95 transition-transform"
+            title="Show mentor tip"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* 1. Necrion (Realm Mentor Companion) - Rendered as a crisp circular token badge */}
         <div
           onClick={handleNextHint}
           className={`relative group cursor-pointer transition-transform duration-200 ${
             isAnimating ? 'scale-125 -translate-y-2' : 'hover:scale-110 active:scale-95'
           }`}
-          title="Necrion (Realm Companion) - Tap for guidance"
+          title="Necrion (Realm Mentor) - Tap for guidance"
         >
-          <div className="relative w-13 h-13 sm:w-16 sm:h-16 drop-shadow-[0_0_12px_rgba(34,197,94,0.4)]">
-            <Image
-              src="/images/creatures/000.png"
-              alt="Necrion Companion"
-              fill
-              className="object-contain animate-float"
-              unoptimized
-            />
+          <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border-2 border-emerald-500/60 bg-zinc-950/90 shadow-[0_0_12px_rgba(16,185,129,0.3)] flex items-center justify-center p-0.5 overflow-hidden">
+            <div className="relative w-full h-full">
+              <Image
+                src="/images/creatures/000.png"
+                alt="Necrion Companion"
+                fill
+                className="object-cover scale-125 translate-y-1"
+                unoptimized
+              />
+            </div>
           </div>
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-zinc-950/90 text-[8px] text-emerald-400 font-bold px-1 rounded border border-emerald-500/30 whitespace-nowrap shadow-sm opacity-90 group-hover:opacity-100">
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-zinc-950/90 text-[8px] text-emerald-400 font-bold px-1 rounded border border-emerald-500/40 whitespace-nowrap shadow-sm opacity-90 group-hover:opacity-100">
             Necrion
           </span>
         </div>
 
-        {/* 2. Active Pet / Partner Creature (Standing next to Necrion) */}
-        {activePartner && (
+        {/* 2. Active Pet / Partner Creature (Standing next to Necrion - Only if NOT Necrion) */}
+        {activePet && (
           <div
             onClick={handleNextHint}
             className={`relative group cursor-pointer transition-transform duration-200 ${
               isAnimating ? 'scale-125 -translate-y-2' : 'hover:scale-110 active:scale-95'
             }`}
-            title={`${activePartner.name} (Active Pet)`}
+            title={`${activePet.name} (Active Pet)`}
           >
             <div className="relative w-11 h-11 sm:w-14 sm:h-14 drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]">
               <Image
                 src={
-                  activePartner.isMythic
-                    ? `/images/Mythics/${activePartner.filename}?v=2`
-                    : `/images/creatures/${activePartner.filename}`
+                  activePet.isMythic
+                    ? `/images/Mythics/${activePet.filename}?v=2`
+                    : `/images/creatures/${activePet.filename}`
                 }
-                alt={activePartner.name}
+                alt={activePet.name}
                 fill
                 className="object-contain animate-float"
                 unoptimized
               />
             </div>
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-zinc-950/90 text-[8px] text-amber-400 font-bold px-1 rounded border border-amber-500/30 whitespace-nowrap shadow-sm opacity-90 group-hover:opacity-100 flex items-center gap-0.5">
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-zinc-950/90 text-[8px] text-amber-400 font-bold px-1 rounded border border-amber-500/40 whitespace-nowrap shadow-sm opacity-90 group-hover:opacity-100 flex items-center gap-0.5">
               <Heart className="w-2 h-2 fill-amber-400 text-amber-400 shrink-0" />
-              {activePartner.name}
+              {activePet.name}
             </span>
           </div>
         )}
