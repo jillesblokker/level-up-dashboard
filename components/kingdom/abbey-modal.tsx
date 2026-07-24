@@ -129,7 +129,7 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-purple-800/50 text-white rounded-2xl p-6 shadow-2xl">
+      <DialogContent className="max-w-full sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-purple-800/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-x-hidden">
         <DialogHeader className="text-center flex flex-col items-center">
           <div className="p-3 rounded-2xl bg-purple-950/60 border border-purple-500/30 text-purple-400 mb-2 shadow-inner">
             <Church className="w-8 h-8" />

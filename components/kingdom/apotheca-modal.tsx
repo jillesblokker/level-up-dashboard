@@ -128,7 +128,7 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-emerald-800/50 text-white rounded-2xl p-6 shadow-2xl">
+      <DialogContent className="max-w-full sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-emerald-800/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-x-hidden">
         <DialogHeader className="text-center flex flex-col items-center">
           <div className="p-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 mb-2 shadow-inner">
             <FlaskConical className="w-8 h-8" />

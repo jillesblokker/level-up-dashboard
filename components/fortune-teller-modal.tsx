@@ -109,60 +109,67 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!isProcessing) onOpenChange(val); }}>
-      <DialogContent className="sm:max-w-[600px] border-emerald-900/50 bg-slate-950/95 backdrop-blur-md">
-        <DialogHeader>
+      <DialogContent className="max-w-full sm:max-w-[560px] border-2 border-emerald-800/60 bg-slate-950/95 backdrop-blur-md p-4 sm:p-6 rounded-2xl overflow-x-hidden shadow-2xl">
+        <DialogHeader className="p-0 mb-2">
           <DialogTitle className="text-2xl font-medieval text-emerald-400 text-center">
-            The Fortune Teller
+            🔮 The Fortune Teller
           </DialogTitle>
-          <DialogDescription className="text-center text-emerald-200/70">
+          <DialogDescription className="text-center text-emerald-200/80 text-xs sm:text-sm">
             {!selectedCard ? "Pick a card to reveal your destiny..." : "Your fate is sealed."}
           </DialogDescription>
         </DialogHeader>
 
         {!selectedCard ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 py-3 w-full max-w-full justify-items-center">
             {shuffledCards.map((card, idx) => (
               <div 
                 key={idx}
                 onClick={() => handleCardClick(card)}
-                className="relative aspect-[2/3] rounded-xl cursor-pointer hover:scale-105 transition-transform duration-300 border-2 border-emerald-900/50 bg-slate-900 hover:border-emerald-500 overflow-hidden group shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]"
+                className="relative w-full max-w-[260px] sm:max-w-none aspect-[2/3] rounded-2xl cursor-pointer hover:scale-102 active:scale-98 transition-all duration-300 border-2 border-emerald-500/50 bg-slate-900 overflow-hidden group shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
               >
-                <div className="absolute inset-0 bg-[url('/images/kingdom-tiles/fortune_teller.png')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity" />
-                <div className="absolute inset-0 bg-emerald-950/60 mix-blend-overlay" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-emerald-500/50 text-4xl font-medieval">?</div>
+                <div className="absolute inset-0 bg-[url('/images/kingdom-tiles/fortune_teller.png')] bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-emerald-950/40 to-slate-950/80" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-4 text-center">
+                  <div className="w-12 h-12 rounded-full bg-emerald-950/80 border border-emerald-500/50 flex items-center justify-center text-emerald-400 font-medieval text-2xl shadow-inner group-hover:scale-110 transition-transform">
+                    ?
+                  </div>
+                  <span className="text-xs font-serif font-bold text-emerald-200 tracking-wider uppercase">Card #{idx + 1}</span>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center py-6 space-y-6 animate-in fade-in zoom-in duration-500">
+          <div className="flex flex-col items-center py-4 space-y-5 animate-in fade-in zoom-in duration-500 w-full max-w-full">
             {selectedData && (
               <>
-                <div className="relative w-48 aspect-[2/3] rounded-xl overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.4)] border-2 border-emerald-500/50">
+                <div className="relative w-full max-w-[220px] sm:max-w-[260px] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(16,185,129,0.5)] border-2 border-emerald-400/60 mx-auto">
                   <Image
                     src={selectedData.image}
                     alt={selectedData.name}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
                 
-                <div className="text-center space-y-2 max-w-md">
-                  <h3 className="text-xl font-bold text-emerald-300">{selectedData.name}</h3>
-                  <p className="text-sm italic text-emerald-100/70">{selectedData.quote}</p>
+                <div className="text-center space-y-1.5 max-w-md px-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-emerald-300 font-serif">{selectedData.name}</h3>
+                  <p className="text-xs sm:text-sm italic text-emerald-100/80 leading-relaxed">&quot;{selectedData.quote.replace(/"/g, '')}&quot;</p>
                 </div>
 
-                <div className="bg-slate-900/50 border border-emerald-900/50 rounded-lg p-4 w-full text-center space-y-2">
-                  <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold">Your Task</p>
-                  <p className="text-lg text-white font-medium">{selectedData.task}</p>
-                  <p className="text-sm text-emerald-400 pt-2">Reward: {selectedData.reward}</p>
+                <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 w-full text-center space-y-2 shadow-lg">
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">Your Task</p>
+                  <p className="text-base sm:text-lg text-white font-bold">{selectedData.task}</p>
+                  <div className="pt-2 border-t border-emerald-900/40 flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-bold">
+                    <span>✨ Reward:</span>
+                    <span>{selectedData.reward}</span>
+                  </div>
                 </div>
 
                 <Button 
                   onClick={handleCompleteTask} 
                   disabled={isProcessing}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-12 text-lg shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold h-12 text-base rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] min-h-[48px]"
                 >
                   {isProcessing ? (
                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Channeling...</>

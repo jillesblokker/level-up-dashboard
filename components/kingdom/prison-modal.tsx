@@ -104,7 +104,7 @@ export function PrisonModal({ open, onOpenChange, onComplete }: PrisonModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-amber-800/50 text-white rounded-2xl p-6 shadow-2xl">
+      <DialogContent className="max-w-full sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-amber-800/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-x-hidden">
         <DialogHeader className="text-center flex flex-col items-center">
           <div className="p-3 rounded-2xl bg-amber-950/60 border border-amber-500/30 text-amber-400 mb-2 shadow-inner">
             <ShieldAlert className="w-8 h-8" />
