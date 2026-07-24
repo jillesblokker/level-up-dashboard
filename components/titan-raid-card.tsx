@@ -100,20 +100,20 @@ export function TitanRaidCard() {
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
             <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 uppercase text-[10px] tracking-widest font-bold">
-              ⚔️ Alliance monthly raid
+              ⚔️ Monthly raid
             </Badge>
             <Badge variant="outline" className="border-amber-500/30 text-amber-400 text-[10px] font-bold">
               {titan.element} element
             </Badge>
             {remainingHp < titan.totalHp / 2 && !isDefeated && (
               <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
-                ⚠️ Phase 2: Enraged (+30% attack damage)
+                ⚠️ Enraged (+30% dmg)
               </Badge>
             )}
           </div>
           {isDefeated && (
             <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Titan defeated!
+              <CheckCircle2 className="w-3.5 h-3.5" /> Defeated!
             </Badge>
           )}
         </div>
@@ -140,38 +140,38 @@ export function TitanRaidCard() {
 
         {/* Boss HP Progress & Stats */}
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">
-            <div className="flex justify-between items-center text-xs font-bold">
-              <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-purple-400" /> Titan Health (1,000 HP)
-              </span>
-              <span className="text-purple-300 font-mono">
-                {remainingHp} / {titan.totalHp} HP ({100 - hpPercentage}% remaining)
-              </span>
+          <div className="flex justify-between items-center text-xs font-bold">
+            <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
+              <Shield className="w-4 h-4 text-purple-400" /> Titan HP
+            </span>
+            <span className="text-purple-300 font-mono">
+              {remainingHp} / {titan.totalHp} HP ({100 - hpPercentage}% left)
+            </span>
+          </div>
+
+          <Progress value={hpPercentage} className="h-3.5 bg-zinc-950 border border-purple-500/30 [&>div]:bg-gradient-to-r [&>div]:from-purple-600 [&>div]:to-amber-500" />
+
+          <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+            <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
+              <div className="text-zinc-400 text-[10px]">Quests (+1)</div>
+              <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
             </div>
-
-            <Progress value={hpPercentage} className="h-3.5 bg-zinc-950 border border-purple-500/30 [&>div]:bg-gradient-to-r [&>div]:from-purple-600 [&>div]:to-amber-500" />
-
-            <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
-              <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-                <div className="text-zinc-400 text-[10px]">Quests (1 dmg)</div>
-                <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
-              </div>
-              <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-                <div className="text-zinc-400 text-[10px]">Challenges (5 dmg)</div>
-                <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
-              </div>
-              <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-                <div className="text-zinc-400 text-[10px]">Milestones (10 dmg)</div>
-                <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
-              </div>
+            <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
+              <div className="text-zinc-400 text-[10px]">Challenges (+5)</div>
+              <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
+            </div>
+            <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
+              <div className="text-zinc-400 text-[10px]">Milestones (+10)</div>
+              <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
             </div>
           </div>
+        </div>
 
         {/* Claim Rewards Footer */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-purple-950/30 border border-purple-800/40">
           <div className="flex items-center gap-2 text-xs">
             <Gift className="w-4 h-4 text-amber-400" />
-            <span className="text-zinc-300">Defeat Reward:</span>
+            <span className="text-zinc-300">Rewards:</span>
             <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
             <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
           </div>
@@ -182,7 +182,7 @@ export function TitanRaidCard() {
                 onClick={handleFocusRaidSurge}
                 className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 text-xs font-bold px-3 py-1.5 rounded-lg"
               >
-                🧠 Spend 5 Focus Points: +500 Dmg Surge
+                🧠 Focus surge (+500 dmg)
               </Button>
             )}
 
@@ -192,11 +192,11 @@ export function TitanRaidCard() {
               className={claimed ? "bg-zinc-800 text-zinc-400 border border-zinc-700" : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold shadow-md"}
             >
               {claimed ? (
-                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Reward Claimed</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Claimed</span>
               ) : isDefeated ? (
-                <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4" /> Claim Victory Rewards</span>
+                <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4" /> Claim rewards</span>
               ) : (
-                <span className="flex items-center gap-1.5"><Sword className="w-4 h-4" /> Attack Titan ({damageDealt}/1000 HP)</span>
+                <span className="flex items-center gap-1.5"><Sword className="w-4 h-4" /> Attack boss ({damageDealt}/1000 HP)</span>
               )}
             </Button>
           </div>
