@@ -66,35 +66,10 @@ export function TitanRaidCard() {
     }
   };
 
-  const handleFocusRaidSurge = async () => {
-    try {
-      const { getCharacterStats, addToCharacterStat } = await import('@/lib/character-stats-service');
-      const stats = getCharacterStats();
-      if ((stats.focus_points || 0) < 5) {
-        toast({
-          title: "Insufficient Focus Points 🧠",
-          description: "You need 5 Focus Points to trigger Titan Raid Surge!",
-          variant: "destructive"
-        });
-        return;
-      }
-      await addToCharacterStat('focus_points', -5, 'focus-titan-surge');
-      setDamageDealt(prev => prev + 500);
-      setRemainingHp(prev => Math.max(0, prev - 500));
-      if (remainingHp <= 500) setIsDefeated(true);
-      toast({
-        title: "🧠 Titan Raid Surge Unleashed!",
-        description: "Spent 5 Focus Points. Dealt +500 Massive Damage to Titan!"
-      });
-    } catch (err: any) {
-      toast({ title: "Surge Error", description: err.message, variant: "destructive" });
-    }
-  };
-
   const hpPercentage = Math.round(((titan.totalHp - remainingHp) / titan.totalHp) * 100);
 
   return (
-    <Card className={`bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative ${isDefeated ? 'animate-card-shatter-top opacity-90' : ''}`}>
+    <Card className="bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative">
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[90px] pointer-events-none" />
       <CardHeader className="p-5 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
@@ -123,16 +98,37 @@ export function TitanRaidCard() {
       </CardHeader>
 
       <CardContent className="p-5 pt-0 space-y-4">
-        {/* Full Uncropped Boss Image Banner */}
+        {/* Full Uncropped Boss Image Banner with Victory Overlay */}
         <div className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group">
           <Image
             src={titan.image}
             alt={titan.name}
             width={800}
             height={500}
-            className="w-full h-auto object-contain rounded-xl transition-transform duration-700 group-hover:scale-102"
+            className={`w-full h-auto object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
             unoptimized
           />
+
+          {/* Victory Overlay when Defeated */}
+          {isDefeated && (
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-amber-950/40 flex flex-col items-center justify-center text-center p-4 rounded-xl space-y-2 border-2 border-amber-500/50">
+              <Trophy className="w-12 h-12 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
+              <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-amber-300 drop-shadow-md">
+                🏆 Titan Defeated This Month!
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-300 max-w-md font-medium">
+                Victory achieved through team habit momentum! Defeated for the rest of the month.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Habit Building Guidance Banner */}
+        <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+          <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
+          </div>
         </div>
 
         {/* Boss HP Progress & Stats */}
@@ -150,21 +146,21 @@ export function TitanRaidCard() {
 
           <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
             <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Quests (+1)</div>
+              <div className="text-zinc-400 text-[10px]">Quests (+1 HP)</div>
               <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
             </div>
             <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Tasks (+5)</div>
+              <div className="text-zinc-400 text-[10px]">Tasks (+5 HP)</div>
               <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
             </div>
             <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Goals (+10)</div>
+              <div className="text-zinc-400 text-[10px]">Goals (+10 HP)</div>
               <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
             </div>
           </div>
         </div>
 
-        {/* Claim Rewards & Vertically Stacked Attack Buttons */}
+        {/* Claim Rewards Footer */}
         <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/40">
           <div className="flex items-center justify-between text-xs border-b border-purple-900/30 pb-2">
             <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
@@ -177,30 +173,19 @@ export function TitanRaidCard() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-full">
-            {!isDefeated && (
-              <Button
-                onClick={handleFocusRaidSurge}
-                className="w-full bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 text-xs font-bold py-2.5 rounded-lg min-h-[44px]"
-              >
-                🧠 Super hit (+500 dmg)
-              </Button>
+          <Button
+            disabled={!isDefeated || claimed || claiming}
+            onClick={handleClaim}
+            className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-3 rounded-xl min-h-[48px]" : isDefeated ? "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[48px] animate-bounce" : "w-full bg-zinc-900 text-zinc-500 border border-zinc-800 py-3 rounded-xl min-h-[48px] cursor-not-allowed"}
+          >
+            {claimed ? (
+              <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
+            ) : isDefeated ? (
+              <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
+            ) : (
+              <span className="flex items-center justify-center gap-1.5 font-medium text-xs"><Target className="w-4 h-4" /> Complete habits with allies to defeat boss ({damageDealt}/1000 HP)</span>
             )}
-
-            <Button
-              disabled={!isDefeated || claimed || claiming}
-              onClick={handleClaim}
-              className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-2.5 rounded-lg min-h-[44px]" : "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold shadow-md py-2.5 rounded-lg min-h-[44px]"}
-            >
-              {claimed ? (
-                <span className="flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Claimed</span>
-              ) : isDefeated ? (
-                <span className="flex items-center justify-center gap-1.5"><Trophy className="w-4 h-4" /> Claim rewards</span>
-              ) : (
-                <span className="flex items-center justify-center gap-1.5"><Sword className="w-4 h-4" /> Attack boss ({damageDealt}/1000 HP)</span>
-              )}
-            </Button>
-          </div>
+          </Button>
         </div>
       </CardContent>
     </Card>

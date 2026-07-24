@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const currentTitan = getCurrentMonthlyTitan();
     const currentMonthKey = `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
 
-    // Get active alliance titan raid progress from preferences
+    // Get saved raid preference
     const { data: prefData } = await supabaseServer
       .from('user_preferences')
       .select('preference_value')
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       .eq('preference_key', `titan_raid_${currentMonthKey}`)
       .maybeSingle();
 
-    const raidData = (prefData?.preference_value as any) || {
+    let raidData = (prefData?.preference_value as any) || {
       damageDealt: 0,
       claimed: false,
       questsCompleted: 0,
@@ -30,20 +30,52 @@ export async function GET(request: NextRequest) {
       milestonesCompleted: 0
     };
 
-    const remainingHp = Math.max(0, currentTitan.totalHp - raidData.damageDealt);
-    const isDefeated = remainingHp === 0;
+    // Calculate actual habit completions from quest_completion table
+    const { count: questCount } = await supabaseServer
+      .from('quest_completion')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    const actualQuests = Math.max(raidData.questsCompleted || 0, questCount || 0);
+    const actualChallenges = raidData.challengesCompleted || 0;
+    const actualMilestones = raidData.milestonesCompleted || 0;
+
+    // Calculate live habit damage: 1 per quest, 5 per challenge, 10 per milestone
+    const calculatedDamage = (actualQuests * 1) + (actualChallenges * 5) + (actualMilestones * 10);
+    const totalDamageDealt = Math.min(currentTitan.totalHp, Math.max(raidData.damageDealt || 0, calculatedDamage));
+
+    const remainingHp = Math.max(0, currentTitan.totalHp - totalDamageDealt);
+    const isDefeated = totalDamageDealt >= currentTitan.totalHp;
+
+    // Auto-update persistent preference if damage increased
+    if (totalDamageDealt !== raidData.damageDealt || actualQuests !== raidData.questsCompleted) {
+      raidData = {
+        ...raidData,
+        damageDealt: totalDamageDealt,
+        questsCompleted: actualQuests,
+      };
+
+      await supabaseServer
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          preference_key: `titan_raid_${currentMonthKey}`,
+          preference_value: raidData,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,preference_key' });
+    }
 
     return NextResponse.json({
       titan: currentTitan,
       currentMonthKey,
-      damageDealt: raidData.damageDealt,
+      damageDealt: totalDamageDealt,
       remainingHp,
       isDefeated,
-      claimed: raidData.claimed,
+      claimed: !!raidData.claimed,
       stats: {
-        quests: raidData.questsCompleted,
-        challenges: raidData.challengesCompleted,
-        milestones: raidData.milestonesCompleted
+        quests: actualQuests,
+        challenges: actualChallenges,
+        milestones: actualMilestones
       }
     });
   } catch (error) {
@@ -60,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, type } = body; // 'attack' | 'claim' ; type: 'quest' (1 dmg) | 'challenge' (5 dmg) | 'milestone' (10 dmg)
+    const { action, type } = body; // 'record_habit' | 'claim'
 
     const currentTitan = getCurrentMonthlyTitan();
     const currentMonthKey = `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
@@ -80,18 +112,29 @@ export async function POST(request: NextRequest) {
       milestonesCompleted: 0
     };
 
-    if (action === 'attack') {
+    if (action === 'record_habit') {
       let dmg = 1;
-      if (type === 'challenge') dmg = 5;
-      if (type === 'milestone') dmg = 10;
+      let newQuests = raidData.questsCompleted || 0;
+      let newChallenges = raidData.challengesCompleted || 0;
+      let newMilestones = raidData.milestonesCompleted || 0;
 
-      const newDmg = Math.min(currentTitan.totalHp, raidData.damageDealt + dmg);
+      if (type === 'challenge') {
+        dmg = 5;
+        newChallenges += 1;
+      } else if (type === 'milestone') {
+        dmg = 10;
+        newMilestones += 1;
+      } else {
+        newQuests += 1;
+      }
+
+      const newDmg = Math.min(currentTitan.totalHp, (raidData.damageDealt || 0) + dmg);
       const updatedRaidData = {
         ...raidData,
         damageDealt: newDmg,
-        questsCompleted: raidData.questsCompleted + (type === 'quest' ? 1 : 0),
-        challengesCompleted: raidData.challengesCompleted + (type === 'challenge' ? 1 : 0),
-        milestonesCompleted: raidData.milestonesCompleted + (type === 'milestone' ? 1 : 0),
+        questsCompleted: newQuests,
+        challengesCompleted: newChallenges,
+        milestonesCompleted: newMilestones,
       };
 
       await supabaseServer
