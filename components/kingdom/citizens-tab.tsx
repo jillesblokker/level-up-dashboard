@@ -243,7 +243,132 @@ export function CitizensTab() {
             <p className="text-zinc-500 font-serif">No citizens found matching this filter.</p>
           </Card>
         ) : (
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <>
+            {/* Mobile Touch Carousel */}
+            <div className="md:hidden space-y-3">
+              <div className="flex items-center justify-between px-1 text-xs text-amber-400 font-bold">
+                <span>🐾 {filteredCitizens.length} {citizenFilter === 'all' ? 'Kingdom Citizens' : citizenFilter}</span>
+                <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">Swipe 👉</span>
+              </div>
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-none scroll-smooth -mx-3 px-3">
+                {filteredCitizens.map((citizen) => {
+                  const isHungry = isCitizenHungry(citizen);
+                  const isReadyToHarvest = isHarvestReady(citizen);
+                  const imageSrc = citizen.isMythic 
+                    ? `/images/Mythics/${citizen.filename}?v=2`
+                    : `/images/creatures/${citizen.filename}`;
+                  const fedRemaining = getFedTimeRemaining(citizen);
+                  const harvestRemaining = getHarvestTimeRemaining(citizen);
+                  
+                  let habitatColorClass = "border-zinc-800 bg-zinc-900";
+                  
+                  switch (citizen.type) {
+                    case 'fire': habitatColorClass = "border-red-900/40 bg-red-950/20"; break;
+                    case 'water': habitatColorClass = "border-blue-900/40 bg-blue-950/20"; break;
+                    case 'earth': habitatColorClass = "border-amber-900/40 bg-amber-950/20"; break;
+                    case 'nature': habitatColorClass = "border-emerald-900/40 bg-emerald-950/20"; break;
+                    case 'ice': habitatColorClass = "border-cyan-900/40 bg-cyan-950/20"; break;
+                    case 'monster':
+                    case 'special': habitatColorClass = "border-purple-900/40 bg-purple-950/20"; break;
+                  }
+
+                  return (
+                    <div key={citizen.id} className="w-[85vw] max-w-[320px] shrink-0 snap-center">
+                      <Card className={`relative overflow-hidden flex flex-col border transition-all duration-300 rounded-2xl h-full ${habitatColorClass} ${
+                        citizen.favorite ? 'ring-1 ring-amber-500/30 shadow-md' : ''
+                      }`}>
+                        <div className="absolute top-3 right-3 z-10">
+                          <button
+                            onClick={() => toggleFavorite(user!.id, citizen.id)}
+                            className="p-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-amber-500"
+                          >
+                            <Star className={`w-4 h-4 ${citizen.favorite ? 'fill-amber-500' : 'text-zinc-400'}`} />
+                          </button>
+                        </div>
+
+                        <CardHeader className="pb-2 pt-4">
+                          <CardTitle className="font-serif text-base text-white truncate pr-6">{citizen.name}</CardTitle>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold">
+                              Lvl {citizen.level || 1}
+                            </Badge>
+                            <Badge variant="secondary" className="text-[10px] capitalize">
+                              {citizen.type}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+
+                        <CardContent className="flex-grow flex flex-col justify-between items-center py-3 space-y-3">
+                          <div className="relative w-28 h-28 flex items-center justify-center bg-zinc-950/80 rounded-xl border border-zinc-800/40 p-2 overflow-hidden w-full">
+                            <Image
+                              src={imageSrc}
+                              alt={citizen.name}
+                              fill
+                              className="object-contain animate-float"
+                              sizes="120px"
+                              unoptimized
+                            />
+                          </div>
+
+                          <div className="w-full space-y-1.5 text-xs">
+                            <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-400">Map Status:</span>
+                              <Badge variant={citizen.active ? "default" : "secondary"} className={citizen.active ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-400'}>
+                                {citizen.active ? "Wandering" : "Tab Only"}
+                              </Badge>
+                            </div>
+
+                            <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-400">Fed Duration:</span>
+                              {isHungry ? (
+                                <span className="text-red-400 font-bold">Hungry 🥩</span>
+                              ) : (
+                                <span className="text-emerald-400 font-bold">Fed ({fedRemaining})</span>
+                              )}
+                            </div>
+
+                            <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-400">Daily Taxes:</span>
+                              {isHungry ? (
+                                <span className="text-zinc-500">Requires Feed</span>
+                              ) : isReadyToHarvest ? (
+                                <span className="text-amber-400 font-bold animate-pulse">Collect ✨</span>
+                              ) : (
+                                <span className="text-zinc-500 font-mono">{harvestRemaining}</span>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+
+                        <CardFooter className="flex flex-col gap-2 pt-2 pb-4 px-4">
+                          <Button
+                            size="sm"
+                            variant={activePartnerId === citizen.id ? "default" : "outline"}
+                            className={activePartnerId === citizen.id ? 'w-full bg-amber-500 text-black font-bold' : 'w-full border-zinc-700 bg-zinc-900 text-zinc-300'}
+                            onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
+                          >
+                            <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
+                            {activePartnerId === citizen.id ? "Partnered" : "Set as Partner"}
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant={citizen.active ? "outline" : "default"}
+                            className={citizen.active ? 'w-full border-zinc-700 bg-zinc-950 text-zinc-300' : 'w-full bg-amber-600 text-black font-bold'}
+                            onClick={() => handleToggleActive(citizen)}
+                          >
+                            {citizen.active ? "Set to Tab Only" : "Let Wander Map"}
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Desktop Multi-Column Grid */}
+            <div className="hidden md:grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredCitizens.map((citizen) => {
               const isHungry = isCitizenHungry(citizen);
               const isReadyToHarvest = isHarvestReady(citizen);
@@ -519,6 +644,7 @@ export function CitizensTab() {
               );
             })}
           </div>
+          </>
         )}
       </div>
     </div>
