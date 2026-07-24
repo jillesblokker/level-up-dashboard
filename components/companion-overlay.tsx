@@ -64,6 +64,43 @@ export function CompanionOverlay() {
   const [showNecrion, setShowNecrion] = useState(true)
   const [showGuardian, setShowGuardian] = useState(true)
 
+  // Dynamic Randomized Layout State (Spacing, Facing Flips, Depth Offsets)
+  const [layoutState, setLayoutState] = useState({
+    gapClass: 'gap-4',
+    necrionScaleX: 1,
+    guardianScaleX: 1,
+    necrionY: 0,
+    guardianY: 0
+  })
+
+  const randomizeLayout = React.useCallback(() => {
+    const gaps = ['gap-2 sm:gap-3', 'gap-4 sm:gap-6', 'gap-6 sm:gap-8', 'gap-3 sm:gap-5']
+    const randomGap = gaps[Math.floor(Math.random() * gaps.length)]
+    
+    // 50% chance Necrion faces right towards Guardian, 50% faces left
+    const necrionFlipped = Math.random() > 0.5
+    
+    // 50% chance Guardian faces left towards Necrion, 50% faces right
+    const guardianFlipped = Math.random() > 0.5
+
+    // Subtle depth offset (-2px to +3px vertical shift)
+    const nY = Math.floor(Math.random() * 6) - 3
+    const gY = Math.floor(Math.random() * 6) - 3
+
+    setLayoutState({
+      gapClass: randomGap || 'gap-4 sm:gap-6',
+      necrionScaleX: necrionFlipped ? -1 : 1,
+      guardianScaleX: guardianFlipped ? -1 : 1,
+      necrionY: nY,
+      guardianY: gY
+    })
+  }, [])
+
+  // Randomize layout on route changes
+  useEffect(() => {
+    randomizeLayout()
+  }, [pathname, randomizeLayout])
+
   // Load Settings and Guardian State
   const loadVisibilitySettings = async () => {
     try {
@@ -167,6 +204,7 @@ export function CompanionOverlay() {
     setSpeakerName(speaker)
     setHintIndex(prev => prev + 1)
     setShowSpeech(true)
+    randomizeLayout()
     setTimeout(() => setIsAnimating(false), 300)
   }
 
@@ -210,13 +248,16 @@ export function CompanionOverlay() {
         )}
       </AnimatePresence>
 
-      {/* Characters Standing Side-by-Side with Distinct Movements */}
-      <div className="flex items-end gap-2 pointer-events-auto">
-        {/* 1. Necrion (Realm Mentor Companion) - Subtle Floating Levitation */}
+      {/* Characters Standing Side-by-Side with Dynamic Spacing & Facing Directions */}
+      <div className={`flex items-end ${layoutState.gapClass} pointer-events-auto transition-all duration-500`}>
+        {/* 1. Necrion (Realm Mentor Companion) - Subtle Floating Levitation & Facing Flip */}
         {showNecrion && (
           <div
             onClick={() => handleTapCharacter('necrion')}
-            className={`relative group cursor-pointer transition-transform duration-200 ${
+            style={{
+              transform: `translateY(${layoutState.necrionY}px) scaleX(${layoutState.necrionScaleX})`
+            }}
+            className={`relative group cursor-pointer transition-all duration-300 ${
               isAnimating && speakerName === 'necrion' ? 'scale-115 -translate-y-1' : 'hover:scale-105 active:scale-95'
             }`}
             title="Necrion (Realm Companion)"
@@ -233,11 +274,14 @@ export function CompanionOverlay() {
           </div>
         )}
 
-        {/* 2. Guardian / Companion Pet - Gentle Breathing Sway */}
+        {/* 2. Guardian / Companion Pet - Gentle Breathing Sway & Facing Flip */}
         {showGuardian && activeGuardian && (
           <div
             onClick={() => handleTapCharacter('guardian')}
-            className={`relative group cursor-pointer transition-transform duration-200 ${
+            style={{
+              transform: `translateY(${layoutState.guardianY}px) scaleX(${layoutState.guardianScaleX})`
+            }}
+            className={`relative group cursor-pointer transition-all duration-300 ${
               isAnimating && speakerName === 'guardian' ? 'scale-115 -translate-y-1' : 'hover:scale-105 active:scale-95'
             }`}
             title={`${activeGuardian.name} (Active Guardian)`}
