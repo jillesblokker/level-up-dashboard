@@ -1823,11 +1823,11 @@ function RealmPageContent() {
 
                 {/* Top Toolbar */}
                 {!isVisiting && (
-                    <div className="flex items-center justify-between bg-zinc-800 z-30 overflow-visible">
+                    <div className="flex items-center justify-between bg-zinc-800/95 backdrop-blur-md z-30 overflow-visible border-b border-zinc-700/50 sticky top-0 shadow-lg">
                         {/* On mobile, make action rows horizontally scrollable and touch-friendly */}
                         <div className="flex flex-1 flex-col gap-2 overflow-visible">
                             {/* Main Action Buttons - Always visible */}
-                            <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible overflow-visible p-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                            <div className="flex items-center gap-2 overflow-x-auto flex-nowrap md:gap-3 md:overflow-visible p-2 text-xs sm:text-sm" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                                 <Button
                                     variant={gameMode === 'move' ? 'default' : 'outline'}
                                     size="sm"

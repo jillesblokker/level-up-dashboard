@@ -100,13 +100,13 @@ export function SiegeBattleshipModal() {
         </p>
 
         {/* 5x5 Battleship Grid */}
-        <div className="grid grid-cols-5 gap-2 p-2 bg-zinc-900/90 rounded-2xl border border-white/10">
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2 p-2 bg-zinc-900/90 rounded-2xl border border-white/10 w-full">
           {grid.map((cell, idx) => (
             <button
               key={idx}
               onClick={() => handleLaunchCatapult(idx)}
               disabled={cell.hit || boulders <= 0}
-              className={`h-12 rounded-xl border flex items-center justify-center text-lg font-bold transition-all ${
+              className={`aspect-square min-h-[44px] rounded-xl border flex items-center justify-center text-base sm:text-lg font-bold transition-all ${
                 cell.hit
                   ? cell.hasTarget
                     ? 'bg-red-950 border-red-500 text-red-400 animate-bounce'

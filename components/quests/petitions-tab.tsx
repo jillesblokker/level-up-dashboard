@@ -40,22 +40,22 @@ export function PetitionsTab() {
     <div className="space-y-6">
       {/* House of the Dragon Citizen Happiness Header */}
       <Card className="bg-gradient-to-r from-zinc-950 via-[#0e0d14] to-zinc-950 border-amber-500/30 shadow-2xl">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-2xl shadow-lg">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-xl sm:text-2xl shadow-lg shrink-0">
                 👑
               </div>
               <div>
-                <CardTitle className="font-serif text-amber-300 text-xl flex items-center gap-2">
+                <CardTitle className="font-serif text-amber-300 text-base sm:text-xl flex items-center gap-2 flex-wrap">
                   Royal Decrees & Citizen Happiness
                 </CardTitle>
-                <CardDescription className="text-zinc-400 text-xs">
+                <CardDescription className="text-zinc-400 text-[11px] sm:text-xs">
                   Your court decisions directly impact citizen loyalty and kingdom tax revenue.
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className={`px-3 py-1 text-xs font-bold ${tier.color}`}>
+            <Badge variant="outline" className={`px-2.5 py-1 text-[11px] sm:text-xs font-bold shrink-0 ${tier.color}`}>
               {tier.title} ({(tier.taxMultiplier * 100 - 100).toFixed(0)}% Tax Output)
             </Badge>
           </div>
