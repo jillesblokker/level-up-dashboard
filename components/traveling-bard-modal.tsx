@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
 import { addToCharacterStat } from '@/lib/character-stats-service';
+import { playSFX, SOUNDS } from '@/lib/sound-manager';
 import { Music, Sparkles, BookOpen } from 'lucide-react';
 
 export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { level?: number; displayName?: string }) {
@@ -29,13 +30,14 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
     setUserPreference('traveling-bard-last-visit', new Date().toISOString());
     setIsAvailable(false);
     setIsOpen(false);
+    playSFX(SOUNDS.ALLIANCE_OATH);
 
     addToCharacterStat('experience', 100);
     addToCharacterStat('focus_points', 5);
 
     toast({
-      title: "🪕 The Traveling Bard Sings!",
-      description: "Applauded the ballad! Rewarded +100 XP & +5 Focus Points!",
+      title: "🪕 Royal Bard's Blessing!",
+      description: "The Traveling Bard's song inspired your realm! Earned +100 XP & 🧠 +5 Focus Points!",
     });
   };
 

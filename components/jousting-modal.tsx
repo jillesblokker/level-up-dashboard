@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { addToCharacterStat } from '@/lib/character-stats-service';
+import { playSFX, SOUNDS } from '@/lib/sound-manager';
 import { Trophy, Swords, Sparkles, Shield, Coins } from 'lucide-react';
 
 export interface JoustCategory {
@@ -75,6 +76,7 @@ export function JoustingTournamentModal() {
 
       setJoustResults({ wins, ties, losses, netGold });
       setBattleState('result');
+      playSFX(SOUNDS.BATTLE_WIN);
 
       toast({
         title: "Jousting Tournament Complete!",

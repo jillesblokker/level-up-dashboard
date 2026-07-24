@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { addToCharacterStat } from '@/lib/character-stats-service';
+import { playSFX, SOUNDS } from '@/lib/sound-manager';
 import { Bomb, Castle, Sparkles, Target } from 'lucide-react';
 
 interface GridCell {
@@ -53,6 +54,7 @@ export function SiegeBattleshipModal() {
     if (newGrid[index]!.hasTarget) {
       setScore(prev => prev + 1);
       addToCharacterStat('gold', 250);
+      playSFX(SOUNDS.DUNGEON_CHALLENGE);
       toast({
         title: "💥 DIRECT CATAPULT HIT!",
         description: `Destroyed enemy ${newGrid[index]!.targetType || 'fortress wall'}! Earned +250 Gold & Stone Materials.`,

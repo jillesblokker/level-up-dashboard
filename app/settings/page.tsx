@@ -49,6 +49,8 @@ export default function SettingsPage() {
   const [muteXpToasts, setMuteXpToasts] = useState(false)
   const [muteQuestToasts, setMuteQuestToasts] = useState(false)
   const [sanctuaryModeActive, setSanctuaryModeActive] = useState(false)
+  const [soundsEnabled, setSoundsEnabled] = useState(true)
+  const [vacationShieldDays, setVacationShieldDays] = useState(0)
 
   // Load user data
   useEffect(() => {
@@ -95,6 +97,18 @@ export default function SettingsPage() {
       const savedMuteQuest = localStorage.getItem("mute-quest-toasts")
       if (savedMuteQuest !== null) {
         setMuteQuestToasts(savedMuteQuest === "true")
+      }
+
+      // Load Sound preference
+      const savedSounds = localStorage.getItem("medieval-sounds-enabled")
+      if (savedSounds !== null) {
+        setSoundsEnabled(savedSounds === "true")
+      }
+
+      // Load Vacation Shield Days
+      const savedVacation = localStorage.getItem("vacation-shield-days")
+      if (savedVacation !== null) {
+        setVacationShieldDays(parseInt(savedVacation) || 0)
       }
 
       // Sync from Supabase
@@ -358,6 +372,37 @@ export default function SettingsPage() {
                     }}
                   />
                 </div>
+
+                {/* 3-Day Vacation Shield Control */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-amber-400" />
+                      3-Day Vacation Shield
+                      {vacationShieldDays > 0 && <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">Active ({vacationShieldDays}d remaining)</span>}
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Freeze daily habit streak decay for up to 3 days while traveling or taking time off without breaking your streak tokens.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={vacationShieldDays > 0 ? "destructive" : "outline"}
+                    className="h-9 font-bold text-xs"
+                    onClick={() => {
+                      const newDays = vacationShieldDays > 0 ? 0 : 3;
+                      setVacationShieldDays(newDays);
+                      localStorage.setItem("vacation-shield-days", newDays.toString());
+                      setUserPreference("vacation-shield-days", newDays);
+                      toast({
+                        title: newDays > 0 ? "🛡️ 3-Day Vacation Shield Activated!" : "🛡️ Vacation Shield Deactivated",
+                        description: newDays > 0 ? "Your daily habit streaks will remain frozen for 3 days." : "Normal streak tracking resumed.",
+                      });
+                    }}
+                  >
+                    {vacationShieldDays > 0 ? "Deactivate Shield" : "Activate 3-Day Shield"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -392,6 +437,31 @@ export default function SettingsPage() {
                         title: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.title : TEXT_CONTENT.settings.toasts.dayNightDisabled.title,
                         description: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.desc : TEXT_CONTENT.settings.toasts.dayNightDisabled.desc,
                       })
+                    }}
+                  />
+                </div>
+
+                {/* Medieval Audio & Sound FX Control */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-purple-400" />
+                      Medieval Audio & Sound Effects
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Enable synthetic Web Audio sound effects for gold harvests, sword strikes, catapult launches, and bard ballads.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={soundsEnabled}
+                    onCheckedChange={(checked) => {
+                      setSoundsEnabled(checked);
+                      localStorage.setItem("medieval-sounds-enabled", checked.toString());
+                      setUserPreference("medieval-sounds-enabled", checked);
+                      toast({
+                        title: checked ? "🔊 Sound Effects Enabled" : "🔇 Sound Effects Muted",
+                        description: checked ? "Web Audio SFX will play during kingdom actions." : "All sound effects are now muted.",
+                      });
                     }}
                   />
                 </div>

@@ -385,6 +385,15 @@ export function useSound() {
   };
 }
 
+// Helper function that strictly checks medieval-sounds-enabled setting before playing
+export function playSFX(soundName: string) {
+  if (typeof window === 'undefined') return;
+  const setting = localStorage.getItem('medieval-sounds-enabled');
+  if (setting === 'false') return;
+  soundManager.loadSettings();
+  soundManager.play(soundName);
+}
+
 // Sound effect constants
 export const SOUNDS = {
   QUEST_COMPLETE: 'questComplete',
