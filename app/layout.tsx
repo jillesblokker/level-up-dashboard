@@ -18,6 +18,7 @@ import { MedievalErrorBoundary as GlobalErrorBoundary } from '@/components/medie
 import { TitleEvolutionProvider } from '@/components/title-evolution-provider'
 import { NavBar } from '@/components/nav-bar'
 import { BottomNav } from '@/components/bottom-nav'
+import { CompanionOverlay } from '@/components/companion-overlay'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { GameSystemsProvider } from '@/components/game-systems-provider'
 import { AudioProvider } from '@/components/audio-provider'
@@ -222,6 +223,7 @@ export default function RootLayout({
                           <main className="flex-1 relative pb-24 lg:landscape:pb-0">
                             {children}
                           </main>
+                          <CompanionOverlay />
                           <BottomNav />
                         </GameSystemsProvider>
                       </AuthGate>

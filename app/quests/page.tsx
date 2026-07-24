@@ -3020,27 +3020,7 @@ export default function QuestsPage() {
           </MobileContentWrapper>
         </MobileLayoutWrapper>
 
-        {/* Partner Creature Display */}
-        {activePartner && (
-          <div 
-            className={`fixed bottom-24 right-4 z-[40] transition-transform duration-300 pointer-events-none ${isPartnerAnimating ? 'scale-125 -translate-y-4' : 'scale-100 hover:scale-110'} md:bottom-8 md:left-8 flex flex-col items-center opacity-85 hover:opacity-100`}
-          >
-            {partnerSpeech && (
-              <div className="mb-2 bg-white text-black px-3 py-1 rounded-2xl shadow-lg relative animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300 max-w-[180px]">
-                <p className="text-xs font-bold text-black text-center">{partnerSpeech}</p>
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
-              </div>
-            )}
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-              <Image
-                src={activePartner.isMythic ? `/images/Mythics/${activePartner.filename}?v=2` : `/images/creatures/${activePartner.filename}`}
-                alt={activePartner.name}
-                fill
-                className={`object-contain ${isPartnerAnimating ? 'animate-bounce' : 'animate-float'}`}
-              />
-            </div>
-          </div>
-        )}
+
 
         {/* Bottom spacing to clear mobile navigation bar */}
         <div className="h-28 md:h-16" aria-hidden="true"></div>
