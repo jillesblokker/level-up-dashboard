@@ -460,7 +460,7 @@ export function RandomEncounterModal() {
               <p className="text-[10px] text-zinc-400 text-center font-semibold uppercase tracking-wider">
                 Choose a Mystery Crate:
               </p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[0, 1, 2].map((idx) => {
                   const isPicked = selectedCard === idx;
                   return (

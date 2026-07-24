@@ -120,7 +120,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
         </DialogHeader>
 
         {!selectedCard ? (
-          <div className="grid grid-cols-3 gap-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 sm:py-8">
             {shuffledCards.map((card, idx) => (
               <div 
                 key={idx}

@@ -296,7 +296,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
 
               {/* Speech Bubble */}
               {speechBubble && (
-                <div className="relative bg-zinc-950 border border-amber-900/30 rounded-2xl px-3 py-2 text-xs text-zinc-300 font-serif italic max-w-sm mt-3 sm:mt-0 animate-in fade-in zoom-in duration-500 shadow-md">
+                <div className="relative bg-zinc-950 border border-amber-900/30 rounded-2xl p-3 text-xs text-zinc-300 font-serif italic w-full max-w-full sm:max-w-sm mt-3 sm:mt-0 animate-in fade-in zoom-in duration-500 shadow-md text-left break-words">
                   <div className="absolute left-4 -bottom-1.5 w-3 h-3 bg-zinc-950 border-r border-b border-amber-900/30 transform rotate-45 hidden sm:block" />
                   &ldquo;{speechBubble}&rdquo;
                 </div>
