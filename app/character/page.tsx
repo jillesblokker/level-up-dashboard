@@ -969,7 +969,7 @@ export default function CharacterPage() {
                       return (
                         <>
                           {/* Current title character image and info side by side */}
-                          <div className="flex items-start gap-4">
+                          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
                             {/* Character image on the left */}
                             <div className="relative w-24 h-24 flex-shrink-0 group">
                               {/* Elemental Aura Effect */}
