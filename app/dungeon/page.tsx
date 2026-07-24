@@ -177,6 +177,8 @@ export default function DungeonPage() {
   const [selectedCreature, setSelectedCreature] = useState<CreatureDef | null>(null);
   const [battlePhase, setBattlePhase] = useState<'select' | 'fight' | 'result'>('select');
   const [battleLog, setBattleLog] = useState<string[]>([]);
+  const [showBounties, setShowBounties] = useState(false);
+  const [cooldowns, setCooldowns] = useState<{ burst: number; signature: number; guard: number }>({ burst: 0, signature: 0, guard: 0 });
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
@@ -457,6 +459,27 @@ export default function DungeonPage() {
 
   const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' = 'strike') => {
     if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
+
+    // Check skill cooldowns
+    if (actionType === 'elemental' && cooldowns.burst > 0) {
+      toast({ title: "⏳ Skill on Cooldown!", description: `Elemental Burst requires ${cooldowns.burst} more turn(s).`, variant: "destructive" });
+      return;
+    }
+    if (actionType === 'signature' && cooldowns.signature > 0) {
+      toast({ title: "⏳ Skill on Cooldown!", description: `Signature Move requires ${cooldowns.signature} more turn(s).`, variant: "destructive" });
+      return;
+    }
+    if (actionType === 'counter' && cooldowns.guard > 0) {
+      toast({ title: "⏳ Skill on Cooldown!", description: `Counter Guard requires ${cooldowns.guard} more turn(s).`, variant: "destructive" });
+      return;
+    }
+
+    // Update cooldowns state
+    setCooldowns(prev => ({
+      burst: actionType === 'elemental' ? 2 : Math.max(0, prev.burst - 1),
+      signature: actionType === 'signature' ? 3 : Math.max(0, prev.signature - 1),
+      guard: actionType === 'counter' ? 1 : Math.max(0, prev.guard - 1),
+    }));
 
     const enemyId = run.currentEncounter.creatureId || '001';
     const enemyDef = CREATURE_DATA[enemyId];
@@ -952,53 +975,71 @@ export default function DungeonPage() {
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-[#0b0d10] to-black p-4 sm:p-6 lg:p-8 text-white font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* Narrative Connection Banner */}
-        <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-lg">
-          <div className="flex items-center gap-2.5">
-            <span className="text-lg">📜</span>
-            <p className="text-zinc-300">
-              <span className="font-bold text-amber-300">Rebuilding Connection:</span> Expeditions yield raw ores & crystals to rebuild the kingdom. Daily habits completed today grant elemental combat power!
-            </p>
+        {/* TOP HEADER: Clean Expedition Bar & Collapsible Bounty Drawer */}
+        <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/90 to-amber-950/40 border border-amber-500/20 p-3 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-lg">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🛡️</span>
+            <div>
+              <h2 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-2">
+                Dungeon Keep Expedition — Room {run.currentRoom} of {run.maxRooms}
+              </h2>
+              <p className="text-[11px] text-zinc-400">
+                Expeditions yield raw ores & crystals. Habit Buffs: {' '}
+                <span className="font-bold text-emerald-400">
+                  {Object.entries(elementBuffs).filter(([, count]) => count > 0).map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`).join(' ') || '0 Completed Today'}
+                </span>
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0 bg-zinc-900/90 px-3 py-1 rounded-xl border border-white/10 text-[11px]">
-            <span className="text-zinc-400">Habit Buffs:</span>
-            <span className="font-bold text-emerald-400">
-              {Object.entries(elementBuffs).filter(([, count]) => count > 0).map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`).join(' ') || '0 Completed Today'}
-            </span>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowBounties(!showBounties)}
+              className="text-xs font-bold border-purple-500/40 text-purple-300 bg-purple-950/30 hover:bg-purple-900/50 h-8 rounded-xl"
+            >
+              🎯 Daily Bounties (3 Active) {showBounties ? '▲' : '▼'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/kingdom')}
+              className="text-xs text-zinc-400 hover:text-white h-8"
+            >
+              &larr; Kingdom
+            </Button>
           </div>
         </div>
 
-        {/* Daily Dungeon Bounty Board */}
-        <div className="bg-gradient-to-r from-purple-950/40 via-zinc-950/90 to-purple-950/40 border border-purple-500/30 p-4 rounded-2xl shadow-xl space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🎯</span>
-              <h3 className="text-sm font-serif font-bold text-purple-300 uppercase tracking-wider">Daily Dungeon Bounty Board</h3>
+        {/* Collapsible Bounty Drawer */}
+        {showBounties && (
+          <div className="bg-gradient-to-r from-purple-950/60 via-zinc-950 to-purple-950/60 border border-purple-500/30 p-4 rounded-2xl shadow-xl space-y-3 animate-in slide-in-from-top-3 duration-300">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-serif font-bold text-purple-300 uppercase tracking-wider">Active Daily Bounties</h3>
+              <span className="text-[10px] text-zinc-400">Vanquish monsters for bonus Gems & Gold</span>
             </div>
-            <Badge variant="outline" className="border-purple-500/40 text-purple-200 text-[10px] font-bold">
-              3 Active Bounties
-            </Badge>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {getDailyDungeonBounties().map(bounty => (
-              <div key={bounty.id} className="bg-zinc-950/80 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
-                <div>
-                  <div className="flex items-center justify-between font-bold text-amber-300">
-                    <span>{bounty.title}</span>
-                    <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono">
-                      {getTypeEmoji(bounty.targetType)} {bounty.targetType}
-                    </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {getDailyDungeonBounties().map(bounty => (
+                <div key={bounty.id} className="bg-zinc-950/90 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
+                  <div>
+                    <div className="flex items-center justify-between font-bold text-amber-300">
+                      <span>{bounty.title}</span>
+                      <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono">
+                        {getTypeEmoji(bounty.targetType)} {bounty.targetType}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 mt-1 leading-snug">{bounty.description}</p>
                   </div>
-                  <p className="text-[11px] text-zinc-400 mt-1 leading-snug">{bounty.description}</p>
+                  <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
+                    <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} Gems</span>
+                    <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} Gold</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
-                  <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} Gems</span>
-                  <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} Gold</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* TOP SECTION: BATTLE ARENA (Enemy Showcase & Deploy Fighter Side-by-Side) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
@@ -1209,6 +1250,9 @@ export default function DungeonPage() {
                     {(() => {
                       const activeSpell = getElementalSpell(selectedCreature!.type);
                       const mult = enemyDef ? getMatchupMultiplier(selectedCreature!.type, enemyDef.type) : 1;
+                      const telegraphAction = enemyDef ? getEnemyTelegraphAction(battleLog.length + 1, enemyDef.type) : null;
+                      const telegraphWarning = Boolean(telegraphAction?.multiplier && telegraphAction.multiplier > 1.2);
+
                       let matchupLabel = "NEUTRAL (1.0x DMG)";
                       let matchupBadgeColor = "text-zinc-300 border-zinc-700 bg-zinc-900/90";
                       if (mult > 1) {
@@ -1269,17 +1313,49 @@ export default function DungeonPage() {
                               </div>
                             </div>
 
-                            {/* Matchup Summary Bar */}
-                            <div className="flex items-center justify-between w-full max-w-md bg-zinc-950/80 px-3.5 py-1.5 rounded-xl border border-white/10 text-xs">
-                              <div className="flex items-center gap-2">
-                                <span className="text-zinc-400 font-medium">Element Matchup:</span>
-                                <Badge className={`text-[10px] px-2 py-0.5 border ${matchupBadgeColor}`}>
-                                  {matchupLabel}
-                                </Badge>
+                            {/* Matchup Summary & Fighter Swap Control */}
+                            <div className="flex flex-col space-y-2 w-full max-w-md">
+                              {/* Tactical Bench Swap Recommendation Banner */}
+                              {(() => {
+                                if (!enemyDef || !run?.party) return null;
+                                const bestBench = run.party.find(c => c.hp > 0 && c.id !== selectedCreature!.id && getMatchupMultiplier(c.type, enemyDef.type) > 1.0);
+                                if (!bestBench || mult > 1.0) return null;
+
+                                return (
+                                  <div className="flex items-center justify-between bg-gradient-to-r from-emerald-950/90 via-zinc-950 to-emerald-950/90 p-2.5 rounded-xl border border-emerald-500/50 text-xs shadow-lg animate-pulse">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-base">💡</span>
+                                      <span className="text-emerald-200 font-medium text-[11px]">
+                                        Tactical Suggestion: Swap to <strong className="text-emerald-300 font-bold">{bestBench.name} ({getTypeEmoji(bestBench.type)} {bestBench.type})</strong> for <strong className="text-emerald-400">x2.0 Super Effective DMG!</strong>
+                                      </span>
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => selectFighter(bestBench)}
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-black font-bold text-[10px] h-7 px-3 rounded-lg shrink-0 ml-2"
+                                    >
+                                      Swap Now ⚡
+                                    </Button>
+                                  </div>
+                                );
+                              })()}
+
+                              <div className="flex items-center justify-between w-full bg-zinc-950/80 px-3.5 py-1.5 rounded-xl border border-white/10 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-zinc-400 font-medium">Element Matchup:</span>
+                                  <Badge className={`text-[10px] px-2 py-0.5 border ${matchupBadgeColor}`}>
+                                    {matchupLabel}
+                                  </Badge>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setBattlePhase('select')}
+                                  className={`text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 h-6 px-2 ${telegraphWarning ? 'ring-2 ring-amber-400 ring-offset-1 animate-pulse font-bold' : ''}`}
+                                >
+                                  🔄 Swap Fighter
+                                </Button>
                               </div>
-                              <Button variant="ghost" size="sm" onClick={() => setBattlePhase('select')} className="text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 h-6 px-2">
-                                🔄 Swap Fighter
-                              </Button>
                             </div>
 
                             {/* Round Table Elemental Combo Synergy */}
@@ -1296,60 +1372,84 @@ export default function DungeonPage() {
                             })()}
                           </div>
 
-                          {/* Hogwarts Legacy 3 Tactical Combat Choices */}
+                          {/* Tactical Combat Action Grid with Cooldown Badges */}
                           <div className="space-y-2 w-full pt-1">
-                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">
-                              Choose Combat Action
+                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                              <span>Choose Combat Action</span>
+                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold animate-pulse">⚠️ Enemy Preparing Heavy Attack! Use Guard or Swap!</span>}
                             </div>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
                               
-                              {/* Choice 1: Heavy Strike */}
+                              {/* Choice 1: Heavy Strike (Always Ready) */}
                               <Button
                                 onClick={() => fight('strike')}
                                 className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 border border-red-500/40 rounded-xl shadow-lg transition-all active:scale-95"
                               >
                                 <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">⚔️ Heavy Strike</span>
-                                <span className="text-[9px] text-red-200 opacity-80">Physical Dmg</span>
+                                <span className="text-[9px] text-red-200 opacity-90 font-mono">1.0x Physical Dmg (⚡ Ready)</span>
                               </Button>
 
-                              {/* Choice 2: Elemental Burst */}
+                              {/* Choice 2: Elemental Burst (2 Turn Cooldown) */}
                               <Button
                                 onClick={() => fight('elemental')}
-                                className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 border border-amber-400/40 rounded-xl shadow-lg transition-all active:scale-95"
+                                disabled={cooldowns.burst > 0}
+                                className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
+                                  cooldowns.burst > 0
+                                    ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
+                                    : 'bg-gradient-to-b from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 border-amber-400/40 text-white active:scale-95'
+                                }`}
                               >
                                 <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
                                   {activeSpell.emoji} {activeSpell.name}
                                 </span>
-                                <span className="text-[9px] text-amber-200 opacity-80">{activeSpell.desc}</span>
+                                <span className="text-[9px] font-mono">
+                                  {cooldowns.burst > 0 ? `⏳ Cooldown (${cooldowns.burst}t)` : `${activeSpell.desc} (⚡ Ready)`}
+                                </span>
                               </Button>
 
-                              {/* Choice 3: Signature Tier Move (Every 10 levels) */}
+                              {/* Choice 3: Signature Tier Move (3 Turn Cooldown) */}
                               {(() => {
                                 const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2));
                                 return (
                                   <Button
                                     onClick={() => fight('signature')}
-                                    className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 hover:from-purple-600 hover:to-purple-800 border border-purple-400/40 rounded-xl shadow-lg transition-all active:scale-95"
+                                    disabled={cooldowns.signature > 0}
+                                    className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
+                                      cooldowns.signature > 0
+                                        ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
+                                        : 'bg-gradient-to-b from-purple-700 to-purple-900 hover:from-purple-600 hover:to-purple-800 border-purple-400/40 text-white active:scale-95'
+                                    }`}
                                   >
                                     <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
                                       {sigMove.emoji} {sigMove.name}
                                     </span>
-                                    <span className="text-[9px] text-purple-200 opacity-90">{sigMove.multiplier}x Dmg (Lvl {sigMove.unlockedAtLevel}+)</span>
+                                    <span className="text-[9px] font-mono">
+                                      {cooldowns.signature > 0 ? `⏳ Cooldown (${cooldowns.signature}t)` : `${sigMove.multiplier}x Dmg (⚡ Ready)`}
+                                    </span>
                                   </Button>
                                 );
                               })()}
 
-                              {/* Choice 4: Counter Guard */}
+                              {/* Choice 4: Counter Guard (1 Turn Cooldown + Glowing Aura on Telegraph) */}
                               <Button
                                 onClick={() => fight('counter')}
-                                className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 border border-blue-400/40 rounded-xl shadow-lg transition-all active:scale-95"
+                                disabled={cooldowns.guard > 0}
+                                className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
+                                  cooldowns.guard > 0
+                                    ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
+                                    : `bg-gradient-to-b from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 border-blue-400/40 text-white active:scale-95 ${
+                                        telegraphWarning ? 'ring-2 ring-amber-400 ring-offset-1 animate-pulse border-amber-400 font-bold' : ''
+                                      }`
+                                }`}
                               >
                                 <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">🛡️ Counter Guard</span>
-                                <span className="text-[9px] text-blue-200 opacity-80">-60% Dmg + Riposte</span>
+                                <span className="text-[9px] font-mono">
+                                  {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% Dmg + Riposte (⚡ Ready)`}
+                                </span>
                               </Button>
                             </div>
 
-                            {/* Safe Flee Action Button (Does not burn entry attempt) */}
+                            {/* Safe Flee Action Button */}
                             <div className="flex justify-center pt-1">
                               <Button
                                 onClick={flee}
@@ -1370,80 +1470,47 @@ export default function DungeonPage() {
           </div>
         </div>
 
-        {/* BOTTOM SECTION: DUNGEON LEDGER & LOGS (Location, Team Health, Battle Log) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-2">
+        {/* BOTTOM DOCK: Unified Compact Status Bar */}
+        <div className="bg-[#0b0d10] p-4 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
           
-          {/* CARD 1: LOCATION & DUNGEON STATS */}
-          <div className="bg-[#0b0d10] p-5 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col justify-between space-y-3">
-            <div className="space-y-1">
-              <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Location</div>
-              <div className="text-2xl font-black text-white flex items-center gap-2 font-cardo">
-                <span>Room {run.currentRoom}</span>
-                <span className="text-zinc-600">/</span>
-                <span className="text-zinc-500">{run.maxRooms}</span>
-              </div>
+          {/* Room & Loot Stats */}
+          <div className="flex items-center gap-4 text-zinc-300">
+            <div className="flex items-center gap-1.5 font-bold">
+              <span className="text-amber-400">🛡️ Room:</span>
+              <span className="font-mono text-white text-sm">{run.currentRoom}/{run.maxRooms}</span>
             </div>
-            <div className="space-y-1.5 border-t border-white/5 pt-3 text-xs">
-              <div className="flex justify-between text-yellow-400 font-bold">
-                <span>💰 Loot Found:</span>
-                <span>{run.lootCollected.length} items</span>
-              </div>
-              <div className="flex justify-between text-zinc-400 font-bold text-[11px]">
-                <span>⚔️ Daily Entry Limit:</span>
-                <span className="text-amber-500">{dailyCount} / 3</span>
-              </div>
+            <div className="flex items-center gap-1.5 font-bold text-yellow-400">
+              <span>💰 Loot:</span>
+              <span className="font-mono text-white">{run.lootCollected.length} items</span>
+            </div>
+            <div className="flex items-center gap-1.5 font-bold text-zinc-400">
+              <span>⚔️ Entry:</span>
+              <span className="font-mono text-amber-400">{dailyCount}/3</span>
             </div>
           </div>
 
-          {/* CARD 2: TEAM HEALTH STATUS */}
-          <div className="bg-[#0b0d10] p-5 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col justify-between space-y-3">
-            <div className="space-y-1">
-              <div className="flex justify-between items-center">
-                <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">Team Health</div>
-                <div className={`font-mono font-bold text-xs ${totalTeamHp < (totalTeamMaxHp * 0.3) ? 'text-red-500' : 'text-emerald-400'}`}>
-                  {totalTeamHp} / {totalTeamMaxHp}
-                </div>
+          {/* Team Health Progress */}
+          <div className="flex items-center gap-3 min-w-[240px]">
+            <span className="text-zinc-400 font-bold shrink-0">Squad Health:</span>
+            <div className="flex-1 space-y-1">
+              <div className="flex justify-between text-[10px] font-mono">
+                <span className="text-emerald-400 font-bold">{run.party ? run.party.filter(c => c.hp > 0).length : 0}/6 Ready</span>
+                <span className="text-zinc-300">{totalTeamHp}/{totalTeamMaxHp}</span>
               </div>
-              <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-2.5 bg-zinc-950 border border-white/10" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-emerald-500'} />
-            </div>
-            <div className="border-t border-white/5 pt-3 flex justify-between items-center text-xs text-zinc-400 font-semibold">
-              <span>Squad Status:</span>
-              <Badge variant="outline" className="text-[10px] text-emerald-400 border-emerald-500/30 font-bold">
-                {run.party ? run.party.filter(c => c.hp > 0).length : 0} / 6 Fighters Active
-              </Badge>
+              <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-2 bg-zinc-950 border border-white/10" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-emerald-500'} />
             </div>
           </div>
 
-          {/* CARD 3: BATTLE LOG */}
-          <div className="bg-[#0b0d10] p-5 rounded-2xl border border-amber-900/20 shadow-xl flex flex-col h-[180px]">
-            <div className="flex justify-between items-center mb-2 shrink-0">
-              <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                📜 Battle Log
-              </h4>
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/40"></span>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500/40"></span>
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500/40"></span>
-              </div>
-            </div>
-
-            <ScrollArea className="flex-1 w-full rounded-xl bg-zinc-950/80 border border-white/5 p-2">
-              <div className="space-y-1.5 font-mono text-[11px]">
-                {battleLog.length === 0 && (
-                  <div className="text-zinc-600 italic text-center text-xs py-6 opacity-60">
-                    Waiting for combat to begin...
-                  </div>
-                )}
-                {battleLog.map((log, i) => (
-                  <div key={i} className={`p-1.5 rounded text-[11px] border-l-2 shadow-sm animate-in slide-in-from-left-2 duration-300 ${log.includes('victory') || log.includes('Victorious') || log.includes('CRITICAL') ? 'border-yellow-500 bg-yellow-900/20 text-yellow-200' : log.includes('hit you') ? 'border-red-500 bg-red-900/20 text-red-200' : log.includes('DODGED') ? 'border-cyan-500 bg-cyan-900/20 text-cyan-200' : 'border-blue-500 bg-blue-900/10 text-zinc-300'} border-opacity-60`}>
-                    {log}
-                  </div>
-                ))}
-                <div ref={logEndRef} className="h-1" />
-              </div>
+          {/* Battle Log Summary Dropdown */}
+          <div className="w-full md:w-auto flex items-center gap-2">
+            <ScrollArea className="h-10 w-full md:w-[320px] rounded-xl bg-zinc-950/90 border border-white/10 p-2 font-mono text-[11px]">
+              {battleLog.length === 0 ? (
+                <span className="text-zinc-500 italic">Waiting for combat to begin...</span>
+              ) : (
+                <div className="text-amber-200">{battleLog[battleLog.length - 1]}</div>
+              )}
             </ScrollArea>
           </div>
-
         </div>
 
       </div>
