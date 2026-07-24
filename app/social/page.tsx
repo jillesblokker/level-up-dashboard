@@ -545,13 +545,14 @@ export default function AlliesPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible scrollbar-none">
                                 {friends.map(friend => {
                                     const level = friend.stats?.level || 0;
                                     const titleInfo = getCurrentTitle(level);
 
                                     return (
-                                        <Card key={friend.id} className="overflow-hidden border border-primary/10 hover:border-primary/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-card/50 ">
+                                        <div key={friend.id} className="snap-start w-[88vw] max-w-[340px] shrink-0 md:w-full">
+                                            <Card className="overflow-hidden border border-primary/10 hover:border-primary/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-card/50 h-full">
                                             <CardContent className="p-0 flex-1 flex flex-col">
                                                 {/* Header */}
                                                 <div className="p-4 flex items-center gap-4 border-b border-primary/5 relative bg-gradient-to-r from-muted/20 to-transparent">
@@ -732,9 +733,10 @@ export default function AlliesPage() {
                                                 </div>
                                             </CardContent>
                                         </Card>
-                                    );
-                                })}
-                            </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                         )}
                     </TabsContent>
 
