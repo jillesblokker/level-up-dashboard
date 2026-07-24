@@ -130,6 +130,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
       };
       await setUserPreference('habit_guardian_state', newState);
       setGuardianState(newState);
+      window.dispatchEvent(new CustomEvent('guardianChanged', { detail: newState }));
       setShowPicker(false);
       toast({
         title: "Companion Summoned! ✨",

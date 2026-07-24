@@ -206,6 +206,7 @@ export function AlchemyLabTab() {
       };
       await setUserPreference('habit_guardian_state', newState);
       setGuardianState(newState);
+      window.dispatchEvent(new CustomEvent('guardianChanged', { detail: newState }));
       toast({
         title: "Companion Summoned! ✨",
         description: `${GUARDIAN_DETAILS.find(g => g.id === id)?.name} has been set as your active companion.`

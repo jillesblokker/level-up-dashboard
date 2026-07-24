@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useGameStore } from '@/stores/game-store'
 import { useCitizensStore } from '@/stores/citizensStore'
+import { getUserPreference } from '@/lib/user-preferences-manager'
 import { Heart, Sparkles, MessageSquare, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -57,14 +58,14 @@ export function CompanionOverlay() {
   const [showSpeech, setShowSpeech] = useState(false)
   const [speakerName, setSpeakerName] = useState<'necrion' | 'guardian'>('necrion')
   const [isAnimating, setIsAnimating] = useState(false)
-  const [guardianId, setGuardianId] = useState<string | null>(null)
+  const [guardianId, setGuardianId] = useState<string>('ember-drake')
 
   // Settings Toggles State
   const [showNecrion, setShowNecrion] = useState(true)
   const [showGuardian, setShowGuardian] = useState(true)
 
   // Load Settings and Guardian State
-  const loadVisibilitySettings = () => {
+  const loadVisibilitySettings = async () => {
     try {
       const savedCompanion = localStorage.getItem("show-companion-necrion")
       if (savedCompanion !== null) {
@@ -75,22 +76,43 @@ export function CompanionOverlay() {
         setShowGuardian(savedGuardian === "true")
       }
 
-      const savedGuardianState = localStorage.getItem('thrivehaven_guardian_state')
+      // Check user preferences & local storage for active guardian
+      const gPref = await getUserPreference('habit_guardian_state') as any
+      if (gPref && gPref.selectedId) {
+        setGuardianId(gPref.selectedId)
+        return
+      }
+
+      const savedGuardianState = localStorage.getItem('pref:habit_guardian_state') || localStorage.getItem('thrivehaven_guardian_state')
       if (savedGuardianState) {
         const parsed = JSON.parse(savedGuardianState)
         if (parsed.selectedId) {
           setGuardianId(parsed.selectedId)
+          return
         }
       }
     } catch {
-      // ignore JSON error
+      // ignore error
     }
   }
 
   useEffect(() => {
     loadVisibilitySettings()
+    
+    const handleGuardianChange = (e: any) => {
+      if (e?.detail?.selectedId) {
+        setGuardianId(e.detail.selectedId)
+      } else {
+        loadVisibilitySettings()
+      }
+    }
+
     window.addEventListener('settings:companionVisibilityChanged', loadVisibilitySettings)
-    return () => window.removeEventListener('settings:companionVisibilityChanged', loadVisibilitySettings)
+    window.addEventListener('guardianChanged', handleGuardianChange)
+    return () => {
+      window.removeEventListener('settings:companionVisibilityChanged', loadVisibilitySettings)
+      window.removeEventListener('guardianChanged', handleGuardianChange)
+    }
   }, [])
 
   // Listen to quest completions to trigger companion speech
@@ -111,15 +133,7 @@ export function CompanionOverlay() {
 
   // Resolve active Guardian or partner creature PNG
   const activeGuardian = useMemo(() => {
-    // 1. Check selected Guardian (e.g. Ember Drake, Sage Owl, Spirit Sprite)
-    if (guardianId) {
-      if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/Embera.png' }
-      if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/Oaky.png' }
-      if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/Monsters/Fairiel.png' }
-      if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/Rockie.png' }
-    }
-
-    // 2. Check partner citizen from game store (e.g. Leaf, Dolphio, Flamio)
+    // 1. Check partner citizen from game store (e.g. Leaf, Dolphio, Flamio) if active and NOT Necrion ('000')
     if (activePartnerId && activePartnerId !== '000') {
       const citizen = citizens.find(c => c.id === activePartnerId && c.id !== '000')
       if (citizen) {
@@ -130,8 +144,14 @@ export function CompanionOverlay() {
       }
     }
 
-    // Default fallback Guardian (Sage Owl)
-    return { name: 'Sage Owl', image: '/images/creatures/Oaky.png' }
+    // 2. Check selected Guardian (e.g. Ember Drake, Sage Owl, Spirit Sprite, Grove Fox)
+    if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/Embera.png' }
+    if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/Oaky.png' }
+    if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/Monsters/Fairiel.png' }
+    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/Rockie.png' }
+
+    // Fallback active Guardian (Ember Drake)
+    return { name: 'Ember Drake', image: '/images/creatures/Embera.png' }
   }, [citizens, activePartnerId, guardianId])
 
   const hints = useMemo(() => {
@@ -156,7 +176,7 @@ export function CompanionOverlay() {
   }
 
   return (
-    <div className="fixed bottom-[68px] right-3 md:bottom-4 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
+    <div className="fixed bottom-[68px] right-3 md:bottom-0 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
       {/* Speech Bulb Popup (Only appears on tap or quest completion) */}
       <AnimatePresence>
         {showSpeech && currentHint && (
