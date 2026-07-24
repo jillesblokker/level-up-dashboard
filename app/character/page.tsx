@@ -948,8 +948,8 @@ export default function CharacterPage() {
                       }}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.titleHeader}</h3>
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-serif font-bold text-amber-300">{TEXT_CONTENT.character.ui.overview.titleHeader}</h3>
                     {(() => {
                       // Use equipped title for visual, fall back to level-based calculation if nothing found
                       const currentTitleName = characterStats.titles.equipped;
@@ -967,45 +967,47 @@ export default function CharacterPage() {
                       }
 
                       return (
-                        <>
-                          {/* Current title character image and info side by side */}
-                          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
-                            {/* Character image on the left */}
-                            <div className="relative w-24 h-24 flex-shrink-0 group">
-                              {/* Elemental Aura Effect */}
-                              <ElementalAura 
-                                type={auraType} 
-                                intensity={characterStats.level > 50 ? 'high' : characterStats.level > 20 ? 'medium' : 'low'} 
-                              />
-                              <div className="relative w-full h-full rounded-full border-2 border-amber-500/20 bg-zinc-900 p-2 overflow-hidden shadow-lg transition-all duration-500 group-hover:border-amber-500/40">
-                                <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-500/5 to-transparent">
-                                  <Image
-                                    src={`/images/character/${titleInfo.current.id}.webp`}
-                                    alt={`${titleInfo.current.name} character`}
-                                    fill
-                                    className="object-contain p-2"
-                                    onError={(e) => {
-                                      // Fallback to squire image if specific image not found
-                                      const target = e.target as HTMLImageElement;
-                                      target.src = '/images/character/squire.webp';
-                                    }}
-                                  />
-                                </div>
+                        <div className="bg-gradient-to-r from-zinc-950 via-amber-950/20 to-zinc-950 p-5 rounded-2xl border border-amber-500/30 shadow-xl flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                          {/* Character image frame */}
+                          <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 group">
+                            {/* Elemental Aura Effect */}
+                            <ElementalAura 
+                              type={auraType} 
+                              intensity={characterStats.level > 50 ? 'high' : characterStats.level > 20 ? 'medium' : 'low'} 
+                            />
+                            <div className="relative w-full h-full rounded-full border-2 border-amber-500/40 bg-zinc-900 p-2 overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-amber-400">
+                              <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-b from-amber-500/10 to-transparent">
+                                <Image
+                                  src={`/images/character/${titleInfo.current.id}.webp`}
+                                  alt={`${titleInfo.current.name} character`}
+                                  fill
+                                  className="object-contain p-2"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/images/character/squire.webp';
+                                  }}
+                                />
                               </div>
                             </div>
-                            {/* Title info on the right */}
-                            <div className="flex-1 space-y-2">
-                              <p className="text-lg font-bold text-amber-600">{currentTitleName}</p>
-                              <p className="text-sm text-muted-foreground">{equippedItem ? equippedItem.description : titleInfo.current.description}</p>
-                              {titleInfo.next && (
-                                <div className="mt-2">
-                                  <p className="text-xs text-muted-foreground">{TEXT_CONTENT.character.ui.overview.nextTitle.replace("{name}", titleInfo.next.name).replace("{level}", String(titleInfo.next.level))}</p>
-                                  <Progress value={titleInfo.progress} className="h-1 mt-1" />
-                                </div>
-                              )}
-                            </div>
                           </div>
-                        </>
+
+                          {/* Title & Level Progress info */}
+                          <div className="flex-1 space-y-2.5 w-full text-center sm:text-left">
+                            <div>
+                              <p className="text-xl sm:text-2xl font-serif font-bold text-amber-400 drop-shadow-sm">{currentTitleName}</p>
+                              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mt-1">{equippedItem ? equippedItem.description : titleInfo.current.description}</p>
+                            </div>
+
+                            {titleInfo.next && (
+                              <div className="pt-2 border-t border-amber-900/30 space-y-1.5">
+                                <p className="text-xs font-semibold text-amber-500/90">
+                                  {TEXT_CONTENT.character.ui.overview.nextTitle.replace("{name}", titleInfo.next.name).replace("{level}", String(titleInfo.next.level))}
+                                </p>
+                                <Progress value={titleInfo.progress} className="h-2 bg-zinc-900 border border-amber-500/30 [&>div]:bg-gradient-to-r [&>div]:from-amber-600 [&>div]:to-orange-500" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       );
                     })()}
                   </div>

@@ -102,9 +102,6 @@ export function TitanRaidCard() {
             <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 uppercase text-[10px] tracking-widest font-bold">
               ⚔️ Monthly raid
             </Badge>
-            <Badge variant="outline" className="border-amber-500/30 text-amber-400 text-[10px] font-bold">
-              {titan.element} element
-            </Badge>
             {remainingHp < titan.totalHp / 2 && !isDefeated && (
               <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
                 ⚠️ Angry (+30% dmg)
@@ -126,16 +123,16 @@ export function TitanRaidCard() {
       </CardHeader>
 
       <CardContent className="p-5 pt-0 space-y-4">
-        {/* Full-width Boss Banner Image */}
-        <div className="relative w-full h-48 sm:h-64 rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 group">
+        {/* Full Uncropped Boss Image Banner */}
+        <div className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group">
           <Image
             src={titan.image}
             alt={titan.name}
-            fill
-            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            width={800}
+            height={500}
+            className="w-full h-auto object-contain rounded-xl transition-transform duration-700 group-hover:scale-102"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
         </div>
 
         {/* Boss HP Progress & Stats */}
@@ -167,20 +164,24 @@ export function TitanRaidCard() {
           </div>
         </div>
 
-        {/* Claim Rewards Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-purple-950/30 border border-purple-800/40">
-          <div className="flex items-center gap-2 text-xs">
-            <Gift className="w-4 h-4 text-amber-400" />
-            <span className="text-zinc-300">Loot:</span>
-            <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
-            <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
+        {/* Claim Rewards & Vertically Stacked Attack Buttons */}
+        <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/40">
+          <div className="flex items-center justify-between text-xs border-b border-purple-900/30 pb-2">
+            <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
+              <Gift className="w-4 h-4 text-amber-400" />
+              <span>Loot:</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
+              <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 w-full">
             {!isDefeated && (
               <Button
                 onClick={handleFocusRaidSurge}
-                className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 text-xs font-bold px-3 py-1.5 rounded-lg"
+                className="w-full bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 text-xs font-bold py-2.5 rounded-lg min-h-[44px]"
               >
                 🧠 Super hit (+500 dmg)
               </Button>
@@ -189,14 +190,14 @@ export function TitanRaidCard() {
             <Button
               disabled={!isDefeated || claimed || claiming}
               onClick={handleClaim}
-              className={claimed ? "bg-zinc-800 text-zinc-400 border border-zinc-700" : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold shadow-md"}
+              className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-2.5 rounded-lg min-h-[44px]" : "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold shadow-md py-2.5 rounded-lg min-h-[44px]"}
             >
               {claimed ? (
-                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Claimed</span>
+                <span className="flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Claimed</span>
               ) : isDefeated ? (
-                <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4" /> Claim rewards</span>
+                <span className="flex items-center justify-center gap-1.5"><Trophy className="w-4 h-4" /> Claim rewards</span>
               ) : (
-                <span className="flex items-center gap-1.5"><Sword className="w-4 h-4" /> Attack boss ({damageDealt}/1000 HP)</span>
+                <span className="flex items-center justify-center gap-1.5"><Sword className="w-4 h-4" /> Attack boss ({damageDealt}/1000 HP)</span>
               )}
             </Button>
           </div>

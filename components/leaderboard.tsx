@@ -40,12 +40,13 @@ export function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("experience");
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/leaderboard?sortBy=${category}&limit=20`);
+        const res = await fetch(`/api/leaderboard?sortBy=${category}&limit=50`);
         const data = await res.json();
         if (data.success) {
           setEntries(data.data);
@@ -59,6 +60,9 @@ export function Leaderboard() {
 
     fetchLeaderboard();
   }, [category]);
+
+  const displayedEntries = showAll ? entries : entries.slice(0, 5);
+  const emptySlotsCount = Math.max(0, 5 - entries.length);
 
   const getIcon = () => {
     switch (category) {
@@ -109,14 +113,14 @@ export function Leaderboard() {
             <TabsTrigger value="quests_monthly_alliance" className="flex-shrink-0 text-[10px] sm:text-xs px-3 py-1.5 md:px-1 whitespace-nowrap">{TEXT_CONTENT.leaderboard.tabs.allies}</TabsTrigger>
           </TabsList>
 
-          <div className="mt-4 flex-grow relative min-h-[300px]">
+          <div className="mt-4 flex-grow relative min-h-[300px] flex flex-col justify-between">
             {loading ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-amber-500/50 space-y-3">
+              <div className="flex flex-col items-center justify-center text-amber-500/50 space-y-3 py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
                 <p className="text-sm animate-pulse">{TEXT_CONTENT.leaderboard.loading}</p>
               </div>
             ) : entries.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-amber-500/40 space-y-4">
+              <div className="flex flex-col items-center justify-center text-amber-500/40 space-y-4 py-12">
                 <Trophy className="h-16 w-16 opacity-20" />
                 <div className="text-center">
                   <p className="font-semibold text-lg">{TEXT_CONTENT.leaderboard.empty.title}</p>
@@ -124,49 +128,86 @@ export function Leaderboard() {
                 </div>
               </div>
             ) : (
-              <ScrollArea className="h-[400px] pr-4">
-                <div className="space-y-2">
-                  {entries.map((entry) => (
-                    <div
-                      key={`${entry.userId}-${entry.rank}`}
-                      className={cn(
-                        "flex items-center justify-between p-3 rounded-lg border transition-all duration-200",
-                        entry.userId === user?.id
-                          ? "bg-amber-900/30 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-                          : "bg-zinc-950 border-white/5 hover:bg-white/5 hover:border-amber-900/30"
-                      )}
+              <div className="space-y-4">
+                <ScrollArea className={cn("pr-2 transition-all duration-300", showAll ? "h-[500px]" : "h-auto")}>
+                  <div className="space-y-2">
+                    {displayedEntries.map((entry) => (
+                      <div
+                        key={`${entry.userId}-${entry.rank}`}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border transition-all duration-200",
+                          entry.userId === user?.id
+                            ? "bg-amber-900/30 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                            : "bg-zinc-950 border-white/5 hover:bg-white/5 hover:border-amber-900/30"
+                        )}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-full font-bold font-mono shadow-inner",
+                            entry.rank === 1 ? "bg-gradient-to-br from-yellow-300 to-yellow-600 text-black border border-yellow-200" :
+                              entry.rank === 2 ? "bg-gradient-to-br from-zinc-300 to-zinc-500 text-black border border-zinc-200" :
+                                entry.rank === 3 ? "bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 border border-amber-500" :
+                                  "bg-white/5 text-zinc-500 border border-white/5"
+                          )}>
+                            {entry.rank}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-sm flex items-center gap-2 text-amber-100/90">
+                              {entry.displayName}
+                              {entry.userId === user?.id && (
+                                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-wider font-bold">{TEXT_CONTENT.leaderboard.card.you}</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-amber-400/50 flex items-center gap-1.5">
+                              <span>{TEXT_CONTENT.leaderboard.card.level.replace('{level}', entry.level.toString())}</span>
+                              <span className="w-1 h-1 rounded-full bg-amber-900"></span>
+                              <span>{getMilestoneTitleName(entry.level)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="font-mono font-bold text-amber-200/90 bg-zinc-950 px-3 py-1 rounded border border-white/5 min-w-[80px] text-right">
+                          {entry.formattedValue}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Empty Slots Padding up to Top 5 if fewer entries */}
+                    {!showAll && emptySlotsCount > 0 && Array.from({ length: emptySlotsCount }).map((_, idx) => {
+                      const slotRank = entries.length + idx + 1;
+                      return (
+                        <div
+                          key={`empty-slot-${slotRank}`}
+                          className="flex items-center justify-between p-3 rounded-lg border border-dashed border-zinc-800/60 bg-zinc-950/40 text-zinc-600"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full font-bold font-mono bg-zinc-900 border border-zinc-800 text-zinc-600">
+                              {slotRank}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-sm italic text-zinc-600">Open ranking slot</div>
+                              <div className="text-xs text-zinc-700">Awaiting brave hero</div>
+                            </div>
+                          </div>
+                          <div className="font-mono text-xs text-zinc-700 bg-zinc-900/50 px-3 py-1 rounded border border-zinc-800">
+                            -
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+
+                {entries.length > 5 && (
+                  <div className="pt-2 text-center">
+                    <button
+                      onClick={() => setShowAll(!showAll)}
+                      className="w-full py-2.5 px-4 rounded-xl bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 font-bold text-xs border border-amber-500/30 transition-colors shadow-sm flex items-center justify-center gap-2"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-full font-bold font-mono shadow-inner",
-                          entry.rank === 1 ? "bg-gradient-to-br from-yellow-300 to-yellow-600 text-black border border-yellow-200" :
-                            entry.rank === 2 ? "bg-gradient-to-br from-zinc-300 to-zinc-500 text-black border border-zinc-200" :
-                              entry.rank === 3 ? "bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 border border-amber-500" :
-                                "bg-white/5 text-zinc-500 border border-white/5"
-                        )}>
-                          {entry.rank}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-sm flex items-center gap-2 text-amber-100/90">
-                            {entry.displayName}
-                            {entry.userId === user?.id && (
-                              <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-wider font-bold">{TEXT_CONTENT.leaderboard.card.you}</span>
-                            )}
-                          </div>
-                          <div className="text-xs text-amber-400/50 flex items-center gap-1.5">
-                            <span>{TEXT_CONTENT.leaderboard.card.level.replace('{level}', entry.level.toString())}</span>
-                            <span className="w-1 h-1 rounded-full bg-amber-900"></span>
-                            <span>{getMilestoneTitleName(entry.level)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="font-mono font-bold text-amber-200/90 bg-zinc-950 px-3 py-1 rounded border border-white/5 min-w-[80px] text-right">
-                        {entry.formattedValue}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+                      {showAll ? "Show top 5" : `Show all (${entries.length} heroes)`}
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </Tabs>
