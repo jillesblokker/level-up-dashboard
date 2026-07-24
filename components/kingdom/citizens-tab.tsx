@@ -19,6 +19,10 @@ import { useGameStore } from '@/stores/game-store';
 import { CreatureDef } from '@/app/dungeon/game-logic';
 import { getCharacterStats } from "@/lib/character-stats-service";
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
+
 export function CitizensTab() {
   const { user } = useUser()
   const activePartnerId = useGameStore(state => state.activePartnerId);
@@ -30,6 +34,8 @@ export function CitizensTab() {
   const feedCitizen = useCitizensStore(state => state.feedCitizen);
 
   const [citizenFilter, setCitizenFilter] = useState<"all" | "active" | "inactive" | "favorites">("all");
+  const [speciesFilter, setSpeciesFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [inventoryFood, setInventoryFood] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
   const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -177,12 +183,24 @@ export function CitizensTab() {
     return `${hours}h ${minutes}m`;
   };
 
-  const filteredCitizens = citizens.filter(c => {
-    if (citizenFilter === "active") return c.active;
-    if (citizenFilter === "inactive") return !c.active;
-    if (citizenFilter === "favorites") return c.favorite;
-    return true;
-  });
+  const filteredCitizens = citizens
+    .filter(c => {
+      if (citizenFilter === "active" && !c.active) return false;
+      if (citizenFilter === "inactive" && c.active) return false;
+      if (citizenFilter === "favorites" && !c.favorite) return false;
+      if (speciesFilter !== "all" && c.type !== speciesFilter) return false;
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        return c.name.toLowerCase().includes(query) || (c.type || '').toLowerCase().includes(query);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      // Sort/group by creature name species first so identical creatures (e.g. Minotaurs) are grouped together
+      const nameCompare = a.name.localeCompare(b.name);
+      if (nameCompare !== 0) return nameCompare;
+      return (b.level || 1) - (a.level || 1);
+    });
 
   return (
     <div className="w-full animate-fadeIn mt-6">
@@ -220,22 +238,59 @@ export function CitizensTab() {
           </div>
         </Card>
 
-        <div className="flex flex-wrap gap-2 mb-6 justify-center">
-          {(["all", "active", "inactive", "favorites"] as const).map((filter) => (
-            <Button
-              key={filter}
-              variant={citizenFilter === filter ? "default" : "outline"}
-              size="sm"
-              onClick={() => setCitizenFilter(filter)}
-              className={`capitalize font-serif border border-amber-900/30 ${
-                citizenFilter === filter 
-                  ? "bg-amber-600 hover:bg-amber-700 text-black font-semibold" 
-                  : "bg-zinc-950 text-zinc-300 hover:bg-zinc-900 hover:text-white"
-              }`}
-            >
-              {filter === "favorites" ? "⭐ Favorites" : filter}
-            </Button>
-          ))}
+        {/* Filter Controls Bar: Status Buttons + Creature Species Dropdown + Search */}
+        <div className="bg-zinc-950 p-4 rounded-2xl border border-amber-900/30 mb-6 space-y-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* Status Filter Buttons */}
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              {(["all", "active", "inactive", "favorites"] as const).map((filter) => (
+                <Button
+                  key={filter}
+                  variant={citizenFilter === filter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCitizenFilter(filter)}
+                  className={`capitalize font-serif border border-amber-900/30 text-xs px-3 py-1.5 ${
+                    citizenFilter === filter 
+                      ? "bg-amber-600 hover:bg-amber-700 text-black font-bold" 
+                      : "bg-zinc-900 text-zinc-300 hover:bg-zinc-850 hover:text-white"
+                  }`}
+                >
+                  {filter === "favorites" ? "⭐ Favorites" : filter}
+                </Button>
+              ))}
+            </div>
+
+            {/* Species Type Dropdown Filter */}
+            <div className="w-full sm:w-[220px]">
+              <Select value={speciesFilter} onValueChange={setSpeciesFilter}>
+                <SelectTrigger className="w-full bg-zinc-900 border-amber-900/40 text-amber-200 text-xs font-bold h-9">
+                  <SelectValue placeholder="All Creature Types" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border-amber-900/40 text-amber-100">
+                  <SelectItem value="all">🐾 All Creature Types</SelectItem>
+                  <SelectItem value="fire">🔥 Fire Species</SelectItem>
+                  <SelectItem value="water">💧 Water Species</SelectItem>
+                  <SelectItem value="earth">🪨 Earth Species</SelectItem>
+                  <SelectItem value="nature">🍃 Nature Species</SelectItem>
+                  <SelectItem value="ice">❄️ Ice Species</SelectItem>
+                  <SelectItem value="monster">😈 Monster Beasts</SelectItem>
+                  <SelectItem value="special">🌟 Special Mythics</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Search by Name */}
+          <div className="relative w-full">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Input
+              type="text"
+              placeholder="Search creature by name (e.g. Minotaur, Dragon)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-zinc-900 border-zinc-800 text-zinc-200 text-xs h-9 focus:border-amber-500/40"
+            />
+          </div>
         </div>
 
         {filteredCitizens.length === 0 ? (
