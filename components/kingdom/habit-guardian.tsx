@@ -34,6 +34,7 @@ const GUARDIANS = [
     id: 'ember-drake',
     name: 'Ember Drake',
     emoji: '🐉',
+    image: '/images/creatures/EmberDrake.webp',
     description: 'A fierce baby dragon that feeds on the fire of your might and craft habits.',
     focus: 'Might & Craft',
     focusCategories: ['might', 'agility'],
@@ -51,6 +52,7 @@ const GUARDIANS = [
     id: 'sage-owl',
     name: 'Sage Owl',
     emoji: '🦉',
+    image: '/images/creatures/SageOwl.webp',
     description: 'A wise scholar owl that thrives on reading, studying, and honoring others.',
     focus: 'Knowledge & Honor',
     focusCategories: ['knowledge', 'intelligence'],
@@ -68,6 +70,7 @@ const GUARDIANS = [
     id: 'spirit-sprite',
     name: 'Spirit Sprite',
     emoji: '🧚',
+    image: '/images/creatures/SpiritSprite.webp',
     description: 'A playful forest sprite fueled by nature, castle building, and vitality.',
     focus: 'Vitality & Castle',
     focusCategories: ['vitality', 'spiritual', 'wellness'],
@@ -78,7 +81,6 @@ const GUARDIANS = [
       "Take a deep breath. You dusted off the dungeon floor and fixed up the town!",
       "Let's make today full of life and clean energy!",
       "Every step you take brings green trees back to our woodlands!",
-      "Wheee! Your daily momentum keeps Thrivehaven bright and alive!"
     ]
   }
 ];

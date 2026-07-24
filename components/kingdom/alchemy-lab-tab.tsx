@@ -22,6 +22,7 @@ interface GuardianDetails {
   id: string;
   name: string;
   emoji: string;
+  image: string;
   description: string;
   focus: string;
   themeColor: string;
@@ -42,6 +43,7 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
     id: 'ember-drake',
     name: 'Ember Drake',
     emoji: '🐉',
+    image: '/images/creatures/EmberDrake.webp',
     description: 'A fierce baby dragon that feeds on the fire of your might and craft habits.',
     focus: 'Might & Craft',
     themeColor: 'from-orange-500/10 to-red-500/15 border-orange-500/20 text-orange-400',
@@ -68,6 +70,7 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
     id: 'sage-owl',
     name: 'Sage Owl',
     emoji: '🦉',
+    image: '/images/creatures/SageOwl.webp',
     description: 'A wise scholar owl that thrives on reading, studying, and honoring others.',
     focus: 'Knowledge & Honor',
     themeColor: 'from-cyan-500/10 to-blue-500/15 border-cyan-500/20 text-cyan-400',
@@ -87,6 +90,7 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
     id: 'spirit-sprite',
     name: 'Spirit Sprite',
     emoji: '🧚',
+    image: '/images/creatures/SpiritSprite.webp',
     description: 'A playful forest sprite fueled by nature, castle building, and vitality.',
     focus: 'Vitality & Castle',
     themeColor: 'from-emerald-500/10 to-green-500/15 border-emerald-500/20 text-emerald-400',
@@ -570,9 +574,15 @@ export function AlchemyLabTab() {
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
-                          className="text-6xl"
+                          className="relative w-28 h-28 sm:w-32 sm:h-32 drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]"
                         >
-                          {g.emoji}
+                          <Image
+                            src={g.image}
+                            alt={g.name}
+                            fill
+                            className="object-contain"
+                            unoptimized
+                          />
                         </motion.div>
                         <Badge className="bg-zinc-950 text-zinc-400 border border-white/5 text-[9px] mt-3 font-extrabold">
                           Lvl {gLevel} {isActiveGuardian && "(Active)"}

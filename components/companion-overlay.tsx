@@ -145,13 +145,13 @@ export function CompanionOverlay() {
     }
 
     // 2. Check selected Guardian (e.g. Ember Drake, Sage Owl, Spirit Sprite, Grove Fox)
-    if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/Embera.png' }
-    if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/Oaky.png' }
-    if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/Monsters/Fairiel.png' }
-    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/Rockie.png' }
+    if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }
+    if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/SageOwl.webp' }
+    if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/creatures/SpiritSprite.webp' }
+    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/SpiritSprite.webp' }
 
     // Fallback active Guardian (Ember Drake)
-    return { name: 'Ember Drake', image: '/images/creatures/Embera.png' }
+    return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }
   }, [citizens, activePartnerId, guardianId])
 
   const hints = useMemo(() => {
