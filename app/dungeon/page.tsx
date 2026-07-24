@@ -22,7 +22,9 @@ import {
   getSignatureMoveForLevel,
   calculateSmartEnemyAction,
   getDailyDungeonBounties,
-  DungeonBounty
+  DungeonBounty,
+  getStatusSpell,
+  MonsterStatusState
 } from './game-logic';
 import { useAuth } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
@@ -178,7 +180,8 @@ export default function DungeonPage() {
   const [battlePhase, setBattlePhase] = useState<'select' | 'fight' | 'result'>('select');
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [showBounties, setShowBounties] = useState(false);
-  const [cooldowns, setCooldowns] = useState<{ burst: number; signature: number; guard: number }>({ burst: 0, signature: 0, guard: 0 });
+  const [cooldowns, setCooldowns] = useState<{ burst: number; signature: number; guard: number; status: number }>({ burst: 0, signature: 0, guard: 0, status: 0 });
+  const [monsterStatus, setMonsterStatus] = useState<MonsterStatusState>({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
@@ -457,7 +460,7 @@ export default function DungeonPage() {
     }
   };
 
-  const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' = 'strike') => {
+  const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' | 'status' = 'strike') => {
     if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
 
     // Check skill cooldowns
@@ -473,12 +476,17 @@ export default function DungeonPage() {
       toast({ title: "⏳ Skill on Cooldown!", description: `Counter Guard requires ${cooldowns.guard} more turn(s).`, variant: "destructive" });
       return;
     }
+    if (actionType === 'status' && cooldowns.status > 0) {
+      toast({ title: "⏳ Skill on Cooldown!", description: `Status Skill requires ${cooldowns.status} more turn(s).`, variant: "destructive" });
+      return;
+    }
 
     // Update cooldowns state
     setCooldowns(prev => ({
       burst: actionType === 'elemental' ? 2 : Math.max(0, prev.burst - 1),
       signature: actionType === 'signature' ? 3 : Math.max(0, prev.signature - 1),
       guard: actionType === 'counter' ? 1 : Math.max(0, prev.guard - 1),
+      status: actionType === 'status' ? 3 : Math.max(0, prev.status - 1),
     }));
 
     const enemyId = run.currentEncounter.creatureId || '001';
@@ -492,7 +500,7 @@ export default function DungeonPage() {
     const logEntries: string[] = [];
 
     // 1. Calculate Base Stats
-    const elementalHabitBuff = (elementBuffs[activeFighter.type] || 0) * 2; // +2 atk per habit
+    const elementalHabitBuff = (elementBuffs[activeFighter.type] || 0) * 2;
     const buildingAtkBuff = buildingBuffs.atkBuff;
 
     const playerSpd = activeFighter.stats.spd;
@@ -511,43 +519,56 @@ export default function DungeonPage() {
     const playerTypeMult = getMatchupMultiplier(activeFighter.type, enemyDef.type);
     const enemyTypeMult = getMatchupMultiplier(enemyDef.type, activeFighter.type);
 
-    // 3. Tactical Action Resolution (Hogwarts Legacy style 3 choices)
     let playerCritChance = Math.max(0, Math.min(0.5, (playerSpd - enemySpd) * 0.03));
     let isPlayerCrit = false;
     let playerFinalDmg = 0;
     let enemyFinalDmg = 0;
+    let healAmount = 0;
     const isPlayerDodge = Math.random() < Math.max(0, Math.min(0.4, (playerSpd - enemySpd) * 0.02));
     const isEnemyCrit = Math.random() < 0.05;
 
-    if (actionType === 'signature') {
+    // 3. Action Type Resolution
+    if (actionType === 'status') {
+      const statusSpell = getStatusSpell(activeFighter.type);
+      if (statusSpell.type === 'heal') {
+        healAmount = Math.floor(activeFighter.maxHp * 0.30);
+        logEntries.push(`💚 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! Restored +${healAmount} HP!`);
+      } else if (statusSpell.type === 'sleep') {
+        setMonsterStatus(prev => ({ ...prev, sleepTurns: 2 }));
+        logEntries.push(`💤 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} fell fast asleep for 2 turns!`);
+      } else if (statusSpell.type === 'confusion') {
+        setMonsterStatus(prev => ({ ...prev, confusionTurns: 2 }));
+        logEntries.push(`💫 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} became confused for 2 turns!`);
+      }
+    } else if (actionType === 'signature') {
       const sigMove = getSignatureMoveForLevel(activeFighter.type, activeFighter.level || Math.max(1, run.currentRoom * 2));
-      playerCritChance += 0.35; // +35% Crit bonus for signature move
+      playerCritChance += 0.35;
       isPlayerCrit = Math.random() < playerCritChance;
-      enemyDefStat = Math.floor(enemyDefStat * 0.6); // Ignores 40% enemy armor
+      enemyDefStat = Math.floor(enemyDefStat * 0.6);
       playerAtk = Math.floor(playerAtk * sigMove.multiplier);
       const critMult = isPlayerCrit ? 1.8 : 1.0;
       playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.3)));
+      setMonsterStatus(prev => ({ ...prev, burnTurns: 3 }));
 
       logEntries.push(`🔱 ${activeFighter.name} unleashes Tier Skill ${sigMove.emoji} ${sigMove.name}! ${isPlayerCrit ? '💥 CRITICAL OVERLORD!' : ''}`);
-      logEntries.push(`Dealt ${playerFinalDmg} ${activeFighter.type} signature damage to ${enemyDef.name}! ${playerTypeMult > 1 ? '🔥 Super Effective!' : ''}`);
+      logEntries.push(`Dealt ${playerFinalDmg} ${activeFighter.type} signature damage to ${enemyDef.name}! 🔥 Inflicted 3 Turns of Burn!`);
     } else if (actionType === 'elemental') {
       const spell = getElementalSpell(activeFighter.type);
-      playerCritChance += 0.25; // +25% Crit bonus
+      playerCritChance += 0.25;
       isPlayerCrit = Math.random() < playerCritChance;
-      enemyDefStat = Math.floor(enemyDefStat * 0.7); // Ignores 30% enemy armor
-      playerAtk = Math.floor(playerAtk * 1.4); // 1.4x base atk
+      enemyDefStat = Math.floor(enemyDefStat * 0.7);
+      playerAtk = Math.floor(playerAtk * 1.4);
       const critMult = isPlayerCrit ? 1.6 : 1.0;
       playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.4)));
+      setMonsterStatus(prev => ({ ...prev, burnTurns: 2 }));
 
       logEntries.push(`✨ ${activeFighter.name} unleashes ${spell.emoji} ${spell.name}! ${isPlayerCrit ? '💥 CRITICAL OVERLOAD!' : ''}`);
-      logEntries.push(`You dealt ${playerFinalDmg} ${activeFighter.type} elemental damage to ${enemyDef.name}! ${playerTypeMult > 1 ? '🔥 Super Effective!' : ''}`);
+      logEntries.push(`Dealt ${playerFinalDmg} ${activeFighter.type} elemental damage to ${enemyDef.name}! 🔥 Applied Burn DoT!`);
     } else if (actionType === 'counter') {
-      // Counter Guard stance: reduces incoming damage by 60% and ripostes!
       logEntries.push(`🛡️ ${activeFighter.name} adopts a Counter Guard stance!`);
       playerFinalDmg = Math.max(1, Math.floor((playerAtk * 0.85 * playerTypeMult) - (enemyDefStat * 0.4)));
       logEntries.push(`You strike ${enemyDef.name} for ${playerFinalDmg} damage while maintaining shield defense.`);
     } else {
-      // Basic Heavy Strike
       isPlayerCrit = Math.random() < playerCritChance;
       const critMult = isPlayerCrit ? 1.5 : 1.0;
       playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.4)));
@@ -555,11 +576,26 @@ export default function DungeonPage() {
       else logEntries.push(`⚔️ ${activeFighter.name} hits ${enemyDef.name} for ${playerFinalDmg} damage.`);
     }
 
-    const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - playerFinalDmg);
+    // 4. Burn DoT Damage Resolution
+    let burnDmg = 0;
+    if (monsterStatus.burnTurns > 0) {
+      burnDmg = Math.max(1, Math.floor((run.currentEncounter.maxHp || 50) * 0.10));
+      logEntries.push(`🔥 ${enemyDef.name} takes ${burnDmg} Burn DoT damage!`);
+      setMonsterStatus(prev => ({ ...prev, burnTurns: Math.max(0, prev.burnTurns - 1) }));
+    }
 
-    // Smart Enemy Retaliation
+    const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - playerFinalDmg - burnDmg);
+
+    // 5. Enemy Retaliation Resolution (Sleep, Confusion Check)
     if (newMonsterHp > 0) {
-      if (isPlayerDodge) {
+      if (monsterStatus.sleepTurns > 0) {
+        logEntries.push(`💤 ${enemyDef.name} is fast asleep and skips its turn!`);
+        setMonsterStatus(prev => ({ ...prev, sleepTurns: Math.max(0, prev.sleepTurns - 1) }));
+      } else if (monsterStatus.confusionTurns > 0 && Math.random() < 0.5) {
+        const selfHitDmg = Math.max(1, Math.floor(enemyAtk * 0.8));
+        logEntries.push(`💫 ${enemyDef.name} is confused! It hurt itself in confusion for ${selfHitDmg} damage!`);
+        setMonsterStatus(prev => ({ ...prev, confusionTurns: Math.max(0, prev.confusionTurns - 1) }));
+      } else if (isPlayerDodge) {
         logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
       } else {
         const smartAI = calculateSmartEnemyAction(
@@ -574,7 +610,6 @@ export default function DungeonPage() {
         let rawEnemyDmg = Math.max(1, Math.floor((enemyAtk * smartAI.multiplier * enemyTypeMult * enemyCritMult) - (playerDef * 0.4)));
         
         if (actionType === 'counter') {
-          // Counter Guard mitigates 60% incoming damage and ripostes 120% back!
           enemyFinalDmg = Math.max(1, Math.floor(rawEnemyDmg * 0.4));
           const riposteDmg = Math.max(1, Math.floor(enemyAtk * 1.2));
           logEntries.push(`🛡️ Counter Guard absorbed 60% damage from ${smartAI.moveName}! Taking only ${enemyFinalDmg} damage.`);
@@ -582,11 +617,12 @@ export default function DungeonPage() {
         } else {
           enemyFinalDmg = rawEnemyDmg;
           if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT with ${smartAI.moveName} for ${enemyFinalDmg}!`);
-          else logEntries.push(`${enemyDef.name} executed ${smartAI.moveName} for ${enemyFinalDmg} damage. ${enemyTypeMult > 1 ? '💔' : ''}`);
+          else logEntries.push(`${enemyDef.name} executed ${smartAI.moveName} for ${enemyFinalDmg} damage.`);
         }
       }
     } else {
       logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
+      setMonsterStatus({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
     }
 
     // Apply damage to active fighter in party
@@ -1378,7 +1414,7 @@ export default function DungeonPage() {
                               <span>Choose Combat Action</span>
                               {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold animate-pulse">⚠️ Enemy Preparing Heavy Attack! Use Guard or Swap!</span>}
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 w-full">
                               
                               {/* Choice 1: Heavy Strike (Always Ready) */}
                               <Button
@@ -1386,7 +1422,7 @@ export default function DungeonPage() {
                                 className="h-14 flex flex-col items-center justify-center bg-gradient-to-b from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 border border-red-500/40 rounded-xl shadow-lg transition-all active:scale-95"
                               >
                                 <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">⚔️ Heavy Strike</span>
-                                <span className="text-[9px] text-red-200 opacity-90 font-mono">1.0x Physical Dmg (⚡ Ready)</span>
+                                <span className="text-[9px] text-red-200 opacity-90 font-mono">1.0x Dmg (⚡ Ready)</span>
                               </Button>
 
                               {/* Choice 2: Elemental Burst (2 Turn Cooldown) */}
@@ -1403,11 +1439,34 @@ export default function DungeonPage() {
                                   {activeSpell.emoji} {activeSpell.name}
                                 </span>
                                 <span className="text-[9px] font-mono">
-                                  {cooldowns.burst > 0 ? `⏳ Cooldown (${cooldowns.burst}t)` : `${activeSpell.desc} (⚡ Ready)`}
+                                  {cooldowns.burst > 0 ? `⏳ Cooldown (${cooldowns.burst}t)` : `1.4x + Burn (⚡ Ready)`}
                                 </span>
                               </Button>
 
-                              {/* Choice 3: Signature Tier Move (3 Turn Cooldown) */}
+                              {/* Choice 3: Status / Recovery Spell (3 Turn Cooldown) */}
+                              {(() => {
+                                const statusSpell = getStatusSpell(selectedCreature!.type);
+                                return (
+                                  <Button
+                                    onClick={() => fight('status')}
+                                    disabled={cooldowns.status > 0}
+                                    className={`h-14 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all ${
+                                      cooldowns.status > 0
+                                        ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
+                                        : 'bg-gradient-to-b from-emerald-700 to-emerald-900 hover:from-emerald-600 hover:to-emerald-800 border-emerald-400/40 text-white active:scale-95'
+                                    }`}
+                                  >
+                                    <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                                      {statusSpell.emoji} {statusSpell.name}
+                                    </span>
+                                    <span className="text-[9px] font-mono">
+                                      {cooldowns.status > 0 ? `⏳ Cooldown (${cooldowns.status}t)` : `${statusSpell.desc} (⚡ Ready)`}
+                                    </span>
+                                  </Button>
+                                );
+                              })()}
+
+                              {/* Choice 4: Signature Tier Move (3 Turn Cooldown) */}
                               {(() => {
                                 const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2));
                                 return (
@@ -1430,7 +1489,7 @@ export default function DungeonPage() {
                                 );
                               })()}
 
-                              {/* Choice 4: Counter Guard (1 Turn Cooldown + Glowing Aura on Telegraph) */}
+                              {/* Choice 5: Counter Guard (1 Turn Cooldown + Glowing Aura on Telegraph) */}
                               <Button
                                 onClick={() => fight('counter')}
                                 disabled={cooldowns.guard > 0}

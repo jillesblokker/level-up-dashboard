@@ -299,6 +299,22 @@ export interface DungeonBounty {
     description: string;
 }
 
+export interface MonsterStatusState {
+    burnTurns: number;
+    sleepTurns: number;
+    confusionTurns: number;
+}
+
+export function getStatusSpell(element: CreatureType) {
+    switch (element) {
+        case 'Water': return { name: 'Restorative Tide', emoji: '💧', type: 'heal', desc: 'Restores +30% Max HP' };
+        case 'Grass': return { name: 'Spore Hypnosis', emoji: '💤', type: 'sleep', desc: 'Sleeps Enemy (1-2 Turns)' };
+        case 'Rock': return { name: 'Confusing Dust', emoji: '💫', type: 'confusion', desc: '50% Enemy Self-Hit (2 Turns)' };
+        case 'Ice': return { name: 'Blizzard Freeze', emoji: '❄️', type: 'sleep', desc: 'Freezes Enemy 1 Turn' };
+        case 'Fire': default: return { name: 'Cauterize Flame', emoji: '💚', type: 'heal', desc: 'Restores +30% Max HP' };
+    }
+}
+
 export function getDailyDungeonBounties(): DungeonBounty[] {
     return [
         {
