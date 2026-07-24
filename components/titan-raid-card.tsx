@@ -107,13 +107,13 @@ export function TitanRaidCard() {
             </Badge>
             {remainingHp < titan.totalHp / 2 && !isDefeated && (
               <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
-                ⚠️ Enraged (+30% dmg)
+                ⚠️ Angry (+30% dmg)
               </Badge>
             )}
           </div>
           {isDefeated && (
             <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Defeated!
+              <CheckCircle2 className="w-3.5 h-3.5" /> Boss defeated!
             </Badge>
           )}
         </div>
@@ -142,7 +142,7 @@ export function TitanRaidCard() {
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">
           <div className="flex justify-between items-center text-xs font-bold">
             <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-purple-400" /> Titan HP
+              <Shield className="w-4 h-4 text-purple-400" /> Boss health
             </span>
             <span className="text-purple-300 font-mono">
               {remainingHp} / {titan.totalHp} HP ({100 - hpPercentage}% left)
@@ -157,11 +157,11 @@ export function TitanRaidCard() {
               <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
             </div>
             <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Challenges (+5)</div>
+              <div className="text-zinc-400 text-[10px]">Tasks (+5)</div>
               <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
             </div>
             <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Milestones (+10)</div>
+              <div className="text-zinc-400 text-[10px]">Goals (+10)</div>
               <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
             </div>
           </div>
@@ -171,7 +171,7 @@ export function TitanRaidCard() {
         <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-purple-950/30 border border-purple-800/40">
           <div className="flex items-center gap-2 text-xs">
             <Gift className="w-4 h-4 text-amber-400" />
-            <span className="text-zinc-300">Rewards:</span>
+            <span className="text-zinc-300">Loot:</span>
             <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
             <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
           </div>
@@ -182,7 +182,7 @@ export function TitanRaidCard() {
                 onClick={handleFocusRaidSurge}
                 className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 text-xs font-bold px-3 py-1.5 rounded-lg"
               >
-                🧠 Focus surge (+500 dmg)
+                🧠 Super hit (+500 dmg)
               </Button>
             )}
 

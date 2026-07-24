@@ -48,15 +48,15 @@ export function PetitionsTab() {
               </div>
               <div>
                 <CardTitle className="font-serif text-amber-300 text-base sm:text-lg flex items-center gap-2 flex-wrap">
-                  Royal decrees & citizen happiness
+                  King&apos;s rules & town mood
                 </CardTitle>
                 <CardDescription className="text-zinc-400 text-[11px] sm:text-xs">
-                  Court decisions impact citizen loyalty & tax output.
+                  Help your town people to earn bonus gold.
                 </CardDescription>
               </div>
             </div>
             <Badge variant="outline" className={`px-2.5 py-1 text-[11px] sm:text-xs font-bold shrink-0 ${tier.color}`}>
-              {tier.title} ({(tier.taxMultiplier * 100 - 100).toFixed(0)}% tax)
+              {tier.title} ({(tier.taxMultiplier * 100 - 100).toFixed(0)}% gold)
             </Badge>
           </div>
         </CardHeader>
