@@ -61,13 +61,13 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950  p-2 sm:p-4 overflow-y-auto">
-      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-6 sm:py-10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/95 p-3 sm:p-6 overflow-y-auto">
+      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-6 sm:py-10 pb-28 sm:pb-12 my-auto">
         <button 
           onClick={onClose}
-          className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
         >
-          <X className="w-5 h-5 sm:w-6 sm:h-6" />
+          <X className="w-6 h-6" />
         </button>
 
         <div className="text-center mb-6 sm:mb-8 px-4">
@@ -80,7 +80,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
         </div>
 
         {/* 3x3 Grid */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 mx-auto justify-items-center w-full max-w-[390px] sm:max-w-none px-4">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-6 mx-auto justify-items-center w-full max-w-[390px] sm:max-w-none px-2">
           {packData.cards.map((card: any) => (
             <ScratchCard 
               key={card.id} 
@@ -92,11 +92,11 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
         </div>
 
         {isWon && (
-          <div className="flex gap-4 mt-12 items-center flex-col sm:flex-row">
+          <div className="flex gap-3 sm:gap-4 mt-8 sm:mt-12 items-center flex-col-reverse sm:flex-row w-full sm:w-auto px-4">
             <Button 
               size="lg" 
               variant="outline"
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20 font-bold text-lg px-8 py-6 rounded-full"
+              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 font-bold text-sm sm:text-lg px-6 py-4 rounded-full min-h-[48px]"
               onClick={() => {
                 onClose();
                 router.push('/achievements');
@@ -106,7 +106,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
             </Button>
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xl px-12 py-6 rounded-full shadow-[0_0_40px_rgba(245,158,11,0.5)] animate-bounce"
+              className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-base sm:text-xl px-10 py-4 rounded-full shadow-[0_0_40px_rgba(245,158,11,0.5)] animate-bounce min-h-[52px]"
               onClick={onClose}
             >
               Collect & Return

@@ -279,9 +279,10 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
         ref={canvasRef}
         aria-hidden="true"
         className={cn(
-          "absolute inset-0 w-full h-full z-10 transition-opacity duration-500",
+          "absolute inset-0 w-full h-full z-10 transition-opacity duration-500 touch-none",
           revealed ? "opacity-0 pointer-events-none" : "opacity-100 cursor-crosshair"
         )}
+        style={{ touchAction: 'none' }}
       />
     </article>
   );
