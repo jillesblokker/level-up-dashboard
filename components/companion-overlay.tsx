@@ -56,19 +56,49 @@ export function CompanionOverlay() {
   const [hintIndex, setHintIndex] = useState(0)
   const [showSpeech, setShowSpeech] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [guardianId, setGuardianId] = useState<string | null>(null)
 
-  // Filter activePet so if activePartnerId is '000' (Necrion), we DO NOT duplicate Necrion!
-  const activePet = useMemo(() => {
-    if (!activePartnerId || activePartnerId === '000') return null
-    return citizens.find(c => c.id === activePartnerId && c.id !== '000') || null
-  }, [citizens, activePartnerId])
+  // Read active Guardian from local storage if set
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('thrivehaven_guardian_state')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.selectedId) {
+          setGuardianId(parsed.selectedId)
+        }
+      }
+    } catch {
+      // ignore JSON error
+    }
+  }, [])
+
+  // Resolve active Guardian or partner creature PNG
+  const activeGuardian = useMemo(() => {
+    // 1. Check partner citizen from game store (e.g. Leaf, Dolphio, Flamio)
+    if (activePartnerId && activePartnerId !== '000') {
+      const citizen = citizens.find(c => c.id === activePartnerId && c.id !== '000')
+      if (citizen) return { name: citizen.name, filename: citizen.filename, isMythic: citizen.isMythic }
+    }
+
+    // 2. Check selected Guardian (e.g. Sage Owl, Ember Drake, Spirit Sprite)
+    if (guardianId) {
+      if (guardianId === 'sage-owl') return { name: 'Sage Owl', filename: 'Oaky.png', isMythic: false }
+      if (guardianId === 'ember-drake') return { name: 'Ember Drake', filename: 'Flamio.png', isMythic: false }
+      if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', filename: 'Leaf.png', isMythic: false }
+      if (guardianId === 'grove-fox') return { name: 'Grove Fox', filename: 'Rockie.png', isMythic: false }
+    }
+
+    // 3. Default fallback companion pet (Sage Owl)
+    return { name: 'Sage Owl', filename: 'Oaky.png', isMythic: false }
+  }, [citizens, activePartnerId, guardianId])
 
   const hints = useMemo(() => {
     const routeKey = Object.keys(HINTS_BY_ROUTE).find(key => pathname?.startsWith(key))
     return routeKey ? HINTS_BY_ROUTE[routeKey] : DEFAULT_HINTS
   }, [pathname])
 
-  // Auto-show speech bubble briefly on route change or initial load
+  // Auto-show speech bulb briefly on route change
   useEffect(() => {
     setHintIndex(0)
     setShowSpeech(true)
@@ -86,14 +116,14 @@ export function CompanionOverlay() {
     setTimeout(() => setIsAnimating(false), 300)
   }
 
-  // Don't render on auth or full-screen gaming pages if unauthenticated
+  // Don't render on auth or full-screen login pages
   if (pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up') || pathname === '/login') {
     return null
   }
 
   return (
-    <div className="fixed bottom-[68px] right-2 md:bottom-4 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
-      {/* Speech Bubble (Opens upward away from bottom nav) */}
+    <div className="fixed bottom-[68px] right-3 md:bottom-4 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
+      {/* Classic White Speech Bulb Popup */}
       <AnimatePresence>
         {showSpeech && currentHint && (
           <motion.div
@@ -102,10 +132,10 @@ export function CompanionOverlay() {
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             onClick={handleNextHint}
-            className="mb-2 bg-zinc-950/95 border border-amber-500/50 text-amber-100 p-2.5 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[240px] relative group"
+            className="mb-2 bg-white text-zinc-900 border-2 border-zinc-200 p-3 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[250px] relative group"
           >
             <div className="flex items-start justify-between gap-1.5">
-              <p className="text-[10px] sm:text-[11px] font-medium leading-tight text-amber-100">
+              <p className="text-[11px] font-bold text-zinc-900 leading-snug">
                 {currentHint}
               </p>
               <button
@@ -113,85 +143,76 @@ export function CompanionOverlay() {
                   e.stopPropagation()
                   setShowSpeech(false)
                 }}
-                className="text-zinc-500 hover:text-amber-400 p-0.5 rounded shrink-0"
-                aria-label="Dismiss speech bubble"
+                className="text-zinc-400 hover:text-zinc-700 p-0.5 rounded shrink-0"
+                aria-label="Dismiss speech bulb"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="text-[8px] text-amber-400/70 font-mono mt-1 text-right">
+            <div className="text-[9px] text-amber-700 font-mono font-bold mt-1 text-right">
               Tap for next tip 👉
             </div>
 
-            {/* Speech Tail */}
-            <div className="absolute -bottom-2 right-5 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-zinc-950"></div>
+            {/* Classic White Speech Bulb Tail */}
+            <div className="absolute -bottom-2 right-6 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Characters Standing Side-by-Side */}
-      <div className="flex items-end gap-1.5 pointer-events-auto">
-        {/* Toggle Speech Bubble Button */}
+      {/* Characters Standing Side-by-Side (No Frames, Pure Transparent PNG Sprites) */}
+      <div className="flex items-end gap-2 pointer-events-auto">
+        {/* Speech Bulb Toggle Button */}
         {!showSpeech && (
           <button
             onClick={() => setShowSpeech(true)}
-            className="mb-1 p-1.5 rounded-full bg-zinc-950/90 border border-amber-500/40 text-amber-400 shadow-md hover:scale-110 active:scale-95 transition-transform"
+            className="mb-2 p-2 rounded-full bg-white text-amber-700 border-2 border-zinc-200 shadow-xl hover:scale-110 active:scale-95 transition-transform"
             title="Show mentor tip"
           >
-            <MessageSquare className="w-3.5 h-3.5" />
+            <MessageSquare className="w-4 h-4 fill-amber-500 text-amber-600" />
           </button>
         )}
 
-        {/* 1. Necrion (Realm Mentor Companion) - Rendered as a crisp circular token badge */}
+        {/* 1. Necrion (Realm Mentor Companion) - Pure Transparent PNG Sprite, NO FRAME */}
         <div
           onClick={handleNextHint}
           className={`relative group cursor-pointer transition-transform duration-200 ${
             isAnimating ? 'scale-125 -translate-y-2' : 'hover:scale-110 active:scale-95'
           }`}
-          title="Necrion (Realm Mentor) - Tap for guidance"
+          title="Necrion (Realm Mentor)"
         >
-          <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border-2 border-emerald-500/60 bg-zinc-950/90 shadow-[0_0_12px_rgba(16,185,129,0.3)] flex items-center justify-center p-0.5 overflow-hidden">
-            <div className="relative w-full h-full">
-              <Image
-                src="/images/creatures/000.png"
-                alt="Necrion Companion"
-                fill
-                className="object-cover scale-125 translate-y-1"
-                unoptimized
-              />
-            </div>
+          <div className="relative w-12 h-16 sm:w-16 sm:h-22 drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)]">
+            <Image
+              src="/images/creatures/Necrion.png"
+              alt="Necrion Companion"
+              fill
+              className="object-contain animate-float"
+              unoptimized
+            />
           </div>
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-zinc-950/90 text-[8px] text-emerald-400 font-bold px-1 rounded border border-emerald-500/40 whitespace-nowrap shadow-sm opacity-90 group-hover:opacity-100">
-            Necrion
-          </span>
         </div>
 
-        {/* 2. Active Pet / Partner Creature (Standing next to Necrion - Only if NOT Necrion) */}
-        {activePet && (
+        {/* 2. Guardian / Active Partner Pet - Pure Transparent PNG Sprite, NO FRAME */}
+        {activeGuardian && (
           <div
             onClick={handleNextHint}
             className={`relative group cursor-pointer transition-transform duration-200 ${
               isAnimating ? 'scale-125 -translate-y-2' : 'hover:scale-110 active:scale-95'
             }`}
-            title={`${activePet.name} (Active Pet)`}
+            title={`${activeGuardian.name} (Guardian)`}
           >
-            <div className="relative w-11 h-11 sm:w-14 sm:h-14 drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+            <div className="relative w-11 h-14 sm:w-14 sm:h-18 drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)]">
               <Image
                 src={
-                  activePet.isMythic
-                    ? `/images/Mythics/${activePet.filename}?v=2`
-                    : `/images/creatures/${activePet.filename}`
+                  activeGuardian.isMythic
+                    ? `/images/Mythics/${activeGuardian.filename}?v=2`
+                    : `/images/creatures/${activeGuardian.filename}`
                 }
-                alt={activePet.name}
+                alt={activeGuardian.name}
                 fill
                 className="object-contain animate-float"
                 unoptimized
               />
             </div>
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-zinc-950/90 text-[8px] text-amber-400 font-bold px-1 rounded border border-amber-500/40 whitespace-nowrap shadow-sm opacity-90 group-hover:opacity-100 flex items-center gap-0.5">
-              <Heart className="w-2 h-2 fill-amber-400 text-amber-400 shrink-0" />
-              {activePet.name}
-            </span>
           </div>
         )}
       </div>
