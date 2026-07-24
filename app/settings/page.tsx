@@ -45,6 +45,8 @@ export default function SettingsPage() {
   const [isGithubConnected, setIsGithubConnected] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
   const [dayNightEnabled, setDayNightEnabled] = useState(true)
+  const [showCompanionNecrion, setShowCompanionNecrion] = useState(true)
+  const [showGuardianPartner, setShowGuardianPartner] = useState(true)
   const [muteGoldToasts, setMuteGoldToasts] = useState(false)
   const [muteXpToasts, setMuteXpToasts] = useState(false)
   const [muteQuestToasts, setMuteQuestToasts] = useState(false)
@@ -74,6 +76,16 @@ export default function SettingsPage() {
       }
 
       setIsGithubConnected(false)
+
+      // Load Companion & Guardian visibility
+      const savedCompanion = localStorage.getItem("show-companion-necrion")
+      if (savedCompanion !== null) {
+        setShowCompanionNecrion(savedCompanion === "true")
+      }
+      const savedGuardian = localStorage.getItem("show-guardian-partner")
+      if (savedGuardian !== null) {
+        setShowGuardianPartner(savedGuardian === "true")
+      }
 
       // Load Day/Night preference
       const savedDayNight = localStorage.getItem("day-night-cycle-enabled")
@@ -436,6 +448,58 @@ export default function SettingsPage() {
                       toast({
                         title: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.title : TEXT_CONTENT.settings.toasts.dayNightDisabled.title,
                         description: checked ? TEXT_CONTENT.settings.toasts.dayNightEnabled.desc : TEXT_CONTENT.settings.toasts.dayNightDisabled.desc,
+                      })
+                    }}
+                  />
+                </div>
+
+                {/* Show Companion (Necrion) Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-2">
+                      <User className="w-4 h-4 text-emerald-400" />
+                      Show Realm Companion (Necrion)
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Display Necrion standing at the bottom right corner as your realm mentor guide.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={showCompanionNecrion}
+                    onCheckedChange={(checked) => {
+                      setShowCompanionNecrion(checked)
+                      localStorage.setItem("show-companion-necrion", checked.toString())
+                      setUserPreference("show-companion-necrion", checked)
+                      window.dispatchEvent(new CustomEvent('settings:companionVisibilityChanged'))
+                      toast({
+                        title: checked ? "Companion Shown" : "Companion Hidden",
+                        description: checked ? "Necrion is standing by on main pages." : "Necrion is resting in the realm shadows.",
+                      })
+                    }}
+                  />
+                </div>
+
+                {/* Show Guardian / Partner Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-amber-400" />
+                      Show Active Guardian / Partner
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Display your active Habit Guardian (e.g. Ember Drake, Sage Owl) or creature partner beside Necrion.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={showGuardianPartner}
+                    onCheckedChange={(checked) => {
+                      setShowGuardianPartner(checked)
+                      localStorage.setItem("show-guardian-partner", checked.toString())
+                      setUserPreference("show-guardian-partner", checked)
+                      window.dispatchEvent(new CustomEvent('settings:companionVisibilityChanged'))
+                      toast({
+                        title: checked ? "Guardian Shown" : "Guardian Hidden",
+                        description: checked ? "Your active Guardian stands beside Necrion." : "Guardian is resting in the sanctuary.",
                       })
                     }}
                   />

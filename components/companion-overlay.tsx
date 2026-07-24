@@ -55,15 +55,29 @@ export function CompanionOverlay() {
   
   const [hintIndex, setHintIndex] = useState(0)
   const [showSpeech, setShowSpeech] = useState(false)
+  const [speakerName, setSpeakerName] = useState<'necrion' | 'guardian'>('necrion')
   const [isAnimating, setIsAnimating] = useState(false)
   const [guardianId, setGuardianId] = useState<string | null>(null)
 
-  // Read active Guardian from local storage if set
-  useEffect(() => {
+  // Settings Toggles State
+  const [showNecrion, setShowNecrion] = useState(true)
+  const [showGuardian, setShowGuardian] = useState(true)
+
+  // Load Settings and Guardian State
+  const loadVisibilitySettings = () => {
     try {
-      const saved = localStorage.getItem('thrivehaven_guardian_state')
-      if (saved) {
-        const parsed = JSON.parse(saved)
+      const savedCompanion = localStorage.getItem("show-companion-necrion")
+      if (savedCompanion !== null) {
+        setShowNecrion(savedCompanion === "true")
+      }
+      const savedGuardian = localStorage.getItem("show-guardian-partner")
+      if (savedGuardian !== null) {
+        setShowGuardian(savedGuardian === "true")
+      }
+
+      const savedGuardianState = localStorage.getItem('thrivehaven_guardian_state')
+      if (savedGuardianState) {
+        const parsed = JSON.parse(savedGuardianState)
         if (parsed.selectedId) {
           setGuardianId(parsed.selectedId)
         }
@@ -71,26 +85,53 @@ export function CompanionOverlay() {
     } catch {
       // ignore JSON error
     }
+  }
+
+  useEffect(() => {
+    loadVisibilitySettings()
+    window.addEventListener('settings:companionVisibilityChanged', loadVisibilitySettings)
+    return () => window.removeEventListener('settings:companionVisibilityChanged', loadVisibilitySettings)
+  }, [])
+
+  // Listen to quest completions to trigger companion speech
+  useEffect(() => {
+    const handleQuestCompleted = () => {
+      setShowSpeech(true)
+      const timer = setTimeout(() => setShowSpeech(false), 5000)
+      return () => clearTimeout(timer)
+    }
+
+    window.addEventListener('questCompleted', handleQuestCompleted as EventListener)
+    window.addEventListener('challengeCompleted', handleQuestCompleted as EventListener)
+    return () => {
+      window.removeEventListener('questCompleted', handleQuestCompleted as EventListener)
+      window.removeEventListener('challengeCompleted', handleQuestCompleted as EventListener)
+    }
   }, [])
 
   // Resolve active Guardian or partner creature PNG
   const activeGuardian = useMemo(() => {
-    // 1. Check partner citizen from game store (e.g. Leaf, Dolphio, Flamio)
+    // 1. Check selected Guardian (e.g. Ember Drake, Sage Owl, Spirit Sprite)
+    if (guardianId) {
+      if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/Embera.png' }
+      if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/Oaky.png' }
+      if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/Monsters/Fairiel.png' }
+      if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/Rockie.png' }
+    }
+
+    // 2. Check partner citizen from game store (e.g. Leaf, Dolphio, Flamio)
     if (activePartnerId && activePartnerId !== '000') {
       const citizen = citizens.find(c => c.id === activePartnerId && c.id !== '000')
-      if (citizen) return { name: citizen.name, filename: citizen.filename, isMythic: citizen.isMythic }
+      if (citizen) {
+        const img = citizen.isMythic 
+          ? `/images/Mythics/${citizen.filename}?v=2`
+          : `/images/creatures/${citizen.filename}`
+        return { name: citizen.name, image: img }
+      }
     }
 
-    // 2. Check selected Guardian (e.g. Sage Owl, Ember Drake, Spirit Sprite)
-    if (guardianId) {
-      if (guardianId === 'sage-owl') return { name: 'Sage Owl', filename: 'Oaky.png', isMythic: false }
-      if (guardianId === 'ember-drake') return { name: 'Ember Drake', filename: 'Flamio.png', isMythic: false }
-      if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', filename: 'Leaf.png', isMythic: false }
-      if (guardianId === 'grove-fox') return { name: 'Grove Fox', filename: 'Rockie.png', isMythic: false }
-    }
-
-    // 3. Default fallback companion pet (Sage Owl)
-    return { name: 'Sage Owl', filename: 'Oaky.png', isMythic: false }
+    // Default fallback Guardian (Sage Owl)
+    return { name: 'Sage Owl', image: '/images/creatures/Oaky.png' }
   }, [citizens, activePartnerId, guardianId])
 
   const hints = useMemo(() => {
@@ -98,32 +139,25 @@ export function CompanionOverlay() {
     return routeKey ? HINTS_BY_ROUTE[routeKey] : DEFAULT_HINTS
   }, [pathname])
 
-  // Auto-show speech bulb briefly on route change
-  useEffect(() => {
-    setHintIndex(0)
-    setShowSpeech(true)
-    const timer = setTimeout(() => setShowSpeech(false), 7000)
-    return () => clearTimeout(timer)
-  }, [pathname])
-
   const activeHints = hints || DEFAULT_HINTS
   const currentHint = activeHints[hintIndex % activeHints.length] || DEFAULT_HINTS[0]
 
-  const handleNextHint = () => {
+  const handleTapCharacter = (speaker: 'necrion' | 'guardian') => {
     setIsAnimating(true)
+    setSpeakerName(speaker)
     setHintIndex(prev => prev + 1)
     setShowSpeech(true)
     setTimeout(() => setIsAnimating(false), 300)
   }
 
-  // Don't render on auth or full-screen login pages
-  if (pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up') || pathname === '/login') {
+  // Hide completely if both toggled off or on auth pages
+  if ((!showNecrion && !showGuardian) || pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up') || pathname === '/login') {
     return null
   }
 
   return (
     <div className="fixed bottom-[68px] right-3 md:bottom-4 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
-      {/* Classic White Speech Bulb Popup */}
+      {/* Speech Bulb Popup (Only appears on tap or quest completion) */}
       <AnimatePresence>
         {showSpeech && currentHint && (
           <motion.div
@@ -131,8 +165,8 @@ export function CompanionOverlay() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            onClick={handleNextHint}
-            className="mb-2 bg-white text-zinc-900 border-2 border-zinc-200 p-3 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[250px] relative group"
+            onClick={() => handleTapCharacter(speakerName)}
+            className="mb-2 bg-white text-zinc-950 border-2 border-zinc-200 p-3 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[240px] relative group"
           >
             <div className="flex items-start justify-between gap-1.5">
               <p className="text-[11px] font-bold text-zinc-900 leading-snug">
@@ -149,67 +183,51 @@ export function CompanionOverlay() {
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="text-[9px] text-amber-700 font-mono font-bold mt-1 text-right">
-              Tap for next tip 👉
-            </div>
 
-            {/* Classic White Speech Bulb Tail */}
+            {/* Classic White Speech Tail */}
             <div className="absolute -bottom-2 right-6 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Characters Standing Side-by-Side (No Frames, Pure Transparent PNG Sprites) */}
+      {/* Characters Standing Side-by-Side with Distinct Movements */}
       <div className="flex items-end gap-2 pointer-events-auto">
-        {/* Speech Bulb Toggle Button */}
-        {!showSpeech && (
-          <button
-            onClick={() => setShowSpeech(true)}
-            className="mb-2 p-2 rounded-full bg-white text-amber-700 border-2 border-zinc-200 shadow-xl hover:scale-110 active:scale-95 transition-transform"
-            title="Show mentor tip"
+        {/* 1. Necrion (Realm Mentor Companion) - Subtle Floating Levitation */}
+        {showNecrion && (
+          <div
+            onClick={() => handleTapCharacter('necrion')}
+            className={`relative group cursor-pointer transition-transform duration-200 ${
+              isAnimating && speakerName === 'necrion' ? 'scale-115 -translate-y-1' : 'hover:scale-105 active:scale-95'
+            }`}
+            title="Necrion (Realm Companion)"
           >
-            <MessageSquare className="w-4 h-4 fill-amber-500 text-amber-600" />
-          </button>
+            <div className="relative w-12 h-16 sm:w-16 sm:h-22 drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)]">
+              <Image
+                src="/images/creatures/Necrion.png"
+                alt="Necrion Companion"
+                fill
+                className="object-contain animate-float"
+                unoptimized
+              />
+            </div>
+          </div>
         )}
 
-        {/* 1. Necrion (Realm Mentor Companion) - Pure Transparent PNG Sprite, NO FRAME */}
-        <div
-          onClick={handleNextHint}
-          className={`relative group cursor-pointer transition-transform duration-200 ${
-            isAnimating ? 'scale-125 -translate-y-2' : 'hover:scale-110 active:scale-95'
-          }`}
-          title="Necrion (Realm Mentor)"
-        >
-          <div className="relative w-12 h-16 sm:w-16 sm:h-22 drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)]">
-            <Image
-              src="/images/creatures/Necrion.png"
-              alt="Necrion Companion"
-              fill
-              className="object-contain animate-float"
-              unoptimized
-            />
-          </div>
-        </div>
-
-        {/* 2. Guardian / Active Partner Pet - Pure Transparent PNG Sprite, NO FRAME */}
-        {activeGuardian && (
+        {/* 2. Guardian / Companion Pet - Gentle Breathing Sway */}
+        {showGuardian && activeGuardian && (
           <div
-            onClick={handleNextHint}
+            onClick={() => handleTapCharacter('guardian')}
             className={`relative group cursor-pointer transition-transform duration-200 ${
-              isAnimating ? 'scale-125 -translate-y-2' : 'hover:scale-110 active:scale-95'
+              isAnimating && speakerName === 'guardian' ? 'scale-115 -translate-y-1' : 'hover:scale-105 active:scale-95'
             }`}
-            title={`${activeGuardian.name} (Guardian)`}
+            title={`${activeGuardian.name} (Active Guardian)`}
           >
             <div className="relative w-11 h-14 sm:w-14 sm:h-18 drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)]">
               <Image
-                src={
-                  activeGuardian.isMythic
-                    ? `/images/Mythics/${activeGuardian.filename}?v=2`
-                    : `/images/creatures/${activeGuardian.filename}`
-                }
+                src={activeGuardian.image}
                 alt={activeGuardian.name}
                 fill
-                className="object-contain animate-float"
+                className="object-contain animate-pulse"
                 unoptimized
               />
             </div>

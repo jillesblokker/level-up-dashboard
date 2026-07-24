@@ -402,8 +402,8 @@ export function CitizensTab() {
                             className={activePartnerId === citizen.id ? 'w-full bg-amber-500 text-black font-bold' : 'w-full border-zinc-700 bg-zinc-900 text-zinc-300'}
                             onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
                           >
-                            <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
-                            {activePartnerId === citizen.id ? "Partnered" : "Set as Partner"}
+                      <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
+                      {activePartnerId === citizen.id ? "Active Companion" : "Set as Companion"}
                           </Button>
 
                           <Button
@@ -609,7 +609,7 @@ export function CitizensTab() {
                       onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
                     >
                       <Heart className={`w-3.5 h-3.5 mr-1.5 shrink-0 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
-                      {activePartnerId === citizen.id ? "Partnered" : "Set as Partner"}
+                      {activePartnerId === citizen.id ? "Active Companion" : "Set as Companion"}
                     </Button>
 
                     <Button
