@@ -117,30 +117,32 @@ export function PetitionsTab() {
                 {!p.completed ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                     {/* Option A */}
-                    <Button
+                    <button
+                      type="button"
                       onClick={() => handleChoice(p.id, 'A')}
-                      className="h-auto py-3 px-4 flex flex-col items-start bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 rounded-xl text-left transition-all"
+                      className="w-full h-auto min-h-[68px] p-4 flex flex-col justify-center items-start bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 rounded-xl text-left transition-all space-y-1 text-emerald-200"
                     >
-                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1">
+                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5 leading-snug">
                         👑 Option 1: {p.optionA.label}
                       </span>
-                      <span className="text-[10px] text-emerald-200/80 mt-1">
+                      <span className="text-[11px] text-emerald-200/90 leading-snug break-words">
                         {p.optionA.description}
                       </span>
-                    </Button>
+                    </button>
 
                     {/* Option B */}
-                    <Button
+                    <button
+                      type="button"
                       onClick={() => handleChoice(p.id, 'B')}
-                      className="h-auto py-3 px-4 flex flex-col items-start bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 rounded-xl text-left transition-all"
+                      className="w-full h-auto min-h-[68px] p-4 flex flex-col justify-center items-start bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 rounded-xl text-left transition-all space-y-1 text-amber-200"
                     >
-                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1">
+                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5 leading-snug">
                         📜 Option 2: {p.optionB.label}
                       </span>
-                      <span className="text-[10px] text-amber-200/80 mt-1">
+                      <span className="text-[11px] text-amber-200/90 leading-snug break-words">
                         {p.optionB.description}
                       </span>
-                    </Button>
+                    </button>
                   </div>
                 ) : (
                   <div className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">

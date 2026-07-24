@@ -439,7 +439,7 @@ export default function AlliesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background pb-20 md:pb-0">
+        <div className="min-h-screen bg-background pb-28 md:pb-12">
             <HeaderSection
                 title={TEXT_CONTENT.social.header.title}
                 subtitle={TEXT_CONTENT.social.header.subtitle}
