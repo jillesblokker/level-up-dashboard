@@ -309,11 +309,17 @@ export function CitizensTab() {
                 {filteredCitizens.map((citizen) => {
                   const isHungry = isCitizenHungry(citizen);
                   const isReadyToHarvest = isHarvestReady(citizen);
-                  const imageSrc = citizen.isMythic 
+                  const isMythicCard = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
+                  const imageSrc = isMythicCard 
                     ? `/images/Mythics/${citizen.filename}?v=2`
                     : `/images/creatures/${citizen.filename}`;
                   const fedRemaining = getFedTimeRemaining(citizen);
                   const harvestRemaining = getHarvestTimeRemaining(citizen);
+                  
+                  // Format [Green] Minotaur or Green Minotaur -> Green minotaur
+                  const rawName = citizen.name || 'Creature';
+                  const cleanedName = rawName.replace(/^\[([a-zA-Z]+)\]\s*/, '$1 ');
+                  const formattedName = cleanedName.charAt(0).toUpperCase() + cleanedName.slice(1).toLowerCase();
                   
                   let habitatColorClass = "border-zinc-800 bg-zinc-900";
                   
@@ -427,11 +433,16 @@ export function CitizensTab() {
             {filteredCitizens.map((citizen) => {
               const isHungry = isCitizenHungry(citizen);
               const isReadyToHarvest = isHarvestReady(citizen);
-              const imageSrc = citizen.isMythic 
+              const isMythicCard = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
+              const imageSrc = isMythicCard 
                 ? `/images/Mythics/${citizen.filename}?v=2`
                 : `/images/creatures/${citizen.filename}`;
               const fedRemaining = getFedTimeRemaining(citizen);
               const harvestRemaining = getHarvestTimeRemaining(citizen);
+              
+              const rawName = citizen.name || 'Creature';
+              const cleanedName = rawName.replace(/^\[([a-zA-Z]+)\]\s*/, '$1 ');
+              const formattedName = cleanedName.charAt(0).toUpperCase() + cleanedName.slice(1).toLowerCase();
               
               let habitatColorClass = "border-zinc-800 bg-zinc-900";
               let habitatBadgeColor = "bg-zinc-700 text-zinc-200";
@@ -485,7 +496,7 @@ export function CitizensTab() {
                     <div className="flex justify-between items-start">
                       <div className="min-w-0 flex-grow">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <CardTitle className="font-serif text-base text-white line-clamp-1">{citizen.name}</CardTitle>
+                          <CardTitle className="font-serif text-base text-white line-clamp-1">{formattedName}</CardTitle>
                           <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold px-1.5 py-0">
                             Lvl {citizen.level || 1}
                           </Badge>

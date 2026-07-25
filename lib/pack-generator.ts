@@ -112,7 +112,8 @@ export function getMythicName(cardId: number, variantIndex: number = 0): string 
   const colors = ['Red', 'Green', 'Blue', 'White', 'Black'];
   const color = colors[variantIndex] || 'Red';
   const creatureName = MYTHIC_CREATURE_NAMES[cardId] || 'Beast';
-  return `[${color}] ${creatureName}`;
+  const full = `${color} ${creatureName.toLowerCase()}`;
+  return full.charAt(0).toUpperCase() + full.slice(1);
 }
 
 export function variantLabel(number: number, variantIndex: number) {

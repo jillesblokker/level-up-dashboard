@@ -323,10 +323,10 @@ export function AirshipHarborTab() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         <div className="p-6 relative z-10 space-y-1">
-          <Badge className="bg-amber-600 text-black font-extrabold text-[9px] uppercase tracking-wider mb-2">
-            Expedition Guild
+          <Badge className="bg-amber-600 text-black font-extrabold text-[9px] tracking-wider mb-2">
+            Expedition guild
           </Badge>
-          <h2 className="font-cardo font-bold text-2xl text-white">Airship Harbor</h2>
+          <h2 className="font-cardo font-bold text-2xl text-white">Airship harbor</h2>
           <p className="text-xs text-zinc-300 max-w-xl">
             Match real-life habits to propel magical airships forward. Lock citizen crews to gain resource chests and training experience.
           </p>
@@ -350,22 +350,22 @@ export function AirshipHarborTab() {
                   <>
                     <div className="flex justify-between items-start border-b border-white/5 pb-4">
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-amber-500 tracking-wider">Active Voyage</span>
+                        <span className="text-[10px] font-bold text-amber-500 tracking-wider">Active voyage</span>
                         <h3 className="font-cardo font-bold text-lg text-white mt-1">{region.name}</h3>
                       </div>
                       <Badge className={cn(
-                        "text-[9px] uppercase font-bold tracking-wider",
+                        "text-[9px] font-bold tracking-wider",
                         isFinished ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"
                       )}>
-                        {isFinished ? "Ready to dock" : "In Flight"}
+                        {isFinished ? "Ready to dock" : "In flight"}
                       </Badge>
                     </div>
 
                     {/* Progress details */}
                     <div className="space-y-3 bg-zinc-950/60 p-4 rounded-xl border border-white/5">
                       <div className="flex justify-between items-center text-xs font-bold">
-                        <span className="text-zinc-400">Voyage Distance:</span>
-                        <span className="text-amber-500">{progress}% Completed</span>
+                        <span className="text-zinc-400">Voyage distance:</span>
+                        <span className="text-amber-500">{progress}% completed</span>
                       </div>
                       <Progress value={progress} className="h-3 bg-zinc-900 border border-white/5" indicatorClassName="bg-gradient-to-r from-blue-600 to-indigo-500 animate-pulse" />
                       
@@ -382,7 +382,7 @@ export function AirshipHarborTab() {
 
                     {/* Rewards Preview */}
                     <div className="space-y-2">
-                      <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Voyage Chest Cargo:</h4>
+                      <h4 className="text-[10px] font-bold text-zinc-500 tracking-wider">Voyage chest cargo:</h4>
                       <div className="grid grid-cols-2 gap-3">
                         {region.rewards.map(reward => (
                           <div key={reward.id} className="p-3 bg-zinc-950/40 border border-white/5 rounded-xl flex items-center gap-2.5 text-xs">
@@ -408,20 +408,20 @@ export function AirshipHarborTab() {
                 onClick={handleAbandon}
                 className="w-1/3 text-xs border-red-950/45 text-red-500 bg-red-950/5 hover:bg-red-950/20 font-bold"
               >
-                <Trash2 className="w-4 h-4 mr-1.5" /> Abandon Voyage
+                <Trash2 className="w-4 h-4 mr-1.5" /> Abandon voyage
               </Button>
 
               <Button
                 disabled={activeVoyage.progress < 100 || isClaiming}
                 onClick={handleClaim}
                 className={cn(
-                  "w-2/3 text-xs font-bold py-5 rounded-xl uppercase tracking-wider flex items-center justify-center gap-1.5",
+                  "w-2/3 text-xs font-bold py-5 rounded-xl tracking-wider flex items-center justify-center gap-1.5",
                   activeVoyage.progress >= 100
                     ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-black font-extrabold shadow-lg hover:brightness-110"
                     : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                 )}
               >
-                {isClaiming ? <>Claiming Chest Cargo...</> : <>Claim Voyage Cargo & Unlock Crew</>}
+                {isClaiming ? <>Claiming chest cargo...</> : <>Claim voyage cargo & unlock crew</>}
               </Button>
             </div>
 
@@ -430,7 +430,7 @@ export function AirshipHarborTab() {
           {/* Slotted Crew List */}
           <div className="lg:col-span-1 space-y-4">
             <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-              <Users className="w-5 h-5 text-amber-500" /> Slotted Crew Members
+              <Users className="w-5 h-5 text-amber-500" /> Slotted crew members
             </h3>
 
             <div className="space-y-3">
@@ -451,8 +451,8 @@ export function AirshipHarborTab() {
                     </div>
                     <div>
                       <h4 className="font-bold text-white text-xs leading-none">{citizen.name}</h4>
-                      <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1.5 font-bold flex items-center gap-1">
-                        <span className="capitalize">{citizen.type} Element</span>
+                      <p className="text-[10px] text-zinc-500 tracking-wider mt-1.5 font-bold flex items-center gap-1">
+                        <span className="capitalize">{citizen.type} element</span>
                         <span className="w-1 h-1 bg-zinc-700 rounded-full" />
                         <span>Level {citizen.level || 1}</span>
                       </p>
@@ -471,7 +471,7 @@ export function AirshipHarborTab() {
           {/* Journeys Selection list */}
           <div className="lg:col-span-1 space-y-4">
             <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-              <Plane className="w-5 h-5 text-amber-500" /> Choose Habit Journey
+              <Plane className="w-5 h-5 text-amber-500" /> Choose habit journey
             </h3>
             
             <div className="space-y-2.5 max-h-[450px] overflow-y-auto pr-1">
@@ -494,7 +494,7 @@ export function AirshipHarborTab() {
                   >
                     <div className="flex justify-between items-center">
                       <h4 className="font-bold text-white text-xs">{j.name}</h4>
-                      <Badge variant="outline" className="text-[8px] uppercase tracking-wider capitalize text-amber-500/80 border-amber-500/20">
+                      <Badge variant="outline" className="text-[8px] tracking-wider capitalize text-amber-500/80 border-amber-500/20">
                         {j.category}
                       </Badge>
                     </div>
@@ -518,9 +518,9 @@ export function AirshipHarborTab() {
                     <Plane className="w-6 h-6 text-amber-500" />
                   </div>
                   <div>
-                    <h3 className="font-cardo font-bold text-white text-sm">{selectedJourney.name} Setup</h3>
-                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">
-                      Voyage Category: {selectedJourney.category}
+                    <h3 className="font-cardo font-bold text-white text-sm">{selectedJourney.name} setup</h3>
+                    <p className="text-[10px] text-zinc-500 font-bold tracking-wider mt-1">
+                      Voyage category: {selectedJourney.category}
                     </p>
                   </div>
                 </div>
@@ -531,10 +531,10 @@ export function AirshipHarborTab() {
 
                 {/* Affinity Bonus Indicators */}
                 <div className="p-3 bg-zinc-950/40 border border-white/5 rounded-xl space-y-1.5">
-                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Crew Affinity Elements:</div>
+                  <div className="text-[10px] font-bold text-zinc-500 tracking-wider">Crew affinity elements:</div>
                   <div className="flex items-center gap-2 mt-1">
                     {selectedJourney.affinityElements.map(element => (
-                      <Badge key={element} className="bg-amber-600/10 text-amber-500 border border-amber-500/20 text-[9px] uppercase tracking-wider font-extrabold">
+                      <Badge key={element} className="bg-amber-600/10 text-amber-500 border border-amber-500/20 text-[9px] tracking-wider font-extrabold capitalize">
                         {element}
                       </Badge>
                     ))}
@@ -546,9 +546,9 @@ export function AirshipHarborTab() {
 
                 {/* Crew Selection checklists */}
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
-                    <span>Assign Voyage Crew (Max 2):</span>
-                    <span className="font-mono text-amber-400">{selectedCrew.length} / 2 Selected</span>
+                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400 tracking-wider">
+                    <span>Assign voyage crew (max 2):</span>
+                    <span className="font-mono text-amber-400">{selectedCrew.length} / 2 selected</span>
                   </div>
                   
                   {idleCitizens.length === 0 ? (
@@ -582,7 +582,6 @@ export function AirshipHarborTab() {
                                   unoptimized
                                   className="object-contain"
                                   onError={(e) => {
-                                    // Fallback image if specific ID image doesn't exist
                                     (e.target as any).src = '/images/placeholders/creature.webp';
                                   }}
                                 />
@@ -595,7 +594,7 @@ export function AirshipHarborTab() {
 
                             <div className="flex items-center gap-1 shrink-0">
                               {hasAffinity && (
-                                <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[8px] uppercase font-black px-1">
+                                <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[8px] font-black px-1">
                                   +15% ★
                                 </Badge>
                               )}
@@ -612,19 +611,19 @@ export function AirshipHarborTab() {
 
                 {/* Launch Requirements Checklist */}
                 <div className="p-3.5 bg-zinc-950/60 border border-white/5 rounded-xl space-y-2.5">
-                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Launch Requirements Checklist:</div>
+                  <div className="text-[10px] font-bold text-zinc-500 tracking-wider">Launch requirements checklist:</div>
                   <div className="space-y-1.5 text-xs font-semibold">
                     <div className="flex items-center gap-2 text-zinc-400">
                       <span className={cn("w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-black font-extrabold", selectedJourneyId ? "bg-emerald-500" : "bg-red-500")}>
                         {selectedJourneyId ? "✓" : "✗"}
                       </span>
-                      <span>Select a Habit Journey (Selected: <strong className="text-amber-500">{selectedJourney.name}</strong>)</span>
+                      <span>Select a habit journey (Selected: <strong className="text-amber-500">{selectedJourney.name}</strong>)</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-400">
                       <span className={cn("w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-black font-extrabold", selectedCrew.length > 0 ? "bg-emerald-500" : "bg-red-500")}>
                         {selectedCrew.length > 0 ? "✓" : "✗"}
                       </span>
-                      <span>Assign Crew (Assigned: <strong className="text-amber-500">{selectedCrew.length} / 2</strong> — Select citizens from the list above)</span>
+                      <span>Assign crew (Assigned: <strong className="text-amber-500">{selectedCrew.length} / 2</strong> — select citizens from the list above)</span>
                     </div>
                   </div>
                 </div>
@@ -636,13 +635,13 @@ export function AirshipHarborTab() {
                   disabled={isLaunching || selectedCrew.length === 0}
                   onClick={handleLaunch}
                   className={cn(
-                    "w-full text-xs font-bold py-5 rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2",
+                    "w-full text-xs font-bold py-5 rounded-xl tracking-wider transition-all flex items-center justify-center gap-2",
                     !isLaunching && selectedCrew.length > 0
                       ? "bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold shadow-lg hover:brightness-110 active:scale-[0.98]" 
                       : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                   )}
                 >
-                  {isLaunching ? <>⏳ Prepping Airship Voyage...</> : <>🚀 Launch Airship Voyage</>}
+                  {isLaunching ? <>⏳ Prepping airship voyage...</> : <>🚀 Launch airship voyage</>}
                 </Button>
               </div>
 
