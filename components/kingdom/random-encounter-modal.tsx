@@ -88,15 +88,15 @@ const ENCOUNTER_DATA: Record<EncounterType, EncounterData> = {
     actionType: 'cards_reveal',
   },
   feed: {
-    title: 'The Gluttonous Slime',
-    subtitle: 'Surprise Sky Drop',
+    title: 'The gluttonous slime',
+    subtitle: 'Surprise sky drop',
     characterName: 'Buldour',
-    characterRole: 'Greedy Slime Creature',
+    characterRole: 'Greedy slime creature',
     avatarImg: '/images/creatures/Buldour.webp',
     heroImg: '/images/character-header.webp',
     themeColor: 'from-blue-900/80 via-zinc-950 to-zinc-950 border-blue-500/40',
-    badgeText: 'Gluttonous Encounter',
-    description: 'A giant dungeon slime drops from above and gobble up the food! Burping loudly, it spits out an ancient key swallowed during the Void Drift.',
+    badgeText: 'Gluttonous encounter',
+    description: 'A giant dungeon slime drops from above and gobbles up the food! Burping loudly, it spits out an ancient key swallowed during the Void Drift.',
     actionType: 'claim_direct',
   },
 };
@@ -337,17 +337,18 @@ export function RandomEncounterModal() {
           
           <div className="relative z-10 p-5 flex items-center gap-4 w-full">
             {/* Character Avatar Container */}
-            <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-amber-400/40 bg-zinc-950 shadow-xl shrink-0">
+            <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-amber-400/40 bg-zinc-950 shadow-xl shrink-0 p-1">
               <Image
                 src={data.avatarImg}
                 alt={data.characterName}
                 fill
-                className="object-cover select-none pointer-events-none"
+                className="object-contain select-none pointer-events-none"
+                unoptimized
               />
             </div>
 
             <div className="space-y-0.5">
-              <Badge className="bg-amber-600/30 text-amber-300 border border-amber-500/30 font-extrabold text-[9px] uppercase tracking-wider px-2 py-0.5 mb-1">
+              <Badge className="bg-amber-600/30 text-amber-300 border border-amber-500/30 font-semibold text-[10px] tracking-wider px-2 py-0.5 mb-1">
                 {data.badgeText}
               </Badge>
               <DialogTitle className="font-cardo font-bold text-xl text-amber-100">
@@ -421,10 +422,10 @@ export function RandomEncounterModal() {
             >
               <Gift className="w-4 h-4" />
               {currentType === 'quest_completion'
-                ? 'Join Royal Ball (+250 EXP & +10 Gems)'
+                ? 'Join royal ball (+250 EXP & +10 Gems)'
                 : currentType === 'harvest'
-                ? 'Bow to Harvest Elk (+500 Gold)'
-                : 'Take Slime Treasure (1x Golden Key)'}
+                ? 'Bow to harvest elk (+500 Gold)'
+                : 'Take slime treasure (1x Golden key)'}
             </Button>
           )}
 

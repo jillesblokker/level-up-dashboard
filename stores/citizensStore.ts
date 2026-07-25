@@ -476,11 +476,19 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     if (isTileInventory) {
       const tileInv = await loadTileInventory(userId);
       const dbKey = foodItemId === 'material-water' ? 'water' : foodItemId;
-      const item = tileInv[dbKey];
-      if (item && item.quantity > 0) {
+      const itemKey = tileInv[dbKey] ? dbKey : (tileInv[foodItemId] ? foodItemId : null);
+      if (itemKey && tileInv[itemKey] && tileInv[itemKey].quantity > 0) {
         hasFood = true;
-        item.quantity -= 1;
+        tileInv[itemKey].quantity -= 1;
+        if (tileInv[itemKey].quantity <= 0) {
+          delete tileInv[itemKey];
+          delete tileInv[dbKey];
+          delete tileInv[foodItemId];
+        }
         await saveTileInventory(userId, tileInv);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('character-inventory-update'));
+        }
       }
     } else {
       const inventory = await getInventory(userId);
@@ -488,6 +496,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       if (invItem) {
         hasFood = true;
         await removeFromInventory(userId, foodItemId, 1);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('character-inventory-update'));
+        }
       }
     }
 

@@ -658,10 +658,10 @@ export function CitizensTab() {
                                     const success = await feedCitizen(user!.id, citizen.id, f.id);
                                     if (success) {
                                       toast({
-                                        title: "Citizen Fed! 🍖",
+                                        title: "Citizen fed! 🍖",
                                         description: `${citizen.name} is now fed for ${FOOD_DAYS_MAP[f.id] ?? 1} day(s) and will produce gold!`,
                                       });
-                                      loadInventoryFood();
+                                      await loadInventoryFood();
                                     }
                                   }}
                                 >

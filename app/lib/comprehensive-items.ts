@@ -345,7 +345,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   // ==========================================
   {
     id: 'potion-health',
-    name: 'Health Potion',
+    name: 'Health potion',
     description: 'Restores health and vitality',
     type: 'potion',
     category: 'consumable',
@@ -360,7 +360,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-mana',
-    name: 'Mana Potion',
+    name: 'Mana potion',
     description: 'Restores magical energy',
     type: 'potion',
     category: 'consumable',
@@ -375,7 +375,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-stamina',
-    name: 'Stamina Potion',
+    name: 'Stamina potion',
     description: 'Boosts endurance and movement',
     type: 'potion',
     category: 'consumable',
@@ -390,7 +390,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-exp',
-    name: 'Experience Potion',
+    name: 'Exp potion',
     description: 'Grants bonus experience points',
     type: 'potion',
     category: 'consumable',
@@ -405,7 +405,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-gold',
-    name: 'Gold Potion',
+    name: 'Gold potion',
     description: 'Increases gold drops temporarily',
     type: 'potion',
     category: 'consumable',
@@ -420,7 +420,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-forge-luck',
-    name: 'Forge Luck Elixir',
+    name: 'Forge luck elixir',
     description: 'Increases Blacksmith Tempering success rate by +10% for your next upgrade attempt',
     type: 'potion',
     category: 'consumable',
@@ -435,7 +435,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-combat-protection',
-    name: 'Combat Protection Potion',
+    name: 'Combat protection potion',
     description: 'Prevents gold loss on round failures in your next Monster Battle',
     type: 'potion',
     category: 'consumable',

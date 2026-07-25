@@ -558,9 +558,9 @@ export const TEXT_CONTENT = {
             "scroll-scrolly": "Scrolly",
             "scroll-perkamento": "Perkamento",
             "scroll-memento": "Memento",
-            "potion-health": "Health Potion",
-            "potion-gold": "Gold Potion",
-            "potion-exp": "XP Potion",
+            "potion-health": "Health potion",
+            "potion-gold": "Gold potion",
+            "potion-exp": "Exp potion",
             "artifact-crowny": "Crowny",
             "artifact-ringo": "Ringo",
             "artifact-staffy": "Staffy"
