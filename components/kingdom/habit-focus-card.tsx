@@ -425,7 +425,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             /* Settlement Streak Shrine Info */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Streak Shrine Status:</div>
+                <div className="text-[10px] font-bold text-zinc-500 tracking-wider">Streak shrine status:</div>
                 <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shrink-0" />
@@ -434,26 +434,26 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                     </span>
                   </div>
                   <div className="flex justify-between text-xs font-bold pt-1">
-                    <span className="text-zinc-500">Current Streak:</span>
-                    <span className="text-orange-400">{focusData.streak || 0} Days 🔥</span>
+                    <span className="text-zinc-500">Current streak:</span>
+                    <span className="text-orange-400">{focusData.streak || 0} days 🔥</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Accumulated Settlement Taxes:</div>
+                <div className="text-[10px] font-bold text-zinc-500 tracking-wider">Accumulated settlement taxes:</div>
                 <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 flex flex-col justify-between h-[84px]">
                   <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-zinc-400">Available Loot:</span>
-                    <span className="text-amber-500">{focusData.taxGold || 0} Gold</span>
+                    <span className="text-zinc-400">Available loot:</span>
+                    <span className="text-amber-500">{focusData.taxGold || 0} gold</span>
                   </div>
                   <Button
                     disabled={(focusData.taxGold || 0) === 0 || isCollecting}
                     onClick={handleCollectTax}
                     size="sm"
-                    className="w-full h-8 text-[10px] font-extrabold uppercase bg-amber-600 hover:bg-amber-700 text-black rounded-lg"
+                    className="w-full h-8 text-[10px] font-extrabold bg-amber-600 hover:bg-amber-700 text-black rounded-lg"
                   >
-                    {isCollecting ? 'Collecting...' : 'Collect Taxes'}
+                    {isCollecting ? 'Collecting...' : 'Collect taxes'}
                   </Button>
                 </div>
               </div>
@@ -465,10 +465,10 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             <div className="space-y-3">
               <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 space-y-2">
                 <div className="flex justify-between items-center text-xs font-bold">
-                  <span className="text-zinc-400">Town Focus Categories:</span>
+                  <span className="text-zinc-400">Town focus categories:</span>
                   <div className="flex gap-1">
                     {focusData.categories.map(cat => (
-                      <Badge key={cat} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[9px] uppercase tracking-wider font-extrabold">
+                      <Badge key={cat} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[9px] tracking-wider font-extrabold capitalize">
                         {cat}
                       </Badge>
                     ))}
@@ -491,11 +491,11 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             /* City Guild Power and Blessings */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">City Focus Categories:</div>
+                <div className="text-[10px] font-bold text-zinc-500 tracking-wider">City focus categories:</div>
                 <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 space-y-2.5 h-[94px]">
                   <div className="flex flex-wrap gap-1">
                     {focusData.categories.map(cat => (
-                      <Badge key={cat} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[9px] uppercase tracking-wider font-extrabold">
+                      <Badge key={cat} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[9px] tracking-wider font-extrabold capitalize">
                         {cat}
                       </Badge>
                     ))}

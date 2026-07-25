@@ -33,7 +33,7 @@ export const TEXT_CONTENT = {
     },
     social: {
         header: {
-            title: "TAVERN",
+            title: "Tavern",
             subtitle: "Gather, compete, and forge alliances",
             guide: {
                 title: "Tavern",
@@ -448,12 +448,14 @@ export const TEXT_CONTENT = {
                     error: "Error"
                 },
                 status: {
-                    healthy: "HEALTHY",
-                    warning: "WARNING",
-                    error: "ERROR",
+                    healthy: "Healthy",
+                    warning: "Warning",
+                    error: "Error",
                     refresh: "Refresh All",
                     refreshStatus: "Refresh Status",
                     summary: "Summary",
+                    active: "Active",
+                    inactive: "Inactive",
                     categories: {
                         core: "Core Systems",
                         gameplay: "Gameplay Features",
@@ -461,6 +463,12 @@ export const TEXT_CONTENT = {
                         admin: "Admin Features",
                         overall: "Overall Build Progress"
                     }
+                },
+                history: {
+                    title: "Streak History",
+                    noData: "No history data",
+                    date: "Date",
+                    status: "Status",
                 },
                 testing: {
                     label: "Testing Options",
@@ -600,8 +608,8 @@ export const TEXT_CONTENT = {
         },
         ui: {
             envoyMode: {
-                badge: "ENVOY MODE",
-                subtitle: "Exploring Ally's Kingdom",
+                badge: "Envoy mode",
+                subtitle: "Exploring ally's kingdom",
                 returnHome: "Return Home"
             },
             header: {

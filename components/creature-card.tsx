@@ -104,7 +104,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
           {citizen && (
             <div className="mt-3 p-2.5 bg-amber-950/50 border border-amber-500/40 rounded-xl flex justify-between items-center shadow-inner">
               <div>
-                <p className="text-amber-300 text-[10px] uppercase font-bold tracking-wider">Bond</p>
+                <p className="text-amber-300 text-[10px] font-bold tracking-wider">Bond</p>
                 <div className="flex gap-1 mt-0.5">
                   {Array.from({ length: 5 }).map((_, i) => {
                     const isFilled = i < Math.floor((citizen.affection || 0) / 20);
@@ -121,7 +121,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-amber-300 text-[10px] uppercase font-bold tracking-wider">Status</p>
+                <p className="text-amber-300 text-[10px] font-bold tracking-wider">Status</p>
                 <p className="text-amber-200 text-xs font-semibold">{citizen.active ? 'Wandering' : 'Resting'}</p>
               </div>
             </div>

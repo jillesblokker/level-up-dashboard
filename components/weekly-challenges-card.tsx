@@ -30,9 +30,9 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-bold text-orange-500 font-medieval flex items-center gap-2">
             <Target className="w-5 h-5" />
-            Weekly Mini-Challenges
+            Weekly mini-challenges
           </CardTitle>
-          <span className="text-xs text-orange-200/50 uppercase tracking-wider font-bold">Resets Monday</span>
+          <span className="text-xs text-orange-200/50 tracking-wider font-bold">Resets Monday</span>
         </div>
       </CardHeader>
       <CardContent className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -71,7 +71,7 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
                 )}
                 
                 <div className="flex items-center gap-2 text-[10px] font-bold">
-                  <span className="text-zinc-500 uppercase">Reward:</span>
+                  <span className="text-zinc-500">Reward:</span>
                   <span className="text-blue-400">+{challenge.rewardXP} XP</span>
                   <span className="text-yellow-500">+{challenge.rewardGold} Gold</span>
                 </div>

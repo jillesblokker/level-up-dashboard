@@ -486,11 +486,11 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
           <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
             <DialogHeader className="text-center items-center pb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold uppercase tracking-widest mb-4 text-amber-500 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold mb-4 text-amber-500 shadow-sm">
                 <Plus className="w-3 h-3" />
-                New Scroll
+                New scroll
               </div>
-              <DialogTitle className="text-3xl font-serif text-white tracking-tight">Draft New Quest</DialogTitle>
+              <DialogTitle className="text-3xl font-serif text-white tracking-tight">Draft new quest</DialogTitle>
               <DialogDescription id="daily-tasks-modal-desc" className="text-zinc-500 mt-2">
                 Specify a new deed to be recorded in your daily archive.
               </DialogDescription>
@@ -498,7 +498,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
             <div className="space-y-6 py-2">
               <div className="space-y-2">
-                <Label htmlFor="task-title" className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Quest Title</Label>
+                <Label htmlFor="task-title" className="text-xs font-bold text-zinc-500 ml-1">Quest title</Label>
                 <div className="relative group/input">
                   <Input
                     id="task-title"
@@ -512,7 +512,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="task-category" className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Category</Label>
+                  <Label htmlFor="task-category" className="text-xs font-bold text-zinc-500 ml-1">Category</Label>
                   <select
                     id="task-category"
                     aria-label="Task Category"
@@ -529,7 +529,7 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="task-priority" className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Priority</Label>
+                  <Label htmlFor="task-priority" className="text-xs font-bold text-zinc-500 ml-1">Priority</Label>
                   <select
                     id="task-priority"
                     aria-label="Task Priority"
@@ -550,8 +550,8 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                     <Sparkles className="w-5 h-5 text-amber-500" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500/60">Estimated Reward</p>
-                    <p className="text-sm font-bold text-amber-200">Bonus XP & Gold awarded upon success</p>
+                    <p className="text-[10px] font-bold text-amber-500/60">Estimated reward</p>
+                    <p className="text-sm font-bold text-amber-200">Bonus xp & gold awarded upon success</p>
                   </div>
                 </div>
               </div>

@@ -234,9 +234,9 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
           </div>
           <Button
             onClick={() => setShowPicker(true)}
-            className="px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold rounded-xl uppercase tracking-wider hover:brightness-110"
+            className="px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold rounded-xl tracking-wider hover:brightness-110"
           >
-            Choose a Guardian
+            Choose a guardian
           </Button>
 
           {showPicker && (
@@ -251,7 +251,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                   <span className="text-4xl animate-bounce" style={{ animationDuration: '3s' }}>{g.emoji}</span>
                   <div>
                     <h4 className="font-bold text-white text-sm">{g.name}</h4>
-                    <span className="text-[9px] uppercase tracking-wider font-extrabold text-amber-500 block mt-0.5">{g.focus} focus</span>
+                    <span className="text-[9px] tracking-wider font-extrabold text-amber-500 block mt-0.5 capitalize">{g.focus} focus</span>
                   </div>
                   <p className="text-[11px] text-zinc-500 leading-normal">{g.description}</p>
                 </div>
@@ -276,9 +276,9 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               variant="ghost"
               size="sm"
               onClick={() => setShowPicker(true)}
-              className="text-[9px] font-extrabold text-zinc-500 hover:text-amber-500 uppercase tracking-widest"
+              className="text-[9px] font-extrabold text-zinc-500 hover:text-amber-500 tracking-widest"
             >
-              Switch Pet
+              Switch pet
             </Button>
           </div>
 
@@ -288,12 +288,12 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               <div>
                 <h3 className="font-cardo font-bold text-lg text-white flex items-center gap-2">
                   {activeGuardian?.name}
-                  <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full">
+                  <span className="text-[10px] font-bold tracking-widest px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full">
                     Lvl {guardianState.level}
                   </span>
                 </h3>
-                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mt-0.5">
-                  Focus: {activeGuardian?.focus}
+                <p className="text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5">
+                  Focus: <span className="capitalize">{activeGuardian?.focus}</span>
                 </p>
               </div>
 
@@ -309,7 +309,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             {/* Level and XP */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-bold text-zinc-500">
-                <span>Guardian Experience</span>
+                <span>Guardian experience</span>
                 <span className="text-amber-500">{guardianState.experience} / {guardianState.level * 100} XP</span>
               </div>
               <Progress value={(guardianState.experience / (guardianState.level * 100)) * 100} className="h-2 bg-zinc-950 border border-white/5" indicatorClassName="bg-gradient-to-r from-amber-600 to-amber-400" />
@@ -322,9 +322,9 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                   {activeGuardian.perkIcon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h5 className="font-bold text-[10px] uppercase tracking-wider text-amber-500">Guardian Perk • Level {guardianState.level}</h5>
+                  <h5 className="font-bold text-[10px] tracking-wider text-amber-500">Guardian perk • Level {guardianState.level}</h5>
                   <p className="text-xs text-zinc-300 mt-0.5">
-                    +{guardianState.level}% XP on <span className="font-bold text-white">{activeGuardian.focus}</span> quests
+                    +{guardianState.level}% XP on <span className="font-bold text-white capitalize">{activeGuardian.focus}</span> quests
                   </p>
                   <p className="text-[10px] text-zinc-500 mt-0.5">
                     Bounty: {50 + (guardianState.level * 10)}g + {1 + (guardianState.level >= 5 ? 1 : 0) + (guardianState.level >= 10 ? 1 : 0)} reagent{(1 + (guardianState.level >= 5 ? 1 : 0) + (guardianState.level >= 10 ? 1 : 0)) > 1 ? 's' : ''}
@@ -336,7 +336,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             {/* Daily bounty chest */}
             <div className="flex items-center justify-between bg-zinc-950/60 p-3.5 rounded-2xl border border-white/5">
               <div className="space-y-0.5">
-                <span className="text-[9px] uppercase tracking-wider font-extrabold text-zinc-500">Daily Guardian Reward</span>
+                <span className="text-[9px] tracking-wider font-extrabold text-zinc-500">Daily guardian reward</span>
                 <h4 className="font-bold text-white text-xs">Guardian&apos;s Bounty</h4>
                 <p className="text-[10px] text-zinc-400 leading-normal">
                   {bountyClaimedToday 

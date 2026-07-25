@@ -385,10 +385,10 @@ export function AlchemyLabTab() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         <div className="p-6 relative z-10 space-y-1">
-          <Badge className="bg-purple-600 text-white font-extrabold text-[9px] uppercase tracking-wider mb-2 px-2.5 py-1">
-            Enhanced State
+          <Badge className="bg-purple-600 text-white font-extrabold text-[9px] tracking-wider mb-2 px-2.5 py-1">
+            Enhanced state
           </Badge>
-          <h2 className="font-cardo font-bold text-2xl text-white">Enhanced Citizens & Guardians</h2>
+          <h2 className="font-cardo font-bold text-2xl text-white">Enhanced citizens & guardians</h2>
           <p className="text-xs text-zinc-300 max-w-xl">
             Monitor companions and citizens empowered by your alchemy elixirs and spell blessings. Switch active companions, drink brewed elixirs, or channel daily altar magic.
           </p>

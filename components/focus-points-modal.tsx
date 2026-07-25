@@ -111,12 +111,12 @@ export function FocusPointsModal({
           <div className="flex items-center gap-2">
             <span className="text-2xl">🧠</span>
             <div>
-              <p className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Your Focus Balance</p>
-              <p className="text-lg font-black text-white font-mono">{currentFocusPoints} <span className="text-xs text-purple-300 font-normal">Points</span></p>
+              <p className="text-[10px] text-purple-300 font-bold tracking-wider">Your focus balance</p>
+              <p className="text-lg font-black text-white font-mono">{currentFocusPoints} <span className="text-xs text-purple-300 font-normal">points</span></p>
             </div>
           </div>
           <Badge variant="outline" className="text-xs border-purple-500/40 text-purple-300 font-bold">
-            +1 per Habit Completed
+            +1 per habit completed
           </Badge>
         </div>
 

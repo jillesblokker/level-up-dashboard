@@ -297,15 +297,15 @@ export function BarracksTab() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Badge className="bg-amber-600/30 text-amber-300 border border-amber-500/40 font-extrabold text-[10px] uppercase tracking-wider">
-                Kingdom Military Training Grounds
+              <Badge className="bg-amber-600/30 text-amber-300 border border-amber-500/40 font-extrabold text-[10px] tracking-wider">
+                Kingdom military training grounds
               </Badge>
               <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
-                🛡️ Round Table: {combatSupporters.length}/2 Members
+                🛡️ Round table: {combatSupporters.length}/2 members
               </Badge>
             </div>
             <h2 className="font-cardo font-bold text-2xl md:text-3xl text-white flex items-center gap-2">
-              Citizen Barracks <Zap className="w-6 h-6 text-amber-500 animate-pulse" />
+              Citizen barracks <Zap className="w-6 h-6 text-amber-500 animate-pulse" />
             </h2>
             <p className="text-xs text-zinc-300 max-w-2xl leading-relaxed">
               Train your unlocked citizens and mythic cards using scrolls and nourishment. Higher level citizens yield increased gold harvests, higher combat modifiers, and unlocked mastery perks.
@@ -314,7 +314,7 @@ export function BarracksTab() {
 
           <div className="flex items-center gap-3 bg-zinc-900/90 border border-amber-500/20 p-3 rounded-xl shrink-0">
             <div className="text-right">
-              <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Available Treasury</p>
+              <p className="text-[10px] text-zinc-400 font-bold tracking-wider">Available treasury</p>
               <p className="text-base font-extrabold text-amber-400">🪙 {playerGold.toLocaleString()}g</p>
             </div>
           </div>
@@ -559,8 +559,8 @@ export function BarracksTab() {
                           <Shield className="w-5 h-5 text-amber-500" />
                         </div>
                         <div className="flex-1">
-                          <h5 className="font-bold text-amber-300 text-xs flex items-center gap-1.5 uppercase tracking-wider">
-                            <Award className="w-3.5 h-3.5 text-amber-500" /> Combat Support Skill:
+                          <h5 className="font-bold text-amber-300 text-xs flex items-center gap-1.5 tracking-wider">
+                            <Award className="w-3.5 h-3.5 text-amber-500" /> Combat support skill:
                           </h5>
                           <p className="text-xs text-white font-medium mt-0.5">{getPassiveDescription(c)}</p>
                         </div>
@@ -568,7 +568,7 @@ export function BarracksTab() {
 
                       {lvl < 10 && (
                         <div className="border-t border-amber-500/10 pt-2.5 flex items-center justify-between text-[11px]">
-                          <span className="text-zinc-400 font-medium">Level {nextLvl} Upgrade Preview:</span>
+                          <span className="text-zinc-400 font-medium">Level {nextLvl} upgrade preview:</span>
                           <span className="text-emerald-400 font-bold">{getPassiveDescription(c, nextLvl)}</span>
                         </div>
                       )}
@@ -576,8 +576,8 @@ export function BarracksTab() {
 
                     {/* Level Mastery Perks Roadmap */}
                     <div className="space-y-2">
-                      <h5 className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-1.5">
-                        <Star className="w-3 h-3 text-amber-500" /> Citizen Level Perks & Milestones:
+                      <h5 className="text-[10px] font-bold text-zinc-400 tracking-wider flex items-center gap-1.5">
+                        <Star className="w-3 h-3 text-amber-500" /> Citizen level perks & milestones:
                       </h5>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div className={cn(
@@ -586,9 +586,9 @@ export function BarracksTab() {
                         )}>
                           <div className="font-bold flex items-center gap-1">
                             {lvl >= 5 ? <Check className="w-3 h-3 text-emerald-400" /> : <Star className="w-3 h-3 text-zinc-600" />}
-                            Level 5 Perk
+                            Level 5 perk
                           </div>
-                          <p className="text-[10px] text-zinc-400">+15% Gold Gather Yield</p>
+                          <p className="text-[10px] text-zinc-400">+15% Gold gather yield</p>
                         </div>
 
                         <div className={cn(
@@ -597,9 +597,9 @@ export function BarracksTab() {
                         )}>
                           <div className="font-bold flex items-center gap-1">
                             {lvl >= 8 ? <Check className="w-3 h-3 text-emerald-400" /> : <Star className="w-3 h-3 text-zinc-600" />}
-                            Level 8 Perk
+                            Level 8 perk
                           </div>
-                          <p className="text-[10px] text-zinc-400">+25% Material Drop Chance</p>
+                          <p className="text-[10px] text-zinc-400">+25% Material drop chance</p>
                         </div>
 
                         <div className={cn(
@@ -608,19 +608,19 @@ export function BarracksTab() {
                         )}>
                           <div className="font-bold flex items-center gap-1">
                             {lvl >= 10 ? <Check className="w-3 h-3 text-amber-400" /> : <Star className="w-3 h-3 text-zinc-600" />}
-                            Level 10 Master
+                            Level 10 master
                           </div>
-                          <p className="text-[10px] text-zinc-400">+50% Gold Yield & Title</p>
+                          <p className="text-[10px] text-zinc-400">+50% Gold yield & title</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Training Requirements */}
                     <div className="space-y-2 pt-1">
-                      <h5 className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-2">
-                        Required Resources:
-                        <Badge variant="outline" className="text-[9px] text-amber-400 border-amber-500/30 font-bold uppercase px-2 py-0">
-                          {tier.tierLabel} Tier
+                      <h5 className="text-[10px] font-bold text-zinc-400 tracking-wider flex items-center gap-2">
+                        Required resources:
+                        <Badge variant="outline" className="text-[9px] text-amber-400 border-amber-500/30 font-bold px-2 py-0 capitalize">
+                          {tier.tierLabel} tier
                         </Badge>
                       </h5>
 
@@ -648,7 +648,7 @@ export function BarracksTab() {
                           "p-3 rounded-xl border text-xs flex justify-between items-center",
                           hasScrolls ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300" : "bg-red-950/20 border-red-500/30 text-red-400"
                         )}>
-                          <span className="font-semibold truncate flex items-center gap-1">📜 Tactical Scroll</span>
+                          <span className="font-semibold truncate flex items-center gap-1">📜 Tactical scroll</span>
                           <span className="font-bold">{Math.min(totalScrolls, tier.scrollQty)}/{tier.scrollQty}</span>
                         </div>
                       </div>
@@ -659,19 +659,19 @@ export function BarracksTab() {
                   {/* Training Actions */}
                   <div className="pt-4 border-t border-white/5 mt-4 relative z-10">
                     {isLocked ? (
-                      <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 cursor-not-allowed text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
-                        Locked: Away on Airship Expedition 🚀
+                      <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 cursor-not-allowed text-xs font-bold py-5 rounded-xl tracking-wider">
+                        Locked: away on airship expedition 🚀
                       </Button>
                     ) : lvl >= 10 ? (
-                      <Button disabled className="w-full bg-amber-950/20 border border-amber-500/30 text-amber-300 cursor-default text-xs font-bold py-5 rounded-xl uppercase tracking-wider">
-                        🏆 Maximum Elite Level 10 Achieved!
+                      <Button disabled className="w-full bg-amber-950/20 border border-amber-500/30 text-amber-300 cursor-default text-xs font-bold py-5 rounded-xl tracking-wider">
+                        🏆 Maximum elite level 10 achieved!
                       </Button>
                     ) : (
                       <Button
                         disabled={!canTrain || isTraining}
                         onClick={handleTrain}
                         className={cn(
-                          "w-full text-xs font-bold py-6 rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl",
+                          "w-full text-xs font-bold py-6 rounded-xl tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl",
                           canTrain 
                             ? "bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black font-extrabold hover:brightness-110 active:scale-[0.98] shadow-amber-500/10" 
                             : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"

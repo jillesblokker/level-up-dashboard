@@ -57,14 +57,14 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
                 <div className="bg-amber-900/20 border border-amber-500/20 rounded-xl p-3 flex flex-col items-center">
                     <div className="flex items-center gap-2 text-amber-400 mb-1">
                         <Coins className="h-4 w-4" />
-                        <span className="text-xs font-bold uppercase tracking-wider">Total Gold</span>
+                        <span className="text-xs font-bold tracking-wider">Total gold</span>
                     </div>
                     <span className="text-2xl font-bold font-serif text-amber-200">+{totalGold}</span>
                 </div>
                 <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl p-3 flex flex-col items-center">
                     <div className="flex items-center gap-2 text-blue-400 mb-1">
                         <Star className="h-4 w-4" />
-                        <span className="text-xs font-bold uppercase tracking-wider">Total XP</span>
+                        <span className="text-xs font-bold tracking-wider">Total XP</span>
                     </div>
                     <span className="text-2xl font-bold font-serif text-blue-200">+{totalExp}</span>
                 </div>
@@ -72,7 +72,7 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
 
             <ScrollArea className="flex-1 px-6">
                 <div className="space-y-3 pb-6">
-                    <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 px-1">Detailed Breakdown</h3>
+                    <h3 className="text-xs font-bold text-zinc-500 tracking-widest mb-2 px-1">Detailed breakdown</h3>
                     {rewards.map((reward, idx) => (
                         <div key={idx} className={cn(
                             "group relative rounded-lg p-3 border transition-all hover:bg-zinc-900",

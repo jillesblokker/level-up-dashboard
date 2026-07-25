@@ -411,15 +411,15 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           >
             <TabsTrigger
               value="place"
-              className="flex-1 shrink-0 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap"
+              className="flex-1 shrink-0 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold tracking-widest transition-all whitespace-nowrap"
             >
-              Place Tiles
+              Place tiles
             </TabsTrigger>
             <TabsTrigger
               value="buy"
-              className="flex-1 shrink-0 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap"
+              className="flex-1 shrink-0 h-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/20 rounded-lg text-xs font-bold tracking-widest transition-all whitespace-nowrap"
             >
-              Buy Tiles
+              Buy tiles
             </TabsTrigger>
           </TabsList>
 

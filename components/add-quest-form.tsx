@@ -151,7 +151,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             )}
 
             <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.titleLabel}</label>
+                <label className="text-sm font-bold tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.titleLabel}</label>
                 <div className="group relative">
                     <input
                         className="w-full p-4 bg-zinc-950 border-2 border-amber-900/30 rounded-xl focus:border-amber-500/50 focus:bg-zinc-900 outline-none transition-all duration-300 text-lg placeholder:text-zinc-600 shadow-inner"
@@ -166,7 +166,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.descriptionLabel}</label>
+                <label className="text-sm font-bold tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.descriptionLabel}</label>
                 <textarea
                     className="w-full p-4 bg-zinc-950 border-2 border-amber-900/10 rounded-xl focus:border-amber-500/30 focus:bg-zinc-900 outline-none transition-all duration-300 min-h-[120px] resize-none text-zinc-200 placeholder:text-zinc-700"
                     value={newQuest.description}
@@ -177,7 +177,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
 
             <div className="space-y-6">
                 <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.categoryLabel}</label>
+                    <label className="text-sm font-bold tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.categoryLabel}</label>
                     <Select
                         value={newQuest.category}
                         onValueChange={(val) => setNewQuest({ ...newQuest, category: val })}
@@ -201,7 +201,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.difficultyLabel}</label>
+                    <label className="text-sm font-bold tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.difficultyLabel}</label>
                     <Select
                         value={newQuest.difficulty}
                         onValueChange={(val) => setNewQuest({ ...newQuest, difficulty: val })}
@@ -218,7 +218,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                                         </div>
                                         <div>
                                             <div className="font-bold text-zinc-200">{value.label}</div>
-                                            <div className="text-[10px] text-zinc-500 uppercase flex gap-2">
+                                            <div className="text-[10px] text-zinc-500 flex gap-2">
                                                 <span>+{value.gold} Gold</span>
                                                 <span>+{value.xp} XP</span>
                                             </div>
@@ -234,13 +234,13 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             {/* Strategic Mandate Section */}
             <div className="space-y-4 p-5 bg-zinc-950 border-2 border-amber-900/20 rounded-2xl">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
+                    <label className="text-sm font-bold tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
                     <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">NEW SYSTEM</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                        <label className="text-xs font-bold tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
                         <Select
                             value={newQuest.mandatePeriod}
                             onValueChange={(val) => setNewQuest({ ...newQuest, mandatePeriod: val as any })}
@@ -257,7 +257,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                        <label className="text-xs font-bold tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"
@@ -267,7 +267,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                                 value={newQuest.mandateCount}
                                 onChange={(e) => setNewQuest({ ...newQuest, mandateCount: parseInt(e.target.value) || 1 })}
                             />
-                            <div className="text-xs font-bold text-zinc-600 uppercase">Times</div>
+                            <div className="text-xs font-bold text-zinc-600">Times</div>
                         </div>
                     </div>
                 </div>
@@ -286,7 +286,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         {difficultySettings[newQuest.difficulty as keyof typeof difficultySettings].icon}
                     </div>
                     <div>
-                        <div className="text-xs font-bold text-amber-500/60 uppercase tracking-widest">{TEXT_CONTENT.quests.form.expectedReward}</div>
+                        <div className="text-xs font-bold text-amber-500/60 tracking-widest">{TEXT_CONTENT.quests.form.expectedReward}</div>
                         <div className="flex items-center gap-3 mt-1">
                             <div className="flex items-center gap-1">
                                 <Sword className="w-4 h-4 text-amber-400" />
