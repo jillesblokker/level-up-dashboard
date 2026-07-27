@@ -4,7 +4,7 @@ import { ShoppingBag } from "lucide-react"
 export default function MarketLoading() {
   return (
     <LoadingScreen
-      title="Approaching the Market Square"
+      title="Approaching the market square"
       icon={<ShoppingBag className="w-12 h-12" />}
       variant="amber"
       content={

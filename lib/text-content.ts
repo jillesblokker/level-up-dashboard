@@ -1245,39 +1245,39 @@ export const TEXT_CONTENT = {
         noUser: "No userId found. Please sign in to view your quests.",
         weekDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         toasts: {
-            updateFailed: { title: "Update Failed", desc: "Failed to update milestone. Please try again." },
-            questAdded: { title: "Quest Added", desc: "New quest has been successfully added." },
+            updateFailed: { title: "Update failed", desc: "Failed to update milestone. Please try again." },
+            questAdded: { title: "Quest added", desc: "New quest has been successfully added." },
             error: { title: "Error", desc: "Failed to add quest. Please try again." },
-            updateSuccess: { title: "Update Success", desc: "Milestone updated successfully." },
+            updateSuccess: { title: "Update success", desc: "Milestone updated successfully." },
             streak: {
-                quest: { title: "Quest Streak", desc: "You completed all quests for {category}! Streak increased to {streak} days. Earned {tokens} build token(s)!" },
-                challenge: { title: "Challenge Streak", desc: "You completed all challenges for {category}! Streak increased to {streak} days. Earned {tokens} build token(s)!" },
-                updated: { title: "Streak Updated", desc: "Your streak is now {streak} days!" },
+                quest: { title: "Quest streak", desc: "You completed all quests for {category}! Streak increased to {streak} days. Earned {tokens} build token(s)!" },
+                challenge: { title: "Challenge streak", desc: "You completed all challenges for {category}! Streak increased to {streak} days. Earned {tokens} build token(s)!" },
+                updated: { title: "Streak updated", desc: "Your streak is now {streak} days!" },
                 error: { title: "Error", desc: "Failed to update streak. Please try again." },
-                frozen: { title: "❄️ Streak Frozen!", desc: "You used a Streak Scroll to save your {category} streak!" },
-                lost: { title: "Streak Lost", desc: "You missed a day! Your {category} streak has been reset to 0." }
+                frozen: { title: "❄️ Streak frozen!", desc: "You used a streak scroll to save your {category} streak!" },
+                lost: { title: "Streak lost", desc: "You missed a day! Your {category} streak has been reset to 0." }
             },
             completion: {
-                quest: { title: "⚔️ Quest Complete!", desc: "{name}\n+{gold} Gold  •  +{xp} XP" },
-                questUncompleted: { title: "Quest Uncompleted", desc: "{name} marked as incomplete." },
-                challenge: { title: "⚔️ Challenge Complete!", desc: "{name}\n+{gold} Gold  •  +{xp} XP" },
-                challengeUncompleted: { title: "Challenge Uncompleted", desc: "{name} marked as incomplete." },
-                milestone: { title: "🏆 Milestone Complete!", desc: "{name}\n+{gold} Gold  •  +{xp} XP" },
-                milestoneUncompleted: { title: "Milestone Uncompleted", desc: "{name} marked as incomplete." },
-                bulkFavorites: { title: "Bulk Complete Successful!", desc: "Completed {count} favorited quests in {category} category." },
-                bulkAllFavorites: { title: "Bulk Complete Successful!", desc: "Completed {count} favorited quests across all categories." },
+                quest: { title: "⚔️ Quest complete!", desc: "{name}\n+{gold} gold  •  +{xp} XP" },
+                questUncompleted: { title: "Quest uncompleted", desc: "{name} marked as incomplete." },
+                challenge: { title: "⚔️ Challenge complete!", desc: "{name}\n+{gold} gold  •  +{xp} XP" },
+                challengeUncompleted: { title: "Challenge uncompleted", desc: "{name} marked as incomplete." },
+                milestone: { title: "🏆 Milestone complete!", desc: "{name}\n+{gold} gold  •  +{xp} XP" },
+                milestoneUncompleted: { title: "Milestone uncompleted", desc: "{name} marked as incomplete." },
+                bulkFavorites: { title: "Bulk complete successful!", desc: "Completed {count} favorited quests in {category} category." },
+                bulkAllFavorites: { title: "Bulk complete successful!", desc: "Completed {count} favorited quests across all categories." },
                 bulkError: { title: "Error", desc: "Failed to complete favorited quests. Please try again." }
             },
             favorites: {
-                updated: { title: "Favorite Updated", desc: "Quest favorite status updated." },
+                updated: { title: "Favorite updated", desc: "Quest favorite status updated." },
                 error: { title: "Error", desc: "Failed to update favorite status." }
             },
             deletion: {
-                quest: { title: "Quest Deleted", desc: "Quest has been successfully deleted." },
+                quest: { title: "Quest deleted", desc: "Quest has been successfully deleted." },
                 questError: { title: "Error", desc: "Failed to delete quest. Please try again." },
-                challenge: { title: "Challenge Deleted", desc: "Challenge has been successfully deleted." },
+                challenge: { title: "Challenge deleted", desc: "Challenge has been successfully deleted." },
                 challengeError: { title: "Error", desc: "Failed to delete challenge. Please try again." },
-                milestone: { title: "Milestone Deleted", desc: "\"{name}\" has been successfully deleted." },
+                milestone: { title: "Milestone deleted", desc: "\"{name}\" has been successfully deleted." },
                 milestoneError: { title: "Error", desc: "Failed to delete milestone. Please try again." }
             },
             addition: {
@@ -1434,14 +1434,14 @@ export const TEXT_CONTENT = {
             potionPerkObs: "{name} (Potion Perk)"
         },
         toasts: {
-            perkLocked: { title: "Perk Locked", desc: "This perk requires level {level} to unlock." },
-            activateLimit: { title: "Cannot Activate", desc: "This perk can only be activated once per week." },
-            insufficientGold: { title: "Insufficient Gold", desc: "You need {amount} gold to activate this perk." },
-            perkActivated: { title: "Perk Activated", desc: "{name} is now active for 24 hours!" },
-            perkDeactivated: { title: "Perk Deactivated", desc: "{name} has been deactivated." },
-            maxLevel: { title: "Max Level Reached", desc: "This perk is already at maximum level." },
-            perkUpgraded: { title: "Perk Upgraded", desc: "{name} is now level {level}!" },
-            insufficientGoldUpgrade: { title: "Insufficient Gold", desc: "You need {amount} gold to upgrade this perk." }
+            perkLocked: { title: "Perk locked", desc: "This perk requires level {level} to unlock." },
+            activateLimit: { title: "Cannot activate", desc: "This perk can only be activated once per week." },
+            insufficientGold: { title: "Insufficient gold", desc: "You need {amount} gold to activate this perk." },
+            perkActivated: { title: "Perk activated", desc: "{name} is now active for 24 hours!" },
+            perkDeactivated: { title: "Perk deactivated", desc: "{name} has been deactivated." },
+            maxLevel: { title: "Max level reached", desc: "This perk is already at maximum level." },
+            perkUpgraded: { title: "Perk upgraded", desc: "{name} is now level {level}!" },
+            insufficientGoldUpgrade: { title: "Insufficient gold", desc: "You need {amount} gold to upgrade this perk." }
         },
         data: {
             titles: [
@@ -1579,11 +1579,11 @@ export const TEXT_CONTENT = {
             }
         },
         toasts: {
-            profileUpdated: { title: "Profile Updated", desc: "Your profile information has been saved." },
+            profileUpdated: { title: "Profile updated", desc: "Your profile information has been saved." },
             saveError: { title: "Error", desc: "Failed to save profile information." },
-            onboardingReset: { title: "Onboarding Reset", desc: "The tutorial will be shown again on your next visit." },
-            dayNightEnabled: { title: "Day/Night Cycle Enabled", desc: "Atmosphere will now change based on time." },
-            dayNightDisabled: { title: "Day/Night Cycle Disabled", desc: "Atmosphere will remain static." }
+            onboardingReset: { title: "Onboarding reset", desc: "The tutorial will be shown again on your next visit." },
+            dayNightEnabled: { title: "Day/night cycle enabled", desc: "Atmosphere will now change based on time." },
+            dayNightDisabled: { title: "Day/night cycle disabled", desc: "Atmosphere will remain static." }
         }
     },
     inventory: {
@@ -1620,8 +1620,8 @@ export const TEXT_CONTENT = {
     },
     dungeon: {
         toasts: {
-            complete: { title: "Dungeon Completed!", desc: "You successfully explored the dungeon and found {amount} gold!" },
-            failed: { title: "Dungeon Failed", desc: "You were forced to retreat from the dungeon and lost {amount} gold." }
+            complete: { title: "Dungeon completed!", desc: "You successfully explored the dungeon and found {amount} gold!" },
+            failed: { title: "Dungeon failed", desc: "You were forced to retreat from the dungeon and lost {amount} gold." }
         },
         loading: "Loading dungeon...",
         header: {

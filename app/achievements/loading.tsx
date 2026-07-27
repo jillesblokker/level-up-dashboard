@@ -4,7 +4,7 @@ import { Trophy } from "lucide-react"
 export default function LoadingAchievements() {
   return (
     <LoadingScreen
-      title="Retrieving Your Chronicles"
+      title="Retrieving your chronicles"
       icon={<Trophy className="w-12 h-12" />}
       variant="amber"
       content={

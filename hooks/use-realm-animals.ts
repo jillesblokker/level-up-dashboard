@@ -208,7 +208,7 @@ export function useRealmAnimals(grid: Tile[][], isMounted: boolean, characterPos
             setHorseCaught(true);
             localStorage.setItem('animal-horse-state', 'true');
             window.dispatchEvent(new CustomEvent('horse-caught'));
-            toast({ title: "Horse Tamed!", description: "You successfully tamed the wild horse!" });
+            toast({ title: "Horse tamed!", description: "You successfully tamed the wild horse!" });
         } else if (animalType === 'sheep') {
             try {
                 const res = await fetch('/api/creatures/interact', {
@@ -218,14 +218,14 @@ export function useRealmAnimals(grid: Tile[][], isMounted: boolean, characterPos
                 });
                 const data = await res.json();
                 if (data.reward && data.shaved) {
-                    toast({ title: "Sheep Shaved! 🐑", description: data.message });
+                    toast({ title: "Sheep shaved! 🐑", description: data.message });
                     gainGold(data.reward.amount, 'sheep-shave');
                     setIsSheepPresent(false);
                     setSheepCaught(true);
                     const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
                     localStorage.setItem('animal-sheep-cooldown', cooldownTime.toString());
                 } else if (data.cooldown) {
-                    toast({ title: "Recently Shaved", description: data.message, variant: "destructive" });
+                    toast({ title: "Recently shaved", description: data.message, variant: "destructive" });
                     setIsSheepPresent(false);
                     setSheepCaught(true);
                 } else {
@@ -243,18 +243,18 @@ export function useRealmAnimals(grid: Tile[][], isMounted: boolean, characterPos
                 });
                 const data = await res.json();
                 if (data.reward && data.shaved) {
-                    toast({ title: "Noot Noot! 🐧", description: data.message });
+                    toast({ title: "Noot noot! 🐧", description: data.message });
                     gainGold(data.reward.amount, 'penguin-play');
                     setIsPenguinPresent(false);
                     setPenguinCaught(true);
                     const cooldownTime = Date.now() + 5 * 24 * 60 * 60 * 1000;
                     localStorage.setItem('animal-penguin-cooldown', cooldownTime.toString());
                 } else if (data.cooldown) {
-                    toast({ title: "Tired Penguin", description: data.message, variant: "destructive" });
+                    toast({ title: "Tired penguin", description: data.message, variant: "destructive" });
                     setIsPenguinPresent(false);
                     setPenguinCaught(true);
                 } else {
-                    toast({ title: "Noot Noot!", description: data.message });
+                    toast({ title: "Noot noot!", description: data.message });
                 }
             } catch (e) {
                 toast({ title: "Error", description: "Failed to interact with penguin", variant: "destructive" });

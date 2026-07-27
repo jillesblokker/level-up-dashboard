@@ -4,12 +4,12 @@ import { Users } from "lucide-react"
 export default function SocialLoading() {
   return (
     <LoadingScreen
-      title="Entering the Tavern"
+      title="Entering the tavern"
       icon={<Users className="w-12 h-12" />}
       variant="amber"
       content={
         <>
-          The Tavern buzzes with the laughter of allies and adventurers.<br />
+          The tavern buzzes with the laughter of allies and adventurers.<br />
           Forge bonds, share quests, and rise together.<br />
           No legend was ever written alone.
         </>

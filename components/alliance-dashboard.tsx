@@ -106,12 +106,12 @@ export function AllianceDashboard() {
         setIsCreating(false);
 
         if (result.success) {
-            toast({ title: "Alliance Formed", description: `${createForm.name} has been established!` });
+            toast({ title: "Alliance formed", description: `${createForm.name} has been established!` });
             setCreateModalOpen(false);
             setCreateForm({ name: "", description: "" });
             refreshAlliances();
         } else {
-            toast({ title: "Creation Failed", description: result.error, variant: "destructive" });
+            toast({ title: "Creation failed", description: result.error, variant: "destructive" });
         }
     };
 
@@ -148,12 +148,12 @@ export function AllianceDashboard() {
 
         const result = await inviteToAlliance(selectedAllianceId, selectedFriendId);
         if (result.success) {
-            toast({ title: "Invitation Sent", description: "Your ally has been added to the alliance." });
+            toast({ title: "Invitation sent", description: "Your ally has been added to the alliance." });
             setInviteModalOpen(false);
             setSelectedFriendId("");
             refreshAlliances();
         } else {
-            toast({ title: "Invite Failed", description: result.error, variant: "destructive" });
+            toast({ title: "Invite failed", description: result.error, variant: "destructive" });
         }
     };
 

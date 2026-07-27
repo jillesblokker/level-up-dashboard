@@ -4,7 +4,7 @@ import { Backpack } from "lucide-react"
 export default function InventoryLoading() {
   return (
     <LoadingScreen
-      title="Accessing Your Vault"
+      title="Accessing your vault"
       icon={<Backpack className="w-12 h-12" />}
       variant="amber"
       content={

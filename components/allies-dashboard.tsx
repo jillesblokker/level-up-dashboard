@@ -130,7 +130,7 @@ export function AlliesDashboard() {
       });
 
       if (res.ok) {
-        toast({ title: "Request Sent", description: "Your invitation has been delivered." });
+        toast({ title: "Request sent", description: "Your invitation has been delivered." });
         setSearchResults(prev => prev.filter(u => u.id !== targetUserId));
       } else {
         const error = await res.json();
@@ -152,7 +152,7 @@ export function AlliesDashboard() {
 
       if (res.ok) {
         toast({
-          title: action === 'accept' ? "Ally Added" : "Request Declined",
+          title: action === 'accept' ? "Ally added" : "Request declined",
           description: action === 'accept' ? "A new hero joins your cause." : "The request has been dismissed."
         });
         fetchFriends(); 
@@ -167,7 +167,7 @@ export function AlliesDashboard() {
     try {
       const res = await fetch(`/api/friends/${friendshipId}`, { method: 'DELETE' });
       if (res.ok) {
-        toast({ title: "Ally Removed", description: "The bond has been broken." });
+        toast({ title: "Ally removed", description: "The bond has been broken." });
         setFriends(prev => prev.filter(f => f.id !== friendshipId));
       }
     } catch (error) {
@@ -194,7 +194,7 @@ export function AlliesDashboard() {
         });
 
         if (res.ok) {
-            toast({ title: "Quest Sent", description: `Enlistment scroll sent to ${selectedFriend.username}.` });
+            toast({ title: "Quest sent", description: `Enlistment scroll sent to ${selectedFriend.username}.` });
             setQuestModalOpen(false);
             setQuestForm({
                 title: "",

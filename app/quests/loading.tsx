@@ -9,7 +9,7 @@ export default function TasksLoading() {
       variant="amber"
       content={
         <>
-          In the town square, the Quest Board hums with activity.<br />
+          In the town square, the quest board hums with activity.<br />
           Brave tasks await those who dare to accept them.<br />
           Every completed quest brings you closer to legend.
         </>

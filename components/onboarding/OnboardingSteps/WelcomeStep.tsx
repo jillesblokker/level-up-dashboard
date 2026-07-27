@@ -14,22 +14,22 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
   const features = [
     {
       icon: Sword,
-      title: 'Complete Quests',
+      title: 'Complete quests',
       description: 'Transform daily habits into epic adventures'
     },
     {
       icon: Crown,
-      title: 'Build Your Kingdom',
+      title: 'Build your kingdom',
       description: 'Create a realm that grows with your progress'
     },
     {
       icon: MapIcon,
-      title: 'Explore & Expand',
+      title: 'Explore & expand',
       description: 'Discover new lands and unlock secrets'
     },
     {
       icon: Trophy,
-      title: 'Achieve Greatness',
+      title: 'Achieve greatness',
       description: 'Level up and become a legendary ruler'
     }
   ]
@@ -45,7 +45,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
 
         <div className="space-y-2 max-w-lg mx-auto">
           <h3 className="text-2xl font-bold text-white font-serif tracking-wide">
-            Your Kingdom Awaits
+            Your kingdom awaits
           </h3>
           <p className="text-zinc-300 text-sm md:text-base leading-relaxed">
             Transform your daily habits into a legendary kingdom. Complete quests, earn gold, and expand your realm from a humble village to a mighty empire.

@@ -4,7 +4,7 @@ import { Crown } from "lucide-react"
 export default function KingdomLoading() {
   return (
     <LoadingScreen
-      title="Your Kingdom Awaits"
+      title="Your kingdom awaits"
       icon={<Crown className="w-12 h-12" />}
       variant="amber"
       content={

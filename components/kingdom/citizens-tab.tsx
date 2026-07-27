@@ -149,12 +149,12 @@ export function CitizensTab() {
             body: JSON.stringify({ achievementId: requirement.evolvesTo })
         });
         
-        toast({ title: "Evolution Complete! ✨", description: `${citizen.name} has evolved into a new form!` });
+        toast({ title: "Evolution complete! ✨", description: `${citizen.name} has evolved into a new form!` });
         
         await loadCitizens(user.id);
     } catch (e) {
         logger.error("Failed to evolve", e);
-        toast({ title: "Evolution Failed", description: "Something went wrong.", variant: "destructive" });
+        toast({ title: "Evolution failed", description: "Something went wrong.", variant: "destructive" });
     } finally {
         setIsLoading(false);
     }

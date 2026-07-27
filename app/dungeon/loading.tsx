@@ -4,7 +4,7 @@ import { Skull } from "lucide-react"
 export default function DungeonLoading() {
   return (
     <LoadingScreen
-      title="Descending into the Depths"
+      title="Descending into the depths"
       icon={<Skull className="w-12 h-12" />}
       variant="amber"
       content={

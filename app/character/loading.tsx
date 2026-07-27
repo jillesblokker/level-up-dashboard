@@ -4,7 +4,7 @@ import { Shield } from "lucide-react"
 export default function CharacterLoading() {
   return (
     <LoadingScreen
-      title="Unveiling Your Hero's Legacy"
+      title="Unveiling your hero's legacy"
       icon={<Shield className="w-12 h-12" />}
       variant="amber"
       content={

@@ -43,44 +43,44 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'quests',
-    title: 'Complete Quests',
+    title: 'Complete quests',
     subtitle: 'Earn gold and experience through daily tasks',
     component: QuestStep
   },
   {
     id: 'challenges',
-    title: 'Take on Challenges',
+    title: 'Take on challenges',
     subtitle: 'Higher stakes quests with greater rewards',
     component: ChallengesStep
   },
   {
     id: 'gold',
-    title: 'Earn Gold',
+    title: 'Earn gold',
     subtitle: 'Use your rewards to build your kingdom',
     component: GoldStep
   },
   {
     id: 'tiles',
-    title: 'Buy & Place Tiles',
+    title: 'Buy & place tiles',
     subtitle: 'Build your kingdom one tile at a time',
     component: TileStep
   },
   {
     id: 'kingdom',
-    title: 'Create Your Kingdom',
+    title: 'Create your kingdom',
     subtitle: 'Watch your realm grow with every tile',
     component: KingdomStep
   },
   {
     id: 'progression',
-    title: 'Level Up & Unlock',
+    title: 'Level up & unlock',
     subtitle: 'Gain experience and unlock new content',
     component: ProgressionStep
   },
   {
     id: 'complete',
-    title: "You&apos;re Ready!",
-    subtitle: 'Your kingdom awaits',
+    title: 'Begin your journey',
+    subtitle: 'Your adventure starts now!',
     component: CompleteStep
   }
 ]

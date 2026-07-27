@@ -859,11 +859,11 @@ export function KingdomGridWithTimers({
       const { goldManager } = await loadManagers();
       const success = await goldManager.spendGold(property.cost, `buy-property:${property.id}`);
       if (!success) {
-        toast({ title: "Insufficient Gold", description: `You need ${property.cost} Gold.`, variant: "destructive" });
+        toast({ title: "Insufficient gold", description: `You need ${property.cost} gold.`, variant: "destructive" });
         return;
       }
 
-      toast({ title: "Purchased!", description: `Bought ${property.name} for ${property.cost} Gold.` });
+      toast({ title: "Purchased!", description: `Bought ${property.name} for ${property.cost} gold.` });
 
       // Add to inventory
       if (userId) {
@@ -878,7 +878,7 @@ export function KingdomGridWithTimers({
             image: property.image
           };
           await invManager.addToKingdomInventory(userId, buildingItem);
-          toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
+          toast({ title: "Inventory updated", description: `${property.name} added to your collection.` });
           if (onInventoryUpdate) {
             onInventoryUpdate({
               id: property.id,
@@ -890,7 +890,7 @@ export function KingdomGridWithTimers({
           }
         } catch (e) {
           logger.error('Failed to add to inventory', e);
-          toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
+          toast({ title: "Inventory error", description: "Failed to save item.", variant: "destructive" });
         }
       } else {
         logger.warn('[Kingdom] No userId available for inventory add');
@@ -1339,17 +1339,17 @@ export function KingdomGridWithTimers({
       return;
     }
     if (tile.type === 'quest-board') {
-      toast({ title: "Checking Quest Board...", description: "Going to Quests." });
+      toast({ title: "Checking quest board...", description: "Going to quests." });
       router.push('/quests');
       return;
     }
     if (tile.type === 'market' || tile.type === 'market-stalls') {
-      toast({ title: "Entering Market...", description: "Going to Market." });
+      toast({ title: "Entering market...", description: "Going to market." });
       router.push('/market');
       return;
     }
     if (tile.type === 'dungeon') {
-      toast({ title: "Entering Dungeon...", description: "Teleporting to Dungeon." });
+      toast({ title: "Entering dungeon...", description: "Teleporting to dungeon." });
       router.push('/dungeon');
       return;
     }
@@ -1444,32 +1444,32 @@ export function KingdomGridWithTimers({
       return;
     }
     if (tile.type === 'monument') {
-      toast({ title: "Viewing Hall of Fame...", description: "Going to Achievements." });
+      toast({ title: "Viewing Hall of Fame...", description: "Going to achievements." });
       router.push('/achievements');
       return;
     }
     if (tile.type === 'training-grounds') {
-      toast({ title: "Entering Training Grounds...", description: "Going to Character." });
+      toast({ title: "Entering training grounds...", description: "Going to character." });
       router.push('/character');
       return;
     }
     if (tile.type === 'tavern') {
-      toast({ title: "Entering Tavern...", description: "Going to Social." });
+      toast({ title: "Entering tavern...", description: "Going to social." });
       router.push('/social');
       return;
     }
     if (tile.type === 'castle') {
-      toast({ title: "Entering Castle...", description: "Going to Realm." });
+      toast({ title: "Entering castle...", description: "Going to realm." });
       router.push('/realm');
       return;
     }
     if (tile.type?.toLowerCase() === 'library') {
-      toast({ title: "Entering Library...", description: "Opening Chronicle." });
+      toast({ title: "Entering library...", description: "Opening chronicle." });
       router.push('/chronicle');
       return;
     }
     if (tile.type === 'crystal_cavern') {
-      toast({ title: "Entering Cavern...", description: "Delve into the depths." });
+      toast({ title: "Entering cavern...", description: "Delve into the depths." });
       router.push('/dungeon');
       return;
     }
@@ -2183,7 +2183,7 @@ export function KingdomGridWithTimers({
     setSummaryRewards(collectedRewards);
     setShowSummaryModal(true);
     
-    toast({ title: "Harvest Complete!", description: `Collected rewards from ${readyTimers.length} buildings.` });
+    toast({ title: "Harvest complete!", description: `Collected rewards from ${readyTimers.length} buildings.` });
   }
 
   const getUpgradeCost = (tileType: string, currentTier: number) => {
@@ -2203,7 +2203,7 @@ export function KingdomGridWithTimers({
     const upgradeCost = getUpgradeCost(tile.type, currentTier);
     
     if (!upgradeCost) {
-      toast({ title: "Max Tier Reached", description: "This building cannot be upgraded any further." });
+      toast({ title: "Max tier reached", description: "This building cannot be upgraded any further." });
       return;
     }
     
@@ -2211,7 +2211,7 @@ export function KingdomGridWithTimers({
       const { goldManager } = await loadManagers();
       const success = await goldManager.spendGold(upgradeCost, `upgrade_building_${tile.type}`);
       if (!success) {
-        toast({ title: "Not Enough Gold", description: `You need ${upgradeCost.toLocaleString()} gold to upgrade to Tier ${currentTier + 1}.`, variant: "destructive" });
+        toast({ title: "Not enough gold", description: `You need ${upgradeCost.toLocaleString()} gold to upgrade to Tier ${currentTier + 1}.`, variant: "destructive" });
         return;
       }
       
@@ -2221,10 +2221,10 @@ export function KingdomGridWithTimers({
       if (onGridUpdate) {
         onGridUpdate(newGrid);
       }
-      toast({ title: "Building Upgraded!", description: `Tier ${currentTier + 1} reached! Reward yields have increased permanently.` });
+      toast({ title: "Building upgraded!", description: `Tier ${currentTier + 1} reached! Reward yields have increased permanently.` });
     } catch (e) {
       console.error(e);
-      toast({ title: "Upgrade Failed", description: "An error occurred.", variant: "destructive" });
+      toast({ title: "Upgrade failed", description: "An error occurred.", variant: "destructive" });
     }
   };
 
@@ -2722,13 +2722,13 @@ export function KingdomGridWithTimers({
                 }
                 return newVal;
               });
-              toast({ title: "Token Purchased!", description: "You exchanged 1000g for 1 Build Token." });
+              toast({ title: "Token purchased!", description: "You exchanged 1000g for 1 build token." });
             } else {
-              toast({ title: "Purchase Failed", description: "Insufficient Gold.", variant: "destructive" });
+              toast({ title: "Purchase failed", description: "Insufficient gold.", variant: "destructive" });
             }
           } catch (e) {
             logger.error('Error in onBuyToken:', e);
-            toast({ title: "Purchase Error", description: "Action failed.", variant: "destructive" });
+            toast({ title: "Purchase error", description: "Action failed.", variant: "destructive" });
           }
         }}
         tokens={buildTokens}
