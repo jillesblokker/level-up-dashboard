@@ -414,6 +414,37 @@ export function DailyHubClient() {
             <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
+                {/* Habit Milestone Escalation Banner */}
+                {(() => {
+                    const count = completedQuestIds.size;
+                    let tier = null;
+                    if (count >= 20) tier = { title: "Amazing", badge: "👑", desc: "You have completed 20+ habits today! Legendary dedication.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300" };
+                    else if (count >= 15) tier = { title: "Super", badge: "⚡", desc: "15+ habits completed today! Supercharged progress.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400" };
+                    else if (count >= 10) tier = { title: "Awesome", badge: "🔥", desc: "10+ habits completed today! On a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300" };
+                    else if (count >= 5) tier = { title: "Great", badge: "🌟", desc: "5+ habits completed today! Fantastic start.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400" };
+
+                    if (!tier) return null;
+
+                    return (
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className={`p-4 rounded-xl shadow-xl border flex items-center justify-between ${tier.style}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-3xl">{tier.badge}</span>
+                                <div>
+                                    <h4 className="text-lg uppercase tracking-wider">{tier.title}!</h4>
+                                    <p className="text-xs opacity-90">{tier.desc}</p>
+                                </div>
+                            </div>
+                            <span className="px-3 py-1 bg-black/20 backdrop-blur-sm rounded-full text-xs font-mono">
+                                {count} habits completed today
+                            </span>
+                        </motion.div>
+                    );
+                })()}
+
                 <HabitGuardian favoritedQuests={favoritedQuests} />
 
                 {/* Active Partner Widget (Fixed Bottom Left) */}

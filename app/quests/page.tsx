@@ -696,6 +696,12 @@ export default function QuestsPage() {
 
       // Only reset if we haven't processed today's reset AND we have a valid token
       // Remove the dailyResetInitiated check to allow manual resets
+      const isHolidayActive = typeof window !== 'undefined' && localStorage.getItem('holiday-mode-active') === 'true';
+      if (isHolidayActive) {
+        logger.info('[Daily Reset] 🏖️ Holiday mode is active — pausing daily reset & protecting streaks.');
+        return;
+      }
+
       if (lastReset !== today && token) {
         logger.debug('[Daily Reset] Starting daily reset for date:', today);
         logger.debug('[Daily Reset] Last reset was:', lastReset, 'Today is:', today);
@@ -1298,10 +1304,17 @@ export default function QuestsPage() {
           1
         );
       } else {
-        addToCharacterStat('focus_points', -1, 'quest-toggle-uncomplete');
+        try {
+          await fetchWithAuth('/api/quests/undo', {
+            method: 'POST',
+            body: JSON.stringify({ questId }),
+          });
+        } catch (undoErr) {
+          logger.error('[QUEST-TOGGLE] Undo API error:', undoErr);
+        }
         toast({
-          title: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.title,
-          description: TEXT_CONTENT.questBoard.toasts.completion.questUncompleted.desc.replace('{name}', questObj.name),
+          title: "Quest undone",
+          description: `Unchecked "${questObj.name}". Rewards reverted.`,
           duration: 2000,
         });
       }

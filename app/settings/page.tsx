@@ -505,6 +505,31 @@ export default function SettingsPage() {
                   />
                 </div>
 
+                {/* Holiday Mode / Vacation Shield Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-emerald-400" />
+                      Holiday mode (Streak protection)
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Pause daily quest reset tracking during sickness or vacation so you never lose your hard-earned habit streaks.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={sanctuaryModeActive}
+                    onCheckedChange={(checked) => {
+                      setSanctuaryModeActive(checked);
+                      localStorage.setItem("holiday-mode-active", checked.toString());
+                      setUserPreference("holiday-mode-active", checked);
+                      toast({
+                        title: checked ? "Holiday mode enabled 🏖️" : "Holiday mode disabled ⚔️",
+                        description: checked ? "Your habit streaks are protected while you rest." : "Daily quest reset tracking is active.",
+                      });
+                    }}
+                  />
+                </div>
+
                 {/* Medieval Audio & Sound FX Control */}
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">

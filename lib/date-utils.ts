@@ -5,19 +5,40 @@
  * Uses Netherlands timezone (Europe/Amsterdam) as the default for consistency.
  */
 
-// Default timezone for the app
+// Get local timezone dynamically, falling back to Europe/Amsterdam on server side
+export function getAppTimezone(): string {
+    if (typeof window !== 'undefined') {
+        try {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam';
+        } catch {
+            return 'Europe/Amsterdam';
+        }
+    }
+    return 'Europe/Amsterdam';
+}
+
 export const APP_TIMEZONE = 'Europe/Amsterdam';
+
+export function getTodayDateString(timeZone?: string): string {
+    const tz = timeZone || getAppTimezone();
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date());
+}
 
 // Formatters
 const dateFormatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: APP_TIMEZONE,
+    timeZone: 'Europe/Amsterdam',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
 });
 
 const dateTimeFormatter = new Intl.DateTimeFormat('en-NL', {
-    timeZone: APP_TIMEZONE,
+    timeZone: 'Europe/Amsterdam',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -28,7 +49,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat('en-NL', {
 });
 
 const shortDateFormatter = new Intl.DateTimeFormat('en-NL', {
-    timeZone: APP_TIMEZONE,
+    timeZone: 'Europe/Amsterdam',
     month: 'short',
     day: 'numeric'
 });
@@ -80,7 +101,7 @@ export function formatDate(input?: Date | string | null): string | null {
  * Get today's date in YYYY-MM-DD format in the app's timezone
  */
 export function getToday(): string {
-    return dateFormatter.format(new Date());
+    return getTodayDateString();
 }
 
 /**
