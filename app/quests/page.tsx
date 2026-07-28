@@ -660,22 +660,21 @@ export default function QuestsPage() {
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
     if (!loading && quests && quests.length > 0 && userId && token) {
-      const lastReset = getUserScopedItem('last-quest-reset-date');
-      // Use Netherlands timezone (Europe/Amsterdam) for daily reset
       const now = new Date();
-      // Use Intl.DateTimeFormat for reliable timezone conversion
-      const netherlandsDate = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Europe/Amsterdam',
+      const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const localDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: localTimeZone,
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
       }).format(now);
-      const today = netherlandsDate; // Format: YYYY-MM-DD
+      const today = localDate; // Format: YYYY-MM-DD
 
+      const lastReset = getUserScopedItem('last-quest-reset-date');
       // Debug timezone conversion
       logger.debug('[Daily Reset] Timezone debug:', {
         utcTime: now.toISOString(),
-        netherlandsDate: netherlandsDate,
+        localDate: localDate,
         today: today,
         lastReset: lastReset
       });

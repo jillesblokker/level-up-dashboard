@@ -458,6 +458,20 @@ export default function DungeonPage() {
       `Dungeon started!`,
       `Drafted Team: ${party.map(c => c.name).join(', ')}`
     ]);
+
+    // Persist new run to cloud DB
+    fetchWithAuth('/api/dungeon', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'start' })
+    }).then(res => {
+      if (res.ok) {
+        res.json().then(data => {
+          if (data?.id) {
+            setRun(prev => prev ? { ...prev, id: data.id } : prev);
+          }
+        });
+      }
+    }).catch(err => logger.error('[Dungeon] Failed to persist new run:', err));
   };
 
   const selectFighter = (creature: DungeonPartyMember) => {

@@ -2849,16 +2849,23 @@ export function KingdomGridWithTimers({
           y={fortuneTileData.y}
           tileId={fortuneTileData.tileId}
           onComplete={() => {
+            const now = new Date();
+            const localMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0).getTime();
             setTileTimers(prev => [
               ...prev.filter(t => t.x !== fortuneTileData.x || t.y !== fortuneTileData.y),
               {
                 x: fortuneTileData.x,
                 y: fortuneTileData.y,
                 tileId: 'fortune_teller',
-                endTime: Date.now() + 24 * 60 * 60 * 1000,
+                endTime: localMidnight,
                 isReady: false
               }
-            ])
+            ]);
+            fetchAuthRetry('/api/property-timers', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ x: fortuneTileData.x, y: fortuneTileData.y, isReady: false, endTime: new Date(localMidnight).toISOString(), tileId: 'fortune_teller' })
+            }).catch(() => {});
           }}
         />
       )}
@@ -2871,20 +2878,21 @@ export function KingdomGridWithTimers({
           }}
           onComplete={async (success, gold, xp) => {
             if (success && plankTileData) {
-              const newEndTime = Date.now() + (30 * 60 * 1000);
+              const now = new Date();
+              const localMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0).getTime();
               setTileTimers(prev => [
                 ...prev.filter(t => t.x !== plankTileData.x || t.y !== plankTileData.y),
                 {
                   x: plankTileData.x,
                   y: plankTileData.y,
                   tileId: 'plank-labyrinth',
-                  endTime: newEndTime,
+                  endTime: localMidnight,
                   isReady: false
                 }
               ]);
 
               try {
-                const endIso = new Date(newEndTime).toISOString();
+                const endIso = new Date(localMidnight).toISOString();
                 await fetchAuthRetry('/api/property-timers', {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
