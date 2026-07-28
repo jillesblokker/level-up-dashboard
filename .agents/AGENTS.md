@@ -1,0 +1,91 @@
+# Thrivehaven — Product vision & rules
+
+> Source: Creator interview, July 2026
+
+## Core promise
+
+**"Grow with persistency."** The world of Thrivehaven is a metaphor for real life. As the player builds habits, they become smarter, cleaner, stronger IRL — and the game world reflects that growth visually and mechanically.
+
+## Target audience
+
+Started as a personal tool. Now intended to help **everyone** start building habits. First impression should be **a sense of possibility** — "I can finally start building habits."
+
+## Quest / Challenge / Milestone structure
+
+| Type | Cadence | Example | Tab |
+|------|---------|---------|-----|
+| **Quest** | Daily repeating habit | Brush teeth, 10 push-ups | Quests tab |
+| **Challenge** | Weekly or intensive | Run 5km, read a full chapter | Challenges tab |
+| **Milestone** | Cumulative goal | 100 push-ups in a row | Milestones tab |
+
+- Reset: **local timezone midnight** (NOT hardcoded Amsterdam)
+- Undo: user should be able to uncheck a quest they accidentally marked complete
+- Sweet spot: **5/day = "Great"**, 10 = "Awesome", 15+ = "Super", 20+ = "Amazing"
+- Mix simple habits (wake before 10) with aspirational ones (10 push-ups)
+- Must feel **fun and "laagdrempelig" (low barrier)** — NOT a task list
+- Categories (Might, Knowledge, Honor, etc.) should **meaningfully affect gameplay**
+
+## Kingdom
+
+- **Visual diary of progress** — real-life growth mirrored in-game
+- **Daily interaction** — dopamine actions bring players back, increasing likelihood they do habits
+- Tile types have specific roles:
+  - **Kingdom tiles** → give rewards
+  - **Settlement tiles** (Abbey etc.) → user can enter and perform actions
+  - **Minigame tiles** → trigger modal with interactive minigame
+  - **Realm tiles** → trigger events
+- **Endgame**: Huge, detailed map styled to the player's liking. Activity level determines how much they've built.
+- **Realm page**: Friends can visit to see your progress ("showing off")
+
+## Characters, citizens, creatures
+
+- Citizens: **both functional AND narrative** — world feels alive, interactive, explorable
+- Guardian pets: **strategic choice** (affects gameplay, not just cosmetic)
+- Mythic cards: **both collectible AND usable as citizens** — make the world feel alive
+
+## Economy & Progression
+
+- Primary gold sink: **realm tiles** (feels most like a game → wonder & exploration)
+- Leveling pace: ~1 month to level 10 with normal activity. Level 1→2 easy, 99→100 very hard
+- **Infinite progression** with post-game content after level 100
+- Streak system: **streak freezes + holiday mode** — never punish sickness or vacation
+
+## Social
+
+- **Solo must be fun and complete.** But social pressure is scientifically proven to help habits
+- Friend quest dynamic: **competition** ("I dare you")
+- Alliance system: nice-to-have layer on top
+
+## Page purposes
+
+| Page | Role |
+|------|------|
+| **Daily hub** | First thing you see every day — the "home" |
+| **Chronicle** | Passive journal (auto-generated from activity). Separate diary system for active writing |
+| **Dungeon** | Mini-game that gets harder. Need to train fighters to keep up |
+| **Airship harbor** | Tied to **real-world activity** (not passive timers) |
+| **Market** | Mostly shopping (consumables, tiles) |
+| **Realm** | Creative sandbox + friend-visitable showpiece |
+| **Kingdom** | Strategic board + dopamine interactions |
+
+## Data & Sync rules
+
+- **Server is always the source of truth** — localStorage is only a performance cache
+- Offline: queue actions and sync later (acceptable if it doesn't cause multi-device issues)
+- Sync speed: **within 1 minute** is acceptable
+- Admin-only section: show last server-side update timestamps per core system (quests, stats, etc.)
+- Restore from cloud: option in settings menu, but not prominent
+- The app should "just work" without the user thinking about sync
+
+## Design philosophy
+
+- Critical UI: **straightforward and practical** — no "the server dragon was slain" error messages
+- Current direction: **add depth to existing features** rather than building new ones
+- Fantasy theme is the wrapper, but UX clarity comes first
+
+## Copywriting rules
+
+- **Sentence case everywhere**: Only the first word of a sentence or a proper name starts capitalized
+- No ALL CAPS or Title Case in UI text, badges, headers, toast messages, loading screens
+- Potion names: "Gold potion", "Exp potion", "Health potion", "Mana potion", "Water"
+- Mythic names: "Green minotaur", "Red cyclops" (color lowercase, creature lowercase)

@@ -36,10 +36,10 @@ export function useQuestSync(callbacks: QuestSyncCallbacks) {
       onError: callbacks.onError || (() => {}),
     },
     {
-      enabled: false, // DISABLED TO PREVENT INFINITE LOOPS
-      intervalMs: 30000, // 30 seconds
-      onVisibilityChange: false, // DISABLED TO PREVENT INFINITE LOOPS
-      onFocus: false, // DISABLED TO PREVENT INFINITE LOOPS
+      enabled: true,
+      intervalMs: 15000, // sync at most every 15 seconds (acts as debounce for visibility/focus)
+      onVisibilityChange: true, // re-fetch when tab becomes visible
+      onFocus: true, // re-fetch when window regains focus
     }
   );
 

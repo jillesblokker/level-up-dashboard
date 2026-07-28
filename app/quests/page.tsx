@@ -71,6 +71,7 @@ import { PetitionsTab } from '@/components/quests/petitions-tab'
 
 import { useCitizensStore } from '@/stores/citizensStore'
 import { useGameStore } from '@/stores/game-store'
+import { getUserScopedItem, setUserScopedItem, removeUserScopedItem } from '@/lib/user-scoped-storage'
 
 interface Quest {
   id: string;
@@ -200,13 +201,13 @@ export default function QuestsPage() {
   logger.debug('[Challenges Frontend] Component rendered, isClerkLoaded:', isClerkLoaded, 'userId:', userId, 'user:', !!user);
 
   const [quests, setQuests] = useState<Quest[]>(() => {
-    // Instant Optimistic UI: hydrate from last cached state if from TODAY
+    // Instant UI: hydrate from last cached state if from TODAY (user-scoped)
     if (typeof window !== 'undefined') {
       try {
-        const cacheDate = localStorage.getItem('quests-cache-date');
-        const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-        const cached = localStorage.getItem('quests-cache');
-        logger.info('[QUEST-BOARD-DIAGNOSTIC][PAGE ENTER] Hydrating initial state from localStorage', {
+        const cacheDate = getUserScopedItem('quests-cache-date');
+        const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+        const cached = getUserScopedItem('quests-cache');
+        logger.info('[QUEST-BOARD-DIAGNOSTIC][PAGE ENTER] Hydrating initial state from user-scoped cache', {
           cacheDate,
           todayStr,
           isDateMatch: cacheDate === todayStr,
@@ -603,51 +604,16 @@ export default function QuestsPage() {
           completedList: completedQuests.map((q: any) => ({ id: q.id, name: q.name, date: q.date }))
         });
 
-        // CRITICAL FIX: Merge server data with local optimistic state.
-        // If a quest is completed in our current local state (e.g. user just checked it off)
-        // but the server returns completed: false (stale data / write not replicated yet),
-        // we KEEP the local completed: true to prevent the "undo" visual bug.
-        setQuests(prevQuests => {
-          const localCompletedIds = new Set(
-            prevQuests.filter(q => q.completed).map(q => q.id)
-          );
+        // SERVER IS THE SOURCE OF TRUTH: Always trust the server response.
+        // The only optimistic state is within the current session (in-flight API calls).
+        setQuests(data || []);
 
-          const merged = (data || []).map((serverQuest: any) => {
-            if (!serverQuest.completed && localCompletedIds.has(serverQuest.id)) {
-              // Local state says completed, server says not — trust local (optimistic)
-              logger.info('[QUEST-BOARD-DIAGNOSTIC][MERGE] Preserving local completed state for quest', {
-                id: serverQuest.id,
-                name: serverQuest.name,
-                serverCompleted: serverQuest.completed,
-                localCompleted: true
-              });
-              return { ...serverQuest, completed: true };
-            }
-            return serverQuest;
-          });
-
-          return merged;
-        });
-
-        // Persist merged result to localStorage for instant optimistic loading on next visit
-        // We need to read back the merged state since setQuests is async
+        // Persist server state to user-scoped cache for instant loading on next visit
         try {
-          const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-          // Build the merged cache: start from server data, overlay local completions
-          const cachedRaw = localStorage.getItem('quests-cache');
-          const localCache = cachedRaw ? JSON.parse(cachedRaw) : [];
-          const localCompletedIds = new Set(
-            (Array.isArray(localCache) ? localCache : []).filter((q: any) => q.completed).map((q: any) => q.id)
-          );
-          const mergedForCache = (data || []).map((sq: any) => {
-            if (!sq.completed && localCompletedIds.has(sq.id)) {
-              return { ...sq, completed: true };
-            }
-            return sq;
-          });
-          localStorage.setItem('quests-cache', JSON.stringify(mergedForCache));
-          localStorage.setItem('quests-cache-date', todayStr);
-          logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated localStorage cache (merged)', { todayStr, count: mergedForCache.length });
+          const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+          setUserScopedItem('quests-cache', JSON.stringify(data || []));
+          setUserScopedItem('quests-cache-date', todayStr);
+          logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated user-scoped cache (server truth)', { todayStr, count: (data || []).length });
         } catch {}
       } catch (err: any) {
         logger.error('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS ERROR] Failed to fetch:', err);
@@ -694,7 +660,7 @@ export default function QuestsPage() {
   // Daily reset logic for non-milestone quests and challenges (persisted in DB)
   useEffect(() => {
     if (!loading && quests && quests.length > 0 && userId && token) {
-      const lastReset = localStorage.getItem('last-quest-reset-date');
+      const lastReset = getUserScopedItem('last-quest-reset-date');
       // Use Netherlands timezone (Europe/Amsterdam) for daily reset
       const now = new Date();
       // Use Intl.DateTimeFormat for reliable timezone conversion
@@ -758,7 +724,7 @@ export default function QuestsPage() {
             logger.debug('[Daily Reset] Success:', result);
 
             // Mark that we've processed today's reset
-            localStorage.setItem('last-quest-reset-date', today);
+            setUserScopedItem('last-quest-reset-date', today);
 
             // Reset the daily reset flag to allow future resets
             dailyResetInitiated.current = false;
@@ -808,7 +774,7 @@ export default function QuestsPage() {
       day: '2-digit'
     }).format(now);
     const today = netherlandsDate; // Format: YYYY-MM-DD
-    const lastReset = localStorage.getItem('last-quest-reset-date');
+    const lastReset = getUserScopedItem('last-quest-reset-date');
 
     // If the date has changed, reset the flag
     if (lastReset !== today) {
@@ -827,9 +793,9 @@ export default function QuestsPage() {
 
   useEffect(() => {
     if (bossQuestId) {
-      localStorage.setItem('boss-quest-id-v1', bossQuestId);
+      setUserScopedItem('boss-quest-id-v1', bossQuestId);
     } else {
-      localStorage.removeItem('boss-quest-id-v1');
+      removeUserScopedItem('boss-quest-id-v1');
     }
   }, [bossQuestId]);
 
@@ -1188,10 +1154,10 @@ export default function QuestsPage() {
           : q
       );
       try {
-        const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-        localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
-        localStorage.setItem('quests-cache-date', todayStr);
-        logger.info('[QUEST-BOARD-DIAGNOSTIC][CHECK CLICKED] Updated local state & localStorage cache', { questId, newCompleted, todayStr });
+        const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+        setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+        setUserScopedItem('quests-cache-date', todayStr);
+        logger.info('[QUEST-BOARD-DIAGNOSTIC][CHECK CLICKED] Updated user-scoped cache', { questId, newCompleted, todayStr });
       } catch {}
       return nextQuests;
     });
@@ -1664,9 +1630,9 @@ export default function QuestsPage() {
               : q
           );
           try {
-            const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-            localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
-            localStorage.setItem('quests-cache-date', todayStr);
+            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+            setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+            setUserScopedItem('quests-cache-date', todayStr);
           } catch {}
           return nextQuests;
         });
@@ -1743,9 +1709,9 @@ export default function QuestsPage() {
                 : q
             );
             try {
-              const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-              localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
-              localStorage.setItem('quests-cache-date', todayStr);
+              const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+              setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+              setUserScopedItem('quests-cache-date', todayStr);
             } catch {}
             return nextQuests;
           });
@@ -1866,9 +1832,9 @@ export default function QuestsPage() {
               : q
           );
           try {
-            const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-            localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
-            localStorage.setItem('quests-cache-date', todayStr);
+            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+            setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+            setUserScopedItem('quests-cache-date', todayStr);
           } catch {}
           return nextQuests;
         });
@@ -1929,9 +1895,9 @@ export default function QuestsPage() {
                 : q
             );
             try {
-              const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam' }).format(new Date());
-              localStorage.setItem('quests-cache', JSON.stringify(nextQuests));
-              localStorage.setItem('quests-cache-date', todayStr);
+              const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+              setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+              setUserScopedItem('quests-cache-date', todayStr);
             } catch {}
             return nextQuests;
           });

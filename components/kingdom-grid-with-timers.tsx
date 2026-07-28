@@ -34,6 +34,7 @@ import { useGameStore } from '@/stores/game-store'
 import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
+import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 
 
 // Game managers will be loaded dynamically to keep the initial bundle light
@@ -1187,114 +1188,118 @@ export function KingdomGridWithTimers({
     return undefined
   }, [placementMode])
 
-  // Load timers from API (fallback to localStorage) on mount, then initialize defaults only for missing ones
-  useEffect(() => {
-    (async () => {
-      let loadedTimers: TileTimer[] = [];
-      let success = false;
-      try {
-        const res = await fetchAuthRetry('/api/property-timers', { method: 'GET' })
-        if (res.ok) {
-          const json = await res.json()
-          if (json) {
-            const serverTime = json.serverTime ? new Date(json.serverTime).getTime() : Date.now()
-            const skew = serverTime - Date.now()
-            setClientSkew(skew)
+  // Function to fetch property timers from API or fallback to user-scoped storage
+  const fetchPropertyTimers = useCallback(async () => {
+    let loadedTimers: TileTimer[] = [];
+    let success = false;
+    try {
+      const res = await fetchAuthRetry('/api/property-timers', { method: 'GET' })
+      if (res.ok) {
+        const json = await res.json()
+        if (json) {
+          const serverTime = json.serverTime ? new Date(json.serverTime).getTime() : Date.now()
+          const skew = serverTime - Date.now()
+          setClientSkew(skew)
 
-            loadedTimers = (json.data || []).map((t: any) => {
-              const endTime = typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time
-              return {
-                x: Number(t.x),
-                y: Number(t.y),
-                tileId: t.tile_id,
-                endTime,
-                isReady: Boolean(t.is_ready) || (Date.now() + skew) >= endTime,
-              }
-            })
-            success = true;
-          }
-        }
-      } catch { }
-      
-      if (!success) {
-        // Fallback to localStorage
-        try {
-          const savedTimers = localStorage.getItem('kingdom-tile-timers')
-          if (savedTimers) {
-            loadedTimers = JSON.parse(savedTimers).map((t: any) => ({
-              ...t,
+          loadedTimers = (json.data || []).map((t: any) => {
+            const endTime = typeof t.end_time === 'string' ? new Date(t.end_time).getTime() : t.end_time
+            return {
               x: Number(t.x),
               y: Number(t.y),
-              isReady: Boolean(t.isReady) || Date.now() >= t.endTime
-            }))
-          }
-        } catch { }
-      }
-
-      // Check the grid. For any placed tile with timerMinutes > 0,
-      // if it does not have a timer in loadedTimers, initialize it.
-      const finalTimers = [...loadedTimers];
-      const initialNewTimers: TileTimer[] = [];
-      let didAddDefaults = false;
-
-      grid.forEach((row, y) => {
-        row.forEach((tile, x) => {
-          if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
-            const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
-            if (kingdomTile && kingdomTile.timerMinutes > 0) {
-              const hasExisting = finalTimers.some(t => Number(t.x) === Number(x) && Number(t.y) === Number(y));
-              if (!hasExisting) {
-                // Initialize default timers as already ready (in the past) so they aren't locked immediately on mount
-                const endTime = Date.now() - 1000
-                const defaultTimer = {
-                  x: Number(x),
-                  y: Number(y),
-                  tileId: kingdomTile.id,
-                  endTime,
-                  isReady: true
-                };
-                finalTimers.push(defaultTimer);
-                initialNewTimers.push(defaultTimer);
-                didAddDefaults = true;
-              }
+              tileId: t.tile_id,
+              endTime,
+              isReady: Boolean(t.is_ready) || (Date.now() + skew) >= endTime,
             }
-          }
-        })
-      });
-
-      setTileTimers(finalTimers);
-
-      // Persist any new default timers to the database
-      if (didAddDefaults && initialNewTimers.length > 0) {
-        try {
-          for (const timer of initialNewTimers) {
-            const endIso = new Date(timer.endTime).toISOString()
-            await fetchAuthRetry('/api/property-timers', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                tileId: timer.tileId,
-                x: timer.x,
-                y: timer.y,
-                tileType: timer.tileId,
-                endTime: endIso,
-                isReady: timer.isReady
-              })
-            })
-          }
-        } catch (e) {
-          // ignore
+          })
+          success = true;
         }
       }
-    })()
-  }, [grid])
+    } catch { }
+    
+    if (!success) {
+      // Fallback to user-scoped storage
+      try {
+        const savedTimers = getUserScopedItem('kingdom-tile-timers')
+        if (savedTimers) {
+          loadedTimers = JSON.parse(savedTimers).map((t: any) => ({
+            ...t,
+            x: Number(t.x),
+            y: Number(t.y),
+            isReady: Boolean(t.isReady) || Date.now() >= t.endTime
+          }))
+        }
+      } catch { }
+    }
 
-  // Save timers to localStorage whenever they change
+    // Check the grid. For any placed tile with timerMinutes > 0,
+    // if it does not have a timer in loadedTimers, initialize it.
+    const finalTimers = [...loadedTimers];
+    const initialNewTimers: TileTimer[] = [];
+    let didAddDefaults = false;
+
+    grid.forEach((row, y) => {
+      row.forEach((tile, x) => {
+        if (tile && tile.type !== 'empty' && tile.type !== 'vacant') {
+          const kingdomTile = KINGDOM_TILES.find(kt => kt.id === tile.type.toLowerCase())
+          if (kingdomTile && kingdomTile.timerMinutes > 0) {
+            const hasExisting = finalTimers.some(t => Number(t.x) === Number(x) && Number(t.y) === Number(y));
+            if (!hasExisting) {
+              const endTime = Date.now() - 1000
+              const defaultTimer = {
+                x: Number(x),
+                y: Number(y),
+                tileId: kingdomTile.id,
+                endTime,
+                isReady: true
+              };
+              finalTimers.push(defaultTimer);
+              initialNewTimers.push(defaultTimer);
+              didAddDefaults = true;
+            }
+          }
+        }
+      })
+    });
+
+    setTileTimers(finalTimers);
+
+    // Persist any new default timers to the database
+    if (didAddDefaults && initialNewTimers.length > 0) {
+      try {
+        for (const timer of initialNewTimers) {
+          const endIso = new Date(timer.endTime).toISOString()
+          await fetchAuthRetry('/api/property-timers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tileId: timer.tileId,
+              x: timer.x,
+              y: timer.y,
+              tileType: timer.tileId,
+              endTime: endIso,
+              isReady: timer.isReady
+            })
+          })
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [grid]);
+
+  // Load timers on mount or when grid changes
   useEffect(() => {
-    localStorage.setItem('kingdom-tile-timers', JSON.stringify(tileTimers))
+    fetchPropertyTimers();
+  }, [fetchPropertyTimers]);
+
+  // Save timers to user-scoped storage whenever they change
+  useEffect(() => {
+    if (tileTimers.length > 0) {
+      setUserScopedItem('kingdom-tile-timers', JSON.stringify(tileTimers))
+    }
   }, [tileTimers])
 
-  // Update timer readiness every 10 seconds (visual only, was 1s)
+  // Update timer readiness every 10 seconds & re-fetch from API when tab becomes visible
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -1304,7 +1309,14 @@ export function KingdomGridWithTimers({
 
     const start = () => { if (interval) clearInterval(interval); interval = setInterval(tick, 10000); };
     const stop = () => { if (interval) clearInterval(interval); interval = null; };
-    const onVisibility = () => document.hidden ? stop() : start();
+    const onVisibility = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        fetchPropertyTimers();
+        start();
+      }
+    };
 
     document.addEventListener('visibilitychange', onVisibility);
     start();
@@ -1312,7 +1324,7 @@ export function KingdomGridWithTimers({
       stop();
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [clientSkew])
+  }, [clientSkew, fetchPropertyTimers])
 
 
   // Update tile click handler to support property placement

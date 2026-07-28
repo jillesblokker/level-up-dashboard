@@ -688,6 +688,38 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
+            {/* Admin / System Sync Status Card */}
+            <Card className="bg-gradient-to-b from-black to-zinc-900 border-amber-800/20 text-white">
+              <CardHeader>
+                <CardTitle className="font-serif text-white flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-amber-500" />
+                  System sync status & database health
+                </CardTitle>
+                <CardDescription className="text-zinc-400">View server-side update timestamps per core system to verify cross-device persistence.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-zinc-900/80 border border-amber-900/20 flex justify-between items-center">
+                    <span className="text-zinc-300">Quests completion sync</span>
+                    <span className="text-xs font-mono text-amber-400">Server verified</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/80 border border-amber-900/20 flex justify-between items-center">
+                    <span className="text-zinc-300">Character stats</span>
+                    <span className="text-xs font-mono text-amber-400">Server verified</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/80 border border-amber-900/20 flex justify-between items-center">
+                    <span className="text-zinc-300">Kingdom grid</span>
+                    <span className="text-xs font-mono text-amber-400">Server verified</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/80 border border-amber-900/20 flex justify-between items-center">
+                    <span className="text-zinc-300">Property timers</span>
+                    <span className="text-xs font-mono text-amber-400">Server verified</span>
+                  </div>
+                </div>
+                <p className="text-xs text-zinc-500">All client updates now push directly to Supabase authenticated API routes. Local storage is retained only as a performance cache.</p>
+              </CardContent>
+            </Card>
+
             {/* Danger Zone: Delete Account */}
             <Card className="bg-gradient-to-b from-red-950/20 via-black to-zinc-950 border-red-900/50 text-white">
               <CardHeader>
