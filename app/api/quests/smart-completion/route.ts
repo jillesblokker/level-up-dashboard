@@ -37,24 +37,41 @@ export async function POST(req: NextRequest) {
             }
             const streakMultiplier = 1 + Math.min(1.0, streakDays * 0.1);
 
-            // 1. Fetch the quest to get rewards info
-            const { data: quest, error: questError } = await supabase
+            const { data: fetchedQuest, error: questError } = await supabase
                 .from('quests')
                 .select('*')
                 .eq('id', questId)
-                .single();
+                .maybeSingle();
 
-            if (questError || !quest) {
-                // If not found in quests, check challenges (legacy support)
-                const { data: challenge, error: challengeError } = await supabase
+            let quest = fetchedQuest;
+            if (!quest) {
+                const { data: challenge } = await supabase
                     .from('challenges')
                     .select('*')
                     .eq('id', questId)
-                    .single();
+                    .maybeSingle();
 
-                if (challengeError || !challenge) {
-                    throw new Error('Quest not found');
+                if (challenge) {
+                    quest = {
+                        id: challenge.id,
+                        name: challenge.name || challenge.title || 'Quest',
+                        category: challenge.category || 'Might',
+                        difficulty: challenge.difficulty || 'medium',
+                        xp_reward: challenge.xp || 50,
+                        gold_reward: challenge.gold || 25
+                    };
+                } else {
+                    // Create dynamic fallback object for user-created custom quest
+                    quest = {
+                        id: questId,
+                        name: 'Custom Quest',
+                        category: 'Might',
+                        difficulty: 'medium',
+                        xp_reward: body.xpReward || 50,
+                        gold_reward: body.goldReward || 25
+                    };
                 }
+            }
 
                 // 2. Check if already completed TODAY
                 const today = new Date().toISOString().split('T')[0];
@@ -422,7 +439,6 @@ export async function POST(req: NextRequest) {
                     }
                     return { success: true, message: 'Not completed today' };
                 }
-            }
 
             // Quest found in 'quests' table
             const requestTz = req.headers.get('x-timezone') || undefined;
@@ -913,12 +929,11 @@ export async function POST(req: NextRequest) {
         });
 
         if (!result.success) {
-            // Determine status code based on error message/type
             const status = (result.error?.includes('auth') || result.error?.includes('session')) ? 401 : 500;
             return NextResponse.json({ error: result.error }, { status });
         }
 
-        return NextResponse.json(result.data);
+        return NextResponse.json(result);
 
     } catch (error: any) {
         logger.error('[Smart Completion] Error:', error);

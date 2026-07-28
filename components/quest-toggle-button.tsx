@@ -47,23 +47,9 @@ export function QuestToggleButton({
   };
 
   const triggerEffects = () => {
-    if (lastClickRef.current) {
-      const { x, y } = lastClickRef.current;
-
-      // Spawn gold particles
-      spawnParticles(x, y, 'gold', 8, { color: '#fbbf24' });
-      spawnFloatingText(x, y, `+${gold} Gold`, '#fbbf24');
-
-      // Spawn XP particles slightly delayed
-      setTimeout(() => {
-        spawnParticles(x, y, 'xp', 8, { color: '#60a5fa' });
-        spawnFloatingText(x, y - 30, `+${xp} XP`, '#60a5fa');
-      }, 200);
-
-      // Audio & Haptics
-      onQuestComplete();
-      trigger(HapticPatterns.questComplete);
-    }
+    // Audio & Haptics ONLY (No floating particle or text effects over card)
+    onQuestComplete();
+    trigger(HapticPatterns.questComplete);
   };
 
   const handleToggle = async () => {
