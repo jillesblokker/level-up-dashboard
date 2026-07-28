@@ -1263,8 +1263,8 @@ export function KingdomGridWithTimers({
 
     setTileTimers(finalTimers);
 
-    // Persist any new default timers to the database
-    if (didAddDefaults && initialNewTimers.length > 0) {
+    // Only persist new default timers to database if server fetch was unsuccessful (offline initialization)
+    if (!success && didAddDefaults && initialNewTimers.length > 0) {
       try {
         for (const timer of initialNewTimers) {
           const endIso = new Date(timer.endTime).toISOString()
@@ -1281,8 +1281,8 @@ export function KingdomGridWithTimers({
             })
           })
         }
-      } catch (e) {
-        // ignore
+      } catch (err) {
+        logger.error("[KingdomGrid] Failed to persist initial property timers:", err)
       }
     }
   }, [grid]);

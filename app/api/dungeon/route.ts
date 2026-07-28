@@ -1,11 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
 import { supabaseServer } from '@/lib/supabase/server-client';
 import { apiLogger } from '@/lib/logger';
 import { calculateKingdomBonuses, KingdomBonuses } from '@/lib/kingdom-utils';
 import { calculateLevelFromExperience } from '@/types/character';
 import { comprehensiveItems } from '@/app/lib/comprehensive-items';
+
+export async function GET(req: NextRequest) {
+    try {
+        const authResult = await verifyClerkJWT(req);
+        const userId = authResult.userId;
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { data: activeRun } = await supabaseServer
+            .from('dungeon_runs')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('status', 'in_progress')
+            .order('created_at', { ascending: false })
+            .maybeSingle();
+
+        return NextResponse.json({ activeRun: activeRun || null });
+    } catch (error) {
+        apiLogger.error('[Dungeon GET] Error fetching active run:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
 
 // Types
 interface Loot {
@@ -42,7 +66,8 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
     try {
-        const { userId } = await auth();
+        const authResult = await verifyClerkJWT(req);
+        const userId = authResult.userId;
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }

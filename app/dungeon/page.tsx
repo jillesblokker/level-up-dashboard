@@ -7,6 +7,7 @@ import { notificationService } from "@/lib/notification-service";
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useRouter } from 'next/navigation';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 import {
   CREATURE_DATA,
@@ -58,6 +59,7 @@ interface DungeonPartyMember extends CreatureDef {
 }
 
 interface DungeonRun {
+  id?: string;
   currentRoom: number;
   currentHp: number;
   maxHp: number;
@@ -325,6 +327,36 @@ export default function DungeonPage() {
     }
     setDailyCount(data.count);
   }, [run]);
+
+  // Fetch and restore active dungeon run from server
+  useEffect(() => {
+    async function restoreActiveRun() {
+      try {
+        const res = await fetchWithAuth('/api/dungeon');
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.activeRun && json.activeRun.status === 'in_progress') {
+            const dbRun = json.activeRun;
+            setRun({
+              id: dbRun.id,
+              currentRoom: dbRun.current_room,
+              currentHp: dbRun.current_hp,
+              maxHp: dbRun.max_hp,
+              status: dbRun.status,
+              currentEncounter: dbRun.current_encounter || generateEncounter(dbRun.current_room || 1),
+              lootCollected: dbRun.loot_collected || [],
+              maxRooms: dbRun.max_rooms || 5,
+              party: dbRun.party || []
+            });
+            setBattleLog(prev => [...prev, `Restored active Dungeon Run from Cloud! Room ${dbRun.current_room}`]);
+          }
+        }
+      } catch (err) {
+        logger.error('[Dungeon] Failed to restore active run:', err);
+      }
+    }
+    restoreActiveRun();
+  }, []);
 
   // Reset phase when new monster appears
   useEffect(() => {
