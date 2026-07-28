@@ -60,11 +60,6 @@ export function QuestToggleButton({
         spawnFloatingText(x, y - 30, `+${xp} XP`, '#60a5fa');
       }, 200);
 
-      // Spawn confetti
-      setTimeout(() => {
-        spawnParticles(x, y, 'confetti', 12);
-      }, 400);
-
       // Audio & Haptics
       onQuestComplete();
       trigger(HapticPatterns.questComplete);

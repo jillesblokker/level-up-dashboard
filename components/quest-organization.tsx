@@ -650,8 +650,8 @@ export function QuestOrganization({
                       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                     >
                       <Card
-                        className={`relative overflow-hidden border transition-all duration-300 hover:shadow-lg ${quest.completed
-                          ? 'border-green-800/30 bg-green-900/10'
+                        className={`relative overflow-hidden border transition-all duration-500 ease-in-out hover:shadow-lg ${quest.completed
+                          ? 'border-emerald-500/60 bg-gradient-to-br from-emerald-950/90 via-green-950/90 to-emerald-950/90 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.25)]'
                           : 'border-amber-800/20 bg-zinc-900 hover:border-amber-500/40'
                           }`}
                         aria-label={`Quest card: ${quest.name}`}
@@ -908,7 +908,7 @@ export function QuestOrganization({
                               exit={{ opacity: 0, scale: 0.9 }}
                             >
                               <Card
-                                className="border border-green-800/30 bg-green-900/5 transition-all duration-300 opacity-60 hover:opacity-100 hover:shadow-lg"
+                                className="border border-emerald-500/50 bg-gradient-to-br from-emerald-950/80 via-green-950/80 to-emerald-950/80 text-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-500 ease-in-out opacity-80 hover:opacity-100 hover:shadow-lg"
                                 aria-label={`Quest card: ${quest.name}`}
                               >
                                 <CardContent className="p-4">
