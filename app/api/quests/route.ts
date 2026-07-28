@@ -263,19 +263,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
-    const today = getToday(); // Format: YYYY-MM-DD in Europe/Amsterdam
+    const requestTz = request.headers.get('x-timezone') || undefined;
+    const today = getToday(requestTz);
     const completedQuests = new Map();
 
     logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Request received', {
       userId,
-      todayAmsterdam: today,
+      requestTz,
+      todayLocal: today,
       totalCompletionsInDB: questCompletions?.length || 0,
       completions: questCompletions?.map((c: any) => ({
         quest_id: c.quest_id,
         completed: c.completed,
         completed_at: c.completed_at,
-        parsedAmsterdamDate: formatDate(c.completed_at || c.created_at),
-        matchesToday: formatDate(c.completed_at || c.created_at) === today
+        parsedLocalDate: formatDate(c.completed_at || c.created_at, requestTz),
+        matchesToday: formatDate(c.completed_at || c.created_at, requestTz) === today
       }))
     });
 
@@ -292,13 +294,16 @@ export async function GET(request: Request) {
 
       // For each quest, find TODAY'S completion record
       questCompletionGroups.forEach((completions, questId) => {
-        // Find completion record for today
+        // Find completion record for today in user's timezone or completed within last 20 hours
         const todayCompletion = completions.find((c: any) => {
           if (allTime) {
             return c.completed === true;
           }
-          const cDate = formatDate(c.completed_at || c.created_at);
-          return cDate === today;
+          const cDate = formatDate(c.completed_at || c.created_at, requestTz);
+          const nowMs = Date.now();
+          const compMs = new Date(c.completed_at || c.created_at).getTime();
+          const isRecent = !isNaN(compMs) && (nowMs - compMs) < (20 * 60 * 60 * 1000);
+          return cDate === today || isRecent;
         });
 
         // Show as completed if there's a completion record for today

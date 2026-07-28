@@ -77,9 +77,9 @@ export function parseAsUTCDate(dateStr?: string | Date | null): Date | null {
 }
 
 /**
- * Format a date to YYYY-MM-DD in the app's timezone (Europe/Amsterdam)
+ * Format a date to YYYY-MM-DD in the target timezone (defaults to local/user timezone)
  */
-export function formatDate(input?: Date | string | null): string | null {
+export function formatDate(input?: Date | string | null, timeZone?: string): string | null {
     if (!input) return null;
 
     if (typeof input === 'string') {
@@ -91,17 +91,23 @@ export function formatDate(input?: Date | string | null): string | null {
 
     const parsed = parseAsUTCDate(input);
     if (parsed) {
-        return dateFormatter.format(parsed);
+        const tz = timeZone || getAppTimezone();
+        return new Intl.DateTimeFormat('en-CA', {
+            timeZone: tz,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(parsed);
     }
 
     return null;
 }
 
 /**
- * Get today's date in YYYY-MM-DD format in the app's timezone
+ * Get today's date in YYYY-MM-DD format in the target timezone
  */
-export function getToday(): string {
-    return getTodayDateString();
+export function getToday(timeZone?: string): string {
+    return getTodayDateString(timeZone);
 }
 
 /**

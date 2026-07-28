@@ -19,6 +19,12 @@ export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit 
         headers.set('Authorization', `Bearer ${token}`);
       }
       headers.set('Content-Type', headers.get('Content-Type') || 'application/json');
+      if (typeof window !== 'undefined') {
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (tz) headers.set('x-timezone', tz);
+        } catch {}
+      }
       return fetch(input, {
         ...init,
         headers,

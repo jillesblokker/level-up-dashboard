@@ -425,8 +425,8 @@ export async function POST(req: NextRequest) {
             }
 
             // Quest found in 'quests' table
-            // 2. Check if already completed TODAY in Europe/Amsterdam timezone
-            const todayStr = getToday();
+            const requestTz = req.headers.get('x-timezone') || undefined;
+            const todayStr = getToday(requestTz);
 
             const { data: userCompletions } = await supabase
                 .from('quest_completion')
@@ -436,8 +436,11 @@ export async function POST(req: NextRequest) {
 
             const existing = (userCompletions || []).find(c => {
                 if (!c.completed_at && !c.created_at) return false;
-                const cDate = formatDate(c.completed_at || c.created_at);
-                return cDate === todayStr;
+                const cDate = formatDate(c.completed_at || c.created_at, requestTz);
+                const nowMs = Date.now();
+                const compMs = new Date(c.completed_at || c.created_at).getTime();
+                const isRecent = !isNaN(compMs) && (nowMs - compMs) < (20 * 60 * 60 * 1000);
+                return cDate === todayStr || isRecent;
             });
 
             logger.info('[QUEST-BOARD-DIAGNOSTIC][POST /api/quests/smart-completion] Database lookup result', {
