@@ -191,37 +191,17 @@ self.addEventListener('notificationclick', (event) => {
   }
 })
 
-// Helper function to sync quest completions
+// Helper function to sync quest completions (Disabled to prevent stale IndexedDB state overwrites)
 async function syncQuestCompletions() {
   try {
-    // Get pending quest completions from IndexedDB
-    const pendingCompletions = await getPendingCompletions()
-
-    for (const completion of pendingCompletions) {
-      try {
-        const response = await fetch('/api/quests/smart-completion', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${completion.token}`
-          },
-          body: JSON.stringify({
-            questId: completion.questId,
-            completed: completion.completed
-          })
-        })
-
-        if (response.ok) {
-          // Remove from pending completions
-          await removePendingCompletion(completion.id)
-          console.log('[SW] Synced quest completion:', completion.questId)
-        }
-      } catch (error) {
-        console.error('[SW] Failed to sync quest completion:', error)
-      }
+    const db = await openDatabase();
+    if (db) {
+      const transaction = db.transaction('pendingQuests', 'readwrite');
+      const store = transaction.objectStore('pendingQuests');
+      store.clear();
     }
   } catch (error) {
-    console.error('[SW] Background sync failed:', error)
+    // Ignore cleanup errors
   }
 }
 

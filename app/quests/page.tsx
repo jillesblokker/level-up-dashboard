@@ -561,6 +561,14 @@ export default function QuestsPage() {
     };
 
     window.addEventListener('quest-added', handleQuestAdded);
+
+    // Purge legacy IndexedDB offline sync queue to prevent background replay of un-checks
+    if (typeof window !== 'undefined' && 'indexedDB' in window) {
+      try {
+        indexedDB.deleteDatabase('LevelUpOfflineDB');
+      } catch (_) {}
+    }
+
     return () => window.removeEventListener('quest-added', handleQuestAdded);
   }, []);
 
