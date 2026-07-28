@@ -531,14 +531,16 @@ export default function DungeonPage() {
     if (actionType === 'status') {
       const statusSpell = getStatusSpell(activeFighter.type);
       if (statusSpell.type === 'heal') {
-        healAmount = Math.floor(activeFighter.maxHp * 0.30);
+        healAmount = Math.floor(activeFighter.maxHp * 0.35);
         logEntries.push(`💚 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! Restored +${healAmount} HP!`);
       } else if (statusSpell.type === 'sleep') {
-        setMonsterStatus(prev => ({ ...prev, sleepTurns: 2 }));
-        logEntries.push(`💤 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} fell fast asleep for 2 turns!`);
+        const sleepTurns = Math.floor(Math.random() * 3) + 1; // 1-3 turns of sleep!
+        setMonsterStatus(prev => ({ ...prev, sleepTurns }));
+        logEntries.push(`💤 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} fell fast asleep for ${sleepTurns} turn(s)!`);
       } else if (statusSpell.type === 'confusion') {
-        setMonsterStatus(prev => ({ ...prev, confusionTurns: 2 }));
-        logEntries.push(`💫 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} became confused for 2 turns!`);
+        const confusionTurns = Math.floor(Math.random() * 2) + 1;
+        setMonsterStatus(prev => ({ ...prev, confusionTurns }));
+        logEntries.push(`💫 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} became confused for ${confusionTurns} turn(s)!`);
       }
     } else if (actionType === 'signature') {
       const sigMove = getSignatureMoveForLevel(activeFighter.type, activeFighter.level || Math.max(1, run.currentRoom * 2));
@@ -625,12 +627,18 @@ export default function DungeonPage() {
       setMonsterStatus({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
     }
 
-    // Apply damage to active fighter in party
+    // Apply damage & healing to active fighter in party
     let updatedParty = run.party.map(c => {
       if (c.id === selectedCreature.id) {
-        let remainingHp = newMonsterHp > 0 && !isPlayerDodge ? Math.max(0, c.hp - enemyFinalDmg) : c.hp;
+        let remainingHp = c.hp;
+        if (healAmount > 0) {
+          remainingHp = Math.min(c.maxHp, remainingHp + healAmount);
+        }
+        if (newMonsterHp > 0 && !isPlayerDodge) {
+          remainingHp = Math.max(0, remainingHp - enemyFinalDmg);
+        }
         if (remainingHp > 0 && buildingBuffs.healingBuff > 0) {
-            remainingHp = Math.min(c.maxHp, remainingHp + buildingBuffs.healingBuff);
+          remainingHp = Math.min(c.maxHp, remainingHp + buildingBuffs.healingBuff);
         }
         return { ...c, hp: remainingHp };
       }

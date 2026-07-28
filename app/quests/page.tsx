@@ -1682,8 +1682,11 @@ export default function QuestsPage() {
             });
 
             if (!response.ok) {
-              logger.error(`[Bulk Complete] Failed to complete quest ${quest.id}:`, response.status);
-              failedIds.push(quest.id);
+              logger.error(`[Bulk Complete] Server response status ${response.status} for quest ${quest.id}`);
+              // Only treat 4xx (client validation) errors as hard failures that revert; 5xx gateway errors retain local completed state
+              if (response.status < 500) {
+                failedIds.push(quest.id);
+              }
             } else {
               const responseData = await response.json();
               recordCompletion({
@@ -1707,8 +1710,8 @@ export default function QuestsPage() {
               logger.debug(`[Bulk Complete] Successfully completed quest: ${quest.name}`);
             }
           } catch (apiError) {
-            logger.error(`[Bulk Complete] API error for quest ${quest.id}:`, apiError);
-            failedIds.push(quest.id);
+            logger.error(`[Bulk Complete] API network error for quest ${quest.id}:`, apiError);
+            // Retain local completed state during transient network errors
           }
         }
 
@@ -1869,8 +1872,10 @@ export default function QuestsPage() {
 
             if (!response.ok) {
               const errorText = await response.text();
-              logger.error(`[Bulk Complete All] Failed to complete quest ${quest.id}:`, response.status, errorText);
-              failedIds.push(quest.id);
+              logger.error(`[Bulk Complete All] Server response status ${response.status} for quest ${quest.id}:`, errorText);
+              if (response.status < 500) {
+                failedIds.push(quest.id);
+              }
             } else {
               const responseData = await response.json();
               recordCompletion({
@@ -1893,8 +1898,8 @@ export default function QuestsPage() {
               logger.debug(`[Bulk Complete All] Successfully completed quest: ${quest.name}`, responseData);
             }
           } catch (apiError) {
-            logger.error(`[Bulk Complete All] API error for quest ${quest.id}:`, apiError);
-            failedIds.push(quest.id);
+            logger.error(`[Bulk Complete All] API network error for quest ${quest.id}:`, apiError);
+            // Retain local completed state during transient network errors
           }
         }
 

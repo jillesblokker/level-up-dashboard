@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2, Copy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
-import { RewardAnimation } from "@/components/reward-animation"
-import { triggerConfetti } from "@/lib/confetti"
 import { useQuestAudio } from "@/components/audio-provider"
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
@@ -86,13 +84,8 @@ export default function QuestCard({
   const handleComplete = (e: React.MouseEvent) => {
     e.stopPropagation()
 
-    // Only show animation if we're completing the quest (not uncompleting)
+    // Sound effect on completion
     if (status !== 'completed') {
-      setClickPos({ x: e.clientX, y: e.clientY })
-      setShowRewardAnim(true)
-      setIsBursting(true)
-      setTimeout(() => setIsBursting(false), 500)
-      triggerConfetti(e.clientX, e.clientY)
       onQuestComplete()
     }
 
@@ -108,26 +101,15 @@ export default function QuestCard({
 
   return (
     <>
-      {showRewardAnim && (
-        <RewardAnimation
-          x={clickPos.x}
-          y={clickPos.y}
-          rewards={[
-            { type: 'gold', amount: reward.gold },
-            { type: 'xp', amount: reward.experience }
-          ]}
-          onComplete={() => setShowRewardAnim(false)}
-        />
-      )}
       <Card
         className={cn(
-          "relative overflow-hidden transition-all duration-300 cursor-pointer group rounded-2xl",
-          "bg-gradient-to-br from-zinc-900 via-zinc-950 to-amber-950/30 border-2 border-amber-800/40",
-          "hover:border-amber-400/60 hover:shadow-xl hover:shadow-amber-500/10",
+          "relative overflow-hidden transition-all duration-500 ease-in-out cursor-pointer group rounded-2xl",
+          status === 'completed'
+            ? "bg-gradient-to-br from-emerald-950/90 via-zinc-950 to-emerald-900/70 border-2 border-emerald-500/70 shadow-lg shadow-emerald-950/50 text-emerald-50"
+            : "bg-gradient-to-br from-zinc-900 via-zinc-950 to-amber-950/30 border-2 border-amber-800/40 hover:border-amber-400/60 hover:shadow-xl hover:shadow-amber-500/10",
           "transform hover:-translate-y-0.5 hover:scale-[1.01] active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none",
           isFeatured && "ring-2 ring-amber-500/50",
-          isNew && "ring-2 ring-emerald-500/50",
-          status === 'completed' && "opacity-75"
+          isNew && "ring-2 ring-emerald-500/50"
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
