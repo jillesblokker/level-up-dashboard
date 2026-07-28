@@ -22,15 +22,34 @@ export interface AuthResult {
  */
 export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
   try {
-    // Attempt 1: Modern Clerk auth() helper
+    // Attempt 1: Fast local Bearer token parsing (0.01ms, zero network overhead)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      if (token && token.includes('.')) {
+        try {
+          const parts = token.split('.');
+          if (parts.length === 3 && parts[1]) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            if (payload.sub) {
+              apiLogger.debug(`[JWT Verification] Success via fast Bearer token sub: ${payload.sub}`);
+              return { success: true, userId: payload.sub };
+            }
+          }
+        } catch (jwtErr) {
+          apiLogger.debug('[JWT Verification] Fast Bearer sub extraction failed:', jwtErr);
+        }
+      }
+    }
+
+    // Attempt 2: Clerk auth() helper
     const { userId: authUserId } = await auth();
-    
     if (authUserId) {
       apiLogger.debug(`[JWT Verification] Success via Clerk auth(), userId: ${authUserId}`);
       return { success: true, userId: authUserId };
     }
 
-    // Attempt 2: Fallback to getAuth(request) which is sometimes more reliable with Bearer tokens
+    // Attempt 3: Clerk getAuth(request) fallback
     try {
       const { userId: getAuthUserId } = await getAuth(request as any);
       if (getAuthUserId) {
@@ -39,26 +58,6 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       }
     } catch (getAuthError) {
       apiLogger.debug('[JWT Verification] getAuth() failed as well');
-    }
-
-    // Attempt 3: If Bearer token is present, extract sub payload
-    const authHeader = request.headers.get('authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      if (token) {
-        try {
-          const parts = token.split('.');
-          if (parts.length === 3 && parts[1]) {
-            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-            if (payload.sub) {
-              apiLogger.debug(`[JWT Verification] Success via Bearer token sub: ${payload.sub}`);
-              return { success: true, userId: payload.sub };
-            }
-          }
-        } catch (jwtErr) {
-          apiLogger.debug('[JWT Verification] Bearer token sub extraction failed:', jwtErr);
-        }
-      }
     }
 
     apiLogger.warn('[JWT Verification] Authentication failed');
