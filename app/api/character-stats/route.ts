@@ -1,206 +1,152 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { supabaseServer } from '@/lib/supabase/server-client';
+import { NextResponse, NextRequest } from 'next/server';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
 import { apiLogger } from '@/lib/logger';
 import { calculateLevelFromExperience } from '@/lib/level-utils';
 
 // GET: Return character stats for the user
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const result = await authenticatedSupabaseQuery(request as NextRequest, async (supabase, userId) => {
+      const { data, error } = await supabase
+        .from('character_stats')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        apiLogger.error('Character stats fetch error:', error);
+        throw error;
+      }
+
+      if (!data) {
+        return { stats: null };
+      }
+
+      let streakData = null;
+      try {
+        const { data: fetchedStreakData, error: streakError } = await supabase
+          .from('streaks')
+          .select('current_streak, last_completed_at')
+          .eq('user_id', userId)
+          .order('last_completed_at', { ascending: false, nullsFirst: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!streakError && fetchedStreakData) {
+          streakData = fetchedStreakData;
+        }
+      } catch (streakErr) {
+        apiLogger.warn('Streak fetch failed:', streakErr);
+      }
+
+      const statsJson = data.stats_data || {};
+      const currentLevel = data.level ?? statsJson.level ?? 1;
+      const baseXP = 100;
+      const experienceToNextLevel = Math.floor(baseXP * Math.pow(1.5, currentLevel - 1));
+
+      return {
+        level: data.level ?? statsJson.level ?? 1,
+        experience: data.experience ?? statsJson.experience ?? 0,
+        experienceToNextLevel,
+        gold: data.gold ?? statsJson.gold ?? 0,
+        health: data.health ?? statsJson.health ?? 100,
+        maxHealth: data.max_health ?? statsJson.max_health ?? 100,
+        buildTokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
+        kingdomExpansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
+        streakDays: streakData?.current_streak ?? 0,
+        stats: {
+          ...statsJson,
+          gold: data.gold ?? statsJson.gold ?? 0,
+          experience: data.experience ?? statsJson.experience ?? 0,
+          level: data.level ?? statsJson.level ?? 1,
+          health: data.health ?? statsJson.health ?? 100,
+          max_health: data.max_health ?? statsJson.max_health ?? 100,
+          build_tokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
+          kingdom_expansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
+          updated_at: data.updated_at ?? statsJson.updated_at,
+          active_partner_id: data.active_partner_id ?? statsJson.active_partner_id,
+          sanctuary_mode: data.sanctuary_mode ?? statsJson.sanctuary_mode ?? false,
+          display_name: data.display_name ?? statsJson.display_name ?? 'Adventurer',
+          title: data.title ?? statsJson.title ?? 'Novice'
+        }
+      };
+    });
+
+    return NextResponse.json(result);
+  } catch (err: any) {
+    if (err.message === 'Unauthorized' || err.status === 401) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const { data, error } = await supabaseServer
-      .from('character_stats')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      apiLogger.error('Character stats fetch error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    if (!data) {
-      return NextResponse.json({ stats: null });
-    }
-
-    // Fetch streak data (optional - don't fail if table doesn't exist)
-    let streakData = null;
-    let lastCompletedAt = null;
-    try {
-      const { data: fetchedStreakData, error: streakError } = await supabaseServer
-        .from('streaks')
-        .select('current_streak, last_completed_at')
-        .eq('user_id', userId)
-        .order('last_completed_at', { ascending: false, nullsFirst: false })
-        .limit(1)
-        .single();
-
-      if (!streakError && fetchedStreakData) {
-        streakData = fetchedStreakData;
-        lastCompletedAt = fetchedStreakData.last_completed_at;
-      }
-    } catch (streakErr) {
-      // Streaks table might not exist - ignore the error
-      apiLogger.warn('Streak fetch failed (might be missing table):', streakErr);
-    }
-
-    // Return the individual columns as stats object
-    // We check both the dedicated column and the stats_data JSONB column
-    // This provides a fallback if a column is missing in the schema but exists in the JSON blob
-    const statsJson = data.stats_data || {};
-
-    // Calculate XP to next level
-    const currentLevel = data.level ?? statsJson.level ?? 1;
-    const baseXP = 100;
-    const experienceToNextLevel = Math.floor(baseXP * Math.pow(1.5, currentLevel - 1));
-
-    return NextResponse.json({
-      level: data.level ?? statsJson.level ?? 1,
-      experience: data.experience ?? statsJson.experience ?? 0,
-      experienceToNextLevel,
-      gold: data.gold ?? statsJson.gold ?? 0,
-      health: data.health ?? statsJson.health ?? 100,
-      maxHealth: data.max_health ?? statsJson.max_health ?? 100,
-      buildTokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
-      kingdomExpansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
-      streakDays: streakData?.current_streak ?? 0,
-      lastCompletedAt: lastCompletedAt,
-      updatedAt: data.updated_at ?? statsJson.updated_at,
-      stats: {
-        ...statsJson, // Include all fields saved in stats_data
-        gold: data.gold ?? statsJson.gold ?? 0,
-        experience: data.experience ?? statsJson.experience ?? 0,
-        level: data.level ?? statsJson.level ?? 1,
-        health: data.health ?? statsJson.health ?? 100,
-        max_health: data.max_health ?? statsJson.max_health ?? 100,
-        build_tokens: data.build_tokens ?? statsJson.build_tokens ?? 0,
-        kingdom_expansions: data.kingdom_expansions ?? statsJson.kingdom_expansions ?? 0,
-        updated_at: data.updated_at ?? statsJson.updated_at,
-        active_partner_id: data.active_partner_id ?? statsJson.active_partner_id,
-        sanctuary_mode: data.sanctuary_mode ?? statsJson.sanctuary_mode ?? false,
-        display_name: data.display_name ?? statsJson.display_name ?? 'Adventurer',
-        title: data.title ?? statsJson.title ?? 'Novice'
-      }
-    });
-  } catch (error) {
-    apiLogger.error('Unexpected GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Failed to fetch stats' }, { status: 500 });
   }
 }
 
 // POST: Save character stats for the user
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
-    apiLogger.debug('Received stats update for user:', userId);
-
-    const { stats } = body;
+    const { stats, deltas } = body;
     if (!stats || typeof stats !== 'object') {
       apiLogger.warn('Invalid stats data received');
       return NextResponse.json({ error: 'Invalid stats data' }, { status: 400 });
     }
 
-    // Prepare the JSON blob for stats_data
-    // This ensures we save all fields even if columns are missing
-    const statsJson = {
-      ...stats,
-      updated_at: new Date().toISOString()
-    };
+    const result = await authenticatedSupabaseQuery(request as NextRequest, async (supabase, userId) => {
+      apiLogger.debug('Received stats update for user:', userId);
 
-    // Extract individual fields from stats object - match your actual table schema
-    // We use a partial object to avoid sending undefined values for columns that might not exist
-    const statsData: Record<string, unknown> = {
-      user_id: userId,
-      gold: stats.gold || 0,
-      experience: stats.experience || 0,
-      level: stats.level || 1,
-      health: stats.health || 100,
-      max_health: stats.max_health || 100,
-      build_tokens: stats.build_tokens || 0,
-      character_name: stats.display_name || 'Adventurer', // Fallback to 'Adventurer'
-      display_name: stats.display_name || 'Adventurer', // Save to dedicated column
-      title: stats.title || 'Novice',
-      updated_at: new Date().toISOString(),
-      stats_data: statsJson // Save everything to the JSONB column as well
-    };
+      const statsJson = {
+        ...stats,
+        updated_at: new Date().toISOString()
+      };
 
-    // NOTE: We do NOT try to save kingdom_expansions to a dedicated column here
-    // because we found it might be missing in the schema. 
-    // It is saved in stats_data instead.
-
-    apiLogger.debug('Saving stats...');
-
-    try {
-      // Fetch existing stats to prevent regression
-      const { data: existingData, error: fetchError } = await supabaseServer
+      const { data: existingData, error: fetchError } = await supabase
         .from('character_stats')
         .select('*')
         .eq('user_id', userId)
-        .maybeSingle(); // Use maybeSingle instead of single to handle no rows gracefully
+        .maybeSingle();
 
-      // Handle fetch errors (but not "no rows" which is expected for new users)
       if (fetchError && fetchError.code !== 'PGRST116') {
         apiLogger.error('Error fetching existing stats:', fetchError);
-        // Continue anyway, treat as new user
       }
 
-      apiLogger.debug('Existing data check:', {
-        hasData: !!existingData,
-        level: existingData?.level,
-        experience: existingData?.experience
-      });
-
       const existingJson = existingData?.stats_data || {};
-
-      // Safe extraction with defaults
-      const existingLevel = existingData?.level ?? existingJson.level ?? 1;
       const existingXP = existingData?.experience ?? existingJson.experience ?? 0;
+      const existingGold = existingData?.gold ?? existingJson.gold ?? 0;
       const existingExpansions = existingData?.kingdom_expansions ?? existingJson.kingdom_expansions ?? 0;
 
-      // Helper to ensure value is a valid number
-      const ensureNumber = (val: unknown, fallback: number = 0) => {
+      const ensureNumber = (val: unknown, fallback: number): number => {
         const num = Number(val);
         return isNaN(num) ? fallback : num;
       };
 
-      let serverGold = ensureNumber(existingData?.gold, 0);
-      let serverXP = ensureNumber(existingXP, 0);
-      let serverBuildTokens = ensureNumber(existingData?.build_tokens, 0);
+      let serverGold = 0;
+      let serverXP = 0;
+      let serverBuildTokens = 0;
 
-      if (body.deltas && Array.isArray(body.deltas)) {
-        for (const d of body.deltas) {
-          const deltaAmount = ensureNumber(d.delta, 0);
-          if (d.stat === 'gold') {
-            serverGold = Math.max(0, serverGold + deltaAmount);
-          } else if (d.stat === 'experience') {
-            serverXP = Math.max(0, serverXP + deltaAmount);
-          } else if (d.stat === 'build_tokens') {
-            serverBuildTokens = Math.max(0, serverBuildTokens + deltaAmount);
+      if (Array.isArray(deltas) && deltas.length > 0) {
+        let goldDelta = 0;
+        let xpDelta = 0;
+        let tokensDelta = 0;
+
+        for (const d of deltas) {
+          if (d && typeof d === 'object') {
+            if (d.stat === 'gold') goldDelta += (Number(d.delta) || 0);
+            if (d.stat === 'experience') xpDelta += (Number(d.delta) || 0);
+            if (d.stat === 'build_tokens') tokensDelta += (Number(d.delta) || 0);
           }
         }
+
+        serverGold = Math.max(0, ensureNumber(existingGold, 0) + goldDelta);
+        serverXP = Math.max(0, ensureNumber(existingXP, 0) + xpDelta);
+        serverBuildTokens = Math.max(0, ensureNumber(existingData?.build_tokens, 0) + tokensDelta);
       } else {
-        // Fallback to absolute if no deltas
-        serverGold = ensureNumber(stats.gold ?? existingData?.gold, 0);
+        serverGold = Math.max(ensureNumber(stats.gold, 0), ensureNumber(existingGold, 0));
         serverXP = Math.max(ensureNumber(stats.experience, 0), ensureNumber(existingXP, 0));
         serverBuildTokens = ensureNumber(stats.build_tokens ?? existingData?.build_tokens, 0);
       }
 
-      // Re-calculate level from XP using canonical level utility
       const serverLevel = calculateLevelFromExperience(serverXP);
 
-      // Merge logic: Keep the highest value for progressive stats (Level, XP, Expansions)
-      // For volatile stats (Gold, Health), use the new value
-      // Note: We only include core columns that definitely exist in all schemas
-      // Optional columns (display_name, title, etc.) are stored in stats_data JSONB
       const mergedStats: Record<string, unknown> = {
         user_id: userId,
         gold: serverGold,
@@ -210,7 +156,6 @@ export async function POST(request: Request) {
         max_health: ensureNumber(stats.max_health ?? existingData?.max_health, 100),
         build_tokens: serverBuildTokens,
         updated_at: new Date().toISOString(),
-        // Store all data in JSONB as a fallback (this column should always exist)
         stats_data: {
           ...existingJson,
           ...statsJson,
@@ -219,7 +164,6 @@ export async function POST(request: Request) {
           level: serverLevel,
           build_tokens: serverBuildTokens,
           kingdom_expansions: Math.max(ensureNumber(stats.kingdom_expansions, 0), ensureNumber(existingExpansions, 0)),
-          // Store optional fields in JSONB where they're safe
           display_name: stats.display_name || existingData?.display_name || 'Adventurer',
           character_name: stats.display_name || existingData?.character_name || 'Adventurer',
           title: stats.title || existingData?.title || 'Novice',
@@ -230,15 +174,7 @@ export async function POST(request: Request) {
         }
       };
 
-      apiLogger.debug('Saving merged stats:', {
-        newLevel: mergedStats['level'],
-        oldLevel: existingLevel,
-        newXP: mergedStats['experience'],
-        oldXP: existingXP
-      });
-
-      // Upsert the stats data
-      const { error } = await supabaseServer
+      const { error } = await supabase
         .from('character_stats')
         .upsert(mergedStats, {
           onConflict: 'user_id'
@@ -246,19 +182,17 @@ export async function POST(request: Request) {
 
       if (error) {
         apiLogger.error('Supabase upsert error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        throw error;
       }
-    } catch (mergeError) {
-      apiLogger.error('Error in merge logic:', mergeError);
-      return NextResponse.json({
-        error: 'Error processing stats merge',
-        details: mergeError instanceof Error ? mergeError.message : String(mergeError)
-      }, { status: 500 });
-    }
 
-    apiLogger.debug('Saved successfully');
-    return NextResponse.json({ success: true });
-  } catch (error) {
+      return { success: true, stats: mergedStats };
+    });
+
+    return NextResponse.json(result);
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.status === 401) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     apiLogger.error('Unexpected POST error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },

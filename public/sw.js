@@ -1,11 +1,10 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v1.4.0 - Direct-pass SW for API & App Pages; Cache-First for static media assets
-const CACHE_VERSION = 'v1.4.0'
+// v2.0.0-force-purge - Direct-pass SW for API, JS bundles, and App Pages; Cache-First for static media assets ONLY
+const CACHE_VERSION = 'v2.0.0-force-purge'
 const STATIC_CACHE = `level-up-static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `level-up-dynamic-${CACHE_VERSION}`
-const PREV_CACHE = 'level-up-prev-stable' // Rollback pane
 
-// Only cache static assets - NOT app routes (they are SSR/authenticated and will always fail)
+// Only cache static media assets - NEVER app routes or JS scripts
 const STATIC_FILES = [
   '/manifest.webmanifest',
   '/icons/thrivehaven_fav_optimized.png',
@@ -13,92 +12,32 @@ const STATIC_FILES = [
   '/icons/icon-512x512.png'
 ]
 
-// Critical files that must be cacheable for the app to function
-const HEALTH_CHECK_FILES = [
-  '/manifest.webmanifest',
-  '/icons/icon-192x192.png',
-]
-
-// ─── Install: pre-cache into staging, keep previous as rollback ────────────
+// ─── Install: skip waiting immediately ───────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    (async () => {
-      // 1. Snapshot the current live static cache into the rollback pane
-      const prevCache = await caches.open(PREV_CACHE)
-      const existingKeys = await caches.keys()
-      const oldStaticKey = existingKeys.find(k => k.startsWith('level-up-static-') && k !== STATIC_CACHE)
-      if (oldStaticKey) {
-        const oldCache = await caches.open(oldStaticKey)
-        const oldEntries = await oldCache.keys()
-        for (const req of oldEntries) {
-          const resp = await oldCache.match(req)
-          if (resp) await prevCache.put(req, resp.clone())
-        }
-      }
-
-      // 2. Pre-cache new version assets into STATIC_CACHE
-      const newCache = await caches.open(STATIC_CACHE)
-      await Promise.allSettled(
-        STATIC_FILES.map(url =>
-          newCache.add(url).catch(err => {
-            console.warn(`[SW] Failed to cache static file: ${url}`, err)
-            return null
-          })
-        )
-      )
-
-      // 3. Take control immediately
-      return self.skipWaiting()
-    })()
-  )
+    caches.open(STATIC_CACHE).then((cache) => {
+      return cache.addAll(STATIC_FILES).catch(() => {});
+    }).then(() => self.skipWaiting())
+  );
 })
 
-// ─── Activate: health-check the new cache; rollback if broken ──────────────
+// ─── Activate: PURGE ALL OLD CACHES so browsers instantly receive new code ──
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    (async () => {
-      // Health check: verify critical files are cached
-      const newCache = await caches.open(STATIC_CACHE)
-      let healthy = true
-      for (const file of HEALTH_CHECK_FILES) {
-        const entry = await newCache.match(file)
-        if (!entry || !entry.ok) {
-          console.error(`[SW] Health check FAILED: missing ${file}`)
-          healthy = false
-          break
-        }
-      }
-
-      if (!healthy) {
-        // Rollback: restore from previous stable cache
-        console.warn('[SW] Rolling back to previous stable cache')
-        const prevCache = await caches.open(PREV_CACHE)
-        const prevEntries = await prevCache.keys()
-        if (prevEntries.length > 0) {
-          for (const req of prevEntries) {
-            const resp = await prevCache.match(req)
-            if (resp) await newCache.put(req, resp.clone())
-          }
-          console.log('[SW] Rollback complete — restored', prevEntries.length, 'entries')
-        }
-      }
-
-      // Clean up old versioned caches (keep PREV_CACHE for future rollbacks)
-      const allCaches = await caches.keys()
-      await Promise.all(
-        allCaches.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE && cacheName !== PREV_CACHE) {
-            return caches.delete(cacheName)
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+            console.log('[SW] Purging stale cache:', cacheName);
+            return caches.delete(cacheName);
           }
         })
-      )
-
-      return self.clients.claim()
-    })()
-  )
+      );
+    }).then(() => self.clients.claim())
+  );
 })
 
-// Fetch event - serve from cache for static media, bypass native browser network for pages & API
+// Fetch event - serve from cache ONLY for media images/audio; bypass network 100% for JS, pages, and API
 self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
@@ -109,20 +48,23 @@ self.addEventListener('fetch', (event) => {
   // Skip external requests
   if (url.origin !== location.origin) return
 
-  // Completely bypass ALL API routes, page navigations, Next.js App Router RSC data, and HTML requests
-  // Let the browser handle them 100% natively without Service Worker interception or 503 synthesis
+  // NEVER intercept API routes, page navigations, JS files, CSS, or Next.js RSC data
+  // Let the browser handle script loading natively so code updates apply instantly
   if (
     url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
     request.mode === 'navigate' ||
     url.searchParams.has('_rsc') ||
     request.headers.get('rsc') === '1' ||
     request.headers.get('accept')?.includes('text/html') ||
-    !url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|mp3|wav|ogg|ico|css|js|woff2?|json|webmanifest)$/)
+    !url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|mp3|wav|ogg|ico|webmanifest)$/)
   ) {
     return;
   }
 
-  // Strategy: Cache First for Images, Audio, and Static Assets
+  // Strategy: Cache First ONLY for Images and Audio
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse
