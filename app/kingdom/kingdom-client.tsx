@@ -761,19 +761,8 @@ export function KingdomClient() {
     }));
 
     try {
-      const token = await getToken();
-      if (!token) {
-        // logger.debug('[Kingdom] No token available, falling back to localStorage');
-        localStorage.setItem('kingdom-grid', JSON.stringify(sanitizedGrid));
-        return;
-      }
-
-      const response = await fetch('/api/kingdom-grid', {
+      const response = await fetchWithAuth('/api/kingdom-grid', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({ grid: sanitizedGrid }),
       });
 

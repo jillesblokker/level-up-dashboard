@@ -42,14 +42,37 @@ export async function verifyClerkJWT(request: Request): Promise<AuthResult> {
       }
     }
 
-    // Attempt 2: Clerk auth() helper
+    // Attempt 2: Fast local Cookie parsing (__session or __clerk_db_jwt)
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      const sessionMatch = cookieHeader.split('; ').find(c => c.startsWith('__session=') || c.startsWith('__clerk_db_jwt='));
+      if (sessionMatch) {
+        const token = sessionMatch.split('=')[1];
+        if (token && token.includes('.')) {
+          try {
+            const parts = token.split('.');
+            if (parts.length === 3 && parts[1]) {
+              const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+              if (payload.sub) {
+                apiLogger.debug(`[JWT Verification] Success via fast Cookie sub: ${payload.sub}`);
+                return { success: true, userId: payload.sub };
+              }
+            }
+          } catch (cookieJwtErr) {
+            apiLogger.debug('[JWT Verification] Fast Cookie sub extraction failed:', cookieJwtErr);
+          }
+        }
+      }
+    }
+
+    // Attempt 3: Clerk auth() helper
     const { userId: authUserId } = await auth();
     if (authUserId) {
       apiLogger.debug(`[JWT Verification] Success via Clerk auth(), userId: ${authUserId}`);
       return { success: true, userId: authUserId };
     }
 
-    // Attempt 3: Clerk getAuth(request) fallback
+    // Attempt 4: Clerk getAuth(request) fallback
     try {
       const { userId: getAuthUserId } = await getAuth(request as any);
       if (getAuthUserId) {

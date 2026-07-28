@@ -16,6 +16,7 @@ import { getCharacterStats, updateCharacterStats } from '@/lib/character-stats-s
 import { calculateLevelFromExperience } from '@/types/character'
 import { Tile, TileType } from '@/types/core-interfaces'
 import Image from 'next/image'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface KingdomGridProps {
   grid: Tile[][]
@@ -190,19 +191,8 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
 
       // Save to database
       // Include Clerk token for server verification (more reliable than cookies in some environments)
-      let authHeader: Record<string, string> = { 'Content-Type': 'application/json' };
-      try {
-        const clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
-        const token = await clerk?.session?.getToken();
-        if (token) {
-          authHeader = { ...authHeader, Authorization: `Bearer ${token}` };
-        }
-      } catch (_) { /* ignore token fetch failure; server may still accept cookies */ }
-
-      const response = await fetch('/api/kingdom-grid', {
+      const response = await fetchWithAuth('/api/kingdom-grid', {
         method: 'POST',
-        headers: authHeader,
-        credentials: 'include',
         body: JSON.stringify({ grid })
       });
 

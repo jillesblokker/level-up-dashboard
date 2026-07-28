@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { fetchWithAuth } from './fetchWithAuth';
 
 // User Preferences Manager - Replaces localStorage usage with Supabase persistence
 // This ensures all user preferences are saved across devices
@@ -57,11 +58,9 @@ export async function setUserPreference(key: string, value: unknown): Promise<bo
   } catch { /* SSR or quota */ }
 
   try {
-    const response = await fetch('/api/user-preferences', {
+    const response = await fetchWithAuth('/api/user-preferences', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, value }),
-      credentials: 'include',
     });
 
     if (response.ok) {
@@ -82,7 +81,7 @@ export async function setUserPreference(key: string, value: unknown): Promise<bo
  */
 export async function deleteUserPreference(key: string): Promise<boolean> {
   try {
-    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`, {
+    const response = await fetchWithAuth(`/api/user-preferences?key=${encodeURIComponent(key)}`, {
       method: 'DELETE',
     });
 
@@ -104,7 +103,7 @@ export async function deleteUserPreference(key: string): Promise<boolean> {
  */
 export async function getAllUserPreferences(): Promise<Record<string, unknown>> {
   try {
-    const response = await fetch('/api/user-preferences');
+    const response = await fetchWithAuth('/api/user-preferences');
     if (response.ok) {
       const data = await response.json();
       return data.preferences || {};

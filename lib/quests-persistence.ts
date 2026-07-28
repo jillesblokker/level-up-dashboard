@@ -1,51 +1,11 @@
 import { logger } from "@/lib/logger";
 import { Quest } from "@/types/game";
-import { defaultQuests } from "@/lib/default-quests"; // Assuming default quests are here
-// Replaced all Supabase direct calls with API routes for authentication flow
-// All database logic now uses authenticated API routes
-
-async function getClerkToken(): Promise<string | null> {
-  if (typeof window === 'undefined') {
-    logger.error('[Quests Persistence] getClerkToken called on server side');
-    return null;
-  }
-
-  try {
-    // Access Clerk from window if available (with standard fallbacks)
-    const clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
-    if (!clerk) {
-      logger.error('[Quests Persistence] Clerk not available on window');
-      return null;
-    }
-
-    const session = clerk.session;
-    if (!session) {
-      logger.error('[Quests Persistence] No active Clerk session');
-      return null;
-    }
-
-    const token = await session.getToken();
-    logger.debug('[Quests Persistence] Got Clerk token:', token ? 'present' : 'null');
-    return token;
-  } catch (error) {
-    logger.error('[Quests Persistence] Error getting Clerk token:', error);
-    return null;
-  }
-}
+import { defaultQuests } from "@/lib/default-quests";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
   try {
-    const token = await getClerkToken();
-    if (!token) {
-      logger.error('[Quests Persistence] No authentication token available, returning default quests');
-      return defaultQuests;
-    }
-
-    const response = await fetch('/api/quests', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await fetchWithAuth('/api/quests');
 
     if (!response.ok) {
       logger.error('[Quests Persistence] Failed to fetch quests:', response.status, response.statusText, 'returning default');
@@ -55,7 +15,6 @@ export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
     const data = await response.json();
     logger.debug('[Quests Persistence] Successfully fetched quests from API');
     
-    // Transform the data to match Quest type if needed
     return (data || []).map((q: any) => ({
       id: q.id,
       title: q.title || q.name,
@@ -77,25 +36,11 @@ export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
 
 export async function updateQuestCompletion(questId: string, completed: boolean): Promise<boolean> {
   try {
-    const token = await getClerkToken();
-    if (!token) {
-      logger.error('[Quests Persistence] No authentication token available');
-      return false;
-    }
-
-    // 🚀 USE SMART QUEST COMPLETION SYSTEM INSTEAD OF OLD ENDPOINTS
-    logger.debug('[Quests Persistence] Using smart quest completion system...');
-    
-    const response = await fetch('/api/quests/smart-completion', {
+    const response = await fetchWithAuth('/api/quests/smart-completion', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
       body: JSON.stringify({ 
         questId, 
         completed,
-        // Default rewards if not specified
         xpReward: 50,
         goldReward: 25
       }),
@@ -108,8 +53,6 @@ export async function updateQuestCompletion(questId: string, completed: boolean)
 
     const result = await response.json();
     logger.debug('[Quests Persistence] Smart completion result:', result);
-    
-    logger.debug('[Quests Persistence] Successfully processed quest completion');
     return true;
   } catch (error) {
     logger.error('[Quests Persistence] Error processing quest completion:', error);
