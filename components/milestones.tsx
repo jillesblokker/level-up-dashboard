@@ -77,7 +77,7 @@ const MILESTONE_PROGRESS_KEY = 'milestone-progress-v2';
 const MILESTONE_STREAKS_KEY = 'milestone-streaks-v2';
 
 interface MilestonesProps {
-  token: string | null;
+  token?: string | null;
   onUpdateProgress?: (milestoneId: string, currentCompleted: boolean) => Promise<void>;
   category?: string | undefined;
 }

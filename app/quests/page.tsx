@@ -228,7 +228,7 @@ export default function QuestsPage() {
     return [];
   });
   const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
-  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges' | 'petitions'>('quests'); // New toggle for Forge
+  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges' | 'milestones' | 'petitions'>('quests');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
@@ -2760,21 +2760,24 @@ export default function QuestsPage() {
                     </Button>
                   </div>
 
-                  {/* Simple Toggle for Daily Quests / Challenges */}
-                  <div className="space-y-6">
-                    {/* Toggle Buttons */}
-                    <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full">
-                      <TabsList>
-                        <TabsTrigger value="quests">Daily Quests</TabsTrigger>
-                        <TabsTrigger value="challenges">Challenges</TabsTrigger>
-                        <TabsTrigger value="petitions">📜 Petitions</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
+                    {/* Simple Toggle for Daily Quests / Challenges / Milestones / Petitions */}
+                    <div className="space-y-6">
+                      {/* Toggle Buttons */}
+                      <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full">
+                        <TabsList>
+                          <TabsTrigger value="quests">Daily Quests</TabsTrigger>
+                          <TabsTrigger value="challenges">Challenges</TabsTrigger>
+                          <TabsTrigger value="milestones">🏆 Milestones</TabsTrigger>
+                          <TabsTrigger value="petitions">📜 Petitions</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
 
-                    {/* Conditional Content */}
-                    {forgeTab === 'petitions' ? (
-                      <PetitionsTab />
-                    ) : forgeTab === 'quests' ? (
+                      {/* Conditional Content */}
+                      {forgeTab === 'petitions' ? (
+                        <PetitionsTab />
+                      ) : forgeTab === 'milestones' ? (
+                        <Milestones token={token} />
+                      ) : forgeTab === 'quests' ? (
                       <QuestOrganization
                         quests={quests}
                         onQuestToggle={handleQuestToggle}
