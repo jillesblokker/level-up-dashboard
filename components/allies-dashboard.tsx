@@ -211,36 +211,61 @@ function AllyDashboardCard({
           </div>
         </div>
       ) : (
-        /* Frame 2: 7 Virtue Hourglasses */
-        <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
-          <div className="text-center space-y-1">
+        /* Frame 2: 7 Virtue Hourglasses (2 Rows: 4 on top, 3 on bottom) */
+        <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+          <div className="text-center">
             <div className="text-xs font-semibold text-amber-300 flex items-center justify-center gap-1.5">
               <Trophy className="w-4 h-4 text-amber-400" />
               7 House Cup Virtues
             </div>
-            <p className="text-[11px] text-zinc-400 italic">
+            <p className="text-[10px] text-zinc-400 italic">
               Real-time virtue energy in {new Date().getFullYear()}
             </p>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 bg-zinc-950/90 p-2.5 rounded-xl border border-amber-900/40">
-            {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
-              const pts = (friend.stats as any)?.[catKey] || Math.floor((friend.stats?.xp || 100) / 7);
-              return (
-                <Hourglass
-                  key={catKey}
-                  categoryId={catKey}
-                  categoryName={meta.name}
-                  emoji={meta.emoji}
-                  color={meta.color}
-                  points={pts}
-                  variant="compact"
-                />
-              );
-            })}
+          <div className="space-y-2.5 bg-zinc-950/90 p-3 rounded-xl border border-amber-900/40">
+            {/* Row 1: Might, Knowledge, Honor, Castle */}
+            <div className="grid grid-cols-4 gap-2">
+              {['might', 'knowledge', 'honor', 'castle'].map(catKey => {
+                const meta = CATEGORY_META[catKey];
+                if (!meta) return null;
+                const pts = (friend.stats as any)?.[catKey] || Math.floor((friend.stats?.xp || 100) / 7);
+                return (
+                  <Hourglass
+                    key={catKey}
+                    categoryId={catKey}
+                    categoryName={meta.name}
+                    emoji={meta.emoji}
+                    color={meta.color}
+                    points={pts}
+                    variant="compact"
+                  />
+                );
+              })}
+            </div>
+
+            {/* Row 2: Craft, Vitality, Wellness */}
+            <div className="grid grid-cols-3 gap-2 max-w-[85%] mx-auto">
+              {['craft', 'vitality', 'wellness'].map(catKey => {
+                const meta = CATEGORY_META[catKey];
+                if (!meta) return null;
+                const pts = (friend.stats as any)?.[catKey] || Math.floor((friend.stats?.xp || 100) / 7);
+                return (
+                  <Hourglass
+                    key={catKey}
+                    categoryId={catKey}
+                    categoryName={meta.name}
+                    emoji={meta.emoji}
+                    color={meta.color}
+                    points={pts}
+                    variant="compact"
+                  />
+                );
+              })}
+            </div>
           </div>
 
-          <div className="p-3 bg-zinc-950/90 rounded-lg border border-amber-900/30 text-center">
+          <div className="p-2.5 bg-zinc-950/90 rounded-lg border border-amber-900/30 text-center">
             <div className="text-[11px] text-amber-400/80 font-medium">
               Ally Level: <span className="text-amber-300 font-bold">{level}</span> • Total XP: <span className="text-amber-300 font-bold">{(friend.stats?.xp || 0).toLocaleString()}</span>
             </div>

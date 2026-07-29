@@ -71,11 +71,16 @@ export function Hourglass({
         onClick={onClick}
         title={`${categoryName}: ${points.toLocaleString()} pts`}
         className={cn(
-          "relative flex flex-col items-center cursor-pointer group hover:scale-105 transition-all p-1",
+          "relative flex flex-col items-center justify-center cursor-pointer group hover:scale-105 transition-all p-1.5 rounded-lg bg-zinc-950/70 border border-amber-900/30 hover:border-amber-500/50 w-full",
           className
         )}
       >
-        <svg viewBox="0 0 40 90" className="w-6 h-12 drop-shadow-md">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-200 group-hover:text-amber-300">
+          <span className="select-none text-xs">{emoji}</span>
+          <span className="capitalize text-[10px] font-bold truncate max-w-[60px]">{categoryName}</span>
+        </div>
+
+        <svg viewBox="0 0 40 90" className="w-8 h-14 drop-shadow-md my-0.5">
           <defs>
             <linearGradient id={`goldGrad-${categoryId}-c`} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#9a7b38" />
@@ -144,8 +149,8 @@ export function Hourglass({
           <path d="M 12 75 Q 11 65 15 55" stroke="rgba(255,255,255,0.3)" strokeWidth="1" fill="none" />
         </svg>
 
-        <span className="text-[10px] select-none opacity-90 font-medium text-amber-300 mt-0.5">
-          {emoji}
+        <span className="text-[10px] font-bold text-amber-300 bg-zinc-900 px-1.5 py-0.5 rounded border border-amber-500/30">
+          {animatedPoints > 999 ? `${(animatedPoints / 1000).toFixed(1)}k` : animatedPoints} pts
         </span>
       </div>
     );

@@ -101,11 +101,32 @@ function AllyCarouselCard({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
-              className="py-1"
+              className="py-2 space-y-2"
             >
-              {/* 7 Compact Hourglasses Row */}
-              <div className="flex items-center justify-between gap-1">
-                {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
+              {/* 7 Hourglasses in 2 Rows: 4 on top, 3 on bottom */}
+              <div className="grid grid-cols-4 gap-2">
+                {['might', 'knowledge', 'honor', 'castle'].map(catKey => {
+                  const meta = CATEGORY_META[catKey];
+                  if (!meta) return null;
+                  const pts = ally.categories[catKey]?.points || 0;
+                  return (
+                    <Hourglass
+                      key={catKey}
+                      categoryId={catKey}
+                      categoryName={meta.name}
+                      emoji={meta.emoji}
+                      color={meta.color}
+                      points={pts}
+                      variant="compact"
+                      onClick={() => onSelect(ally)}
+                    />
+                  );
+                })}
+              </div>
+              <div className="grid grid-cols-3 gap-2 max-w-[85%] mx-auto">
+                {['craft', 'vitality', 'wellness'].map(catKey => {
+                  const meta = CATEGORY_META[catKey];
+                  if (!meta) return null;
                   const pts = ally.categories[catKey]?.points || 0;
                   return (
                     <Hourglass
