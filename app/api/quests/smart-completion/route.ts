@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
                 // 2. Check if already completed TODAY
                 const today = new Date().toISOString().split('T')[0];
-                const { data: existing } = await supabase
+                const { data: existingChallenge } = await supabase
                     .from('challenge_completion')
                     .select('*')
                     .eq('challenge_id', questId)
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
                     .maybeSingle();
 
                 if (completed) {
-                    if (existing) {
+                    if (existingChallenge) {
                         return { success: true, completed: true, alreadyCompleted: true, message: 'Already completed today' };
                     }
 
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
                         medium: { xp: 50, gold: 50 },
                         hard: { xp: 100, gold: 100 }
                     };
-                    const baseRewards = difficultyRewards[challenge.difficulty || 'medium'] || { xp: 50, gold: 50 };
+                    const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
 
                     // Guardian Pet Perk Multiplier (+1% XP per pet level on matching category challenges)
                     let guardianPerkMultiplier = 1;
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
 
                         const petState = (petPref?.preference_value as any);
                         if (petState && petState.selectedId && petState.level > 1) {
-                            const challengeCat = (challenge.category || '').toLowerCase();
+                            const challengeCat = (quest.category || '').toLowerCase();
                             const GUARDIAN_FOCUS_MAP: Record<string, string[]> = {
                                 'ember-drake': ['might', 'agility'],
                                 'sage-owl': ['knowledge', 'intelligence'],
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
                             .maybeSingle();
 
                         const activeExp = (prefData?.preference_value as any);
-                        const categoryName = (challenge.category || 'might').toLowerCase();
+                        const categoryName = (quest.category || 'might').toLowerCase();
                         
                         const isCategoryMatch = (qc: string, jc: string): boolean => {
                             if (jc === 'knowledge' || jc === 'pilgrimage-knowledge') return qc.includes('know') || qc.includes('intel') || qc.includes('read') || qc.includes('study') || qc.includes('learn');
@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
                             .maybeSingle();
 
                         const allDistricts = (focusPrefs?.preference_value as any) || {};
-                        const categoryName = (challenge.category || 'might').toLowerCase();
+                        const categoryName = (quest.category || 'might').toLowerCase();
                         let updated = false;
 
                         Object.keys(allDistricts).forEach(key => {
@@ -312,7 +312,7 @@ export async function POST(req: NextRequest) {
                                 }, { onConflict: 'user_id,preference_key' });
 
                             if (newCount % 3 === 0) {
-                                const category = (challenge.category || 'might').toLowerCase();
+                                const category = (quest.category || 'might').toLowerCase();
                                 
                                  const templates: Record<string, string[]> = {
                                      might: [
@@ -407,9 +407,9 @@ export async function POST(req: NextRequest) {
                     return { success: true, completed: true, rewards };
                 } else {
                     // UNCOMPLETE CHALLENGE
-                    if (existing) {
-                        const revokedXP = existing.xp_earned || (challenge.xp || 50);
-                        const revokedGold = existing.gold_earned || (challenge.gold || 25);
+                    if (existingChallenge) {
+                        const revokedXP = existingChallenge.xp_earned || (quest.xp_reward || 50);
+                        const revokedGold = existingChallenge.gold_earned || (quest.gold_reward || 25);
 
                         await supabase
                             .from('challenge_completion')
@@ -556,7 +556,7 @@ export async function POST(req: NextRequest) {
                     });
 
                 if (insertError) {
-                    if (insertError.code === '23505') { // Duplicate key
+                    if ((insertError as any).code === '23505') { // Duplicate key
                         return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
                     }
                     throw insertError;
@@ -703,7 +703,7 @@ export async function POST(req: NextRequest) {
                         .eq('preference_key', 'enable_chronicle_filler')
                         .maybeSingle();
 
-                    const isFillerEnabled = fillerPref ? fillerPref.preference_value !== false : true;
+                    const isFillerEnabled = (fillerPref as any)?.preference_value !== false;
 
                     if (isFillerEnabled) {
                         const { data: countPref } = await supabase
@@ -713,7 +713,7 @@ export async function POST(req: NextRequest) {
                             .eq('preference_key', 'total_habit_completions')
                             .maybeSingle();
 
-                        const currentCount = typeof countPref?.preference_value === 'number' ? countPref.preference_value : 0;
+                        const currentCount = typeof (countPref as any)?.preference_value === 'number' ? (countPref as any).preference_value : 0;
                         const newCount = currentCount + 1;
 
                         await supabase
@@ -787,7 +787,7 @@ export async function POST(req: NextRequest) {
                                 .eq('preference_key', 'chronicle_filler_episodes')
                                 .maybeSingle();
 
-                            const listEp = Array.isArray(fillPref?.preference_value) ? fillPref.preference_value : [];
+                            const listEp = Array.isArray((fillPref as any)?.preference_value) ? (fillPref as any).preference_value : [];
                             const newEpisode = {
                                 id: `filler-${Date.now()}`,
                                 date: new Date().toISOString().split('T')[0],
@@ -858,6 +858,7 @@ export async function POST(req: NextRequest) {
                             .eq('item_id', materialId)
                             .maybeSingle();
 
+                        const mat = materialRef as any;
                         if (existingItem) {
                             await supabase
                                 .from('inventory_items')
@@ -868,20 +869,20 @@ export async function POST(req: NextRequest) {
                                 .from('inventory_items')
                                 .insert({
                                     user_id: userId,
-                                    item_id: materialRef.id,
-                                    name: materialRef.name,
-                                    type: materialRef.type,
-                                    category: materialRef.category,
-                                    description: materialRef.description,
-                                    emoji: materialRef.emoji,
-                                    image: materialRef.image,
-                                    stats: materialRef.stats || {},
+                                    item_id: mat.id,
+                                    name: mat.name,
+                                    type: mat.type,
+                                    category: mat.category,
+                                    description: mat.description,
+                                    emoji: mat.emoji,
+                                    image: mat.image,
+                                    stats: mat.stats || {},
                                     quantity: 1,
                                     equipped: false,
                                     is_default: false
                                 });
                         }
-                        scavengedMaterial = { name: materialRef.name, emoji: materialRef.emoji };
+                        scavengedMaterial = { name: mat.name, emoji: mat.emoji };
                     }
                 }
 
