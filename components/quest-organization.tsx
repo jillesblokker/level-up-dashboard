@@ -356,8 +356,24 @@ export function QuestOrganization({
     }
   }
 
-  const activeQuests = sortedQuests.filter(q => !q.completed);
-  const conqueredQuests = quests.filter(q => q.completed);
+  const [recentlyCompletedIds, setRecentlyCompletedIds] = useState<Set<string>>(new Set());
+
+  const handleToggleWrapper = (questId: string, completed: boolean) => {
+    if (completed) {
+      setRecentlyCompletedIds(prev => new Set(prev).add(questId));
+      setTimeout(() => {
+        setRecentlyCompletedIds(prev => {
+          const next = new Set(prev);
+          next.delete(questId);
+          return next;
+        });
+      }, 800);
+    }
+    onQuestToggle(questId, completed);
+  };
+
+  const activeQuests = sortedQuests.filter(q => !q.completed || recentlyCompletedIds.has(q.id));
+  const conqueredQuests = quests.filter(q => q.completed && !recentlyCompletedIds.has(q.id));
 
   return (
     <div className="space-y-6">
@@ -704,7 +720,7 @@ export function QuestOrganization({
                               category={quest.category}
                               onToggle={(questId, completed) => {
                                 logger.debug('[QuestOrganization] Toggle called:', { questId, completed, context });
-                                onQuestToggle(questId, completed);
+                                handleToggleWrapper(questId, completed);
                               }}
                               variant="checkbox"
                             />

@@ -41,23 +41,15 @@ const questUpdateSchema = z.object({
 // Helper to extract and verify Clerk JWT, returns userId or null
 async function getUserIdFromRequest(request: Request): Promise<string | null> {
   try {
+    const { verifyClerkJWT } = await import('@/lib/supabase/jwt-verification');
+    const authResult = await verifyClerkJWT(request);
+    if (authResult?.userId) return authResult.userId;
+
     const { userId: authUserId } = await auth();
     if (authUserId) return authUserId;
 
     const { userId: getAuthUserId } = await getAuth(request as NextRequest);
     if (getAuthUserId) return getAuthUserId;
-
-    const authHeader = request.headers.get('authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      if (token) {
-        const parts = token.split('.');
-        if (parts.length === 3 && parts[1]) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-          if (payload.sub) return payload.sub;
-        }
-      }
-    }
 
     return null;
   } catch (e) {
