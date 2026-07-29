@@ -520,7 +520,7 @@ export async function POST(req: NextRequest) {
                 const { error: insertError } = await supabase
                     .from('quest_completion')
                     .insert({
-                        quest_id: questId,
+                        quest_id: quest.id || questId,
                         user_id: userId,
                         completed: true,
                         completed_at: new Date().toISOString(),

@@ -302,23 +302,36 @@ export async function GET(request: Request) {
 
         // Show as completed if there's a completion record for today
         if (todayCompletion && todayCompletion.completed !== false) {
-          completedQuests.set(questId, {
+          const compObj = {
             completed: true,
             completedAt: todayCompletion.completed_at,
             xpEarned: todayCompletion.xp_earned,
             goldEarned: todayCompletion.gold_earned,
             completionId: todayCompletion.id
-          });
+          };
+          const rawId = String(questId);
+          completedQuests.set(rawId, compObj);
+          completedQuests.set(rawId.toLowerCase(), compObj);
         }
       });
     }
 
     // Convert quests to quest format with completion status
     const questsWithCompletions = (quests || []).map((quest: any) => {
-      // Find completion by quest ID or quest name
-      const completion = completedQuests.get(quest.id) || completedQuests.get(quest.name);
-      const isCompleted = completion ? completion.completed : false;
-      const completionDate = completion ? completion.completedAt : null;
+      const qId = String(quest.id || '');
+      const qName = String(quest.name || '');
+      // Find completion by quest ID, quest name, or case-insensitive match
+      const completion = completedQuests.get(qId) || 
+                         completedQuests.get(qId.toLowerCase()) || 
+                         completedQuests.get(qName) || 
+                         completedQuests.get(qName.toLowerCase()) ||
+                         (questCompletions || []).find((c: any) => {
+                           const cId = String(c.quest_id || '').toLowerCase();
+                           return cId === qId.toLowerCase() || cId === qName.toLowerCase();
+                         });
+
+      const isCompleted = completion ? (completion.completed !== false) : false;
+      const completionDate = completion ? (completion.completedAt || completion.completed_at) : null;
 
       logger.debug('[Quests API] Mapping quest:', {
         questId: quest.id,

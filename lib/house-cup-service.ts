@@ -104,19 +104,31 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
   const cupYear = year || new Date().getFullYear();
   const supabase = supabaseServer;
 
-  // 1. Get viewer's allies/friends list
+  // 1. Get viewer's allies/friends list (or top realm players automatically)
   const { data: friendsData } = await supabase
     .from('user_friends')
     .select('friend_id, user_id')
-    .or(`user_id.eq.${viewerId},friend_id.eq.${viewerId}`)
-    .eq('status', 'accepted');
+    .or(`user_id.eq.${viewerId},friend_id.eq.${viewerId}`);
 
   const circleUserIds = new Set<string>([viewerId]);
   if (friendsData) {
     friendsData.forEach(f => {
-      if (f.user_id === viewerId) circleUserIds.add(f.friend_id);
-      if (f.friend_id === viewerId) circleUserIds.add(f.user_id);
+      if (f.user_id === viewerId && f.friend_id) circleUserIds.add(f.friend_id);
+      if (f.friend_id === viewerId && f.user_id) circleUserIds.add(f.user_id);
     });
+  }
+
+  // If fewer than 5 members, automatically include top realm players so the cup is alive without manual invites
+  if (circleUserIds.size < 5) {
+    const { data: topPlayers } = await supabase
+      .from('character_stats')
+      .select('user_id')
+      .neq('user_id', viewerId)
+      .limit(10);
+
+    if (topPlayers) {
+      topPlayers.forEach(p => circleUserIds.add(p.user_id));
+    }
   }
 
   const userIdsArray = Array.from(circleUserIds);
