@@ -11,18 +11,23 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const HINTS_BY_ROUTE: Record<string, string[]> = {
   '/quests': [
+    "Looking for a quest to add to your list? Here is some inspiration: visit a local market or take a new route home!",
+    "Need quest inspiration? Try: drink 2 full glasses of fresh water before noon or step outside for 5 minutes of quiet sunlight.",
+    "Searching for habit inspiration? How about: do 15 push-ups or stretch for 3 minutes after waking up!",
+    "Here is some daily quest inspiration: clean and organize your main desk area or write down 3 things you are grateful for today.",
     "Focus on your daily habits! Completing them damages the monthly Titan Wyrm.",
-    "Check off tasks to earn gold and level up your character attributes.",
     "Favorite your key habits to keep them right at the top of your list!"
   ],
   '/kingdom': [
+    "Looking for a quest to add to your list? Here is some inspiration: visit a local market or take a new route home!",
     "Feed your wandering citizens to keep them producing daily gold taxes!",
     "Expand your kingdom grid to build libraries, barracks, and zen gardens.",
     "Visit the Apotheca or Abbey to brew potions and claim spiritual blessings!"
   ],
   '/chronicle': [
     "Your logbook records your daily progress and sovereign reflections.",
-    "Consistency in habit tracking writes the heroic history of Valoreth!"
+    "Consistency in habit tracking writes the heroic history of Valoreth!",
+    "Quest inspiration for your logbook: call or text an old friend to catch up, or go for a 15-minute evening walk."
   ],
   '/character': [
     "Refine your character attributes and unlock legendary titles!",
@@ -36,15 +41,19 @@ const HINTS_BY_ROUTE: Record<string, string[]> = {
     "Review your achievement trophies, unlock mythic cards, and tune preferences."
   ],
   '/daily-hub': [
+    "Looking for a quest to add to your list? Here is some inspiration: visit a local market or take a new route home!",
     "Complete your daily routine to maintain your streak and claim rewards!"
   ],
   '/market': [
-    "Browse local merchants for rare tiles, materials, and mythic card packs!"
+    "Browse local merchants for rare tiles, materials, and mythic card packs!",
+    "Daily quest inspiration: visit a local market or take a new route home!"
   ]
 }
 
 const DEFAULT_HINTS = [
+  "Looking for a quest to add to your list? Here is some inspiration: visit a local market or take a new route home!",
   "Consistency builds your kingdom, one day at a time!",
+  "Need quest inspiration? Try: drink 2 full glasses of fresh water before noon or step outside for 5 minutes of quiet sunlight.",
   "Necrion watches over your realm. Keep your daily streak strong!",
   "Tap your companion or pet anytime for wisdom and tips!"
 ]

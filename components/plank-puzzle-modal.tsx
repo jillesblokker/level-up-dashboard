@@ -125,7 +125,7 @@ const PUZZLE_VARIATIONS: Plank[][] = [
     { id: "block3", row: 4, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
     { id: "block4", row: 1, col: 4, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" }
   ],
-  // Variation 7 (Par: 4)
+  // Variation 7 (Novice - Par: 4)
   [
     {
       id: "target",
@@ -141,10 +141,169 @@ const PUZZLE_VARIATIONS: Plank[][] = [
     { id: "block2", row: 3, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
     { id: "block3", row: 4, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
     { id: "block4", row: 0, col: 1, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" }
+  ],
+  // Variation 8 (Apprentice - Par: 7)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 1,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 3, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 3, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 5, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 0, col: 0, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 4, col: 1, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" }
+  ],
+  // Variation 9 (Apprentice - Par: 8)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 0,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 1, col: 2, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 3, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 4, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" }
+  ],
+  // Variation 10 (Challenger - Par: 11)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 0,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 2, col: 2, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 1, col: 5, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 4, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 5, col: 2, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "F" }
+  ],
+  // Variation 11 (Challenger - Par: 12)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 1,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 0, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 4, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 2, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 3, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 3, col: 1, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
+    { id: "block7", row: 4, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "G" }
+  ],
+  // Variation 12 (Veteran - Par: 14)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 0,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 2, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 5, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 3, col: 2, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 3, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 4, col: 0, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "F" }
+  ],
+  // Variation 13 (Veteran - Par: 15)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 0,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 2, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 2, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 1, col: 5, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 3, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
+    { id: "block7", row: 4, col: 2, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "G" }
+  ],
+  // Variation 14 (Master - Par: 16)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 1,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 1, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 1, col: 4, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 3, col: 3, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 4, col: 1, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
+    { id: "block7", row: 5, col: 2, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "G" }
+  ],
+  // Variation 15 (Master - Par: 18)
+  [
+    {
+      id: "target",
+      row: 2,
+      col: 0,
+      length: 2,
+      orientation: "horizontal",
+      isTarget: true,
+      color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
+      label: "Ancient Keystone"
+    },
+    { id: "block1", row: 0, col: 2, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 0, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 2, col: 2, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 2, col: 4, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 3, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
+    { id: "block7", row: 4, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "G" },
+    { id: "block8", row: 5, col: 0, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "H" }
   ]
 ]
 
-const PAR_SCORES = [4, 5, 4, 5, 5, 4, 4]
+const PAR_SCORES = [4, 5, 4, 5, 5, 4, 4, 7, 8, 11, 12, 14, 15, 16, 18]
+const PUZZLE_DIFFICULTIES = [
+  "Novice", "Novice", "Novice", "Novice", "Novice", "Novice", "Novice",
+  "Apprentice", "Apprentice", "Challenger", "Challenger", "Veteran", "Veteran", "Master", "Master"
+]
 
 export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleModalProps) {
   const [planks, setPlanks] = useState<Plank[]>(PUZZLE_VARIATIONS[0]!)
@@ -448,7 +607,12 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
           {/* Stats Bar */}
           <div className="flex justify-between items-center w-full px-4 text-xs font-mono tracking-wider text-amber-500 font-semibold">
             <div className="flex flex-col gap-1">
-              <span>LEVEL VARIATION: <strong className="text-white font-extrabold">{activeVariationIndex + 1} / 7</strong></span>
+              <div className="flex items-center gap-2">
+                <span>VARIATION: <strong className="text-white font-extrabold">{activeVariationIndex + 1} / {PUZZLE_VARIATIONS.length}</strong></span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-medieval tracking-widest bg-amber-950/80 border border-amber-500/40 text-amber-300 uppercase">
+                  {PUZZLE_DIFFICULTIES[activeVariationIndex]}
+                </span>
+              </div>
               <span>TARGET PAR: <strong className="text-white font-extrabold">{PAR_SCORES[activeVariationIndex]} Moves</strong></span>
             </div>
             <div className="flex flex-col items-end gap-1">

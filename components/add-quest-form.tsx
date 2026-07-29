@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Star, Zap, Flame, Trophy } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Star, Zap, Flame, Trophy, Sparkles } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from '@/components/ui/use-toast'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -31,6 +31,17 @@ const categoryLabels = {
 };
 
 const questCategories = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
+
+const INSPIRATION_PRESETS = [
+    { name: "Visit a local market", desc: "Explore local merchants and fresh ingredients", category: "exploration", difficulty: "easy" },
+    { name: "Take a new route home", desc: "Discover unfamiliar streets or scenic paths", category: "exploration", difficulty: "easy" },
+    { name: "Drink 2 glasses of fresh water", desc: "Hydrate early before noon", category: "vitality", difficulty: "easy" },
+    { name: "Read 10 pages of a book", desc: "Focus mind and gain wisdom", category: "knowledge", difficulty: "easy" },
+    { name: "15 morning push-ups", desc: "Build physical might and discipline", category: "might", difficulty: "medium" },
+    { name: "Write 3 things grateful for", desc: "Reflect on sovereign blessings", category: "wellness", difficulty: "easy" },
+    { name: "Clean & organize main desk", desc: "Tidy working space for high productivity", category: "castle", difficulty: "easy" },
+    { name: "Call or text an old friend", desc: "Nurture honorable bonds and fellowship", category: "honor", difficulty: "easy" },
+];
 
 interface AddQuestFormProps {
     onSuccess: () => void;
@@ -149,6 +160,33 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                     </div>
                 </div>
             )}
+
+            {/* Quest Inspiration Bar */}
+            <div className="space-y-2 bg-amber-950/20 p-3 rounded-xl border border-amber-900/30">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                    Looking for quest inspiration? Tap a preset to fill:
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                    {INSPIRATION_PRESETS.map((preset, idx) => (
+                        <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setNewQuest(prev => ({
+                                ...prev,
+                                name: preset.name,
+                                description: preset.desc,
+                                category: preset.category,
+                                difficulty: preset.difficulty
+                            }))}
+                            className="px-2.5 py-1 bg-zinc-900/80 hover:bg-amber-950/60 border border-amber-800/40 hover:border-amber-500/60 text-amber-200 text-xs rounded-lg transition-all text-left flex items-center gap-1"
+                        >
+                            <Sparkles className="w-2.5 h-2.5 text-amber-400/80" />
+                            {preset.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             <div className="space-y-2">
                 <label className="text-sm font-bold tracking-wider text-amber-500/80 ml-1">{TEXT_CONTENT.quests.form.titleLabel}</label>
