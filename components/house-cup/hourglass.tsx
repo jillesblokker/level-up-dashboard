@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { calculateFillCurve } from '@/lib/house-cup-service';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +8,8 @@ export interface HourglassProps {
   emoji: string;
   color: string;
   points: number;
+  seenPoints?: number;
+  staggerDelayMs?: number;
   variant?: 'large' | 'compact';
   onClick?: () => void;
   className?: string;
@@ -19,12 +21,43 @@ export function Hourglass({
   emoji,
   color,
   points,
+  seenPoints,
+  staggerDelayMs = 0,
   variant = 'large',
   onClick,
   className,
 }: HourglassProps) {
-  const fillPercentage = calculateFillCurve(points) * 100;
-  const isOverflow = points > 50000;
+  const [animatedPoints, setAnimatedPoints] = useState<number>(
+    seenPoints !== undefined ? seenPoints : points
+  );
+  const [showDeltaBadge, setShowDeltaBadge] = useState(false);
+
+  useEffect(() => {
+    const prefersReducedMotion = typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      setAnimatedPoints(points);
+      if (seenPoints !== undefined && points > seenPoints) {
+        setShowDeltaBadge(true);
+      }
+      return undefined;
+    }
+
+    if (seenPoints !== undefined && points !== seenPoints) {
+      const timer = setTimeout(() => {
+        setAnimatedPoints(points);
+      }, staggerDelayMs);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimatedPoints(points);
+      return undefined;
+    }
+  }, [points, seenPoints, staggerDelayMs]);
+
+  const fillPercentage = calculateFillCurve(animatedPoints) * 100;
+  const isOverflow = animatedPoints > 50000;
+  const delta = seenPoints !== undefined ? points - seenPoints : 0;
 
   if (variant === 'compact') {
     return (
@@ -36,16 +69,14 @@ export function Hourglass({
           className
         )}
       >
-        {/* Sand Fill */}
         <div
-          className="w-full transition-all duration-700 ease-out rounded-b-sm"
+          className="w-full transition-all duration-1000 ease-out rounded-b-sm"
           style={{
             height: `${fillPercentage}%`,
             backgroundColor: color,
             boxShadow: isOverflow ? `0 0 6px ${color}` : undefined,
           }}
         />
-        {/* Category Glyph */}
         <span className="absolute inset-0 flex items-center justify-center text-[9px] select-none opacity-80 group-hover:opacity-100">
           {emoji}
         </span>
@@ -57,10 +88,17 @@ export function Hourglass({
     <div
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center gap-1.5 cursor-pointer group p-2 rounded-xl bg-zinc-900/60 border border-amber-900/20 hover:border-amber-500/40 transition-all hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]",
+        "flex flex-col items-center gap-1.5 cursor-pointer group p-2 rounded-xl bg-zinc-900/60 border border-amber-900/20 hover:border-amber-500/40 transition-all hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative",
         className
       )}
     >
+      {/* Reduced motion +N indicator badge */}
+      {showDeltaBadge && delta > 0 && (
+        <div className="absolute -top-2 -right-1 bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-bounce shadow-md">
+          +{delta}
+        </div>
+      )}
+
       {/* Category Header */}
       <div className="flex items-center gap-1 text-xs font-medium text-zinc-300 group-hover:text-amber-400 transition-colors">
         <span className="text-sm select-none">{emoji}</span>
@@ -76,7 +114,7 @@ export function Hourglass({
 
         {/* Sand Fill */}
         <div
-          className="w-full transition-all duration-700 ease-out rounded-b-sm"
+          className="w-full transition-all duration-1000 ease-out rounded-b-sm"
           style={{
             height: `${fillPercentage}%`,
             background: `linear-gradient(to top, ${color}, ${color}dd)`,
@@ -89,7 +127,7 @@ export function Hourglass({
 
         {/* Points Display */}
         <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] select-none">
-          {points > 999 ? `${(points / 1000).toFixed(1)}k` : points}
+          {animatedPoints > 999 ? `${(animatedPoints / 1000).toFixed(1)}k` : animatedPoints}
         </div>
       </div>
     </div>

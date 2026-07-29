@@ -20,16 +20,41 @@ const CATEGORY_META: Record<string, { name: string; emoji: string; color: string
 
 export function HouseCupPanel() {
   const [standings, setStandings] = useState<HouseCupStandings[]>([]);
+  const [seenMap, setSeenMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<HouseCupStandings | null>(null);
 
   const loadStandings = async () => {
     try {
       setLoading(true);
-      const res = await fetchWithAuth('/api/house-cup/standings');
-      if (res.ok) {
-        const data = await res.json();
+      const [resStandings, resSeen] = await Promise.all([
+        fetchWithAuth('/api/house-cup/standings'),
+        fetchWithAuth('/api/house-cup/seen'),
+      ]);
+
+      if (resStandings.ok) {
+        const data = await resStandings.json();
         setStandings(data.standings || []);
+
+        if (resSeen.ok) {
+          const seenData = await resSeen.json();
+          setSeenMap(seenData.seen || {});
+
+          // Sync updated points back to seen after stagger animation completes (~2s)
+          const viewerObj = (data.standings || []).find((s: HouseCupStandings) => s.is_viewer);
+          if (viewerObj && viewerObj.categories) {
+            const updatedSeenPayload: Record<string, number> = {};
+            Object.keys(viewerObj.categories).forEach(cat => {
+              updatedSeenPayload[cat] = viewerObj.categories[cat].points || 0;
+            });
+            setTimeout(() => {
+              fetchWithAuth('/api/house-cup/seen', {
+                method: 'POST',
+                body: JSON.stringify({ seenMap: updatedSeenPayload }),
+              }).catch(() => {});
+            }, 2500);
+          }
+        }
       }
     } catch (err) {
       logger.error('[HouseCupPanel] Error loading standings:', err);
@@ -89,8 +114,9 @@ export function HouseCupPanel() {
                 <span className="text-zinc-400 font-normal">Total Points: {viewerStanding.total_points.toLocaleString()}</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
-                {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
+                {Object.entries(CATEGORY_META).map(([catKey, meta], idx) => {
                   const pts = viewerStanding.categories[catKey]?.points || 0;
+                  const seenPts = seenMap[catKey] !== undefined ? seenMap[catKey] : pts;
                   return (
                     <Hourglass
                       key={catKey}
@@ -99,6 +125,8 @@ export function HouseCupPanel() {
                       emoji={meta.emoji}
                       color={meta.color}
                       points={pts}
+                      seenPoints={seenPts}
+                      staggerDelayMs={idx * 80}
                       variant="large"
                       onClick={() => setSelectedUser(viewerStanding)}
                     />
