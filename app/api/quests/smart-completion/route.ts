@@ -535,16 +535,32 @@ export async function POST(req: NextRequest) {
                     throw insertError;
                 }
 
-                // Record House Cup (+1 point for Quest completion)
+                // Record House Cup (+1 point for Quest completion, +10 for Friend Quest Dares to both recipient & sender)
                 try {
                     const { recordHouseCupPoints } = await import('@/lib/house-cup-service');
+                    const isFriendQuest = !!quest.is_friend_quest;
+                    const pointsToAward = isFriendQuest ? 10 : 1;
+                    const sourceType = isFriendQuest ? 'challenge' : 'quest';
+
+                    // 1. Recipient (completer)
                     await recordHouseCupPoints({
                         userId,
                         categoryId: quest.category || 'might',
-                        sourceType: 'quest',
+                        sourceType: sourceType,
                         sourceId: questId,
-                        points: 1,
+                        points: pointsToAward,
                     });
+
+                    // 2. Sender (if friend quest dare)
+                    if (isFriendQuest && quest.sender_id && quest.sender_id !== userId) {
+                        await recordHouseCupPoints({
+                            userId: quest.sender_id,
+                            categoryId: quest.category || 'might',
+                            sourceType: sourceType,
+                            sourceId: questId,
+                            points: pointsToAward,
+                        });
+                    }
                 } catch (houseCupErr) {
                     logger.error('[Smart Completion] House Cup points record error:', houseCupErr);
                 }

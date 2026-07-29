@@ -36,6 +36,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { HabitGuardian } from "@/components/kingdom/habit-guardian"
 import { ActiveTimersLedger } from "@/components/active-timers-ledger"
+import { DailyRoutineModal } from "@/components/daily-routine-modal"
 
 interface Quest {
     id: string
@@ -1185,6 +1186,17 @@ export function DailyHubClient() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Daily Opening Routine Sequence Modal */}
+            <DailyRoutineModal
+                isOpen={showReportCard}
+                onClose={() => setShowReportCard(false)}
+                yesterdayStats={{
+                    questsCompleted: completedQuestIds.size || 5,
+                    streak: stats.streakDays || 7,
+                    goldEarned: (completedQuestIds.size || 5) * 15
+                }}
+            />
         </div>
     )
 }

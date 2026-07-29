@@ -47,6 +47,28 @@ export const CREATURE_DATA: Record<string, CreatureDef> = {
 
 export const CREATURE_IDS = Object.keys(CREATURE_DATA);
 
+export interface HabitCombatBuffs {
+  atkBonusPercent: number; // From Might habits (+5% per habit, max 25%)
+  defBonusPercent: number; // From Knowledge habits (+5% per habit, max 25%)
+  hpBonusPercent: number;  // From Vitality habits (+5% per habit, max 25%)
+  regenPerTurn: number;    // From Wellness habits (+4 HP per turn)
+}
+
+export function calculateHabitCombatBuffs(completedCategories: string[]): HabitCombatBuffs {
+  const counts: Record<string, number> = {};
+  completedCategories.forEach(cat => {
+    const slug = (cat || 'might').toLowerCase();
+    counts[slug] = (counts[slug] || 0) + 1;
+  });
+
+  return {
+    atkBonusPercent: Math.min(25, (counts['might'] || 0) * 5),
+    defBonusPercent: Math.min(25, (counts['knowledge'] || 0) * 5),
+    hpBonusPercent: Math.min(25, (counts['vitality'] || 0) * 5),
+    regenPerTurn: Math.min(20, (counts['wellness'] || 0) * 4),
+  };
+}
+
 export function getMatchupMultiplier(attacker: CreatureType, defender: CreatureType): number {
     if (attacker === defender) return 1;
 
