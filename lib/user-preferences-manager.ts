@@ -23,18 +23,9 @@ export async function getUserPreference(key: string): Promise<unknown> {
     }
   } catch { /* SSR or private browsing */ }
 
-  // 2. Only hit the API if we believe the user is signed in
-  //    (Clerk sets a __session cookie when authenticated)
-  const hasSession = typeof document !== 'undefined' &&
-    document.cookie.split(';').some(c => c.trim().startsWith('__session=') || c.trim().startsWith('__clerk_db_jwt='));
-
-  if (!hasSession) return null;
-
   try {
-    const response = await fetch(`/api/user-preferences?key=${encodeURIComponent(key)}`, {
-      credentials: 'include',
-    });
-    if (!response.ok) return null;          // silently ignore 401/403/5xx
+    const response = await fetchWithAuth(`/api/user-preferences?key=${encodeURIComponent(key)}`);
+    if (!response.ok) return null; // silently ignore 401/403/5xx
     const data = await response.json();
     // Cache in localStorage for next time
     if (data.value !== null && data.value !== undefined) {

@@ -2,15 +2,16 @@
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {
   const doFetch = async () => {
     try {
-      const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
+      let clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
       let token = await clerk?.session?.getToken?.();
       
-      // If token is missing but Clerk is loading, retry up to 3 times
-      if (!token && clerk?.session) {
-        for (let attempt = 0; attempt < 3; attempt++) {
-          await new Promise(r => setTimeout(r, 50));
+      // If token is missing, poll briefly (up to 1.5s) while Clerk finishes initializing (crucial for Brave browser)
+      if (!token && typeof window !== 'undefined') {
+        for (let attempt = 0; attempt < 15; attempt++) {
+          clerk = (window as any).__clerk || (window as any).Clerk || (window as any).clerk;
           token = await clerk?.session?.getToken?.();
           if (token) break;
+          await new Promise(r => setTimeout(r, 100));
         }
       }
 

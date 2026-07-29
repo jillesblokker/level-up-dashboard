@@ -1,6 +1,6 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v2.0.0-force-purge - Direct-pass SW for API, JS bundles, and App Pages; Cache-First for static media assets ONLY
-const CACHE_VERSION = 'v2.0.0-force-purge'
+// v2.1.0-force-purge - Direct-pass SW for API, JS bundles, and App Pages; Cache-First for static media assets ONLY
+const CACHE_VERSION = 'v2.1.0-force-purge'
 const STATIC_CACHE = `level-up-static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `level-up-dynamic-${CACHE_VERSION}`
 
