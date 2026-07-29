@@ -4,9 +4,10 @@ import { HouseCupStandings } from '@/lib/house-cup-service';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Trophy, Crown, Users, UserPlus, Shield, Sparkles } from 'lucide-react';
+import { Trophy, Crown, Users, UserPlus, Shield, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const CATEGORY_META: Record<string, { name: string; emoji: string; color: string }> = {
   might: { name: 'Might', emoji: '💪', color: '#ef4444' },
@@ -17,6 +18,128 @@ const CATEGORY_META: Record<string, { name: string; emoji: string; color: string
   vitality: { name: 'Vitality', emoji: '❤️', color: '#ec4899' },
   wellness: { name: 'Wellness', emoji: '🌿', color: '#10b981' },
 };
+
+/**
+ * 2-Frame Carousel Card for Ally Standings
+ * Frame 1: Info & Stats (First name, Title, Total Points, Category Wins)
+ * Frame 2: 7 Virtue Hourglasses Row
+ */
+function AllyCarouselCard({
+  ally,
+  onSelect,
+}: {
+  ally: HouseCupStandings;
+  onSelect: (ally: HouseCupStandings) => void;
+}) {
+  const [frame, setFrame] = useState<'info' | 'virtues'>('info');
+
+  const toggleFrame = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFrame(prev => (prev === 'info' ? 'virtues' : 'info'));
+  };
+
+  return (
+    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+      {/* Top Header bar with Frame Switcher */}
+      <div className="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs select-none">
+            {ally.display_name.slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <div className="font-semibold text-sm text-zinc-100 group-hover:text-amber-300 transition-colors">
+              {ally.display_name}
+            </div>
+            <div className="text-[11px] text-zinc-400">{ally.title}</div>
+          </div>
+        </div>
+
+        {/* Frame Toggle Controls */}
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleFrame}
+            className="h-7 px-2 text-[11px] text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20"
+          >
+            {frame === 'info' ? '7 Virtues →' : '← Info'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Frame Content */}
+      <div className="flex-1 my-2">
+        <AnimatePresence mode="wait">
+          {frame === 'info' ? (
+            <motion.div
+              key="info"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => onSelect(ally)}
+              className="cursor-pointer space-y-2"
+            >
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+                  <div className="text-[10px] text-zinc-400 uppercase tracking-wider">Total Score</div>
+                  <div className="font-bold text-amber-300 text-sm">{ally.total_points.toLocaleString()} pts</div>
+                </div>
+                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+                  <div className="text-[10px] text-zinc-400 uppercase tracking-wider">Virtue Wins</div>
+                  <div className="font-bold text-emerald-400 text-sm">{ally.categories_won} / 7 Categories</div>
+                </div>
+              </div>
+              <p className="text-[11px] text-zinc-400 italic text-center pt-1">
+                Tap card to open full virtue breakdown
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="virtues"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="py-1"
+            >
+              {/* 7 Compact Hourglasses Row */}
+              <div className="flex items-center justify-between gap-1">
+                {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
+                  const pts = ally.categories[catKey]?.points || 0;
+                  return (
+                    <Hourglass
+                      key={catKey}
+                      categoryId={catKey}
+                      categoryName={meta.name}
+                      emoji={meta.emoji}
+                      color={meta.color}
+                      points={pts}
+                      variant="compact"
+                      onClick={() => onSelect(ally)}
+                    />
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Frame Indicators (Dots) */}
+      <div className="flex justify-center items-center gap-1.5 pt-1">
+        <button
+          onClick={() => setFrame('info')}
+          className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'info' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
+        />
+        <button
+          onClick={() => setFrame('virtues')}
+          className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'virtues' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
+        />
+      </div>
+    </Card>
+  );
+}
 
 export function HouseCupPanel() {
   const [standings, setStandings] = useState<HouseCupStandings[]>([]);
@@ -40,7 +163,6 @@ export function HouseCupPanel() {
           const seenData = await resSeen.json();
           setSeenMap(seenData.seen || {});
 
-          // Sync updated points back to seen after stagger animation completes (~2s)
           const viewerObj = (data.standings || []).find((s: HouseCupStandings) => s.is_viewer);
           if (viewerObj && viewerObj.categories) {
             const updatedSeenPayload: Record<string, number> = {};
@@ -186,50 +308,14 @@ export function HouseCupPanel() {
             </Button>
           </Card>
         ) : (
-          /* Ally Cards List */
+          /* Carousel Ally Cards Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {alliesStandings.map(ally => (
-              <Card
+              <AllyCarouselCard
                 key={ally.user_id}
-                onClick={() => setSelectedUser(ally)}
-                className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all cursor-pointer group hover:shadow-lg"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-amber-400" />
-                    <div>
-                      <div className="font-semibold text-zinc-100 group-hover:text-amber-300 transition-colors">
-                        {ally.display_name}
-                      </div>
-                      <div className="text-xs text-zinc-400">{ally.title}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                      {ally.categories_won} Wins
-                    </span>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{ally.total_points.toLocaleString()} pts</div>
-                  </div>
-                </div>
-
-                {/* 7 Compact Hourglasses Row */}
-                <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-zinc-800">
-                  {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
-                    const pts = ally.categories[catKey]?.points || 0;
-                    return (
-                      <Hourglass
-                        key={catKey}
-                        categoryId={catKey}
-                        categoryName={meta.name}
-                        emoji={meta.emoji}
-                        color={meta.color}
-                        points={pts}
-                        variant="compact"
-                      />
-                    );
-                  })}
-                </div>
-              </Card>
+                ally={ally}
+                onSelect={setSelectedUser}
+              />
             ))}
           </div>
         )}

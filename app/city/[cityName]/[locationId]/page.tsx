@@ -27,6 +27,10 @@ import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
 import { formatGold, cn } from "@/lib/utils"
 import { ShopItemCard } from "@/components/shop-item-card"
+const HouseCupPanel = dynamic(() => import("@/components/house-cup/house-cup-panel").then(m => m.HouseCupPanel), { 
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading House Cup...</div>
+})
 import {
   BLACKSMITH_WEAPONS, BLACKSMITH_SHIELDS, BLACKSMITH_ARMOR,
   STABLE_ITEMS, POTION_ITEMS, SCROLL_ITEMS, ARTIFACT_ITEMS, FOOD_ITEMS,
@@ -820,6 +824,9 @@ function CityLocationPageInner() {
 
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* HOUSE CUP SECTION */}
+            <HouseCupPanel />
+
             {/* NOTICEBOARD & PARTNER REPORT GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* Bulletin Board Card */}

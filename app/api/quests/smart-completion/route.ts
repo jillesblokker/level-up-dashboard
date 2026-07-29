@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
                 .maybeSingle();
 
             let quest = fetchedQuest;
+            let isChallengeTarget = false;
             if (!quest) {
                 const { data: challenge } = await supabase
                     .from('challenges')
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
                     .maybeSingle();
 
                 if (challenge) {
+                    isChallengeTarget = true;
                     quest = {
                         id: challenge.id,
                         name: challenge.name || challenge.title || 'Quest',
@@ -73,7 +75,8 @@ export async function POST(req: NextRequest) {
                 }
             }
 
-                // 2. Check if already completed TODAY
+            if (isChallengeTarget) {
+                // 2. Check if already completed TODAY for challenges
                 const today = new Date().toISOString().split('T')[0];
                 const { data: existingChallenge } = await supabase
                     .from('challenge_completion')
@@ -88,45 +91,15 @@ export async function POST(req: NextRequest) {
                         return { success: true, completed: true, alreadyCompleted: true, message: 'Already completed today' };
                     }
 
-                    // 3. Insert completion
+                    // 3. Insert completion into challenge_completion (without invalid gold_earned/xp_earned columns)
                     const difficultyRewards: Record<string, { xp: number; gold: number }> = {
                         easy: { xp: 25, gold: 25 },
                         medium: { xp: 50, gold: 50 },
                         hard: { xp: 100, gold: 100 }
                     };
                     const baseRewards = difficultyRewards[quest.difficulty || 'medium'] || { xp: 50, gold: 50 };
-
-                    // Guardian Pet Perk Multiplier (+1% XP per pet level on matching category challenges)
-                    let guardianPerkMultiplier = 1;
-                    try {
-                        const { data: petPref } = await supabase
-                            .from('user_preferences')
-                            .select('preference_value')
-                            .eq('user_id', userId)
-                            .eq('preference_key', 'habit_guardian_state')
-                            .maybeSingle();
-
-                        const petState = (petPref?.preference_value as any);
-                        if (petState && petState.selectedId && petState.level > 1) {
-                            const challengeCat = (quest.category || '').toLowerCase();
-                            const GUARDIAN_FOCUS_MAP: Record<string, string[]> = {
-                                'ember-drake': ['might', 'agility'],
-                                'sage-owl': ['knowledge', 'intelligence'],
-                                'spirit-sprite': ['vitality', 'spiritual', 'wellness']
-                            };
-                            const focusCategories = GUARDIAN_FOCUS_MAP[petState.selectedId] || [];
-                            const isMatch = focusCategories.some(fc => challengeCat.includes(fc));
-                            if (isMatch) {
-                                guardianPerkMultiplier = 1 + (petState.level * 0.01);
-                                logger.debug(`[Guardian Perk] +${petState.level}% XP bonus on challenge (${petState.selectedId} lvl ${petState.level}, cat: ${challengeCat})`);
-                            }
-                        }
-                    } catch (err) {
-                        logger.error('[Guardian Perk] Failed to apply pet perk on challenge:', err);
-                    }
-
                     const rewards = {
-                        xp: Math.floor(baseRewards.xp * streakMultiplier * guardianPerkMultiplier),
+                        xp: Math.floor(baseRewards.xp * streakMultiplier),
                         gold: Math.floor(baseRewards.gold * streakMultiplier)
                     };
 
@@ -137,8 +110,7 @@ export async function POST(req: NextRequest) {
                             user_id: userId,
                             completed: true,
                             date: today,
-                            xp_earned: rewards.xp,
-                            gold_earned: rewards.gold
+                            completed_at: new Date().toISOString(),
                         });
 
                     if (insertError) {
@@ -439,6 +411,7 @@ export async function POST(req: NextRequest) {
                     }
                     return { success: true, message: 'Not completed today' };
                 }
+            }
 
             // Quest found in 'quests' table
             const requestTz = req.headers.get('x-timezone') || undefined;
