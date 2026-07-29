@@ -21,7 +21,7 @@ export default function ChroniclePage() {
     const [isJournalOpen, setIsJournalOpen] = useState(false)
     const [journalEntry, setJournalEntry] = useState<any | null>(null)
     const [filterDate, setFilterDate] = useState<string>('') // YYYY-MM format
-    const supabase = createClientComponentClient()
+    const supabase = (typeof window !== 'undefined' ? (require('@/lib/supabase/client').supabase) : null);
 
     const { getToken } = useAuth()
 

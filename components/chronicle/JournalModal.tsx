@@ -35,7 +35,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
     // Better: Add a useEffect dependency.
 
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const supabase = createClientComponentClient()
+    const supabase = (typeof window !== 'undefined' ? (require('@/lib/supabase/client').supabase) : null);
 
     const { getToken } = useAuth()
 

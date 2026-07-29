@@ -6,13 +6,12 @@ let supabaseInstance: SupabaseClient<Database> | null = null
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    supabaseInstance = createClient<Database>(
-      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!
-    )
+    const url = process.env['NEXT_PUBLIC_SUPABASE_URL'] || 'https://placeholder.supabase.co';
+    const key = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+    supabaseInstance = createClient<Database>(url, key);
   }
-  return supabaseInstance
-})()
+  return supabaseInstance;
+})();
 
 // Export the instance directly for backward compatibility
 export { supabase as default }

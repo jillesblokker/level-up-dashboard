@@ -20,7 +20,7 @@ interface AchievementsModalProps {
 export function AchievementsModal({ open, onOpenChange, userId }: AchievementsModalProps) {
     const [unlocked, setUnlocked] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true);
-    const supabase = createClientComponentClient();
+    const supabase = (typeof window !== 'undefined' ? (require('@/lib/supabase/client').supabase) : null);
 
     const fetchAchievements = useCallback(async () => {
         if (!userId) return;

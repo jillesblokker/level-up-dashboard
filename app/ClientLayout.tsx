@@ -34,7 +34,7 @@ export default function ClientLayout({
         if (lastAttempt === today) return;
 
         // 2. Check Database (Authority)
-        const supabase = createClientComponentClient();
+        const { supabase } = await import('@/lib/supabase/client');
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
