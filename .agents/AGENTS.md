@@ -1,6 +1,6 @@
 # Thrivehaven — Product vision & rules
 
-> Source: Creator interview, July 2026
+> Source: Creator interview, July 2026 (Updated late July 2026)
 
 ## Core promise
 
@@ -25,10 +25,23 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - Must feel **fun and "laagdrempelig" (low barrier)** — NOT a task list
 - Categories (Might, Knowledge, Honor, etc.) should **meaningfully affect gameplay**
 
-## Kingdom
+## House Cup & Seasons
+
+- **Real-time 7 Virtue Hourglasses**: `Might`, `Knowledge`, `Honor`, `Castle`, `Craft`, `Vitality`, `Wellness`.
+- **Monthly Recap**: In-between monthly stats displayed in a dedicated recap modal.
+- **End of Year Celebration**: Celebratory modal showing house winners and scaling rewards (scaling based on how many allies/circle members participated).
+- **Friend Dares & Virtue Duels**: "I dare you" friend quests and virtue duels award bonus House Cup virtue points and competitive trophies.
+
+## Daily Opening Routine Sequence
+
+1. **Recap of last day**
+2. **Checking off quests**
+3. **House Cup toast, taxes, and then the pet gift**
+
+## Kingdom & Dungeon Loop
 
 - **Visual diary of progress** — real-life growth mirrored in-game
-- **Daily interaction** — dopamine actions bring players back, increasing likelihood they do habits
+- **Gameplay loop**: Completing habits/quests yields Gold & Essences → used to train citizens/fighters → trained citizens clear higher floors in the Dungeon.
 - Tile types have specific roles:
   - **Kingdom tiles** → give rewards
   - **Settlement tiles** (Abbey etc.) → user can enter and perform actions
@@ -39,7 +52,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 
 ## Characters, citizens, creatures
 
-- Citizens: **both functional AND narrative** — world feels alive, interactive, explorable
+- Citizens: **both functional AND narrative** — world feels alive, interactive, explorable. Upgradeable with gold & alchemy essences earned from habits.
 - Guardian pets: **strategic choice** (affects gameplay, not just cosmetic)
 - Mythic cards: **both collectible AND usable as citizens** — make the world feel alive
 
@@ -53,7 +66,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 ## Social
 
 - **Solo must be fun and complete.** But social pressure is scientifically proven to help habits
-- Friend quest dynamic: **competition** ("I dare you")
+- Friend quest dynamic: **competition** ("I dare you") + virtue duels for House Cup bonus points
 - Alliance system: nice-to-have layer on top
 
 ## Page purposes
@@ -62,7 +75,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 |------|------|
 | **Daily hub** | First thing you see every day — the "home" |
 | **Chronicle** | Passive journal (auto-generated from activity). Separate diary system for active writing |
-| **Dungeon** | Mini-game that gets harder. Need to train fighters to keep up |
+| **Dungeon** | Mini-game that gets harder. Need to train fighters with gold/essences to keep up |
 | **Airship harbor** | Tied to **real-world activity** (not passive timers) |
 | **Market** | Mostly shopping (consumables, tiles) |
 | **Realm** | Creative sandbox + friend-visitable showpiece |
