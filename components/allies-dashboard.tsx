@@ -24,6 +24,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GiftModal } from "@/components/gift-modal"
 import { getCharacterStats } from "@/lib/character-stats-service"
+import { Hourglass } from '@/components/house-cup/hourglass'
+
+const CATEGORY_META: Record<string, { name: string; emoji: string; color: string }> = {
+  might: { name: 'Might', emoji: '💪', color: '#ef4444' },
+  knowledge: { name: 'Knowledge', emoji: '📚', color: '#3b82f6' },
+  honor: { name: 'Honor', emoji: '👑', color: '#eab308' },
+  castle: { name: 'Castle', emoji: '🏰', color: '#a855f7' },
+  craft: { name: 'Craft', emoji: '⚒️', color: '#f97316' },
+  vitality: { name: 'Vitality', emoji: '❤️', color: '#ec4899' },
+  wellness: { name: 'Wellness', emoji: '🌿', color: '#10b981' },
+};
 
 interface Friend {
   id: string; // Friendship ID
@@ -43,6 +54,213 @@ interface Friend {
     streak?: number;
     allianceName?: string | null;
   };
+}
+
+function AllyDashboardCard({
+  friend,
+  router,
+  openQuestModal,
+  openCompareModal,
+  setSelectedFriend,
+  setGiftModalOpen,
+  removeFriend,
+}: {
+  friend: Friend;
+  router: any;
+  openQuestModal: (friend: Friend) => void;
+  openCompareModal: (friend: Friend) => void;
+  setSelectedFriend: (friend: Friend) => void;
+  setGiftModalOpen: (open: boolean) => void;
+  removeFriend: (id: string) => void;
+}) {
+  const [frame, setFrame] = useState<'info' | 'virtues'>('info');
+  const level = friend.stats?.level || 1;
+  const titleInfo = getCurrentTitle(level);
+
+  return (
+    <Card className="border border-amber-700/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-amber-950/80 text-amber-100 shadow-xl overflow-hidden relative group/card transition-all hover:border-amber-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] flex flex-col justify-between min-h-[360px]">
+      {/* Header bar with Frame Toggle button */}
+      <div className="p-4 flex items-center justify-between border-b border-amber-900/40 bg-amber-950/40">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Avatar className="h-12 w-12 border-2 border-amber-500 shadow-md">
+              <AvatarImage src={friend.imageUrl} />
+              <AvatarFallback className="bg-amber-950 text-amber-400 font-bold">{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className={cn(
+              "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-zinc-950 z-10",
+              !friend.lastSeen ? "bg-zinc-600" :
+                (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-amber-400"
+            )} />
+          </div>
+          <div>
+            <h4 className="font-medieval text-lg text-amber-200 truncate">{friend.username}</h4>
+            <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+              <Shield className="w-3 h-3 text-amber-500/80" />
+              {friend.stats?.allianceName || "Lone Wanderer"}
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel Frame Toggle Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setFrame(prev => prev === 'info' ? 'virtues' : 'info')}
+          className="h-8 px-2.5 text-xs font-semibold text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 hover:text-amber-300"
+        >
+          {frame === 'info' ? '7 Virtues →' : '← Hero Info'}
+        </Button>
+      </div>
+
+      {/* Frame 1: Hero Info */}
+      {frame === 'info' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <div className="py-6 flex flex-col items-center justify-center bg-gradient-to-b from-transparent via-amber-950/20 to-transparent relative">
+            <div className="relative w-28 h-28 mb-2 drop-shadow-xl transition-transform group-hover/card:scale-105">
+              <Image
+                src={`/images/character/${titleInfo.id}.webp`}
+                alt={titleInfo.name}
+                fill
+                className="object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/character/squire.webp';
+                }}
+              />
+            </div>
+            <Badge className="px-4 py-1 bg-amber-950/60 border-amber-500/40 text-amber-300 uppercase tracking-widest font-medieval text-[10px]">
+              {titleInfo.name}
+            </Badge>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-4 divide-x divide-amber-900/30 border-y border-amber-900/40 bg-zinc-950/80">
+            <div className="p-2.5 text-center">
+              <div className="text-[9px] uppercase tracking-widest text-amber-400/60 font-bold">Level</div>
+              <div className="font-medieval text-base text-amber-200 flex items-center justify-center gap-1 mt-0.5">
+                <Crown className="w-3 h-3 text-amber-400" />
+                {level}
+              </div>
+            </div>
+            <div className="p-2.5 text-center">
+              <div className="text-[9px] uppercase tracking-widest text-amber-400/60 font-bold">Quests</div>
+              <div className="font-medieval text-base text-amber-200 flex items-center justify-center gap-1 mt-0.5">
+                <Scroll className="w-3 h-3 text-blue-400" />
+                {friend.stats?.questsFinished || 0}
+              </div>
+            </div>
+            <div className="p-2.5 text-center">
+              <div className="text-[9px] uppercase tracking-widest text-amber-400/60 font-bold">Might</div>
+              <div className="font-medieval text-base text-amber-200 flex items-center justify-center gap-1 mt-0.5">
+                <Sword className="w-3 h-3 text-red-400" />
+                {friend.stats?.challengesFinished || 0}
+              </div>
+            </div>
+            <div className="p-2.5 text-center">
+              <div className="text-[9px] uppercase tracking-widest text-amber-400/60 font-bold">Gifts</div>
+              <div className="font-medieval text-base text-amber-200 flex items-center justify-center gap-1 mt-0.5">
+                <Gift className="w-3 h-3 text-pink-400" />
+                {friend.stats?.giftsShared || 0}
+              </div>
+            </div>
+          </div>
+
+          {/* Action Row */}
+          <div className="p-3 bg-zinc-950/90 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-amber-950/30 border-amber-800/40 text-amber-300 hover:bg-amber-900/40 text-xs font-semibold"
+                onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
+              >
+                <Crown className="w-3.5 h-3.5 mr-1" /> Visit Realm
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-amber-950/30 border-amber-800/40 text-amber-300 hover:bg-amber-900/40 text-xs font-semibold"
+                onClick={() => openQuestModal(friend)}
+              >
+                <Scroll className="w-3.5 h-3.5 mr-1" /> Issue Quest
+              </Button>
+            </div>
+            <div className="flex items-center justify-around pt-1 text-xs">
+              <Button variant="ghost" size="sm" className="h-7 text-xs text-amber-400/80 hover:text-amber-300" onClick={() => openCompareModal(friend)}>
+                <Target className="w-3 h-3 mr-1" /> Compare
+              </Button>
+              <Button variant="ghost" size="sm" className="h-7 text-xs text-amber-400/80 hover:text-amber-300" onClick={() => { setSelectedFriend(friend); setGiftModalOpen(true); }}>
+                <Gift className="w-3 h-3 mr-1" /> Gift
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-amber-400/80 hover:text-red-400">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-[#0a0a0a] border-amber-900/50">
+                  <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)} className="text-amber-200">
+                    <Shield className="w-4 h-4 mr-2" /> Explore Realm Map
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-400" onClick={() => removeFriend(friend.id)}>
+                    <UserCheck className="w-4 h-4 mr-2" /> Break Alliance
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Frame 2: 7 Virtue Hourglasses */
+        <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
+          <div className="text-center space-y-1">
+            <div className="text-xs font-semibold text-amber-300 flex items-center justify-center gap-1.5">
+              <Trophy className="w-4 h-4 text-amber-400" />
+              7 House Cup Virtues
+            </div>
+            <p className="text-[11px] text-zinc-400 italic">
+              Real-time virtue energy in {new Date().getFullYear()}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 bg-zinc-950/90 p-2.5 rounded-xl border border-amber-900/40">
+            {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
+              const pts = (friend.stats as any)?.[catKey] || Math.floor((friend.stats?.xp || 100) / 7);
+              return (
+                <Hourglass
+                  key={catKey}
+                  categoryId={catKey}
+                  categoryName={meta.name}
+                  emoji={meta.emoji}
+                  color={meta.color}
+                  points={pts}
+                  variant="compact"
+                />
+              );
+            })}
+          </div>
+
+          <div className="p-3 bg-zinc-950/90 rounded-lg border border-amber-900/30 text-center">
+            <div className="text-[11px] text-amber-400/80 font-medium">
+              Ally Level: <span className="text-amber-300 font-bold">{level}</span> • Total XP: <span className="text-amber-300 font-bold">{(friend.stats?.xp || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Frame Indicator Dots */}
+      <div className="flex justify-center items-center gap-1.5 pb-2 pt-1 bg-zinc-950/90 border-t border-amber-900/20">
+        <button
+          onClick={() => setFrame('info')}
+          className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'info' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
+        />
+        <button
+          onClick={() => setFrame('virtues')}
+          className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'virtues' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
+        />
+      </div>
+    </Card>
+  );
 }
 
 export function AlliesDashboard() {
@@ -265,7 +483,6 @@ export function AlliesDashboard() {
             )}
           </TabsTrigger>
         </TabsList>
-
         {/* MY ALLIES TAB */}
         <TabsContent value="allies" className="space-y-4 mt-0">
           {friends.length === 0 ? (
@@ -281,158 +498,18 @@ export function AlliesDashboard() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {friends.map(friend => {
-                const level = friend.stats?.level || 1;
-                const titleInfo = getCurrentTitle(level);
-
-                return (
-                  <Card key={friend.id} className="medieval-card medieval-card-amber overflow-hidden group/card shadow-lg transition-all hover:scale-[1.02] duration-300">
-                    <CardContent className="p-0 flex flex-col h-full">
-                      {/* Card Header Section */}
-                      <div className="p-4 flex items-center gap-4 bg-gradient-to-r from-amber-900/20 to-transparent border-b border-amber-900/30 relative">
-                        <div className="relative">
-                          <Avatar className="h-14 w-14 border-2 border-amber-500 shadow-lg transition-transform duration-500 group-hover/card:scale-105">
-                            <AvatarImage src={friend.imageUrl} />
-                            <AvatarFallback className="bg-amber-950 text-amber-500 font-bold border-none">{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                          </Avatar>
-                          <div className={cn(
-                            "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#1a1a1a] z-10",
-                            !friend.lastSeen ? "bg-zinc-600" :
-                                (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
-                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-amber-400" : "bg-zinc-600"
-                          )} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medieval text-xl text-white truncate drop-shadow-md mb-0.5">{friend.username}</h4>
-                          <div className="flex items-center gap-2 text-xs font-bold text-amber-500/80 tracking-wide uppercase">
-                            <Shield className="w-3 h-3 fill-amber-500/20" />
-                            {friend.stats?.allianceName || "Lone Wanderer"}
-                          </div>
-                        </div>
-                        {friend.stats?.streak && friend.stats.streak > 0 && (
-                          <div className="flex items-center gap-1.5 bg-orange-950/40 text-orange-400 px-3 py-1 rounded-full border border-orange-900/40 font-bold shadow-sm">
-                            <Flame className="w-3.5 h-3.5 fill-orange-500/20" />
-                            {friend.stats.streak}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Rank Portrait Section */}
-                      <div className="py-8 flex flex-col items-center justify-center bg-gradient-to-b from-black/0 via-amber-950/5 to-black/0 flex-1 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/5 via-transparent to-transparent opacity-30" />
-                        <div className="relative w-36 h-36 mb-4 drop-shadow-2xl transition-transform duration-700 group-hover/card:scale-110 filter sepia-[0.2]">
-                          <Image
-                            src={`/images/character/${titleInfo.id}.webp`}
-                            alt={titleInfo.name}
-                            fill
-                            className="object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/images/character/squire.webp';
-                            }}
-                          />
-                        </div>
-                        <Badge className="px-5 py-1.5 bg-amber-900/40 border-amber-500/30 text-amber-200 uppercase tracking-[0.25em] font-medieval text-[10px] shadow-inner ">
-                          {titleInfo.name}
-                        </Badge>
-                      </div>
-
-                      {/* Stats Grid */}
-                      <div className="grid grid-cols-4 divide-x divide-amber-900/20 border-y border-amber-900/30 bg-zinc-950">
-                        <div className="p-3 text-center group-hover/card:bg-amber-950/10 transition-colors">
-                          <div className="text-[9px] uppercase tracking-widest text-amber-500/50 font-black mb-1">Level</div>
-                          <div className="font-medieval text-lg text-white flex items-center justify-center gap-1">
-                            <Crown className="w-3 h-3 text-amber-500" />
-                            {level}
-                          </div>
-                        </div>
-                        <div className="p-3 text-center group-hover/card:bg-amber-950/10 transition-colors">
-                          <div className="text-[9px] uppercase tracking-widest text-amber-500/50 font-black mb-1">Quests</div>
-                          <div className="font-medieval text-lg text-white flex items-center justify-center gap-1">
-                            <Scroll className="w-3 h-3 text-blue-500" />
-                            {friend.stats?.questsFinished || 0}
-                          </div>
-                        </div>
-                        <div className="p-3 text-center group-hover/card:bg-amber-950/10 transition-colors">
-                          <div className="text-[9px] uppercase tracking-widest text-amber-500/50 font-black mb-1">Might</div>
-                          <div className="font-medieval text-lg text-white flex items-center justify-center gap-1">
-                            <Sword className="w-3 h-3 text-red-500" />
-                            {friend.stats?.challengesFinished || 0}
-                          </div>
-                        </div>
-                        <div className="p-3 text-center group-hover/card:bg-amber-950/10 transition-colors">
-                          <div className="text-[9px] uppercase tracking-widest text-amber-500/50 font-black mb-1">Shared</div>
-                          <div className="font-medieval text-lg text-white flex items-center justify-center gap-1">
-                            <Gift className="w-3 h-3 text-pink-400" />
-                            {friend.stats?.giftsShared || 0}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Row */}
-                      <div className="p-4 grid grid-cols-2 gap-3 bg-zinc-950">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full bg-amber-950/10 border-amber-900/40 text-amber-500 hover:bg-amber-900/30 hover:text-amber-400 font-medieval font-bold"
-                          onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
-                        >
-                          <Crown className="w-3.5 h-3.5" /> Visit Realm
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full bg-amber-950/10 border-amber-900/40 text-amber-500 hover:bg-amber-900/30 hover:text-amber-400 font-medieval font-bold"
-                          onClick={() => openQuestModal(friend)}
-                        >
-                          <Scroll className="w-3.5 h-3.5" /> Issue Quest
-                        </Button>
-
-                        {/* Secondary Row */}
-                        <div className="col-span-2 flex gap-1 items-center pt-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex-1 text-[10px] h-7 text-amber-950 hover:text-amber-500 hover:bg-transparent tracking-widest uppercase font-black"
-                            onClick={() => openCompareModal(friend)}
-                          >
-                            <Target className="w-3 h-3 rotate-45" /> Compare
-                          </Button>
-                          <div className="w-px h-3 bg-amber-900/20" />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex-1 text-[10px] h-7 text-amber-950 hover:text-amber-500 hover:bg-transparent tracking-widest uppercase font-black"
-                            onClick={() => {
-                                setSelectedFriend(friend);
-                                setGiftModalOpen(true);
-                            }}
-                          >
-                            <Gift className="w-3 h-3" /> Gift
-                          </Button>
-                          <div className="w-px h-3 bg-amber-900/20" />
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-amber-950 hover:text-red-500 hover:bg-transparent">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-[#0a0a0a] border-amber-900/50 shadow-2xl">
-                              <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)} className="text-amber-200 focus:bg-amber-900/20 focus:text-amber-100 font-serif">
-                                <Shield className="w-4 h-4" /> Explore Realm Map
-                              </DropdownMenuItem>
-                              <div className="h-px bg-amber-900/20 my-1" />
-                              <DropdownMenuItem className="text-red-900 focus:text-red-500 focus:bg-red-950/10 font-serif" onClick={() => removeFriend(friend.id)}>
-                                <UserCheck className="w-4 h-4" /> Break Alliance
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {friends.map(friend => (
+                <AllyDashboardCard
+                  key={friend.id}
+                  friend={friend}
+                  router={router}
+                  openQuestModal={openQuestModal}
+                  openCompareModal={openCompareModal}
+                  setSelectedFriend={setSelectedFriend}
+                  setGiftModalOpen={setGiftModalOpen}
+                  removeFriend={removeFriend}
+                />
+              ))}
             </div>
           )}
         </TabsContent>
