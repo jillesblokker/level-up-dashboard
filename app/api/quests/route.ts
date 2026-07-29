@@ -286,16 +286,18 @@ export async function GET(request: Request) {
 
       // For each quest, find TODAY'S completion record
       questCompletionGroups.forEach((completions, questId) => {
-        // Find completion record for today in user's timezone or completed within last 20 hours
+        // Find completion record for today in user's timezone or completed within last 24 hours
         const todayCompletion = completions.find((c: any) => {
           if (allTime) {
             return c.completed === true;
           }
           const cDate = formatDate(c.completed_at || c.created_at, requestTz);
+          const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
+          const todayUtc = new Date().toISOString().split('T')[0];
           const nowMs = Date.now();
           const compMs = new Date(c.completed_at || c.created_at).getTime();
-          const isRecent = !isNaN(compMs) && (nowMs - compMs) < (20 * 60 * 60 * 1000);
-          return cDate === today || isRecent;
+          const isRecent = !isNaN(compMs) && (nowMs - compMs) < (24 * 60 * 60 * 1000);
+          return cDate === today || cDateUtc === todayUtc || isRecent;
         });
 
         // Show as completed if there's a completion record for today
