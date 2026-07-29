@@ -15,6 +15,9 @@ import { ParticleProvider } from '@/components/ui/particles'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { UserStorageInitializer } from '@/components/user-storage-initializer'
 import { CelebrationSystem } from '@/components/celebration-system'
+import dynamic from 'next/dynamic';
+
+const HouseCupSettlementModal = dynamic(() => import('@/components/house-cup/house-cup-settlement-modal').then(m => m.HouseCupSettlementModal), { ssr: false });
 
 /**
  * Consolidates all "Manager" and "System" level providers/components
@@ -55,6 +58,7 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
             <PerformanceMonitor />
             <KeyboardShortcutsProvider />
             <CelebrationSystem />
+            <HouseCupSettlementModal />
         </ParticleProvider>
     )
 }
