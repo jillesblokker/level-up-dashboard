@@ -190,6 +190,22 @@ export async function PUT(request: Request) {
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
+        // Record House Cup points (+10 for challenge, +100 for milestone)
+        try {
+          const { recordHouseCupPoints } = await import('@/lib/house-cup-service');
+          const pts = milestoneCompleted ? 100 : 10;
+          const sType = milestoneCompleted ? 'milestone' : 'challenge';
+          await recordHouseCupPoints({
+            userId,
+            categoryId: 'might',
+            sourceType: sType,
+            sourceId: challengeId,
+            points: pts,
+          });
+        } catch (hErr) {
+          apiLogger.error('House cup error:', hErr);
+        }
+
         apiLogger.debug(`Successfully saved completion: id=${data?.id}`);
         return data;
       } else {
@@ -204,6 +220,22 @@ export async function PUT(request: Request) {
         if (error) {
           apiLogger.error('Error deleting completion:', error);
           return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Record negative House Cup points (-10 or -100)
+        try {
+          const { recordHouseCupPoints } = await import('@/lib/house-cup-service');
+          const pts = milestoneCompleted ? -100 : -10;
+          const sType = milestoneCompleted ? 'milestone' : 'challenge';
+          await recordHouseCupPoints({
+            userId,
+            categoryId: 'might',
+            sourceType: sType,
+            sourceId: challengeId,
+            points: pts,
+          });
+        } catch (hErr) {
+          apiLogger.error('House cup error:', hErr);
         }
 
         return { success: true };

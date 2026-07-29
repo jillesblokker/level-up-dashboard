@@ -562,6 +562,20 @@ export async function POST(req: NextRequest) {
                     throw insertError;
                 }
 
+                // Record House Cup (+1 point for Quest completion)
+                try {
+                    const { recordHouseCupPoints } = await import('@/lib/house-cup-service');
+                    await recordHouseCupPoints({
+                        userId,
+                        categoryId: quest.category || 'might',
+                        sourceType: 'quest',
+                        sourceId: questId,
+                        points: 1,
+                    });
+                } catch (houseCupErr) {
+                    logger.error('[Smart Completion] House Cup points record error:', houseCupErr);
+                }
+
                 // Airship Voyage Progress Hook
                 try {
                     const { data: prefData } = await supabase
@@ -905,6 +919,21 @@ export async function POST(req: NextRequest) {
                         .from('quest_completion')
                         .delete()
                         .eq('id', existing.id);
+
+                    // Record House Cup (-1 point for Quest un-completion)
+                    try {
+                        const { recordHouseCupPoints } = await import('@/lib/house-cup-service');
+                        await recordHouseCupPoints({
+                            userId,
+                            categoryId: quest.category || 'might',
+                            sourceType: 'quest',
+                            sourceId: questId,
+                            points: -1,
+                            reversalOfId: existing.id,
+                        });
+                    } catch (houseCupErr) {
+                        logger.error('[Smart Completion] House Cup points revocation error:', houseCupErr);
+                    }
 
                     // Revoke stats
                     const { data: currentStats } = await supabase
