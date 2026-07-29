@@ -157,13 +157,14 @@ export function HouseCupPanel() {
 
       if (resStandings.ok) {
         const data = await resStandings.json();
-        setStandings(data.standings || []);
+        const standingsList = data.standings || data.data?.standings || [];
+        setStandings(standingsList);
 
         if (resSeen.ok) {
           const seenData = await resSeen.json();
           setSeenMap(seenData.seen || {});
 
-          const viewerObj = (data.standings || []).find((s: HouseCupStandings) => s.is_viewer);
+          const viewerObj = standingsList.find((s: HouseCupStandings) => s.is_viewer);
           if (viewerObj && viewerObj.categories) {
             const updatedSeenPayload: Record<string, number> = {};
             Object.keys(viewerObj.categories).forEach(cat => {

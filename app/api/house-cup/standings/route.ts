@@ -18,7 +18,12 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json(result);
+    if (!result.success || !result.data) {
+      logger.error('[House Cup Standings API] Auth or query failed:', result.error);
+      return NextResponse.json({ error: result.error || 'Failed to fetch standings' }, { status: 401 });
+    }
+
+    return NextResponse.json(result.data);
   } catch (error: any) {
     logger.error('[House Cup Standings API] Error:', error);
     return NextResponse.json({ error: error.message || 'Failed to fetch standings' }, { status: 500 });
