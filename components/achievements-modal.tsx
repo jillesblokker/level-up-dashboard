@@ -8,7 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { ACHIEVEMENTS, AchievementDefinition } from '@/lib/achievement-manager';
 import { Trophy, Lock, CheckCircle2, Users, Crown, Scroll, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
 
 interface AchievementsModalProps {

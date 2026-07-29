@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { supabaseServer } from '@/lib/supabase/server-client';
+import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
 
@@ -18,22 +18,17 @@ const calculateLevelFromExperience = (experience: number): number => {
     if (experience < 1500) return 5
     if (experience < 2100) return 6
     if (experience < 2800) return 7
-    if (experience < 3600) return 8
-    if (experience < 4500) return 9
-    if (experience < 5500) return 10
-    return Math.floor(experience / 1000) + 1
+    return Math.floor((experience - 2800) / 1000) + 8
 }
 // End Level Calc Helper
 
 export async function POST(request: Request) {
-    const supabase = createRouteHandlerClient({ cookies });
-    const { data: { session } } = await supabase.auth.getSession();
+    const { userId } = await auth();
 
-    if (!session) {
+    if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
     const body = await request.json();
     const { tileId, cost, currency } = body as {
         tileId: string;
@@ -59,7 +54,7 @@ export async function POST(request: Request) {
             // We use a transaction or checking then update. 
             // For Postgres, we can do atomic update: `UPDATE character_stats SET gold = gold - $1 WHERE user_id = $2 AND gold >= $1 RETURNING gold`
 
-            const { data: statsData, error: statsError } = await supabase
+            const { data: statsData, error: statsError } = await supabaseServer
                 .from('character_stats')
                 .select('gold, experience')
                 .eq('user_id', userId)
@@ -77,7 +72,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Insufficient gold' }, { status: 402 });
             }
 
-            const { error: deductError } = await supabase
+            const { error: deductError } = await supabaseServer
                 .from('character_stats')
                 .update({ gold: statsData.gold - costVal })
                 .eq('user_id', userId);
@@ -106,7 +101,7 @@ export async function POST(request: Request) {
             const costVal = tile.tokenCost || 0;
             if (costVal <= 0) return NextResponse.json({ error: 'Not purchasable with tokens' }, { status: 400 });
 
-            const { data: statsData, error: statsError } = await supabase
+            const { data: statsData, error: statsError } = await supabaseServer
                 .from('character_stats')
                 .select('streak_tokens')
                 .eq('user_id', userId)
@@ -117,7 +112,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Insufficient tokens' }, { status: 402 });
             }
 
-            const { error: deductError } = await supabase
+            const { error: deductError } = await supabaseServer
                 .from('character_stats')
                 .update({ streak_tokens: (statsData.streak_tokens || 0) - costVal })
                 .eq('user_id', userId);
@@ -127,7 +122,7 @@ export async function POST(request: Request) {
 
         // If the tile has a gemCost, deduct it
         if (tile.gemCost && tile.gemCost > 0) {
-            const { data: gemStats, error: gemError } = await supabase
+            const { data: gemStats, error: gemError } = await supabaseServer
                 .from('character_stats')
                 .select('gems')
                 .eq('user_id', userId)
@@ -138,7 +133,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Insufficient gems' }, { status: 402 });
             }
 
-            const { error: deductGemError } = await supabase
+            const { error: deductGemError } = await supabaseServer
                 .from('character_stats')
                 .update({ gems: (gemStats.gems || 0) - tile.gemCost })
                 .eq('user_id', userId);
@@ -149,7 +144,7 @@ export async function POST(request: Request) {
         // Grant Tile
         // Upsert into kingdom_tile_inventory
         // Check if row exists
-        const { data: existing, error: existError } = await supabase
+        const { data: existing, error: existError } = await supabaseServer
             .from('kingdom_tile_inventory')
             .select('quantity')
             .eq('user_id', userId)
@@ -159,7 +154,7 @@ export async function POST(request: Request) {
         let currentQty = 0;
         if (existing) currentQty = existing.quantity;
 
-        const { error: upsertError } = await supabase
+        const { error: upsertError } = await supabaseServer
             .from('kingdom_tile_inventory')
             .upsert({
                 user_id: userId,

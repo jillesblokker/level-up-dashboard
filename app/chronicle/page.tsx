@@ -2,7 +2,6 @@
 
 import { logger } from "@/lib/logger";
 import { useEffect, useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useAuth } from '@clerk/nextjs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Frown, Meh, Smile, Laugh, PartyPopper, Feather, Calendar as CalendarIcon, BookOpen, PenTool } from 'lucide-react'

@@ -8,7 +8,6 @@ import DevicePreview from "@/components/device-preview"
 import { RealmProvider } from "@/lib/realm-context"
 import { registerServiceWorker } from "./utils/registerSW"
 import { JournalModal } from "@/components/chronicle/JournalModal"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 export default function ClientLayout({
   children,
