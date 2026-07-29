@@ -887,13 +887,20 @@ export default function AdminPage() {
     // Gameplay Features (High Priority)
     const gameplayApis = [
       { name: 'Quests', endpoint: '/api/quests', description: 'Player quests and objectives', priority: 'high' as const },
+      { name: 'Smart Quest Completion', endpoint: '/api/quests/smart-completion', description: 'Real-time quest completion & reward engine', priority: 'high' as const },
+      { name: 'House Cup Standings', endpoint: '/api/house-cup/standings', description: 'House Cup virtue standings and leaderboard', priority: 'high' as const },
+      { name: 'House Cup Settlement', endpoint: '/api/house-cup/settlement', description: 'Weekly House Cup rewards and settlement', priority: 'high' as const },
       { name: 'Milestones', endpoint: '/api/milestones', description: 'Player milestones and progress tracking', priority: 'high' as const },
       { name: 'Challenges', endpoint: '/api/challenges', description: 'Player challenges and competitions', priority: 'high' as const },
       { name: 'Streaks', endpoint: '/api/streaks?category=test', description: 'Player streaks and consistency tracking', priority: 'high' as const },
+      { name: 'Market & Shop', endpoint: '/api/market', description: 'Marketplace items, consumables, and tiles', priority: 'high' as const },
       { name: 'Inventory', endpoint: '/api/inventory', description: 'Player inventory items and equipment', priority: 'high' as const },
       { name: 'Achievements', endpoint: '/api/achievements', description: 'Player achievements and progress', priority: 'high' as const },
       { name: 'Kingdom Grid', endpoint: '/api/kingdom-grid', description: 'Kingdom building grid and expansions', priority: 'high' as const },
       { name: 'Realm Grid', endpoint: `/api/data?type=grid&userId=${user?.id}`, description: 'Realm map grid and character position', priority: 'high' as const },
+      { name: 'Property Timers', endpoint: '/api/property-timers', description: 'Settlement production timers and resources', priority: 'high' as const },
+      { name: 'Seasonal Hunt', endpoint: '/api/seasonal-hunt', description: 'Seasonal item collection & events', priority: 'high' as const },
+      { name: 'Tarot Deck', endpoint: '/api/tarot/sync', description: 'Tarot card deck & sync engine', priority: 'high' as const },
     ];
 
     // Social Features (Medium Priority)
