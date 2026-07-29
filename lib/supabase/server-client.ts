@@ -1,21 +1,36 @@
 import { logger } from "@/lib/logger";
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// This client should be used ONLY in backend API routes
-// Using untyped client to avoid type mismatches with missing tables
-export const supabaseServer = createClient(
-  process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-  process.env['SUPABASE_SERVICE_ROLE_KEY']!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    },
-    db: {
-      schema: 'public'
-    }
+let _serverInstance: SupabaseClient | null = null;
+
+function getSupabaseServerInstance(): SupabaseClient {
+  if (!_serverInstance) {
+    const url = process.env['NEXT_PUBLIC_SUPABASE_URL'] || 'https://placeholder.supabase.co';
+    const key = process.env['SUPABASE_SERVICE_ROLE_KEY'] || process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+    _serverInstance = createClient(url, key, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
+      db: {
+        schema: 'public'
+      }
+    });
   }
-);
+  return _serverInstance;
+}
+
+// Proxy object so existing usages of `supabaseServer.from(...)` continue working without throwing during client-side module evaluation
+export const supabaseServer: SupabaseClient = new Proxy({} as SupabaseClient, {
+  get(_target, prop: keyof SupabaseClient) {
+    const instance = getSupabaseServerInstance();
+    const value = instance[prop];
+    if (typeof value === 'function') {
+      return value.bind(instance);
+    }
+    return value;
+  }
+});
 
 // Test connection on startup
 export async function testSupabaseConnection() {
@@ -32,8 +47,3 @@ export async function testSupabaseConnection() {
     return false;
   }
 }
-
-// Remove the automatic call during build evaluation to prevent noise and potential failures
-// if (typeof window === 'undefined') {
-//   testSupabaseConnection();
-// }
