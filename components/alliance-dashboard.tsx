@@ -23,6 +23,7 @@ const PackOpeningModal = dynamic(
   () => import('@/components/pack-opening-modal').then((mod) => mod.PackOpeningModal),
   { ssr: false }
 )
+import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
 
 interface Friend {
     id: string; // Friendship ID
@@ -312,38 +313,26 @@ export function AllianceDashboard() {
                     <span className="text-xs text-amber-500/60 uppercase tracking-widest font-bold">Alliance Might: {totalLevel}</span>
                 </div>
 
-                <div className={`rounded-xl border p-4 transition-all duration-500 flex flex-col items-center justify-center text-center relative overflow-hidden ${tier.color} ${isClaimed ? 'opacity-70 grayscale' : tier.glow}`}>
-                    {isOpening ? (
-                        <div className="py-4 animate-pulse">
-                            <span className="text-4xl animate-bounce block">🎁</span>
-                            <span className="text-xs mt-2 text-amber-400 block">Opening...</span>
-                        </div>
-                    ) : isClaimed ? (
-                        <div className="py-2">
-                            <span className="text-3xl block mb-2 opacity-50">📦</span>
-                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Claimed Today</span>
-                            <span className="text-[10px] text-zinc-500 block mt-1">Return at dawn for the next chest.</span>
-                        </div>
-                    ) : (
-                        <div className="py-2 flex flex-col items-center">
-                            <span className="text-4xl block mb-2 filter drop-shadow-lg">🎁</span>
-                            <span className={`text-sm font-bold uppercase tracking-widest ${tier.color.split(' ')[0]}`}>{tier.label}</span>
-                            <span className="text-[10px] text-amber-100/50 mt-1 mb-4 max-w-[200px] leading-tight">
-                                Contains random materials, packs, gold, gems or essence.
-                            </span>
-                            
-                            <Button 
-                                onClick={handleOpenChest}
-                                disabled={!checkedInToday}
-                                className={`w-full max-w-[200px] transition-all font-bold uppercase tracking-wider text-xs ${
-                                    checkedInToday 
-                                    ? "bg-amber-600 hover:bg-amber-500 text-amber-950 shadow-[0_0_15px_rgba(217,119,6,0.5)]" 
-                                    : "bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed"
-                                }`}
-                            >
-                                {checkedInToday ? "Open Chest" : "Swear Oath to Unlock"}
-                            </Button>
-                        </div>
+                <div className="w-full flex flex-col items-center">
+                    <TreasureChestVisual
+                        state={isOpening ? 'opening' : isClaimed ? 'claimed' : checkedInToday ? 'ready' : 'locked'}
+                        tierLabel={tier.label}
+                        className="w-full"
+                        onClick={handleOpenChest}
+                    />
+
+                    {!isClaimed && (
+                        <Button 
+                            onClick={handleOpenChest}
+                            disabled={!checkedInToday || isOpening}
+                            className={`w-full max-w-[240px] mt-4 transition-all font-bold uppercase tracking-wider text-xs ${
+                                checkedInToday 
+                                ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]" 
+                                : "bg-zinc-900 text-zinc-500 border border-zinc-800 cursor-not-allowed"
+                            }`}
+                        >
+                            {isOpening ? "Opening Chest..." : checkedInToday ? "Open Daily Chest" : "Swear Oath to Unlock"}
+                        </Button>
                     )}
                 </div>
             </div>

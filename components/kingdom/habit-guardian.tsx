@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
+import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
 
 interface Quest {
   id: string
@@ -334,10 +335,10 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             )}
 
             {/* Daily bounty chest */}
-            <div className="flex items-center justify-between bg-zinc-950/60 p-3.5 rounded-2xl border border-white/5">
-              <div className="space-y-0.5">
-                <span className="text-[9px] tracking-wider font-extrabold text-zinc-500">Daily guardian reward</span>
-                <h4 className="font-bold text-white text-xs">Guardian&apos;s Bounty</h4>
+            <div className="bg-zinc-950/80 p-4 rounded-2xl border border-amber-900/30 flex flex-col items-center space-y-3">
+              <div className="w-full text-center space-y-0.5">
+                <span className="text-[9px] tracking-wider font-extrabold text-amber-500 uppercase">Daily guardian reward</span>
+                <h4 className="font-medieval text-sm text-amber-200">Guardian&apos;s Bounty</h4>
                 <p className="text-[10px] text-zinc-400 leading-normal">
                   {bountyClaimedToday 
                     ? "Bounty claimed for today! Return tomorrow."
@@ -346,20 +347,27 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                       : "Complete all favorited daily habits to unlock."}
                 </p>
               </div>
-              <Button
-                disabled={!allHabitsCompleted || bountyClaimedToday || isCollecting}
+
+              <TreasureChestVisual
+                state={bountyClaimedToday ? 'claimed' : allHabitsCompleted ? 'ready' : 'locked'}
+                tierLabel={`Level ${guardianState.level} Bounty`}
+                className="w-full"
                 onClick={claimBounty}
-                className={`p-3 w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 transition-all ${
-                  bountyClaimedToday
-                    ? "bg-zinc-950 border-zinc-900 text-zinc-700 cursor-not-allowed"
-                    : allHabitsCompleted
-                      ? "bg-amber-600 hover:bg-amber-700 border-amber-500 text-black shadow-lg hover:shadow-amber-500/50 animate-bounce"
-                      : "bg-zinc-900/40 border-zinc-800 text-zinc-500 cursor-not-allowed"
-                }`}
-                style={{ animationDuration: '2s' }}
-              >
-                <Gift className="w-5 h-5" />
-              </Button>
+              />
+
+              {!bountyClaimedToday && (
+                <Button
+                  disabled={!allHabitsCompleted || isCollecting}
+                  onClick={claimBounty}
+                  className={`w-full max-w-[200px] transition-all font-bold uppercase tracking-wider text-xs ${
+                    allHabitsCompleted
+                      ? "bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-[0_0_20px_rgba(245,158,11,0.5)]"
+                      : "bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed"
+                  }`}
+                >
+                  {isCollecting ? "Claiming..." : allHabitsCompleted ? "Claim Bounty Loot" : "Locked"}
+                </Button>
+              )}
             </div>
           </div>
 
