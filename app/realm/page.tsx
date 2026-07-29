@@ -1817,9 +1817,7 @@ function RealmPageContent() {
                 onImageReveal={setShouldRevealImage}
             >
                 {/* Traveling Bard Visit Widget */}
-                <div className="mb-4">
-                  <TravelingBardWidget level={characterStats.level} displayName={(characterStats as any).display_name || 'Hero'} />
-                </div>
+                <TravelingBardWidget level={characterStats.level} displayName={(characterStats as any).display_name || 'Hero'} />
 
                 {/* Top Toolbar */}
                 {!isVisiting && (
