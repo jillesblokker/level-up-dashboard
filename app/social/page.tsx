@@ -48,6 +48,10 @@ const ActivityFeed = dynamic(() => import("@/components/activity-feed"), {
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Activity Record...</div>
 })
+const HouseCupPanel = dynamic(() => import("@/components/house-cup/house-cup-panel").then(m => m.HouseCupPanel), { 
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading House Cup...</div>
+})
 const RiddleChallenge = dynamic(() => import("@/components/riddle-challenge").then(m => m.RiddleChallenge), { 
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Preparing Riddle Chamber...</div>
@@ -511,11 +515,20 @@ export default function AlliesPage() {
                             {TEXT_CONTENT.social.tabs.requests}
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}
                         </TabsTrigger>
+                        <TabsTrigger value="house-cup" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                            <Trophy className="w-4 h-4 text-amber-400" />
+                            House Cup
+                        </TabsTrigger>
                         <TabsTrigger value="riddles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <HelpCircle className="w-4 h-4" />
                             Riddles
                         </TabsTrigger>
                     </TabsList>
+
+                    {/* HOUSE CUP TAB */}
+                    <TabsContent value="house-cup" className="space-y-4 max-w-5xl mx-auto">
+                        <HouseCupPanel />
+                    </TabsContent>
 
                     {/* RIDDLES TAB */}
                     <TabsContent value="riddles" className="space-y-4 max-w-4xl mx-auto">
