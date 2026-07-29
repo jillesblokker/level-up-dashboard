@@ -13,6 +13,8 @@ const buttonVariants = cva(
         secondary: "bg-amber-900/20 text-amber-400 hover:bg-amber-800/30",
         ghost: "text-amber-500 hover:bg-amber-900/20",
         link: "text-amber-500 underline-offset-4 hover:underline hover:text-amber-400",
+        gold: "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)]",
+        medieval: "bg-zinc-950 border border-amber-900/50 text-amber-200 hover:border-amber-500/50 hover:bg-amber-950/30 shadow-md",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -29,7 +31,7 @@ const buttonVariants = cva(
 )
 
 interface ButtonVariantProps extends VariantProps<typeof buttonVariants> {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "gold" | "medieval"
   size?: "default" | "sm" | "lg" | "icon"
 }
 

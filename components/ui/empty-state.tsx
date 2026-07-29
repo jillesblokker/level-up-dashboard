@@ -1,28 +1,63 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { LucideIcon } from "lucide-react"
-import React from "react"
+"use client"
+
+import React from 'react'
+import { cn } from '@/lib/utils'
+import { ScrollText, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface EmptyStateProps {
-    icon: LucideIcon
-    title: string
-    description: string
-    action?: React.ReactNode
-    className?: string
+  title?: string
+  description?: string
+  icon?: any
+  actionLabel?: string
+  onAction?: () => void
+  action?: React.ReactNode
+  className?: string
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
-    return (
-        <Card className={`bg-zinc-950 border-amber-800/30 border-dashed ${className || ''}`} aria-label="empty-state">
-            <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <div className="w-16 h-16 mb-4 rounded-full bg-amber-900/30 flex items-center justify-center border border-amber-500/20">
-                    <Icon className="w-8 h-8 text-amber-500" />
-                </div>
-                <h3 className="text-amber-500 font-semibold text-lg mb-2 text-balance">{title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed max-w-sm mb-6 text-balance">
-                    {description}
-                </p>
-                {action}
-            </CardContent>
-        </Card>
-    )
+export function MedievalEmptyState({
+  title = "No Items Discovered",
+  description = "The realm is quiet. Perform daily habits and explore the kingdom to uncover new treasure!",
+  icon,
+  actionLabel,
+  onAction,
+  action,
+  className
+}: EmptyStateProps) {
+  const IconComponent = typeof icon === 'function' ? icon : null;
+
+  return (
+    <div
+      className={cn(
+        "p-8 rounded-2xl border border-amber-900/40 bg-gradient-to-b from-amber-950/20 via-zinc-950/90 to-zinc-950 text-center space-y-3 shadow-xl relative overflow-hidden my-4",
+        className
+      )}
+    >
+      <div className="mx-auto w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-md">
+        {IconComponent ? <IconComponent className="w-6 h-6" /> : icon || <ScrollText className="w-6 h-6" />}
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-medieval text-lg text-amber-200">{title}</h4>
+        <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed italic">
+          {description}
+        </p>
+      </div>
+
+      {action || (actionLabel && onAction && (
+        <div className="pt-2">
+          <Button
+            onClick={onAction}
+            variant="gold"
+            className="h-9 px-5 text-xs font-bold uppercase tracking-wider"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {actionLabel}
+          </Button>
+        </div>
+      ))}
+    </div>
+  )
 }
+
+export const EmptyState = MedievalEmptyState;

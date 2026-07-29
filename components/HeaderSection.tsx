@@ -116,11 +116,11 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
         aria-hidden="true"
       />
       <div className="relative z-10 p-6 sm:p-8 pt-[env(safe-area-inset-top,1.5rem)] sm:pt-8 w-full flex flex-col items-center justify-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-wide drop-shadow-lg font-medieval text-amber-500 text-center text-balance">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-medieval text-amber-200 drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] text-center tracking-wide">
           {title || 'Untitled'}
         </h1>
         {subtitle && (
-          <p className="text-sm sm:text-base md:text-lg text-white/90 drop-shadow text-center mt-2 max-w-2xl">{subtitle}</p>
+          <p className="text-sm sm:text-base md:text-lg text-amber-100/90 italic drop-shadow-md text-center mt-2 max-w-2xl font-serif">{subtitle}</p>
         )}
         {ctaButton && (
           <div className="mt-6">

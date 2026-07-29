@@ -42,7 +42,21 @@
   --overlay-dark: rgba(0, 0, 0, 0.2);
 }
 
-/* Base styles */
+/* Base styles & Unified Page Background */
+.thrivehaven-page-bg {
+  background: linear-gradient(to bottom, rgba(69, 26, 3, 0.25) 0%, rgba(9, 9, 11, 1) 35%, rgba(9, 9, 11, 1) 100%);
+  min-height: 100vh;
+}
+
+/* Virtue Category Badge Tokens */
+.badge-might { background-color: rgba(180, 83, 9, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #fef08a; }
+.badge-knowledge { background-color: rgba(126, 34, 206, 0.2); border: 1px solid rgba(168, 85, 247, 0.5); color: #e9d5ff; }
+.badge-honor { background-color: rgba(185, 28, 28, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #fecaca; }
+.badge-castle { background-color: rgba(4, 120, 87, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); color: #a7f3d0; }
+.badge-craft { background-color: rgba(161, 98, 7, 0.2); border: 1px solid rgba(234, 179, 8, 0.5); color: #fef08a; }
+.badge-vitality { background-color: rgba(15, 118, 110, 0.2); border: 1px solid rgba(20, 184, 166, 0.5); color: #99f6e4; }
+.badge-wellness { background-color: rgba(3, 105, 161, 0.2); border: 1px solid rgba(14, 165, 233, 0.5); color: #bae6fd; }
+
 body {
   background-color: transparent;
   font-family: var(--font-body);

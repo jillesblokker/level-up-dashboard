@@ -415,20 +415,22 @@ export default function MarketPage() {
   }, [searchQuery, sortBy, filterBy, activeTab, inventoryAsItems, scaledMaterials]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-white font-sans">
-      <main className="flex-1 p-4 md:p-6 space-y-6 max-w-7xl mx-auto w-full">
+    <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-amber-500 font-serif">Royal Exchange</h1>
-            <p className="text-zinc-400 mt-1">Trade standard construction materials and resources.</p>
+        <div className="medieval-card p-6 rounded-2xl border border-amber-900/50 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-full bg-[radial-gradient(ellipse_at_top_right,rgba(245,158,11,0.15),transparent_70%)] pointer-events-none" />
+          <div className="z-10">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500">Royal Commerce Hub</span>
+            <h1 className="text-3xl font-medieval tracking-tight text-amber-300">Royal Exchange & Bazaar</h1>
+            <p className="text-xs text-zinc-400 mt-1 italic">Trade construction materials, purchase resource packs, and unlock mystery chests.</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto z-10">
             {/* Current Currency HUD */}
-            <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950 border border-zinc-800 p-2.5 px-4 rounded-xl shadow-lg w-full sm:w-auto">
+            <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950/90 border border-amber-900/40 p-2.5 px-4 rounded-xl shadow-lg w-full sm:w-auto">
               <div className="flex items-center gap-2">
                 <Gem className="h-5 w-5 text-pink-400 animate-pulse shrink-0" />
-                <div className="text-left mr-2 border-r border-zinc-800 pr-4">
+                <div className="text-left mr-2 border-r border-amber-900/40 pr-4">
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gems</p>
                   <AnimatedNumber 
                     value={gemBalance} 
@@ -440,16 +442,16 @@ export default function MarketPage() {
               <div className="flex items-center gap-2">
                 <Coins className="h-5 w-5 text-amber-400 animate-pulse shrink-0" />
                 <div className="text-right">
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Your Treasury</p>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Treasury</p>
                   <div className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
-                    <AnimatedNumber value={goldBalance} formatFn={formatGold} /> <span className="text-xs text-amber-600">Gold</span>
+                    <AnimatedNumber value={goldBalance} formatFn={formatGold} /> <span className="text-xs text-amber-500">Gold</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <Link href="/" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full border-zinc-700 hover:bg-zinc-800 text-zinc-300 justify-center">
+              <Button variant="medieval" className="w-full justify-center text-xs">
                 <ArrowLeft className="h-4 w-4" />
                 Return to Kingdom
               </Button>
@@ -814,7 +816,7 @@ export default function MarketPage() {
         </Tabs>
       </TabsContent>
     </Tabs>
-  </main>
+  </div>
 
       {openingPack && (
         <PackOpeningModal 

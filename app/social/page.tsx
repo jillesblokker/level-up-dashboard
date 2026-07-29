@@ -443,7 +443,7 @@ export default function AlliesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background pb-28 md:pb-12">
+        <div className="min-h-screen thrivehaven-page-bg text-zinc-100 pb-28 md:pb-12">
             <HeaderSection
                 title={TEXT_CONTENT.social.header.title}
                 subtitle={TEXT_CONTENT.social.header.subtitle}
