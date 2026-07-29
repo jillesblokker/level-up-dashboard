@@ -72,20 +72,7 @@ const loadManagers = async (): Promise<GameManagers> => {
     }
 };
 
-// Helper function to calculate level from experience
-const calculateLevelFromExperience = (experience: number): number => {
-  if (experience < 100) return 1
-  if (experience < 300) return 2
-  if (experience < 600) return 3
-  if (experience < 1000) return 4
-  if (experience < 1500) return 5
-  if (experience < 2100) return 6
-  if (experience < 2800) return 7
-  if (experience < 3600) return 8
-  if (experience < 4500) return 9
-  if (experience < 5500) return 10
-  return Math.floor(experience / 1000) + 1
-}
+import { calculateLevelFromExperience } from '@/lib/level-utils';
 
 interface KingdomGridWithTimersProps {
   grid: Tile[][]

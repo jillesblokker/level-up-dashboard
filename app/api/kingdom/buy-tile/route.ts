@@ -9,18 +9,7 @@ const getTileDetails = (tileId: string) => {
     return KINGDOM_TILES.find(t => t.id === tileId);
 };
 
-// Start Level Calc Helper
-const calculateLevelFromExperience = (experience: number): number => {
-    if (experience < 100) return 1
-    if (experience < 300) return 2
-    if (experience < 600) return 3
-    if (experience < 1000) return 4
-    if (experience < 1500) return 5
-    if (experience < 2100) return 6
-    if (experience < 2800) return 7
-    return Math.floor((experience - 2800) / 1000) + 8
-}
-// End Level Calc Helper
+import { calculateLevelFromExperience } from '@/lib/level-utils';
 
 export async function POST(request: Request) {
     const { userId } = await auth();
