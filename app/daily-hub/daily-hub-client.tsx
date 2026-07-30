@@ -22,6 +22,7 @@ import { motion } from "framer-motion"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
 import { useCitizensStore, isHarvestReady } from "@/stores/citizensStore"
+import confetti from 'canvas-confetti'
 import dynamic from 'next/dynamic'
 const WeeklyChallengesCard = dynamic(
   () => import('@/components/weekly-challenges-card').then((mod) => mod.WeeklyChallengesCard),
@@ -110,6 +111,22 @@ export function DailyHubClient() {
             loadCitizens(user.id)
         }
     }, [user])
+
+    // Trigger confetti explosion on 5/10 habit target sweet spot
+    useEffect(() => {
+        const count = completedQuestIds.size;
+        if (count === 5 || count === 10 || count === 15 || count === 20) {
+            try {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch (e) {
+                // Fail-safe
+            }
+        }
+    }, [completedQuestIds.size])
 
     useEffect(() => {
         const loadRivalStats = async () => {

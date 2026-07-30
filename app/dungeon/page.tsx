@@ -1150,6 +1150,31 @@ export default function DungeonPage() {
           </div>
         )}
 
+        {/* Guardian Pet Striker Visual Skills & Daily Habit Multipliers Banner */}
+        <div className="bg-gradient-to-r from-amber-950/80 via-zinc-950 to-amber-950/80 border border-amber-500/40 p-3.5 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg shadow-md shrink-0">
+              🐉
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-amber-300">Guardian Pet Striker: Ember Drake</span>
+                <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-400 bg-amber-950/50 font-mono">
+                  🔥 Flame Breath Ready
+                </Badge>
+              </div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">Executes active support strikes alongside your squad in dungeon turns.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>⚡ Today&apos;s Habits:</span>
+              <span className="text-amber-400">+15% ATK / +10% DEF Multiplier</span>
+            </div>
+          </div>
+        </div>
+
         {/* TOP SECTION: BATTLE ARENA (Enemy Showcase & Deploy Fighter Side-by-Side) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 

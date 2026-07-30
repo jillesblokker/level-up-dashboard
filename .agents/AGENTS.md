@@ -112,6 +112,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - Critical UI: **straightforward and practical** — no "the server dragon was slain" error messages
 - Current direction: **add depth to existing features** rather than building new ones
 - Fantasy theme is the wrapper, but UX clarity comes first
+- **Anti-Pollution Principle**: Avoid unnecessary duplicate loadout drawers, complex tile leveling sinks, or heavy notification clutter. Focus core polish strictly on direct habit dopamine loops (Morning Focus 5/10 target confetti) and visual combat feedback (Guardian Pet Striker skills).
 
 ## Copywriting rules
 
