@@ -35,6 +35,7 @@ import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
 import dynamic from 'next/dynamic'
 import { AllianceTitanRaidModal } from "@/components/social/AllianceTitanRaidModal";
+import { FriendDareModal } from "@/components/social/FriendDareModal";
 
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
 const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"), { 

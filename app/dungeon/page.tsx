@@ -712,19 +712,26 @@ export default function DungeonPage() {
 
       if (loot) logEntries.push(`✨ Loot found: ${loot.name}`);
 
-      // BOSS REWARD: Guaranteed Essence Crystal on Room 5 if victory
-      if (run.currentRoom === run.maxRooms && !newLoot.some(l => l.itemId === 'material-crystal')) {
+      // BOSS DUAL DROPS: Guaranteed Kingdom Blueprint AND Apotheca Potion Brewing Reagent on Boss Floors (every 5 rooms)
+      if (run.currentRoom % 5 === 0) {
         const crystal = comprehensiveItems.find(i => i.id === 'material-crystal');
         if (crystal) {
-          const bossLoot = {
+          const blueprintDrop = {
+            type: 'item',
+            name: 'Blueprint: Serene Lake',
+            itemId: 'serene_lake',
+            itemStats: { def: 10 },
+            starRating: 3
+          };
+          const reagentDrop = {
             type: 'item',
             name: crystal.name,
             itemId: crystal.id,
             itemStats: {},
-            starRating: 0
+            starRating: 2
           };
-          newLoot = [...newLoot, bossLoot];
-          logEntries.push(`💎 BOSS DROPPED: ${crystal.name}!`);
+          newLoot = [...newLoot, blueprintDrop, reagentDrop];
+          logEntries.push(`🏰 BOSS DUAL DROPS: Blueprint Serene Lake AND ${crystal.name}!`);
         }
       }
 

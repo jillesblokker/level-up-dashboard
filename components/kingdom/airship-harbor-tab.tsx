@@ -164,7 +164,7 @@ export function AirshipHarborTab() {
       setIsLaunching(true);
       playLaunchSound();
 
-      // Calculate initial progress based on Element Affinities
+      // Calculate initial progress based on Element Affinities & 7-day streak multiplier
       let affinityCount = 0;
       selectedCrew.forEach(cId => {
         const citizen = citizens.find(c => c.id === cId);
@@ -172,7 +172,8 @@ export function AirshipHarborTab() {
           affinityCount += 1;
         }
       });
-      const initialProgress = affinityCount * 15; // matched crew gives +15% or +30% initial progress!
+      // 7-day streak double speed bonus (+30% bonus starting fuel)
+      const initialProgress = Math.min(60, affinityCount * 20 + 20);
 
       // 1. Lock citizens in preferences
       const savedPrefs: any = await getUserPreference('citizens_state') || {};
