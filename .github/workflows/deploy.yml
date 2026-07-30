@@ -85,15 +85,21 @@ jobs:
       - name: Send Snapshot to server
         timeout-minutes: 3
         run: |
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
+          scp -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -o ConnectionAttempts=3 \
+            deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
       - name: Deploy to server
         timeout-minutes: 5
         run: |
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=10 \
-            -o ServerAliveCountMax=3 \
+            -o ConnectTimeout=30 \
+            -o ConnectionAttempts=3 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=5 \
             root@165.232.86.194 'bash -s' << 'DEPLOY_SCRIPT'
               # Stop existing processes - use timeout to prevent hangs
               pm2 delete level-up 2>/dev/null || true
@@ -124,8 +130,14 @@ jobs:
       - name: Create PM2 ecosystem config
         timeout-minutes: 2
         run: |
-          # Write ecosystem.json for PM2 to natively handle environment variables
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 'bash -s' << SETUP_SCRIPT
+          # Write ecosystem.json for PM2 to natively handle environment variables with robust SSH retry options
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -o ConnectionAttempts=3 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=5 \
+            root@165.232.86.194 'bash -s' << SETUP_SCRIPT
             cat > /var/www/level-up/ecosystem.json << 'ECOSYSTEM'
           {
             "apps": [{
@@ -152,7 +164,13 @@ jobs:
       - name: Start PM2 app
         timeout-minutes: 2
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -o ConnectionAttempts=3 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=5 \
+            root@165.232.86.194 \
             'cd /var/www/level-up && pm2 start ecosystem.json && pm2 save --force'
           echo "=== PM2 app started successfully ==="
 
@@ -161,6 +179,12 @@ jobs:
         run: |
           echo "Waiting for Next.js to boot (45s)..."
           sleep 45
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@165.232.86.194 \
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -o ConnectionAttempts=3 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=5 \
+            root@165.232.86.194 \
             'echo "--- PM2 STATUS ---"; pm2 list; echo "--- PM2 LOGS ---"; pm2 logs level-up --lines 30 --nostream 2>/dev/null || true; echo "--- HEALTH CHECK ---"; curl -sf -o /dev/null -w "%{http_code}" http://127.0.0.1:3005 && echo " — PASSED" || { echo "::error::HEALTH CHECK FAILED — port 3005 not responding"; exit 1; }'
 
