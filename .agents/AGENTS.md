@@ -92,6 +92,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 | **Market** | Royal Exchange & Bazaar with dual tabs: Trading Post (buying/selling construction materials with Gold) and Mystic Shop (opening free Chrono Chests & Mythic Card packs) |
 | **Realm** | Creative sandbox + friend-visitable showpiece for custom building layout |
 | **Kingdom** | Strategic board + dopamine tile interactions, passive tax collection & settlement tile action drawers (Abbey, Apotheca, Barracks) |
+| **Character** | Hero Showcase & Vault — Top Hero Card (Avatar, Level, Title, Sigil Crest, Streak) → 3 Organized Tabs: [Hero Stats & Equipment] [Titles & Badges] [Creatures & Guardian Pets], featuring clickable Title & Crest Vault drawer |
 
 ## Data & Sync rules
 
