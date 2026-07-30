@@ -925,6 +925,36 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/tiles/apotheca-tile.png',
     cost: 500,
     gemCost: 15
+  },
+  {
+    id: 'waterway_canal',
+    name: 'Waterway Canal & Stone Bridge',
+    timerMinutes: 60,
+    normalGoldRange: [20, 50],
+    luckyGoldAmount: 150,
+    luckyChance: 0.15,
+    clickMessage: 'A serene stone canal tile with vertical aquamarine waters and arched stone bridge.',
+    possibleItems: ['/images/items/materials/material-water.webp'],
+    itemType: 'material',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/WaterwayCanal.webp',
+    cost: 750,
+    levelRequired: 1
+  },
+  {
+    id: 'astral_citadel_monument',
+    name: 'Astral Citadel Monument',
+    timerMinutes: 120,
+    normalGoldRange: [50, 150],
+    luckyGoldAmount: 500,
+    luckyChance: 0.20,
+    clickMessage: 'Colossal monument crowned with a glowing floating purple crystal orb.',
+    possibleItems: ['/images/items/materials/material-crystal.webp'],
+    itemType: 'artifact',
+    rarity: 'legendary',
+    image: '/images/kingdom-tiles/AstralCitadelMonument.webp',
+    cost: 1500,
+    levelRequired: 1
   }
 ]
 

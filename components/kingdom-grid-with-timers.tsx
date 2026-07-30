@@ -192,6 +192,8 @@ export function KingdomGridWithTimers({
       'daily-hub': { category: 'advanced', levelRequired: 1 },
       prison: { category: 'advanced', levelRequired: 5 },
       apotheca: { category: 'advanced', levelRequired: 5 },
+      waterway_canal: { category: 'basic', levelRequired: 1 },
+      astral_citadel_monument: { category: 'prestige', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {
