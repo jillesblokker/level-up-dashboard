@@ -1703,31 +1703,12 @@ export function KingdomClient() {
         ctaButton={
           !isVisiting && (
             <Button
-              onClick={async () => {
-                let totalGoldGained = 0;
-                const readyKeys = Object.keys(tileTimers || {}).filter(key => tileTimers[key]?.isReady);
-                if (readyKeys.length === 0) {
-                  toast({
-                    title: "No Taxes Ready",
-                    description: "Your kingdom tiles are currently generating resources. Check back soon!",
-                  });
-                  return;
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
-                totalGoldGained = readyKeys.length * 250;
-                await gainGold(totalGoldGained, 'tax-collection');
-                const updated = { ...tileTimers };
-                readyKeys.forEach(k => {
-                  if (updated[k]) {
-                    updated[k] = { ...updated[k], endTime: Date.now() + 60 * 60 * 1000, isReady: false };
-                  }
-                });
-                setTileTimers(updated);
-                toast({
-                  title: "💰 Taxes Collected!",
-                  description: `Collected +${totalGoldGained} Gold & +${readyKeys.length * 2} Essences from ${readyKeys.length} tiles!`,
-                });
               }}
-              className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md border border-amber-400/40 flex items-center gap-1.5 transition-all"
+              className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md border border-amber-400/40 flex items-center gap-1.5 transition-all cursor-pointer"
             >
               💰 Collect taxes
             </Button>

@@ -168,15 +168,15 @@ export function PaperdollEquipmentGrid({
             {/* Stage Title Header */}
             <div className="w-full flex items-center justify-between z-10 mb-2">
               <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1">
-                <Award className="w-3.5 h-3.5" /> Hero Equipment Paperdoll
+                <Award className="w-3.5 h-3.5" /> Equipment
               </span>
             </div>
 
             {/* Central Stage Container */}
             <div className="relative w-full max-w-md flex flex-col items-center justify-center my-4 flex-1">
-              <div className="relative w-full max-w-xs flex items-center justify-center">
-                {/* Central Character Avatar Frame (Scaled to fit) */}
-                <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-2xl border-2 border-amber-500/50 bg-zinc-900/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden group">
+              <div className="relative w-full max-w-sm flex items-center justify-center py-6 px-8">
+                {/* Central Character Avatar Frame (Scaled with generous padding) */}
+                <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl border-2 border-amber-500/50 bg-zinc-900/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden group">
                   <Image
                     src={avatarImage}
                     alt={heroName}
@@ -186,9 +186,9 @@ export function PaperdollEquipmentGrid({
                   />
                 </div>
 
-                {/* 4 Interactive Corner Equipment Slots */}
+                {/* 4 Interactive Corner Equipment Slots with Generous Padding */}
                 {/* Top-Left: Weapon */}
-                <div className="absolute -top-3 -left-3 sm:-left-4 z-20">
+                <div className="absolute -top-4 -left-4 sm:-left-8 z-20">
                   <EquipmentSlotButton
                     item={equipment.weapon}
                     slotConfig={SLOT_CONFIGS[0]}
@@ -197,7 +197,7 @@ export function PaperdollEquipmentGrid({
                 </div>
 
                 {/* Top-Right: Shield */}
-                <div className="absolute -top-3 -right-3 sm:-right-4 z-20">
+                <div className="absolute -top-4 -right-4 sm:-right-8 z-20">
                   <EquipmentSlotButton
                     item={equipment.offhand}
                     slotConfig={SLOT_CONFIGS[1]}
@@ -206,7 +206,7 @@ export function PaperdollEquipmentGrid({
                 </div>
 
                 {/* Bottom-Left: Armor */}
-                <div className="absolute -bottom-3 -left-3 sm:-left-4 z-20">
+                <div className="absolute -bottom-4 -left-4 sm:-left-8 z-20">
                   <EquipmentSlotButton
                     item={equipment.armor}
                     slotConfig={SLOT_CONFIGS[2]}
@@ -215,7 +215,7 @@ export function PaperdollEquipmentGrid({
                 </div>
 
                 {/* Bottom-Right: Mount */}
-                <div className="absolute -bottom-3 -right-3 sm:-right-4 z-20">
+                <div className="absolute -bottom-4 -right-4 sm:-right-8 z-20">
                   <EquipmentSlotButton
                     item={equipment.mount}
                     slotConfig={SLOT_CONFIGS[3]}
@@ -225,7 +225,7 @@ export function PaperdollEquipmentGrid({
               </div>
 
               {/* Centered Artifact / Relic Slot directly below Avatar */}
-              <div className="mt-6 flex flex-col items-center justify-center z-20">
+              <div className="mt-8 flex flex-col items-center justify-center z-20">
                 <EquipmentSlotButton
                   item={equipment.relic}
                   slotConfig={SLOT_CONFIGS[4]}

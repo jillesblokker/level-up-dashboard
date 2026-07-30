@@ -2212,6 +2212,14 @@ export function KingdomGridWithTimers({
     toast({ title: "Harvest complete!", description: `Collected rewards from ${readyTimers.length} buildings.` });
   }
 
+  useEffect(() => {
+    const handleGlobalCollect = () => {
+      handleCollectAllReady();
+    };
+    window.addEventListener('collect-all-kingdom-taxes', handleGlobalCollect);
+    return () => window.removeEventListener('collect-all-kingdom-taxes', handleGlobalCollect);
+  }, [tileTimers, grid]);
+
   const getUpgradeCost = (tileType: string, currentTier: number) => {
     if (currentTier >= 5) return null;
     let baseCost = 250;
@@ -2697,18 +2705,7 @@ export function KingdomGridWithTimers({
 
       <div className="relative w-full flex flex-col items-center justify-center">
         {/* Automated Tax Collection Banner */}
-        {tileTimers.some(t => t.isReady) && (
-          <div className="mb-4 z-20 bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 p-[1px] rounded-xl shadow-xl animate-pulse">
-            <button
-              type="button"
-              onClick={handleCollectAllReady}
-              className="bg-zinc-950 hover:bg-zinc-900 text-amber-300 px-6 py-2.5 rounded-[11px] font-bold text-xs sm:text-sm flex items-center gap-2 tracking-wide transition-all hover:scale-105 active:scale-95 border border-amber-500/40"
-            >
-              <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-              Collect All Kingdom Taxes ({tileTimers.filter(t => t.isReady).length} Ready)
-            </button>
-          </div>
-        )}
+
 
         {/* Placement mode indicator logic remains on map for context */}
         {placementMode && selectedProperty && (
