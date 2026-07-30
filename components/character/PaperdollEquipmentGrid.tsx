@@ -346,7 +346,7 @@ export function PaperdollEquipmentGrid({
                 <Button
                   type="button"
                   onClick={handleEquipmentChange}
-                  className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs gap-1.5 h-9"
+                  className="btn-primary-cta w-full text-xs h-9"
                 >
                   <ArrowRightLeft className="w-4 h-4" /> Open bag
                 </Button>

@@ -323,7 +323,7 @@ export function HouseCupPanel() {
 
             <Button
               onClick={() => window.location.href = '/social'}
-              className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-8 py-6 text-base rounded-2xl shadow-xl hover:shadow-amber-500/30 transition-all hover:scale-105 border border-amber-400/40 cursor-pointer flex items-center gap-2 mt-2"
+              className="btn-primary-cta mt-2"
             >
               <UserPlus className="w-5 h-5 mr-1" />
               Invite an ally

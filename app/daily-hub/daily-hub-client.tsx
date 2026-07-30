@@ -419,7 +419,7 @@ export function DailyHubClient() {
                     <Link href="/kingdom">
                         <Button
                             size="lg"
-                            className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-8 py-6 text-base rounded-2xl shadow-xl hover:shadow-amber-500/30 transition-all hover:scale-105 border border-amber-400/40 cursor-pointer"
+                            className="btn-primary-cta"
                         >
                             <span className="text-xl mr-2">👑</span>
                             {TEXT_CONTENT.dailyHub.header.cta}
