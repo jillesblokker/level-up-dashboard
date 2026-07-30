@@ -453,22 +453,29 @@ export default function MarketPage() {
               </div>
             </div>
 
-            <Link href="/" className="w-full sm:w-auto">
-              <Button variant="medieval" className="w-full justify-center text-xs">
-                <ArrowLeft className="h-4 w-4" />
-                Return to Kingdom
-              </Button>
-            </Link>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Link href="/kingdom?tab=thrivehaven&openDrawer=apotheca" className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full justify-center text-xs border-purple-500/40 text-purple-300 hover:bg-purple-950/40 font-bold">
+                  🧪 Open Apotheca Glasshouse
+                </Button>
+              </Link>
+              <Link href="/" className="w-full sm:w-auto">
+                <Button variant="medieval" className="w-full justify-center text-xs">
+                  <ArrowLeft className="h-4 w-4" />
+                  Return to Kingdom
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
         <Tabs value={mainTab} onValueChange={(val) => { setMainTab(val); setSearchQuery(""); }} className="space-y-6">
           <TabsList className="mb-8">
             <TabsTrigger value="trading-post">
-              <ShoppingBag className="w-5 h-5" /> Trading Post
+              <ShoppingBag className="w-5 h-5" /> Trading post
             </TabsTrigger>
             <TabsTrigger value="mystic-shop">
-              <Package className="w-5 h-5" /> Mystic Shop
+              <Package className="w-5 h-5" /> Mystic bazaar
             </TabsTrigger>
           </TabsList>
 

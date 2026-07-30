@@ -1007,14 +1007,25 @@ export default function DungeonPage() {
             </div>
           </div>
 
-          <Button
-            onClick={startRun}
-            disabled={dailyCount >= 3}
-            size="lg"
-            className={`w-full h-16 text-xl font-bold tracking-wide transition-all ${dailyCount >= 3 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 hover:scale-105'}`}
-          >
-            {dailyCount >= 3 ? '🔒 LOCKED UNTIL TOMORROW' : '⚔️ ENTER DUNGEON'}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={startRun}
+              disabled={dailyCount >= 3}
+              size="lg"
+              className={`flex-1 h-16 text-lg font-bold tracking-wide transition-all ${dailyCount >= 3 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 hover:scale-105'}`}
+            >
+              {dailyCount >= 3 ? '🔒 LOCKED' : '⚔️ ENTER DUNGEON'}
+            </Button>
+            <Button
+              onClick={() => router.push('/kingdom?tab=thrivehaven&openDrawer=barracks')}
+              variant="outline"
+              size="lg"
+              className="h-16 px-4 border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold text-xs flex flex-col items-center justify-center gap-1 shrink-0"
+            >
+              <span>🛡️ Squad</span>
+              <span className="text-[10px] text-zinc-400">Barracks</span>
+            </Button>
+          </div>
 
           {dailyCount >= 3 && (
             <Button
