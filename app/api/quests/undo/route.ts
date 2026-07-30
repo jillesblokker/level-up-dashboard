@@ -1,93 +1,123 @@
 import { logger } from "@/lib/logger";
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { createClient } from '@supabase/supabase-js'
-import { getTodayDateString } from '@/lib/date-utils'
-
-const supabase = createClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['SUPABASE_SERVICE_ROLE_KEY']!
-)
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
+import { formatDate, getToday } from '@/lib/date-utils';
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await auth()
-
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
-
-        const body = await request.json()
-        const { questId } = body
+        const body = await request.json();
+        const { questId } = body;
 
         if (!questId) {
-            return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 })
+            return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
         }
 
-        // Get recent completion record for this quest
-        const { data: completions, error: fetchError } = await supabase
-            .from('quest_completion')
-            .select('*')
-            .eq('quest_id', questId)
-            .eq('user_id', userId)
-            .order('completed_at', { ascending: false });
+        const requestTz = request.headers.get('x-timezone') || undefined;
+        const todayStr = getToday(requestTz);
 
-        if (fetchError || !completions || completions.length === 0) {
-            return NextResponse.json({ error: 'No completion record found for this quest' }, { status: 404 });
-        }
+        const result = await authenticatedSupabaseQuery(request, async (supabase, userId) => {
+            // Fetch quest definition to check UUID / name
+            const { data: quest } = await supabase
+                .from('quests')
+                .select('*')
+                .eq('id', questId)
+                .maybeSingle();
 
-        const todayStr = getTodayDateString();
-        const latestCompletion = completions.find(c => {
-            if (!c.completed_at) return false;
-            const cDate = c.completed_at.split('T')[0];
-            return cDate === todayStr;
-        }) || completions[0];
+            const possibleQuestIds = Array.from(new Set([
+                String(questId),
+                String(quest?.id || ''),
+                String(quest?.name || ''),
+                String(questId).toLowerCase(),
+                String(quest?.name || '').toLowerCase()
+            ].filter(Boolean)));
 
-        const xpEarned = latestCompletion?.xp_earned || 0;
-        const goldEarned = latestCompletion?.gold_earned || 0;
+            // Fetch completions for this user
+            const { data: allCompletions, error: fetchError } = await supabase
+                .from('quest_completion')
+                .select('*')
+                .eq('user_id', userId)
+                .order('completed_at', { ascending: false });
 
-        // Delete the completion record from database
-        const { error: deleteError } = await supabase
-            .from('quest_completion')
-            .delete()
-            .eq('id', latestCompletion.id);
+            if (fetchError) throw fetchError;
 
-        if (deleteError) {
-            logger.error('Error undoing quest completion:', deleteError);
-            return NextResponse.json({ error: 'Failed to undo quest completion' }, { status: 500 });
-        }
+            const matchingCompletions = (allCompletions || []).filter(c =>
+                possibleQuestIds.includes(String(c.quest_id)) ||
+                possibleQuestIds.includes(String(c.quest_id).toLowerCase())
+            );
 
-        // Deduct rewards from character stats if applicable
-        const { data: currentStats } = await supabase
-            .from('character_stats')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
+            if (matchingCompletions.length === 0) {
+                logger.warn('[QUEST-UNDO] No completion record found matching quest identifiers:', { questId, possibleQuestIds, userId });
+                return { success: true, message: 'No completion record found to undo', undone: false };
+            }
 
-        if (currentStats) {
-            const newXP = Math.max(0, (currentStats.experience || 0) - xpEarned);
-            const newGold = Math.max(0, (currentStats.gold || 0) - goldEarned);
+            const latestCompletion = matchingCompletions.find(c => {
+                if (!c.completed_at && !c.created_at) return false;
+                const cDate = formatDate(c.completed_at || c.created_at, requestTz);
+                const nowMs = Date.now();
+                const compMs = new Date(c.completed_at || c.created_at).getTime();
+                const isRecent = !isNaN(compMs) && (nowMs - compMs) < (24 * 60 * 60 * 1000);
+                return cDate === todayStr || isRecent;
+            }) || matchingCompletions[0];
 
-            await supabase
+            const xpEarned = latestCompletion?.xp_earned || 0;
+            const goldEarned = latestCompletion?.gold_earned || 0;
+
+            // Delete the completion record from database
+            const { error: deleteError } = await supabase
+                .from('quest_completion')
+                .delete()
+                .eq('id', latestCompletion.id);
+
+            if (deleteError) {
+                logger.error('[QUEST-UNDO] Error deleting quest completion from database:', deleteError);
+                throw deleteError;
+            }
+
+            logger.info('[QUEST-UNDO] Successfully deleted completion record from Supabase via /api/quests/undo', {
+                questId,
+                completionId: latestCompletion.id,
+                userId
+            });
+
+            // Deduct rewards from character stats if applicable
+            const { data: currentStats } = await supabase
                 .from('character_stats')
-                .update({
-                    experience: newXP,
-                    gold: newGold,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('user_id', userId);
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (currentStats) {
+                const newXP = Math.max(0, (currentStats.experience || 0) - xpEarned);
+                const newGold = Math.max(0, (currentStats.gold || 0) - goldEarned);
+
+                await supabase
+                    .from('character_stats')
+                    .update({
+                        experience: newXP,
+                        gold: newGold,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', userId);
+            }
+
+            return {
+                success: true,
+                undone: true,
+                questId,
+                deletedCompletionId: latestCompletion.id,
+                revertedRewards: { xp: xpEarned, gold: goldEarned }
+            };
+        });
+
+        if (!result.success) {
+            return NextResponse.json({ error: result.error }, { status: 401 });
         }
 
-        return NextResponse.json({
-            success: true,
-            undone: true,
-            questId,
-            revertedRewards: { xp: xpEarned, gold: goldEarned }
-        });
-    } catch (error) {
+        return NextResponse.json(result.data);
+    } catch (error: any) {
         logger.error('Error in /api/quests/undo:', error);
         return NextResponse.json(
-            { error: 'Internal server error' },
+            { error: error.message || 'Internal server error' },
             { status: 500 }
         );
     }

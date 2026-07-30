@@ -602,10 +602,10 @@ export default function QuestsPage() {
         const data = await res.json();
         const completedQuests = (data || []).filter((q: any) => q.completed);
 
-        logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Received data from server', {
-          total: (data || []).length,
+        logger.info('[QUEST-SYNC-VERIFY] Verified today quest completions with database', {
+          totalQuests: (data || []).length,
           completedCount: completedQuests.length,
-          completedList: completedQuests.map((q: any) => ({ id: q.id, name: q.name, date: q.date }))
+          completedQuestIds: completedQuests.map((q: any) => q.id || q.name)
         });
 
         // SERVER IS THE SOURCE OF TRUTH: Always trust the server response.
@@ -1282,6 +1282,15 @@ export default function QuestsPage() {
 
       // 🎯 Display enhanced feedback if quest was completed
       if (newCompleted) {
+        logger.info('[QUEST-CHECK] Quest checked off by user', {
+          questId,
+          name: questObj.name,
+          category: questObj.category,
+          xpReward,
+          goldReward,
+          timestamp: new Date().toISOString()
+        });
+
         addToCharacterStat('focus_points', 1, 'quest-toggle');
         recordCompletion({
           questId,
@@ -1308,10 +1317,19 @@ export default function QuestsPage() {
         );
       } else {
         try {
-          await fetchWithAuth('/api/quests/undo', {
+          const undoRes = await fetchWithAuth('/api/quests/undo', {
             method: 'POST',
             body: JSON.stringify({ questId }),
           });
+          if (undoRes.ok) {
+            const undoData = await undoRes.json();
+            logger.info('[QUEST-UNDO] Quest unchecked and deleted from Supabase', {
+              questId,
+              name: questObj.name,
+              backendResponse: undoData,
+              timestamp: new Date().toISOString()
+            });
+          }
         } catch (undoErr) {
           logger.error('[QUEST-TOGGLE] Undo API error:', undoErr);
         }

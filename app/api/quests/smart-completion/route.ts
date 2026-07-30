@@ -417,18 +417,30 @@ export async function POST(req: NextRequest) {
             const requestTz = req.headers.get('x-timezone') || undefined;
             const todayStr = getToday(requestTz);
 
-            const { data: userCompletions } = await supabase
+            const possibleQuestIds = Array.from(new Set([
+                String(questId),
+                String(quest?.id || ''),
+                String(quest?.name || ''),
+                String(questId).toLowerCase(),
+                String(quest?.name || '').toLowerCase()
+            ].filter(Boolean)));
+
+            const { data: allUserCompletions } = await supabase
                 .from('quest_completion')
                 .select('*')
-                .eq('quest_id', questId)
                 .eq('user_id', userId);
 
-            const existing = (userCompletions || []).find(c => {
+            const userCompletions = (allUserCompletions || []).filter(c => 
+                possibleQuestIds.includes(String(c.quest_id)) || 
+                possibleQuestIds.includes(String(c.quest_id).toLowerCase())
+            );
+
+            const existing = userCompletions.find(c => {
                 if (!c.completed_at && !c.created_at) return false;
                 const cDate = formatDate(c.completed_at || c.created_at, requestTz);
                 const nowMs = Date.now();
                 const compMs = new Date(c.completed_at || c.created_at).getTime();
-                const isRecent = !isNaN(compMs) && (nowMs - compMs) < (20 * 60 * 60 * 1000);
+                const isRecent = !isNaN(compMs) && (nowMs - compMs) < (24 * 60 * 60 * 1000);
                 return cDate === todayStr || isRecent;
             });
 
@@ -436,7 +448,8 @@ export async function POST(req: NextRequest) {
                 questId,
                 userId,
                 todayAmsterdam: todayStr,
-                totalCompletionsInDB: userCompletions?.length || 0,
+                totalCompletionsInDB: allUserCompletions?.length || 0,
+                matchedCompletionsCount: userCompletions.length,
                 existingRecordFoundForToday: !!existing,
                 existingRecord: existing ? { id: existing.id, completed_at: existing.completed_at, parsedDate: formatDate(existing.completed_at || existing.created_at) } : null
             });
@@ -908,6 +921,8 @@ export async function POST(req: NextRequest) {
                         .from('quest_completion')
                         .delete()
                         .eq('id', existing.id);
+
+                    logger.info('[QUEST-UNDO] Successfully deleted completion record from Supabase', { questId, completionId: existing.id, userId });
 
                     // Record House Cup (-1 point for Quest un-completion)
                     try {
