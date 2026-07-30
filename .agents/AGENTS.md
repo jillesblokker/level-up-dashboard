@@ -53,6 +53,9 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 | **11** | **Market Exchange & Bazaar** | Royal Exchange Trading Post (material buy/sell) & Mystic Shop (free Chrono Chests, Mythic card packs, and rare tiles) | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add daily rotating flash sales & merchant barter bargain minigame |
 | **12** | **Daily Hub & Daily Opening Routine** | Interactive full-screen 3-step opening flow (Yesterday's recap → Today's habit target → Virtue toast & pet gifts) | 10/10 | 9/10 | 10/10 | 9/10 | **No** | Add celebratory daily habit completion confetti explosions when 5/10 target is hit |
 | **13** | **Chronicle & Reflection Journal** | Dual journal (auto-generated habit milestones & archived season champions + private reflection diary with mood tracking) | 9/10 | 8/10 | 9/10 | 8/10 | **No** | Add simple mood tag selectors (Energized, Focused, Calm) and monthly AI reflection summary synthesis |
+| **14** | **Quests, Challenges & Milestones Engine** | 3-tab habit engine (Daily Quests, Weekly Challenges, Cumulative Milestones) with midnight reset, undo capability, and 5/10 target sweet spot | 10/10 | 9/10 | 10/10 | 9/10 | **No** | Add custom habit category tag creation & automated daily reminder schedules |
+| **15** | **Guardian Pets & Companions** | Evolving pet companions (Ember Drake, Sage Owl, Spirit Sprite) providing passive daily yields (+10% Gold/Essence) and active Dungeon Support Striker skills | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add pet leveling food treats and pet evolution skin customizer |
+| **16** | **Seasonal Events & Alliance Titan Raids** | Co-op Alliance Titan Wyrm raid boss health bar where daily habit completions deal boss damage and unlock shared victory chests | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add seasonal hunt event leaderboards and limited-time event badges |
 
 ## House Cup & Seasons
 
