@@ -32,7 +32,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
   - **Raid & Rewards**: Titan Wyrm Victory Chests ready
   - **Progression**: Level Gained & Achievements Unlocked
   - **Protection**: Streak Freeze & Rest Day alerts
-- **Noise Suppression**: Minor routine logs (such as +10 XP per habit) are suppressed to prevent spam.
+- **Noise Suppression**: Minor routine logs (such as +10 XP per habit or low-priority system events) are suppressed to prevent notification fatigue.
 - **One-Tap Action Cards**: Notification cards feature immediate action buttons (`Accept Dare`, `Claim Chest`, `View Title`).
 - **24-Hour Auto-Archiving**: Read notifications automatically archive after 24 hours to maintain a clean, zero-clutter inbox.
 
@@ -40,11 +40,11 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 
 | System # | Game System Name | System Description & Primary Role | Visual Assets (1-10) | Rewards & Economy (1-10) | UX Quality (1-10) | Fun Factor (1-10) | Incomplete Systems? | Key Missing Elements / Depth Opportunities |
 |:---:|---|---|:---:|:---:|:---:|:---:|:---:|---|
-| **1** | **Fighting Dungeon Battles** | Turn-based 3v3 elemental creature battles with daily habit ATK/HP multipliers, Guardian Pet support strikers, and floor 5/10 boss tile blueprint drops | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add explicit boss room floor intro animations & elemental weak-point break mechanics |
+| **1** | **Fighting Dungeon Battles** | Turn-based 3v3 elemental creature battles with daily habit ATK/HP multipliers, Guardian Pet support strikers, and floor 5/10 boss tile blueprint drops | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add Guardian Pet support striker elemental attack abilities during combat |
 | **2** | **Citizen Training & Specialization** | Upgrade citizens with Gold/Essences into Tank, Mage, Alchemist, Scout classes, earning Expedition EXP on Airship/Map voyages | 9/10 | 8/10 | 9/10 | 9/10 | **No** | Add visual equipment slot overlays (weapon/armor) per citizen on the Character Vault page |
-| **3** | **Character Setup & Hero Vault** | Top hero card showcasing avatar, streak, titles, sigil crests, equipment items, and guardian pet collections | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add 2D RPG equipment paperdoll grid around central avatar (Weapon, Off-hand, Armor, Relic slots) with item stat popovers |
-| **4** | **Realm Building & Sandbox Grid** | Freeform 2D grid builder with 84+ placeable tile types, rotation controls, and friend-visitable showpiece showcase | 9/10 | 8/10 | 9/10 | 9/10 | **No** | Add multi-tile drag-to-place brush mode and custom weather particle overlays (snow/rain) |
-| **5** | **Kingdom Board & Settlement Tiles** | Strategic board with dopamine tile taps, passive taxes, and interactive settlement drawers (Abbey, Apotheca, Barracks) | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add automated 'Collect all taxes' golden header button with floating +Gold & +Essence coin animations |
+| **3** | **Character Setup & Hero Vault** | Top hero card showcasing avatar, streak, titles, sigil crests, equipment items, and guardian pet collections | 9/10 | 9/10 | 9/10 | 9/10 | **No** | 2D RPG equipment paperdoll grid around central avatar (Weapon, Off-hand, Armor, Relic slots) with item stat popovers |
+| **4** | **Realm Building & Sandbox Grid** | Freeform 2D grid builder with 84+ placeable tile types, rotation controls, single-click tile placement with confirmation, and friend-visitable showpiece showcase | 9/10 | 8/10 | 9/10 | 9/10 | **No** | Add custom weather particle overlays (snow/rain) |
+| **5** | **Kingdom Board & Settlement Tiles** | Strategic board with dopamine tile taps, passive taxes, automated 'Collect all taxes' golden header button, and interactive settlement drawers | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add automated 'Collect all taxes' golden header button with floating +Gold & +Essence coin animations |
 | **6** | **Exploration, Events & Minigames** | Interactive minigame tiles (Plank Labyrinth, Riddles, Tarot) and random event triggers yielding blueprints & essences | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add 2 additional minigame tiles: Archery Target Range & Tarot Card Reading Fortune Wheel |
 | **7** | **Alchemy & Potion Crafting** | Grand Apotheca glasshouse where players convert botanical materials & essences into gold, exp, and health potions | 9/10 | 8/10 | 9/10 | 8/10 | **No** | Add potion brewing timer cauldron animations with success rate boosters |
 | **8** | **Friend Dares & Virtue Duels** | Head-to-head friend habit challenges awarding +10 bonus House Cup virtue points to both issuer and recipient | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Action-oriented Notification Bell drawer with 24h auto-archiving for friend dares & duels |
