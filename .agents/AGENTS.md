@@ -60,6 +60,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 ## Characters, Citizens & Guardian Pets
 
 - Citizens: **both functional AND narrative** — world feels alive, interactive, explorable. Upgradeable with gold & alchemy essences earned from habits.
+- **Combat Class Specialization**: Citizens specialize into distinct combat classes (`Tank`, `Mage`, `Alchemist`, `Scout`) matching habit categories (`Might` habits empower Tanks, `Knowledge` habits empower Mages, `Vitality`/`Wellness` empower Alchemists, `Honor`/`Craft` empower Scouts).
 - Guardian pets: **strategic choice with dual mechanics**:
   - **Passive Yields**: Grant passive daily kingdom resource yields (+10% Gold & Essences).
   - **Dungeon Support**: As pets level up alongside player habits, they join Dungeon Keep battles as active support strikers, executing elemental signature moves.
@@ -75,11 +76,15 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - **Streak Protection & Rest Days**:
   - **Holiday Mode toggle** (pauses streak decay for vacation/sickness) + **auto-earned Streak Freeze shields** for high consistency — never punish sickness or vacation!
 
-## Social
+## Social & Alliance Raid Engine
 
 - **Solo must be fun and complete.** But social pressure is scientifically proven to help habits
 - Friend quest dynamic: **competition** ("I dare you") + virtue duels for House Cup bonus points
-- Alliance system: nice-to-have layer on top with daily alliance chests and Titan Wyrm raid bosses.
+- **Alliance Titan Wyrm Raid Boss**: Shared Alliance health bar where daily habit completions deal raid damage based on quest cadence:
+  - **Quest completion (Daily habit)**: 1 damage
+  - **Challenge completion (Weekly focus)**: 10 damage
+  - **Milestone completion (Cumulative achievement)**: 100 damage
+  - Unlocks shared alliance tier chests for all participating allies!
 
 ## Page Purposes
 
