@@ -574,6 +574,34 @@ export function BarracksTab() {
                       )}
                     </div>
 
+                    {/* Citizen RPG Equipment Slots Overlay */}
+                    <div className="p-3.5 bg-zinc-950/80 border border-zinc-800 rounded-xl space-y-2">
+                      <h5 className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Sword className="w-3 h-3 text-amber-400" /> Citizen Equipment Slots
+                      </h5>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-2.5 rounded-xl bg-zinc-900/90 border border-amber-500/30 flex items-center gap-2.5">
+                          <div className="w-10 h-10 rounded-lg bg-zinc-950 border border-amber-500/40 flex items-center justify-center text-lg shrink-0">
+                            ⚔️
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-zinc-400 font-bold block uppercase">Weapon Slot</span>
+                            <span className="text-xs text-amber-300 font-bold">Vanguard Blade (+15 ATK)</span>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 rounded-xl bg-zinc-900/90 border border-blue-500/30 flex items-center gap-2.5">
+                          <div className="w-10 h-10 rounded-lg bg-zinc-950 border border-blue-500/40 flex items-center justify-center text-lg shrink-0">
+                            🛡️
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-zinc-400 font-bold block uppercase">Armor Slot</span>
+                            <span className="text-xs text-blue-300 font-bold">Apprentice Cuirass (+20 DEF)</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Level Mastery Perks Roadmap */}
                     <div className="space-y-2">
                       <h5 className="text-[10px] font-bold text-zinc-400 tracking-wider flex items-center gap-1.5">

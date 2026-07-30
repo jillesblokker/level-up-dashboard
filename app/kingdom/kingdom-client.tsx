@@ -457,6 +457,7 @@ export function KingdomClient() {
   const [activeTab, setActiveTab] = useState("equipped")
   const [kingdomTab, setKingdomTab] = useState("thrivehaven");
   const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>([]);
+  const [tileTimers, setTileTimers] = useState<Record<string, any>>({});
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);
   const kingdomTileInventory = getKingdomTileInventoryWithBuildTokens();
   const [propertiesOpen, setPropertiesOpen] = useState(false);
@@ -709,8 +710,7 @@ export function KingdomClient() {
       try {
         const savedTimers = await loadKingdomTimers();
         if (savedTimers) {
-          // Update tile states based on actual timers
-          // Removed debugging log
+          setTileTimers(savedTimers);
         }
       } catch (error) {
         logger.error('[Kingdom] Error loading timers:', error);
@@ -718,7 +718,7 @@ export function KingdomClient() {
         const savedTimers = localStorage.getItem('kingdom-tile-timers');
         if (savedTimers) {
           const timers = JSON.parse(savedTimers);
-          // Update tile states based on actual timers
+          setTileTimers(timers);
         }
       }
     };
@@ -1700,6 +1700,39 @@ export function KingdomClient() {
         subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Build out your capital, construct properties, collect taxes, and expand your kingdom!`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
+        ctaButton={
+          !isVisiting && (
+            <Button
+              onClick={async () => {
+                let totalGoldGained = 0;
+                const readyKeys = Object.keys(tileTimers || {}).filter(key => tileTimers[key]?.isReady);
+                if (readyKeys.length === 0) {
+                  toast({
+                    title: "No Taxes Ready",
+                    description: "Your kingdom tiles are currently generating resources. Check back soon!",
+                  });
+                  return;
+                }
+                totalGoldGained = readyKeys.length * 250;
+                await gainGold(totalGoldGained, 'tax-collection');
+                const updated = { ...tileTimers };
+                readyKeys.forEach(k => {
+                  if (updated[k]) {
+                    updated[k] = { ...updated[k], endTime: Date.now() + 60 * 60 * 1000, isReady: false };
+                  }
+                });
+                setTileTimers(updated);
+                toast({
+                  title: "💰 Taxes Collected!",
+                  description: `Collected +${totalGoldGained} Gold & +${readyKeys.length * 2} Essences from ${readyKeys.length} tiles!`,
+                });
+              }}
+              className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-zinc-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-xl border border-amber-300 flex items-center gap-2 transition-all active:scale-95"
+            >
+              💰 Collect All Kingdom Taxes
+            </Button>
+          )
+        }
         onImageUpload={async (file) => {
           const reader = new FileReader();
           reader.onload = async (event: ProgressEvent<FileReader>) => {

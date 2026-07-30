@@ -183,6 +183,7 @@ export default function DungeonPage() {
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [showBounties, setShowBounties] = useState(false);
   const [cooldowns, setCooldowns] = useState<{ burst: number; signature: number; guard: number; status: number }>({ burst: 0, signature: 0, guard: 0, status: 0 });
+  const [petStrikerUsed, setPetStrikerUsed] = useState(false);
   const [monsterStatus, setMonsterStatus] = useState<MonsterStatusState>({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -1560,15 +1561,40 @@ export default function DungeonPage() {
                             {/* Active Guardian Pet Striker Support Button */}
                             <div className="pt-1">
                               <Button
+                                disabled={petStrikerUsed || !run?.currentEncounter}
                                 onClick={() => {
+                                  if (!run || !run.currentEncounter || petStrikerUsed) return;
+                                  const petName = selectedCreature?.type === 'Fire' ? 'Ember Drake' : selectedCreature?.type === 'Water' ? 'Sage Owl' : 'Spirit Sprite';
+                                  const petSkill = selectedCreature?.type === 'Fire' ? '🔥 Flame Breath (45 AOE Fire DMG)' : selectedCreature?.type === 'Water' ? '🦉 Arcane Gust (+35 Team Heal)' : '✨ Floral Blessing (+40 Defense Shield)';
+                                  
+                                  const petDmg = 45;
+                                  const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - petDmg);
+                                  setPetStrikerUsed(true);
+
+                                  setBattleLog(prev => [
+                                    ...prev,
+                                    `🐾 Guardian Pet ${petName} leaped onto the battlefield!`,
+                                    `Executed ${petSkill}! Dealt ${petDmg} damage to monster!`
+                                  ]);
+
+                                  setRun({
+                                    ...run,
+                                    currentHp: Math.min(run.maxHp, run.currentHp + 35),
+                                    currentEncounter: { ...run.currentEncounter, hp: newMonsterHp }
+                                  });
+
                                   toast({
-                                    title: "🐾 Guardian Pet Summoned!",
-                                    description: "Ember Drake unleashed Flame Breath! Dealt +120 elemental strike damage to monster room!",
+                                    title: `🐾 Guardian Pet ${petName} Striker!`,
+                                    description: `Unleashed ${petSkill}! Dealt ${petDmg} elemental damage!`,
                                   });
                                 }}
-                                className="w-full h-10 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 border border-amber-400/50"
+                                className={`w-full h-10 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 border transition-all ${
+                                  petStrikerUsed
+                                    ? 'bg-zinc-900 border-zinc-800 text-zinc-600 opacity-60'
+                                    : 'bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 hover:from-amber-500 hover:to-orange-500 text-white border-amber-400/60 shadow-amber-950/50'
+                                }`}
                               >
-                                🐾 Summon Guardian Pet Striker (Flame Breath Strike)
+                                🐾 Guardian Pet Striker {petStrikerUsed ? '(Used this Floor)' : '• Ready (Click to Strike!)'}
                               </Button>
                             </div>
 
