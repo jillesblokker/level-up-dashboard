@@ -93,24 +93,27 @@ export function DailyRoutineModal({
           </div>
         )}
 
-        {/* Step 2: Checking off Quests */}
+        {/* Step 2: Preview Today's Habit Focus */}
         {step === 2 && (
           <div className="space-y-4 py-2 animate-in fade-in duration-300">
             <div className="text-center space-y-1">
               <div className="mx-auto w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-1">
                 <CheckSquare className="w-5 h-5 text-amber-400" />
               </div>
-              <h3 className="font-medieval text-xl text-amber-200">2. Checking Off Daily Quests</h3>
-              <p className="text-xs text-zinc-400 italic">Ready your list of daily repeating habits for today.</p>
+              <h3 className="font-medieval text-xl text-amber-200">2. Today&apos;s Habit Focus & Target</h3>
+              <p className="text-xs text-zinc-400 italic">A fresh day begins! All daily habits are reset and ready.</p>
             </div>
 
             <div className="p-4 bg-zinc-950/90 rounded-xl border border-amber-900/30 text-center space-y-2">
               <div className="text-xs text-amber-300 font-bold uppercase tracking-wider">
-                🎯 Habit Sweet Spot Target
+                🎯 Sovereign Habit Cadence
               </div>
               <p className="text-xs text-zinc-300 leading-normal">
-                Aim for <strong className="text-amber-400 font-bold">5 habits completed today</strong> for a Great score, 10 for Awesome!
+                Aim for <strong className="text-amber-400 font-bold">5 completed habits</strong> today for a Great score, 10 for Awesome, 15+ for Super!
               </p>
+              <div className="text-[11px] text-zinc-400 italic pt-1 border-t border-amber-900/20">
+                Tip: Mix simple habits (wake before 10) with aspirational ones (10 push-ups).
+              </div>
             </div>
           </div>
         )}

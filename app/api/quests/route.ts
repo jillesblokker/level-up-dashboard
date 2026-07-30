@@ -284,9 +284,8 @@ export async function GET(request: Request) {
         questCompletionGroups.get(completion.quest_id).push(completion);
       });
 
-      // For each quest, find TODAY'S completion record
+      // For each quest, find TODAY'S completion record (or any completion if one-time quest)
       questCompletionGroups.forEach((completions, questId) => {
-        // Find completion record for today in user's timezone or completed within last 24 hours
         const todayCompletion = completions.find((c: any) => {
           if (allTime) {
             return c.completed === true;
@@ -294,13 +293,11 @@ export async function GET(request: Request) {
           const cDate = formatDate(c.completed_at || c.created_at, requestTz);
           const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
           const todayUtc = new Date().toISOString().split('T')[0];
-          const nowMs = Date.now();
-          const compMs = new Date(c.completed_at || c.created_at).getTime();
-          const isRecent = !isNaN(compMs) && (nowMs - compMs) < (24 * 60 * 60 * 1000);
-          return cDate === today || cDateUtc === todayUtc || isRecent;
+          // STRICT DATE MATCHING: Must match local today's date or UTC today's date
+          return cDate === today || cDateUtc === todayUtc;
         });
 
-        // Show as completed if there's a completion record for today
+        // Show as completed if there's a valid completion record for today
         if (todayCompletion && todayCompletion.completed !== false) {
           const compObj = {
             completed: true,
@@ -320,15 +317,11 @@ export async function GET(request: Request) {
     const questsWithCompletions = (quests || []).map((quest: any) => {
       const qId = String(quest.id || '');
       const qName = String(quest.name || '');
-      // Find completion by quest ID, quest name, or case-insensitive match
+      // Find completion by quest ID or quest name for TODAY
       const completion = completedQuests.get(qId) || 
                          completedQuests.get(qId.toLowerCase()) || 
                          completedQuests.get(qName) || 
-                         completedQuests.get(qName.toLowerCase()) ||
-                         (questCompletions || []).find((c: any) => {
-                           const cId = String(c.quest_id || '').toLowerCase();
-                           return cId === qId.toLowerCase() || cId === qName.toLowerCase();
-                         });
+                         completedQuests.get(qName.toLowerCase());
 
       const isCompleted = completion ? (completion.completed !== false) : false;
       const completionDate = completion ? (completion.completedAt || completion.completed_at) : null;
