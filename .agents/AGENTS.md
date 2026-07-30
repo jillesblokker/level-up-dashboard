@@ -35,14 +35,17 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 
 ## Daily Opening Routine Sequence
 
-1. **Recap of last day** — Streak status, completed habit count, XP & Gold earned yesterday.
-2. **Today's habit focus & target** — Preview fresh habit focus (aim for 5/10 target) and set daily intentions.
-3. **House Cup toast, taxes, and pet gift** — Toast virtue standings, collect kingdom tile taxes, and claim daily guardian pet bounty (+50 Gold & +1 Essence).
+- **Modal Trigger**: Launches an interactive full-screen Daily Opening Routine modal on first login each day.
+- **Sequence Steps**:
+  1. **Recap of last day** — Streak status, completed habit count, XP & Gold earned yesterday.
+  2. **Today's habit focus & target** — Preview fresh habit focus (aim for 5/10 target) and set daily intentions.
+  3. **House Cup toast, taxes, and pet gift** — Toast virtue standings, collect kingdom tile taxes, and claim daily guardian pet bounty (+50 Gold & +1 Essence).
 
 ## Kingdom & Dungeon Loop
 
 - **Visual diary of progress** — real-life growth mirrored in-game
 - **Gameplay loop**: Completing habits/quests yields Gold & Essences → used to train citizens/fighters → trained citizens clear higher floors in the Dungeon.
+- **Dungeon Boss Room Blueprint Drops**: Defeating Dungeon Keep Boss rooms (every 5th floor) drops rare Kingdom & Realm Tile Blueprints (such as Serene Lake, Waterway Canal, Zen Garden, Astral Citadel) directly into player inventory.
 - **Habit Combat Buffs**: Completing today's habits grants immediate combat stat multipliers in the Dungeon Keep (e.g. `Might` habits = +5% ATK per habit up to +25% max; `Knowledge` habits = +5% Spell Power).
 - Tile types have specific roles:
   - **Kingdom tiles** → give rewards & taxes
