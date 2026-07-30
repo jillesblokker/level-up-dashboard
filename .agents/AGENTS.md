@@ -47,7 +47,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - Tile types have specific roles:
   - **Kingdom tiles** → give rewards & taxes
   - **Settlement tiles** (Abbey, Apotheca, Barracks) → user can enter and perform actions
-  - **Minigame tiles** → trigger modal with interactive minigames (Plank Labyrinth, Riddles, Tarot)
+  - **Minigame tiles** → trigger modal with interactive minigames (Plank Labyrinth, Riddles, Tarot) yielding Gold, Essences, and rare Kingdom Tile Blueprints based on puzzle difficulty
   - **Realm tiles** → trigger events
 - **Endgame**: Huge, detailed map styled to the player's liking. Activity level determines how much they've built.
 - **Realm page**: Friends can visit to see your progress ("showing off")
@@ -72,7 +72,8 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - **Infinite Progression & Prestige System**:
   - Reaching Level 100 unlocks **Prestige Ranks** (Prestige I, II, III...) with distinct Paragon crest borders.
   - Unlocks exclusive **Legendary Realm Tile Blueprints** and **Mythic Pet Evolutions** (e.g. Astral Wyrm, Solar Gryphon).
-- Streak system: **streak freezes + holiday mode** — never punish sickness or vacation
+- **Streak Protection & Rest Days**:
+  - **Holiday Mode toggle** (pauses streak decay for vacation/sickness) + **auto-earned Streak Freeze shields** for high consistency — never punish sickness or vacation!
 
 ## Social
 
@@ -85,7 +86,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 | Page | Role |
 |------|------|
 | **Daily hub** | First thing you see every day — the "home" |
-| **Chronicle** | Passive journal (auto-generated from activity & season winners archive). Separate diary system for active writing |
+| **Chronicle** | **Dual system**: passive journal (auto-generated from habit milestones & season winners archive) + private reflection diary for active writing |
 | **Dungeon** | Turn-based elemental mini-game that gets harder. Need to train fighters with gold/essences and complete daily habits for combat buffs to keep up |
 | **Airship harbor** | Tied directly to **real-world habit activity** (completing habits generates Ether fuel to propel voyages) |
 | **Market** | Mostly shopping (consumables, packs, tiles, material exchange) |
