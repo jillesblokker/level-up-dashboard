@@ -63,6 +63,7 @@ interface CitizensStore {
   increaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
   decreaseAffection: (userId: string, citizenId: string, amount: number) => Promise<void>;
   trainCitizen: (userId: string, citizenId: string, foodItemId: string, scrollItemId: string, foodQty?: number, scrollQty?: number) => Promise<{ success: boolean; error?: string; leveledUp?: boolean }>;
+  addCitizenExp: (userId: string, citizenId: string, amount: number) => Promise<{ success: boolean; newLevel: number; leveledUp: boolean }>;
   toggleSupporter: (userId: string, citizenId: string) => Promise<void>;
   boostActiveCitizensNourishment: (userId: string, hoursToAdd?: number) => Promise<void>;
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
@@ -753,6 +754,56 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       partnerName: partner.name,
       count: harvestable.length
     };
+  },
+
+  addCitizenExp: async (userId: string, citizenId: string, amount: number) => {
+    if (!userId || !citizenId || amount <= 0) return { success: false, newLevel: 1, leveledUp: false };
+    const { citizens } = get();
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (!citizen) return { success: false, newLevel: 1, leveledUp: false };
+
+    const currentLvl = citizen.level || 1;
+    const currentExp = citizen.experience || 0;
+    const totalExp = currentExp + amount;
+
+    // 100 EXP required per level
+    const expPerLevel = 100;
+    const newLvl = Math.max(1, currentLvl + Math.floor(totalExp / expPerLevel));
+    const remainderExp = totalExp % expPerLevel;
+    const leveledUp = newLvl > currentLvl;
+
+    const updated = citizens.map(c => {
+      if (c.id === citizenId) {
+        return {
+          ...c,
+          level: newLvl,
+          experience: remainderExp
+        };
+      }
+      return c;
+    });
+
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updated.forEach(c => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0
+      };
+    });
+
+    set({ citizens: updated });
+    await setUserPreference('citizens_state', citizenPrefs);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-stats-update'));
+    }
+
+    return { success: true, newLevel: newLvl, leveledUp };
   },
 
   increaseAffection: async (userId: string, citizenId: string, amount: number) => {

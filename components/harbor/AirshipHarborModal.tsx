@@ -5,7 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Navigation, Zap, Package, Compass, Anchor } from 'lucide-react'
+import { Navigation, Zap, Package, Compass, Anchor, Users, Sparkles, ShieldCheck } from 'lucide-react'
+import { useCitizensStore } from '@/stores/citizensStore'
+import { useToast } from '@/components/ui/use-toast'
 
 interface AirshipHarborModalProps {
   isOpen: boolean
@@ -16,6 +18,10 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
   const [etherFuel, setEtherFuel] = useState(35)
   const [voyageProgress, setVoyageProgress] = useState(65)
   const [activeDestination, setActiveDestination] = useState('Port of Celestial Spire')
+  const [selectedCrew, setSelectedCrew] = useState<string[]>([])
+
+  const { citizens, addCitizenExp } = useCitizensStore()
+  const { toast } = useToast()
 
   useEffect(() => {
     try {
@@ -25,6 +31,44 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
       console.error('Error loading ether fuel:', err)
     }
   }, [isOpen])
+
+  const toggleCrewMember = (id: string) => {
+    if (selectedCrew.includes(id)) {
+      setSelectedCrew(selectedCrew.filter(cId => cId !== id))
+    } else {
+      if (selectedCrew.length >= 3) {
+        toast({ title: 'Crew Full', description: 'Max 3 citizens per expedition crew.' })
+        return
+      }
+      setSelectedCrew([...selectedCrew, id])
+    }
+  }
+
+  const handleLaunchCourse = async (portName: string) => {
+    setActiveDestination(portName)
+    setVoyageProgress(100)
+
+    // Award Expedition EXP to assigned crew
+    if (selectedCrew.length > 0) {
+      for (const citizenId of selectedCrew) {
+        const citizen = citizens.find(c => c.id === citizenId)
+        const isSynergyClass = citizen?.type === 'special' || citizen?.type === 'nature'
+        const expAwarded = isSynergyClass ? 150 : 100
+
+        await addCitizenExp('user', citizenId, expAwarded)
+      }
+
+      toast({
+        title: "🛸 Voyage Complete!",
+        description: `Awarded Expedition EXP to ${selectedCrew.length} crew member(s)! (+50% Synergy Bonus applied!)`,
+      })
+    } else {
+      toast({
+        title: "🛸 Course Set!",
+        description: `Propelling airship to ${portName}. Assign citizens as crew to earn Expedition EXP!`,
+      })
+    }
+  }
 
   const PORTS = [
     { name: 'Port of Celestial Spire', distance: '100 Ether Fuel', cargo: 'Rare Tile Blueprint & Crystal Reagents', reqFuel: 100 },
@@ -68,6 +112,45 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             </Badge>
           </div>
 
+          {/* Citizen Crew Assignment Selector */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-cyan-400" /> Expedition Crew ({selectedCrew.length}/3)
+              </span>
+              <Badge variant="outline" className="text-[9px] border-cyan-500/30 text-cyan-300 bg-zinc-950">
+                Class Synergy: +50% Bonus EXP
+              </Badge>
+            </div>
+            <p className="text-[11px] text-zinc-400 leading-tight">
+              Assign trained citizens as crew to grant them Expedition EXP on voyage completion!
+            </p>
+
+            <div className="flex gap-2 overflow-x-auto pt-1 pb-1">
+              {citizens.slice(0, 6).map(c => {
+                const isSelected = selectedCrew.includes(c.id)
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => toggleCrewMember(c.id)}
+                    className={`flex-1 min-w-[90px] p-2 rounded-xl border text-center transition-all ${
+                      isSelected
+                        ? 'border-cyan-400 bg-cyan-950/60 text-cyan-200 ring-2 ring-cyan-400/50 shadow-md'
+                        : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
+                    }`}
+                  >
+                    <span className="font-bold text-[11px] block truncate text-zinc-100">{c.name}</span>
+                    <span className="text-[9px] text-cyan-400 font-mono">Lv.{c.level || 1}</span>
+                    {isSelected && (
+                      <span className="text-[9px] text-emerald-400 font-bold block mt-0.5">Assigned ✓</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Active Voyage Status */}
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-2">
             <div className="flex items-center justify-between">
@@ -99,10 +182,10 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => setActiveDestination(port.name)}
-                    className="h-7 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-white"
+                    onClick={() => handleLaunchCourse(port.name)}
+                    className="h-7 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-white gap-1"
                   >
-                    Set course ({port.distance})
+                    <Sparkles className="w-3 h-3" /> Set course ({port.distance})
                   </Button>
                 </div>
               ))}

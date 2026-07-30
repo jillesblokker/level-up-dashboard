@@ -64,6 +64,10 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 
 - Citizens: **both functional AND narrative** — world feels alive, interactive, explorable. Upgradeable with gold & alchemy essences earned from habits.
 - **Combat Class Specialization**: Citizens specialize into distinct combat classes (`Tank`, `Mage`, `Alchemist`, `Scout`) matching habit categories (`Might` habits empower Tanks, `Knowledge` habits empower Mages, `Vitality`/`Wellness` empower Alchemists, `Honor`/`Craft` empower Scouts).
+- **Citizen Expedition EXP & Crew Assignment**:
+  - Players assign 1 to 3 citizens as the **Expedition Crew** for Airship Harbor voyages and Kingdom Map tile expeditions.
+  - Completing expeditions grants **Citizen EXP**, leveling up citizen combat HP/ATK and unlocking class title upgrades (e.g. *Novice Vanguard* → *Master Vanguard*).
+  - **Class Matching Synergy**: Matching citizen class to expedition type (e.g., Scout on Airship Voyages, Alchemist on Botanical Expeditions) awards **+50% bonus Citizen EXP** and **+15% Ether fuel efficiency**.
 - Guardian pets: **strategic choice with dual mechanics**:
   - **Passive Yields**: Grant passive daily kingdom resource yields (+10% Gold & Essences).
   - **Dungeon Support**: As pets level up alongside player habits, they join Dungeon Keep battles as active support strikers, executing elemental signature moves.
