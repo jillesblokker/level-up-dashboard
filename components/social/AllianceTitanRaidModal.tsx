@@ -151,6 +151,30 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               })}
             </div>
           </div>
+          {/* Alliance Contribution Leaderboard */}
+          <div className="space-y-2 pt-1">
+            <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" /> Top Alliance Habit Contributors
+            </h4>
+            <div className="bg-zinc-900/90 rounded-xl border border-zinc-800 p-3 space-y-2">
+              {[
+                { rank: 1, name: 'Sir Gareth', damage: 840, badge: '🥇 Raid Overlord' },
+                { rank: 2, name: 'You (Count)', damage: userDamageToday, badge: '🥈 Vanguard' },
+                { rank: 3, name: 'Lady Guinevere', damage: 410, badge: '🥉 Defender' }
+              ].map(contributor => (
+                <div key={contributor.rank} className="flex items-center justify-between text-xs p-2 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-bold font-mono text-amber-400">#{contributor.rank}</span>
+                    <span className="font-bold text-zinc-200">{contributor.name}</span>
+                    <Badge variant="outline" className="text-[9px] border-amber-500/30 text-amber-400 font-mono">
+                      {contributor.badge}
+                    </Badge>
+                  </div>
+                  <span className="font-mono font-bold text-red-400">{contributor.damage} DMG</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end pt-2 border-t border-zinc-900">

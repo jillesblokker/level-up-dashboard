@@ -408,25 +408,20 @@ export default function QuestsPage() {
     // Only use Supabase for streak/history
   }, [userId]);
   // On quest completion change, update streak/history
+  // Trigger confetti explosion on 5/10 target hit
   useEffect(() => {
-    if (!userId || todaysTotal === 0) return;
-    if (typeof window === 'undefined') return;
-    // Only update if today is not already in history
-    if (!questHistory.find(h => h.date === today)) {
-      const completed = todaysCompleted === todaysTotal && todaysTotal > 0;
-      const newHistory = [...questHistory, { date: today, completed }].slice(-14); // keep 2 weeks
-      setQuestHistory(newHistory);
-      // localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(newHistory)); // Removed localStorage
-      // Update streak
-      let streak = 0;
-      for (let i = newHistory.length - 1; i >= 0; i--) {
-        if (newHistory[i]!.completed) streak++;
-        else break;
-      }
-      setQuestStreak(streak);
-      // localStorage.setItem(QUEST_STREAK_KEY, String(streak)); // Removed localStorage
+    if (todaysCompleted === 5) {
+      import('canvas-confetti').then(confetti => {
+        confetti.default({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+      });
+      gainGold(50, 'target-sweet-spot');
+      gainExperience(100, 'target-sweet-spot');
+      toast({
+        title: "🎯 5/10 Target Sweet Spot Hit!",
+        description: "Awesome habit consistency! Earned +100 XP & +50 Gold bonus!",
+      });
     }
-  }, [todaysCompleted, todaysTotal, userId]);
+  }, [todaysCompleted]);
 
   // Acquire token only when Clerk is loaded and user is loaded
   useEffect(() => {

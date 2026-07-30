@@ -38,6 +38,7 @@ import { AnimatedCounter } from '@/components/ui/animated-counter'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { gainGold } from '@/lib/gold-manager'
 import { FocusPointsModal } from '@/components/focus-points-modal'
 import { SigilCrestEditor } from '@/components/character/sigil-crest'
 import { PaperdollEquipmentGrid } from '@/components/character/PaperdollEquipmentGrid'
@@ -1075,13 +1076,14 @@ export default function CharacterPage() {
                   <option value="titles">{TEXT_CONTENT.character.ui.tabs.titles}</option>
                   <option value="perks">{TEXT_CONTENT.character.ui.tabs.perks}</option>
                   <option value="strengths">{TEXT_CONTENT.character.ui.tabs.strengths}</option>
-                  <option value="citizens">Citizens</option>
+                  <option value="pets">Guardian Pets 🐾</option>
                 </select>
               </div>
               <TabsList className="grid h-12 w-auto grid-cols-4 bg-zinc-950 border border-amber-900/20 p-1 rounded-xl mb-8 hidden md:grid shadow-inner ">
                 <TabsTrigger value="titles" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.titles}</TabsTrigger>
                 <TabsTrigger value="perks" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.perks}</TabsTrigger>
                 <TabsTrigger value="strengths" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
+                <TabsTrigger value="pets" className="rounded-lg h-full font-bold text-amber-400">🐾 Guardian Pets</TabsTrigger>
               </TabsList>
               <TabsContent value="titles" className="mt-6">
                 <div className="max-w-7xl mx-auto w-full">
@@ -1339,6 +1341,49 @@ export default function CharacterPage() {
                             </Badge>
                           </div>
                         </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="pets" className="mt-6">
+                <div className="max-w-7xl mx-auto w-full space-y-6">
+                  <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+                    {[
+                      { id: 'ember-drake', name: 'Ember Drake', type: 'Fire', icon: '🔥', yield: '+10% Gold Yield', skill: 'Ember Strike (45 AOE Fire DMG)', image: '/images/pets/ember_drake.png' },
+                      { id: 'sage-owl', name: 'Sage Owl', type: 'Water', icon: '🦉', yield: '+10% Essence Yield', skill: 'Arcane Gust (+35 Team Heal)', image: '/images/pets/sage_owl.png' },
+                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'Verdant', icon: '✨', yield: '+10% XP Yield', skill: 'Floral Blessing (+40 Def Shield)', image: '/images/pets/spirit_sprite.png' }
+                    ].map((pet) => (
+                      <Card key={pet.id} className="medieval-card border-amber-500/40 bg-zinc-950 flex flex-col justify-between p-5 space-y-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-serif font-bold text-lg text-amber-300 flex items-center gap-2">
+                              <span>{pet.icon}</span> {pet.name}
+                            </h4>
+                            <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-400 font-mono">
+                              Active Companion
+                            </Badge>
+                          </div>
+                          <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1 text-xs">
+                            <p className="text-zinc-300 font-bold">✨ Passive: <span className="text-amber-400">{pet.yield}</span></p>
+                            <p className="text-zinc-400 font-mono text-[11px]">⚔️ Striker: {pet.skill}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 pt-2 border-t border-zinc-800">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                gainGold(10, 'pet-treat');
+                                toast({ title: `🍎 Fed ${pet.name}!`, description: "Increased pet affection by +5%! Passive yield boosted." });
+                              }}
+                              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs h-8"
+                            >
+                              🍎 Feed Treat (+5% Affection)
+                            </Button>
+                          </div>
+                        </div>
                       </Card>
                     ))}
                   </div>
