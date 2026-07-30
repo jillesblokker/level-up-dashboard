@@ -1111,7 +1111,10 @@ export default function CharacterPage() {
 
               {/* 2D RPG Paperdoll Equipment Grid */}
               <div className="mt-8 pt-6 border-t border-zinc-800">
-                <PaperdollEquipmentGrid heroName={(characterStats as any).title || (characterStats as any).active_title || 'Sovereign Champion'} />
+                <PaperdollEquipmentGrid
+                  avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
+                  heroName={(characterStats as any).title || 'Count'}
+                />
               </div>
             </CardContent>
           </Card>
