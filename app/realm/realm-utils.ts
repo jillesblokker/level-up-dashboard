@@ -41,6 +41,8 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'prison') image = '/images/tiles/prison-tile.png';
     if (type === 'apotheca') image = '/images/tiles/apotheca-tile.png';
     if (type === 'abbey') image = '/images/tiles/abbey-tile.png';
+    if (type === 'waterway_canal') image = '/images/kingdom-tiles/WaterwayCanal.webp';
+    if (type === 'astral_citadel_monument') image = '/images/kingdom-tiles/AstralCitadelMonument.webp';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -62,6 +64,8 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'prison') name = 'Iron Citadel Prison';
     if (type === 'apotheca') name = 'Grand Apotheca';
     if (type === 'abbey') name = 'Silent Abbey';
+    if (type === 'waterway_canal') name = 'Waterway Canal & Stone Bridge';
+    if (type === 'astral_citadel_monument') name = 'Astral Citadel Monument';
 
     return {
         id: type,
@@ -164,6 +168,8 @@ export const initialInventory: Record<TileType, Tile> = {
     prison: { ...defaultTile('prison'), cost: 500, owned: 0 },
     apotheca: { ...defaultTile('apotheca'), cost: 500, owned: 0 },
     abbey: { ...defaultTile('abbey'), cost: 600, owned: 0 },
+    waterway_canal: { ...defaultTile('waterway_canal'), cost: 750, owned: 1 },
+    astral_citadel_monument: { ...defaultTile('astral_citadel_monument'), cost: 1500, owned: 1 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -201,6 +207,8 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'prison') return '/images/tiles/prison-tile.png';
     if (type === 'apotheca') return '/images/tiles/apotheca-tile.png';
     if (type === 'abbey') return '/images/tiles/abbey-tile.png';
+    if (type === 'waterway_canal') return '/images/kingdom-tiles/WaterwayCanal.webp';
+    if (type === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 

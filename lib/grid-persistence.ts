@@ -88,6 +88,8 @@ const tileTypeToNumeric: Record<TileType, number> = {
   prison: 79,
   apotheca: 80,
   abbey: 81,
+  waterway_canal: 82,
+  astral_citadel_monument: 83,
 };
 
 // Convert numeric value back to tile type

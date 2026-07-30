@@ -61,6 +61,8 @@ const getTileImage = (tileType: string) => {
     case 'prison': return '/images/tiles/prison-tile.png';
     case 'apotheca': return '/images/tiles/apotheca-tile.png';
     case 'abbey': return '/images/tiles/abbey-tile.png';
+    case 'waterway_canal': return '/images/kingdom-tiles/WaterwayCanal.webp';
+    case 'astral_citadel_monument': return '/images/kingdom-tiles/AstralCitadelMonument.webp';
     default: return '/images/tiles/empty-tile.webp';
   }
 };

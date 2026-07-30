@@ -32,6 +32,8 @@ const MATERIALS = [
   { id: 'material-stone-block', name: 'Blocks', icon: '🧱', buyPrice: 700, sellPrice: 350, description: 'Cut stone for walls.' },
   { id: 'material-steel', name: 'Steel', icon: '⚔️', buyPrice: 850, sellPrice: 425, description: 'Strong metal for reinforcements.' },
   { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
+  { id: 'waterway_canal', name: 'Waterway Canal & Stone Bridge', icon: '🌉', buyPrice: 750, sellPrice: 375, description: 'Serene stone canal tile with vertical aquamarine waters and arched stone bridge.' },
+  { id: 'astral_citadel_monument', name: 'Astral Citadel Monument', icon: '🔮', buyPrice: 1500, sellPrice: 750, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
 ]
 
 export default function MarketPage() {

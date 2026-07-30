@@ -232,7 +232,9 @@ export class MapGenerator {
       'plank-labyrinth': 'Plank Labyrinth',
       prison: 'Iron Citadel Prison',
       apotheca: 'Grand Apotheca',
-      abbey: 'Silent Abbey'
+      abbey: 'Silent Abbey',
+      waterway_canal: 'Waterway Canal & Stone Bridge',
+      astral_citadel_monument: 'Astral Citadel Monument'
     };
 
     const tileDescriptions = {
@@ -319,7 +321,9 @@ export class MapGenerator {
       'plank-labyrinth': 'A complex puzzle maze of wooden planks. Solve it to retrieve legendary treasures!',
       prison: 'A fortified dungeon for daily inmate trials and outlaw dilemmas',
       apotheca: 'A botanical glasshouse for daily mystery decoctions and botanical trades',
-      abbey: 'A silent gothic monastery offering daily vows of focus and benedictions'
+      abbey: 'A silent gothic monastery offering daily vows of focus and benedictions',
+      waterway_canal: 'A serene stone canal tile with vertical aquamarine waters and arched stone bridge',
+      astral_citadel_monument: 'A colossal high-tier monument crowned with a glowing floating purple crystal orb'
     };
 
     const tileImages = {
@@ -406,7 +410,9 @@ export class MapGenerator {
       'plank-labyrinth': '/images/tiles/plank-labyrinth-tile.webp',
       prison: '/images/tiles/prison-tile.webp',
       apotheca: '/images/tiles/apotheca-tile.webp',
-      abbey: '/images/tiles/abbey-tile.webp'
+      abbey: '/images/tiles/abbey-tile.webp',
+      waterway_canal: '/images/kingdom-tiles/WaterwayCanal.webp',
+      astral_citadel_monument: '/images/kingdom-tiles/AstralCitadelMonument.webp'
     };
 
     return {

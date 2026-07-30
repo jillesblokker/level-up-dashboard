@@ -83,7 +83,9 @@ export type TileType =
   | 'plank-labyrinth'
   | 'prison'
   | 'apotheca'
-  | 'abbey';
+  | 'abbey'
+  | 'waterway_canal'
+  | 'astral_citadel_monument';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

@@ -85,6 +85,8 @@ export function getTileName(type: TileType): string {
     prison: 'Iron Citadel Prison',
     apotheca: 'Grand Apotheca',
     abbey: 'Silent Abbey',
+    waterway_canal: 'Waterway Canal & Stone Bridge',
+    astral_citadel_monument: 'Astral Citadel Monument',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -174,6 +176,8 @@ export function getDefaultConnections(type: TileType): string[] {
     prison: ['grass', 'city', 'town', 'castle'],
     apotheca: ['grass', 'forest', 'city', 'town'],
     abbey: ['grass', 'forest', 'mountain'],
+    waterway_canal: ['grass', 'water', 'city', 'town'],
+    astral_citadel_monument: ['grass', 'city', 'town', 'castle'],
   };
   return defaultConnections[type] || [];
 }
