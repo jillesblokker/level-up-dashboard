@@ -1647,9 +1647,9 @@ export default function DesignSystemPage() {
                                 <div className="space-y-4">
                                   <div>
                                     <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.buttons.title}</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                      <Button className="bg-amber-600 hover:bg-amber-700">Primary</Button>
-                                      <Button className="bg-zinc-700 hover:bg-zinc-600">Secondary</Button>
+                                    <div className="flex flex-wrap gap-2 items-center">
+                                      <Button className="btn-primary-cta text-xs py-2 px-4 h-auto">Primary CTA</Button>
+                                      <Button className="bg-zinc-700 hover:bg-zinc-600 text-white">Secondary</Button>
                                       <Button className="bg-red-600 hover:bg-red-700">Destructive</Button>
                                       <Button disabled className="bg-zinc-600 text-zinc-400">Disabled</Button>
                                     </div>
