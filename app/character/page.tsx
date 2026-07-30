@@ -40,6 +40,7 @@ import { PageGuide } from '@/components/page-guide'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { FocusPointsModal } from '@/components/focus-points-modal'
 import { SigilCrestEditor } from '@/components/character/sigil-crest'
+import { PaperdollEquipmentGrid } from '@/components/character/PaperdollEquipmentGrid'
 
 
 // Character progression types
@@ -1106,6 +1107,11 @@ export default function CharacterPage() {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* 2D RPG Paperdoll Equipment Grid */}
+              <div className="mt-8 pt-6 border-t border-zinc-800">
+                <PaperdollEquipmentGrid heroName={(characterStats as any).title || (characterStats as any).active_title || 'Sovereign Champion'} />
               </div>
             </CardContent>
           </Card>

@@ -118,7 +118,7 @@ export function Hourglass({
             strokeWidth="1"
           />
 
-          {/* Liquid/Sand Fill in Bottom Chamber */}
+          {/* Liquid/Sand Fill in Bottom Chamber with Glowing Liquid Surface */}
           <g clipPath={`url(#bottomBulbClip-${categoryId}-c)`}>
             <rect
               x="5"
@@ -128,6 +128,18 @@ export function Hourglass({
               fill={`url(#sandGrad-${categoryId}-c)`}
               className="transition-all duration-700 ease-out"
             />
+            {fillRatio > 0 && (
+              <line
+                x1="8"
+                y1={fillY}
+                x2="32"
+                y2={fillY}
+                stroke="#ffffff"
+                strokeWidth="1.5"
+                strokeOpacity="0.8"
+                className="animate-pulse"
+              />
+            )}
           </g>
 
           {/* Trickling Stream */}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Upload, Edit, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NotificationBellDrawer } from "@/components/notifications/NotificationBellDrawer";
 
 interface HeaderSectionProps {
   title: string;
@@ -128,11 +129,10 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           </div>
         )}
       </div>
-      {guideComponent && (
-        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20">
-          {guideComponent}
-        </div>
-      )}
+      <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 flex items-center gap-2">
+        <NotificationBellDrawer />
+        {guideComponent}
+      </div>
       {canEdit && (
         <>
           {(!imageSrc || (isHovering && !showUploadModal)) && (
